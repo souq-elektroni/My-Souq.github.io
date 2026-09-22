@@ -1,6 +1,6 @@
 backend:
   name: github
-  site_domain: iridescent-liger-42344e.netlify.app
+  site_domain: souq-elektroni/My-Souq.github.io
   branch: main
 
 media_folder: "images"
