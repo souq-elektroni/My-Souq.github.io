@@ -1,5 +1,5 @@
 backend:
-  name: git-gateway
+  name: github
   site_domain: iridescent-liger-42344e.netlify.app
   branch: main
 
