@@ -15,5 +15,8 @@ collections:
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
       - { label: "السعر", name: "price", widget: "string" }
+      - { label: "المقاسات (افصل بينها بفصلة مثلاً: L, XL, XXL)", name: "sizes", widget: "string", default: "M, L, XL" }
+      - { label: "طول المنتج (سم)", name: "length", widget: "string", required: false }
+      - { label: "عرض المنتج (سم)", name: "width", widget: "string", required: false }
       - { label: "الصورة", name: "image", widget: "image" }
       - { label: "الوصف", name: "body", widget: "markdown" }
