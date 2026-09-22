@@ -1,26 +1,18 @@
 backend:
   name: git-gateway
-  branch: main # فرع موقعك الرئيسي
+  branch: main # أو master حسب اسم الفرع لديك
 
-media_folder: "images/uploads"
-public_folder: "/images/uploads"
+media_folder: "images"
+public_folder: "/images"
 
 collections:
   - name: "products"
     label: "المنتجات"
-    folder: "content/products"
+    folder: "products"
     create: true
     slug: "{{slug}}"
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
-      - { label: "السعر (مثال: 350 ج.م)", name: "price", widget: "string" }
-      - { label: "المقاسات المتاحة (مثال: M, L, XL)", name: "sizes", widget: "string" }
-      - { label: "صورة المنتج الرئيسية", name: "image", widget: "image" }
-      - { 
-          label: "صور إضافية للمنتج", 
-          name: "extra_images", 
-          widget: "list", 
-          required: false,
-          field: { label: "الصورة", name: "img", widget: "image" } 
-        }
-      - { label: "وصف أو تفاصيل إضافية", name: "body", widget: "markdown", required: false }
+      - { label: "السعر", name: "price", widget: "string" }
+      - { label: "الصورة", name: "image", widget: "image" }
+      - { label: "الوصف", name: "body", widget: "markdown" }
