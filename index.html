@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سوق إلكترونى | ملابس عصرية</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar" id="navbar">
+    <div class="container nav-content">
+      <a href="#home" class="logo">سوق <span>إلكترونى</span></a>
+      <ul class="nav-links">
+        <li><a href="#home">الرئيسية</a></li>
+        <li><a href="#products">المنتجات</a></li>
+        <li><a href="#order">اطلب الآن</a></li>
+        <li><a href="#contact">تواصل معنا</a></li>
+      </ul>
+      <button class="cart-btn" id="cartBtn" aria-label="السلة">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 6h15l-1.5 9h-12z"/>
+          <circle cx="9" cy="20" r="1"/>
+          <circle cx="18" cy="20" r="1"/>
+          <path d="M6 6L5 3H2"/>
+        </svg>
+        <span class="cart-count" id="cartCount">0</span>
+      </button>
+      <button class="menu-toggle" id="menuToggle" aria-label="القائمة">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Cart Sidebar -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <aside class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3>سلة المشتريات</h3>
+      <button class="close-cart" id="closeCart">&times;</button>
+    </div>
+    <div class="cart-items" id="cartItems">
+      <p class="empty-cart">السلة فارغة</p>
+    </div>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>الإجمالي:</span>
+        <strong id="cartTotal">0 ج.م</strong>
+      </div>
+      <button class="btn btn-primary" id="checkoutBtn">إتمام الطلب</button>
+    </div>
+  </aside>
+
+  <!-- Product Detail Modal -->
+  <div class="product-modal-overlay" id="productModalOverlay"></div>
+  <div class="product-modal" id="productModal">
+    <button class="close-modal" id="closeModal">&times;</button>
+    <div class="modal-content" id="modalContent">
+      <!-- Filled by JS -->
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero" id="home">
+
+    <div class="hero-bg"></div>
+    <div class="container hero-content">
+      <h1>اكتشف أحدث صيحات <span>الموضة</span></h1>
+      <p>ملابس عصرية بجودة عالية وأسعار منافسة. تسوق الآن واستمتع بتجربة شراء سهلة وسريعة.</p>
+      <div class="hero-actions">
+        <a href="#products" class="btn btn-primary">تصفح المنتجات</a>
+        <a href="tel:01116339905" class="btn btn-outline">اتصل بنا: 01116339905</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products -->
+  <section class="products-section" id="products">
+    <div class="container">
+      <div class="section-header">
+        <h2>منتجاتنا</h2>
+        <p>اختر من بين مجموعة متنوعة من الملابس العصرية</p>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <div class="filter-group">
+          <label>الفئة</label>
+          <div class="category-btns" id="categoryBtns">
+            <button class="cat-btn active" data-cat="all">الكل</button>
+            <button class="cat-btn" data-cat="تيشيرت">تيشيرت</button>
+            <button class="cat-btn" data-cat="قميص">قميص</button>
+            <button class="cat-btn" data-cat="بنطلون">بنطلون</button>
+            <button class="cat-btn" data-cat="جاكيت">جاكيت</button>
+            <button class="cat-btn" data-cat="فساتين">فساتين</button>
+          </div>
+        </div>
+        <div class="filter-group price-filter">
+          <label>السعر (ج.م)</label>
+          <div class="price-inputs">
+            <input type="number" id="minPrice" placeholder="من" min="0" value="0">
+            <span>—</span>
+            <input type="number" id="maxPrice" placeholder="إلى" min="0" value="2000">
+            <button class="btn btn-sm" id="applyPrice">تطبيق</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products Grid -->
+      <div class="products-grid" id="productsGrid">
+        <!-- Products injected by JS -->
+      </div>
+      <p class="no-products" id="noProducts" style="display:none;">لا توجد منتجات تطابق الفلتر الحالي</p>
+    </div>
+  </section>
+
+  <!-- Order Section -->
+  <section class="order-section" id="order">
+    <div class="container">
+      <div class="section-header">
+        <h2>اطلب الآن</h2>
+        <p>املأ البيانات وهنبعتلك الطلب على واتساب مباشرة</p>
+      </div>
+      <form class="order-form" id="orderForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">الاسم الكامل</label>
+            <input type="text" id="name" required placeholder="اكتب اسمك">
+          </div>
+          <div class="form-group">
+            <label for="phone">رقم الموبايل</label>
+            <input type="tel" id="phone" required placeholder="01xxxxxxxxx">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="address">العنوان بالتفصيل</label>
+          <textarea id="address" rows="3" required placeholder="المحافظة - المدينة - الشارع - رقم المبنى"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="notes">ملاحظات إضافية (اختياري)</label>
+          <textarea id="notes" rows="2" placeholder="مقاس، لون، أو أي ملاحظات..."></textarea>
+        </div>
+        <div class="order-summary" id="orderSummary">
+          <p>السلة فارغة — أضف منتجات أولاً</p>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg">إرسال الطلب عبر واتساب</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Contact / Footer -->
+  <footer class="footer" id="contact">
+    <div class="container footer-content">
+      <div class="footer-brand">
+        <h3>سوق <span>إلكترونى</span></h3>
+        <p>ملابس عصرية بجودة عالية</p>
+      </div>
+      <div class="footer-contact">
+        <h4>تواصل معنا</h4>
+        <a href="tel:01116339905" class="phone-link">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+          </svg>
+          01116339905
+        </a>
+        <a href="https://wa.me/201116339905" target="_blank" class="whatsapp-link">
+          تواصل عبر واتساب
+        </a>
+      </div>
+      <div class="footer-links">
+        <h4>روابط سريعة</h4>
+        <a href="#home">الرئيسية</a>
+        <a href="#products">المنتجات</a>
+        <a href="#order">اطلب الآن</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 سوق إلكترونى — جميع الحقوق محفوظة</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
