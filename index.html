@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>سوقي - أحدث الموديلات</title>
-  <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background-color: #f8fafc; color: #1e293b; padding: 20px; }
@@ -39,7 +38,6 @@
     .product-title { font-size: 18px; font-weight: 700; color: #0f172a; }
     
     .meta-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 12px; border-top: 1px solid #f1f5f9; }
-    .size-badge { background: #eff6ff; color: #2563eb; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; }
     .price-tag { font-size: 20px; font-weight: 800; color: #16a34a; }
   </style>
 </head>
@@ -54,12 +52,11 @@
   </main>
 
   <script>
-    // رابط جلب البيانات التلقائي للمنتجات
     async function fetchProducts() {
       const container = document.getElementById('products-container');
       try {
-        // يتم قراءة البيانات المرفوعة عبر Decap CMS
-        const response = await fetch('https://api.github.com/repos/ahmedali-hue/My-Souq.github.io/contents/content/products');
+        // المسار الصحيح المربوط بمستودعك الحقيقي ومجلد المنتجات
+        const response = await fetch('https://api.github.com/repos/souq-elektroni/My-Souq.github.io/contents/products');
         const files = await response.json();
 
         if (!Array.isArray(files) || files.length === 0) {
@@ -74,11 +71,19 @@
             const res = await fetch(file.download_url);
             const text = await res.text();
             
-            // استخراج البيانات من ملف المنتج
-            const title = text.match(/title:\s*"?(.*?)"?\n/)?.[1] || 'منتج بدون عنوان';
-            const price = text.match(/price:\s*"?(.*?)"?\n/)?.[1] || '';
-            const sizes = text.match(/sizes:\s*"?(.*?)"?\n/)?.[1] || '';
-            const image = text.match(/image:\s*"?(.*?)"?\n/)?.[1] || 'https://via.placeholder.com/300';
+            // استخراج عنوان المنتج والسعر والصورة
+            const titleMatch = text.match(/title:\s*"?([^"\r\n]+)"?/);
+            const priceMatch = text.match(/price:\s*"?([^"\r\n]+)"?/);
+            const imageMatch = text.match(/image:\s*"?([^"\r\n]+)"?/);
+
+            const title = titleMatch ? titleMatch[1].trim() : 'منتج بدون عنوان';
+            const price = priceMatch ? priceMatch[1].trim() : '';
+            let image = imageMatch ? imageMatch[1].trim() : 'https://via.placeholder.com/300';
+
+            // مسار الصورة في حال كان نسبياً
+            if (image.startsWith('/')) {
+              image = image.substring(1);
+            }
 
             container.innerHTML += `
               <div class="product-card">
@@ -88,8 +93,7 @@
                 <div class="product-details">
                   <h2 class="product-title">${title}</h2>
                   <div class="meta-row">
-                    <span class="size-badge">المقاس: ${sizes}</span>
-                    <span class="price-tag">${price}</span>
+                    <span class="price-tag">${price} ج.م</span>
                   </div>
                 </div>
               </div>
@@ -97,7 +101,7 @@
           }
         }
       } catch (err) {
-        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">قم بإضافة منتجك الأول من لوحة التحكم /admin لتظهر الصور هنا.</p>';
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">حدث خطأ أثناء تحميل المنتجات.</p>';
       }
     }
 
