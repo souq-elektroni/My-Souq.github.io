@@ -1,8 +1,8 @@
 backend:
-  name: github
+ name: github
   repo: souq-elektroni/My-Souq.github.io
   branch: main
-  base_url: https://decap-oauth-bridge.vercel.app
+  auth_type: implicit
   
 media_folder: "images"
 public_folder: "/images"
