@@ -2,7 +2,8 @@ backend:
   name: github
   repo: souq-elektroni/My-Souq.github.io
   branch: main
-  base_url: https://decap-cms-oauth-provider.vercel.app
+  base_url: https://sveltia-cms-auth.vercel.app
+  auth_endpoint: /auth
 
 media_folder: "images"
 public_folder: "/images"
