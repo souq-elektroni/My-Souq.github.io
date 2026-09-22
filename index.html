@@ -3,185 +3,104 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>سوق إلكترونى | ملابس عصرية</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <title>سوقي - أحدث الموديلات</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: #f8fafc; color: #1e293b; padding: 20px; }
+    
+    header { text-align: center; padding: 20px 0 30px; }
+    header h1 { font-size: 28px; color: #0f172a; margin-bottom: 8px; }
+    
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .product-card {
+      background: #ffffff;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+      border: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s;
+    }
+    .product-card:hover { transform: translateY(-4px); }
+
+    .image-container { position: relative; width: 100%; height: 280px; background: #f1f5f9; }
+    .product-image { width: 100%; height: 100%; object-fit: cover; }
+
+    .product-details { padding: 16px; display: flex; flex-direction: column; gap: 12px; flex-grow: 1; }
+    .product-title { font-size: 18px; font-weight: 700; color: #0f172a; }
+    
+    .meta-row { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+    .size-badge { background: #eff6ff; color: #2563eb; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+    .price-tag { font-size: 20px; font-weight: 800; color: #16a34a; }
+  </style>
 </head>
 <body>
-  <!-- Navbar -->
-  <nav class="navbar" id="navbar">
-    <div class="container nav-content">
-      <a href="#home" class="logo">سوق <span>إلكترونى</span></a>
-      <ul class="nav-links">
-        <li><a href="#home">الرئيسية</a></li>
-        <li><a href="#products">المنتجات</a></li>
-        <li><a href="#order">اطلب الآن</a></li>
-        <li><a href="#contact">تواصل معنا</a></li>
-      </ul>
-      <button class="cart-btn" id="cartBtn" aria-label="السلة">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M6 6h15l-1.5 9h-12z"/>
-          <circle cx="9" cy="20" r="1"/>
-          <circle cx="18" cy="20" r="1"/>
-          <path d="M6 6L5 3H2"/>
-        </svg>
-        <span class="cart-count" id="cartCount">0</span>
-      </button>
-      <button class="menu-toggle" id="menuToggle" aria-label="القائمة">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-  </nav>
 
-  <!-- Cart Sidebar -->
-  <div class="cart-overlay" id="cartOverlay"></div>
-  <aside class="cart-sidebar" id="cartSidebar">
-    <div class="cart-header">
-      <h3>سلة المشتريات</h3>
-      <button class="close-cart" id="closeCart">&times;</button>
-    </div>
-    <div class="cart-items" id="cartItems">
-      <p class="empty-cart">السلة فارغة</p>
-    </div>
-    <div class="cart-footer">
-      <div class="cart-total">
-        <span>الإجمالي:</span>
-        <strong id="cartTotal">0 ج.م</strong>
-      </div>
-      <button class="btn btn-primary" id="checkoutBtn">إتمام الطلب</button>
-    </div>
-  </aside>
+  <header>
+    <h1>معرض المنتجات والموديلات الحالية</h1>
+  </header>
 
-  <!-- Product Detail Modal -->
-  <div class="product-modal-overlay" id="productModalOverlay"></div>
-  <div class="product-modal" id="productModal">
-    <button class="close-modal" id="closeModal">&times;</button>
-    <div class="modal-content" id="modalContent">
-      <!-- Filled by JS -->
-    </div>
-  </div>
+  <main class="products-grid" id="products-container">
+    <p style="grid-column: 1/-1; text-align: center;">جاري تحميل أحدث المنتجات...</p>
+  </main>
 
-  <!-- Hero -->
-  <section class="hero" id="home">
+  <script>
+    // رابط جلب البيانات التلقائي للمنتجات
+    async function fetchProducts() {
+      const container = document.getElementById('products-container');
+      try {
+        // يتم قراءة البيانات المرفوعة عبر Decap CMS
+        const response = await fetch('https://api.github.com/repos/ahmedali-hue/My-Souq.github.io/contents/content/products');
+        const files = await response.json();
 
-    <div class="hero-bg"></div>
-    <div class="container hero-content">
-      <h1>اكتشف أحدث صيحات <span>الموضة</span></h1>
-      <p>ملابس عصرية بجودة عالية وأسعار منافسة. تسوق الآن واستمتع بتجربة شراء سهلة وسريعة.</p>
-      <div class="hero-actions">
-        <a href="#products" class="btn btn-primary">تصفح المنتجات</a>
-        <a href="tel:01116339905" class="btn btn-outline">اتصل بنا: 01116339905</a>
-      </div>
-    </div>
-  </section>
+        if (!Array.isArray(files) || files.length === 0) {
+          container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">لا يوجد منتجات معروضة حالياً.</p>';
+          return;
+        }
 
-  <!-- Products -->
-  <section class="products-section" id="products">
-    <div class="container">
-      <div class="section-header">
-        <h2>منتجاتنا</h2>
-        <p>اختر من بين مجموعة متنوعة من الملابس العصرية</p>
-      </div>
+        container.innerHTML = '';
 
-      <!-- Filters -->
-      <div class="filters">
-        <div class="filter-group">
-          <label>الفئة</label>
-          <div class="category-btns" id="categoryBtns">
-            <button class="cat-btn active" data-cat="all">الكل</button>
-            <button class="cat-btn" data-cat="تيشيرت">تيشيرت</button>
-            <button class="cat-btn" data-cat="قميص">قميص</button>
-            <button class="cat-btn" data-cat="بنطلون">بنطلون</button>
-            <button class="cat-btn" data-cat="جاكيت">جاكيت</button>
-            <button class="cat-btn" data-cat="فساتين">فساتين</button>
-          </div>
-        </div>
-        <div class="filter-group price-filter">
-          <label>السعر (ج.م)</label>
-          <div class="price-inputs">
-            <input type="number" id="minPrice" placeholder="من" min="0" value="0">
-            <span>—</span>
-            <input type="number" id="maxPrice" placeholder="إلى" min="0" value="2000">
-            <button class="btn btn-sm" id="applyPrice">تطبيق</button>
-          </div>
-        </div>
-      </div>
+        for (const file of files) {
+          if (file.name.endsWith('.md')) {
+            const res = await fetch(file.download_url);
+            const text = await res.text();
+            
+            // استخراج البيانات من ملف المنتج
+            const title = text.match(/title:\s*"?(.*?)"?\n/)?.[1] || 'منتج بدون عنوان';
+            const price = text.match(/price:\s*"?(.*?)"?\n/)?.[1] || '';
+            const sizes = text.match(/sizes:\s*"?(.*?)"?\n/)?.[1] || '';
+            const image = text.match(/image:\s*"?(.*?)"?\n/)?.[1] || 'https://via.placeholder.com/300';
 
-      <!-- Products Grid -->
-      <div class="products-grid" id="productsGrid">
-        <!-- Products injected by JS -->
-      </div>
-      <p class="no-products" id="noProducts" style="display:none;">لا توجد منتجات تطابق الفلتر الحالي</p>
-    </div>
-  </section>
+            container.innerHTML += `
+              <div class="product-card">
+                <div class="image-container">
+                  <img class="product-image" src="${image}" alt="${title}">
+                </div>
+                <div class="product-details">
+                  <h2 class="product-title">${title}</h2>
+                  <div class="meta-row">
+                    <span class="size-badge">المقاس: ${sizes}</span>
+                    <span class="price-tag">${price}</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+        }
+      } catch (err) {
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">قم بإضافة منتجك الأول من لوحة التحكم /admin لتظهر الصور هنا.</p>';
+      }
+    }
 
-  <!-- Order Section -->
-  <section class="order-section" id="order">
-    <div class="container">
-      <div class="section-header">
-        <h2>اطلب الآن</h2>
-        <p>املأ البيانات وهنبعتلك الطلب على واتساب مباشرة</p>
-      </div>
-      <form class="order-form" id="orderForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="name">الاسم الكامل</label>
-            <input type="text" id="name" required placeholder="اكتب اسمك">
-          </div>
-          <div class="form-group">
-            <label for="phone">رقم الموبايل</label>
-            <input type="tel" id="phone" required placeholder="01xxxxxxxxx">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="address">العنوان بالتفصيل</label>
-          <textarea id="address" rows="3" required placeholder="المحافظة - المدينة - الشارع - رقم المبنى"></textarea>
-        </div>
-        <div class="form-group">
-          <label for="notes">ملاحظات إضافية (اختياري)</label>
-          <textarea id="notes" rows="2" placeholder="مقاس، لون، أو أي ملاحظات..."></textarea>
-        </div>
-        <div class="order-summary" id="orderSummary">
-          <p>السلة فارغة — أضف منتجات أولاً</p>
-        </div>
-        <button type="submit" class="btn btn-primary btn-lg">إرسال الطلب عبر واتساب</button>
-      </form>
-    </div>
-  </section>
-
-  <!-- Contact / Footer -->
-  <footer class="footer" id="contact">
-    <div class="container footer-content">
-      <div class="footer-brand">
-        <h3>سوق <span>إلكترونى</span></h3>
-        <p>ملابس عصرية بجودة عالية</p>
-      </div>
-      <div class="footer-contact">
-        <h4>تواصل معنا</h4>
-        <a href="tel:01116339905" class="phone-link">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
-          </svg>
-          01116339905
-        </a>
-        <a href="https://wa.me/201116339905" target="_blank" class="whatsapp-link">
-          تواصل عبر واتساب
-        </a>
-      </div>
-      <div class="footer-links">
-        <h4>روابط سريعة</h4>
-        <a href="#home">الرئيسية</a>
-        <a href="#products">المنتجات</a>
-        <a href="#order">اطلب الآن</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>© 2026 سوق إلكترونى — جميع الحقوق محفوظة</p>
-    </div>
-  </footer>
-
-  <script src="script.js"></script>
+    fetchProducts();
+  </script>
 </body>
 </html>
