@@ -12,7 +12,11 @@
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
   <script>
-    // ربط السكربت بموقع Netlify الخاص بك مباشرة
+    window.netlifyIdentity = netlifyIdentity;
+    netlifyIdentity.init({
+      APIUrl: "https://iridescent-liger-42344e.netlify.app/.netlify/identity"
+    });
+
     if (window.netlifyIdentity) {
       window.netlifyIdentity.on("init", user => {
         if (!user) {
