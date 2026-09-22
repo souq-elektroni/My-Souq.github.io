@@ -1,6 +1,6 @@
 backend:
   name: github
-  site_domain: souq-elektroni/My-Souq.github.io
+  repo : souq-elektroni/My-Souq.github.io
   branch: main
 
 media_folder: "images"
