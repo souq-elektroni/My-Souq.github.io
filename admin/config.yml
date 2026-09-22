@@ -1,8 +1,10 @@
 backend:
   name: git-gateway
-  branch: main # أو master حسب اسم الفرع لديك
-# تحديد رابط موقع Netlify صراحة
-site_url: https://YOUR-SITE-NAME.netlify.app
+  site_domain: iridescent-liger-42344e.netlify.app
+  branch: main
+
+site_url: https://iridescent-liger-42344e.netlify.app
+
 media_folder: "images"
 public_folder: "/images"
 
