@@ -1,9 +1,6 @@
 backend:
   name: git-gateway
-  site_domain: iridescent-liger-42344e.netlify.app
   branch: main
-
-site_url: https://iridescent-liger-42344e.netlify.app
 
 media_folder: "images"
 public_folder: "/images"
