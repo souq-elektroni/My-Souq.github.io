@@ -14,9 +14,16 @@ collections:
     slug: "{{slug}}"
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
-      - { label: "السعر", name: "price", widget: "string" }
-      - { label: "المقاسات (افصل بينها بفصلة مثلاً: L, XL, XXL)", name: "sizes", widget: "string", default: "M, L, XL" }
-      - { label: "طول المنتج (سم)", name: "length", widget: "string", required: false }
-      - { label: "عرض المنتج (سم)", name: "width", widget: "string", required: false }
       - { label: "الصورة", name: "image", widget: "image" }
-      - { label: "الوصف", name: "body", widget: "markdown" }
+      - { label: "الوصف", name: "body", widget: "markdown", required: false }
+      
+      # جدول المقاسات بأسعارها وأبعادها
+      - label: "المقاسات المتاحة وتفاصيلها"
+        name: "variants"
+        widget: "list"
+        summary: "مقاس: {{fields.size}} - السعر: {{fields.price}} ج.م"
+        fields:
+          - { label: "اسم المقاس (مثال: مقاس 2 أو L)", name: "size", widget: "string" }
+          - { label: "السعر لهذا المقاس", name: "price", widget: "string" }
+          - { label: "الطول (سم)", name: "length", widget: "string", required: false }
+          - { label: "العرض (سم)", name: "width", widget: "string", required: false }
