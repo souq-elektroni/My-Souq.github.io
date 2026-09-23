@@ -120,7 +120,7 @@
     .price-tag { font-size: 22px; font-weight: 900; color: var(--burgundy-soft); margin-top: auto; }
     .click-hint { font-size: 13px; color: var(--burgundy-soft); font-weight: 800; text-align: center; margin-top: 8px; background: var(--pink-soft); padding: 8px; border-radius: 10px; }
 
-    /* النوافذ المنبثقة العامة */
+    /* النوافذ المنبثقة */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(44, 34, 36, 0.65); backdrop-filter: blur(5px);
@@ -176,7 +176,7 @@
     .cart-item-price { font-weight: bold; color: var(--burgundy-soft); font-size: 14px; }
     .remove-btn { color: #dc2626; background: none; border: none; cursor: pointer; font-weight: bold; padding: 4px; font-size: 16px; }
 
-    /* نموذج بيانات الشحن */
+    /* نموذج الشحن */
     .customer-form {
       background: var(--bg-cream); padding: 15px; border-radius: 14px;
       border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; margin-top: 10px;
@@ -198,7 +198,7 @@
     }
     .proceed-btn:hover { background: var(--burgundy-hover); }
 
-    /* 📜 نافذة الشروط والأحكام الخاصة (التميمة المنبثقة) */
+    /* 📜 نافذة الشروط والأحكام (التميمة المنبثقة) */
     .terms-modal { max-width: 500px; padding: 24px; z-index: 1100; }
     .terms-header { font-size: 20px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 12px; border-bottom: 2px solid var(--pink-accent); padding-bottom: 8px; }
     
@@ -313,7 +313,7 @@
         <p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>
       </div>
 
-      <!-- نموذج كتابة بيانات العميل -->
+      <!-- نموذج الشحن -->
       <div class="customer-form" id="customerFormBox" style="display: none;">
         <h4 style="color: var(--burgundy-soft); font-size: 15px; font-weight: bold;">📝 بيانات الشحن والتوصيل:</h4>
         
@@ -343,7 +343,7 @@
     </div>
   </div>
 
-  <!-- 📜 النافذة الفرعية للشروط والأحكام (التميمة المنبثقة) -->
+  <!-- 📜 نافذة الشروط والأحكام الخاصة (التميمة المنبثقة) -->
   <div class="modal-overlay" id="termsModal">
     <div class="modal-content terms-modal">
       <div class="terms-header">📌 الشروط والأحكام وسياسة الطلب</div>
@@ -385,6 +385,12 @@
     let currentVariant = {};
     let cart = [];
 
+    // تنظيف النصوص والأرقام المجلوبة من ملفات الـ Markdown
+    function cleanValue(str) {
+      if (!str) return '';
+      return String(str).replace(/['"]/g, '').trim();
+    }
+
     async function fetchProducts() {
       const container = document.getElementById('products-container');
       try {
@@ -403,15 +409,20 @@
             const res = await fetch(file.download_url);
             const text = await res.text();
             
-            const title = text.match(/title:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || 'منتج بدون عنوان';
-            let image = text.match(/image:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || 'https://via.placeholder.com/300';
+            const rawTitle = text.match(/title:\s*"?([^"\r\n]+)"?/)?.[1] || 'منتج بدون عنوان';
+            const title = cleanValue(rawTitle);
+
+            let rawImage = text.match(/image:\s*"?([^"\r\n]+)"?/)?.[1] || 'https://via.placeholder.com/300';
+            let image = cleanValue(rawImage);
             if (image.startsWith('/')) image = image.substring(1);
 
             const bodyParts = text.split('---');
             const desc = bodyParts.length > 2 ? bodyParts.slice(2).join('---').trim() : '';
 
-            const variants = parseVariants(text);
-            const basePrice = variants.length > 0 ? parseFloat(variants[0].price) : parseFloat(text.match(/price:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || 0);
+            const rawBasePrice = text.match(/^price:\s*"?([^"\r\n]+)"?/m)?.[1];
+            const basePrice = parseFloat(cleanValue(rawBasePrice)) || 0;
+
+            const variants = parseVariants(text, basePrice);
 
             allProducts.push({ title, image, desc, variants, basePrice });
           }
@@ -425,6 +436,34 @@
       }
     }
 
+    function parseVariants(text, defaultPrice) {
+      const variants = [];
+      const variantsBlock = text.match(/variants:([\s\S]*?)(?=\n[a-z]+:|\n---)/i);
+      if (variantsBlock) {
+        const items = variantsBlock[1].split('- size:');
+        items.forEach(item => {
+          if (!item.trim()) return;
+          
+          const rawSize = item.match(/^\s*"?([^"\r\n]+)"?/)?.[1];
+          const rawPrice = item.match(/price:\s*"?([^"\r\n]+)"?/)?.[1];
+          const rawLength = item.match(/length:\s*"?([^"\r\n]+)"?/)?.[1];
+          const rawWidth = item.match(/width:\s*"?([^"\r\n]+)"?/)?.[1];
+
+          const size = cleanValue(rawSize);
+          const parsedPrice = parseFloat(cleanValue(rawPrice));
+          const price = !isNaN(parsedPrice) && parsedPrice > 0 ? parsedPrice : defaultPrice;
+          
+          const length = cleanValue(rawLength);
+          const width = cleanValue(rawWidth);
+
+          if (size) {
+            variants.push({ size, price, length, width });
+          }
+        });
+      }
+      return variants;
+    }
+
     function renderProducts() {
       const container = document.getElementById('products-container');
       container.innerHTML = '';
@@ -435,6 +474,8 @@
       }
 
       displayedProducts.forEach(product => {
+        const displayPrice = product.variants.length > 0 ? product.variants[0].price : product.basePrice;
+        
         const card = document.createElement('div');
         card.className = 'product-card';
         card.onclick = () => openModal(product);
@@ -444,7 +485,7 @@
           </div>
           <div class="product-details">
             <h2 class="product-title">${product.title}</h2>
-            <span class="price-tag">${product.basePrice ? product.basePrice + ' ج.م' : ''}</span>
+            <span class="price-tag">${displayPrice ? displayPrice + ' ج.م' : ''}</span>
             <div class="click-hint">اضغط للتفاصيل والتسوق 👈</div>
           </div>
         `;
@@ -468,28 +509,11 @@
     function applySorting() {
       const sortVal = document.getElementById('sortSelect').value;
       if (sortVal === 'low-high') {
-        displayedProducts.sort((a, b) => a.basePrice - b.basePrice);
+        displayedProducts.sort((a, b) => (a.variants[0]?.price || a.basePrice) - (b.variants[0]?.price || b.basePrice));
       } else if (sortVal === 'high-low') {
-        displayedProducts.sort((a, b) => b.basePrice - a.basePrice);
+        displayedProducts.sort((a, b) => (b.variants[0]?.price || b.basePrice) - (a.variants[0]?.price || a.basePrice));
       }
       renderProducts();
-    }
-
-    function parseVariants(text) {
-      const variants = [];
-      const variantsBlock = text.match(/variants:([\s\S]*?)(?=\n[a-z]+:|\n---)/i);
-      if (variantsBlock) {
-        const items = variantsBlock[1].split('- size:');
-        items.forEach(item => {
-          if (!item.trim()) return;
-          const size = item.match(/^\s*"?([^"\r\n]+)"?/)?.[1]?.trim();
-          const price = item.match(/price:\s*"?([^"\r\n]+)"?/)?.[1]?.trim();
-          const length = item.match(/length:\s*"?([^"\r\n]+)"?/)?.[1]?.trim();
-          const width = item.match(/width:\s*"?([^"\r\n]+)"?/)?.[1]?.trim();
-          if (size) variants.push({ size, price: price || '0', length: length || '', width: width || '' });
-        });
-      }
-      return variants;
     }
 
     function openModal(product) {
@@ -522,10 +546,12 @@
 
     function selectVariant(variant, btnElement) {
       currentVariant = variant;
+      
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
       if (btnElement) btnElement.classList.add('selected');
 
-      document.getElementById('modalPrice').innerText = variant.price ? `${variant.price} ج.م` : '';
+      const finalPrice = parseFloat(variant.price) || parseFloat(currentProduct.basePrice) || 0;
+      document.getElementById('modalPrice').innerText = `${finalPrice} ج.م`;
 
       const dimBox = document.getElementById('dimensionsContainer');
       if (variant.length || variant.width) {
@@ -538,12 +564,14 @@
     }
 
     function addToCart() {
+      const selectedPrice = parseFloat(currentVariant.price) || parseFloat(currentProduct.basePrice) || 0;
+
       const item = {
         title: currentProduct.title,
         size: currentVariant.size || 'عام',
-        price: parseFloat(currentVariant.price) || 0,
-        length: currentVariant.length,
-        width: currentVariant.width
+        price: selectedPrice,
+        length: currentVariant.length || '',
+        width: currentVariant.width || ''
       };
       
       cart.push(item);
@@ -587,7 +615,7 @@
         div.innerHTML = `
           <div>
             <div class="cart-item-title">${item.title}</div>
-            <div class="cart-item-meta">المقاس: ${item.size} ${dimInfo}</div>
+            <div class="cart-item-meta">المقاس: ${item.size}${dimInfo}</div>
           </div>
           <div style="display: flex; align-items: center; gap: 10px;">
             <span class="cart-item-price">${item.price} ج.م</span>
@@ -600,7 +628,6 @@
       document.getElementById('cartTotalPrice').innerText = `${total} ج.م`;
     }
 
-    /* التحقق من البيانات وفتح الشاشة الفرعية للشروط */
     function validateAndOpenTerms() {
       const name = document.getElementById('custName').value.trim();
       const phone = document.getElementById('custPhone').value.trim();
@@ -611,15 +638,11 @@
         return;
       }
 
-      // إعادة ضبط المربع والأزرار
       document.getElementById('termsCheckbox').checked = false;
       document.getElementById('agreeBtn').classList.remove('active');
-
-      // فتح الشاشة الفرعية للشروط
       document.getElementById('termsModal').classList.add('active');
     }
 
-    /* التحكم بمربع الاختيار */
     function toggleTermsCheckbox() {
       const chk = document.getElementById('termsCheckbox');
       chk.checked = !chk.checked;
@@ -637,13 +660,11 @@
       }
     }
 
-    /* حالة عدم الموافقة (إلغاء) */
     function declineTerms() {
       document.getElementById('termsModal').classList.remove('active');
       alert('عذراً، لا يمكن استكمال الطلب دون الموافقة على الشروط والأحكام الخاصة بالمتجر.');
     }
 
-    /* تنفيذ إرسال الطلب للواتساب فور الموافقة */
     function executeWhatsappOrder() {
       const name = document.getElementById('custName').value.trim();
       const phone = document.getElementById('custPhone').value.trim();
@@ -670,7 +691,6 @@
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msgText)}`;
       window.open(whatsappUrl, '_blank');
       
-      // إغلاق النوافذ
       document.getElementById('termsModal').classList.remove('active');
       closeCartModal();
     }
