@@ -198,7 +198,7 @@
     }
     .proceed-btn:hover { background: var(--burgundy-hover); }
 
-    /* 📜 نافذة الشروط والأحكام (التميمة المنبثقة) */
+    /* 📜 نافذة الشروط والأحكام */
     .terms-modal { max-width: 500px; padding: 24px; z-index: 1100; }
     .terms-header { font-size: 20px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 12px; border-bottom: 2px solid var(--pink-accent); padding-bottom: 8px; }
     
@@ -218,15 +218,42 @@
 
     .terms-actions { display: flex; gap: 10px; }
     .btn-agree {
-      flex: 2; background: #25d366; color: white; border: none; padding: 12px;
+      flex: 2; background: var(--burgundy-soft); color: white; border: none; padding: 12px;
       border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; opacity: 0.5; pointer-events: none; transition: all 0.2s;
     }
-    .btn-agree.active { opacity: 1; pointer-events: auto; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
+    .btn-agree.active { opacity: 1; pointer-events: auto; box-shadow: 0 4px 12px rgba(128, 61, 72, 0.3); }
     .btn-decline {
       flex: 1; background: #f44336; color: white; border: none; padding: 12px;
       border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; transition: background 0.2s;
     }
     .btn-decline:hover { background: #d32f2f; }
+
+    /* 💳 نافذة طرق الدفع (جديد) */
+    .payment-modal { max-width: 500px; padding: 24px; z-index: 1200; }
+    .payment-option {
+      display: flex; align-items: flex-start; gap: 12px; background: var(--bg-cream);
+      padding: 14px; border-radius: 12px; border: 2px solid var(--border-color);
+      margin-bottom: 12px; cursor: pointer; transition: all 0.2s;
+    }
+    .payment-option.selected {
+      border-color: var(--burgundy-soft); background: var(--pink-soft);
+    }
+    .payment-option input[type="radio"] { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--burgundy-soft); cursor: pointer; }
+    .payment-details { display: flex; flex-direction: column; gap: 4px; }
+    .payment-title { font-weight: 800; font-size: 15px; color: var(--burgundy-soft); }
+    .payment-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+    
+    .instapay-box {
+      background: #e8f5e9; border: 1px solid #a5d6a7; padding: 10px; border-radius: 8px;
+      font-size: 13px; color: #1b5e20; margin-top: 6px; font-weight: bold;
+    }
+
+    .send-final-btn {
+      background: #25d366; color: white; text-align: center; padding: 14px;
+      border-radius: 12px; font-weight: bold; border: none; cursor: pointer; font-size: 17px;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25); width: 100%; margin-top: 10px; transition: background 0.2s;
+    }
+    .send-final-btn:hover { background: #20bd5a; }
 
     footer { text-align: center; margin-top: 50px; padding: 20px; color: var(--text-muted); font-size: 14px; border-top: 1px solid var(--border-color); }
   </style>
@@ -343,7 +370,7 @@
     </div>
   </div>
 
-  <!-- 📜 نافذة الشروط والأحكام الخاصة (التميمة المنبثقة) -->
+  <!-- 📜 نافذة الشروط والأحكام -->
   <div class="modal-overlay" id="termsModal">
     <div class="modal-content terms-modal">
       <div class="terms-header">📌 الشروط والأحكام وسياسة الطلب</div>
@@ -366,9 +393,40 @@
 
       <!-- أزرار القبول والرفض -->
       <div class="terms-actions">
-        <button id="agreeBtn" class="btn-agree" onclick="executeWhatsappOrder()">موافق واستكمال الطلب 💬</button>
+        <button id="agreeBtn" class="btn-agree" onclick="proceedToPayment()">متابعة واختيار طريقة الدفع 👈</button>
         <button class="btn-decline" onclick="declineTerms()">عدم الموافقة (إلغاء)</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 💳 نافذة طرق الدفع (جديد) -->
+  <div class="modal-overlay" id="paymentModal">
+    <div class="modal-content payment-modal">
+      <div class="terms-header">💳 طريقة الدفع المفضلة</div>
+      <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">يرجى اختيار طريقة الدفع التي تناسبك لإتمام الطلب:</p>
+
+      <!-- خيار 1: الدفع عند الاستلام -->
+      <div class="payment-option selected" id="optCod" onclick="selectPayment('cod')">
+        <input type="radio" name="payMethod" value="cod" id="payCod" checked>
+        <div class="payment-details">
+          <label for="payCod" class="payment-title">💵 الدفع عند الاستلام (كاش)</label>
+          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلام الشحنة ومعاينتها.</span>
+        </div>
+      </div>
+
+      <!-- خيار 2: إنستا باي InstaPay -->
+      <div class="payment-option" id="optInstapay" onclick="selectPayment('instapay')">
+        <input type="radio" name="payMethod" value="instapay" id="payInstapay">
+        <div class="payment-details">
+          <label for="payInstapay" class="payment-title">📱 InstaPay (تحويل إلكتروني)</label>
+          <span class="payment-desc">الدفع أو سداد العربون عبر تطبيق انستا باي فور تأكيد الحجز.</span>
+          <div class="instapay-box">
+            💸 رقم تحويل InstaPay: <span style="letter-spacing: 1px; font-size: 15px;">01116339905</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="send-final-btn" onclick="executeWhatsappOrder()">إرسال الطلب عبر WhatsApp 💬</button>
     </div>
   </div>
 
@@ -384,8 +442,8 @@
     let currentProduct = {};
     let currentVariant = {};
     let cart = [];
+    let selectedPaymentMethod = 'cod'; // الخيار الافتراضي: الدفع عند الاستلام
 
-    // تنظيف النصوص والأرقام المجلوبة من ملفات الـ Markdown
     function cleanValue(str) {
       if (!str) return '';
       return String(str).replace(/['"]/g, '').trim();
@@ -665,17 +723,44 @@
       alert('عذراً، لا يمكن استكمال الطلب دون الموافقة على الشروط والأحكام الخاصة بالمتجر.');
     }
 
+    /* الانتقال من الشروط إلى نافذة الدفع */
+    function proceedToPayment() {
+      document.getElementById('termsModal').classList.remove('active');
+      document.getElementById('paymentModal').classList.add('active');
+    }
+
+    /* اختيار طريقة الدفع */
+    function selectPayment(type) {
+      selectedPaymentMethod = type;
+      document.getElementById('optCod').classList.remove('selected');
+      document.getElementById('optInstapay').classList.remove('selected');
+
+      if (type === 'cod') {
+        document.getElementById('optCod').classList.add('selected');
+        document.getElementById('payCod').checked = true;
+      } else {
+        document.getElementById('optInstapay').classList.add('selected');
+        document.getElementById('payInstapay').checked = true;
+      }
+    }
+
+    /* إرسال الطلب النهائي عبر الواتساب */
     function executeWhatsappOrder() {
       const name = document.getElementById('custName').value.trim();
       const phone = document.getElementById('custPhone').value.trim();
       const address = document.getElementById('custAddress').value.trim();
+
+      const payText = selectedPaymentMethod === 'instapay' 
+        ? '📱 InstaPay (تحويل إلكتروني على 01116339905)' 
+        : '💵 الدفع عند الاستلام (كاش لمندوب الشحن)';
 
       let total = 0;
       let msgText = `🛍️ *طلب جديد من متجر My Souq*\n\n`;
       msgText += `👤 *بيانات العميل:*\n`;
       msgText += `- *الاسم:* ${name}\n`;
       msgText += `- *رقم التواصل:* ${phone}\n`;
-      msgText += `- *العنوان:* ${address}\n\n`;
+      msgText += `- *العنوان:* ${address}\n`;
+      msgText += `- *طريقة الدفع:* ${payText}\n\n`;
       msgText += `📦 *المنتجات المطلوبة:*\n`;
 
       cart.forEach((item, index) => {
@@ -691,7 +776,8 @@
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msgText)}`;
       window.open(whatsappUrl, '_blank');
       
-      document.getElementById('termsModal').classList.remove('active');
+      // إغلاق كل النوافذ المنبثقة
+      document.getElementById('paymentModal').classList.remove('active');
       closeCartModal();
     }
 
