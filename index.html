@@ -120,10 +120,10 @@
     .price-tag { font-size: 22px; font-weight: 900; color: var(--burgundy-soft); margin-top: auto; }
     .click-hint { font-size: 13px; color: var(--burgundy-soft); font-weight: 800; text-align: center; margin-top: 8px; background: var(--pink-soft); padding: 8px; border-radius: 10px; }
 
-    /* النوافذ المنبثقة */
+    /* النوافذ المنبثقة العامة */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(44, 34, 36, 0.6); backdrop-filter: blur(5px);
+      background: rgba(44, 34, 36, 0.65); backdrop-filter: blur(5px);
       display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px;
     }
     .modal-overlay.active { display: flex; }
@@ -169,57 +169,66 @@
     /* نافذة السلة */
     .cart-modal { max-width: 550px; padding: 24px; }
     .cart-title { font-size: 22px; font-weight: bold; margin-bottom: 16px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; color: var(--burgundy-soft); }
-    .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 200px; overflow-y: auto; margin-bottom: 15px; }
+    .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 180px; overflow-y: auto; margin-bottom: 15px; }
     .cart-item { display: flex; justify-content: space-between; align-items: center; background: var(--pink-soft); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--pink-accent); }
     .cart-item-title { font-weight: bold; font-size: 14px; }
     .cart-item-meta { font-size: 12px; color: var(--text-muted); }
     .cart-item-price { font-weight: bold; color: var(--burgundy-soft); font-size: 14px; }
     .remove-btn { color: #dc2626; background: none; border: none; cursor: pointer; font-weight: bold; padding: 4px; font-size: 16px; }
 
-    /* نموذج بيانات الشحن/العميل */
+    /* نموذج بيانات الشحن */
     .customer-form {
-      background: var(--bg-cream);
-      padding: 15px;
-      border-radius: 14px;
-      border: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
+      background: var(--bg-cream); padding: 15px; border-radius: 14px;
+      border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; margin-top: 10px;
     }
     .form-group { display: flex; flex-direction: column; gap: 4px; }
     .form-group label { font-size: 13px; font-weight: bold; color: var(--burgundy-soft); }
     .form-group input, .form-group textarea {
-      padding: 10px 12px;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 14px;
-      outline: none;
-      background: white;
-    }
-    .form-group input:focus, .form-group textarea:focus {
-      border-color: var(--burgundy-soft);
-    }
-
-    /* تنبيه سياسة الإلغاء */
-    .cancellation-policy-box {
-      background: #fff8e1;
-      border: 1px solid #ffe082;
-      padding: 10px 12px;
-      border-radius: 10px;
-      font-size: 12px;
-      color: #795548;
-      line-height: 1.5;
+      padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px;
+      font-size: 14px; outline: none; background: white;
     }
 
     .cart-footer { margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px; display: flex; flex-direction: column; gap: 12px; }
     .total-price { font-size: 20px; font-weight: 800; display: flex; justify-content: space-between; color: var(--text-dark); }
-    .send-whatsapp-btn {
-      background: #25d366; color: white; text-align: center; padding: 14px;
-      border-radius: 12px; font-weight: bold; text-decoration: none; display: block; font-size: 17px;
-      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25); border: none; cursor: pointer; width: 100%;
+    
+    .proceed-btn {
+      background: var(--burgundy-soft); color: white; text-align: center; padding: 14px;
+      border-radius: 12px; font-weight: bold; border: none; cursor: pointer; font-size: 17px;
+      box-shadow: 0 4px 12px rgba(128, 61, 72, 0.25); transition: background 0.2s;
     }
-    .send-whatsapp-btn:hover { background: #20bd5a; }
+    .proceed-btn:hover { background: var(--burgundy-hover); }
+
+    /* 📜 نافذة الشروط والأحكام الخاصة (التميمة المنبثقة) */
+    .terms-modal { max-width: 500px; padding: 24px; z-index: 1100; }
+    .terms-header { font-size: 20px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 12px; border-bottom: 2px solid var(--pink-accent); padding-bottom: 8px; }
+    
+    .terms-body {
+      background: #fff8e1; border: 1px solid #ffe082; padding: 15px; border-radius: 12px;
+      font-size: 13.5px; color: #4e342e; line-height: 1.7; max-height: 250px; overflow-y: auto; margin-bottom: 15px;
+    }
+    .terms-body ul { margin-right: 18px; margin-top: 8px; }
+    .terms-body li { margin-bottom: 6px; }
+
+    .checkbox-container {
+      display: flex; align-items: center; gap: 10px; background: var(--pink-soft);
+      padding: 12px; border-radius: 10px; border: 1px solid var(--pink-accent); margin-bottom: 15px; cursor: pointer;
+    }
+    .checkbox-container input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: var(--burgundy-soft); }
+    .checkbox-container label { font-size: 14px; font-weight: bold; color: var(--burgundy-soft); cursor: pointer; user-select: none; }
+
+    .terms-actions { display: flex; gap: 10px; }
+    .btn-agree {
+      flex: 2; background: #25d366; color: white; border: none; padding: 12px;
+      border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; opacity: 0.5; pointer-events: none; transition: all 0.2s;
+    }
+    .btn-agree.active { opacity: 1; pointer-events: auto; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
+    .btn-decline {
+      flex: 1; background: #f44336; color: white; border: none; padding: 12px;
+      border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; transition: background 0.2s;
+    }
+    .btn-decline:hover { background: #d32f2f; }
+
+    footer { text-align: center; margin-top: 50px; padding: 20px; color: var(--text-muted); font-size: 14px; border-top: 1px solid var(--border-color); }
   </style>
 </head>
 <body>
@@ -322,11 +331,6 @@
           <label for="custAddress">العنوان التفصيلي (المدينة - الشارع - رقم العمارة) *</label>
           <textarea id="custAddress" rows="2" placeholder="أدخل عنوان التوصيل بدقة"></textarea>
         </div>
-
-        <!-- صندوق تنبيه سياسة الإلغاء -->
-        <div class="cancellation-policy-box">
-          ⚠️ <strong>سياسة الإلغاء:</strong> يُمكنك إلغاء الطلب مجاناً فقط قبل تأكيد الحجز مع المصنع. فور تأكيد حجز طلبك مع المصنع وتجهيزه لا يُمكن الإلغاء.
-        </div>
       </div>
 
       <div class="cart-footer">
@@ -334,10 +338,43 @@
           <span>الإجمالي النهائي:</span>
           <span id="cartTotalPrice" style="color: var(--burgundy-soft);">0 ج.م</span>
         </div>
-        <button onclick="sendOrderToWhatsapp()" id="sendWhatsappBtn" class="send-whatsapp-btn" style="display: none;">إرسال الطلب عبر WhatsApp 💬</button>
+        <button onclick="validateAndOpenTerms()" id="proceedBtn" class="proceed-btn" style="display: none;">متابعة تأكيد الطلب 👈</button>
       </div>
     </div>
   </div>
+
+  <!-- 📜 النافذة الفرعية للشروط والأحكام (التميمة المنبثقة) -->
+  <div class="modal-overlay" id="termsModal">
+    <div class="modal-content terms-modal">
+      <div class="terms-header">📌 الشروط والأحكام وسياسة الطلب</div>
+      
+      <div class="terms-body">
+        <strong>يرجى العلم والموافقة على الشروط التالية قبل إرسال الطلب:</strong>
+        <ul>
+          <li><strong>التأكد من المقاسات:</strong> العميل مسؤول عن اختيار المقاس المناسب بناءً على جدول المقاسات الموضح.</li>
+          <li><strong>عدم الإلغاء أو التعديل:</strong> لا يمكن تعديل أو إلغاء الطلب فور تأكيده والحجز مع المصنع.</li>
+          <li><strong>سياسة الاسترجاع:</strong> يُسمح بالاسترجاع فقط في حالة وجود عيب تصنيع صريح، والإبلاغ خلال 24 ساعة من الاستلام.</li>
+          <li><strong>المعاينة عند الاستلام:</strong> يحق للعميل معاينة الشحنة بحضور المندوب قبل الدفع. وفي حالة إلغاء الطلب بدون وجود عيب، يتحمل العميل قيمة الشحن للمندوب.</li>
+        </ul>
+      </div>
+
+      <!-- مربع اختيار الموافقة -->
+      <div class="checkbox-container" onclick="toggleTermsCheckbox()">
+        <input type="checkbox" id="termsCheckbox" onchange="handleCheckboxChange(event)">
+        <label for="termsCheckbox">أقر بأني قرأت ووافقت على كافة الشروط والأحكام أعلاه</label>
+      </div>
+
+      <!-- أزرار القبول والرفض -->
+      <div class="terms-actions">
+        <button id="agreeBtn" class="btn-agree" onclick="executeWhatsappOrder()">موافق واستكمال الطلب 💬</button>
+        <button class="btn-decline" onclick="declineTerms()">عدم الموافقة (إلغاء)</button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© My Souq - جميع الحقوق محفوظة | الشحن متوفر لجميع المحافظات 🚚</p>
+  </footer>
 
   <script>
     const phoneNumber = "201116339905"; 
@@ -500,7 +537,6 @@
       }
     }
 
-    /* إدارة السلة */
     function addToCart() {
       const item = {
         title: currentProduct.title,
@@ -525,18 +561,18 @@
       document.getElementById('cartCount').innerText = cart.length;
       const cartItemsContainer = document.getElementById('cartItemsContainer');
       const formBox = document.getElementById('customerFormBox');
-      const sendBtn = document.getElementById('sendWhatsappBtn');
+      const proceedBtn = document.getElementById('proceedBtn');
       
       if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>';
         document.getElementById('cartTotalPrice').innerText = '0 ج.م';
         formBox.style.display = 'none';
-        sendBtn.style.display = 'none';
+        proceedBtn.style.display = 'none';
         return;
       }
 
       formBox.style.display = 'flex';
-      sendBtn.style.display = 'block';
+      proceedBtn.style.display = 'block';
 
       cartItemsContainer.innerHTML = '';
       let total = 0;
@@ -564,15 +600,54 @@
       document.getElementById('cartTotalPrice').innerText = `${total} ج.م`;
     }
 
-    function sendOrderToWhatsapp() {
+    /* التحقق من البيانات وفتح الشاشة الفرعية للشروط */
+    function validateAndOpenTerms() {
       const name = document.getElementById('custName').value.trim();
       const phone = document.getElementById('custPhone').value.trim();
       const address = document.getElementById('custAddress').value.trim();
 
       if (!name || !phone || !address) {
-        alert('يرجى استكمال جميع البيانات (الاسم، رقم التليفون، والعنوان) لإرسال الطلب');
+        alert('يرجى استكمال جميع البيانات (الاسم، رقم التليفون، والعنوان) أولاً قبل المتابعة');
         return;
       }
+
+      // إعادة ضبط المربع والأزرار
+      document.getElementById('termsCheckbox').checked = false;
+      document.getElementById('agreeBtn').classList.remove('active');
+
+      // فتح الشاشة الفرعية للشروط
+      document.getElementById('termsModal').classList.add('active');
+    }
+
+    /* التحكم بمربع الاختيار */
+    function toggleTermsCheckbox() {
+      const chk = document.getElementById('termsCheckbox');
+      chk.checked = !chk.checked;
+      handleCheckboxChange();
+    }
+
+    function handleCheckboxChange(e) {
+      if (e) e.stopPropagation();
+      const chk = document.getElementById('termsCheckbox');
+      const agreeBtn = document.getElementById('agreeBtn');
+      if (chk.checked) {
+        agreeBtn.classList.add('active');
+      } else {
+        agreeBtn.classList.remove('active');
+      }
+    }
+
+    /* حالة عدم الموافقة (إلغاء) */
+    function declineTerms() {
+      document.getElementById('termsModal').classList.remove('active');
+      alert('عذراً، لا يمكن استكمال الطلب دون الموافقة على الشروط والأحكام الخاصة بالمتجر.');
+    }
+
+    /* تنفيذ إرسال الطلب للواتساب فور الموافقة */
+    function executeWhatsappOrder() {
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
 
       let total = 0;
       let msgText = `🛍️ *طلب جديد من متجر My Souq*\n\n`;
@@ -590,10 +665,14 @@
       });
 
       msgText += `\n💰 *الإجمالي الكلي:* ${total} ج.م\n\n`;
-      msgText += `📌 *ملاحظة:* تم الاطلاع على سياسة الإلغاء والموافقة عليها (الإلغاء متاح فقط قبل تأكيد الحجز مع المصنع).`;
+      msgText += `✅ *إقرار العميل:* أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
 
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msgText)}`;
       window.open(whatsappUrl, '_blank');
+      
+      // إغلاق النوافذ
+      document.getElementById('termsModal').classList.remove('active');
+      closeCartModal();
     }
 
     function openCartModal() { document.getElementById('cartModal').classList.add('active'); }
