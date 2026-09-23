@@ -68,11 +68,7 @@
     .modal-img { width: 100%; height: 280px; object-fit: cover; border-radius: 12px; }
     .modal-info { display: flex; flex-direction: column; gap: 12px; }
     .modal-title { font-size: 22px; font-weight: 800; color: #0f172a; }
-    .modal-price { font-size: 22px; font-weight: 800; color: #16a34a; }
-
-    /* أبعاد المنتج */
-    .dimensions-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 10px; font-size: 14px; }
-    .dimensions-box span { font-weight: bold; color: #334155; }
+    .modal-price { font-size: 24px; font-weight: 800; color: #16a34a; transition: all 0.2s; }
 
     /* اختيار المقاسات */
     .size-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
@@ -81,6 +77,11 @@
       cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;
     }
     .size-btn.selected { background: #2563eb; color: white; border-color: #2563eb; }
+
+    /* أبعاد المنتج للمقاس المحدد */
+    .dimensions-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; font-size: 14px; display: flex; gap: 16px; }
+    .dimensions-box div { display: flex; align-items: center; gap: 4px; }
+    .dimensions-box span { font-weight: bold; color: #0f172a; }
 
     .order-btn {
       background: #25d366; color: white; border: none; padding: 12px;
@@ -108,18 +109,19 @@
         <img class="modal-img" id="modalImage" src="" alt="">
         <div class="modal-info">
           <h2 class="modal-title" id="modalTitle"></h2>
-          <div class="modal-price" id="modalPrice"></div>
           
-          <div id="dimensionsContainer" class="dimensions-box" style="display: none;">
-            <div>📏 <span>الطول:</span> <span id="modalLength">-</span> سم</div>
-            <div>📐 <span>العرض:</span> <span id="modalWidth">-</span> سم</div>
-          </div>
-
           <div>
             <label style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 6px;">اختر المقاس:</label>
             <div class="size-selector" id="sizesContainer">
-              <!-- أزرار المقاسات ديناميكياً -->
+              <!-- أزرار المقاسات -->
             </div>
+          </div>
+
+          <div class="modal-price" id="modalPrice">- ج.م</div>
+
+          <div id="dimensionsContainer" class="dimensions-box" style="display: none;">
+            <div>📏 <span>الطول:</span> <span id="modalLength">-</span> سم</div>
+            <div>📐 <span>العرض:</span> <span id="modalWidth">-</span> سم</div>
           </div>
 
           <p id="modalDesc" style="font-size: 14px; color: #64748b; line-height: 1.5;"></p>
@@ -131,10 +133,9 @@
   </div>
 
   <script>
-    // ضع رقم الواتساب الخاص بك بالصيغة الدولية (بدون أصفار أو +)
-    const phoneNumber = "201000000000"; 
-    let selectedSize = "";
+    const phoneNumber = "201000000000"; // اكتب رقمك بالصيغة الدولية
     let currentProduct = {};
+    let currentVariant = {};
 
     async function fetchProducts() {
       const container = document.getElementById('products-container');
@@ -154,20 +155,18 @@
             const res = await fetch(file.download_url);
             const text = await res.text();
             
-            // استخراج الحقول التلقائية
             const title = text.match(/title:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || 'منتج بدون عنوان';
-            const price = text.match(/price:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || '';
             let image = text.match(/image:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || 'https://via.placeholder.com/300';
-            const sizesRaw = text.match(/sizes:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || 'موحد';
-            const length = text.match(/length:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || '';
-            const width = text.match(/width:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || '';
-            
+            if (image.startsWith('/')) image = image.substring(1);
+
             const bodyParts = text.split('---');
             const desc = bodyParts.length > 2 ? bodyParts.slice(2).join('---').trim() : '';
 
-            if (image.startsWith('/')) image = image.substring(1);
+            // استخراج خيارات المقاسات والتفاصيل
+            const variants = parseVariants(text);
+            const defaultPrice = variants.length > 0 ? variants[0].price : (text.match(/price:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || '');
 
-            const productData = { title, price, image, sizes: sizesRaw.split(','), length, width, desc };
+            const productData = { title, image, desc, variants };
 
             const card = document.createElement('div');
             card.className = 'product-card';
@@ -178,7 +177,7 @@
               </div>
               <div class="product-details">
                 <h2 class="product-title">${title}</h2>
-                <span class="price-tag">${price} ج.م</span>
+                <span class="price-tag">${defaultPrice ? defaultPrice + ' ج.م' : ''}</span>
                 <div class="click-hint">اضغط لرؤية المقاسات والتفاصيل 👈</div>
               </div>
             `;
@@ -190,44 +189,78 @@
       }
     }
 
+    // تحليل بيانات المقاسات المتاحة داخل الملف
+    function parseVariants(text) {
+      const variants = [];
+      const variantsBlock = text.match(/variants:([\s\S]*?)(?=\n[a-z]+:|\n---)/i);
+      
+      if (variantsBlock) {
+        const items = variantsBlock[1].split('- size:');
+        items.forEach(item => {
+          if (!item.trim()) return;
+          const size = item.match(/^\s*"?([^"\r\n]+)"?/)?.[1]?.trim();
+          const price = item.match(/price:\s*"?([^"\r\n]+)"?/)?.[1]?.trim();
+          const length = item.match(/length:\s*"?([^"\r\n]+)"?/)?.[1]?.trim();
+          const width = item.match(/width:\s*"?([^"\r\n]+)"?/)?.[1]?.trim();
+
+          if (size) {
+            variants.push({ size, price: price || '', length: length || '', width: width || '' });
+          }
+        });
+      }
+      return variants;
+    }
+
     function openModal(product) {
       currentProduct = product;
-      selectedSize = product.sizes[0]?.trim() || "عام";
-
       document.getElementById('modalTitle').innerText = product.title;
-      document.getElementById('modalPrice').innerText = `${product.price} ج.م`;
       document.getElementById('modalImage').src = product.image;
       document.getElementById('modalDesc').innerText = product.desc;
 
-      // الأبعاد
+      const sizesContainer = document.getElementById('sizesContainer');
+      sizesContainer.innerHTML = '';
+
+      if (product.variants && product.variants.length > 0) {
+        product.variants.forEach((variant, idx) => {
+          const btn = document.createElement('button');
+          btn.className = `size-btn ${idx === 0 ? 'selected' : ''}`;
+          btn.innerText = variant.size;
+          btn.onclick = () => selectVariant(variant, btn);
+          sizesContainer.appendChild(btn);
+        });
+
+        // اختيار المقاس الأول تلقائياً
+        selectVariant(product.variants[0], sizesContainer.children[0]);
+      } else {
+        sizesContainer.innerHTML = '<span style="font-size:13px; color:#64748b;">مقاس موحد</span>';
+        document.getElementById('modalPrice').innerText = '- ج.م';
+        document.getElementById('dimensionsContainer').style.display = 'none';
+      }
+
+      document.getElementById('productModal').classList.add('active');
+    }
+
+    function selectVariant(variant, btnElement) {
+      currentVariant = variant;
+
+      // تحديث زر المقاس المحدد
+      document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+      if (btnElement) btnElement.classList.add('selected');
+
+      // تحديث السعر بناءً على المقاس
+      document.getElementById('modalPrice').innerText = variant.price ? `${variant.price} ج.م` : '';
+
+      // تحديث الأبعاد (الطول والعرض)
       const dimBox = document.getElementById('dimensionsContainer');
-      if (product.length || product.width) {
-        dimBox.style.display = 'block';
-        document.getElementById('modalLength').innerText = product.length || '-';
-        document.getElementById('modalWidth').innerText = product.width || '-';
+      if (variant.length || variant.width) {
+        dimBox.style.display = 'flex';
+        document.getElementById('modalLength').innerText = variant.length || '-';
+        document.getElementById('modalWidth').innerText = variant.width || '-';
       } else {
         dimBox.style.display = 'none';
       }
 
-      // المقاسات
-      const sizesContainer = document.getElementById('sizesContainer');
-      sizesContainer.innerHTML = '';
-      product.sizes.forEach((s, idx) => {
-        const sz = s.trim();
-        const btn = document.createElement('button');
-        btn.className = `size-btn ${idx === 0 ? 'selected' : ''}`;
-        btn.innerText = sz;
-        btn.onclick = (e) => {
-          document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-          selectedSize = sz;
-          updateWhatsappLink();
-        };
-        sizesContainer.appendChild(btn);
-      });
-
       updateWhatsappLink();
-      document.getElementById('productModal').classList.add('active');
     }
 
     function closeModal() {
@@ -235,7 +268,12 @@
     }
 
     function updateWhatsappLink() {
-      const msg = encodeURIComponent(`أهلاً بك، أريد طلب المنتج: ${currentProduct.title}\nالسعر: ${currentProduct.price} ج.م\nالمقاس المطلوب: ${selectedSize}`);
+      let detailsText = `المقاس: ${currentVariant.size || 'عام'}`;
+      if (currentVariant.price) detailsText += ` | السعر: ${currentVariant.price} ج.م`;
+      if (currentVariant.length) detailsText += ` | الطول: ${currentVariant.length}سم`;
+      if (currentVariant.width) detailsText += ` | العرض: ${currentVariant.width}سم`;
+
+      const msg = encodeURIComponent(`أهلاً بك، أريد طلب المنتج: ${currentProduct.title}\n التفاصيل: (${detailsText})`);
       document.getElementById('whatsappBtn').href = `https://wa.me/${phoneNumber}?text=${msg}`;
     }
 
