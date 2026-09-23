@@ -3,65 +3,115 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>سوقي - معرض المنتجات</title>
+  <title>My Souq - سوقي للأزياء والموديلات</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: #f8fafc; color: #1e293b; padding: 20px; min-height: 100vh; padding-bottom: 80px; }
-    
-    header { text-align: center; padding: 10px 0 25px; position: relative; }
-    header h1 { font-size: 28px; color: #0f172a; margin-bottom: 8px; }
-    
-    /* زر السلة العائم في الأعلى */
-    .cart-trigger {
-      position: fixed; top: 20px; left: 20px; background: #2563eb; color: white;
-      padding: 10px 18px; border-radius: 30px; font-weight: bold; cursor: pointer;
-      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); display: flex; align-items: center; gap: 8px; z-index: 900;
+    :root {
+      --bg-cream: #fdfbf7;
+      --card-cream: #fffdfa;
+      --burgundy-soft: #803d48;
+      --burgundy-hover: #672f38;
+      --pink-soft: #f8ecee;
+      --pink-accent: #e8c5ce;
+      --text-dark: #2c2224;
+      --text-muted: #736366;
+      --border-color: #ebdcdb;
     }
-    .cart-count { background: #ef4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background-color: var(--bg-cream); color: var(--text-dark); padding: 20px; min-height: 100vh; padding-bottom: 80px; }
+    
+    /* الشارة الدائرية على يمين الصفحة */
+    .brand-badge {
+      position: fixed; top: 25px; right: 20px; width: 70px; height: 70px;
+      background: var(--burgundy-soft); color: var(--bg-cream);
+      border-radius: 50%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      font-weight: 800; font-size: 13px; line-height: 1.1;
+      box-shadow: 0 6px 20px rgba(128, 61, 72, 0.25); border: 2px solid var(--pink-accent);
+      z-index: 950; transform: rotate(-5deg); transition: transform 0.3s;
+    }
+    .brand-badge:hover { transform: rotate(0deg) scale(1.05); }
+
+    /* زر السلة العائم على اليسار */
+    .cart-trigger {
+      position: fixed; top: 25px; left: 20px; background: var(--burgundy-soft); color: white;
+      padding: 10px 18px; border-radius: 30px; font-weight: bold; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(128, 61, 72, 0.2); display: flex; align-items: center; gap: 8px; z-index: 900;
+      border: 1px solid var(--pink-accent); transition: background 0.2s;
+    }
+    .cart-trigger:hover { background: var(--burgundy-hover); }
+    .cart-count { background: var(--pink-accent); color: var(--burgundy-soft); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+
+    /* الهيدر والعنوان المنتصف */
+    header { text-align: center; padding: 30px 10px 25px; max-width: 700px; margin: 0 auto; }
+    header h1 { font-size: 32px; color: var(--burgundy-soft); margin-bottom: 12px; font-weight: 800; letter-spacing: -0.5px; }
+    header p { font-size: 16px; color: var(--text-muted); line-height: 1.6; background: var(--pink-soft); padding: 12px 20px; border-radius: 12px; border: 1px dashed var(--pink-accent); }
+
+    /* شريط الفلترة وأقسام المنتجات */
+    .controls-wrapper {
+      max-width: 1200px; margin: 0 auto 25px; display: flex; flex-wrap: wrap;
+      justify-content: space-between; align-items: center; gap: 15px;
+      background: var(--card-cream); padding: 16px 20px; border-radius: 16px;
+      border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+    }
+
+    /* أزرار الفلترة الجانبية (الأقسام) */
+    .categories-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .cat-btn {
+      padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 20px;
+      background: var(--bg-cream); color: var(--text-dark); font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .cat-btn.active, .cat-btn:hover { background: var(--burgundy-soft); color: white; border-color: var(--burgundy-soft); }
+
+    /* فلتر ترتيب الأسعار */
+    .sort-wrapper select {
+      padding: 8px 14px; border-radius: 10px; border: 1px solid var(--border-color);
+      background: var(--bg-cream); color: var(--text-dark); font-size: 14px; font-weight: 600; cursor: pointer;
+    }
 
     .products-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 24px;
-      max-width: 1200px;
-      margin: 0 auto;
+      gap: 24px; max-width: 1200px; margin: 0 auto;
     }
 
     /* كارت المنتج */
     .product-card {
-      background: #ffffff; border-radius: 16px; overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;
+      background: var(--card-cream); border-radius: 16px; overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border-color);
       display: flex; flex-direction: column; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
     }
-    .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+    .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(128, 61, 72, 0.08); }
 
-    .image-container { position: relative; width: 100%; height: 260px; background: #f1f5f9; }
+    .image-container { position: relative; width: 100%; height: 270px; background: var(--pink-soft); }
     .product-image { width: 100%; height: 100%; object-fit: cover; }
 
     .product-details { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
-    .product-title { font-size: 18px; font-weight: 700; color: #0f172a; }
-    .price-tag { font-size: 20px; font-weight: 800; color: #16a34a; margin-top: auto; }
-    .click-hint { font-size: 13px; color: #2563eb; font-weight: 600; text-align: center; margin-top: 8px; background: #eff6ff; padding: 6px; border-radius: 8px; }
+    .product-title { font-size: 17px; font-weight: 700; color: var(--text-dark); }
+    .price-tag { font-size: 20px; font-weight: 800; color: var(--burgundy-soft); margin-top: auto; }
+    .click-hint { font-size: 12px; color: var(--burgundy-soft); font-weight: 600; text-align: center; margin-top: 8px; background: var(--pink-soft); padding: 6px; border-radius: 8px; }
 
     /* النوافذ المنبثقة (Modal & Cart) */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+      background: rgba(44, 34, 36, 0.5); backdrop-filter: blur(4px);
       display: none; justify-content: center; align-items: center; z-index: 1000; padding: 16px;
     }
     .modal-overlay.active { display: flex; }
 
     .modal-content {
-      background: #ffffff; border-radius: 20px; max-width: 650px; width: 100%;
-      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);
+      background: var(--card-cream); border-radius: 20px; max-width: 650px; width: 100%;
+      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15);
       display: flex; flex-direction: column; position: relative; animation: fadeIn 0.2s ease-out;
+      border: 1px solid var(--border-color);
     }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
     .close-btn {
-      position: absolute; top: 12px; left: 12px; background: #f1f5f9; border: none;
-      width: 36px; height: 36px; border-radius: 50%; font-size: 20px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center; z-index: 10;
+      position: absolute; top: 12px; left: 12px; background: var(--pink-soft); border: none;
+      width: 36px; height: 36px; border-radius: 50%; font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; color: var(--burgundy-soft); font-weight: bold; z-index: 10;
     }
 
     .modal-body { display: grid; grid-template-columns: 1fr; gap: 20px; padding: 24px; }
@@ -69,48 +119,51 @@
 
     .modal-img { width: 100%; height: 280px; object-fit: cover; border-radius: 12px; }
     .modal-info { display: flex; flex-direction: column; gap: 12px; }
-    .modal-title { font-size: 22px; font-weight: 800; color: #0f172a; }
-    .modal-price { font-size: 24px; font-weight: 800; color: #16a34a; }
+    .modal-title { font-size: 22px; font-weight: 800; color: var(--burgundy-soft); }
+    .modal-price { font-size: 24px; font-weight: 800; color: var(--burgundy-soft); }
 
-    /* اختيار المقاسات */
     .size-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
     .size-btn {
-      padding: 8px 14px; border: 1px solid #cbd5e1; border-radius: 8px; background: white;
-      cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;
+      padding: 8px 14px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-cream);
+      cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s; color: var(--text-dark);
     }
-    .size-btn.selected { background: #2563eb; color: white; border-color: #2563eb; }
+    .size-btn.selected { background: var(--burgundy-soft); color: white; border-color: var(--burgundy-soft); }
 
-    .dimensions-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; font-size: 14px; display: flex; gap: 16px; }
-    .dimensions-box div { display: flex; align-items: center; gap: 4px; }
-    .dimensions-box span { font-weight: bold; color: #0f172a; }
+    .dimensions-box { background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 12px; border-radius: 10px; font-size: 14px; display: flex; gap: 16px; color: var(--burgundy-soft); }
+    .dimensions-box span { font-weight: bold; }
 
     .add-cart-btn {
-      background: #2563eb; color: white; border: none; padding: 12px;
+      background: var(--burgundy-soft); color: white; border: none; padding: 12px;
       border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer;
       text-align: center; display: block; margin-top: 10px; transition: background 0.2s;
     }
-    .add-cart-btn:hover { background: #1d4ed8; }
+    .add-cart-btn:hover { background: var(--burgundy-hover); }
 
-    /* تصميم النافذة الخاصة بالسلة */
+    /* نافذة السلة */
     .cart-modal { max-width: 500px; padding: 20px; }
-    .cart-title { font-size: 20px; font-weight: bold; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+    .cart-title { font-size: 20px; font-weight: bold; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; color: var(--burgundy-soft); }
     .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto; }
-    .cart-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; background: var(--pink-soft); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--pink-accent); }
     .cart-item-title { font-weight: bold; font-size: 14px; }
-    .cart-item-meta { font-size: 12px; color: #64748b; }
-    .cart-item-price { font-weight: bold; color: #16a34a; font-size: 14px; }
-    .remove-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-weight: bold; padding: 4px; }
+    .cart-item-meta { font-size: 12px; color: var(--text-muted); }
+    .cart-item-price { font-weight: bold; color: var(--burgundy-soft); font-size: 14px; }
+    .remove-btn { color: #dc2626; background: none; border: none; cursor: pointer; font-weight: bold; padding: 4px; }
 
-    .cart-footer { margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .cart-footer { margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
     .total-price { font-size: 18px; font-weight: 800; display: flex; justify-content: space-between; }
     .send-whatsapp-btn {
       background: #25d366; color: white; text-align: center; padding: 12px;
       border-radius: 10px; font-weight: bold; text-decoration: none; display: block; font-size: 16px;
     }
-    .send-whatsapp-btn:hover { background: #1eb954; }
   </style>
 </head>
 <body>
+
+  <!-- الشارة الدائرية العائمة للماركة -->
+  <div class="brand-badge">
+    <span>MY</span>
+    <span>SOUQ</span>
+  </div>
 
   <!-- زر السلة العائم -->
   <div class="cart-trigger" onclick="openCartModal()">
@@ -118,14 +171,33 @@
   </div>
 
   <header>
-    <h1>معرض المنتجات والموديلات الحالية</h1>
+    <h1>عالم الأناقة والموديلات العصرية</h1>
+    <p>وجهتك الأولى لاكتشاف أرقى التشكيلات وأحدث خطوط الموضة المختارة بعناية لتناسب ذوقك الرفيع.</p>
   </header>
 
+  <!-- شريط الفلاتر والأقسام -->
+  <div class="controls-wrapper">
+    <div class="categories-bar" id="categoryBar">
+      <button class="cat-btn active" onclick="filterCategory('all', this)">الكل</button>      <button class="cat-btn" onclick="filterCategory('دفاية', this)">دفاية</button>
+      <button class="cat-btn" onclick="filterCategory('تيشرت', this)">تيشرت</button>
+      <button class="cat-btn" onclick="filterCategory('بنطلون', this)">بنطلون</button>
+      <button class="cat-btn" onclick="filterCategory('فستان', this)">فستان</button>
+    </div>
+
+    <div class="sort-wrapper">
+      <select id="sortSelect" onchange="applySorting()">
+        <option value="default">ترتيب الافتراضي</option>
+        <option value="low-high">السعر: من الأقل إلى الأعلى</option>
+        <option value="high-low">السعر: من الأعلى إلى الأقل</option>
+      </select>
+    </div>
+  </div>
+
   <main class="products-grid" id="products-container">
-    <p style="grid-column: 1/-1; text-align: center;">جاري تحميل أحدث المنتجات...</p>
+    <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">جاري تحميل الموديلات...</p>
   </main>
 
-  <!-- نافذة عرض تفاصيل المنتج -->
+  <!-- نافذة تفاصيل المنتج -->
   <div class="modal-overlay" id="productModal">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal()">✕</button>
@@ -135,7 +207,7 @@
           <h2 class="modal-title" id="modalTitle"></h2>
           
           <div>
-            <label style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 6px;">اختر المقاس:</label>
+            <label style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 6px; color: var(--text-muted);">اختر المقاس:</label>
             <div class="size-selector" id="sizesContainer"></div>
           </div>
 
@@ -146,7 +218,7 @@
             <div>📐 <span>العرض:</span> <span id="modalWidth">-</span> سم</div>
           </div>
 
-          <p id="modalDesc" style="font-size: 14px; color: #64748b; line-height: 1.5;"></p>
+          <p id="modalDesc" style="font-size: 14px; color: var(--text-muted); line-height: 1.5;"></p>
 
           <button onclick="addToCart()" class="add-cart-btn">إضافة إلى السلة 🛒</button>
         </div>
@@ -158,14 +230,14 @@
   <div class="modal-overlay" id="cartModal">
     <div class="modal-content cart-modal">
       <button class="close-btn" onclick="closeCartModal()">✕</button>
-      <div class="cart-title">🛒 سلة الطلبات</div>
+      <div class="cart-title">🛒 سلة المشتريات</div>
       <div class="cart-items" id="cartItemsContainer">
-        <p style="text-align: center; color: #64748b;">السلة فارغة حالياً</p>
+        <p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>
       </div>
       <div class="cart-footer">
         <div class="total-price">
           <span>الإجمالي:</span>
-          <span id="cartTotalPrice" style="color: #16a34a;">0 ج.م</span>
+          <span id="cartTotalPrice" style="color: var(--burgundy-soft);">0 ج.م</span>
         </div>
         <a href="#" id="sendWhatsappCartBtn" target="_blank" class="send-whatsapp-btn">إرسال الطلب عبر WhatsApp 💬</a>
       </div>
@@ -173,8 +245,10 @@
   </div>
 
   <script>
-    // رقم الواتساب المربوط
     const phoneNumber = "201116339905"; 
+    let allProducts = [];
+    let displayedProducts = [];
+    let currentCategory = 'all';
     let currentProduct = {};
     let currentVariant = {};
     let cart = [];
@@ -190,7 +264,7 @@
           return;
         }
 
-        container.innerHTML = '';
+        allProducts = [];
 
         for (const file of files) {
           if (file.name.endsWith('.md')) {
@@ -205,35 +279,75 @@
             const desc = bodyParts.length > 2 ? bodyParts.slice(2).join('---').trim() : '';
 
             const variants = parseVariants(text);
-            const defaultPrice = variants.length > 0 ? variants[0].price : (text.match(/price:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || '');
+            const basePrice = variants.length > 0 ? parseFloat(variants[0].price) : parseFloat(text.match(/price:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || 0);
 
-            const productData = { title, image, desc, variants };
-
-            const card = document.createElement('div');
-            card.className = 'product-card';
-            card.onclick = () => openModal(productData);
-            card.innerHTML = `
-              <div class="image-container">
-                <img class="product-image" src="${image}" alt="${title}">
-              </div>
-              <div class="product-details">
-                <h2 class="product-title">${title}</h2>
-                <span class="price-tag">${defaultPrice ? defaultPrice + ' ج.م' : ''}</span>
-                <div class="click-hint">اضغط لرؤية المقاسات والسلة 👈</div>
-              </div>
-            `;
-            container.appendChild(card);
+            allProducts.push({ title, image, desc, variants, basePrice });
           }
         }
+
+        displayedProducts = [...allProducts];
+        renderProducts();
+
       } catch (err) {
         container.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">حدث خطأ أثناء تحميل المنتجات.</p>';
       }
     }
 
+    function renderProducts() {
+      const container = document.getElementById('products-container');
+      container.innerHTML = '';
+
+      if (displayedProducts.length === 0) {
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">لا توجد منتجات مطابقة في هذا القسم.</p>';
+        return;
+      }
+
+      displayedProducts.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.onclick = () => openModal(product);
+        card.innerHTML = `
+          <div class="image-container">
+            <img class="product-image" src="${product.image}" alt="${product.title}">
+          </div>
+          <div class="product-details">
+            <h2 class="product-title">${product.title}</h2>
+            <span class="price-tag">${product.basePrice ? product.basePrice + ' ج.م' : ''}</span>
+            <div class="click-hint">اضغط للرؤية والتسوق 👈</div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    /* فلترة الأقسام */
+    function filterCategory(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      if (cat === 'all') {
+        displayedProducts = [...allProducts];
+      } else {
+        displayedProducts = allProducts.filter(p => p.title.includes(cat) || p.desc.includes(cat));
+      }
+      applySorting();
+    }
+
+    /* فرز الأسعار */
+    function applySorting() {
+      const sortVal = document.getElementById('sortSelect').value;
+      if (sortVal === 'low-high') {
+        displayedProducts.sort((a, b) => a.basePrice - b.basePrice);
+      } else if (sortVal === 'high-low') {
+        displayedProducts.sort((a, b) => b.basePrice - a.basePrice);
+      }
+      renderProducts();
+    }
+
     function parseVariants(text) {
       const variants = [];
       const variantsBlock = text.match(/variants:([\s\S]*?)(?=\n[a-z]+:|\n---)/i);
-      
       if (variantsBlock) {
         const items = variantsBlock[1].split('- size:');
         items.forEach(item => {
@@ -242,10 +356,7 @@
           const price = item.match(/price:\s*"?([^"\r\n]+)"?/)?.[1]?.trim();
           const length = item.match(/length:\s*"?([^"\r\n]+)"?/)?.[1]?.trim();
           const width = item.match(/width:\s*"?([^"\r\n]+)"?/)?.[1]?.trim();
-
-          if (size) {
-            variants.push({ size, price: price || '0', length: length || '', width: width || '' });
-          }
+          if (size) variants.push({ size, price: price || '0', length: length || '', width: width || '' });
         });
       }
       return variants;
@@ -270,9 +381,9 @@
         });
         selectVariant(product.variants[0], sizesContainer.children[0]);
       } else {
-        sizesContainer.innerHTML = '<span style="font-size:13px; color:#64748b;">مقاس موحد</span>';
-        currentVariant = { size: 'عام', price: '0', length: '', width: '' };
-        document.getElementById('modalPrice').innerText = '- ج.م';
+        sizesContainer.innerHTML = '<span style="font-size:13px; color:var(--text-muted);">مقاس موحد</span>';
+        currentVariant = { size: 'عام', price: product.basePrice, length: '', width: '' };
+        document.getElementById('modalPrice').innerText = `${product.basePrice} ج.م`;
         document.getElementById('dimensionsContainer').style.display = 'none';
       }
 
@@ -322,7 +433,7 @@
       const cartItemsContainer = document.getElementById('cartItemsContainer');
       
       if (cart.length === 0) {
-        cartItemsContainer.innerHTML = '<p style="text-align: center; color: #64748b;">السلة فارغة حالياً</p>';
+        cartItemsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>';
         document.getElementById('cartTotalPrice').innerText = '0 ج.م';
         document.getElementById('sendWhatsappCartBtn').href = '#';
         return;
@@ -330,12 +441,12 @@
 
       cartItemsContainer.innerHTML = '';
       let total = 0;
-      let msgText = "أهلاً بك، أريد طلب المنتجات التالية من المتجر:\n\n";
+      let msgText = "أهلاً بك، أريد طلب المنتجات التالية من متجر My Souq:\n\n";
 
       cart.forEach((item, index) => {
         total += item.price;
         let dimInfo = "";
-        if (item.length || item.width) dimInfo = ` (طول:${item.length||'-'} سم / عرض:${item.width||'-'} سم)`;
+        if (item.length || item.width) dimInfo = ` (طول:${item.length||'-'}سم / عرض:${item.width||'-'}سم)`;
         
         msgText += `${index + 1}. ${item.title}\n   - المقاس: ${item.size}${dimInfo}\n   - السعر: ${item.price} ج.م\n------------------\n`;
 
