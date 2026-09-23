@@ -169,7 +169,7 @@
     /* نافذة السلة */
     .cart-modal { max-width: 550px; padding: 24px; }
     .cart-title { font-size: 22px; font-weight: bold; margin-bottom: 16px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; color: var(--burgundy-soft); }
-    .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 220px; overflow-y: auto; margin-bottom: 15px; }
+    .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 200px; overflow-y: auto; margin-bottom: 15px; }
     .cart-item { display: flex; justify-content: space-between; align-items: center; background: var(--pink-soft); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--pink-accent); }
     .cart-item-title { font-weight: bold; font-size: 14px; }
     .cart-item-meta { font-size: 12px; color: var(--text-muted); }
@@ -199,6 +199,17 @@
     }
     .form-group input:focus, .form-group textarea:focus {
       border-color: var(--burgundy-soft);
+    }
+
+    /* تنبيه سياسة الإلغاء */
+    .cancellation-policy-box {
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 12px;
+      color: #795548;
+      line-height: 1.5;
     }
 
     .cart-footer { margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px; display: flex; flex-direction: column; gap: 12px; }
@@ -310,6 +321,11 @@
         <div class="form-group">
           <label for="custAddress">العنوان التفصيلي (المدينة - الشارع - رقم العمارة) *</label>
           <textarea id="custAddress" rows="2" placeholder="أدخل عنوان التوصيل بدقة"></textarea>
+        </div>
+
+        <!-- صندوق تنبيه سياسة الإلغاء -->
+        <div class="cancellation-policy-box">
+          ⚠️ <strong>سياسة الإلغاء:</strong> يُمكنك إلغاء الطلب مجاناً فقط قبل تأكيد الحجز مع المصنع. فور تأكيد حجز طلبك مع المصنع وتجهيزه لا يُمكن الإلغاء.
         </div>
       </div>
 
@@ -573,7 +589,8 @@
         msgText += `${index + 1}. ${item.title}\n   • المقاس: ${item.size}${dimInfo}\n   • السعر: ${item.price} ج.م\n`;
       });
 
-      msgText += `\n💰 *الإجمالي الكلي:* ${total} ج.م`;
+      msgText += `\n💰 *الإجمالي الكلي:* ${total} ج.م\n\n`;
+      msgText += `📌 *ملاحظة:* تم الاطلاع على سياسة الإلغاء والموافقة عليها (الإلغاء متاح فقط قبل تأكيد الحجز مع المصنع).`;
 
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msgText)}`;
       window.open(whatsappUrl, '_blank');
