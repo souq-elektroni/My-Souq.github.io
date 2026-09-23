@@ -6,11 +6,19 @@
   <title>سوقي - معرض المنتجات</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: #f8fafc; color: #1e293b; padding: 20px; min-height: 100vh; }
+    body { background-color: #f8fafc; color: #1e293b; padding: 20px; min-height: 100vh; padding-bottom: 80px; }
     
-    header { text-align: center; padding: 20px 0 30px; }
+    header { text-align: center; padding: 10px 0 25px; position: relative; }
     header h1 { font-size: 28px; color: #0f172a; margin-bottom: 8px; }
     
+    /* زر السلة العائم في الأعلى */
+    .cart-trigger {
+      position: fixed; top: 20px; left: 20px; background: #2563eb; color: white;
+      padding: 10px 18px; border-radius: 30px; font-weight: bold; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3); display: flex; align-items: center; gap: 8px; z-index: 900;
+    }
+    .cart-count { background: #ef4444; color: white; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
     .products-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -21,15 +29,9 @@
 
     /* كارت المنتج */
     .product-card {
-      background: #ffffff;
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-      border: 1px solid #e2e8f0;
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
+      background: #ffffff; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid #e2e8f0;
+      display: flex; flex-direction: column; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
     }
     .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
 
@@ -41,7 +43,7 @@
     .price-tag { font-size: 20px; font-weight: 800; color: #16a34a; margin-top: auto; }
     .click-hint { font-size: 13px; color: #2563eb; font-weight: 600; text-align: center; margin-top: 8px; background: #eff6ff; padding: 6px; border-radius: 8px; }
 
-    /* النافذة المنبثقة (Modal) */
+    /* النوافذ المنبثقة (Modal & Cart) */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
@@ -68,7 +70,7 @@
     .modal-img { width: 100%; height: 280px; object-fit: cover; border-radius: 12px; }
     .modal-info { display: flex; flex-direction: column; gap: 12px; }
     .modal-title { font-size: 22px; font-weight: 800; color: #0f172a; }
-    .modal-price { font-size: 24px; font-weight: 800; color: #16a34a; transition: all 0.2s; }
+    .modal-price { font-size: 24px; font-weight: 800; color: #16a34a; }
 
     /* اختيار المقاسات */
     .size-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
@@ -78,20 +80,42 @@
     }
     .size-btn.selected { background: #2563eb; color: white; border-color: #2563eb; }
 
-    /* أبعاد المنتج للمقاس المحدد */
     .dimensions-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 10px; font-size: 14px; display: flex; gap: 16px; }
     .dimensions-box div { display: flex; align-items: center; gap: 4px; }
     .dimensions-box span { font-weight: bold; color: #0f172a; }
 
-    .order-btn {
-      background: #25d366; color: white; border: none; padding: 12px;
+    .add-cart-btn {
+      background: #2563eb; color: white; border: none; padding: 12px;
       border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer;
-      text-align: center; text-decoration: none; display: block; margin-top: 10px;
+      text-align: center; display: block; margin-top: 10px; transition: background 0.2s;
     }
-    .order-btn:hover { background: #1eb954; }
+    .add-cart-btn:hover { background: #1d4ed8; }
+
+    /* تصميم النافذة الخاصة بالسلة */
+    .cart-modal { max-width: 500px; padding: 20px; }
+    .cart-title { font-size: 20px; font-weight: bold; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+    .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .cart-item-title { font-weight: bold; font-size: 14px; }
+    .cart-item-meta { font-size: 12px; color: #64748b; }
+    .cart-item-price { font-weight: bold; color: #16a34a; font-size: 14px; }
+    .remove-btn { color: #ef4444; background: none; border: none; cursor: pointer; font-weight: bold; padding: 4px; }
+
+    .cart-footer { margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+    .total-price { font-size: 18px; font-weight: 800; display: flex; justify-content: space-between; }
+    .send-whatsapp-btn {
+      background: #25d366; color: white; text-align: center; padding: 12px;
+      border-radius: 10px; font-weight: bold; text-decoration: none; display: block; font-size: 16px;
+    }
+    .send-whatsapp-btn:hover { background: #1eb954; }
   </style>
 </head>
 <body>
+
+  <!-- زر السلة العائم -->
+  <div class="cart-trigger" onclick="openCartModal()">
+    🛒 السلة <span class="cart-count" id="cartCount">0</span>
+  </div>
 
   <header>
     <h1>معرض المنتجات والموديلات الحالية</h1>
@@ -101,7 +125,7 @@
     <p style="grid-column: 1/-1; text-align: center;">جاري تحميل أحدث المنتجات...</p>
   </main>
 
-  <!-- النافذة المنبثقة للتفاصيل والمقاسات -->
+  <!-- نافذة عرض تفاصيل المنتج -->
   <div class="modal-overlay" id="productModal">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal()">✕</button>
@@ -112,9 +136,7 @@
           
           <div>
             <label style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 6px;">اختر المقاس:</label>
-            <div class="size-selector" id="sizesContainer">
-              <!-- أزرار المقاسات -->
-            </div>
+            <div class="size-selector" id="sizesContainer"></div>
           </div>
 
           <div class="modal-price" id="modalPrice">- ج.م</div>
@@ -126,16 +148,36 @@
 
           <p id="modalDesc" style="font-size: 14px; color: #64748b; line-height: 1.5;"></p>
 
-          <a href="#" id="whatsappBtn" target="_blank" class="order-btn">اطلب عبر WhatsApp 💬</a>
+          <button onclick="addToCart()" class="add-cart-btn">إضافة إلى السلة 🛒</button>
         </div>
       </div>
     </div>
   </div>
 
+  <!-- نافذة سلة التسوق -->
+  <div class="modal-overlay" id="cartModal">
+    <div class="modal-content cart-modal">
+      <button class="close-btn" onclick="closeCartModal()">✕</button>
+      <div class="cart-title">🛒 سلة الطلبات</div>
+      <div class="cart-items" id="cartItemsContainer">
+        <p style="text-align: center; color: #64748b;">السلة فارغة حالياً</p>
+      </div>
+      <div class="cart-footer">
+        <div class="total-price">
+          <span>الإجمالي:</span>
+          <span id="cartTotalPrice" style="color: #16a34a;">0 ج.م</span>
+        </div>
+        <a href="#" id="sendWhatsappCartBtn" target="_blank" class="send-whatsapp-btn">إرسال الطلب عبر WhatsApp 💬</a>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const phoneNumber = "201000000000"; // اكتب رقمك بالصيغة الدولية
+    // رقم الواتساب المربوط
+    const phoneNumber = "201116339905"; 
     let currentProduct = {};
     let currentVariant = {};
+    let cart = [];
 
     async function fetchProducts() {
       const container = document.getElementById('products-container');
@@ -162,7 +204,6 @@
             const bodyParts = text.split('---');
             const desc = bodyParts.length > 2 ? bodyParts.slice(2).join('---').trim() : '';
 
-            // استخراج خيارات المقاسات والتفاصيل
             const variants = parseVariants(text);
             const defaultPrice = variants.length > 0 ? variants[0].price : (text.match(/price:\s*"?([^"\r\n]+)"?/)?.[1]?.trim() || '');
 
@@ -178,7 +219,7 @@
               <div class="product-details">
                 <h2 class="product-title">${title}</h2>
                 <span class="price-tag">${defaultPrice ? defaultPrice + ' ج.م' : ''}</span>
-                <div class="click-hint">اضغط لرؤية المقاسات والتفاصيل 👈</div>
+                <div class="click-hint">اضغط لرؤية المقاسات والسلة 👈</div>
               </div>
             `;
             container.appendChild(card);
@@ -189,7 +230,6 @@
       }
     }
 
-    // تحليل بيانات المقاسات المتاحة داخل الملف
     function parseVariants(text) {
       const variants = [];
       const variantsBlock = text.match(/variants:([\s\S]*?)(?=\n[a-z]+:|\n---)/i);
@@ -204,7 +244,7 @@
           const width = item.match(/width:\s*"?([^"\r\n]+)"?/)?.[1]?.trim();
 
           if (size) {
-            variants.push({ size, price: price || '', length: length || '', width: width || '' });
+            variants.push({ size, price: price || '0', length: length || '', width: width || '' });
           }
         });
       }
@@ -228,11 +268,10 @@
           btn.onclick = () => selectVariant(variant, btn);
           sizesContainer.appendChild(btn);
         });
-
-        // اختيار المقاس الأول تلقائياً
         selectVariant(product.variants[0], sizesContainer.children[0]);
       } else {
         sizesContainer.innerHTML = '<span style="font-size:13px; color:#64748b;">مقاس موحد</span>';
+        currentVariant = { size: 'عام', price: '0', length: '', width: '' };
         document.getElementById('modalPrice').innerText = '- ج.م';
         document.getElementById('dimensionsContainer').style.display = 'none';
       }
@@ -242,15 +281,11 @@
 
     function selectVariant(variant, btnElement) {
       currentVariant = variant;
-
-      // تحديث زر المقاس المحدد
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
       if (btnElement) btnElement.classList.add('selected');
 
-      // تحديث السعر بناءً على المقاس
       document.getElementById('modalPrice').innerText = variant.price ? `${variant.price} ج.م` : '';
 
-      // تحديث الأبعاد (الطول والعرض)
       const dimBox = document.getElementById('dimensionsContainer');
       if (variant.length || variant.width) {
         dimBox.style.display = 'flex';
@@ -259,23 +294,75 @@
       } else {
         dimBox.style.display = 'none';
       }
-
-      updateWhatsappLink();
     }
 
-    function closeModal() {
-      document.getElementById('productModal').classList.remove('active');
+    /* إدارة السلة */
+    function addToCart() {
+      const item = {
+        title: currentProduct.title,
+        size: currentVariant.size || 'عام',
+        price: parseFloat(currentVariant.price) || 0,
+        length: currentVariant.length,
+        width: currentVariant.width
+      };
+      
+      cart.push(item);
+      updateCartUI();
+      closeModal();
+      openCartModal();
     }
 
-    function updateWhatsappLink() {
-      let detailsText = `المقاس: ${currentVariant.size || 'عام'}`;
-      if (currentVariant.price) detailsText += ` | السعر: ${currentVariant.price} ج.م`;
-      if (currentVariant.length) detailsText += ` | الطول: ${currentVariant.length}سم`;
-      if (currentVariant.width) detailsText += ` | العرض: ${currentVariant.width}سم`;
-
-      const msg = encodeURIComponent(`أهلاً بك، أريد طلب المنتج: ${currentProduct.title}\n التفاصيل: (${detailsText})`);
-      document.getElementById('whatsappBtn').href = `https://wa.me/${phoneNumber}?text=${msg}`;
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartUI();
     }
+
+    function updateCartUI() {
+      document.getElementById('cartCount').innerText = cart.length;
+      const cartItemsContainer = document.getElementById('cartItemsContainer');
+      
+      if (cart.length === 0) {
+        cartItemsContainer.innerHTML = '<p style="text-align: center; color: #64748b;">السلة فارغة حالياً</p>';
+        document.getElementById('cartTotalPrice').innerText = '0 ج.م';
+        document.getElementById('sendWhatsappCartBtn').href = '#';
+        return;
+      }
+
+      cartItemsContainer.innerHTML = '';
+      let total = 0;
+      let msgText = "أهلاً بك، أريد طلب المنتجات التالية من المتجر:\n\n";
+
+      cart.forEach((item, index) => {
+        total += item.price;
+        let dimInfo = "";
+        if (item.length || item.width) dimInfo = ` (طول:${item.length||'-'} سم / عرض:${item.width||'-'} سم)`;
+        
+        msgText += `${index + 1}. ${item.title}\n   - المقاس: ${item.size}${dimInfo}\n   - السعر: ${item.price} ج.م\n------------------\n`;
+
+        const div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <div>
+            <div class="cart-item-title">${item.title}</div>
+            <div class="cart-item-meta">المقاس: ${item.size} ${dimInfo}</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <span class="cart-item-price">${item.price} ج.م</span>
+            <button class="remove-btn" onclick="removeFromCart(${index})">✕</button>
+          </div>
+        `;
+        cartItemsContainer.appendChild(div);
+      });
+
+      msgText += `\n💰 *الإجمالي النهائي:* ${total} ج.م`;
+
+      document.getElementById('cartTotalPrice').innerText = `${total} ج.م`;
+      document.getElementById('sendWhatsappCartBtn').href = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msgText)}`;
+    }
+
+    function openCartModal() { document.getElementById('cartModal').classList.add('active'); }
+    function closeCartModal() { document.getElementById('cartModal').classList.remove('active'); }
+    function closeModal() { document.getElementById('productModal').classList.remove('active'); }
 
     fetchProducts();
   </script>
