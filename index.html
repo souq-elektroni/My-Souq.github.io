@@ -3,71 +3,91 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Souq - سوقي للأزياء والموديلات</title>
+  <title>My Souq - سوق إلكتروني</title>
   <style>
     :root {
       --bg-cream: #fdfbf7;
-      --card-cream: #fffdfa;
+      --card-cream: #ffffff;
       --burgundy-soft: #803d48;
       --burgundy-hover: #672f38;
       --pink-soft: #f8ecee;
       --pink-accent: #e8c5ce;
       --text-dark: #2c2224;
-      --text-muted: #736366;
+      --text-muted: #615053;
       --border-color: #ebdcdb;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background-color: var(--bg-cream); color: var(--text-dark); padding: 20px; min-height: 100vh; padding-bottom: 80px; }
     
-    /* الشارة الدائرية على يمين الصفحة */
+    /* خلفية متدرجة (مشبحة) بأسلوب احترافي ناعم بين النبيتي الباهت والكريمي */
+    body {
+      background: radial-gradient(circle at top right, #f4e8ea 0%, #fdfbf7 55%, #f9ecee 100%);
+      background-attachment: fixed;
+      color: var(--text-dark);
+      padding: 20px;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+    
+    /* تكبير الشارة الدائرية على يمين الصفحة */
     .brand-badge {
-      position: fixed; top: 25px; right: 20px; width: 70px; height: 70px;
+      position: fixed; top: 25px; right: 25px; width: 90px; height: 90px;
       background: var(--burgundy-soft); color: var(--bg-cream);
       border-radius: 50%; display: flex; flex-direction: column;
       align-items: center; justify-content: center; text-align: center;
-      font-weight: 800; font-size: 13px; line-height: 1.1;
-      box-shadow: 0 6px 20px rgba(128, 61, 72, 0.25); border: 2px solid var(--pink-accent);
+      font-weight: 900; font-size: 16px; line-height: 1.1;
+      box-shadow: 0 8px 25px rgba(128, 61, 72, 0.35); border: 3px solid var(--pink-accent);
       z-index: 950; transform: rotate(-5deg); transition: transform 0.3s;
     }
-    .brand-badge:hover { transform: rotate(0deg) scale(1.05); }
+    .brand-badge:hover { transform: rotate(0deg) scale(1.08); }
 
     /* زر السلة العائم على اليسار */
     .cart-trigger {
       position: fixed; top: 25px; left: 20px; background: var(--burgundy-soft); color: white;
-      padding: 10px 18px; border-radius: 30px; font-weight: bold; cursor: pointer;
-      box-shadow: 0 4px 15px rgba(128, 61, 72, 0.2); display: flex; align-items: center; gap: 8px; z-index: 900;
+      padding: 12px 22px; border-radius: 30px; font-weight: bold; font-size: 16px; cursor: pointer;
+      box-shadow: 0 4px 15px rgba(128, 61, 72, 0.25); display: flex; align-items: center; gap: 8px; z-index: 900;
       border: 1px solid var(--pink-accent); transition: background 0.2s;
     }
     .cart-trigger:hover { background: var(--burgundy-hover); }
-    .cart-count { background: var(--pink-accent); color: var(--burgundy-soft); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
+    .cart-count { background: var(--pink-accent); color: var(--burgundy-soft); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; }
 
-    /* الهيدر والعنوان المنتصف */
-    header { text-align: center; padding: 30px 10px 25px; max-width: 700px; margin: 0 auto; }
-    header h1 { font-size: 32px; color: var(--burgundy-soft); margin-bottom: 12px; font-weight: 800; letter-spacing: -0.5px; }
-    header p { font-size: 16px; color: var(--text-muted); line-height: 1.6; background: var(--pink-soft); padding: 12px 20px; border-radius: 12px; border: 1px dashed var(--pink-accent); }
+    /* الهيدر والعنوان المكبر في المنتصف */
+    header { text-align: center; padding: 40px 10px 30px; max-width: 850px; margin: 0 auto; }
+    header h1 { font-size: 42px; color: var(--burgundy-soft); margin-bottom: 16px; font-weight: 900; letter-spacing: -0.5px; }
+    header p { 
+      font-size: 20px; 
+      color: var(--burgundy-soft); 
+      font-weight: 700; 
+      line-height: 1.6; 
+      background: rgba(248, 236, 238, 0.85); 
+      backdrop-filter: blur(5px);
+      padding: 16px 28px; 
+      border-radius: 16px; 
+      border: 1px dashed var(--pink-accent); 
+      box-shadow: 0 4px 15px rgba(128, 61, 72, 0.05);
+    }
 
-    /* شريط الفلترة وأقسام المنتجات */
+    /* شريط الفلترة والأقسام */
     .controls-wrapper {
       max-width: 1200px; margin: 0 auto 25px; display: flex; flex-wrap: wrap;
       justify-content: space-between; align-items: center; gap: 15px;
-      background: var(--card-cream); padding: 16px 20px; border-radius: 16px;
-      border: 1px solid var(--border-color); box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+      background: rgba(255, 253, 250, 0.9); padding: 18px 22px; border-radius: 16px;
+      border: 1px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.02);
     }
 
     /* أزرار الفلترة الجانبية (الأقسام) */
     .categories-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
     .cat-btn {
-      padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 20px;
-      background: var(--bg-cream); color: var(--text-dark); font-size: 14px; font-weight: 600;
+      padding: 9px 18px; border: 1px solid var(--border-color); border-radius: 20px;
+      background: var(--bg-cream); color: var(--text-dark); font-size: 15px; font-weight: 700;
       cursor: pointer; transition: all 0.2s;
     }
     .cat-btn.active, .cat-btn:hover { background: var(--burgundy-soft); color: white; border-color: var(--burgundy-soft); }
 
     /* فلتر ترتيب الأسعار */
     .sort-wrapper select {
-      padding: 8px 14px; border-radius: 10px; border: 1px solid var(--border-color);
-      background: var(--bg-cream); color: var(--text-dark); font-size: 14px; font-weight: 600; cursor: pointer;
+      padding: 9px 16px; border-radius: 10px; border: 1px solid var(--border-color);
+      background: var(--bg-cream); color: var(--text-dark); font-size: 15px; font-weight: 700; cursor: pointer;
     }
 
     .products-grid {
@@ -82,15 +102,15 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border-color);
       display: flex; flex-direction: column; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
     }
-    .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(128, 61, 72, 0.08); }
+    .product-card:hover { transform: translateY(-4px); box-shadow: 0 10px 25px rgba(128, 61, 72, 0.12); }
 
     .image-container { position: relative; width: 100%; height: 270px; background: var(--pink-soft); }
     .product-image { width: 100%; height: 100%; object-fit: cover; }
 
     .product-details { padding: 16px; display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
-    .product-title { font-size: 17px; font-weight: 700; color: var(--text-dark); }
-    .price-tag { font-size: 20px; font-weight: 800; color: var(--burgundy-soft); margin-top: auto; }
-    .click-hint { font-size: 12px; color: var(--burgundy-soft); font-weight: 600; text-align: center; margin-top: 8px; background: var(--pink-soft); padding: 6px; border-radius: 8px; }
+    .product-title { font-size: 18px; font-weight: 700; color: var(--text-dark); }
+    .price-tag { font-size: 21px; font-weight: 800; color: var(--burgundy-soft); margin-top: auto; }
+    .click-hint { font-size: 13px; color: var(--burgundy-soft); font-weight: 700; text-align: center; margin-top: 8px; background: var(--pink-soft); padding: 7px; border-radius: 8px; }
 
     /* النوافذ المنبثقة (Modal & Cart) */
     .modal-overlay {
@@ -159,7 +179,7 @@
 </head>
 <body>
 
-  <!-- الشارة الدائرية العائمة للماركة -->
+  <!-- الشارة الدائرية العائمة الكبيرة -->
   <div class="brand-badge">
     <span>MY</span>
     <span>SOUQ</span>
@@ -171,14 +191,15 @@
   </div>
 
   <header>
-    <h1>عالم الأناقة والموديلات العصرية</h1>
-    <p>وجهتك الأولى لاكتشاف أرقى التشكيلات وأحدث خطوط الموضة المختارة بعناية لتناسب ذوقك الرفيع.</p>
+    <h1>سوق إلكتروني 🛒</h1>
+    <p>تسوق وأنت بمكانك (ملابس رجالي ونسائي وأطفالي بأعلى جودة وأفضل سعر)</p>
   </header>
 
   <!-- شريط الفلاتر والأقسام -->
   <div class="controls-wrapper">
     <div class="categories-bar" id="categoryBar">
-      <button class="cat-btn active" onclick="filterCategory('all', this)">الكل</button>      <button class="cat-btn" onclick="filterCategory('دفاية', this)">دفاية</button>
+      <button class="cat-btn active" onclick="filterCategory('all', this)">الكل</button>
+      <button class="cat-btn" onclick="filterCategory('دفاية', this)">دفاية</button>
       <button class="cat-btn" onclick="filterCategory('تيشرت', this)">تيشرت</button>
       <button class="cat-btn" onclick="filterCategory('بنطلون', this)">بنطلون</button>
       <button class="cat-btn" onclick="filterCategory('فستان', this)">فستان</button>
@@ -320,7 +341,6 @@
       });
     }
 
-    /* فلترة الأقسام */
     function filterCategory(cat, btn) {
       currentCategory = cat;
       document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
@@ -334,7 +354,6 @@
       applySorting();
     }
 
-    /* فرز الأسعار */
     function applySorting() {
       const sortVal = document.getElementById('sortSelect').value;
       if (sortVal === 'low-high') {
@@ -407,7 +426,6 @@
       }
     }
 
-    /* إدارة السلة */
     function addToCart() {
       const item = {
         title: currentProduct.title,
