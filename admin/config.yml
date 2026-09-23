@@ -4,7 +4,7 @@ backend:
   branch: main
 
 media_folder: "images"
-public_folder: "/images"
+public_folder: "images"
 
 collections:
   - name: "products"
@@ -14,16 +14,15 @@ collections:
     slug: "{{slug}}"
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
-      - { label: "الصورة", name: "image", widget: "image" }
-      - { label: "الوصف", name: "body", widget: "markdown", required: false }
-      
-      # جدول المقاسات بأسعارها وأبعادها
-      - label: "المقاسات المتاحة وتفاصيلها"
+      - { label: "صورة المنتج", name: "image", widget: "image" }
+      - { label: "السعر الأساسي (ج.م)", name: "price", widget: "number", value_type: "int", default: 0 }
+      - label: "المقاسات والأبعاد (Variants)"
         name: "variants"
         widget: "list"
-        summary: "مقاس: {{fields.size}} - السعر: {{fields.price}} ج.م"
+        required: false
         fields:
-          - { label: "اسم المقاس (مثال: مقاس 2 أو L)", name: "size", widget: "string" }
-          - { label: "السعر لهذا المقاس", name: "price", widget: "string" }
+          - { label: "المقاس (مثال: M, L, XL, 2)", name: "size", widget: "string" }
+          - { label: "السعر لهذا المقاس (ج.م)", name: "price", widget: "number", value_type: "int", required: false }
           - { label: "الطول (سم)", name: "length", widget: "string", required: false }
           - { label: "العرض (سم)", name: "width", widget: "string", required: false }
+      - { label: "وصف المنتج", name: "body", widget: "markdown", required: false }
