@@ -228,7 +228,7 @@
     }
     .btn-decline:hover { background: #d32f2f; }
 
-    /* 💳 نافذة طرق الدفع (جديد) */
+    /* 💳 نافذة طرق الدفع */
     .payment-modal { max-width: 500px; padding: 24px; z-index: 1200; }
     .payment-option {
       display: flex; align-items: flex-start; gap: 12px; background: var(--bg-cream);
@@ -399,7 +399,7 @@
     </div>
   </div>
 
-  <!-- 💳 نافذة طرق الدفع (جديد) -->
+  <!-- 💳 نافذة طرق الدفع -->
   <div class="modal-overlay" id="paymentModal">
     <div class="modal-content payment-modal">
       <div class="terms-header">💳 طريقة الدفع المفضلة</div>
@@ -442,7 +442,7 @@
     let currentProduct = {};
     let currentVariant = {};
     let cart = [];
-    let selectedPaymentMethod = 'cod'; // الخيار الافتراضي: الدفع عند الاستلام
+    let selectedPaymentMethod = 'cod';
 
     function cleanValue(str) {
       if (!str) return '';
@@ -723,13 +723,11 @@
       alert('عذراً، لا يمكن استكمال الطلب دون الموافقة على الشروط والأحكام الخاصة بالمتجر.');
     }
 
-    /* الانتقال من الشروط إلى نافذة الدفع */
     function proceedToPayment() {
       document.getElementById('termsModal').classList.remove('active');
       document.getElementById('paymentModal').classList.add('active');
     }
 
-    /* اختيار طريقة الدفع */
     function selectPayment(type) {
       selectedPaymentMethod = type;
       document.getElementById('optCod').classList.remove('selected');
@@ -744,11 +742,15 @@
       }
     }
 
-    /* إرسال الطلب النهائي عبر الواتساب */
+    /* إرسال الطلب للواتساب وتفريغ السلة تماماً */
     function executeWhatsappOrder() {
-      const name = document.getElementById('custName').value.trim();
-      const phone = document.getElementById('custPhone').value.trim();
-      const address = document.getElementById('custAddress').value.trim();
+      const nameInput = document.getElementById('custName');
+      const phoneInput = document.getElementById('custPhone');
+      const addressInput = document.getElementById('custAddress');
+
+      const name = nameInput.value.trim();
+      const phone = phoneInput.value.trim();
+      const address = addressInput.value.trim();
 
       const payText = selectedPaymentMethod === 'instapay' 
         ? '📱 InstaPay (تحويل إلكتروني على 01116339905)' 
@@ -776,7 +778,14 @@
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msgText)}`;
       window.open(whatsappUrl, '_blank');
       
-      // إغلاق كل النوافذ المنبثقة
+      // تفريغ مصفوفة المنتجات والمدخلات
+      cart = [];
+      nameInput.value = '';
+      phoneInput.value = '';
+      addressInput.value = '';
+
+      // إشعار الواجهة بالتفريغ وإغلاق النوافذ
+      updateCartUI();
       document.getElementById('paymentModal').classList.remove('active');
       closeCartModal();
     }
