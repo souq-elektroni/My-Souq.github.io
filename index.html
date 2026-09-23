@@ -30,31 +30,31 @@
       padding-bottom: 80px;
     }
     
-    /* الشارة الدائرية العائمة الكبيرة */
+    /* الشارة الدائرية العائمة */
     .brand-badge {
-      position: fixed; top: 25px; right: 25px; width: 100px; height: 100px;
+      position: fixed; top: 25px; right: 25px; width: 90px; height: 90px;
       background: var(--burgundy-soft); color: var(--bg-cream);
       border-radius: 50%; display: flex; flex-direction: column;
       align-items: center; justify-content: center; text-align: center;
-      font-weight: 900; font-size: 18px; line-height: 1.1;
+      font-weight: 900; font-size: 16px; line-height: 1.1;
       box-shadow: 0 8px 25px rgba(128, 61, 72, 0.35); border: 3px solid var(--pink-accent);
       z-index: 950; transform: rotate(-5deg); transition: transform 0.3s;
     }
     .brand-badge:hover { transform: rotate(0deg) scale(1.08); }
 
-    /* أزرار الهيدر العائمة */
-    .top-actions { position: fixed; top: 25px; left: 20px; display: flex; gap: 10px; z-index: 900; }
+    /* زر السلة العائم */
+    .top-actions { position: fixed; top: 25px; left: 20px; z-index: 900; }
 
-    .cart-trigger, .bot-trigger {
+    .cart-trigger {
       background: var(--burgundy-soft); color: white;
-      padding: 12px 20px; border-radius: 30px; font-weight: 800; font-size: 15px; cursor: pointer;
+      padding: 12px 22px; border-radius: 30px; font-weight: 800; font-size: 15px; cursor: pointer;
       box-shadow: 0 4px 15px rgba(128, 61, 72, 0.25); display: flex; align-items: center; gap: 8px;
       border: 1px solid var(--pink-accent); transition: all 0.2s;
     }
-    .cart-trigger:hover, .bot-trigger:hover { background: var(--burgundy-hover); transform: translateY(-2px); }
+    .cart-trigger:hover { background: var(--burgundy-hover); transform: translateY(-2px); }
     .cart-count { background: var(--pink-accent); color: var(--burgundy-soft); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; }
 
-    /* الهيدر والعنوان الفخم المكبر */
+    /* الهيدر والعنوان */
     header { text-align: center; padding: 50px 10px 35px; max-width: 950px; margin: 0 auto; }
     header h1 { 
       font-size: 50px; 
@@ -65,13 +65,13 @@
       text-shadow: 2px 2px 4px rgba(128, 61, 72, 0.1);
     }
     header p { 
-      font-size: 24px; 
+      font-size: 22px; 
       color: var(--burgundy-soft); 
       font-weight: 800; 
       line-height: 1.6; 
       background: rgba(248, 236, 238, 0.9); 
       backdrop-filter: blur(8px);
-      padding: 20px 32px; 
+      padding: 18px 30px; 
       border-radius: 20px; 
       border: 2px dashed var(--pink-accent); 
       box-shadow: 0 8px 25px rgba(128, 61, 72, 0.08);
@@ -159,49 +159,12 @@
 
     .dimensions-box { background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 12px; border-radius: 10px; font-size: 15px; display: flex; gap: 16px; color: var(--burgundy-soft); font-weight: 700; }
 
-    .add-cart-btn, .try-bot-btn {
+    .add-cart-btn {
       background: var(--burgundy-soft); color: white; border: none; padding: 14px;
       border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer;
       text-align: center; display: block; margin-top: 8px; transition: background 0.2s;
     }
-    .try-bot-btn { background: #5c2b33; border: 1px solid var(--pink-accent); }
     .add-cart-btn:hover { background: var(--burgundy-hover); }
-
-    /* غرفه التجربة المباشرة بالمانيكان */
-    .bot-modal { max-width: 650px; padding: 24px; text-align: center; }
-    .bot-header { font-size: 22px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 8px; }
-    
-    .fitting-stage {
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 15px; background: var(--pink-soft); border: 2px dashed var(--pink-accent);
-      border-radius: 20px; padding: 20px; margin-top: 15px; position: relative;
-    }
-
-    .mannequin-container {
-      position: relative; width: 160px; height: 220px;
-      background: rgba(255, 255, 255, 0.6); border-radius: 15px;
-      display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);
-      overflow: hidden;
-    }
-
-    .mannequin-avatar { font-size: 90px; z-index: 1; transition: transform 0.3s; }
-    .garment-overlay {
-      position: absolute; top: 35%; width: 90px; height: 100px;
-      object-fit: contain; z-index: 2; opacity: 0.88; filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.2));
-      transition: all 0.3s ease;
-    }
-
-    .fit-status-badge {
-      background: var(--burgundy-soft); color: white; padding: 8px 16px;
-      border-radius: 20px; font-weight: 800; font-size: 14px;
-    }
-
-    .model-selector-bar { display: flex; justify-content: center; gap: 10px; margin: 10px 0; }
-    .model-opt-btn {
-      padding: 8px 16px; border-radius: 12px; border: 1px solid var(--border-color);
-      background: white; font-weight: 800; cursor: pointer; color: var(--text-dark);
-    }
-    .model-opt-btn.active { background: var(--burgundy-soft); color: white; }
 
     /* نافذة السلة */
     .cart-modal { max-width: 500px; padding: 20px; }
@@ -229,11 +192,8 @@
     <span>SOUQ</span>
   </div>
 
-  <!-- أزرار التحكم العائمة -->
+  <!-- زر السلة العائم -->
   <div class="top-actions">
-    <div class="bot-trigger" onclick="openGeneralBot()">
-      🤖 تجربة الموديلات (Fitting Bot)
-    </div>
     <div class="cart-trigger" onclick="openCartModal()">
       🛒 السلة <span class="cart-count" id="cartCount">0</span>
     </div>
@@ -267,36 +227,6 @@
     <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 18px; font-weight: bold;">جاري تحميل الموديلات...</p>
   </main>
 
-  <!-- نافذة تجربة المانيكان التفاعلية الحية -->
-  <div class="modal-overlay" id="botModal">
-    <div class="modal-content bot-modal">
-      <button class="close-btn" onclick="closeBotModal()">✕</button>
-      <div class="bot-header">🤖 غرفة القياس الافتراضية للموديل</div>
-      <p style="font-size: 14px; color: var(--text-muted); font-weight: bold;" id="botProductSub">اختبار القياس والتناسق المباشر</p>
-
-      <div class="model-selector-bar">
-        <button class="model-opt-btn active" id="mBtnChild" onclick="changeMannequin('child')">👦 أطفالي</button>
-        <button class="model-opt-btn" id="mBtnMen" onclick="changeMannequin('men')">👨 رجالي</button>
-        <button class="model-opt-btn" id="mBtnWomen" onclick="changeMannequin('women')">👩 نسائي</button>
-      </div>
-
-      <div class="fitting-stage">
-        <div class="mannequin-container">
-          <div class="mannequin-avatar" id="mannequinAvatar">👦</div>
-          <img id="overlayGarment" class="garment-overlay" src="" alt="قطعة الملابس">
-        </div>
-
-        <div class="fit-status-badge" id="fitStatusBadge">المقاس مظبوط %100</div>
-
-        <p id="fitAnalysisText" style="font-size: 14px; font-weight: 700; color: var(--burgundy-soft); line-height: 1.5; padding: 0 10px;">
-          القطعة متناسقة بشكل ممتاز على جسم الموديل، مع مساحة مريحة لحرية الحركة.
-        </p>
-      </div>
-
-      <button onclick="addCurrentProductToCartFromBot()" class="add-cart-btn" style="margin-top: 15px;">اعجبني القياس - إدراج بالسلة 🛒</button>
-    </div>
-  </div>
-
   <!-- نافذة تفاصيل المنتج -->
   <div class="modal-overlay" id="productModal">
     <div class="modal-content">
@@ -320,7 +250,6 @@
 
           <p id="modalDesc" style="font-size: 15px; color: var(--text-muted); line-height: 1.5;"></p>
 
-          <button onclick="openLiveFitting()" class="try-bot-btn">👗 تجربة الموديل على المانيكان الآن</button>
           <button onclick="addToCart()" class="add-cart-btn">إضافة إلى السلة 🛒</button>
         </div>
       </div>
@@ -353,7 +282,6 @@
     let currentProduct = {};
     let currentVariant = {};
     let cart = [];
-    let currentMannequinType = 'child';
 
     async function fetchProducts() {
       const container = document.getElementById('products-container');
@@ -415,7 +343,7 @@
           <div class="product-details">
             <h2 class="product-title">${product.title}</h2>
             <span class="price-tag">${product.basePrice ? product.basePrice + ' ج.م' : ''}</span>
-            <div class="click-hint">اضغط للرؤية والتسوق 👈</div>
+            <div class="click-hint">اضغط للتفاصيل والتسوق 👈</div>
           </div>
         `;
         container.appendChild(card);
@@ -506,73 +434,6 @@
         dimBox.style.display = 'none';
       }
     }
-
-    /* تشغيل التجربة الحية داخل البوت */
-    function openLiveFitting() {
-      closeModal();
-      document.getElementById('botProductSub').innerText = `${currentProduct.title} - مقاس (${currentVariant.size || 'عام'})`;
-      document.getElementById('overlayGarment').src = currentProduct.image;
-      
-      // التخمين التلقائي لنوع الموديل بناءً على اسم القطعة
-      const t = currentProduct.title;
-      if (t.includes('اطفال') || t.includes('أطفال') || t.includes('طفل')) {
-        changeMannequin('child');
-      } else if (t.includes('حريمي') || t.includes('نسائي') || t.includes('فستان')) {
-        changeMannequin('women');
-      } else {
-        changeMannequin('men');
-      }
-
-      document.getElementById('botModal').classList.add('active');
-    }
-
-    function openGeneralBot() {
-      if (allProducts.length > 0) {
-        openModal(allProducts[0]);
-        openLiveFitting();
-      } else {
-        alert("يرجى الانتظار لحين تحميل المنتجات أولاً");
-      }
-    }
-
-    function changeMannequin(type) {
-      currentMannequinType = type;
-      document.querySelectorAll('.model-opt-btn').forEach(b => b.classList.remove('active'));
-      const avatar = document.getElementById('mannequinAvatar');
-      const text = document.getElementById('fitAnalysisText');
-      const badge = document.getElementById('fitStatusBadge');
-      const overlay = document.getElementById('overlayGarment');
-
-      if (type === 'child') {
-        document.getElementById('mBtnChild').classList.add('active');
-        avatar.innerText = '👦';
-        avatar.style.transform = 'scale(0.85)';
-        overlay.style.width = '75px';
-        badge.innerText = 'مناسب للأطفال %100';
-        text.innerText = `القياس (${currentVariant.size || 'المختار'}) مرن ومريح لجميع حركات ومراحل الأطفال.`;
-      } else if (type === 'men') {
-        document.getElementById('mBtnMen').classList.add('active');
-        avatar.innerText = '👨';
-        avatar.style.transform = 'scale(1)';
-        overlay.style.width = '95px';
-        badge.innerText = 'تناسق رجالي مظبوط';
-        text.innerText = `القطعة تلائم الأكتاف والخصر بأسلوب عصري ومريح للارتداء اليومي.`;
-      } else if (type === 'women') {
-        document.getElementById('mBtnWomen').classList.add('active');
-        avatar.innerText = '👩';
-        avatar.style.transform = 'scale(0.95)';
-        overlay.style.width = '85px';
-        badge.innerText = 'قَصّة نسائية أنيقة';
-        text.innerText = `تصميم انسيابي يمنح القوام مظهراً جذاباً ومريحاً.`;
-      }
-    }
-
-    function addCurrentProductToCartFromBot() {
-      addToCart();
-      closeBotModal();
-    }
-
-    function closeBotModal() { document.getElementById('botModal').classList.remove('active'); }
 
     /* إدارة السلة */
     function addToCart() {
