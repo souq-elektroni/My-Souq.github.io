@@ -167,21 +167,48 @@
     .add-cart-btn:hover { background: var(--burgundy-hover); }
 
     /* نافذة السلة */
-    .cart-modal { max-width: 500px; padding: 20px; }
-    .cart-title { font-size: 20px; font-weight: bold; margin-bottom: 16px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; color: var(--burgundy-soft); }
-    .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 300px; overflow-y: auto; }
+    .cart-modal { max-width: 550px; padding: 24px; }
+    .cart-title { font-size: 22px; font-weight: bold; margin-bottom: 16px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; color: var(--burgundy-soft); }
+    .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 220px; overflow-y: auto; margin-bottom: 15px; }
     .cart-item { display: flex; justify-content: space-between; align-items: center; background: var(--pink-soft); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--pink-accent); }
     .cart-item-title { font-weight: bold; font-size: 14px; }
     .cart-item-meta { font-size: 12px; color: var(--text-muted); }
     .cart-item-price { font-weight: bold; color: var(--burgundy-soft); font-size: 14px; }
-    .remove-btn { color: #dc2626; background: none; border: none; cursor: pointer; font-weight: bold; padding: 4px; }
+    .remove-btn { color: #dc2626; background: none; border: none; cursor: pointer; font-weight: bold; padding: 4px; font-size: 16px; }
 
-    .cart-footer { margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
-    .total-price { font-size: 18px; font-weight: 800; display: flex; justify-content: space-between; }
+    /* نموذج بيانات الشحن/العميل */
+    .customer-form {
+      background: var(--bg-cream);
+      padding: 15px;
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 4px; }
+    .form-group label { font-size: 13px; font-weight: bold; color: var(--burgundy-soft); }
+    .form-group input, .form-group textarea {
+      padding: 10px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      background: white;
+    }
+    .form-group input:focus, .form-group textarea:focus {
+      border-color: var(--burgundy-soft);
+    }
+
+    .cart-footer { margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px; display: flex; flex-direction: column; gap: 12px; }
+    .total-price { font-size: 20px; font-weight: 800; display: flex; justify-content: space-between; color: var(--text-dark); }
     .send-whatsapp-btn {
       background: #25d366; color: white; text-align: center; padding: 14px;
       border-radius: 12px; font-weight: bold; text-decoration: none; display: block; font-size: 17px;
+      box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25); border: none; cursor: pointer; width: 100%;
     }
+    .send-whatsapp-btn:hover { background: #20bd5a; }
   </style>
 </head>
 <body>
@@ -261,15 +288,37 @@
     <div class="modal-content cart-modal">
       <button class="close-btn" onclick="closeCartModal()">✕</button>
       <div class="cart-title">🛒 سلة المشتريات</div>
+      
       <div class="cart-items" id="cartItemsContainer">
         <p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>
       </div>
+
+      <!-- نموذج كتابة بيانات العميل -->
+      <div class="customer-form" id="customerFormBox" style="display: none;">
+        <h4 style="color: var(--burgundy-soft); font-size: 15px; font-weight: bold;">📝 بيانات الشحن والتوصيل:</h4>
+        
+        <div class="form-group">
+          <label for="custName">الاسم بالكامل *</label>
+          <input type="text" id="custName" placeholder="أدخل اسمك الكريم">
+        </div>
+
+        <div class="form-group">
+          <label for="custPhone">رقم التواصل / الواتساب *</label>
+          <input type="tel" id="custPhone" placeholder="01xxxxxxxx">
+        </div>
+
+        <div class="form-group">
+          <label for="custAddress">العنوان التفصيلي (المدينة - الشارع - رقم العمارة) *</label>
+          <textarea id="custAddress" rows="2" placeholder="أدخل عنوان التوصيل بدقة"></textarea>
+        </div>
+      </div>
+
       <div class="cart-footer">
         <div class="total-price">
-          <span>الإجمالي:</span>
+          <span>الإجمالي النهائي:</span>
           <span id="cartTotalPrice" style="color: var(--burgundy-soft);">0 ج.م</span>
         </div>
-        <a href="#" id="sendWhatsappCartBtn" target="_blank" class="send-whatsapp-btn">إرسال الطلب عبر WhatsApp 💬</a>
+        <button onclick="sendOrderToWhatsapp()" id="sendWhatsappBtn" class="send-whatsapp-btn" style="display: none;">إرسال الطلب عبر WhatsApp 💬</button>
       </div>
     </div>
   </div>
@@ -459,24 +508,27 @@
     function updateCartUI() {
       document.getElementById('cartCount').innerText = cart.length;
       const cartItemsContainer = document.getElementById('cartItemsContainer');
+      const formBox = document.getElementById('customerFormBox');
+      const sendBtn = document.getElementById('sendWhatsappBtn');
       
       if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>';
         document.getElementById('cartTotalPrice').innerText = '0 ج.م';
-        document.getElementById('sendWhatsappCartBtn').href = '#';
+        formBox.style.display = 'none';
+        sendBtn.style.display = 'none';
         return;
       }
 
+      formBox.style.display = 'flex';
+      sendBtn.style.display = 'block';
+
       cartItemsContainer.innerHTML = '';
       let total = 0;
-      let msgText = "أهلاً بك، أريد طلب المنتجات التالية من متجر My Souq:\n\n";
 
       cart.forEach((item, index) => {
         total += item.price;
         let dimInfo = "";
         if (item.length || item.width) dimInfo = ` (طول:${item.length||'-'}سم / عرض:${item.width||'-'}سم)`;
-        
-        msgText += `${index + 1}. ${item.title}\n   - المقاس: ${item.size}${dimInfo}\n   - السعر: ${item.price} ج.م\n------------------\n`;
 
         const div = document.createElement('div');
         div.className = 'cart-item';
@@ -493,10 +545,38 @@
         cartItemsContainer.appendChild(div);
       });
 
-      msgText += `\n💰 *الإجمالي النهائي:* ${total} ج.م`;
-
       document.getElementById('cartTotalPrice').innerText = `${total} ج.م`;
-      document.getElementById('sendWhatsappCartBtn').href = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msgText)}`;
+    }
+
+    function sendOrderToWhatsapp() {
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
+
+      if (!name || !phone || !address) {
+        alert('يرجى استكمال جميع البيانات (الاسم، رقم التليفون، والعنوان) لإرسال الطلب');
+        return;
+      }
+
+      let total = 0;
+      let msgText = `🛍️ *طلب جديد من متجر My Souq*\n\n`;
+      msgText += `👤 *بيانات العميل:*\n`;
+      msgText += `- *الاسم:* ${name}\n`;
+      msgText += `- *رقم التواصل:* ${phone}\n`;
+      msgText += `- *العنوان:* ${address}\n\n`;
+      msgText += `📦 *المنتجات المطلوبة:*\n`;
+
+      cart.forEach((item, index) => {
+        total += item.price;
+        let dimInfo = "";
+        if (item.length || item.width) dimInfo = ` (طول:${item.length||'-'}سم / عرض:${item.width||'-'}سم)`;
+        msgText += `${index + 1}. ${item.title}\n   • المقاس: ${item.size}${dimInfo}\n   • السعر: ${item.price} ج.م\n`;
+      });
+
+      msgText += `\n💰 *الإجمالي الكلي:* ${total} ج.م`;
+
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msgText)}`;
+      window.open(whatsappUrl, '_blank');
     }
 
     function openCartModal() { document.getElementById('cartModal').classList.add('active'); }
