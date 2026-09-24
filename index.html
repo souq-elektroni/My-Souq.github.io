@@ -410,7 +410,7 @@
     </div>
   </div>
 
-  <!-- سكربت التشغيل ومعالجة الماركداون والواتساب مع صور المنتجات -->
+  <!-- سكربت التشغيل ومعالجة المنتجات والسلة والواتساب -->
   <script>
     let products = [];
     let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
@@ -627,7 +627,6 @@
         sizesContainer.appendChild(btn);
       });
 
-      // تضمين رابط الصورة في زر الطلب الفوري المباشر عبر الواتساب
       const fullImgUrl = `${window.location.origin}/${currentSelectedProduct.image}`;
       const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title}\n المقاس: ${selectedSize}\n السعر: ${currentSelectedProduct.price} ج.م\n 📷 صورة المنتج: ${fullImgUrl}`);
       document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
@@ -636,7 +635,13 @@
     }
 
     function closeModal() { document.getElementById('productModal').classList.remove('active'); }
-    function openCartModal() { document.getElementById('cartModal').classList.add('active'); }
+    
+    // تم تحديث دالة فتح السلة لتستدعي محتوى السلة فوراً
+    function openCartModal() { 
+      renderCartItems();
+      document.getElementById('cartModal').classList.add('active'); 
+    }
+    
     function closeCartModal() { document.getElementById('cartModal').classList.remove('active'); }
     function closeSuccessModal() { document.getElementById('successModal').classList.remove('active'); }
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
@@ -649,6 +654,7 @@
       } else {
         cart.push({ ...currentSelectedProduct, size: selectedSize, qty: 1 });
       }
+      localStorage.setItem("souqCart", JSON.stringify(cart));
       updateCartCount();
       closeModal();
       openCartModal();
@@ -707,12 +713,14 @@
     function changeQty(index, delta) {
       cart[index].qty += delta;
       if (cart[index].qty <= 0) cart.splice(index, 1);
+      localStorage.setItem("souqCart", JSON.stringify(cart));
       updateCartCount();
       renderCartItems();
     }
 
     function removeFromCart(index) {
       cart.splice(index, 1);
+      localStorage.setItem("souqCart", JSON.stringify(cart));
       updateCartCount();
       renderCartItems();
     }
@@ -798,7 +806,6 @@
       alert('تم نسخ رقم انستا باي بنجاح');
     }
 
-    // دالة إنشاء رسالة الواتساب النهائية مع تضمين رابط الصورة المباشر لكل منتج في السلة
     function finalizeOrder() {
       const name = document.getElementById('custName').value.trim();
       const phone = document.getElementById('custPhone').value.trim();
