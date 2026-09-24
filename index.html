@@ -77,7 +77,7 @@
       box-shadow: 0 8px 25px rgba(128, 61, 72, 0.08);
     }
 
-    /* شريط الفلترة والأقسام */
+    /* شريط الفلترة والبحث والأقسام */
     .controls-wrapper {
       max-width: 1200px; margin: 0 auto 30px; display: flex; flex-wrap: wrap;
       justify-content: space-between; align-items: center; gap: 15px;
@@ -93,9 +93,17 @@
     }
     .cat-btn.active, .cat-btn:hover { background: var(--burgundy-soft); color: white; border-color: var(--burgundy-soft); }
 
+    .search-sort-box { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    
+    .search-input {
+      padding: 10px 16px; border-radius: 12px; border: 1px solid var(--border-color);
+      background: var(--bg-cream); color: var(--text-dark); font-size: 15px; font-weight: 700; outline: none; width: 200px;
+    }
+    .search-input:focus { border-color: var(--burgundy-soft); background: white; }
+
     .sort-wrapper select {
       padding: 10px 18px; border-radius: 12px; border: 1px solid var(--border-color);
-      background: var(--bg-cream); color: var(--text-dark); font-size: 15px; font-weight: 800; cursor: pointer;
+      background: var(--bg-cream); color: var(--text-dark); font-size: 15px; font-weight: 800; cursor: pointer; outline: none;
     }
 
     .products-grid {
@@ -128,7 +136,6 @@
     }
     .modal-overlay.active { display: flex; }
 
-    /* 🟢 تكبير النافذة المنبثقة للمنتج لتصبح أوسع وأكثر راحة */
     .modal-content {
       background: var(--card-cream); border-radius: 22px; max-width: 850px; width: 100%;
       max-height: 92vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.25);
@@ -147,10 +154,8 @@
     @media (min-width: 650px) { .modal-body { grid-template-columns: 1.1fr 1fr; align-items: center; } }
 
     .modal-gallery-wrapper { display: flex; flex-direction: column; gap: 12px; }
-    /* 🟢 تكبير الصورة الرئيسية داخل النافذة */
     .modal-img { width: 100%; height: 350px; object-fit: cover; border-radius: 16px; border: 1px solid var(--border-color); }
     
-    /* معرض المصغرات الأكبر */
     .thumbnails-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
     .thumb-img {
       width: 65px; height: 65px; border-radius: 10px; object-fit: cover; cursor: pointer;
@@ -171,22 +176,36 @@
 
     .dimensions-box { background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 14px; border-radius: 12px; font-size: 15px; display: flex; gap: 16px; color: var(--burgundy-soft); font-weight: 700; }
 
+    .modal-actions-row { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
     .add-cart-btn {
-      background: var(--burgundy-soft); color: white; border: none; padding: 15px;
+      flex: 1; background: var(--burgundy-soft); color: white; border: none; padding: 15px;
       border-radius: 14px; font-weight: 800; font-size: 17px; cursor: pointer;
-      text-align: center; display: block; margin-top: 10px; transition: background 0.2s;
-      box-shadow: 0 4px 12px rgba(128, 61, 72, 0.2);
+      text-align: center; transition: background 0.2s; box-shadow: 0 4px 12px rgba(128, 61, 72, 0.2);
     }
     .add-cart-btn:hover { background: var(--burgundy-hover); }
 
+    .share-btn {
+      background: var(--pink-soft); color: var(--burgundy-soft); border: 1px solid var(--pink-accent);
+      padding: 15px 18px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer;
+      transition: all 0.2s; display: flex; align-items: center; justify-content: center;
+    }
+    .share-btn:hover { background: var(--burgundy-soft); color: white; }
+
     /* نافذة السلة */
-    .cart-modal { max-width: 550px; padding: 24px; }
+    .cart-modal { max-width: 580px; padding: 24px; }
     .cart-title { font-size: 22px; font-weight: bold; margin-bottom: 16px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; color: var(--burgundy-soft); }
-    .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 180px; overflow-y: auto; margin-bottom: 15px; }
-    .cart-item { display: flex; justify-content: space-between; align-items: center; background: var(--pink-soft); padding: 10px 14px; border-radius: 10px; border: 1px solid var(--pink-accent); }
-    .cart-item-title { font-weight: bold; font-size: 14px; }
-    .cart-item-meta { font-size: 12px; color: var(--text-muted); }
-    .cart-item-price { font-weight: bold; color: var(--burgundy-soft); font-size: 14px; }
+    .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 220px; overflow-y: auto; margin-bottom: 15px; padding-left: 4px; }
+    .cart-item { display: flex; justify-content: space-between; align-items: center; background: var(--pink-soft); padding: 12px 14px; border-radius: 12px; border: 1px solid var(--pink-accent); gap: 10px; }
+    .cart-item-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    .cart-item-title { font-weight: bold; font-size: 15px; color: var(--text-dark); }
+    .cart-item-meta { font-size: 12.5px; color: var(--text-muted); }
+    
+    /* عداد الكمية بالسلة */
+    .quantity-controls { display: flex; align-items: center; gap: 8px; background: white; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border-color); }
+    .qty-btn { background: none; border: none; font-weight: bold; font-size: 16px; cursor: pointer; color: var(--burgundy-soft); width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
+    .qty-num { font-weight: 800; font-size: 14px; min-width: 15px; text-align: center; }
+
+    .cart-item-price { font-weight: 900; color: var(--burgundy-soft); font-size: 15px; min-width: 70px; text-align: left; }
     .remove-btn { color: #dc2626; background: none; border: none; cursor: pointer; font-weight: bold; padding: 4px; font-size: 16px; }
 
     /* نموذج الشحن */
@@ -258,8 +277,10 @@
     
     .instapay-box {
       background: #e8f5e9; border: 1px solid #a5d6a7; padding: 10px; border-radius: 8px;
-      font-size: 13px; color: #1b5e20; margin-top: 6px; font-weight: bold;
+      font-size: 13px; color: #1b5e20; margin-top: 6px; font-weight: bold; display: flex; justify-content: space-between; align-items: center;
     }
+    .copy-instapay-btn { background: #2e7d32; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: bold; }
+    .copy-instapay-btn:hover { background: #1b5e20; }
 
     .send-final-btn {
       background: #25d366; color: white; text-align: center; padding: 14px;
@@ -291,7 +312,7 @@
     <p>تسوق وأنت بمكانك (ملابس رجالي ونسائي وأطفالي بأعلى جودة وأفضل سعر)</p>
   </header>
 
-  <!-- شريط الفلترة والأقسام -->
+  <!-- شريط الفلترة والبحث والأقسام -->
   <div class="controls-wrapper">
     <div class="categories-bar" id="categoryBar">
       <button class="cat-btn active" onclick="filterCategory('all', this)">الكل</button>
@@ -301,12 +322,15 @@
       <button class="cat-btn" onclick="filterCategory('فستان', this)">فستان</button>
     </div>
 
-    <div class="sort-wrapper">
-      <select id="sortSelect" onchange="applySorting()">
-        <option value="default">ترتيب الافتراضي</option>
-        <option value="low-high">السعر: من الأقل إلى الأعلى</option>
-        <option value="high-low">السعر: من الأعلى إلى الأقل</option>
-      </select>
+    <div class="search-sort-box">
+      <input type="text" id="searchInput" class="search-input" placeholder="🔍 بحث عن منتج..." oninput="handleSearchAndFilter()">
+      <div class="sort-wrapper">
+        <select id="sortSelect" onchange="applySorting()">
+          <option value="default">الترتيب الافتراضي</option>
+          <option value="low-high">السعر: من الأقل للأعلى</option>
+          <option value="high-low">السعر: من الأعلى للأقل</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -343,7 +367,10 @@
 
           <p id="modalDesc" style="font-size: 15px; color: var(--text-muted); line-height: 1.5;"></p>
 
-          <button onclick="addToCart()" class="add-cart-btn">إضافة إلى السلة 🛒</button>
+          <div class="modal-actions-row">
+            <button onclick="addToCart()" class="add-cart-btn">إضافة إلى السلة 🛒</button>
+            <button onclick="shareProduct()" class="share-btn" title="مشاركة المنتج">📤 مشاركة</button>
+          </div>
         </div>
       </div>
     </div>
@@ -429,7 +456,7 @@
         <input type="radio" name="payMethod" value="cod" id="payCod" checked>
         <div class="payment-details">
           <label for="payCod" class="payment-title">💵 الدفع عند الاستلام (كاش)</label>
-          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلاستلام الشحنة ومعاينتها.</span>
+          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلام الشحنة ومعاينتها.</span>
         </div>
       </div>
 
@@ -440,7 +467,8 @@
           <label for="payInstapay" class="payment-title">📱 InstaPay (تحويل إلكتروني)</label>
           <span class="payment-desc">الدفع أو سداد العربون عبر تطبيق انستا باي فور تأكيد الحجز.</span>
           <div class="instapay-box">
-            💸 رقم تحويل InstaPay: <span style="letter-spacing: 1px; font-size: 15px;">01116339905</span>
+            <span>💸 الرقم: <strong style="letter-spacing: 1px;">01116339905</strong></span>
+            <button class="copy-instapay-btn" onclick="copyInstapayNumber(event)">نسخ الرقم</button>
           </div>
         </div>
       </div>
@@ -570,7 +598,7 @@
       container.innerHTML = '';
 
       if (displayedProducts.length === 0) {
-        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">لا توجد منتجات مطابقة في هذا القسم.</p>';
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">لا توجد منتجات مطابقة لعملية البحث.</p>';
         return;
       }
 
@@ -598,23 +626,33 @@
       currentCategory = cat;
       document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
       if (btn) btn.classList.add('active');
-
-      if (cat === 'all') {
-        displayedProducts = [...allProducts];
-      } else {
-        displayedProducts = allProducts.filter(p => p.title.includes(cat) || p.desc.includes(cat));
-      }
-      applySorting();
+      handleSearchAndFilter();
     }
 
-    function applySorting() {
+    function handleSearchAndFilter() {
+      const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      let filtered = allProducts;
+      if (currentCategory !== 'all') {
+        filtered = filtered.filter(p => p.title.includes(currentCategory) || p.desc.includes(currentCategory));
+      }
+
+      if (searchVal !== '') {
+        filtered = filtered.filter(p => p.title.toLowerCase().includes(searchVal) || p.desc.toLowerCase().includes(searchVal));
+      }
+
+      displayedProducts = filtered;
+      applySorting(false);
+    }
+
+    function applySorting(shouldRender = true) {
       const sortVal = document.getElementById('sortSelect').value;
       if (sortVal === 'low-high') {
         displayedProducts.sort((a, b) => (a.variants[0]?.price || a.basePrice) - (b.variants[0]?.price || b.basePrice));
       } else if (sortVal === 'high-low') {
         displayedProducts.sort((a, b) => (b.variants[0]?.price || b.basePrice) - (a.variants[0]?.price || a.basePrice));
       }
-      renderProducts();
+      if (shouldRender) renderProducts();
     }
 
     function openModal(product) {
@@ -667,7 +705,6 @@
 
     function selectVariant(variant, btnElement) {
       currentVariant = variant;
-      
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
       if (btnElement) btnElement.classList.add('selected');
 
@@ -684,21 +721,49 @@
       }
     }
 
+    function shareProduct() {
+      if (navigator.share) {
+        navigator.share({
+          title: currentProduct.title,
+          text: `تسوق الآن منتج: ${currentProduct.title}`,
+          url: window.location.href
+        }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('تم نسخ رابط المتجر بنجاح!');
+      }
+    }
+
     function addToCart() {
       const selectedPrice = parseFloat(currentVariant.price) || parseFloat(currentProduct.basePrice) || 0;
 
-      const item = {
-        title: currentProduct.title,
-        size: currentVariant.size || 'عام',
-        price: selectedPrice,
-        length: currentVariant.length || '',
-        width: currentVariant.width || ''
-      };
+      // التحقق مما إذا كان المنتج نفس الاسم والمقاس موجوداً بالسلة مسبقاً لزيادة الكمية بدلاً من تكرار السطر
+      const existingItem = cart.find(item => item.title === currentProduct.title && item.size === currentVariant.size);
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        const item = {
+          title: currentProduct.title,
+          size: currentVariant.size || 'عام',
+          price: selectedPrice,
+          quantity: 1,
+          length: currentVariant.length || '',
+          width: currentVariant.width || ''
+        };
+        cart.push(item);
+      }
       
-      cart.push(item);
       updateCartUI();
       closeModal();
       openCartModal();
+    }
+
+    function changeQuantity(index, delta) {
+      cart[index].quantity += delta;
+      if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+      }
+      updateCartUI();
     }
 
     function removeFromCart(index) {
@@ -707,7 +772,8 @@
     }
 
     function updateCartUI() {
-      document.getElementById('cartCount').innerText = cart.length;
+      const totalCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cartCount').innerText = totalCount;
       const cartItemsContainer = document.getElementById('cartItemsContainer');
       const formBox = document.getElementById('customerFormBox');
       const proceedBtn = document.getElementById('proceedBtn');
@@ -727,26 +793,36 @@
       let total = 0;
 
       cart.forEach((item, index) => {
-        total += item.price;
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
         let dimInfo = "";
-        if (item.length || item.width) dimInfo = ` (طول:${item.length||'-'}سم / عرض:${item.width||'-'}سم)`;
+        if (item.length || item.width) dimInfo = ` (طول:${item.length||'-'} / عرض:${item.width||'-'})`;
 
         const div = document.createElement('div');
         div.className = 'cart-item';
         div.innerHTML = `
-          <div>
+          <div class="cart-item-info">
             <div class="cart-item-title">${item.title}</div>
-            <div class="cart-item-meta">المقاس: ${item.size}${dimInfo}</div>
+            <div class="cart-item-meta">مقاس: ${item.size}${dimInfo}</div>
           </div>
-          <div style="display: flex; align-items: center; gap: 10px;">
-            <span class="cart-item-price">${item.price} ج.م</span>
-            <button class="remove-btn" onclick="removeFromCart(${index})">✕</button>
+          <div class="quantity-controls">
+            <button class="qty-btn" onclick="changeQuantity(${index}, -1)">-</button>
+            <span class="qty-num">${item.quantity}</span>
+            <button class="qty-btn" onclick="changeQuantity(${index}, 1)">+</button>
           </div>
+          <div class="cart-item-price">${itemTotal} ج.م</div>
+          <button class="remove-btn" onclick="removeFromCart(${index})">✕</button>
         `;
         cartItemsContainer.appendChild(div);
       });
 
       document.getElementById('cartTotalPrice').innerText = `${total} ج.م`;
+    }
+
+    function copyInstapayNumber(e) {
+      e.stopPropagation();
+      navigator.clipboard.writeText("01116339905");
+      alert('تم نسخ رقم إنستا باي بنجاح: 01116339905');
     }
 
     function validateAndOpenTerms() {
@@ -828,10 +904,11 @@
       msgText += `📦 *المنتجات المطلوبة:*\n`;
 
       cart.forEach((item, index) => {
-        total += item.price;
+        const itemTotal = item.price * item.quantity;
+        total += itemTotal;
         let dimInfo = "";
         if (item.length || item.width) dimInfo = ` (طول:${item.length||'-'}سم / عرض:${item.width||'-'}سم)`;
-        msgText += `${index + 1}. ${item.title}\n   • المقاس: ${item.size}${dimInfo}\n   • السعر: ${item.price} ج.م\n`;
+        msgText += `${index + 1}. ${item.title}\n   • المقاس: ${item.size}${dimInfo}\n   • الكمية: ${item.quantity}\n   • السعر الإجمالي: ${itemTotal} ج.م\n`;
       });
 
       msgText += `\n💰 *الإجمالي الكلي:* ${total} ج.م\n\n`;
