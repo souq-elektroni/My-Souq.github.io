@@ -55,7 +55,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown مع معالجة ذكية جداً للألبوم واستخراج كل الصور
+// دالة تحليل الـ Markdown لقراءة الألبوم والمقاسات بأبعادها المتغيرة
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -93,13 +93,12 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     const mainImage = fixImagePath(rawImageField) || defaultImg;
 
-    // استخراج جميع الصور الموجودة في الملف (أي سطر يحتوي على .jpg أو .png أو .webp أو كلمة images)
+    // استخراج جميع الصور للألبوم والكتالوج
     let allExtractedImages = [];
     const lines = frontmatter.split('\n');
     for (let line of lines) {
       let trimmed = line.trim().replace(/^[-*]\s*/, '').replace(/["']/g, '');
       if (trimmed.includes('images/') || trimmed.endsWith('.jpg') || trimmed.endsWith('.png') || trimmed.endsWith('.jpeg') || trimmed.endsWith('.webp')) {
-        // لو السطر عبارة عن مسار صورة كامل
         let partsPath = trimmed.split(':');
         let possiblePath = partsPath.length > 1 ? partsPath[1].trim() : trimmed;
         let fixed = fixImagePath(possiblePath);
@@ -109,13 +108,12 @@ function parseMarkdown(markdownText, id) {
       }
     }
 
-    // التأكد من أن الصورة الرئيسية في مقدمة الألبوم وبدون تكرار
     let allImages = [mainImage, ...allExtractedImages.filter(img => img !== mainImage)];
     if (allImages.length === 0) {
       allImages = [defaultImg];
     }
 
-    // استخراج المقاسات مع أبعاد الطول والعرض لكل مقاس
+    // استخراج المقاسات وتحديد الطول والعرض الخاص بكل مقاس بدقة
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (variantsMatch) {
@@ -252,6 +250,7 @@ function openProductModal(id) {
   const firstVariant = currentSelectedProduct.variants[0];
   selectedSize = firstVariant.size || '';
 
+  // دالة لتحديث الطول والعرض ديناميكياً حسب المقاس المختار
   function updateDimensionsDisplay(variant) {
     if (variant.length || variant.width) {
       dimensionsContainer.style.display = 'flex';
@@ -272,7 +271,7 @@ function openProductModal(id) {
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedSize = v.size;
-      updateDimensionsDisplay(v);
+      updateDimensionsDisplay(v); // تحديث الأبعاد عند اختيار المقاس
     };
     sizesContainer.appendChild(btn);
   });
