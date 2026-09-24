@@ -54,6 +54,15 @@
     .cart-trigger:hover { background: var(--burgundy-hover); transform: translateY(-2px); }
     .cart-count { background: var(--pink-accent); color: var(--burgundy-soft); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; }
 
+    /* زر واتساب عائم للدعم والاستفسار السريع */
+    .whatsapp-float {
+      position: fixed; bottom: 25px; left: 25px; background: #25d366; color: white;
+      width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 30px; box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); z-index: 900; text-decoration: none;
+      transition: transform 0.3s, background 0.2s;
+    }
+    .whatsapp-float:hover { transform: scale(1.1); background: #20bd5a; }
+
     /* الهيدر والعنوان */
     header { text-align: center; padding: 50px 10px 35px; max-width: 950px; margin: 0 auto; }
     header h1 { 
@@ -200,7 +209,6 @@
     .cart-item-title { font-weight: bold; font-size: 15px; color: var(--text-dark); }
     .cart-item-meta { font-size: 12.5px; color: var(--text-muted); }
     
-    /* عداد الكمية بالسلة */
     .quantity-controls { display: flex; align-items: center; gap: 8px; background: white; padding: 4px 10px; border-radius: 8px; border: 1px solid var(--border-color); }
     .qty-btn { background: none; border: none; font-weight: bold; font-size: 16px; cursor: pointer; color: var(--burgundy-soft); width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; }
     .qty-num { font-weight: 800; font-size: 14px; min-width: 15px; text-align: center; }
@@ -306,6 +314,11 @@
       🛒 السلة <span class="cart-count" id="cartCount">0</span>
     </div>
   </div>
+
+  <!-- زر واتساب عائم للدعم والاستفسار -->
+  <a href="https://wa.me/201116339905?text=مرحباً، أود الاستفسار عن منتجات متجر My Souq" target="_blank" class="whatsapp-float" title="تواصل معنا عبر واتساب">
+    💬
+  </a>
 
   <header>
     <h1>سوق إلكتروني 🛒</h1>
@@ -737,7 +750,6 @@
     function addToCart() {
       const selectedPrice = parseFloat(currentVariant.price) || parseFloat(currentProduct.basePrice) || 0;
 
-      // التحقق مما إذا كان المنتج نفس الاسم والمقاس موجوداً بالسلة مسبقاً لزيادة الكمية بدلاً من تكرار السطر
       const existingItem = cart.find(item => item.title === currentProduct.title && item.size === currentVariant.size);
       if (existingItem) {
         existingItem.quantity += 1;
