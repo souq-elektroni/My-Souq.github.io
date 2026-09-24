@@ -103,7 +103,6 @@ function parseMarkdown(markdownText, id) {
     let allImages = [mainImage, ...allExtractedImages.filter(img => img !== mainImage)];
     if (allImages.length === 0) allImages = [defaultImg];
 
-    // استخراج المقاسات والطول والعرض بدقة تامة
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
     
@@ -448,7 +447,7 @@ function selectPayment(method) {
   document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
   if (method === 'cod') {
     document.getElementById('optCod').classList.add('selected');
-    document.getElementById('payCod').checked = true;
+    document.getElementById('payCod').checked, true;
   } else {
     document.getElementById('optInstapay').classList.add('selected');
     document.getElementById('payInstapay').checked = true;
@@ -507,7 +506,7 @@ function shareProduct() {
   }
 }
 
-// ===== Initializing =====
+// ===== Initializing (تشغيل تحميل المنتجات عند فتح الصفحة) =====
 window.addEventListener('DOMContentLoaded', () => {
   loadRealProducts();
   updateCartCount();
