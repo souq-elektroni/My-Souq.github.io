@@ -70,7 +70,6 @@ function parseMarkdown(markdownText, id) {
       let clean = rawPath.replace(/^["']|["']$/g, '').trim();
       if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
       if (clean.startsWith('/')) clean = clean.substring(1);
-      // إذا لم يكن المسار يحتوي على اسم مجلد الصور، نضيفه تلقائياً
       if (!clean.startsWith('images/')) {
         clean = 'images/' + clean;
       }
@@ -93,10 +92,9 @@ function parseMarkdown(markdownText, id) {
       });
     }
 
-    // دمج الصورة الرئيسية مع الكتالوج بدون تكرار
     let allImages = [image, ...galleryImages.filter(img => img !== image)];
 
-    // استخراج المقاسات أو الفاريانتس المرفوعة من الأدمن
+    // استخراج المقاسات
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (variantsMatch) {
@@ -243,14 +241,8 @@ function addToCart() {
     cart.push({ ...currentSelectedProduct, size: selectedSize, qty: 1 });
   }
   updateCartCount();
-  showToast();
-  closeModal();
-}
-
-function showToast() {
-  const toast = document.getElementById('toastNotification');
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 2500);
+  closeModal();       // إغلاق نافذة تفاصيل المنتج
+  openCartModal();    // فتح نافذة السلة تلقائياً أمام العميل مباشرة
 }
 
 function updateCartCount() {
@@ -400,7 +392,7 @@ function finalizeOrder() {
   msg += `📞 الهاتف: ${phone}\n`;
   msg += `📍 العنوان: ${address}\n\n`;
   msg += `🛒 *المنتجات المطلوبة:*\n${itemsTest}\n\n`;
-  msg += `💰 *الإجمالي النهائي:* ${totalTest}\n`;
+  msg += `💰 *الإجمالي النهائي:* ${totalText}\n`;
   msg += `💳 *طريقة الدفع:* ${payMethod}`;
 
   const encodedMsg = encodeURIComponent(msg);
