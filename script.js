@@ -55,7 +55,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown الذكية والمحصنة ضد أخطاء الصور
+// دالة تحليل الـ Markdown المتوافقة تماماً مع صيغة لوحة التحكم الخاصة بك وصور الألبوم
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -73,15 +73,19 @@ function parseMarkdown(markdownText, id) {
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
     
-    // دالة تصحيح المسار مع معالجة المسافات والرموز لمنع خطأ 404
+    // دالة تصحيح المسار لتقبل الشرطة المائلة / في البداية وتزيلها بذكاء
     const fixImagePath = (rawPath) => {
       if (!rawPath) return '';
       let clean = rawPath.replace(/["'\[\]]/g, '').trim();
       if (!clean) return '';
       if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
-      if (clean.startsWith('/')) clean = clean.substring(1);
       
-      // استبدال المسافات بـ %20 ليتوافق مع خوادم الويب
+      // إذا كانت تبدأ بـ /images/ أو / نحذف الشرطة الأولى لتصبح images/... بشكل صحيح
+      if (clean.startsWith('/')) {
+        clean = clean.substring(1);
+      }
+      
+      // معالجة المسافات
       clean = clean.replace(/\s+/g, '%20');
 
       if (!clean.startsWith('images/')) {
@@ -94,7 +98,7 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     const image = fixImagePath(rawImageField) || defaultImg;
 
-    // استخراج الصور الإضافية (الكتالوج) سطر بسطر
+    // استخراج صور الكتالوج الإضافية (معالجة الأسطر التي تبدأ بـ - أو مسافات)
     let galleryImages = [];
     const lines = frontmatter.split('\n');
     let insideImagesBlock = false;
@@ -119,7 +123,7 @@ function parseMarkdown(markdownText, id) {
       }
     }
 
-    // دمج الصورة الرئيسية مع صور الكتالوج بدون تكرار
+    // دمج الصورة الرئيسية مع صور الكتالوج الإضافية بدون تكرار
     let allImages = [image, ...galleryImages.filter(img => img !== image)];
     if (allImages.length === 0) {
       allImages = [defaultImg];
@@ -225,7 +229,7 @@ function openProductModal(id) {
       const thumb = document.createElement('img');
       thumb.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
       thumb.src = imgSrc;
-      thumb.onerror = function() { this.style.display = 'none'; }; // إخفاء الصورة المصغرة التالفة إن وجدت
+      thumb.onerror = function() { this.style.display = 'none'; };
       thumb.onclick = () => {
         modalImg.src = imgSrc;
         document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
