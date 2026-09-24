@@ -15,7 +15,12 @@ collections:
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
       - { label: "صورة المنتج الرئيسية", name: "image", widget: "image" }
-      - label: "صور إضافية للأشكال/الألوان (معرض الصور)", name: "images", widget: "list", required: false, field: { label: "الصورة", name: "image", widget: "image" }
+      - label: "صور إضافية للأشكال والألوان"
+        name: "images"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "الصورة الفرعية", name: "image", widget: "image" }
       - { label: "السعر الأساسي (ج.م)", name: "price", widget: "number", value_type: "int", default: 0 }
       - label: "المقاسات والأبعاد (Variants)"
         name: "variants"
