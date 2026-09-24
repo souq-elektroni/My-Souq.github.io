@@ -20,22 +20,29 @@ collections:
           label: "قسم / تصنيف المنتج", 
           name: "category", 
           widget: "select", 
-          options: ["عروض", "دفاية", "تيشرت", "بنطلون", "فستان", "عام"],
-          default: "عام"
+          options: [
+            "الكل",
+            "ملابس شتوية",
+            "ملابس خروج",
+            "أحذية",
+            "عروض"
+          ], 
+          default: "ملابس شتوية"
         }
       - { label: "الصورة الرئيسية", name: "image", widget: "image" }
       - { label: "صور إضافية (معرض المنتج)", name: "images", widget: "list", required: false, field: { label: "صورة", name: "image", widget: "image" } }
       - { label: "السعر الأساسي (ج.م)", name: "price", widget: "string" }
+      - { label: "السعر القديم قبل الخصم (اختياري)", name: "oldPrice", widget: "string", required: false }
       - { 
           label: "حالة المخزون", 
           name: "stock", 
           widget: "select", 
           options: [
-            "🟢 متوفر بالمخزون - جاهز للشحن الفوري", 
-            "⚠️ متبقي قطعتين فقط - اطلبها الآن", 
-            "🔴 عذراً نفذت الكمية - قريباً بالمخزون"
-          ],
-          default: "🟢 متوفر بالمخزون - جاهز للشحن الفوري"
+            "available", 
+            "low", 
+            "out"
+          ], 
+          default: "available"
         }
       - { 
           label: "المقاسات والأحجام والأسعار المتغيرة", 
