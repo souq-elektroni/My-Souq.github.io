@@ -13,7 +13,7 @@ let discountRate = 0;
 const productsGrid = document.getElementById("products-container");
 const cartCount = document.getElementById("cartCount");
 
-// ===== Load Real Products from GitHub / products folder (Updated) =====
+// ===== Load Real Products from GitHub / products folder =====
 async function loadRealProducts() {
   try {
     const apiUrl = 'https://api.github.com/repos/souq-elektroni/My-Souq.github.io/contents/products';
@@ -25,7 +25,6 @@ async function loadRealProducts() {
     
     const files = await response.json();
     
-    // التحقق مما إذا كان الناتج مصفوفة أم لا
     if (!Array.isArray(files)) {
       throw new Error('محتوى المجلد غير متوافق، تأكد من اسم المجلد صحيح.');
     }
@@ -56,7 +55,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown الذكية والنهائية للصور والبيانات
+// دالة تحليل الـ Markdown الذكية والمحصنة ضد أخطاء الصور
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -74,15 +73,17 @@ function parseMarkdown(markdownText, id) {
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
     
-    // دالة موحدة لتصحيح وصياغة مسار الصورة باحترافية
+    // دالة تصحيح المسار مع معالجة المسافات والرموز لمنع خطأ 404
     const fixImagePath = (rawPath) => {
       if (!rawPath) return '';
-      let clean = rawPath.replace(/["'\[\]]/g, '').trim(); // إزالة أي علامات تنصيص أو أقواس عشوائية
+      let clean = rawPath.replace(/["'\[\]]/g, '').trim();
       if (!clean) return '';
       if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
       if (clean.startsWith('/')) clean = clean.substring(1);
       
-      // إذا كان اسم الملف فقط بدون مجلد images/ نحفظه بصيغته الصحيحة
+      // استبدال المسافات بـ %20 ليتوافق مع خوادم الويب
+      clean = clean.replace(/\s+/g, '%20');
+
       if (!clean.startsWith('images/')) {
         clean = 'images/' + clean;
       }
@@ -90,9 +91,10 @@ function parseMarkdown(markdownText, id) {
     };
 
     const rawImageField = getField('image');
-    const image = fixImagePath(rawImageField) || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
+    const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
+    const image = fixImagePath(rawImageField) || defaultImg;
 
-    // استخراج الصور الإضافية (الكتالوج) سطر بسطر لضمان عدم ضياع أي صورة
+    // استخراج الصور الإضافية (الكتالوج) سطر بسطر
     let galleryImages = [];
     const lines = frontmatter.split('\n');
     let insideImagesBlock = false;
@@ -103,7 +105,6 @@ function parseMarkdown(markdownText, id) {
         continue;
       }
       if (insideImagesBlock) {
-        // إذا بدأ حقل جديد في الـ frontmatter نتوقف
         if (line.trim() && !line.startsWith(' ') && !line.startsWith('-') && line.includes(':')) {
           insideImagesBlock = false;
           continue;
@@ -111,7 +112,7 @@ function parseMarkdown(markdownText, id) {
         let cleanedLine = line.replace(/[-*]/g, '').trim();
         if (cleanedLine) {
           const fixedUrl = fixImagePath(cleanedLine);
-          if (fixedUrl && (fixedUrl.endsWith('.jpg') || fixedUrl.endsWith('.png') || fixedUrl.endsWith('.jpeg') || fixedUrl.endsWith('.webp') || fixedUrl.includes('images/'))) {
+          if (fixedUrl) {
             galleryImages.push(fixedUrl);
           }
         }
@@ -120,6 +121,9 @@ function parseMarkdown(markdownText, id) {
 
     // دمج الصورة الرئيسية مع صور الكتالوج بدون تكرار
     let allImages = [image, ...galleryImages.filter(img => img !== image)];
+    if (allImages.length === 0) {
+      allImages = [defaultImg];
+    }
 
     // استخراج المقاسات
     let parsedVariants = [];
@@ -165,7 +169,7 @@ function renderProducts(list) {
   productsGrid.innerHTML = list.map(p => `
     <div class="product-card" onclick="openProductModal(${p.id})">
       <div class="image-container">
-        <img class="product-image" src="${p.image}" alt="${p.title}" loading="lazy">
+        <img class="product-image" src="${p.image}" alt="${p.title}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'">
       </div>
       <div class="product-details">
         <h3 class="product-title">${p.title}</h3>
@@ -211,6 +215,8 @@ function openProductModal(id) {
   const thumbsContainer = document.getElementById('thumbnailsContainer');
   
   modalImg.src = currentSelectedProduct.image;
+  modalImg.onerror = function() { this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'; };
+  
   thumbsContainer.innerHTML = '';
 
   if (currentSelectedProduct.images && currentSelectedProduct.images.length > 1) {
@@ -219,6 +225,7 @@ function openProductModal(id) {
       const thumb = document.createElement('img');
       thumb.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
       thumb.src = imgSrc;
+      thumb.onerror = function() { this.style.display = 'none'; }; // إخفاء الصورة المصغرة التالفة إن وجدت
       thumb.onclick = () => {
         modalImg.src = imgSrc;
         document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
@@ -430,10 +437,6 @@ function finalizeOrder() {
   document.getElementById('successModal').classList.add('active');
   cart = [];
   updateCartCount();
-}
-
-function closeSuccessManager() {
-  document.getElementById('successModal').classList.remove('active');
 }
 
 function closeSuccessModal() {
