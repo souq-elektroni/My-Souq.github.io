@@ -384,7 +384,7 @@ function applyPromoCode() {
 function validateAndOpenTerms() {
   const name = document.getElementById('custName').value.trim();
   const phone = document.getElementById('custPhone').value.trim();
-  const address = document.getElementById('custAddress'].value.trim();
+  const address = document.getElementById('custAddress').value.trim(); // تم التصحيح هنا
 
   if (!name || !phone || !address) {
     alert('يرجى استكمال كافة بيانات الشحن المطلوبة');
