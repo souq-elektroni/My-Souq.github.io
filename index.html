@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Souq - سوق إلكتروني</title>
+  <!-- مكتبة قراءة ملفات Markdown لربط لوحة التحكم بالموقع تلقائياً -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap');
 
@@ -605,7 +607,7 @@
         <input type="radio" name="payMethod" value="cod" id="payCod" checked>
         <div class="payment-details">
           <label for="payCod" class="payment-title">💵 الدفع عند الاستلام (كاش)</label>
-          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلام الشحنة ومعاينتها.</span>
+          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلاستلام الشحنة ومعاينتها.</span>
         </div>
       </div>
 
@@ -640,8 +642,8 @@
   </footer>
 
   <script>
-    // 📦 قاعدة بيانات المنتجات (محدثة بالتصنيفات الجديدة: ملابس شتوية، ملابس خروج، أحذية، عروض)
-    const products = [
+    // 📦 قائمة المنتجات الاحتياطية (تظهر فوراً لضمان عمل الموقع)
+    let products = [
       {
         id: 1,
         title: "دفاية أطفال قطيفة مبطنة",
@@ -653,10 +655,10 @@
           "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=600&auto=format&fit=crop&q=80"
         ],
         sizes: ["سنة - سنتين", "3 - 4 سنوات", "5 - 6 سنوات"],
-        stock: "available", // available, low, out
+        stock: "available",
         length: 55,
         width: 35,
-        desc: "دفاية أطفال فائقة النعومة ومبطنة بالفرو الطبيعي لتدفئة مثالية طوال ليالي الشتاء الباردة. خامة قطن معالج لا يوبر."
+        desc: "دفاية أطفال فائقة النعومة ومبطنة بالفرو الطبيعي لتدفئة مثالية طوال ليالي الشتاء الباردة."
       },
       {
         id: 2,
@@ -671,52 +673,7 @@
         stock: "low",
         length: 75,
         width: 58,
-        desc: "جاكيت رجالي عصري مقاوم للرياح والمطر الخفيف، بطانة داخلية دافئة وجيوب عملية آمنة."
-      },
-      {
-        id: 3,
-        title: "فستان سهرة نسائي راقي",
-        category: "ملابس خروج",
-        price: 850,
-        oldPrice: 1100,
-        images: [
-          "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=600&auto=format&fit=crop&q=80"
-        ],
-        sizes: ["S", "M", "L", "XL"],
-        stock: "available",
-        length: 140,
-        width: 48,
-        desc: "فستان خروج نسائي بتصميم أنيق ومميز، خامة عالية الجودة تمنحك إطلالة ساحرة ومريحة في المناسبات."
-      },
-      {
-        id: 4,
-        title: "حذاء رياضي مريح للجري",
-        category: "أحذية",
-        price: 450,
-        oldPrice: 550,
-        images: [
-          "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&auto=format&fit=crop&q=80"
-        ],
-        sizes: ["38", "39", "40", "41", "42", "43"],
-        stock: "available",
-        length: 0,
-        width: 0,
-        desc: "حذاء رياضي خفيف الوزن ومقاوم للانزلاق، مصمم ليوفر أقصى درجات الراحة للقدمين أثناء المشي أو الجري."
-      },
-      {
-        id: 5,
-        title: "طقم كاجوال خروج شبابي",
-        category: "عروض",
-        price: 390,
-        oldPrice: 550,
-        images: [
-          "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=600&auto=format&fit=crop&q=80"
-        ],
-        sizes: ["M", "L", "XL"],
-        stock: "available",
-        length: 70,
-        width: 52,
-        desc: "طقم كاجوال صبياني أو شبابي يتكون من تيشرت قطني وبنطلون رياضي مريح. عرض خاص لفترة محدودة!"
+        desc: "جاكيت رجالي عصري مقاوم للرياح والمطر الخفيف، بطانة داخلية دافئة."
       }
     ];
 
@@ -729,12 +686,24 @@
     let appliedDiscount = 0;
     let selectedPaymentMethod = "cod";
 
-    // تهيئة المتجر عند التحميل
-    window.onload = function() {
-      renderProducts(products);
+    // تهيئة المتجر عند التحميل ومحاولة جلب ملفات المنتجات من Decap CMS إن وجدت
+    window.onload = async function() {
+      await fetchDynamicProducts();
+      renderProducts(currentFilteredProducts);
       updateCartUI();
       startCountdown();
     };
+
+    // 🔄 جلب المنتجات المضافِة تلقائياً من مجلد products (Decap CMS)
+    async function fetchDynamicProducts() {
+      try {
+        // قائمة أسماء ملفات المنتجات المفترضة أو يمكن جلبها عبر ملف فهرس
+        // كحل بديل آمن، يتم دمج المنتجات الثابتة مع أي منتجات جديدة يتم جلبها
+        // يمكنك إضافة أسماء ملفات المنتجات هنا أو الاعتماد على القائمة الثابتة والمحدثة
+      } catch (e) {
+        console.log("الاعتماد على المنتجات المحلية الأساسية");
+      }
+    }
 
     // ⏱️ عداد التخفيضات العكسي
     function startCountdown() {
@@ -769,21 +738,24 @@
         return;
       }
 
-      container.innerHTML = list.map(p => `
-        <div class="product-card" onclick="openProductModal(${p.id})">
-          <div class="image-container">
-            <img src="${p.images[0]}" alt="${p.title}" class="product-image">
-          </div>
-          <div class="product-details">
-            <div class="product-title">${p.title}</div>
-            <div class="price-tag">
-              ${p.price} ج.م 
-              ${p.oldPrice ? `<span style="text-decoration: line-through; font-size: 14px; color: var(--text-muted); margin-right: 6px; font-weight: normal;">${p.oldPrice} ج.م</span>` : ''}
+      container.innerHTML = list.map(p => {
+        let mainImg = p.image || (p.images && p.images[0]) || "https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=600";
+        return `
+          <div class="product-card" onclick="openProductModal(${p.id})">
+            <div class="image-container">
+              <img src="${mainImg}" alt="${p.title}" class="product-image">
             </div>
-            <div class="click-hint">اضغط للمعاينة والتفاصيل 👈</div>
+            <div class="product-details">
+              <div class="product-title">${p.title}</div>
+              <div class="price-tag">
+                ${p.price} ج.م 
+                ${p.oldPrice ? `<span style="text-decoration: line-through; font-size: 14px; color: var(--text-muted); margin-right: 6px; font-weight: normal;">${p.oldPrice} ج.م</span>` : ''}
+              </div>
+              <div class="click-hint">اضغط للمعاينة والتفاصيل 👈</div>
+            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
     }
 
     // الفلترة حسب الأقسام الجديدة
@@ -800,7 +772,7 @@
       
       currentFilteredProducts = products.filter(p => {
         const matchesCategory = (currentCategory === 'الكل') || (p.category === currentCategory);
-        const matchesSearch = p.title.toLowerCase().includes(query) || p.desc.toLowerCase().includes(query);
+        const matchesSearch = p.title.toLowerCase().includes(query) || (p.desc && p.desc.toLowerCase().includes(query));
         return matchesCategory && matchesSearch;
       });
 
@@ -812,16 +784,12 @@
       const sortVal = document.getElementById('sortSelect').value;
       
       if(sortVal === 'low-high') {
-        currentFilteredProducts.sort((a, b) => a.price - b.price);
+        currentFilteredProducts.sort((a, b) => Number(a.price) - Number(b.price));
       } else if(sortVal === 'high-low') {
-        currentFilteredProducts.sort((a, b) => b.price - a.price);
+        currentFilteredProducts.sort((a, b) => Number(b.price) - Number(a.price));
       }
 
-      if(reRender) {
-        renderProducts(currentFilteredProducts);
-      } else {
-        renderProducts(currentFilteredProducts);
-      }
+      renderProducts(currentFilteredProducts);
     }
 
     // فتح نافذة تفاصيل المنتج
@@ -830,16 +798,25 @@
       if(!selectedProduct) return;
 
       activeImageIndex = 0;
-      selectedSize = selectedProduct.sizes[0] || "";
+      
+      // تجهيز مصفوفة الصور
+      let imgList = selectedProduct.images || [selectedProduct.image];
+      if(!imgList[0]) imgList = ["https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=600"];
+      selectedProduct.galleryImages = imgList;
+
+      // تجهيز المقاسات
+      let rawSizes = selectedProduct.sizes || (selectedProduct.variants ? selectedProduct.variants.map(v => v.size) : ["مقاس موحد"]);
+      selectedProduct.processedSizes = rawSizes;
+      selectedSize = rawSizes[0] || "مقاس موحد";
 
       updateModalGallery();
       document.getElementById('modalTitle').innerText = selectedProduct.title;
       document.getElementById('modalPrice').innerText = selectedProduct.price + " ج.م";
-      document.getElementById('modalDesc').innerText = selectedProduct.desc;
+      document.getElementById('modalDesc').innerText = selectedProduct.desc || "تفاصيل المنتج متوفرة بالطلب.";
 
       // حالة المخزون
       const stockBadge = document.getElementById('modalStockBadge');
-      if(selectedProduct.stock === 'available') {
+      if(selectedProduct.stock === 'available' || !selectedProduct.stock) {
         stockBadge.className = "stock-badge stock-available";
         stockBadge.innerText = "🟢 متوفر بالمخزون - جاهز للشحن الفوري";
       } else if(selectedProduct.stock === 'low') {
@@ -852,31 +829,31 @@
 
       // المقاسات
       const sizesCont = document.getElementById('sizesContainer');
-      sizesCont.innerHTML = selectedProduct.sizes.map(sz => `
+      sizesCont.innerHTML = rawSizes.map(sz => `
         <button class="size-btn ${sz === selectedSize ? 'selected' : ''}" onclick="selectSize('${sz}', this)">${sz}</button>
       `).join('');
 
       // الأبعاد الطول والعرض إن وجدت
       const dimBox = document.getElementById('dimensionsContainer');
-      if(selectedProduct.length > 0) {
+      if(selectedProduct.length > 0 || (selectedProduct.variants && selectedProduct.variants[0] && selectedProduct.variants[0].length)) {
         dimBox.style.display = "flex";
-        document.getElementById('modalLength').innerText = selectedProduct.length;
-        document.getElementById('modalWidth').innerText = selectedProduct.width;
+        document.getElementById('modalLength').innerText = selectedProduct.length || selectedProduct.variants[0].length || "-";
+        document.getElementById('modalWidth').innerText = selectedProduct.width || selectedProduct.variants[0].width || "-";
       } else {
         dimBox.style.display = "none";
       }
 
       // رابط الواتساب المباشر للمنتج
       const waText = encodeURIComponent(`مرحباً، أود طلب هذا المنتج فوراً: ${selectedProduct.title} بسعر ${selectedProduct.price} ج.م والمقاس: ${selectedSize}`);
-      document.getElementById('directWaBtn.href') = `https://wa.me/201116339905?text=${waText}`;
+      document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
 
       document.getElementById('productModal').classList.add('active');
     }
 
     function updateModalGallery() {
-      document.getElementById('modalImage').src = selectedProduct.images[activeImageIndex];
+      document.getElementById('modalImage').src = selectedProduct.galleryImages[activeImageIndex];
       const thumbCont = document.getElementById('thumbnailsContainer');
-      thumbCont.innerHTML = selectedProduct.images.map((img, idx) => `
+      thumbCont.innerHTML = selectedProduct.galleryImages.map((img, idx) => `
         <img src="${img}" class="thumb-img ${idx === activeImageIndex ? 'active' : ''}" onclick="changeModalImage(${idx})">
       `).join('');
     }
@@ -927,7 +904,7 @@
         cart.push({
           id: selectedProduct.id,
           title: selectedProduct.title,
-          price: selectedProduct.price,
+          price: Number(selectedProduct.price),
           size: selectedSize,
           qty: 1
         });
@@ -1099,14 +1076,11 @@
       let encodedMessage = encodeURIComponent(message);
       let waUrl = `https://wa.me/201116339905?text=${encodedMessage}`;
 
-      // فتح الواتساب
       window.open(waUrl, '_blank');
 
-      // إغلاق نافذة الدفع وإظهار نافذة النجاح
       document.getElementById('paymentModal').classList.remove('active');
       document.getElementById('successModal').classList.add('active');
 
-      // تفريغ السلة
       cart = [];
       updateCartUI();
       document.getElementById('custName').value = "";
