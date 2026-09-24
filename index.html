@@ -128,51 +128,54 @@
     }
     .modal-overlay.active { display: flex; }
 
+    /* 🟢 تكبير النافذة المنبثقة للمنتج لتصبح أوسع وأكثر راحة */
     .modal-content {
-      background: var(--card-cream); border-radius: 22px; max-width: 650px; width: 100%;
-      max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 30px rgba(0,0,0,0.2);
+      background: var(--card-cream); border-radius: 22px; max-width: 850px; width: 100%;
+      max-height: 92vh; overflow-y: auto; box-shadow: 0 20px 40px rgba(0,0,0,0.25);
       display: flex; flex-direction: column; position: relative; animation: fadeIn 0.2s ease-out;
       border: 1px solid var(--border-color);
     }
     @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
     .close-btn {
-      position: absolute; top: 12px; left: 12px; background: var(--pink-soft); border: none;
-      width: 38px; height: 38px; border-radius: 50%; font-size: 20px; cursor: pointer;
+      position: absolute; top: 14px; left: 14px; background: var(--pink-soft); border: none;
+      width: 42px; height: 42px; border-radius: 50%; font-size: 22px; cursor: pointer;
       display: flex; align-items: center; justify-content: center; color: var(--burgundy-soft); font-weight: bold; z-index: 10;
     }
 
-    .modal-body { display: grid; grid-template-columns: 1fr; gap: 20px; padding: 24px; }
-    @media (min-width: 550px) { .modal-body { grid-template-columns: 1fr 1fr; } }
+    .modal-body { display: grid; grid-template-columns: 1fr; gap: 24px; padding: 30px; }
+    @media (min-width: 650px) { .modal-body { grid-template-columns: 1.1fr 1fr; align-items: center; } }
 
-    .modal-gallery-wrapper { display: flex; flex-direction: column; gap: 10px; }
-    .modal-img { width: 100%; height: 260px; object-fit: cover; border-radius: 14px; border: 1px solid var(--border-color); }
+    .modal-gallery-wrapper { display: flex; flex-direction: column; gap: 12px; }
+    /* 🟢 تكبير الصورة الرئيسية داخل النافذة */
+    .modal-img { width: 100%; height: 350px; object-fit: cover; border-radius: 16px; border: 1px solid var(--border-color); }
     
-    /* معرض المصغرات */
-    .thumbnails-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; }
+    /* معرض المصغرات الأكبر */
+    .thumbnails-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
     .thumb-img {
-      width: 55px; height: 55px; border-radius: 8px; object-fit: cover; cursor: pointer;
+      width: 65px; height: 65px; border-radius: 10px; object-fit: cover; cursor: pointer;
       border: 2px solid var(--border-color); transition: all 0.2s; flex-shrink: 0;
     }
     .thumb-img.active, .thumb-img:hover { border-color: var(--burgundy-soft); transform: scale(1.05); }
 
-    .modal-info { display: flex; flex-direction: column; gap: 12px; }
-    .modal-title { font-size: 24px; font-weight: 900; color: var(--burgundy-soft); }
-    .modal-price { font-size: 26px; font-weight: 900; color: var(--burgundy-soft); }
+    .modal-info { display: flex; flex-direction: column; gap: 14px; }
+    .modal-title { font-size: 26px; font-weight: 900; color: var(--burgundy-soft); }
+    .modal-price { font-size: 28px; font-weight: 900; color: var(--burgundy-soft); }
 
     .size-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
     .size-btn {
-      padding: 8px 16px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-cream);
-      cursor: pointer; font-size: 15px; font-weight: 800; transition: all 0.2s; color: var(--text-dark);
+      padding: 9px 18px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-cream);
+      cursor: pointer; font-size: 16px; font-weight: 800; transition: all 0.2s; color: var(--text-dark);
     }
     .size-btn.selected { background: var(--burgundy-soft); color: white; border-color: var(--burgundy-soft); }
 
-    .dimensions-box { background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 12px; border-radius: 10px; font-size: 15px; display: flex; gap: 16px; color: var(--burgundy-soft); font-weight: 700; }
+    .dimensions-box { background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 14px; border-radius: 12px; font-size: 15px; display: flex; gap: 16px; color: var(--burgundy-soft); font-weight: 700; }
 
     .add-cart-btn {
-      background: var(--burgundy-soft); color: white; border: none; padding: 14px;
-      border-radius: 12px; font-weight: 800; font-size: 16px; cursor: pointer;
-      text-align: center; display: block; margin-top: 8px; transition: background 0.2s;
+      background: var(--burgundy-soft); color: white; border: none; padding: 15px;
+      border-radius: 14px; font-weight: 800; font-size: 17px; cursor: pointer;
+      text-align: center; display: block; margin-top: 10px; transition: background 0.2s;
+      box-shadow: 0 4px 12px rgba(128, 61, 72, 0.2);
     }
     .add-cart-btn:hover { background: var(--burgundy-hover); }
 
@@ -426,7 +429,7 @@
         <input type="radio" name="payMethod" value="cod" id="payCod" checked>
         <div class="payment-details">
           <label for="payCod" class="payment-title">💵 الدفع عند الاستلام (كاش)</label>
-          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلام الشحنة ومعاينتها.</span>
+          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلاستلام الشحنة ومعاينتها.</span>
         </div>
       </div>
 
@@ -496,7 +499,6 @@
             const imagesList = [];
             if (image) imagesList.push(image);
 
-            // استخراج الصور الفرعية ومعالجة هيكلية Sveltia المتداخلة
             const imagesBlock = text.match(/images:([\s\S]*?)(?=\n[a-z]+:|\n---)/i);
             if (imagesBlock) {
               const matches = imagesBlock[1].match(/([^\s"'\r\n:]+\.(?:jpg|jpeg|png|webp|gif))/gi);
