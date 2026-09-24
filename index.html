@@ -410,7 +410,7 @@
     </div>
   </div>
 
-  <!-- سكربت التشغيل ومعالجة الماركداون والأسماء الصحيحة للصور -->
+  <!-- سكربت التشغيل ومعالجة الماركداون والواتساب مع صور المنتجات -->
   <script>
     let products = [];
     let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
@@ -467,19 +467,16 @@
         const price = parseFloat(getField('price')) || 0;
         const category = getField('category') || 'ملابس شتوية';
         
-        // الدالة المحسنة التي تحافظ على الشرطات في أسماء الصور مثل /images/-58547...
         const fixImagePath = (rawPath) => {
           if (!rawPath) return '';
           let clean = rawPath.replace(/["'\[\]]/g, '').trim();
           if (clean.startsWith('http')) return clean;
-          // إزالة أي علامات اقتباس أو مسافات، والتعامل السليم مع الشرطة المائلة
           clean = clean.replace(/^\/+/, '');
           return clean.startsWith('images/') ? clean : 'images/' + clean;
         };
 
         const mainImage = fixImagePath(getField('image')) || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
 
-        // استخراج ألبوم الصور وصور القائمة بدقة تامة والاحتفاظ بأسماء الصور الحقيقية
         let allImages = [mainImage];
         const lines = frontmatter.split('\n');
         let insideImages = false;
@@ -500,7 +497,6 @@
               insideImages = false;
             }
           }
-          // فحص مباشر لأي سطر يحتوي على صورة إضافية
           if (line.includes('/') && (line.endsWith('.jpg') || line.endsWith('.png') || line.endsWith('.webp') || line.includes('_'))) {
             let partsPath = line.split(':');
             let targetPath = partsPath.length > 1 ? partsPath[1] : line;
@@ -511,7 +507,6 @@
           }
         }
 
-        // استخراج المقاسات والأبعاد
         let parsedVariants = [];
         const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
         if (variantsMatch) {
@@ -632,6 +627,11 @@
         sizesContainer.appendChild(btn);
       });
 
+      // تضمين رابط الصورة في زر الطلب الفوري المباشر عبر الواتساب
+      const fullImgUrl = `${window.location.origin}/${currentSelectedProduct.image}`;
+      const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title}\n المقاس: ${selectedSize}\n السعر: ${currentSelectedProduct.price} ج.م\n 📷 صورة المنتج: ${fullImgUrl}`);
+      document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
+
       document.getElementById('productModal').classList.add('active');
     }
 
@@ -641,7 +641,204 @@
     function closeSuccessModal() { document.getElementById('successModal').classList.remove('active'); }
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-    window.addEventListener('DOMContentLoaded', () => { loadRealProducts(); });
+    function addToCart() {
+      if (!currentSelectedProduct) return;
+      const existing = cart.find(item => item.id === currentSelectedProduct.id && item.size === selectedSize);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({ ...currentSelectedProduct, size: selectedSize, qty: 1 });
+      }
+      updateCartCount();
+      closeModal();
+      openCartModal();
+      showToast();
+    }
+
+    function showToast() {
+      const toast = document.getElementById('toastNotification');
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    function updateCartCount() {
+      const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
+      document.getElementById('cartCount').innerText = totalCount;
+    }
+
+    function renderCartItems() {
+      const container = document.getElementById('cartItemsContainer');
+      const promoBox = document.getElementById('promoBox');
+      const customerFormBox = document.getElementById('customerFormBox');
+      const proceedBtn = document.getElementById('proceedBtn');
+
+      if (cart.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>';
+        promoBox.style.display = 'none';
+        customerFormBox.style.display = 'none';
+        proceedBtn.style.display = 'none';
+        document.getElementById('cartTotalPrice').innerText = '0 ج.م';
+        return;
+      }
+
+      promoBox.style.display = 'flex';
+      customerFormBox.style.display = 'flex';
+
+      container.innerHTML = cart.map((item, index) => `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <span class="cart-item-title">${item.title}</span>
+            <span class="cart-item-meta">المقاس: ${item.size}</span>
+          </div>
+          <div class="quantity-controls">
+            <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
+            <span class="qty-num">${item.qty}</span>
+            <button class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
+          </div>
+          <span class="cart-item-price">${item.price * item.qty} ج.م</span>
+          <button class="remove-btn" onclick="removeFromCart(${index})">✕</button>
+        </div>
+      `).join('');
+
+      updateTotalPrice();
+      checkFormCompletion();
+    }
+
+    function changeQty(index, delta) {
+      cart[index].qty += delta;
+      if (cart[index].qty <= 0) cart.splice(index, 1);
+      updateCartCount();
+      renderCartItems();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCartCount();
+      renderCartItems();
+    }
+
+    function updateTotalPrice() {
+      let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      let total = subtotal * (1 - discountRate);
+      document.getElementById('cartTotalPrice').innerText = total.toFixed(0) + ' ج.م';
+    }
+
+    function applyPromoCode() {
+      const code = document.getElementById('promoInput').value.trim();
+      if (code === 'SOUQ10') {
+        discountRate = 0.10;
+        alert('تم تطبيق خصم 10% بنجاح!');
+        updateTotalPrice();
+      } else {
+        alert('كود الخصم غير صحيح');
+      }
+    }
+
+    function checkFormCompletion() {
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
+      const proceedBtn = document.getElementById('proceedBtn');
+
+      if (name && phone && address && cart.length > 0) {
+        proceedBtn.style.display = 'block';
+      } else {
+        proceedBtn.style.display = 'none';
+      }
+    }
+
+    function validateAndOpenTerms() {
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
+
+      if (!name || !phone || !address) {
+        alert('يرجى استكمال كافة بيانات الشحن المطلوبة');
+        return;
+      }
+      closeCartModal();
+      document.getElementById('termsModal').classList.add('active');
+    }
+
+    function toggleTermsCheckbox() {
+      const cb = document.getElementById('termsCheckbox');
+      cb.checked = !cb.checked;
+      handleCheckboxChange({ target: cb });
+    }
+
+    function handleCheckboxChange(e) {
+      const agreeBtn = document.getElementById('agreeBtn');
+      if (e.target.checked) agreeBtn.classList.add('active');
+      else agreeBtn.classList.remove('active');
+    }
+
+    function declineTerms() {
+      document.getElementById('termsModal').classList.remove('active');
+    }
+
+    function proceedToPayment() {
+      document.getElementById('termsModal').classList.remove('active');
+      document.getElementById('paymentModal').classList.add('active');
+    }
+
+    function selectPayment(method) {
+      document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+      if (method === 'cod') {
+        document.getElementById('optCod').classList.add('selected');
+        document.getElementById('payCod').checked = true;
+      } else {
+        document.getElementById('optInstapay').classList.add('selected');
+        document.getElementById('payInstapay').checked = true;
+      }
+    }
+
+    function copyInstapay(e) {
+      e.stopPropagation();
+      navigator.clipboard.writeText('01116339905');
+      alert('تم نسخ رقم انستا باي بنجاح');
+    }
+
+    // دالة إنشاء رسالة الواتساب النهائية مع تضمين رابط الصورة المباشر لكل منتج في السلة
+    function finalizeOrder() {
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
+      const payMethod = document.querySelector('input[name="payMethod"]:checked').value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
+      
+      let itemsTest = cart.map(i => {
+        const fullImgUrl = `${window.location.origin}/${i.image}`;
+        return `- *${i.title}* (مقاس: ${i.size}) × ${i.qty} = ${i.price * i.qty} ج.م\n  📷 صورة المنتج: ${fullImgUrl}`;
+      }).join('\n\n');
+      
+      let totalText = document.getElementById('cartTotalPrice').innerText;
+
+      let msg = `🛍️ *طلب جديد من متجر My Souq*\n\n`;
+      msg += `👤 الاسم: ${name}\n`;
+      msg += `📞 الهاتف: ${phone}\n`;
+      msg += `📍 العنوان: ${address}\n\n`;
+      msg += `🛒 *المنتجات المطلوبة:*\n${itemsTest}\n\n`;
+      msg += `💰 *الإجمالي النهائي:* ${totalText}\n`;
+      msg += `💳 *طريقة الدفع:* ${payMethod}`;
+
+      const encodedMsg = encodeURIComponent(msg);
+      window.open(`https://wa.me/201116339905?text=${encodedMsg}`, '_blank');
+
+      document.getElementById('paymentModal').classList.remove('active');
+      document.getElementById('successModal').classList.add('active');
+      cart = [];
+      localStorage.removeItem("souqCart");
+      updateCartCount();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadRealProducts();
+      updateCartCount();
+      window.addEventListener('scroll', () => {
+        const btn = document.getElementById('backToTopBtn');
+        if (window.scrollY > 300) btn.classList.add('show');
+        else btn.classList.remove('show');
+      });
+    });
   </script>
 </body>
 </html>
