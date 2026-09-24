@@ -410,7 +410,7 @@
     </div>
   </div>
 
-  <!-- سكربت التشغيل ومعالجة الماركداون والألبوم -->
+  <!-- سكربت التشغيل ومعالجة الماركداون والأسماء الصحيحة للصور -->
   <script>
     let products = [];
     let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
@@ -467,17 +467,19 @@
         const price = parseFloat(getField('price')) || 0;
         const category = getField('category') || 'ملابس شتوية';
         
+        // الدالة المحسنة التي تحافظ على الشرطات في أسماء الصور مثل /images/-58547...
         const fixImagePath = (rawPath) => {
           if (!rawPath) return '';
-          let clean = rawPath.replace(/["'\[\]\-*]/g, '').trim();
+          let clean = rawPath.replace(/["'\[\]]/g, '').trim();
           if (clean.startsWith('http')) return clean;
-          if (clean.startsWith('/')) clean = clean.substring(1);
+          // إزالة أي علامات اقتباس أو مسافات، والتعامل السليم مع الشرطة المائلة
+          clean = clean.replace(/^\/+/, '');
           return clean.startsWith('images/') ? clean : 'images/' + clean;
         };
 
         const mainImage = fixImagePath(getField('image')) || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
 
-        // استخراج ألبوم الصور وصور القائمة بدقة تامة من الـ Frontmatter
+        // استخراج ألبوم الصور وصور القائمة بدقة تامة والاحتفاظ بأسماء الصور الحقيقية
         let allImages = [mainImage];
         const lines = frontmatter.split('\n');
         let insideImages = false;
@@ -488,8 +490,8 @@
             continue;
           }
           if (insideImages) {
-            if (line.trim().startsWith('-') || line.trim().startsWith('image_item:') || line.includes('images/')) {
-              let pathPart = line.split(':')[1] || line;
+            if (line.trim().startsWith('-') || line.includes('/') || line.includes('.jpg') || line.includes('.png') || line.includes('.webp')) {
+              let pathPart = line.replace('-', '').split(':')[1] || line.replace('-', '');
               let fixed = fixImagePath(pathPart);
               if (fixed && !allImages.includes(fixed)) {
                 allImages.push(fixed);
@@ -499,13 +501,12 @@
             }
           }
           // فحص مباشر لأي سطر يحتوي على صورة إضافية
-          if (line.includes('images/') || line.endsWith('.jpg') || line.endsWith('.png') || line.endsWith('.webp')) {
+          if (line.includes('/') && (line.endsWith('.jpg') || line.endsWith('.png') || line.endsWith('.webp') || line.includes('_'))) {
             let partsPath = line.split(':');
-            if (partsPath.length > 1) {
-              let fixed = fixImagePath(partsPath[1]);
-              if (fixed && !allImages.includes(fixed)) {
-                allImages.push(fixed);
-              }
+            let targetPath = partsPath.length > 1 ? partsPath[1] : line;
+            let fixed = fixImagePath(targetPath);
+            if (fixed && !allImages.includes(fixed)) {
+              allImages.push(fixed);
             }
           }
         }
@@ -539,7 +540,7 @@
       }
       productsGrid.innerHTML = list.map(p => `
         <div class="product-card" onclick="openProductModal(${p.id})">
-          <div class="image-container"><img class="product-image" src="${p.image}" alt="${p.title}"></div>
+          <div class="image-container"><img class="product-image" src="${p.image}" alt="${p.title}" onerror="this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'"></div>
           <div class="product-details">
             <h3 class="product-title">${p.title}</h3>
             <div class="price-tag">${p.price} ج.م</div>
@@ -577,6 +578,8 @@
       const thumbsContainer = document.getElementById('thumbnailsContainer');
       
       modalImg.src = currentSelectedProduct.image;
+      modalImg.onerror = function() { this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'; };
+      
       thumbsContainer.innerHTML = '';
 
       if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
@@ -585,6 +588,7 @@
           const thumb = document.createElement('img');
           thumb.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
           thumb.src = imgSrc;
+          thumb.onerror = function() { this.style.display = 'none'; };
           thumb.onclick = () => {
             modalImg.src = imgSrc;
             document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
