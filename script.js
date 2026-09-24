@@ -55,7 +55,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown واستخراج المقاسات والأبعاد والألبوم بدقة
+// دالة تحليل الـ Markdown الشاملة والمحدثة لمعالجة المقاسات والأبعاد والألبوم
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -73,7 +73,7 @@ function parseMarkdown(markdownText, id) {
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
     
-    // دالة تصحيح مسار الصورة
+    // دالة تصحيح مسار الصور
     const fixImagePath = (rawPath) => {
       if (!rawPath) return '';
       let clean = rawPath.replace(/["'\[\]]/g, '').trim();
@@ -93,7 +93,7 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     const mainImage = fixImagePath(rawImageField) || defaultImg;
 
-    // استخراج جميع الصور للألبوم
+    // استخراج صور الألبوم والكتالوج
     let allExtractedImages = [];
     const lines = frontmatter.split('\n');
     for (let line of lines) {
@@ -113,19 +113,20 @@ function parseMarkdown(markdownText, id) {
       allImages = [defaultImg];
     }
 
-    // استخراج المقاسات والطول والعرض لكل مقاس
+    // استخراج المقاسات والطول والعرض لكل مقاس بمرونة تامة
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (variantsMatch) {
-      const variantBlocks = variantsMatch[1].split(/- size:/);
+      const variantBlocks = variantsMatch[1].split(/- size:|- /);
       variantBlocks.forEach(block => {
         if (!block.trim()) return;
         const sizeLineMatch = block.match(/["']?([^"\n]+)["']?/);
         if (sizeLineMatch && sizeLineMatch[1]) {
           const cleanSize = sizeLineMatch[1].trim().replace(/['"\[\]]/g, '');
           
-          const lenMatch = block.match(/length:\s*([0-9.]+)/);
-          const widMatch = block.match(/width:\s*([0-9.]+)/);
+          // البحث عن الطول والعرض بأكثر من صيغة محتملة
+          const lenMatch = block.match(/(?:length|طول|Height):\s*([0-9.]+)/i);
+          const widMatch = block.match(/(?:width|عرض|Width):\s*([0-9.]+)/i);
           
           parsedVariants.push({
             size: cleanSize,
@@ -217,7 +218,6 @@ function openProductModal(id) {
   
   thumbsContainer.innerHTML = '';
 
-  // عرض الألبوم والصور المصغرة
   if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
     thumbsContainer.style.display = 'flex';
     currentSelectedProduct.images.forEach((imgSrc, idx) => {
@@ -250,7 +250,7 @@ function openProductModal(id) {
   const firstVariant = currentSelectedProduct.variants[0];
   selectedSize = firstVariant.size || '';
 
-  // دالة تحديث وعرض الأبعاد لكل مقاس
+  // دالة إظهار وتحديث الطول والعرض ديناميكياً
   function updateDimensionsDisplay(variant) {
     if (variant && (variant.length || variant.width)) {
       dimensionsContainer.style.display = 'flex';
@@ -271,7 +271,7 @@ function openProductModal(id) {
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedSize = v.size;
-      updateDimensionsDisplay(v); // تحديث الأبعاد بالسنتيمتر عند الضغط على المقاس
+      updateDimensionsDisplay(v); // تحديث الأبعاد بالسنتيمتر للمقاس المختار
     };
     sizesContainer.appendChild(btn);
   });
@@ -384,7 +384,7 @@ function applyPromoCode() {
 function validateAndOpenTerms() {
   const name = document.getElementById('custName').value.trim();
   const phone = document.getElementById('custPhone').value.trim();
-  const address = document.getElementById('custAddress').value.trim();
+  const address = document.getElementById('custAddress'].value.trim();
 
   if (!name || !phone || !address) {
     alert('يرجى استكمال كافة بيانات الشحن المطلوبة');
