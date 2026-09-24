@@ -137,6 +137,35 @@
     .price-tag { font-size: 22px; font-weight: 900; color: var(--burgundy-soft); margin-top: auto; }
     .click-hint { font-size: 13px; color: var(--burgundy-soft); font-weight: 800; text-align: center; margin-top: 8px; background: var(--pink-soft); padding: 8px; border-radius: 10px; }
 
+    /* ⭐ قسم آراء وتقييمات العملاء (Reviews & Gallery) */
+    .reviews-section {
+      max-width: 1200px; margin: 60px auto 30px; background: var(--card-cream);
+      padding: 35px 25px; border-radius: 22px; border: 1px solid var(--border-color);
+      box-shadow: 0 8px 25px rgba(128, 61, 72, 0.05);
+    }
+    .reviews-header { text-align: center; margin-bottom: 25px; }
+    .reviews-header h2 { font-size: 28px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 8px; }
+    .reviews-header p { font-size: 15px; color: var(--text-muted); font-weight: 700; }
+
+    .reviews-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .review-card {
+      background: var(--pink-soft); border-radius: 16px; padding: 18px;
+      border: 1px solid var(--pink-accent); display: flex; flex-direction: column; gap: 10px;
+    }
+    .review-stars { color: #f59e0b; font-size: 16px; letter-spacing: 2px; }
+    .review-text { font-size: 14.5px; color: var(--text-dark); line-height: 1.5; font-weight: 700; }
+    .review-author { font-size: 13px; color: var(--burgundy-soft); font-weight: 900; margin-top: auto; }
+    
+    /* معرض صور آراء العملاء الحقيقية */
+    .review-img-box { width: 100%; height: 180px; border-radius: 10px; overflow: hidden; background: #e0d0d2; margin-top: 6px; }
+    .review-img-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
+    .review-img-box img:hover { transform: scale(1.05); }
+
+
     /* النوافذ المنبثقة */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -175,7 +204,6 @@
     .modal-info { display: flex; flex-direction: column; gap: 12px; }
     .modal-title { font-size: 26px; font-weight: 900; color: var(--burgundy-soft); }
     
-    /* شارة حالة التوفر الجديدة */
     .stock-badge {
       display: inline-flex; align-items: center; gap: 6px; background: #e8f5e9; color: #2e7d32;
       padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 800; width: fit-content;
@@ -224,13 +252,11 @@
     .cart-item-price { font-weight: 900; color: var(--burgundy-soft); font-size: 15px; min-width: 70px; text-align: left; }
     .remove-btn { color: #dc2626; background: none; border: none; cursor: pointer; font-weight: bold; padding: 4px; font-size: 16px; }
 
-    /* خانة كود الخصم الجديدة */
     .promo-box { display: flex; gap: 8px; margin-bottom: 12px; }
     .promo-input { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; background: white; }
     .promo-btn { background: var(--burgundy-soft); color: white; border: none; padding: 0 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
     .promo-btn:hover { background: var(--burgundy-hover); }
 
-    /* نموذج الشحن */
     .customer-form {
       background: var(--bg-cream); padding: 15px; border-radius: 14px;
       border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; margin-top: 5px;
@@ -361,9 +387,41 @@
     </div>
   </div>
 
+  <!-- قائمة المنتجات -->
   <main class="products-grid" id="products-container">
     <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 18px; font-weight: bold;">جاري تحميل الموديلات...</p>
   </main>
+
+  <!-- ⭐ قسم آراء وتقييمات العملاء (Reviews & Gallery) -->
+  <section class="reviews-section">
+    <div class="reviews-header">
+      <h2>⭐ آراء عملائنا الأفاضل</h2>
+      <p>نفتخر بثقة عملائنا في جودة منتجاتنا وسرعة التوصيل بجميع المحافظات</p>
+    </div>
+    
+    <div class="reviews-grid">
+      <!-- تقييم 1 -->
+      <div class="review-card">
+        <div class="review-stars">⭐⭐⭐⭐⭐</div>
+        <p class="review-text">"الخامة ممتازة جداً والدفايات طرية ودافئة للأولاد في الشتاء، والمقاسات مظبوطة بالمللي. شكراً لكم على الأمانة."</p>
+        <div class="review-author">أم حبيبة - القليوبية</div>
+      </div>
+
+      <!-- تقييم 2 -->
+      <div class="review-card">
+        <div class="review-stars">⭐⭐⭐⭐⭐</div>
+        <p class="review-text">"الطلب وصل في أسرع وقت والمندوب محترم جداً وخلاني أفتح الشحنة أعاينها قبل ما أدفع. تجربة رائعة وهكررها تاني."</p>
+        <div class="review-author">محمد إبراهيم - القاهرة</div>
+      </div>
+
+      <!-- تقييم 3 -->
+      <div class="review-card">
+        <div class="review-stars">⭐⭐⭐⭐⭐</div>
+        <p class="review-text">"الأسعار مقارنة بالجودة تحفة بجد، وخدمة العملاء على الواتساب سريعة ومتعاونه جداً في اختيار المقاس المناسب."</p>
+        <div class="review-author">سارة أحمد - الجيزة</div>
+      </div>
+    </div>
+  </section>
 
   <!-- نافذة تفاصيل المنتج -->
   <div class="modal-overlay" id="productModal">
@@ -492,7 +550,7 @@
         <input type="radio" name="payMethod" value="cod" id="payCod" checked>
         <div class="payment-details">
           <label for="payCod" class="payment-title">💵 الدفع عند الاستلام (كاش)</label>
-          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلام الشحنة ومعاينتها.</span>
+          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلاستلام الشحنة ومعاينتها.</span>
         </div>
       </div>
 
