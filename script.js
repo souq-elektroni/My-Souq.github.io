@@ -6,6 +6,8 @@ let minPrice = 0;
 let maxPrice = 2000;
 let selectedSize = null;
 let currentProductId = null;
+let currentSelectedProduct = null;
+let discountRate = 0;
 
 // ===== DOM Elements =====
 const productsGrid = document.getElementById("products-container");
@@ -60,7 +62,7 @@ async function loadRealProducts() {
   }
 }
 
-// تحليل ملف الـ Markdown الخاص بالمنتج المنشور
+// تحليل ملف الـ Markdown الخاص بالمنتج ومعالجة مسار الصورة تلقائياً
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -77,7 +79,20 @@ function parseMarkdown(markdownText, id) {
     const title = getField('title') || getField('name') || 'منتج جديد';
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
-    const image = getField('image') || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
+    
+    // معالجة مسار الصورة لضمان ظهورها بشكل سليم دائماً
+    let rawImage = getField('image') || '';
+    let image = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
+    
+    if (rawImage) {
+      if (rawImage.startsWith('http://') || rawImage.startsWith('https://')) {
+        image = rawImage;
+      } else {
+        // تنظيف المسار إذا بدأ بـ / أو تم رفعه محلياً
+        let cleanPath = rawImage.startsWith('/') ? rawImage.substring(1) : rawImage;
+        image = cleanPath;
+      }
+    }
     
     let sizes = ["M", "L", "XL", "XXL"];
     if (category === 'أحذية') {
@@ -149,8 +164,6 @@ function applySorting() {
 }
 
 // ===== Product Modal & Cart =====
-let currentSelectedProduct = null;
-
 function openProductModal(id) {
   currentSelectedProduct = products.find(p => p.id === id);
   if (!currentSelectedProduct) return;
@@ -270,7 +283,6 @@ function removeFromCart(index) {
   renderCartItems();
 }
 
-let discountRate = 0;
 function updateTotalPrice() {
   let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
   let total = subtotal * (1 - discountRate);
