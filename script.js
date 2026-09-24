@@ -55,7 +55,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown المرنة جداً لقراءة المقاسات والطول والعرض بأي صيغة
+// دالة تحليل الـ Markdown الفائقة الذكاء لقراءة المقاسات والطول والعرض مهما كانت الصيغة
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -105,50 +105,55 @@ function parseMarkdown(markdownText, id) {
     let allImages = [mainImage, ...allExtractedImages.filter(img => img !== mainImage)];
     if (allImages.length === 0) allImages = [defaultImg];
 
-    // استخراج المقاسات وتوزيع الأبعاد بذكاء تام
+    // استخراج المقاسات والطول والعرض بقسْم الـ frontmatter إلى أجزاء وبحث شامل
     let parsedVariants = [];
-    const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
+    const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
     
     if (variantsMatch) {
-      const variantBlocks = variantsMatch[1].split(/- size:|- المقاس|(?=- \s*["']?[0-9]+["']?)/);
-      variantBlocks.forEach(block => {
+      const variantText = variantsMatch[1];
+      // تقسيم النص بناءً على كل سطر يبدأ بمقاس أو شرطة
+      const blocks = variantText.split(/(?=\n\s*-\s*size:|\n\s*-\s*المقاس:|\n\s*-\s*["']?[0-9a-zA-Z\u0600-\u06FF]+["']?\s*:)/);
+      
+      blocks.forEach(block => {
         if (!block.trim()) return;
         
-        // البحث عن رقم المقاس أو الحجم بأي صيغة
-        const sizeMatch = block.match(/(?:size|المقاس \/ الحجم|المقاس):\s*["']?([0-9a-zA-Z\u0600-\u06FF\s]+)["']?/i) || block.match(/["']?([0-9a-zA-Z\u0600-\u06FF]+)["']?/);
+        // استخراج اسم المقاس أو الرقم
+        let sizeVal = '';
+        const sizeMatch1 = block.match(/(?:size|المقاس):\s*["']?([^,\n]+)["']?/i);
+        const sizeMatch2 = block.match(/-\s*["']?([0-9a-zA-Z\u0600-\u06FF\s]+)["']?\s*:/);
+        const sizeMatch3 = block.match(/([0-9a-zA-Z\u0600-\u06FF]+):\s*\n/);
         
-        if (sizeMatch) {
-          const cleanSize = (sizeMatch[1] || sizeMatch[0]).trim().replace(/['"\[\]]/g, '').split('\n')[0];
-          
-          // البحث عن الطول بأي صيغة (عربي أو إنجليزي)
-          const lenMatch = block.match(/(?:الطول \(سم\)|الطول|length):\s*([0-9.]+)/i);
-          // البحث عن العرض بأي صيغة (عربي أو إنجليزي)
-          const widMatch = block.match(/(?:العرض \(سم\)|العرض|width):\s*([0-9.]+)/i);
-          
-          if (cleanSize) {
-            parsedVariants.push({
-              size: cleanSize,
-              length: lenMatch ? lenMatch[1] : '',
-              width: widMatch ? widMatch[1] : ''
-            });
-          }
+        if (sizeMatch1) sizeVal = sizeMatch1[1].trim();
+        else if (sizeMatch2) sizeVal = sizeMatch2[1].trim();
+        else if (sizeMatch3) sizeVal = sizeMatch3[1].trim();
+
+        // استخراج الطول بأي شكل (طول، الطول، length)
+        let lenVal = '';
+        const lenMatch = block.match(/(?:الطول|length)[^0-9]*([0-9.]+)/i);
+        if (lenMatch) lenVal = lenMatch[1].trim();
+
+        // استخراج العرض بأي شكل (عرض، العرض، width)
+        let widVal = '';
+        const widMatch = block.match(/(?:العرض|width)[^0-9]*([0-9.]+)/i);
+        if (widMatch) widVal = widMatch[1].trim();
+
+        if (sizeVal && sizeVal.toLowerCase() !== 'variants') {
+          parsedVariants.push({
+            size: sizeVal.replace(/['"\[\]]/g, ''),
+            length: lenVal,
+            width: widVal
+          });
         }
       });
     }
 
-    // طريقة بديلة قوية جداً لو كانت المتغيرات مسجلة بطريقة مختلفة في ملفات الـ md
+    // طريقة بديلة إضافية لاكتشاف الطول والعرض إذا كانت مكتوبة بشكل مسطح في الـ frontmatter
     if (parsedVariants.length === 0) {
-      const globalSizes = frontmatter.match(/size:\s*([0-9a-zA-Z]+)/g);
-      if (globalSizes) {
-        globalSizes.forEach(s => {
-          let val = s.split(':')[1].trim();
-          parsedVariants.push({ size: val, length: '', width: '' });
-        });
-      }
-    }
-
-    if (parsedVariants.length === 0) {
-      parsedVariants = [{ size: "مقاس موحد", length: "", width: "" }];
+      parsedVariants.push({
+        size: "مقاس موحد",
+        length: getField('الطول') || getField('length') || '',
+        width: getField('العرض') || getField('width') || ''
+      });
     }
 
     return {
