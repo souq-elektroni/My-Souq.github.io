@@ -46,7 +46,7 @@ async function loadRealProducts() {
   }
 }
 
-// تحليل ملف الـ Markdown وقراءة المقاسات والكتالوج بدقة
+// تحليل ملف الـ Markdown مع معالجة مسارات الكتالوج بدقة تامة
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -64,14 +64,22 @@ function parseMarkdown(markdownText, id) {
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
     
-    // معالجة مسار الصورة الرئيسية
-    let rawImage = getField('image') || '';
-    let image = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
-    if (rawImage) {
-      image = rawImage.startsWith('http') ? rawImage : (rawImage.startsWith('/') ? rawImage.substring(1) : rawImage);
-    }
+    // دالة مساعدة لضبط مسار أي صورة تلقائياً
+    const fixImagePath = (rawPath) => {
+      if (!rawPath) return '';
+      let clean = rawPath.replace(/^["']|["']$/g, '').trim();
+      if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
+      if (clean.startsWith('/')) clean = clean.substring(1);
+      // إذا لم يكن المسار يحتوي على اسم مجلد الصور، نضيفه تلقائياً
+      if (!clean.startsWith('images/')) {
+        clean = 'images/' + clean;
+      }
+      return clean;
+    };
 
-    // استخراج الصور الإضافية (الكتالوج) إن وجدت
+    const image = fixImagePath(getField('image')) || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
+
+    // استخراج الصور الإضافية (الكتالوج) وضبط مساراتها
     let galleryImages = [];
     const imagesMatch = frontmatter.match(/images:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (imagesMatch) {
@@ -79,19 +87,19 @@ function parseMarkdown(markdownText, id) {
       lines.forEach(line => {
         let cleanLine = line.replace(/[-*]/g, '').trim();
         if (cleanLine) {
-          cleanLine = cleanLine.replace(/^["']|["']$/g, '');
-          galleryImages.push(cleanLine.startsWith('http') ? cleanLine : (cleanLine.startsWith('/') ? cleanLine.substring(1) : cleanLine));
+          const fixed = fixImagePath(cleanLine);
+          if (fixed) galleryImages.push(fixed);
         }
       });
     }
-    // دمج الصورة الرئيسية مع الكتالوج لعرضها في المعرض
+
+    // دمج الصورة الرئيسية مع الكتالوج بدون تكرار
     let allImages = [image, ...galleryImages.filter(img => img !== image)];
 
     // استخراج المقاسات أو الفاريانتس المرفوعة من الأدمن
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (variantsMatch) {
-      // محاولة تحليل مبسط لسطور المقاسات
       const variantBlocks = variantsMatch[1].split('- size:');
       variantBlocks.forEach(block => {
         const sizeMatch = block.match(/["']?([^"\n]+)["']?/);
@@ -113,9 +121,7 @@ function parseMarkdown(markdownText, id) {
       image: image,
       images: allImages,
       variants: parsedVariants,
-      desc: body || title,
-      length: "75",
-      width: "55"
+      desc: body || title
     };
   } catch (e) {
     return null;
@@ -170,12 +176,11 @@ function applySorting() {
   renderProducts(sorted);
 }
 
-// ===== Product Modal & Cart (مع دعم الكتالوج والمقاسات الحقيقية) =====
+// ===== Product Modal & Cart =====
 function openProductModal(id) {
   currentSelectedProduct = products.find(p => p.id === id);
   if (!currentSelectedProduct) return;
 
-  // عرض الصورة الرئيسية وصور الكتالوج المصغرة
   const modalImg = document.getElementById('modalImage');
   const thumbsContainer = document.getElementById('thumbnailsContainer');
   
@@ -203,7 +208,6 @@ function openProductModal(id) {
   document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
   document.getElementById('modalDesc').innerText = currentSelectedProduct.desc;
 
-  // عرض المقاسات الحقيقية من الأدمن
   const sizesContainer = document.getElementById('sizesContainer');
   sizesContainer.innerHTML = '';
   selectedSize = currentSelectedProduct.variants[0].size || '';
@@ -388,15 +392,15 @@ function finalizeOrder() {
   const address = document.getElementById('custAddress').value.trim();
   const payMethod = document.querySelector('input[name="payMethod"]:checked').value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
   
-  let itemsText = cart.map(i => `- ${i.title} (مقاس: ${i.size}) × ${i.qty} = ${i.price * i.qty} ج.م`).join('\n');
+  let itemsTest = cart.map(i => `- ${i.title} (مقاس: ${i.size}) × ${i.qty} = ${i.price * i.qty} ج.م`).join('\n');
   let totalText = document.getElementById('cartTotalPrice').innerText;
 
   let msg = `🛍️ *طلب جديد من متجر My Souq*\n\n`;
   msg += `👤 الاسم: ${name}\n`;
   msg += `📞 الهاتف: ${phone}\n`;
   msg += `📍 العنوان: ${address}\n\n`;
-  msg += `🛒 *المنتجات المطلوبة:*\n${itemsText}\n\n`;
-  msg += `💰 *الإجمالي النهائي:* ${totalText}\n`;
+  msg += `🛒 *المنتجات المطلوبة:*\n${itemsTest}\n\n`;
+  msg += `💰 *الإجمالي النهائي:* ${totalTest}\n`;
   msg += `💳 *طريقة الدفع:* ${payMethod}`;
 
   const encodedMsg = encodeURIComponent(msg);
