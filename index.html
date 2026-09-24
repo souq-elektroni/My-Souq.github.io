@@ -519,12 +519,12 @@
         <p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>
       </div>
 
-      <div class="promo-box" id="promoBox" style="display: none;">
+      <div class="promo-box" id="promoBox" style="display: flex;">
         <input type="text" id="promoInput" class="promo-input" placeholder="أدخل كود الخصم (إن وجدت)">
         <button class="promo-btn" onclick="applyPromoCode()">تطبيق</button>
       </div>
 
-      <div class="customer-form" id="customerFormBox" style="display: none;">
+      <div class="customer-form" id="customerFormBox" style="display: flex;">
         <h4 style="color: var(--burgundy-soft); font-size: 15px; font-weight: bold;">📝 بيانات الشحن والتوصيل:</h4>
         
         <div class="form-group">
@@ -590,7 +590,7 @@
         <input type="radio" name="payMethod" value="cod" id="payCod" checked>
         <div class="payment-details">
           <label for="payCod" class="payment-title">💵 الدفع عند الاستلام (كاش)</label>
-          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلام الشحنة ومعاينتها.</span>
+          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلاستلام الشحنة ومعاينتها.</span>
         </div>
       </div>
 
@@ -621,9 +621,85 @@
   </div>
 
   <footer>
-    <p>جميع الحقوق محفوظة © My Souq 2026 - تسوق بأمان وثقة</p>
+    <p>© 2026 My Souq - جميع الحقوق محفوظة | تصميم وبرمجة المتجر الإلكتروني</p>
   </footer>
 
-  <script src="script.js"></script>
+  <script>
+    // تفعيل زر العودة للأعلى عند التمرير
+    window.addEventListener('scroll', function() {
+      const btn = document.getElementById('backToTopBtn');
+      if (window.scrollY > 300) {
+        btn.classList.add('show');
+      } else {
+        btn.classList.remove('show');
+      }
+    });
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function copyInstapay(e) {
+      e.stopPropagation();
+      navigator.clipboard.writeText("01116339905");
+      alert("تم نسخ رقم انستا باي بنجاح: 01116339905");
+    }
+
+    // دوال مساعدة عامة (يمكنك ربط سكريبت المنتجات الخاص بك هنا)
+    function openCartModal() { document.getElementById('cartModal').classList.add('active'); }
+    function closeCartModal() { document.getElementById('cartModal').classList.remove('active'); }
+    function closeModal() { document.getElementById('productModal').classList.remove('active'); }
+    function closeSuccessModal() { document.getElementById('successModal').classList.remove('active'); }
+    function toggleTermsCheckbox() {
+      const cb = document.getElementById('termsCheckbox');
+      cb.checked = !cb.checked;
+      handleCheckboxChange({ target: cb });
+    }
+    function handleCheckboxChange(e) {
+      const agreeBtn = document.getElementById('agreeBtn');
+      if(e.target.checked) {
+        agreeBtn.classList.add('active');
+      } else {
+        agreeBtn.classList.remove('active');
+      }
+    }
+    function declineTerms() {
+      document.getElementById('termsModal').classList.remove('active');
+    }
+    function validateAndOpenTerms() {
+      document.getElementById('cartModal').classList.remove('active');
+      document.getElementById('termsModal').classList.add('active');
+    }
+    function proceedToPayment() {
+      document.getElementById('termsModal').classList.remove('active');
+      document.getElementById('paymentModal').classList.add('active');
+    }
+    function selectPayment(method) {
+      document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+      if(method === 'cod') {
+        document.getElementById('optCod').classList.add('selected');
+        document.getElementById('payCod').checked = true;
+      } else {
+        document.getElementById('optInstapay').classList.add('selected');
+        document.getElementById('payInstapay').checked = true;
+      }
+    }
+    function finalizeOrder() {
+      document.getElementById('paymentModal').classList.remove('active');
+      document.getElementById('successModal').classList.add('active');
+    }
+    function checkFormCompletion() {
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
+      const proceedBtn = document.getElementById('proceedBtn');
+      
+      if(name && phone && address) {
+        proceedBtn.style.display = 'block';
+      } else {
+        proceedBtn.style.display = 'none';
+      }
+    }
+  </script>
 </body>
 </html>
