@@ -1,147 +1,5 @@
-// ===== Sample Products Data =====
-const products = [
-  {
-    id: 1,
-    name: "تيشيرت قطني كلاسيك",
-    category: "تيشيرت",
-    price: 249,
-    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=600&fit=crop",
-    badge: "الأكثر مبيعاً",
-    description: "تيشيرت قطني 100% ناعم ومريح، مناسب للاستخدام اليومي. خامته ممتازة وتتحمل الغسيل المتكرر.",
-    sizes: ["0-3 شهور", "3-6 شهور", "6-12 شهر", "1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات", "11 سنة", "12 سنة", "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة"]
-  },
-  {
-    id: 2,
-    name: "تيشيرت أوفر سايز",
-    category: "تيشيرت",
-    price: 299,
-    image: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=500&h=600&fit=crop",
-    description: "تيشيرت أوفر سايز بقصة واسعة وعصرية. مثالي للوك الكاجوال المريح.",
-    sizes: ["0-3 شهور", "3-6 شهور", "6-12 شهر", "1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات", "11 سنة", "12 سنة", "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة"]
-  },
-  {
-    id: 3,
-    name: "قميص كتان أنيق",
-    category: "قميص",
-    price: 449,
-    image: "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=500&h=600&fit=crop",
-    badge: "جديد",
-    description: "قميص كتان خفيف وأنيق، مثالي للصيف والمناسبات الكاجوال. تهوية ممتازة وشكل راقي.",
-    sizes: ["0-3 شهور", "3-6 شهور", "6-12 شهر", "1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات", "11 سنة", "12 سنة", "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة"]
-  },
-  {
-    id: 4,
-    name: "قميص رسمي سليم فت",
-    category: "قميص",
-    price: 399,
-    image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=500&h=600&fit=crop",
-    description: "قميص رسمي بقصة سليم فت أنيقة. مناسب للعمل والمناسبات الرسمية.",
-    sizes: ["0-3 شهور", "3-6 شهور", "6-12 شهر", "1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات", "11 سنة", "12 سنة", "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة"]
-  },
-  {
-    id: 5,
-    name: "بنطلون جينز سليم",
-    category: "بنطلون",
-    price: 549,
-    image: "https://images.unsplash.com/photo-1542272454315-4c01d7abdf4a?w=500&h=600&fit=crop",
-    description: "بنطلون جينز سليم فت بجودة عالية. مرن ومريح مع لمسة عصرية.",
-    sizes: ["0-3 شهور", "3-6 شهور", "6-12 شهر", "1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات", "11 سنة", "12 سنة", "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة"]
-  },
-  {
-    id: 6,
-    name: "بنطلون كارجو عملي",
-    category: "بنطلون",
-    price: 479,
-    image: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?w=500&h=600&fit=crop",
-    badge: "عرض",
-    description: "بنطلون كارجو عملي بجيوب متعددة. مناسب للخروج اليومي والرحلات.",
-    sizes: ["0-3 شهور", "3-6 شهور", "6-12 شهر", "1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات", "11 سنة", "12 سنة", "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة"]
-  },
-  {
-    id: 7,
-    name: "جاكيت دنيم كلاسيك",
-    category: "جاكيت",
-    price: 799,
-    image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&h=600&fit=crop",
-    description: "جاكيت دنيم كلاسيك بقصة مميزة. قطعة أساسية في أي دولاب ملابس.",
-    sizes: ["0-3 شهور", "3-6 شهور", "6-12 شهر", "1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات", "11 سنة", "12 سنة", "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة"]
-  },
-  {
-    id: 8,
-    name: "جاكيت بومبر عصري",
-    category: "جاكيت",
-    price: 899,
-    image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=500&h=600&fit=crop",
-    badge: "حصري",
-    description: "جاكيت بومبر بتصميم عصري وأنيق. دافئ ومناسب للخريف والشتاء.",
-    sizes: ["0-3 شهور", "3-6 شهور", "6-12 شهر", "1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات", "11 سنة", "12 سنة", "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة"]
-  },
-  {
-    id: 9,
-    name: "فستان صيفي خفيف",
-    category: "فساتين",
-    price: 599,
-    image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500&h=600&fit=crop",
-    description: "فستان صيفي خفيف وأنيق. مثالي للخروج والمناسبات النهارية.",
-    sizes: ["0-3 شهور", "3-6 شهور", "6-12 شهر", "1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات", "11 سنة", "12 سنة", "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة"]
-  },
-  {
-    id: 10,
-    name: "فستان سهرة أنيق",
-    category: "فساتين",
-    price: 1299,
-    image: "https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500&h=600&fit=crop",
-    badge: "فاخر",
-    description: "فستان سهرة فاخر بتصميم راقي. مثالي للمناسبات والحفلات الخاصة.",
-    sizes: ["0-3 شهور", "3-6 شهور", "6-12 شهر", "1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات", "11 سنة", "12 سنة", "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة"]
-  },
-  {
-    id: 11,
-    name: "تيشيرت مطبوع جرافيك",
-    category: "تيشيرت",
-    price: 279,
-    image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=500&h=600&fit=crop",
-    description: "تيشيرت مطبوع بتصاميم جرافيك عصرية. قطعة مميزة للوك الكاجوال.",
-    sizes: ["0-3 شهور", "3-6 شهور", "6-12 شهر", "1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات", "11 سنة", "12 سنة", "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة"]
-  },
-  {
-    id: 12,
-    name: "قميص كاروهات كاجوال",
-    category: "قميص",
-    price: 359,
-    image: "https://images.unsplash.com/photo-1588359348347-9bc6cbbb689e?w=500&h=600&fit=crop",
-    description: "قميص كاروهات كاجوال بألوان هادئة. مناسب للخروج اليومي.",
-    sizes: ["0-3 شهور", "3-6 شهور", "6-12 شهر", "1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات", "11 سنة", "12 سنة", "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة"]
-  }
-];
-
-
-// ===== Size Chart (cm) =====
-const sizeChart = {
-  "0-3 شهور": { height: "50-58", width: "22-24" },
-  "3-6 شهور": { height: "58-66", width: "24-26" },
-  "6-12 شهر": { height: "66-76", width: "26-28" },
-  "1 سنة": { height: "76-84", width: "28-30" },
-  "2 سنة": { height: "84-92", width: "30-32" },
-  "3 سنوات": { height: "92-98", width: "32-34" },
-  "4 سنوات": { height: "98-104", width: "34-36" },
-  "5 سنوات": { height: "104-110", width: "36-38" },
-  "6 سنوات": { height: "110-116", width: "38-40" },
-  "7 سنوات": { height: "116-122", width: "40-42" },
-  "8 سنوات": { height: "122-128", width: "42-44" },
-  "9 سنوات": { height: "128-134", width: "44-46" },
-  "10 سنوات": { height: "134-140", width: "46-48" },
-  "11 سنة": { height: "140-146", width: "48-50" },
-  "12 سنة": { height: "146-152", width: "50-52" },
-  "13 سنة": { height: "152-158", width: "52-54" },
-  "14 سنة": { height: "158-164", width: "54-56" },
-  "15 سنة": { height: "164-170", width: "56-58" },
-  "16 سنة": { height: "170-174", width: "58-60" },
-  "17 سنة": { height: "174-178", width: "60-62" },
-  "18 سنة": { height: "178-182", width: "62-64" }
-};
-
 // ===== State =====
+let products = [];
 let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
 let currentCategory = "all";
 let minPrice = 0;
@@ -168,6 +26,135 @@ const productModal = document.getElementById("productModal");
 const productModalOverlay = document.getElementById("productModalOverlay");
 const closeModal = document.getElementById("closeModal");
 const modalContent = document.getElementById("modalContent");
+
+// ===== Size Chart (cm) =====
+const sizeChart = {
+  "0-3 شهور": { height: "50-58", width: "22-24" },
+  "3-6 شهور": { height: "58-66", width: "24-26" },
+  "6-12 شهر": { height: "66-76", width: "26-28" },
+  "1 سنة": { height: "76-84", width: "28-30" },
+  "2 سنة": { height: "84-92", width: "30-32" },
+  "3 سنوات": { height: "92-98", width: "32-34" },
+  "4 سنوات": { height: "98-104", width: "34-36" },
+  "5 سنوات": { height: "104-110", width: "36-38" },
+  "6 سنوات": { height: "110-116", width: "38-40" },
+  "7 سنوات": { height: "116-122", width: "40-42" },
+  "8 سنوات": { height: "122-128", width: "42-44" },
+  "9 سنوات": { height: "128-134", width: "44-46" },
+  "10 سنوات": { height: "134-140", width: "46-48" },
+  "11 سنة": { height: "140-146", width: "48-50" },
+  "12 سنة": { height: "146-152", width: "50-52" },
+  "13 سنة": { height: "152-158", width: "52-54" },
+  "14 سنة": { height: "158-164", width: "54-56" },
+  "15 سنة": { height: "164-170", width: "56-58" },
+  "16 سنة": { height: "170-174", width: "58-60" },
+  "17 سنة": { height: "174-178", width: "60-62" },
+  "18 سنة": { height: "178-182", width: "62-64" }
+};
+
+// ===== Load Products from CMS / GitHub folder =====
+async function loadProducts() {
+  try {
+    // محاولة جلب قائمة الملفات من مجلد products عبر GitHub API للموقع
+    const response = await fetch('https://api.github.com/repos/souq-elektroni/My-Souq.github.io/contents/products');
+    if (!response.ok) throw new Error('فشل جلب الملفات');
+    
+    const files = await response.json();
+    const mdFiles = files.filter(f => f.name.endsWith('.md'));
+
+    if (mdFiles.length === 0) {
+      loadFallbackProducts();
+      return;
+    }
+
+    products = [];
+    for (let i = 0; i < mdFiles.length; i++) {
+      const file = mdFiles[i];
+      const fileRes = await fetch(file.download_url);
+      const text = await fileRes.text();
+      
+      // تحليل ملف الـ Markdown (Frontmatter) البسيط
+      const productData = parseMarkdownProduct(text, i + 1);
+      if (productData) {
+        products.push(productData);
+      }
+    }
+
+    if (products.length === 0) {
+      loadFallbackProducts();
+    } else {
+      renderProducts();
+    }
+  } catch (error) {
+    console.warn('التخزين السحابي غير متاحة مباشرة، جاري تحميل المنتجات الاحتياطية...', error);
+    loadFallbackProducts();
+  }
+}
+
+// تحليل بيانات ملف الـ Markdown الخاص بـ Sveltia CMS
+function parseMarkdownProduct(markdownText, id) {
+  try {
+    const parts = markdownText.split('---');
+    if (parts.length < 3) return null;
+    
+    const frontmatter = parts[1];
+    const body = parts.slice(2).join('---').trim();
+
+    const getField = (key) => {
+      const match = frontmatter.match(new RegExp(`${key}:\\s*(.+)`));
+      return match ? match[1].trim().replace(/^["']|["']$/g, '') : '';
+    };
+
+    const name = getField('title') || getField('name') || 'منتج جديد';
+    const price = parseFloat(getField('price')) || 0;
+    const category = getField('category') || 'ملابس شتوية';
+    const image = getField('image') || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=600&fit=crop';
+    const badge = getField('badge') || '';
+    
+    // المقاسات (إن وجدت في الـ CMS أو يتم توريث المقاسات الافتراضية)
+    let sizes = ["1 سنة", "2 سنة", "3 سنوات", "4 سنوات", "5 سنوات", "6 سنوات", "7 سنوات", "8 سنوات", "9 سنوات", "10 سنوات"];
+
+    return {
+      id: id,
+      name: name,
+      category: category,
+      price: price,
+      image: image,
+      badge: badge,
+      description: body || "منتج عالي الجودة من متجر My Souq.",
+      sizes: sizes
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
+// منتجات احتياطية في حال لم يتم العثور على ملفات سحابية
+function loadFallbackProducts() {
+  products = [
+    {
+      id: 1,
+      name: "طقم شتوي رجالي مبطن",
+      category: "ملابس شتوية",
+      price: 450,
+      image: "https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=500&h=600&fit=crop",
+      badge: "الأكثر مبيعاً",
+      description: "طقم شتوي أنيق ومبطن بفرو داخلي عالي الجودة لتدفئة مثالية.",
+      sizes: ["M", "L", "XL", "XXL"]
+    },
+    {
+      id: 2,
+      name: "جاكيت خروج شتوي كاجوال",
+      category: "ملابس خروج",
+      price: 650,
+      image: "https://images.unsplash.com/photo-1544441893-675973e31985?w=500&h=600&fit=crop",
+      badge: "جديد",
+      description: "جاكيت خروج مقاوم للرياح والمطر بتصميم عصري راقٍ.",
+      sizes: ["L", "XL", "XXL"]
+    }
+  ];
+  renderProducts();
+}
 
 // ===== Render Products =====
 function renderProducts() {
@@ -229,12 +216,12 @@ function openProductModal(id) {
       <p class="modal-desc">${product.description || "لا يوجد وصف متاح."}</p>
       
       <div class="size-section">
-        <label>اختر المقاس (السن):</label>
+        <label>اختر المقاس:</label>
         <div class="size-btns" id="sizeBtns">
           ${product.sizes.map((s) => `<button class="size-btn" data-size="${s}" onclick="selectSize('${s}')">${s}</button>`).join("")}
         </div>
         <div class="size-details" id="sizeDetails">
-          <p>اختر المقاس لعرض الطول والعرض</p>
+          <p>اختر المقاس لعرض التفاصيل</p>
         </div>
       </div>
 
@@ -265,11 +252,13 @@ function selectSize(size) {
           <span class="measure-value">${chart.height} سم</span>
         </div>
         <div class="measure-item">
-          <span class="measure-label">العرض (الصدر)</span>
+          <span class="measure-label">العرض</span>
           <span class="measure-value">${chart.width} سم</span>
         </div>
       </div>
     `;
+  } else if (details) {
+    details.innerHTML = `<p>المقاس المختار: <strong>${size}</strong></p>`;
   }
 }
 
@@ -282,7 +271,6 @@ function addToCartFromModal() {
   const product = products.find((p) => p.id === currentProductId);
   if (!product) return;
 
-  // Check if same product + same size already in cart
   const existing = cart.find((item) => item.id === product.id && item.size === selectedSize);
   if (existing) {
     existing.qty += 1;
@@ -472,5 +460,5 @@ navLinks.querySelectorAll("a").forEach((link) => {
 });
 
 // ===== Init =====
-renderProducts();
+loadProducts();
 updateCartUI();
