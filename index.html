@@ -493,19 +493,25 @@
             const imagesList = [];
             if (image) imagesList.push(image);
 
-            // استخراج مسارات الصور الإضافية بدقة فائقة لتجنب أخطاء الكائنات
+            // استخراج وتنظيف مسارات الصور الفرعية بدقة شديدة مع فك الكائنات من Sveltia
             const imagesBlock = text.match(/images:([\s\S]*?)(?=\n[a-z]+:|\n---)/i);
             if (imagesBlock) {
-              const imgMatches = imagesBlock[1].match(/(?:image:|-)?\s*"?([^"\r\n\s]+\.(?:jpg|jpeg|png|webp|gif))"?/gi);
-              if (imgMatches) {
-                imgMatches.forEach(m => {
-                  let imgUrl = cleanValue(m.replace(/image:|-/gi, ''));
-                  if (imgUrl.startsWith('/')) imgUrl = imgUrl.substring(1);
-                  if (imgUrl && !imagesList.includes(imgUrl)) {
-                    imagesList.push(imgUrl);
+              const lines = imagesBlock[1].split('\n');
+              lines.forEach(line => {
+                if (line.includes('.')) {
+                  let cleaned = line
+                    .replace(/images:/g, '')
+                    .replace(/image:/g, '')
+                    .replace(/-/g, '')
+                    .replace(/['"]/g, '')
+                    .trim();
+                  
+                  if (cleaned.startsWith('/')) cleaned = cleaned.substring(1);
+                  if (cleaned && !imagesList.includes(cleaned)) {
+                    imagesList.push(cleaned);
                   }
-                });
-              }
+                }
+              });
             }
 
             const bodyParts = text.split('---');
