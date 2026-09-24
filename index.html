@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Souq - سوق إلكتروني</title>
-  <!-- مكتبة قراءة ملفات Markdown -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap');
@@ -32,7 +31,6 @@
       padding-bottom: 80px;
     }
 
-    /* الشارة الدائرية العائمة */
     .brand-badge {
       position: fixed; top: 25px; right: 25px; width: 90px; height: 90px;
       background: var(--burgundy-soft); color: var(--bg-cream);
@@ -44,7 +42,6 @@
     }
     .brand-badge:hover { transform: rotate(0deg) scale(1.08); }
 
-    /* زر السلة العائم */
     .top-actions { position: fixed; top: 25px; left: 20px; z-index: 900; }
 
     .cart-trigger {
@@ -56,7 +53,6 @@
     .cart-trigger:hover { background: var(--burgundy-hover); transform: translateY(-2px); }
     .cart-count { background: var(--pink-accent); color: var(--burgundy-soft); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; }
 
-    /* زر واتساب عائم للدعم والاستفسار */
     .whatsapp-float {
       position: fixed; bottom: 95px; left: 25px; background: #25d366; color: white;
       width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -65,7 +61,6 @@
     }
     .whatsapp-float:hover { transform: scale(1.1); background: #20bd5a; }
 
-    /* 📱 QR Code عائم على الشمال من الأسفل */
     .qr-toggle-fab {
       position: fixed; bottom: 25px; left: 25px;
       background: var(--burgundy-soft); color: white;
@@ -92,7 +87,6 @@
     .floating-qr-container img { width: 140px; height: 140px; border-radius: 6px; }
     .qr-sub { display: block; font-size: 10px; color: var(--text-muted); margin-top: 5px; font-weight: bold; }
 
-    /* ⬆️ زر العودة إلى الأعلى */
     .back-to-top {
       position: fixed; bottom: 25px; right: 25px; background: var(--burgundy-soft); color: white;
       width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -102,7 +96,6 @@
     .back-to-top.show { opacity: 1; visibility: visible; }
     .back-to-top:hover { background: var(--burgundy-hover); transform: translateY(-3px); }
 
-    /* 🔔 إشعار منبثق للسلة */
     #toastNotification {
       position: fixed; top: 25px; left: 50%; transform: translateX(-50%) translateY(-100px);
       background: var(--burgundy-soft); color: white; padding: 12px 25px; border-radius: 30px;
@@ -161,7 +154,6 @@
     .price-tag { font-size: 22px; font-weight: 900; color: var(--burgundy-soft); margin-top: auto; }
     .click-hint { font-size: 13px; color: var(--burgundy-soft); font-weight: 800; text-align: center; margin-top: 8px; background: var(--pink-soft); padding: 8px; border-radius: 10px; }
 
-    /* النوافذ المنبثقة وباقي التنسيقات */
     .modal-overlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(44, 34, 36, 0.65); backdrop-filter: blur(5px);
@@ -198,7 +190,6 @@
     .direct-wa-btn { background: #25d366; color: white; border: none; padding: 14px 16px; border-radius: 14px; font-weight: 800; font-size: 15px; text-decoration: none; display: flex; align-items: center; justify-content: center; }
     .share-btn { background: var(--pink-soft); color: var(--burgundy-soft); border: 1px solid var(--pink-accent); padding: 14px 16px; border-radius: 14px; font-weight: 800; cursor: pointer; }
 
-    /* السلة والشروط والأحكام */
     .cart-modal { max-width: 580px; padding: 24px; }
     .cart-title { font-size: 22px; font-weight: bold; margin-bottom: 16px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; color: var(--burgundy-soft); }
     .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 200px; overflow-y: auto; margin-bottom: 12px; }
@@ -419,7 +410,7 @@
     </div>
   </div>
 
-  <!-- كود الجافاسكريبت المدمج لضمان العمل الفوري وتجاوز أي مشاكل كاش -->
+  <!-- سكربت التشغيل ومعالجة الماركداون والألبوم -->
   <script>
     let products = [];
     let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
@@ -478,7 +469,7 @@
         
         const fixImagePath = (rawPath) => {
           if (!rawPath) return '';
-          let clean = rawPath.replace(/["'\[\]]/g, '').trim();
+          let clean = rawPath.replace(/["'\[\]\-*]/g, '').trim();
           if (clean.startsWith('http')) return clean;
           if (clean.startsWith('/')) clean = clean.substring(1);
           return clean.startsWith('images/') ? clean : 'images/' + clean;
@@ -486,14 +477,40 @@
 
         const mainImage = fixImagePath(getField('image')) || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
 
+        // استخراج ألبوم الصور وصور القائمة بدقة تامة من الـ Frontmatter
         let allImages = [mainImage];
-        frontmatter.split('\n').forEach(line => {
-          if (line.includes('images/') || line.endsWith('.jpg') || line.endsWith('.png')) {
-            let fixed = fixImagePath(line.split(':')[1] || line);
-            if (fixed && !allImages.includes(fixed)) allImages.push(fixed);
-          }
-        });
+        const lines = frontmatter.split('\n');
+        let insideImages = false;
 
+        for (let line of lines) {
+          if (line.includes('images:')) {
+            insideImages = true;
+            continue;
+          }
+          if (insideImages) {
+            if (line.trim().startsWith('-') || line.trim().startsWith('image_item:') || line.includes('images/')) {
+              let pathPart = line.split(':')[1] || line;
+              let fixed = fixImagePath(pathPart);
+              if (fixed && !allImages.includes(fixed)) {
+                allImages.push(fixed);
+              }
+            } else if (line.trim() && !line.startsWith(' ') && !line.startsWith('\t')) {
+              insideImages = false;
+            }
+          }
+          // فحص مباشر لأي سطر يحتوي على صورة إضافية
+          if (line.includes('images/') || line.endsWith('.jpg') || line.endsWith('.png') || line.endsWith('.webp')) {
+            let partsPath = line.split(':');
+            if (partsPath.length > 1) {
+              let fixed = fixImagePath(partsPath[1]);
+              if (fixed && !allImages.includes(fixed)) {
+                allImages.push(fixed);
+              }
+            }
+          }
+        }
+
+        // استخراج المقاسات والأبعاد
         let parsedVariants = [];
         const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
         if (variantsMatch) {
@@ -510,6 +527,7 @@
 
         return { id, title, category, price, image: mainImage, images: allImages, variants: parsedVariants, desc: body || title };
       } catch (e) {
+        console.error('Error parsing markdown:', e);
         return null;
       }
     }
@@ -554,7 +572,30 @@
     function openProductModal(id) {
       currentSelectedProduct = products.find(p => p.id === id);
       if (!currentSelectedProduct) return;
-      document.getElementById('modalImage').src = currentSelectedProduct.image;
+
+      const modalImg = document.getElementById('modalImage');
+      const thumbsContainer = document.getElementById('thumbnailsContainer');
+      
+      modalImg.src = currentSelectedProduct.image;
+      thumbsContainer.innerHTML = '';
+
+      if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
+        thumbsContainer.style.display = 'flex';
+        currentSelectedProduct.images.forEach((imgSrc, idx) => {
+          const thumb = document.createElement('img');
+          thumb.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
+          thumb.src = imgSrc;
+          thumb.onclick = () => {
+            modalImg.src = imgSrc;
+            document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+          };
+          thumbsContainer.appendChild(thumb);
+        });
+      } else {
+        thumbsContainer.style.display = 'none';
+      }
+
       document.getElementById('modalTitle').innerText = currentSelectedProduct.title;
       document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
       document.getElementById('modalDesc').innerText = currentSelectedProduct.desc;
@@ -586,6 +627,7 @@
         };
         sizesContainer.appendChild(btn);
       });
+
       document.getElementById('productModal').classList.add('active');
     }
 
