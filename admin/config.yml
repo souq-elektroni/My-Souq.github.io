@@ -14,7 +14,8 @@ collections:
     slug: "{{slug}}"
     fields:
       - { label: "اسم المنتج", name: "title", widget: "string" }
-      - { label: "صورة المنتج", name: "image", widget: "image" }
+      - { label: "الصورة الرئيسية", name: "image", widget: "image" }
+      - label: "صور إضافية للأشكال/الألوان", name: "images", widget: "list", required: false, field: { label: "الصورة", name: "image", widget: "image" }
       - { label: "السعر الأساسي (ج.م)", name: "price", widget: "number", value_type: "int", default: 0 }
       - label: "المقاسات والأبعاد (Variants)"
         name: "variants"
