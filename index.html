@@ -626,7 +626,11 @@
         sizesContainer.appendChild(btn);
       });
 
-      const fullImgUrl = window.location.origin + '/' + currentSelectedProduct.image.replace(/^\/+/, '');
+      // تعديل مسار رابط الصورة لضمان فتحه بشكل مباشر وصحيح على GitHub Pages
+      let cleanPath = currentSelectedProduct.image.replace(/^\/+/, '');
+      if (!cleanPath.startsWith('images/')) cleanPath = 'images/' + cleanPath;
+      const fullImgUrl = `https://souq-elektroni.github.io/My-Souq.github.io/${cleanPath}`;
+
       const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title}\n المقاس: ${selectedSize}\n السعر: ${currentSelectedProduct.price} ج.م\n 📷 صورة المنتج: ${fullImgUrl}`);
       document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
 
@@ -804,8 +808,10 @@
       const payMethod = payMethodInput && payMethodInput.value === 'cod' ? '💵 الدفع عند الاستلام (كاش لمندوب الشحن)' : '📱 الدفع عن طريق InstaPay (رقم التحويل: 01116339905)';
       
       let itemsListText = cart.map((i, index) => {
-        let cleanImgPath = i.image.replace(/^\/+/, '');
-        const fullImgUrl = `${window.location.origin}/${cleanImgPath}`;
+        let cleanPath = i.image.replace(/^\/+/, '');
+        if (!cleanPath.startsWith('images/')) cleanPath = 'images/' + cleanPath;
+        const fullImgUrl = `https://souq-elektroni.github.io/My-Souq.github.io/${cleanPath}`;
+
         return `${index + 1}. *${i.title}*\n- المقاس: ${i.size}\n- السعر: ${i.price * i.qty} ج.م (الكمية: ${i.qty})\n- 📷 صورة المنتج: ${fullImgUrl}`;
       }).join('\n\n');
       
