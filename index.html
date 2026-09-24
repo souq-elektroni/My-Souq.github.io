@@ -211,7 +211,7 @@
     .form-group input, .form-group textarea { padding: 10px 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; background: white; }
     .cart-footer { margin-top: 14px; border-top: 1px solid var(--border-color); padding-top: 12px; display: flex; flex-direction: column; gap: 12px; }
     .total-price { font-size: 20px; font-weight: 800; display: flex; justify-content: space-between; }
-    .proceed-btn { background: var(--burgundy-soft); color: white; text-align: center; padding: 14px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; font-size: 17px; }
+    .proceed-btn { background: var(--burgundy-soft); color: white; text-align: center; padding: 14px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; font-size: 17px; display: none; width: 100%; }
 
     .terms-modal { max-width: 500px; padding: 24px; z-index: 1100; }
     .terms-header { font-size: 20px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 12px; border-bottom: 2px solid var(--pink-accent); padding-bottom: 8px; }
@@ -357,7 +357,7 @@
       </div>
       <div class="cart-footer">
         <div class="total-price"><span>الإجمالي:</span><span id="cartTotalPrice" style="color: var(--burgundy-soft);">0 ج.م</span></div>
-        <button onclick="validateAndOpenTerms()" id="proceedBtn" class="proceed-btn" style="display: none;">متابعة تأكيد الطلب 👈</button>
+        <button onclick="validateAndOpenTerms()" id="proceedBtn" class="proceed-btn">متابعة تأكيد الطلب 👈</button>
       </div>
     </div>
   </div>
@@ -636,7 +636,6 @@
 
     function closeModal() { document.getElementById('productModal').classList.remove('active'); }
     
-    // تم تحديث دالة فتح السلة لتستدعي محتوى السلة فوراً
     function openCartModal() { 
       renderCartItems();
       document.getElementById('cartModal').classList.add('active'); 
@@ -689,6 +688,7 @@
 
       promoBox.style.display = 'flex';
       customerFormBox.style.display = 'flex';
+      proceedBtn.style.display = 'block'; // إظهار الزر دائماً طالما السلة ليست فارغة
 
       container.innerHTML = cart.map((item, index) => `
         <div class="cart-item">
@@ -707,7 +707,6 @@
       `).join('');
 
       updateTotalPrice();
-      checkFormCompletion();
     }
 
     function changeQty(index, delta) {
@@ -743,16 +742,7 @@
     }
 
     function checkFormCompletion() {
-      const name = document.getElementById('custName').value.trim();
-      const phone = document.getElementById('custPhone').value.trim();
-      const address = document.getElementById('custAddress').value.trim();
-      const proceedBtn = document.getElementById('proceedBtn');
-
-      if (name && phone && address && cart.length > 0) {
-        proceedBtn.style.display = 'block';
-      } else {
-        proceedBtn.style.display = 'none';
-      }
+      // وظيفة فارغة لمنع أي خطأ، والزر ظاهر طالما السلة تحتوي منتجات
     }
 
     function validateAndOpenTerms() {
@@ -761,7 +751,7 @@
       const address = document.getElementById('custAddress').value.trim();
 
       if (!name || !phone || !address) {
-        alert('يرجى استكمال كافة بيانات الشحن المطلوبة');
+        alert('يرجى كتابة (الاسم، رقم الواتساب، والعنوان بالتفصيل) للمتابعة');
         return;
       }
       closeCartModal();
