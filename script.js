@@ -26,13 +26,13 @@ async function loadRealProducts() {
     const files = await response.json();
     
     if (!Array.isArray(files)) {
-      throw new Error('محتوى المجلد غير متوافق، تأكد من اسم المجلد صحيح.');
+      throw new Error('محتوى المجلد غير متوافق.');
     }
 
     const mdFiles = files.filter(f => f.name.endsWith('.md'));
 
     if (mdFiles.length === 0) {
-      productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 18px; font-weight: bold;">لا توجد منتجات منشورة حالياً. أضف منتجك الأول من لوحة التحكم!</p>';
+      productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 18px; font-weight: bold;">لا توجد منتجات منشورة حالياً.</p>';
       return;
     }
 
@@ -55,7 +55,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown المتوافقة تماماً مع مفاتيح لوحة التحكم العربية
+// دالة تحليل الـ Markdown المرنة جداً لقراءة المقاسات والطول والعرض بأي صيغة
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -73,19 +73,14 @@ function parseMarkdown(markdownText, id) {
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
     
-    // دالة تصحيح مسار الصور
     const fixImagePath = (rawPath) => {
       if (!rawPath) return '';
       let clean = rawPath.replace(/["'\[\]]/g, '').trim();
       if (!clean) return '';
       if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
-      if (clean.startsWith('/')) {
-        clean = clean.substring(1);
-      }
+      if (clean.startsWith('/')) clean = clean.substring(1);
       clean = clean.replace(/\s+/g, '%20');
-      if (!clean.startsWith('images/')) {
-        clean = 'images/' + clean;
-      }
+      if (!clean.startsWith('images/')) clean = 'images/' + clean;
       return clean;
     };
 
@@ -93,7 +88,6 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     const mainImage = fixImagePath(rawImageField) || defaultImg;
 
-    // استخراج صور الألبوم والكتالوج
     let allExtractedImages = [];
     const lines = frontmatter.split('\n');
     for (let line of lines) {
@@ -109,27 +103,27 @@ function parseMarkdown(markdownText, id) {
     }
 
     let allImages = [mainImage, ...allExtractedImages.filter(img => img !== mainImage)];
-    if (allImages.length === 0) {
-      allImages = [defaultImg];
-    }
+    if (allImages.length === 0) allImages = [defaultImg];
 
-    // استخراج المقاسات والطول والعرض بالصيغة العربية التي تطابق لوحة التحكم تماماً
+    // استخراج المقاسات وتوزيع الأبعاد بذكاء تام
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
+    
     if (variantsMatch) {
       const variantBlocks = variantsMatch[1].split(/- size:|- المقاس|(?=- \s*["']?[0-9]+["']?)/);
       variantBlocks.forEach(block => {
         if (!block.trim()) return;
         
-        // استخراج رقم المقاس
-        const sizeMatch = block.match(/(?:size|المقاس \/ الحجم):\s*["']?([0-9a-zA-Z\u0600-\u06FF]+)["']?/i) || block.match(/["']?([0-9a-zA-Z\u0600-\u06FF]+)["']?/);
+        // البحث عن رقم المقاس أو الحجم بأي صيغة
+        const sizeMatch = block.match(/(?:size|المقاس \/ الحجم|المقاس):\s*["']?([0-9a-zA-Z\u0600-\u06FF\s]+)["']?/i) || block.match(/["']?([0-9a-zA-Z\u0600-\u06FF]+)["']?/);
         
         if (sizeMatch) {
-          const cleanSize = (sizeMatch[1] || sizeMatch[0]).trim().replace(/['"\[\]]/g, '');
+          const cleanSize = (sizeMatch[1] || sizeMatch[0]).trim().replace(/['"\[\]]/g, '').split('\n')[0];
           
-          // استخراج الطول والعرض بالصيغة العربية الدقيقة
-          const lenMatch = block.match(/الطول \(سم\):\s*([0-9.]+)/i) || block.match(/length:\s*([0-9.]+)/i);
-          const widMatch = block.match(/العرض \(سم\):\s*([0-9.]+)/i) || block.match(/width:\s*([0-9.]+)/i);
+          // البحث عن الطول بأي صيغة (عربي أو إنجليزي)
+          const lenMatch = block.match(/(?:الطول \(سم\)|الطول|length):\s*([0-9.]+)/i);
+          // البحث عن العرض بأي صيغة (عربي أو إنجليزي)
+          const widMatch = block.match(/(?:العرض \(سم\)|العرض|width):\s*([0-9.]+)/i);
           
           if (cleanSize) {
             parsedVariants.push({
@@ -140,6 +134,17 @@ function parseMarkdown(markdownText, id) {
           }
         }
       });
+    }
+
+    // طريقة بديلة قوية جداً لو كانت المتغيرات مسجلة بطريقة مختلفة في ملفات الـ md
+    if (parsedVariants.length === 0) {
+      const globalSizes = frontmatter.match(/size:\s*([0-9a-zA-Z]+)/g);
+      if (globalSizes) {
+        globalSizes.forEach(s => {
+          let val = s.split(':')[1].trim();
+          parsedVariants.push({ size: val, length: '', width: '' });
+        });
+      }
     }
 
     if (parsedVariants.length === 0) {
@@ -255,7 +260,6 @@ function openProductModal(id) {
   const firstVariant = currentSelectedProduct.variants[0];
   selectedSize = firstVariant.size || '';
 
-  // دالة إظهار وتحديث الطول والعرض ديناميكياً
   function updateDimensionsDisplay(variant) {
     if (variant && (variant.length || variant.width)) {
       dimensionsContainer.style.display = 'flex';
@@ -276,7 +280,7 @@ function openProductModal(id) {
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedSize = v.size;
-      updateDimensionsDisplay(v); // تحديث الأبعاد بالسنتيمتر للمقاس المختار
+      updateDimensionsDisplay(v);
     };
     sizesContainer.appendChild(btn);
   });
@@ -302,6 +306,15 @@ function addToCart() {
   updateCartCount();
   closeModal();
   openCartModal();
+  showToast();
+}
+
+function showToast() {
+  const toast = document.getElementById('toastNotification');
+  toast.classList.add('show');
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000);
 }
 
 function updateCartCount() {
@@ -335,7 +348,6 @@ function renderCartItems() {
 
   promoBox.style.display = 'flex';
   customerFormBox.style.display = 'flex';
-  proceedBtn.style.display = 'block';
 
   container.innerHTML = cart.map((item, index) => `
     <div class="cart-item">
@@ -354,6 +366,7 @@ function renderCartItems() {
   `).join('');
 
   updateTotalPrice();
+  checkFormCompletion();
 }
 
 function changeQty(index, delta) {
@@ -383,6 +396,19 @@ function applyPromoCode() {
     updateTotalPrice();
   } else {
     alert('كود الخصم غير صحيح');
+  }
+}
+
+function checkFormCompletion() {
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const address = document.getElementById('custAddress').value.trim();
+  const proceedBtn = document.getElementById('proceedBtn');
+
+  if (name && phone && address && cart.length > 0) {
+    proceedBtn.style.display = 'block';
+  } else {
+    proceedBtn.style.display = 'none';
   }
 }
 
@@ -469,6 +495,18 @@ function closeSuccessModal() {
 
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function shareProduct() {
+  if (navigator.share && currentSelectedProduct) {
+    navigator.share({
+      title: currentSelectedProduct.title,
+      text: `تسوق الآن من My Souq: ${currentSelectedProduct.title} بسعر ${currentSelectedProduct.price} ج.م`,
+      url: window.location.href,
+    }).catch(console.error);
+  } else {
+    alert('خاصية المشاركة غير مدعومة في متصفحك الحالي');
+  }
 }
 
 // ===== Initializing =====
