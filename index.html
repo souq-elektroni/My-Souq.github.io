@@ -496,13 +496,18 @@
             const imagesList = [];
             if (image) imagesList.push(image);
 
+            // استخراج الصور الفرعية ومعالجة هيكلية Sveltia المتداخلة
             const imagesBlock = text.match(/images:([\s\S]*?)(?=\n[a-z]+:|\n---)/i);
             if (imagesBlock) {
-              const matches = imagesBlock[1].match(/(?:images\/|\/images\/)[^\s"'\r\n]+\.(?:jpg|jpeg|png|webp|gif)/gi) 
-                           || imagesBlock[1].match(/[^\s"'\r\n:]+\.(?:jpg|jpeg|png|webp|gif)/gi);
+              const matches = imagesBlock[1].match(/([^\s"'\r\n:]+\.(?:jpg|jpeg|png|webp|gif))/gi);
               if (matches) {
                 matches.forEach(m => {
-                  let imgUrl = cleanValue(m.replace(/image:/g, '').replace(/-/g, ''));
+                  let imgUrl = cleanValue(m);
+                  if (imgUrl.includes('images/')) {
+                    imgUrl = imgUrl.substring(imgUrl.indexOf('images/'));
+                  } else if (!imgUrl.startsWith('images/')) {
+                    imgUrl = 'images/' + imgUrl;
+                  }
                   if (imgUrl && !imagesList.includes(imgUrl)) {
                     imagesList.push(imgUrl);
                   }
