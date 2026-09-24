@@ -13,13 +13,23 @@ let discountRate = 0;
 const productsGrid = document.getElementById("products-container");
 const cartCount = document.getElementById("cartCount");
 
-// ===== Load Real Products from GitHub / products folder =====
+// ===== Load Real Products from GitHub / products folder (Updated) =====
 async function loadRealProducts() {
   try {
-    const response = await fetch('https://api.github.com/repos/souq-elektroni/My-Souq.github.io/contents/products');
-    if (!response.ok) throw new Error('فشل جلب المنتجات');
+    const apiUrl = 'https://api.github.com/repos/souq-elektroni/My-Souq.github.io/contents/products';
+    const response = await fetch(apiUrl);
+    
+    if (!response.ok) {
+      throw new Error(`فشل جلب الملفات من جيت هب. حالة الرد: ${response.status}`);
+    }
     
     const files = await response.json();
+    
+    // التحقق مما إذا كان الناتج مصفوفة أم لا
+    if (!Array.isArray(files)) {
+      throw new Error('محتوى المجلد غير متوافق، تأكد من اسم المجلد صحيح.');
+    }
+
     const mdFiles = files.filter(f => f.name.endsWith('.md'));
 
     if (mdFiles.length === 0) {
@@ -42,7 +52,7 @@ async function loadRealProducts() {
     renderProducts(products);
   } catch (error) {
     console.error('خطأ في جلب المنتجات:', error);
-    productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: red; font-size: 16px;">عفواً، تأكد من وجود ملفات منتجات داخل مجلد products.</p>';
+    productsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: red; font-size: 16px;">عفواً، حدث خطأ أثناء تحميل المنتجات: ${error.message}</p>`;
   }
 }
 
