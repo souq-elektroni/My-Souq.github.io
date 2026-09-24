@@ -3,7 +3,7 @@ backend:
   repo: souq-elektroni/My-Souq.github.io
   branch: main
 
-publish_mode: editorial_workflow
+publish_mode: simple
 
 media_folder: "images"
 public_folder: "images"
