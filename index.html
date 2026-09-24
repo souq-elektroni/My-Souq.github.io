@@ -486,22 +486,24 @@
             const rawTitle = text.match(/title:\s*"?([^"\r\n]+)"?/)?.[1] || 'منتج بدون عنوان';
             const title = cleanValue(rawTitle);
 
-            let rawImage = text.match(/image:\s*"?([^"\r\n]+)"?/)?.[1] || 'https://via.placeholder.com/300';
+            let rawImage = text.match(/^image:\s*"?([^"\r\n]+)"?/m)?.[1] || 'https://via.placeholder.com/300';
             let image = cleanValue(rawImage);
             if (image.startsWith('/')) image = image.substring(1);
 
-            // قراءة مصفوفة الصور الإضافية إن وجدت
             const imagesList = [];
-            imagesList.push(image);
+            if (image) imagesList.push(image);
 
+            // استخراج مسارات الصور الإضافية بدقة فائقة لتجنب أخطاء الكائنات
             const imagesBlock = text.match(/images:([\s\S]*?)(?=\n[a-z]+:|\n---)/i);
             if (imagesBlock) {
-              const imgMatches = imagesBlock[1].match(/- "?([^"\r\n]+)"?/g);
+              const imgMatches = imagesBlock[1].match(/(?:image:|-)?\s*"?([^"\r\n\s]+\.(?:jpg|jpeg|png|webp|gif))"?/gi);
               if (imgMatches) {
                 imgMatches.forEach(m => {
-                  let imgUrl = cleanValue(m.replace('-', ''));
+                  let imgUrl = cleanValue(m.replace(/image:|-/gi, ''));
                   if (imgUrl.startsWith('/')) imgUrl = imgUrl.substring(1);
-                  if (imgUrl && !imagesList.includes(imgUrl)) imagesList.push(imgUrl);
+                  if (imgUrl && !imagesList.includes(imgUrl)) {
+                    imagesList.push(imgUrl);
+                  }
                 });
               }
             }
