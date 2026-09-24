@@ -55,7 +55,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown لقراءة الألبوم والمقاسات بأبعادها المتغيرة
+// دالة تحليل الـ Markdown واستخراج المقاسات والأبعاد والألبوم بدقة
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -93,7 +93,7 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     const mainImage = fixImagePath(rawImageField) || defaultImg;
 
-    // استخراج جميع الصور للألبوم والكتالوج
+    // استخراج جميع الصور للألبوم
     let allExtractedImages = [];
     const lines = frontmatter.split('\n');
     for (let line of lines) {
@@ -113,7 +113,7 @@ function parseMarkdown(markdownText, id) {
       allImages = [defaultImg];
     }
 
-    // استخراج المقاسات وتحديد الطول والعرض الخاص بكل مقاس بدقة
+    // استخراج المقاسات والطول والعرض لكل مقاس
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (variantsMatch) {
@@ -217,7 +217,7 @@ function openProductModal(id) {
   
   thumbsContainer.innerHTML = '';
 
-  // تفعيل الألبوم وعرض الصور المصغرة
+  // عرض الألبوم والصور المصغرة
   if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
     thumbsContainer.style.display = 'flex';
     currentSelectedProduct.images.forEach((imgSrc, idx) => {
@@ -250,9 +250,9 @@ function openProductModal(id) {
   const firstVariant = currentSelectedProduct.variants[0];
   selectedSize = firstVariant.size || '';
 
-  // دالة لتحديث الطول والعرض ديناميكياً حسب المقاس المختار
+  // دالة تحديث وعرض الأبعاد لكل مقاس
   function updateDimensionsDisplay(variant) {
-    if (variant.length || variant.width) {
+    if (variant && (variant.length || variant.width)) {
       dimensionsContainer.style.display = 'flex';
       lengthSpan.innerText = variant.length || '-';
       widthSpan.innerText = variant.width || '-';
@@ -271,7 +271,7 @@ function openProductModal(id) {
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedSize = v.size;
-      updateDimensionsDisplay(v); // تحديث الأبعاد عند اختيار المقاس
+      updateDimensionsDisplay(v); // تحديث الأبعاد بالسنتيمتر عند الضغط على المقاس
     };
     sizesContainer.appendChild(btn);
   });
