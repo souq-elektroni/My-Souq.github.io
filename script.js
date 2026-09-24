@@ -46,7 +46,7 @@ async function loadRealProducts() {
   }
 }
 
-// تحليل ملف الـ Markdown مع معالجة مسارات الكتالوج بدقة تامة
+// دالة تحليل الـ Markdown الذكية والنهائية للصور والبيانات
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -64,34 +64,51 @@ function parseMarkdown(markdownText, id) {
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
     
-    // دالة مساعدة لضبط مسار أي صورة تلقائياً
+    // دالة موحدة لتصحيح وصياغة مسار الصورة باحترافية
     const fixImagePath = (rawPath) => {
       if (!rawPath) return '';
-      let clean = rawPath.replace(/^["']|["']$/g, '').trim();
+      let clean = rawPath.replace(/["'\[\]]/g, '').trim(); // إزالة أي علامات تنصيص أو أقواس عشوائية
+      if (!clean) return '';
       if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
       if (clean.startsWith('/')) clean = clean.substring(1);
+      
+      // إذا كان اسم الملف فقط بدون مجلد images/ نحفظه بصيغته الصحيحة
       if (!clean.startsWith('images/')) {
         clean = 'images/' + clean;
       }
       return clean;
     };
 
-    const image = fixImagePath(getField('image')) || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
+    const rawImageField = getField('image');
+    const image = fixImagePath(rawImageField) || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
 
-    // استخراج الصور الإضافية (الكتالوج) وضبط مساراتها
+    // استخراج الصور الإضافية (الكتالوج) سطر بسطر لضمان عدم ضياع أي صورة
     let galleryImages = [];
-    const imagesMatch = frontmatter.match(/images:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
-    if (imagesMatch) {
-      const lines = imagesMatch[1].split('\n');
-      lines.forEach(line => {
-        let cleanLine = line.replace(/[-*]/g, '').trim();
-        if (cleanLine) {
-          const fixed = fixImagePath(cleanLine);
-          if (fixed) galleryImages.push(fixed);
+    const lines = frontmatter.split('\n');
+    let insideImagesBlock = false;
+
+    for (let line of lines) {
+      if (line.trim().startsWith('images:')) {
+        insideImagesBlock = true;
+        continue;
+      }
+      if (insideImagesBlock) {
+        // إذا بدأ حقل جديد في الـ frontmatter نتوقف
+        if (line.trim() && !line.startsWith(' ') && !line.startsWith('-') && line.includes(':')) {
+          insideImagesBlock = false;
+          continue;
         }
-      });
+        let cleanedLine = line.replace(/[-*]/g, '').trim();
+        if (cleanedLine) {
+          const fixedUrl = fixImagePath(cleanedLine);
+          if (fixedUrl && (fixedUrl.endsWith('.jpg') || fixedUrl.endsWith('.png') || fixedUrl.endsWith('.jpeg') || fixedUrl.endsWith('.webp') || fixedUrl.includes('images/'))) {
+            galleryImages.push(fixedUrl);
+          }
+        }
+      }
     }
 
+    // دمج الصورة الرئيسية مع صور الكتالوج بدون تكرار
     let allImages = [image, ...galleryImages.filter(img => img !== image)];
 
     // استخراج المقاسات
@@ -122,6 +139,7 @@ function parseMarkdown(markdownText, id) {
       desc: body || title
     };
   } catch (e) {
+    console.error('Error parsing markdown:', e);
     return null;
   }
 }
@@ -241,8 +259,8 @@ function addToCart() {
     cart.push({ ...currentSelectedProduct, size: selectedSize, qty: 1 });
   }
   updateCartCount();
-  closeModal();       // إغلاق نافذة تفاصيل المنتج
-  openCartModal();    // فتح نافذة السلة تلقائياً أمام العميل مباشرة
+  closeModal();
+  openCartModal();
 }
 
 function updateCartCount() {
@@ -402,6 +420,10 @@ function finalizeOrder() {
   document.getElementById('successModal').classList.add('active');
   cart = [];
   updateCartCount();
+}
+
+function closeSuccessManager() {
+  document.getElementById('successModal').classList.remove('active');
 }
 
 function closeSuccessModal() {
