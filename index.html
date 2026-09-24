@@ -29,7 +29,17 @@
       min-height: 100vh;
       padding-bottom: 80px;
     }
-    
+
+    /* ⏳ شريط عداد التخفيضات المؤقت (Flash Sale Banner) */
+    .flash-sale-banner {
+      background: linear-gradient(135deg, #803d48, #a95c6a);
+      color: white; text-align: center; padding: 10px 15px; font-weight: 800;
+      font-size: 14.5px; border-radius: 12px; margin-bottom: 20px;
+      box-shadow: 0 4px 15px rgba(128, 61, 72, 0.2); display: flex;
+      justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .countdown-timer { background: rgba(0, 0, 0, 0.2); padding: 3px 10px; border-radius: 8px; font-family: monospace; font-size: 15px; }
+
     /* الشارة الدائرية العائمة */
     .brand-badge {
       position: fixed; top: 25px; right: 25px; width: 90px; height: 90px;
@@ -63,6 +73,16 @@
     }
     .whatsapp-float:hover { transform: scale(1.1); background: #20bd5a; }
 
+    /* ⬆️ زر العودة إلى الأعلى (Back to Top) */
+    .back-to-top {
+      position: fixed; bottom: 25px; right: 25px; background: var(--burgundy-soft); color: white;
+      width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 900; cursor: pointer;
+      opacity: 0; visibility: hidden; transition: all 0.3s; border: 2px solid var(--pink-accent);
+    }
+    .back-to-top.show { opacity: 1; visibility: visible; }
+    .back-to-top:hover { background: var(--burgundy-hover); transform: translateY(-3px); }
+
     /* 🔔 إشعار منبثق عند إضافة منتج للسلة (Toast Notification) */
     #toastNotification {
       position: fixed; top: 25px; left: 50%; transform: translateX(-50%) translateY(-100px);
@@ -74,7 +94,7 @@
     #toastNotification.show { transform: translateX(-50%) translateY(0); }
 
     /* الهيدر والعنوان */
-    header { text-align: center; padding: 50px 10px 35px; max-width: 950px; margin: 0 auto; }
+    header { text-align: center; padding: 30px 10px 30px; max-width: 950px; margin: 0 auto; }
     header h1 { 
       font-size: 50px; 
       color: var(--burgundy-soft); 
@@ -111,6 +131,10 @@
       cursor: pointer; transition: all 0.2s;
     }
     .cat-btn.active, .cat-btn:hover { background: var(--burgundy-soft); color: white; border-color: var(--burgundy-soft); }
+    
+    /* زر العروض المميز بلون مختلف لجذب الانتباه */
+    .cat-btn.offer-tab { background: #fff3cd; color: #856404; border-color: #ffeeba; }
+    .cat-btn.offer-tab.active, .cat-btn.offer-tab:hover { background: #d39e00; color: white; border-color: #b38600; }
 
     .search-sort-box { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
     
@@ -208,7 +232,6 @@
     .modal-info { display: flex; flex-direction: column; gap: 12px; }
     .modal-title { font-size: 26px; font-weight: 900; color: var(--burgundy-soft); }
     
-    /* شارة حالة التوفر الديناميكية */
     .stock-badge {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 6px 14px; border-radius: 20px; font-size: 13.5px; font-weight: 800; width: fit-content;
@@ -228,17 +251,25 @@
 
     .dimensions-box { background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 14px; border-radius: 12px; font-size: 15px; display: flex; gap: 16px; color: var(--burgundy-soft); font-weight: 700; }
 
-    .modal-actions-row { display: flex; gap: 10px; align-items: center; margin-top: 6px; }
+    .modal-actions-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
     .add-cart-btn {
-      flex: 1; background: var(--burgundy-soft); color: white; border: none; padding: 15px;
-      border-radius: 14px; font-weight: 800; font-size: 17px; cursor: pointer;
-      text-align: center; transition: background 0.2s; box-shadow: 0 4px 12px rgba(128, 61, 72, 0.2);
+      flex: 1; background: var(--burgundy-soft); color: white; border: none; padding: 14px;
+      border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer;
+      text-align: center; transition: background 0.2s; box-shadow: 0 4px 12px rgba(128, 61, 72, 0.2); min-width: 140px;
     }
     .add-cart-btn:hover { background: var(--burgundy-hover); }
 
+    .direct-wa-btn {
+      background: #25d366; color: white; border: none; padding: 14px 16px;
+      border-radius: 14px; font-weight: 800; font-size: 15px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: background 0.2s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.25); text-decoration: none;
+    }
+    .direct-wa-btn:hover { background: #20bd5a; }
+
     .share-btn {
       background: var(--pink-soft); color: var(--burgundy-soft); border: 1px solid var(--pink-accent);
-      padding: 15px 18px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer;
+      padding: 14px 16px; border-radius: 14px; font-weight: 800; font-size: 15px; cursor: pointer;
       transition: all 0.2s; display: flex; align-items: center; justify-content: center;
     }
     .share-btn:hover { background: var(--burgundy-soft); color: white; }
@@ -360,6 +391,13 @@
 </head>
 <body>
 
+  <!-- ⏳ شريط عداد التخفيضات المؤقت (Flash Sale Countdown) -->
+  <div class="flash-sale-banner">
+    <span>🔥 خصومات الشتاء الكبرى تنتهي خلال:</span>
+    <span class="countdown-timer" id="flashCountdown">05 : 22 : 10</span>
+    <span>- اطلب الآن واستفيد بالخصم!</span>
+  </div>
+
   <!-- شريط إشعار الإضافة للسلة (Toast) -->
   <div id="toastNotification">✓ تم إضافة المنتج إلى السلة بنجاح</div>
 
@@ -381,15 +419,21 @@
     💬
   </a>
 
+  <!-- ⬆️ زر العودة إلى الأعلى (Back to Top) -->
+  <div class="back-to-top" id="backToTopBtn" onclick="scrollToTop()" title="العودة لأعلى الصفحة">
+    ▲
+  </div>
+
   <header>
     <h1>سوق إلكتروني 🛒</h1>
     <p>تسوق وأنت بمكانك (ملابس رجالي ونسائي وأطفالي بأعلى جودة وأفضل سعر)</p>
   </header>
 
-  <!-- شريط الفلترة والبحث والأقسام -->
+  <!-- شريط الفلترة والبحث والأقسام (مضاف إليه زر العروض) -->
   <div class="controls-wrapper">
     <div class="categories-bar" id="categoryBar">
       <button class="cat-btn active" onclick="filterCategory('all', this)">الكل</button>
+      <button class="cat-btn offer-tab" onclick="filterCategory('عروض', this)">🔥 عروض المتجر</button>
       <button class="cat-btn" onclick="filterCategory('دفاية', this)">دفاية</button>
       <button class="cat-btn" onclick="filterCategory('تيشرت', this)">تيشرت</button>
       <button class="cat-btn" onclick="filterCategory('بنطلون', this)">بنطلون</button>
@@ -455,7 +499,6 @@
         <div class="modal-info">
           <h2 class="modal-title" id="modalTitle"></h2>
           
-          <!-- شارة حالة التوفر الديناميكية -->
           <div id="modalStockBadge" class="stock-badge stock-available">🟢 متوفر بالمخزون - جاهز للشحن الفوري</div>
 
           <div>
@@ -473,8 +516,9 @@
           <p id="modalDesc" style="font-size: 15px; color: var(--text-muted); line-height: 1.5;"></p>
 
           <div class="modal-actions-row" id="modalActionsRow">
-            <button onclick="addToCart()" id="addCartBtn" class="add-cart-btn">إضافة إلى السلة 🛒</button>
-            <button onclick="shareProduct()" class="share-btn" title="مشاركة المنتج">📤 مشاركة</button>
+            <button onclick="addToCart()" id="addCartBtn" class="add-cart-btn">إضافة للسلة 🛒</button>
+            <a href="#" id="directWaBtn" class="direct-wa-btn" target="_blank" title="طلب مباشر عبر واتساب">💬 اطلب فوراً</a>
+            <button onclick="shareProduct()" class="share-btn" title="مشاركة المنتج">📤</button>
           </div>
         </div>
       </div>
@@ -562,7 +606,7 @@
         <input type="radio" name="payMethod" value="cod" id="payCod" checked>
         <div class="payment-details">
           <label for="payCod" class="payment-title">💵 الدفع عند الاستلام (كاش)</label>
-          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلام الشحنة ومعاينتها.</span>
+          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلاستلام الشحنة ومعاينتها.</span>
         </div>
       </div>
 
@@ -607,6 +651,31 @@
     let selectedPaymentMethod = 'cod';
     let discountRate = 0;
 
+    let totalSeconds = 5 * 3600 + 22 * 60 + 10;
+    setInterval(() => {
+      if (totalSeconds > 0) totalSeconds--;
+      let h = Math.floor(totalSeconds / 3600);
+      let m = Math.floor((totalSeconds % 3600) / 60);
+      let s = totalSeconds % 60;
+      document.getElementById('flashCountdown').innerText = 
+        String(h).padStart(2, '0') + ' : ' + 
+        String(m).padStart(2, '0') + ' : ' + 
+        String(s).padStart(2, '0');
+    }, 1000);
+
+    window.onscroll = function() {
+      const btn = document.getElementById('backToTopBtn');
+      if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+        btn.classList.add('show');
+      } else {
+        btn.classList.remove('show');
+      }
+    };
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     function cleanValue(str) {
       if (!str) return '';
       let cleaned = String(str).replace(/['"]/g, '').trim();
@@ -636,6 +705,10 @@
             
             const rawTitle = text.match(/title:\s*"?([^"\r\n]+)"?/)?.[1] || 'منتج بدون عنوان';
             const title = cleanValue(rawTitle);
+
+            // قراءة حقل التصنيف (Category) إذا وجد، وإلا اعتباره منتج عادي
+            const rawCategory = text.match(/category:\s*"?([^"\r\n]+)"?/)?.[1] || 'عام';
+            const category = cleanValue(rawCategory);
 
             let rawImage = text.match(/^image:\s*"?([^"\r\n]+)"?/m)?.[1] || '';
             let image = cleanValue(rawImage);
@@ -672,7 +745,7 @@
 
             const variants = parseVariants(text, basePrice);
 
-            allProducts.push({ title, image: imagesList[0] || image, images: imagesList, desc, variants, basePrice, stockStatus });
+            allProducts.push({ title, category, image: imagesList[0] || image, images: imagesList, desc, variants, basePrice, stockStatus });
           }
         }
 
@@ -717,7 +790,7 @@
       container.innerHTML = '';
 
       if (displayedProducts.length === 0) {
-        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">لا توجد منتجات مطابقة لعملية البحث.</p>';
+        container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">لا توجد منتجات مطابقة لعملية البحث أو القسم.</p>';
         return;
       }
 
@@ -752,8 +825,10 @@
       const searchVal = document.getElementById('searchInput').value.trim().toLowerCase();
 
       let filtered = allProducts;
-      if (currentCategory !== 'all') {
-        filtered = filtered.filter(p => p.title.includes(currentCategory) || p.desc.includes(currentCategory));
+      if (currentCategory === 'عروض') {
+        filtered = filtered.filter(p => p.category === 'عروض' || p.title.includes('عرض') || p.title.includes('عروض'));
+      } else if (currentCategory !== 'all') {
+        filtered = filtered.filter(p => p.category === currentCategory || p.title.includes(currentCategory) || p.desc.includes(currentCategory));
       }
 
       if (searchVal !== '') {
@@ -780,7 +855,6 @@
       document.getElementById('modalImage').src = product.image;
       document.getElementById('modalDesc').innerText = product.desc;
 
-      // ضبط شارة وحالة المخزون بناءً على النص القادم من الأدمن
       const stockBadge = document.getElementById('modalStockBadge');
       const addCartBtn = document.getElementById('addCartBtn');
       stockBadge.innerText = product.stockStatus;
@@ -790,20 +864,22 @@
         addCartBtn.disabled = true;
         addCartBtn.style.opacity = '0.5';
         addCartBtn.style.cursor = 'not-allowed';
-        addCartBtn.innerText = 'عذراً المنتج غير متاح حالياً ❌';
+        addCartBtn.innerText = 'غير متاح ❌';
       } else if (product.stockStatus.includes('متبقي') || product.stockStatus.includes('قطعتين')) {
         stockBadge.className = 'stock-badge stock-low';
         addCartBtn.disabled = false;
         addCartBtn.style.opacity = '1';
         addCartBtn.style.cursor = 'pointer';
-        addCartBtn.innerText = 'إضافة إلى السلة 🛒';
+        addCartBtn.innerText = 'إضافة للسلة 🛒';
       } else {
         stockBadge.className = 'stock-badge stock-available';
         addCartBtn.disabled = false;
         addCartBtn.style.opacity = '1';
         addCartBtn.style.cursor = 'pointer';
-        addCartBtn.innerText = 'إضافة إلى السلة 🛒';
+        addCartBtn.innerText = 'إضافة للسلة 🛒';
       }
+
+      updateDirectWhatsappLink();
 
       const thumbnailsContainer = document.getElementById('thumbnailsContainer');
       thumbnailsContainer.innerHTML = '';
@@ -842,6 +918,7 @@
         currentVariant = { size: 'عام', price: product.basePrice, length: '', width: '' };
         document.getElementById('modalPrice').innerText = `${product.basePrice} ج.م`;
         document.getElementById('dimensionsContainer').style.display = 'none';
+        updateDirectWhatsappLink();
       }
 
       document.getElementById('productModal').classList.add('active');
@@ -863,6 +940,16 @@
       } else {
         dimBox.style.display = 'none';
       }
+
+      updateDirectWhatsappLink();
+    }
+
+    function updateDirectWhatsappLink() {
+      const price = currentVariant.price || currentProduct.basePrice || 0;
+      const size = currentVariant.size || 'عام';
+      const text = `🛍️ *أرغب في طلب هذا المنتج مباشرة:*\n\n- *المنتج:* ${currentProduct.title}\n- *المقاس:* ${size}\n- *السعر:* ${price} ج.م\n\nأرجو تأكيد الطلب وترتيب الشحن.`;
+      const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(text)}`;
+      document.getElementById('directWaBtn').href = url;
     }
 
     function shareProduct() {
