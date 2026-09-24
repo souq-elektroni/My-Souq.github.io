@@ -213,11 +213,11 @@
     .total-price { font-size: 20px; font-weight: 800; display: flex; justify-content: space-between; }
     .proceed-btn { background: var(--burgundy-soft); color: white; text-align: center; padding: 14px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; font-size: 17px; display: none; width: 100%; }
 
-    /* تصميم نافذة الشروط والأحكام بالتنسيق الأصلي الصحيح */
-    .terms-modal { max-width: 500px; padding: 24px; z-index: 1100; }
+    /* تصميم نافذة الشروط والأحكام بالتعديل المطلوب */
+    .terms-modal { max-width: 520px; padding: 24px; z-index: 1100; }
     .terms-header { font-size: 20px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-    .terms-body { background: #fffde7; border: 1px solid #ffe082; padding: 16px; border-radius: 12px; font-size: 14px; color: #5d4037; line-height: 1.8; margin-bottom: 15px; }
-    .terms-body ul { margin-right: 20px; }
+    .terms-body { background: #fffde7; border: 1px solid #ffe082; padding: 16px; border-radius: 12px; font-size: 13.5px; color: #5d4037; line-height: 1.8; margin-bottom: 15px; }
+    .terms-body ul { margin-right: 20px; display: flex; flex-direction: column; gap: 6px; }
     .checkbox-container { display: flex; align-items: center; gap: 12px; background: var(--pink-soft); padding: 14px; border-radius: 12px; border: 1px solid var(--pink-accent); margin-bottom: 20px; cursor: pointer; }
     .checkbox-container input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: var(--burgundy-soft); }
     .checkbox-container label { font-size: 15px; font-weight: bold; color: var(--burgundy-soft); cursor: pointer; }
@@ -360,15 +360,17 @@
     </div>
   </div>
 
-  <!-- الشروط والأحكام بالشكل الأصلي المضبوط -->
+  <!-- الشروط والأحكام بالتعديل الجديد والدقيق -->
   <div class="modal-overlay" id="termsModal">
     <div class="modal-content terms-modal">
       <div class="terms-header">📌 الشروط والأحكام</div>
       <div class="terms-body">
-        <strong>يرجى الموافقة على الشروط:</strong>
+        <strong>يرجى مراجعة الشروط بعناية قبل التأكيد:</strong>
         <ul>
-          <li>التأكد من المقاسات المطلوبة.</li>
-          <li>المعاينة عند الاستلام بحضور المندوب.</li>
+          <li>يجب على العميل التأكد جيداً من المقاسات ومراجعة الطلب قبل التأكيد النهائي.</li>
+          <li>سياسة الاسترجاع متاحة حصرياً في حالات وجود عيب مصنع بالمنتج فقط.</li>
+          <li>لا يحق للعميل إلغاء الطلب أو التعديل عليه نهائياً بعد تأكيد الحجز مع المصنع.</li>
+          <li>المعاينة عند الاستلام تتم بحضور المندوب.</li>
         </ul>
       </div>
       <div class="checkbox-container" onclick="toggleTermsCheckbox()">
