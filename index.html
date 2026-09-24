@@ -54,7 +54,7 @@
     .cart-trigger:hover { background: var(--burgundy-hover); transform: translateY(-2px); }
     .cart-count { background: var(--pink-accent); color: var(--burgundy-soft); border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; }
 
-    /* زر واتساب عائم للدعم والاستفسار السريع */
+    /* زر واتساب عائم للدعم والاستفسار */
     .whatsapp-float {
       position: fixed; bottom: 25px; left: 25px; background: #25d366; color: white;
       width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -172,8 +172,16 @@
     }
     .thumb-img.active, .thumb-img:hover { border-color: var(--burgundy-soft); transform: scale(1.05); }
 
-    .modal-info { display: flex; flex-direction: column; gap: 14px; }
+    .modal-info { display: flex; flex-direction: column; gap: 12px; }
     .modal-title { font-size: 26px; font-weight: 900; color: var(--burgundy-soft); }
+    
+    /* شارة حالة التوفر الجديدة */
+    .stock-badge {
+      display: inline-flex; align-items: center; gap: 6px; background: #e8f5e9; color: #2e7d32;
+      padding: 5px 12px; border-radius: 20px; font-size: 13px; font-weight: 800; width: fit-content;
+      border: 1px solid #c8e6c9;
+    }
+
     .modal-price { font-size: 28px; font-weight: 900; color: var(--burgundy-soft); }
 
     .size-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
@@ -203,7 +211,7 @@
     /* نافذة السلة */
     .cart-modal { max-width: 580px; padding: 24px; }
     .cart-title { font-size: 22px; font-weight: bold; margin-bottom: 16px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; color: var(--burgundy-soft); }
-    .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 220px; overflow-y: auto; margin-bottom: 15px; padding-left: 4px; }
+    .cart-items { display: flex; flex-direction: column; gap: 12px; max-height: 200px; overflow-y: auto; margin-bottom: 12px; padding-left: 4px; }
     .cart-item { display: flex; justify-content: space-between; align-items: center; background: var(--pink-soft); padding: 12px 14px; border-radius: 12px; border: 1px solid var(--pink-accent); gap: 10px; }
     .cart-item-info { display: flex; flex-direction: column; gap: 2px; flex: 1; }
     .cart-item-title { font-weight: bold; font-size: 15px; color: var(--text-dark); }
@@ -216,10 +224,16 @@
     .cart-item-price { font-weight: 900; color: var(--burgundy-soft); font-size: 15px; min-width: 70px; text-align: left; }
     .remove-btn { color: #dc2626; background: none; border: none; cursor: pointer; font-weight: bold; padding: 4px; font-size: 16px; }
 
+    /* خانة كود الخصم الجديدة */
+    .promo-box { display: flex; gap: 8px; margin-bottom: 12px; }
+    .promo-input { flex: 1; padding: 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px; outline: none; background: white; }
+    .promo-btn { background: var(--burgundy-soft); color: white; border: none; padding: 0 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    .promo-btn:hover { background: var(--burgundy-hover); }
+
     /* نموذج الشحن */
     .customer-form {
       background: var(--bg-cream); padding: 15px; border-radius: 14px;
-      border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; margin-top: 10px;
+      border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; margin-top: 5px;
     }
     .form-group { display: flex; flex-direction: column; gap: 4px; }
     .form-group label { font-size: 13px; font-weight: bold; color: var(--burgundy-soft); }
@@ -228,7 +242,7 @@
       font-size: 14px; outline: none; background: white;
     }
 
-    .cart-footer { margin-top: 16px; border-top: 1px solid var(--border-color); padding-top: 12px; display: flex; flex-direction: column; gap: 12px; }
+    .cart-footer { margin-top: 14px; border-top: 1px solid var(--border-color); padding-top: 12px; display: flex; flex-direction: column; gap: 12px; }
     .total-price { font-size: 20px; font-weight: 800; display: flex; justify-content: space-between; color: var(--text-dark); }
     
     .proceed-btn {
@@ -366,6 +380,9 @@
         <div class="modal-info">
           <h2 class="modal-title" id="modalTitle"></h2>
           
+          <!-- حالة التوفر -->
+          <div class="stock-badge">🟢 متوفر بالمخزون - جاهز للشحن الفوري</div>
+
           <div>
             <label style="font-weight: bold; font-size: 15px; display: block; margin-bottom: 6px; color: var(--text-muted);">اختر المقاس المطلوب:</label>
             <div class="size-selector" id="sizesContainer"></div>
@@ -397,6 +414,12 @@
       
       <div class="cart-items" id="cartItemsContainer">
         <p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>
+      </div>
+
+      <!-- خانة كود الخصم -->
+      <div class="promo-box" id="promoBox" style="display: none;">
+        <input type="text" id="promoInput" class="promo-input" placeholder="أدخل كود الخصم (إن وجدت)">
+        <button class="promo-btn" onclick="applyPromoCode()">تطبيق</button>
       </div>
 
       <!-- نموذج الشحن -->
@@ -503,6 +526,7 @@
     let currentVariant = {};
     let cart = [];
     let selectedPaymentMethod = 'cod';
+    let discountRate = 0;
 
     function cleanValue(str) {
       if (!str) return '';
@@ -788,25 +812,28 @@
       document.getElementById('cartCount').innerText = totalCount;
       const cartItemsContainer = document.getElementById('cartItemsContainer');
       const formBox = document.getElementById('customerFormBox');
+      const promoBox = document.getElementById('promoBox');
       const proceedBtn = document.getElementById('proceedBtn');
       
       if (cart.length === 0) {
         cartItemsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>';
         document.getElementById('cartTotalPrice').innerText = '0 ج.م';
         formBox.style.display = 'none';
+        promoBox.style.display = 'none';
         proceedBtn.style.display = 'none';
         return;
       }
 
       formBox.style.display = 'flex';
+      promoBox.style.display = 'flex';
       proceedBtn.style.display = 'block';
 
       cartItemsContainer.innerHTML = '';
-      let total = 0;
+      let subtotal = 0;
 
       cart.forEach((item, index) => {
         const itemTotal = item.price * item.quantity;
-        total += itemTotal;
+        subtotal += itemTotal;
         let dimInfo = "";
         if (item.length || item.width) dimInfo = ` (طول:${item.length||'-'} / عرض:${item.width||'-'})`;
 
@@ -828,7 +855,21 @@
         cartItemsContainer.appendChild(div);
       });
 
-      document.getElementById('cartTotalPrice').innerText = `${total} ج.م`;
+      let finalTotal = subtotal * (1 - discountRate);
+      document.getElementById('cartTotalPrice').innerText = `${finalTotal.toFixed(0)} ج.م`;
+    }
+
+    function applyPromoCode() {
+      const code = document.getElementById('promoInput').value.trim();
+      if (code === 'SOUQ10' || code === 'WELCOME') {
+        discountRate = 0.10; // خصم 10%
+        alert('🎉 تم تطبيق كود الخصم (10%) بنجاح!');
+        updateCartUI();
+      } else if (code !== '') {
+        alert('عذراً، كود الخصم غير صحيح.');
+        discountRate = 0;
+        updateCartUI();
+      }
     }
 
     function copyInstapayNumber(e) {
@@ -906,7 +947,7 @@
         ? '📱 InstaPay (تحويل إلكتروني على 01116339905)' 
         : '💵 الدفع عند الاستلام (كاش لمندوب الشحن)';
 
-      let total = 0;
+      let subtotal = 0;
       let msgText = `🛍️ *طلب جديد من متجر My Souq*\n\n`;
       msgText += `👤 *بيانات العميل:*\n`;
       msgText += `- *الاسم:* ${name}\n`;
@@ -917,19 +958,24 @@
 
       cart.forEach((item, index) => {
         const itemTotal = item.price * item.quantity;
-        total += itemTotal;
+        subtotal += itemTotal;
         let dimInfo = "";
         if (item.length || item.width) dimInfo = ` (طول:${item.length||'-'}سم / عرض:${item.width||'-'}سم)`;
         msgText += `${index + 1}. ${item.title}\n   • المقاس: ${item.size}${dimInfo}\n   • الكمية: ${item.quantity}\n   • السعر الإجمالي: ${itemTotal} ج.م\n`;
       });
 
-      msgText += `\n💰 *الإجمالي الكلي:* ${total} ج.م\n\n`;
+      let finalTotal = subtotal * (1 - discountRate);
+      if (discountRate > 0) {
+        msgText += `\n🏷️ *تم تطبيق خصم:* 10%\n`;
+      }
+      msgText += `\n💰 *الإجمالي الكلي بعد الخصم:* ${finalTotal.toFixed(0)} ج.م\n\n`;
       msgText += `✅ *إقرار العميل:* أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
 
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msgText)}`;
       window.open(whatsappUrl, '_blank');
       
       cart = [];
+      discountRate = 0;
       nameInput.value = '';
       phoneInput.value = '';
       addressInput.value = '';
