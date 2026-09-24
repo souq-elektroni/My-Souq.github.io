@@ -360,7 +360,7 @@
     </div>
   </div>
 
-  <!-- الشروط والأحكام المطلوبة حرفياً -->
+  <!-- الشروط والأحكام -->
   <div class="modal-overlay" id="termsModal">
     <div class="modal-content terms-modal">
       <div class="terms-header">📌 الشروط والأحكام</div>
@@ -388,12 +388,12 @@
       <div class="terms-header">💳 طريقة الدفع</div>
       <div class="payment-option selected" id="optCod" onclick="selectPayment('cod')">
         <input type="radio" name="payMethod" value="cod" id="payCod" checked>
-        <div class="payment-details"><label class="payment-title">💵 الدفع عند الاستلام</label></div>
+        <div class="payment-details"><label class="payment-title">💵 الدفع عند الاستلام (كاش لمندوب الشحن)</label></div>
       </div>
       <div class="payment-option" id="optInstapay" onclick="selectPayment('instapay')">
         <input type="radio" name="payMethod" value="instapay" id="payInstapay">
         <div class="payment-details">
-          <label class="payment-title">📱 InstaPay</label>
+          <label class="payment-title">📱 الدفع عن طريق InstaPay</label>
           <div class="instapay-box"><span>01116339905</span><button class="copy-instapay-btn" onclick="copyInstapay(event)">نسخ</button></div>
         </div>
       </div>
@@ -626,7 +626,7 @@
         sizesContainer.appendChild(btn);
       });
 
-      const fullImgUrl = `${window.location.origin}/${currentSelectedProduct.image}`;
+      const fullImgUrl = window.location.origin + '/' + currentSelectedProduct.image.replace(/^\/+/, '');
       const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title}\n المقاس: ${selectedSize}\n السعر: ${currentSelectedProduct.price} ج.م\n 📷 صورة المنتج: ${fullImgUrl}`);
       document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
 
@@ -801,22 +801,25 @@
       const phone = document.getElementById('custPhone').value.trim();
       const address = document.getElementById('custAddress').value.trim();
       const payMethodInput = document.querySelector('input[name="payMethod"]:checked');
-      const payMethod = payMethodInput && payMethodInput.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay (انستا باي)';
+      const payMethod = payMethodInput && payMethodInput.value === 'cod' ? '💵 الدفع عند الاستلام (كاش لمندوب الشحن)' : '📱 الدفع عن طريق InstaPay (رقم التحويل: 01116339905)';
       
-      let itemsTest = cart.map(i => {
-        const fullImgUrl = `${window.location.origin}/${i.image}`;
-        return `- *${i.title}* (مقاس: ${i.size}) × ${i.qty} = ${i.price * i.qty} ج.م\n  📷 صورة المنتج: ${fullImgUrl}`;
+      let itemsListText = cart.map((i, index) => {
+        let cleanImgPath = i.image.replace(/^\/+/, '');
+        const fullImgUrl = `${window.location.origin}/${cleanImgPath}`;
+        return `${index + 1}. *${i.title}*\n- المقاس: ${i.size}\n- السعر: ${i.price * i.qty} ج.م (الكمية: ${i.qty})\n- 📷 صورة المنتج: ${fullImgUrl}`;
       }).join('\n\n');
       
       let totalText = document.getElementById('cartTotalPrice').innerText;
 
       let msg = `🛍️ *طلب جديد من متجر My Souq*\n\n`;
-      msg += `👤 الاسم: ${name}\n`;
-      msg += `📞 الهاتف: ${phone}\n`;
-      msg += `📍 العنوان: ${address}\n\n`;
-      msg += `🛒 *المنتجات المطلوبة:*\n${itemsTest}\n\n`;
-      msg += `💰 *الإجمالي النهائي:* ${totalText}\n`;
-      msg += `💳 *طريقة الدفع:* ${payMethod}`;
+      msg += `👤 *بيانات العميل:*\n`;
+      msg += `• الاسم: ${name}\n`;
+      msg += `• رقم التواصل: ${phone}\n`;
+      msg += `• العنوان: ${address}\n`;
+      msg += `• طريقة الدفع: ${payMethod}\n\n`;
+      msg += `📦 *المنتجات المطلوبة:*\n${itemsListText}\n\n`;
+      msg += `💰 *الإجمالي الكلي:* ${totalText}\n\n`;
+      msg += `✅ *إقرار العميل:* أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
 
       const encodedMsg = encodeURIComponent(msg);
       window.open(`https://wa.me/201116339905?text=${encodedMsg}`, '_blank');
