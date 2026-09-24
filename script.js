@@ -55,7 +55,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown الشاملة والمحدثة لمعالجة المقاسات والأبعاد والألبوم
+// دالة تحليل الـ Markdown المتوافقة تماماً مع مفاتيح لوحة التحكم العربية
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -113,26 +113,31 @@ function parseMarkdown(markdownText, id) {
       allImages = [defaultImg];
     }
 
-    // استخراج المقاسات والطول والعرض لكل مقاس بمرونة تامة
+    // استخراج المقاسات والطول والعرض بالصيغة العربية التي تطابق لوحة التحكم تماماً
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (variantsMatch) {
-      const variantBlocks = variantsMatch[1].split(/- size:|- /);
+      const variantBlocks = variantsMatch[1].split(/- size:|- المقاس|(?=- \s*["']?[0-9]+["']?)/);
       variantBlocks.forEach(block => {
         if (!block.trim()) return;
-        const sizeLineMatch = block.match(/["']?([^"\n]+)["']?/);
-        if (sizeLineMatch && sizeLineMatch[1]) {
-          const cleanSize = sizeLineMatch[1].trim().replace(/['"\[\]]/g, '');
+        
+        // استخراج رقم المقاس
+        const sizeMatch = block.match(/(?:size|المقاس \/ الحجم):\s*["']?([0-9a-zA-Z\u0600-\u06FF]+)["']?/i) || block.match(/["']?([0-9a-zA-Z\u0600-\u06FF]+)["']?/);
+        
+        if (sizeMatch) {
+          const cleanSize = (sizeMatch[1] || sizeMatch[0]).trim().replace(/['"\[\]]/g, '');
           
-          // البحث عن الطول والعرض بأكثر من صيغة محتملة
-          const lenMatch = block.match(/(?:length|طول|Height):\s*([0-9.]+)/i);
-          const widMatch = block.match(/(?:width|عرض|Width):\s*([0-9.]+)/i);
+          // استخراج الطول والعرض بالصيغة العربية الدقيقة
+          const lenMatch = block.match(/الطول \(سم\):\s*([0-9.]+)/i) || block.match(/length:\s*([0-9.]+)/i);
+          const widMatch = block.match(/العرض \(سم\):\s*([0-9.]+)/i) || block.match(/width:\s*([0-9.]+)/i);
           
-          parsedVariants.push({
-            size: cleanSize,
-            length: lenMatch ? lenMatch[1] : '',
-            width: widMatch ? widMatch[1] : ''
-          });
+          if (cleanSize) {
+            parsedVariants.push({
+              size: cleanSize,
+              length: lenMatch ? lenMatch[1] : '',
+              width: widMatch ? widMatch[1] : ''
+            });
+          }
         }
       });
     }
@@ -384,7 +389,7 @@ function applyPromoCode() {
 function validateAndOpenTerms() {
   const name = document.getElementById('custName').value.trim();
   const phone = document.getElementById('custPhone').value.trim();
-  const address = document.getElementById('custAddress').value.trim(); // تم التصحيح هنا
+  const address = document.getElementById('custAddress').value.trim();
 
   if (!name || !phone || !address) {
     alert('يرجى استكمال كافة بيانات الشحن المطلوبة');
