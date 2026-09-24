@@ -1,11 +1,9 @@
 // ===== State =====
 let products = [];
 let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
-let currentCategory = "all";
-let minPrice = 0;
-let maxPrice = 2000;
+let currentCategory = "الكل";
+let maxAllowedPrice = 2000;
 let selectedSize = null;
-let currentProductId = null;
 let currentSelectedProduct = null;
 let discountRate = 0;
 
@@ -55,7 +53,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown الفائقة الذكاء لقراءة المقاسات والطول والعرض مهما كانت الصيغة
+// دالة تحليل الـ Markdown الذكية الشاملة (للألبوم والمقاسات والطول والعرض)
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -105,19 +103,17 @@ function parseMarkdown(markdownText, id) {
     let allImages = [mainImage, ...allExtractedImages.filter(img => img !== mainImage)];
     if (allImages.length === 0) allImages = [defaultImg];
 
-    // استخراج المقاسات والطول والعرض بقسْم الـ frontmatter إلى أجزاء وبحث شامل
+    // استخراج المقاسات والطول والعرض بدقة تامة
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
     
     if (variantsMatch) {
       const variantText = variantsMatch[1];
-      // تقسيم النص بناءً على كل سطر يبدأ بمقاس أو شرطة
       const blocks = variantText.split(/(?=\n\s*-\s*size:|\n\s*-\s*المقاس:|\n\s*-\s*["']?[0-9a-zA-Z\u0600-\u06FF]+["']?\s*:)/);
       
       blocks.forEach(block => {
         if (!block.trim()) return;
         
-        // استخراج اسم المقاس أو الرقم
         let sizeVal = '';
         const sizeMatch1 = block.match(/(?:size|المقاس):\s*["']?([^,\n]+)["']?/i);
         const sizeMatch2 = block.match(/-\s*["']?([0-9a-zA-Z\u0600-\u06FF\s]+)["']?\s*:/);
@@ -127,12 +123,10 @@ function parseMarkdown(markdownText, id) {
         else if (sizeMatch2) sizeVal = sizeMatch2[1].trim();
         else if (sizeMatch3) sizeVal = sizeMatch3[1].trim();
 
-        // استخراج الطول بأي شكل (طول، الطول، length)
         let lenVal = '';
         const lenMatch = block.match(/(?:الطول|length)[^0-9]*([0-9.]+)/i);
         if (lenMatch) lenVal = lenMatch[1].trim();
 
-        // استخراج العرض بأي شكل (عرض، العرض، width)
         let widVal = '';
         const widMatch = block.match(/(?:العرض|width)[^0-9]*([0-9.]+)/i);
         if (widMatch) widVal = widMatch[1].trim();
@@ -147,7 +141,6 @@ function parseMarkdown(markdownText, id) {
       });
     }
 
-    // طريقة بديلة إضافية لاكتشاف الطول والعرض إذا كانت مكتوبة بشكل مسطح في الـ frontmatter
     if (parsedVariants.length === 0) {
       parsedVariants.push({
         size: "مقاس موحد",
@@ -203,7 +196,7 @@ function filterCategory(cat, btn) {
 }
 
 function handleSearchAndFilter() {
-  const query = document.getElementById('searchInput').value.toLowerCase();
+  const query = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : '';
   let filtered = products.filter(p => {
     const matchesCat = currentCategory === 'الكل' || p.category === currentCategory;
     const matchesSearch = p.title.toLowerCase().includes(query);
