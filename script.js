@@ -13,22 +13,6 @@ let discountRate = 0;
 const productsGrid = document.getElementById("products-container");
 const cartCount = document.getElementById("cartCount");
 
-// ===== Size Chart (cm) =====
-const sizeChart = {
-  "M": { height: "70", width: "52" },
-  "L": { height: "72", width: "55" },
-  "XL": { height: "75", width: "58" },
-  "XXL": { height: "78", width: "61" },
-  "4 سنوات": { height: "98-104", width: "34-36" },
-  "6 سنوات": { height: "110-116", width: "38-40" },
-  "8 سنوات": { height: "122-128", width: "42-44" },
-  "10 سنوات": { height: "134-140", width: "46-48" },
-  "41": { height: "-", width: "-" },
-  "42": { height: "-", width: "-" },
-  "43": { height: "-", width: "-" },
-  "44": { height: "-", width: "-" }
-};
-
 // ===== Load Real Products from GitHub / products folder =====
 async function loadRealProducts() {
   try {
@@ -62,7 +46,7 @@ async function loadRealProducts() {
   }
 }
 
-// تحليل ملف الـ Markdown الخاص بالمنتج ومعالجة مسار الصورة تلقائياً
+// تحليل ملف الـ Markdown وقراءة المقاسات والكتالوج بدقة
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -80,23 +64,45 @@ function parseMarkdown(markdownText, id) {
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
     
-    // معالجة مسار الصورة لضمان ظهورها بشكل سليم دائماً
+    // معالجة مسار الصورة الرئيسية
     let rawImage = getField('image') || '';
     let image = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
-    
     if (rawImage) {
-      if (rawImage.startsWith('http://') || rawImage.startsWith('https://')) {
-        image = rawImage;
-      } else {
-        // تنظيف المسار إذا بدأ بـ / أو تم رفعه محلياً
-        let cleanPath = rawImage.startsWith('/') ? rawImage.substring(1) : rawImage;
-        image = cleanPath;
-      }
+      image = rawImage.startsWith('http') ? rawImage : (rawImage.startsWith('/') ? rawImage.substring(1) : rawImage);
     }
-    
-    let sizes = ["M", "L", "XL", "XXL"];
-    if (category === 'أحذية') {
-      sizes = ["41", "42", "43", "44"];
+
+    // استخراج الصور الإضافية (الكتالوج) إن وجدت
+    let galleryImages = [];
+    const imagesMatch = frontmatter.match(/images:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
+    if (imagesMatch) {
+      const lines = imagesMatch[1].split('\n');
+      lines.forEach(line => {
+        let cleanLine = line.replace(/[-*]/g, '').trim();
+        if (cleanLine) {
+          cleanLine = cleanLine.replace(/^["']|["']$/g, '');
+          galleryImages.push(cleanLine.startsWith('http') ? cleanLine : (cleanLine.startsWith('/') ? cleanLine.substring(1) : cleanLine));
+        }
+      });
+    }
+    // دمج الصورة الرئيسية مع الكتالوج لعرضها في المعرض
+    let allImages = [image, ...galleryImages.filter(img => img !== image)];
+
+    // استخراج المقاسات أو الفاريانتس المرفوعة من الأدمن
+    let parsedVariants = [];
+    const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
+    if (variantsMatch) {
+      // محاولة تحليل مبسط لسطور المقاسات
+      const variantBlocks = variantsMatch[1].split('- size:');
+      variantBlocks.forEach(block => {
+        const sizeMatch = block.match(/["']?([^"\n]+)["']?/);
+        if (sizeMatch && sizeMatch[1].trim()) {
+          parsedVariants.push({ size: sizeMatch[1].trim() });
+        }
+      });
+    }
+
+    if (parsedVariants.length === 0) {
+      parsedVariants = [{ size: "مقاس موحد" }];
     }
 
     return {
@@ -105,8 +111,9 @@ function parseMarkdown(markdownText, id) {
       category: category,
       price: price,
       image: image,
+      images: allImages,
+      variants: parsedVariants,
       desc: body || title,
-      sizes: sizes,
       length: "75",
       width: "55"
     };
@@ -163,28 +170,52 @@ function applySorting() {
   renderProducts(sorted);
 }
 
-// ===== Product Modal & Cart =====
+// ===== Product Modal & Cart (مع دعم الكتالوج والمقاسات الحقيقية) =====
 function openProductModal(id) {
   currentSelectedProduct = products.find(p => p.id === id);
   if (!currentSelectedProduct) return;
 
-  document.getElementById('modalImage').src = currentSelectedProduct.image;
+  // عرض الصورة الرئيسية وصور الكتالوج المصغرة
+  const modalImg = document.getElementById('modalImage');
+  const thumbsContainer = document.getElementById('thumbnailsContainer');
+  
+  modalImg.src = currentSelectedProduct.image;
+  thumbsContainer.innerHTML = '';
+
+  if (currentSelectedProduct.images && currentSelectedProduct.images.length > 1) {
+    thumbsContainer.style.display = 'flex';
+    currentSelectedProduct.images.forEach((imgSrc, idx) => {
+      const thumb = document.createElement('img');
+      thumb.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
+      thumb.src = imgSrc;
+      thumb.onclick = () => {
+        modalImg.src = imgSrc;
+        document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
+        thumb.classList.add('active');
+      };
+      thumbsContainer.appendChild(thumb);
+    });
+  } else {
+    thumbsContainer.style.display = 'none';
+  }
+
   document.getElementById('modalTitle').innerText = currentSelectedProduct.title;
   document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
   document.getElementById('modalDesc').innerText = currentSelectedProduct.desc;
 
+  // عرض المقاسات الحقيقية من الأدمن
   const sizesContainer = document.getElementById('sizesContainer');
   sizesContainer.innerHTML = '';
-  selectedSize = currentSelectedProduct.sizes[0] || '';
+  selectedSize = currentSelectedProduct.variants[0].size || '';
   
-  currentSelectedProduct.sizes.forEach((s, idx) => {
+  currentSelectedProduct.variants.forEach((v, idx) => {
     const btn = document.createElement('button');
     btn.className = `size-btn ${idx === 0 ? 'selected' : ''}`;
-    btn.innerText = s;
+    btn.innerText = v.size;
     btn.onclick = () => {
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
-      selectedSize = s;
+      selectedSize = v.size;
     };
     sizesContainer.appendChild(btn);
   });
