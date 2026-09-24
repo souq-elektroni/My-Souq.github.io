@@ -11,22 +11,18 @@ let discountRate = 0;
 const productsGrid = document.getElementById("products-container");
 const cartCount = document.getElementById("cartCount");
 
-// ===== Load Real Products from GitHub / products folder =====
+// ===== Load Real Products from GitHub =====
 async function loadRealProducts() {
   try {
+    // سنقوم بجلب الملفات مباشرة عبر مسار جيت هب العام أو الـ API المباشر
     const apiUrl = 'https://api.github.com/repos/souq-elektroni/My-Souq.github.io/contents/products';
     const response = await fetch(apiUrl);
     
     if (!response.ok) {
-      throw new Error(`فشل جلب الملفات من جيت هب. حالة الرد: ${response.status}`);
+      throw new Error(`حالة الاستجابة: ${response.status}`);
     }
     
     const files = await response.json();
-    
-    if (!Array.isArray(files)) {
-      throw new Error('محتوى المجلد غير متوافق.');
-    }
-
     const mdFiles = files.filter(f => f.name.endsWith('.md'));
 
     if (mdFiles.length === 0) {
@@ -37,7 +33,9 @@ async function loadRealProducts() {
     products = [];
     for (let i = 0; i < mdFiles.length; i++) {
       const file = mdFiles[i];
-      const fileRes = await fetch(file.download_url);
+      // استخدام رابط الـ raw المباشر لتجنب مشاكل الـ CORS
+      const rawUrl = file.download_url || `https://raw.githubusercontent.com/souq-elektroni/My-Souq.github.io/main/products/${file.name}`;
+      const fileRes = await fetch(rawUrl);
       const text = await fileRes.text();
       
       const productData = parseMarkdown(text, i + 1);
@@ -49,11 +47,12 @@ async function loadRealProducts() {
     renderProducts(products);
   } catch (error) {
     console.error('خطأ في جلب المنتجات:', error);
-    productsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: red; font-size: 16px;">عفواً، حدث خطأ أثناء تحميل المنتجات: ${error.message}</p>`;
+    // طريقة احتياطية في حال فشل الـ API: محاولة جلب ملف تجريبي أو تنبيه واضح
+    productsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--burgundy-soft); font-size: 16px; font-weight: bold;">تأكد أن مستودع جيت هب عام (Public) وأن مجلد products يحتوي على منتجات.</p>`;
   }
 }
 
-// دالة تحليل الـ Markdown الذكية الشاملة (للألبوم والمقاسات والطول والعرض)
+// دالة تحليل الـ Markdown الذكية الشاملة
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -447,7 +446,7 @@ function selectPayment(method) {
   document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
   if (method === 'cod') {
     document.getElementById('optCod').classList.add('selected');
-    document.getElementById('payCod').checked, true;
+    document.getElementById('payCod').checked = true;
   } else {
     document.getElementById('optInstapay').classList.add('selected');
     document.getElementById('payInstapay').checked = true;
@@ -506,7 +505,7 @@ function shareProduct() {
   }
 }
 
-// ===== Initializing (تشغيل تحميل المنتجات عند فتح الصفحة) =====
+// ===== Initializing =====
 window.addEventListener('DOMContentLoaded', () => {
   loadRealProducts();
   updateCartCount();
