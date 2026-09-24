@@ -213,24 +213,24 @@
     .total-price { font-size: 20px; font-weight: 800; display: flex; justify-content: space-between; }
     .proceed-btn { background: var(--burgundy-soft); color: white; text-align: center; padding: 14px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; font-size: 17px; display: none; width: 100%; }
 
+    /* تصميم نافذة الشروط والأحكام بالتنسيق الأصلي الصحيح */
     .terms-modal { max-width: 500px; padding: 24px; z-index: 1100; }
-    .terms-header { font-size: 20px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 12px; border-bottom: 2px solid var(--pink-accent); padding-bottom: 8px; }
-    .terms-body { background: #fff8e1; border: 1px solid #ffe082; padding: 15px; border-radius: 12px; font-size: 13.5px; color: #4e342e; line-height: 1.7; max-height: 250px; overflow-y: auto; margin-bottom: 15px; }
-    .terms-body ul { margin-right: 18px; margin-top: 8px; }
-    .checkbox-container { display: flex; align-items: center; gap: 10px; background: var(--pink-soft); padding: 12px; border-radius: 10px; border: 1px solid var(--pink-accent); margin-bottom: 15px; cursor: pointer; }
-    .checkbox-container input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: var(--burgundy-soft); }
-    .checkbox-container label { font-size: 14px; font-weight: bold; color: var(--burgundy-soft); cursor: pointer; }
-    .terms-actions { display: flex; gap: 10px; }
-    .btn-agree { flex: 2; background: var(--burgundy-soft); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; opacity: 0.5; pointer-events: none; }
+    .terms-header { font-size: 20px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+    .terms-body { background: #fffde7; border: 1px solid #ffe082; padding: 16px; border-radius: 12px; font-size: 14px; color: #5d4037; line-height: 1.8; margin-bottom: 15px; }
+    .terms-body ul { margin-right: 20px; }
+    .checkbox-container { display: flex; align-items: center; gap: 12px; background: var(--pink-soft); padding: 14px; border-radius: 12px; border: 1px solid var(--pink-accent); margin-bottom: 20px; cursor: pointer; }
+    .checkbox-container input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: var(--burgundy-soft); }
+    .checkbox-container label { font-size: 15px; font-weight: bold; color: var(--burgundy-soft); cursor: pointer; }
+    .terms-actions { display: flex; gap: 12px; }
+    .btn-agree { flex: 2; background: var(--burgundy-soft); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; opacity: 0.5; pointer-events: none; transition: opacity 0.2s; }
     .btn-agree.active { opacity: 1; pointer-events: auto; }
-    .btn-decline { flex: 1; background: #f44336; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; }
+    .btn-decline { flex: 1; background: #f44336; color: white; border: none; padding: 14px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; text-align: center; }
 
     .payment-modal { max-width: 500px; padding: 24px; z-index: 1200; }
     .payment-option { display: flex; align-items: flex-start; gap: 12px; background: var(--bg-cream); padding: 14px; border-radius: 12px; border: 2px solid var(--border-color); margin-bottom: 12px; cursor: pointer; }
     .payment-option.selected { border-color: var(--burgundy-soft); background: var(--pink-soft); }
     .payment-details { display: flex; flex-direction: column; gap: 4px; width: 100%; }
     .payment-title { font-weight: 800; font-size: 15px; color: var(--burgundy-soft); }
-    .payment-desc { font-size: 13px; color: var(--text-muted); }
     .instapay-box { background: #e8f5e9; border: 1px solid #a5d6a7; padding: 10px; border-radius: 8px; font-size: 13px; color: #1b5e20; margin-top: 8px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
     .copy-instapay-btn { background: #2e7d32; color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
     .send-final-btn { background: #25d366; color: white; text-align: center; padding: 14px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; font-size: 17px; width: 100%; margin-top: 10px; }
@@ -238,8 +238,6 @@
     .success-modal { max-width: 450px; padding: 35px 25px; text-align: center; z-index: 1300; }
     .success-icon { font-size: 60px; margin-bottom: 15px; }
     .success-title { font-size: 24px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 10px; }
-    .success-desc { font-size: 15px; color: var(--text-muted); line-height: 1.6; margin-bottom: 25px; }
-    .success-btn { background: var(--burgundy-soft); color: white; border: none; padding: 12px 30px; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%; }
     footer { text-align: center; margin-top: 50px; padding: 20px; color: var(--text-muted); font-size: 14px; border-top: 1px solid var(--border-color); }
   </style>
 </head>
@@ -351,9 +349,9 @@
       </div>
       <div class="customer-form" id="customerFormBox">
         <h4 style="color: var(--burgundy-soft); font-size: 15px; font-weight: bold;">📝 بيانات الشحن:</h4>
-        <div class="form-group"><label>الاسم بالكامل *</label><input type="text" id="custName" placeholder="اسمك الكريم" oninput="checkFormCompletion()"></div>
-        <div class="form-group"><label>رقم الواتساب *</label><input type="tel" id="custPhone" placeholder="01xxxxxxxx" oninput="checkFormCompletion()"></div>
-        <div class="form-group"><label>العنوان بالتفصيل *</label><textarea id="custAddress" rows="2" placeholder="العنوان" oninput="checkFormCompletion()"></textarea></div>
+        <div class="form-group"><label>الاسم بالكامل *</label><input type="text" id="custName" placeholder="اسمك الكريم"></div>
+        <div class="form-group"><label>رقم الواتساب *</label><input type="tel" id="custPhone" placeholder="01xxxxxxxx"></div>
+        <div class="form-group"><label>العنوان بالتفصيل *</label><textarea id="custAddress" rows="2" placeholder="العنوان"></textarea></div>
       </div>
       <div class="cart-footer">
         <div class="total-price"><span>الإجمالي:</span><span id="cartTotalPrice" style="color: var(--burgundy-soft);">0 ج.م</span></div>
@@ -362,7 +360,7 @@
     </div>
   </div>
 
-  <!-- الشروط والدفع -->
+  <!-- الشروط والأحكام بالشكل الأصلي المضبوط -->
   <div class="modal-overlay" id="termsModal">
     <div class="modal-content terms-modal">
       <div class="terms-header">📌 الشروط والأحكام</div>
@@ -410,7 +408,7 @@
     </div>
   </div>
 
-  <!-- سكربت التشغيل ومعالجة المنتجات والسلة والواتساب -->
+  <!-- سكربت التشغيل -->
   <script>
     let products = [];
     let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
@@ -688,7 +686,7 @@
 
       promoBox.style.display = 'flex';
       customerFormBox.style.display = 'flex';
-      proceedBtn.style.display = 'block'; // إظهار الزر دائماً طالما السلة ليست فارغة
+      proceedBtn.style.display = 'block';
 
       container.innerHTML = cart.map((item, index) => `
         <div class="cart-item">
@@ -741,20 +739,18 @@
       }
     }
 
-    function checkFormCompletion() {
-      // وظيفة فارغة لمنع أي خطأ، والزر ظاهر طالما السلة تحتوي منتجات
-    }
-
     function validateAndOpenTerms() {
       const name = document.getElementById('custName').value.trim();
       const phone = document.getElementById('custPhone').value.trim();
       const address = document.getElementById('custAddress').value.trim();
 
       if (!name || !phone || !address) {
-        alert('يرجى كتابة (الاسم، رقم الواتساب، والعنوان بالتفصيل) للمتابعة');
+        alert('يرجى استكمال كافة بيانات الشحن (الاسم، الهاتف، والعنوان)');
         return;
       }
       closeCartModal();
+      document.getElementById('termsCheckbox').checked = false;
+      document.getElementById('agreeBtn').classList.remove('active');
       document.getElementById('termsModal').classList.add('active');
     }
 
@@ -766,8 +762,11 @@
 
     function handleCheckboxChange(e) {
       const agreeBtn = document.getElementById('agreeBtn');
-      if (e.target.checked) agreeBtn.classList.add('active');
-      else agreeBtn.classList.remove('active');
+      if (e.target.checked) {
+        agreeBtn.classList.add('active');
+      } else {
+        agreeBtn.classList.remove('active');
+      }
     }
 
     function declineTerms() {
