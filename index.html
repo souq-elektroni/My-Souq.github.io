@@ -63,6 +63,16 @@
     }
     .whatsapp-float:hover { transform: scale(1.1); background: #20bd5a; }
 
+    /* 🔔 إشعار منبثق عند إضافة منتج للسلة (Toast Notification) */
+    #toastNotification {
+      position: fixed; top: 25px; left: 50%; transform: translateX(-50%) translateY(-100px);
+      background: var(--burgundy-soft); color: white; padding: 12px 25px; border-radius: 30px;
+      font-weight: 800; font-size: 15px; box-shadow: 0 8px 25px rgba(128, 61, 72, 0.3);
+      z-index: 2000; transition: transform 0.3s ease-in-out; border: 2px solid var(--pink-accent);
+      display: flex; align-items: center; gap: 8px; pointer-events: none;
+    }
+    #toastNotification.show { transform: translateX(-50%) translateY(0); }
+
     /* الهيدر والعنوان */
     header { text-align: center; padding: 50px 10px 35px; max-width: 950px; margin: 0 auto; }
     header h1 { 
@@ -159,12 +169,6 @@
     .review-stars { color: #f59e0b; font-size: 16px; letter-spacing: 2px; }
     .review-text { font-size: 14.5px; color: var(--text-dark); line-height: 1.5; font-weight: 700; }
     .review-author { font-size: 13px; color: var(--burgundy-soft); font-weight: 900; margin-top: auto; }
-    
-    /* معرض صور آراء العملاء الحقيقية */
-    .review-img-box { width: 100%; height: 180px; border-radius: 10px; overflow: hidden; background: #e0d0d2; margin-top: 6px; }
-    .review-img-box img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-    .review-img-box img:hover { transform: scale(1.05); }
-
 
     /* النوافذ المنبثقة */
     .modal-overlay {
@@ -337,10 +341,24 @@
     }
     .send-final-btn:hover { background: #20bd5a; }
 
+    /* 🎉 شاشة نجاح الطلب (Order Success Modal) */
+    .success-modal { max-width: 450px; padding: 35px 25px; text-align: center; z-index: 1300; }
+    .success-icon { font-size: 60px; margin-bottom: 15px; }
+    .success-title { font-size: 24px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 10px; }
+    .success-desc { font-size: 15px; color: var(--text-muted); line-height: 1.6; margin-bottom: 25px; font-weight: 700; }
+    .success-btn {
+      background: var(--burgundy-soft); color: white; border: none; padding: 12px 30px;
+      border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; width: 100%;
+    }
+    .success-btn:hover { background: var(--burgundy-hover); }
+
     footer { text-align: center; margin-top: 50px; padding: 20px; color: var(--text-muted); font-size: 14px; border-top: 1px solid var(--border-color); }
   </style>
 </head>
 <body>
+
+  <!-- شريط إشعار الإضافة للسلة (Toast) -->
+  <div id="toastNotification">✓ تم إضافة المنتج إلى السلة بنجاح</div>
 
   <!-- الشارة الدائرية العائمة -->
   <div class="brand-badge">
@@ -392,7 +410,7 @@
     <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 18px; font-weight: bold;">جاري تحميل الموديلات...</p>
   </main>
 
-  <!-- ⭐ قسم آراء وتقييمات العملاء (Reviews & Gallery) -->
+  <!-- ⭐ قسم آراء وتقييمات العملاء -->
   <section class="reviews-section">
     <div class="reviews-header">
       <h2>⭐ آراء عملائنا الأفاضل</h2>
@@ -400,21 +418,18 @@
     </div>
     
     <div class="reviews-grid">
-      <!-- تقييم 1 -->
       <div class="review-card">
         <div class="review-stars">⭐⭐⭐⭐⭐</div>
         <p class="review-text">"الخامة ممتازة جداً والدفايات طرية ودافئة للأولاد في الشتاء، والمقاسات مظبوطة بالمللي. شكراً لكم على الأمانة."</p>
         <div class="review-author">أم حبيبة - القليوبية</div>
       </div>
 
-      <!-- تقييم 2 -->
       <div class="review-card">
         <div class="review-stars">⭐⭐⭐⭐⭐</div>
         <p class="review-text">"الطلب وصل في أسرع وقت والمندوب محترم جداً وخلاني أفتح الشحنة أعاينها قبل ما أدفع. تجربة رائعة وهكررها تاني."</p>
         <div class="review-author">محمد إبراهيم - القاهرة</div>
       </div>
 
-      <!-- تقييم 3 -->
       <div class="review-card">
         <div class="review-stars">⭐⭐⭐⭐⭐</div>
         <p class="review-text">"الأسعار مقارنة بالجودة تحفة بجد، وخدمة العملاء على الواتساب سريعة ومتعاونه جداً في اختيار المقاس المناسب."</p>
@@ -431,15 +446,13 @@
         
         <div class="modal-gallery-wrapper">
           <img class="modal-img" id="modalImage" src="" alt="">
-          <!-- معرض الصور والأشكال المصغرة -->
           <div class="thumbnails-bar" id="thumbnailsContainer"></div>
         </div>
 
         <div class="modal-info">
           <h2 class="modal-title" id="modalTitle"></h2>
           
-          <!-- حالة التوفر -->
-          <div class="stock-badge">🟢 متوفر بالمخزون - جاهز للشحن الفوري</div>
+          <div class="stock-badge" id="modalStockBadge">🟢 متوفر بالمخزون - جاهز للشحن الفوري</div>
 
           <div>
             <label style="font-weight: bold; font-size: 15px; display: block; margin-bottom: 6px; color: var(--text-muted);">اختر المقاس المطلوب:</label>
@@ -474,13 +487,11 @@
         <p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>
       </div>
 
-      <!-- خانة كود الخصم -->
       <div class="promo-box" id="promoBox" style="display: none;">
         <input type="text" id="promoInput" class="promo-input" placeholder="أدخل كود الخصم (إن وجدت)">
         <button class="promo-btn" onclick="applyPromoCode()">تطبيق</button>
       </div>
 
-      <!-- نموذج الشحن -->
       <div class="customer-form" id="customerFormBox" style="display: none;">
         <h4 style="color: var(--burgundy-soft); font-size: 15px; font-weight: bold;">📝 بيانات الشحن والتوصيل:</h4>
         
@@ -525,13 +536,11 @@
         </ul>
       </div>
 
-      <!-- مربع اختيار الموافقة -->
       <div class="checkbox-container" onclick="toggleTermsCheckbox()">
         <input type="checkbox" id="termsCheckbox" onchange="handleCheckboxChange(event)">
         <label for="termsCheckbox">أقر بأني قرأت ووافقت على كافة الشروط والأحكام أعلاه</label>
       </div>
 
-      <!-- أزرار القبول والرفض -->
       <div class="terms-actions">
         <button id="agreeBtn" class="btn-agree" onclick="proceedToPayment()">متابعة واختيار طريقة الدفع 👈</button>
         <button class="btn-decline" onclick="declineTerms()">عدم الموافقة (إلغاء)</button>
@@ -545,16 +554,14 @@
       <div class="terms-header">💳 طريقة الدفع المفضلة</div>
       <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 15px;">يرجى اختيار طريقة الدفع التي تناسبك لإتمام الطلب:</p>
 
-      <!-- خيار 1: الدفع عند الاستلام -->
       <div class="payment-option selected" id="optCod" onclick="selectPayment('cod')">
         <input type="radio" name="payMethod" value="cod" id="payCod" checked>
         <div class="payment-details">
           <label for="payCod" class="payment-title">💵 الدفع عند الاستلام (كاش)</label>
-          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلاستلام الشحنة ومعاينتها.</span>
+          <span class="payment-desc">دفع المبلغ كاملاً لمندوب الشحن فور استلام الشحنة ومعاينتها.</span>
         </div>
       </div>
 
-      <!-- خيار 2: إنستا باي InstaPay -->
       <div class="payment-option" id="optInstapay" onclick="selectPayment('instapay')">
         <input type="radio" name="payMethod" value="instapay" id="payInstapay">
         <div class="payment-details">
@@ -568,6 +575,16 @@
       </div>
 
       <button class="send-final-btn" onclick="executeWhatsappOrder()">إرسال الطلب عبر WhatsApp 💬</button>
+    </div>
+  </div>
+
+  <!-- 🎉 شاشة نجاح الطلب (Order Success State) -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal-content success-modal">
+      <div class="success-icon">🎉</div>
+      <h2 class="success-title">تم إرسال طلبك بنجاح!</h2>
+      <p class="success-desc">شكراً لك! تم تحويل طلبك بنجاح إلى الواتساب مع تفاصيل الأوربي. نتمنى لك تجربة تسوق سعيدة دائماً في متجرنا.</p>
+      <button class="success-btn" onclick="closeSuccessModal()">العودة لتصفح المتجر 🛍️</button>
     </div>
   </div>
 
@@ -646,9 +663,12 @@
             const rawBasePrice = text.match(/^price:\s*"?([^"\r\n]+)"?/m)?.[1];
             const basePrice = parseFloat(cleanValue(rawBasePrice)) || 0;
 
+            const rawStock = text.match(/stock:\s*"?([^"\r\n]+)"?/)?.[1];
+            const stockStatus = cleanValue(rawStock) || '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
+
             const variants = parseVariants(text, basePrice);
 
-            allProducts.push({ title, image: imagesList[0] || image, images: imagesList, desc, variants, basePrice });
+            allProducts.push({ title, image: imagesList[0] || image, images: imagesList, desc, variants, basePrice, stockStatus });
           }
         }
 
@@ -755,6 +775,7 @@
       document.getElementById('modalTitle').innerText = product.title;
       document.getElementById('modalImage').src = product.image;
       document.getElementById('modalDesc').innerText = product.desc;
+      document.getElementById('modalStockBadge').innerText = product.stockStatus;
 
       const thumbnailsContainer = document.getElementById('thumbnailsContainer');
       thumbnailsContainer.innerHTML = '';
@@ -829,6 +850,14 @@
       }
     }
 
+    function showToast() {
+      const toast = document.getElementById('toastNotification');
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2500);
+    }
+
     function addToCart() {
       const selectedPrice = parseFloat(currentVariant.price) || parseFloat(currentProduct.basePrice) || 0;
 
@@ -849,7 +878,7 @@
       
       updateCartUI();
       closeModal();
-      openCartModal();
+      showToast(); // إظهار الإشعار السريع بدلاً من فتح السلة إجبارياً
     }
 
     function changeQuantity(index, delta) {
@@ -920,7 +949,7 @@
     function applyPromoCode() {
       const code = document.getElementById('promoInput').value.trim();
       if (code === 'SOUQ10' || code === 'WELCOME') {
-        discountRate = 0.10; // خصم 10%
+        discountRate = 0.10; 
         alert('🎉 تم تطبيق كود الخصم (10%) بنجاح!');
         updateCartUI();
       } else if (code !== '') {
@@ -1032,6 +1061,7 @@
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msgText)}`;
       window.open(whatsappUrl, '_blank');
       
+      // تفريغ السلة وإظهار شاشة نجاح الطلب
       cart = [];
       discountRate = 0;
       nameInput.value = '';
@@ -1041,11 +1071,15 @@
       updateCartUI();
       document.getElementById('paymentModal').classList.remove('active');
       closeCartModal();
+      
+      // إظهار نافذة تأكيد نجاح الطلب
+      document.getElementById('successModal').classList.add('active');
     }
 
     function openCartModal() { document.getElementById('cartModal').classList.add('active'); }
     function closeCartModal() { document.getElementById('cartModal').classList.remove('active'); }
     function closeModal() { document.getElementById('productModal').classList.remove('active'); }
+    function closeSuccessModal() { document.getElementById('successModal').classList.remove('active'); }
 
     fetchProducts();
   </script>
