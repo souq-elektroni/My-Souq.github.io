@@ -145,7 +145,17 @@
     .modal-body { display: grid; grid-template-columns: 1fr; gap: 20px; padding: 24px; }
     @media (min-width: 550px) { .modal-body { grid-template-columns: 1fr 1fr; } }
 
-    .modal-img { width: 100%; height: 280px; object-fit: cover; border-radius: 14px; }
+    .modal-gallery-wrapper { display: flex; flex-direction: column; gap: 10px; }
+    .modal-img { width: 100%; height: 260px; object-fit: cover; border-radius: 14px; border: 1px solid var(--border-color); }
+    
+    /* معرض المصغرات */
+    .thumbnails-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; }
+    .thumb-img {
+      width: 55px; height: 55px; border-radius: 8px; object-fit: cover; cursor: pointer;
+      border: 2px solid var(--border-color); transition: all 0.2s; flex-shrink: 0;
+    }
+    .thumb-img.active, .thumb-img:hover { border-color: var(--burgundy-soft); transform: scale(1.05); }
+
     .modal-info { display: flex; flex-direction: column; gap: 12px; }
     .modal-title { font-size: 24px; font-weight: 900; color: var(--burgundy-soft); }
     .modal-price { font-size: 26px; font-weight: 900; color: var(--burgundy-soft); }
@@ -306,7 +316,13 @@
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal()">✕</button>
       <div class="modal-body">
-        <img class="modal-img" id="modalImage" src="" alt="">
+        
+        <div class="modal-gallery-wrapper">
+          <img class="modal-img" id="modalImage" src="" alt="">
+          <!-- معرض الصور والأشكال المصغرة -->
+          <div class="thumbnails-bar" id="thumbnailsContainer"></div>
+        </div>
+
         <div class="modal-info">
           <h2 class="modal-title" id="modalTitle"></h2>
           
@@ -474,6 +490,22 @@
             let image = cleanValue(rawImage);
             if (image.startsWith('/')) image = image.substring(1);
 
+            // قراءة مصفوفة الصور الإضافية إن وجدت
+            const imagesList = [];
+            imagesList.push(image);
+
+            const imagesBlock = text.match(/images:([\s\S]*?)(?=\n[a-z]+:|\n---)/i);
+            if (imagesBlock) {
+              const imgMatches = imagesBlock[1].match(/- "?([^"\r\n]+)"?/g);
+              if (imgMatches) {
+                imgMatches.forEach(m => {
+                  let imgUrl = cleanValue(m.replace('-', ''));
+                  if (imgUrl.startsWith('/')) imgUrl = imgUrl.substring(1);
+                  if (imgUrl && !imagesList.includes(imgUrl)) imagesList.push(imgUrl);
+                });
+              }
+            }
+
             const bodyParts = text.split('---');
             const desc = bodyParts.length > 2 ? bodyParts.slice(2).join('---').trim() : '';
 
@@ -482,7 +514,7 @@
 
             const variants = parseVariants(text, basePrice);
 
-            allProducts.push({ title, image, desc, variants, basePrice });
+            allProducts.push({ title, image, images: imagesList, desc, variants, basePrice });
           }
         }
 
@@ -579,6 +611,26 @@
       document.getElementById('modalTitle').innerText = product.title;
       document.getElementById('modalImage').src = product.image;
       document.getElementById('modalDesc').innerText = product.desc;
+
+      const thumbnailsContainer = document.getElementById('thumbnailsContainer');
+      thumbnailsContainer.innerHTML = '';
+
+      if (product.images && product.images.length > 1) {
+        product.images.forEach((imgUrl, idx) => {
+          const img = document.createElement('img');
+          img.src = imgUrl;
+          img.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
+          img.onclick = () => {
+            document.getElementById('modalImage').src = imgUrl;
+            document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
+            img.classList.add('active');
+          };
+          thumbnailsContainer.appendChild(img);
+        });
+        thumbnailsContainer.style.display = 'flex';
+      } else {
+        thumbnailsContainer.style.display = 'none';
+      }
 
       const sizesContainer = document.getElementById('sizesContainer');
       sizesContainer.innerHTML = '';
@@ -742,7 +794,6 @@
       }
     }
 
-    /* إرسال الطلب للواتساب وتفريغ السلة تماماً */
     function executeWhatsappOrder() {
       const nameInput = document.getElementById('custName');
       const phoneInput = document.getElementById('custPhone');
@@ -778,13 +829,11 @@
       const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(msgText)}`;
       window.open(whatsappUrl, '_blank');
       
-      // تفريغ مصفوفة المنتجات والمدخلات
       cart = [];
       nameInput.value = '';
       phoneInput.value = '';
       addressInput.value = '';
 
-      // إشعار الواجهة بالتفريغ وإغلاق النوافذ
       updateCartUI();
       document.getElementById('paymentModal').classList.remove('active');
       closeCartModal();
