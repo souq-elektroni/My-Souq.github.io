@@ -55,7 +55,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown المحسنة (المقاسات، الأبعاد، والألبوم)
+// دالة تحليل الـ Markdown لقراءة الألبوم والمقاسات بأبعادها المتغيرة
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -72,8 +72,6 @@ function parseMarkdown(markdownText, id) {
     const title = getField('title') || getField('name') || 'منتج جديد';
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
-    const lengthVal = getField('length');
-    const widthVal = getField('width');
     
     // دالة تصحيح المسار
     const fixImagePath = (rawPath) => {
@@ -95,7 +93,7 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     const image = fixImagePath(rawImageField) || defaultImg;
 
-    // استخراج صور الكتالوج (الألبوم) بدقة عالية
+    // استخراج صور الألبوم (الكتالوج) بدقة تامة من الـ Frontmatter
     let galleryImages = [];
     const lines = frontmatter.split('\n');
     let insideImagesBlock = false;
@@ -125,24 +123,32 @@ function parseMarkdown(markdownText, id) {
       allImages = [defaultImg];
     }
 
-    // استخراج المقاسات وتطهيرها من علامات التنصيص
+    // استخراج المقاسات مع أبعاد الطول والعرض الخاصة بكل مقاس
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (variantsMatch) {
-      const variantBlocks = variantsMatch[1].split('- size:');
+      const variantBlocks = variantsMatch[1].split(/- size:/);
       variantBlocks.forEach(block => {
-        let sizeMatch = block.match(/["']?([^"\n]+)["']?/);
-        if (sizeMatch && sizeMatch[1]) {
-          let cleanSize = sizeMatch[1].trim().replace(/['"\[\]]/g, '');
-          if (cleanSize) {
-            parsedVariants.push({ size: cleanSize });
-          }
+        if (!block.trim()) return;
+        const sizeLineMatch = block.match(/["']?([^"\n]+)["']?/);
+        if (sizeLineMatch && sizeLineMatch[1]) {
+          const cleanSize = sizeLineMatch[1].trim().replace(/['"\[\]]/g, '');
+          
+          // استخراج الطول والعرض الخاص بهذا المقاس تحديداً
+          const lenMatch = block.match(/length:\s*([0-9.]+)/);
+          const widMatch = block.match(/width:\s*([0-9.]+)/);
+          
+          parsedVariants.push({
+            size: cleanSize,
+            length: lenMatch ? lenMatch[1] : '',
+            width: widMatch ? widMatch[1] : ''
+          });
         }
       });
     }
 
     if (parsedVariants.length === 0) {
-      parsedVariants = [{ size: "مقاس موحد" }];
+      parsedVariants = [{ size: "مقاس موحد", length: "", width: "" }];
     }
 
     return {
@@ -150,8 +156,6 @@ function parseMarkdown(markdownText, id) {
       title: title,
       category: category,
       price: price,
-      length: lengthVal,
-      width: widthVal,
       image: image,
       images: allImages,
       variants: parsedVariants,
@@ -224,7 +228,7 @@ function openProductModal(id) {
   
   thumbsContainer.innerHTML = '';
 
-  // تفعيل الألبوم وصور الكتالوج
+  // تفعيل الألبوم وصور الكتالوج الإضافية بحرية
   if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
     thumbsContainer.style.display = 'flex';
     currentSelectedProduct.images.forEach((imgSrc, idx) => {
@@ -247,21 +251,31 @@ function openProductModal(id) {
   document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
   document.getElementById('modalDesc').innerText = currentSelectedProduct.desc;
 
-  // إظهار الأبعاد بالسنتمتر (الطول والعرض) إن وجدت
+  const sizesContainer = document.getElementById('sizesContainer');
   const dimensionsContainer = document.getElementById('dimensionsContainer');
-  if (currentSelectedProduct.length || currentSelectedProduct.width) {
-    dimensionsContainer.style.display = 'flex';
-    document.getElementById('modalLength').innerText = currentSelectedProduct.length || '-';
-    document.getElementById('modalWidth').innerText = currentSelectedProduct.width || '-';
-  } else {
-    dimensionsContainer.style.display = 'none';
+  const lengthSpan = document.getElementById('modalLength');
+  const widthSpan = document.getElementById('modalWidth');
+
+  sizesContainer.innerHTML = '';
+  
+  // اختيار أول مقاس افتراضياً
+  const firstVariant = currentSelectedProduct.variants[0];
+  selectedSize = firstVariant.size || '';
+
+  // تحديث وعرض الأبعاد بناءً على المقاس المختار
+  function updateDimensionsDisplay(variant) {
+    if (variant.length || variant.width) {
+      dimensionsContainer.style.display = 'flex';
+      lengthSpan.innerText = variant.length || '-';
+      widthSpan.innerText = variant.width || '-';
+    } else {
+      dimensionsContainer.style.display = 'none';
+    }
   }
 
-  // عرض المقاسات بدون علامات تنصيص
-  const sizesContainer = document.getElementById('sizesContainer');
-  sizesContainer.innerHTML = '';
-  selectedSize = currentSelectedProduct.variants[0].size || '';
-  
+  updateDimensionsDisplay(firstVariant);
+
+  // بناء أزرار المقاسات وتغيير الأبعاد مع كل ضغطة
   currentSelectedProduct.variants.forEach((v, idx) => {
     const btn = document.createElement('button');
     btn.className = `size-btn ${idx === 0 ? 'selected' : ''}`;
@@ -270,6 +284,7 @@ function openProductModal(id) {
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedSize = v.size;
+      updateDimensionsDisplay(v); // تحديث الطول والعرض للمقاس المحدد فوراً
     };
     sizesContainer.appendChild(btn);
   });
