@@ -55,7 +55,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown لقراءة الألبوم والمقاسات بأبعادها المتغيرة
+// دالة تحليل الـ Markdown مع معالجة ذكية جداً للألبوم واستخراج كل الصور
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -73,7 +73,7 @@ function parseMarkdown(markdownText, id) {
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
     
-    // دالة تصحيح المسار
+    // دالة تصحيح مسار الصورة
     const fixImagePath = (rawPath) => {
       if (!rawPath) return '';
       let clean = rawPath.replace(/["'\[\]]/g, '').trim();
@@ -91,39 +91,31 @@ function parseMarkdown(markdownText, id) {
 
     const rawImageField = getField('image');
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
-    const image = fixImagePath(rawImageField) || defaultImg;
+    const mainImage = fixImagePath(rawImageField) || defaultImg;
 
-    // استخراج صور الألبوم (الكتالوج) بدقة تامة من الـ Frontmatter
-    let galleryImages = [];
+    // استخراج جميع الصور الموجودة في الملف (أي سطر يحتوي على .jpg أو .png أو .webp أو كلمة images)
+    let allExtractedImages = [];
     const lines = frontmatter.split('\n');
-    let insideImagesBlock = false;
-
     for (let line of lines) {
-      if (line.trim().startsWith('images:')) {
-        insideImagesBlock = true;
-        continue;
-      }
-      if (insideImagesBlock) {
-        if (line.trim() && !line.startsWith(' ') && !line.startsWith('-') && line.includes(':')) {
-          insideImagesBlock = false;
-          continue;
-        }
-        let cleanedLine = line.replace(/[-*]/g, '').trim();
-        if (cleanedLine) {
-          const fixedUrl = fixImagePath(cleanedLine);
-          if (fixedUrl) {
-            galleryImages.push(fixedUrl);
-          }
+      let trimmed = line.trim().replace(/^[-*]\s*/, '').replace(/["']/g, '');
+      if (trimmed.includes('images/') || trimmed.endsWith('.jpg') || trimmed.endsWith('.png') || trimmed.endsWith('.jpeg') || trimmed.endsWith('.webp')) {
+        // لو السطر عبارة عن مسار صورة كامل
+        let partsPath = trimmed.split(':');
+        let possiblePath = partsPath.length > 1 ? partsPath[1].trim() : trimmed;
+        let fixed = fixImagePath(possiblePath);
+        if (fixed && !allExtractedImages.includes(fixed)) {
+          allExtractedImages.push(fixed);
         }
       }
     }
 
-    let allImages = [image, ...galleryImages.filter(img => img !== image)];
+    // التأكد من أن الصورة الرئيسية في مقدمة الألبوم وبدون تكرار
+    let allImages = [mainImage, ...allExtractedImages.filter(img => img !== mainImage)];
     if (allImages.length === 0) {
       allImages = [defaultImg];
     }
 
-    // استخراج المقاسات مع أبعاد الطول والعرض الخاصة بكل مقاس
+    // استخراج المقاسات مع أبعاد الطول والعرض لكل مقاس
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (variantsMatch) {
@@ -134,7 +126,6 @@ function parseMarkdown(markdownText, id) {
         if (sizeLineMatch && sizeLineMatch[1]) {
           const cleanSize = sizeLineMatch[1].trim().replace(/['"\[\]]/g, '');
           
-          // استخراج الطول والعرض الخاص بهذا المقاس تحديداً
           const lenMatch = block.match(/length:\s*([0-9.]+)/);
           const widMatch = block.match(/width:\s*([0-9.]+)/);
           
@@ -156,7 +147,7 @@ function parseMarkdown(markdownText, id) {
       title: title,
       category: category,
       price: price,
-      image: image,
+      image: mainImage,
       images: allImages,
       variants: parsedVariants,
       desc: body || title
@@ -228,7 +219,7 @@ function openProductModal(id) {
   
   thumbsContainer.innerHTML = '';
 
-  // تفعيل الألبوم وصور الكتالوج الإضافية بحرية
+  // تفعيل الألبوم وعرض الصور المصغرة
   if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
     thumbsContainer.style.display = 'flex';
     currentSelectedProduct.images.forEach((imgSrc, idx) => {
@@ -258,11 +249,9 @@ function openProductModal(id) {
 
   sizesContainer.innerHTML = '';
   
-  // اختيار أول مقاس افتراضياً
   const firstVariant = currentSelectedProduct.variants[0];
   selectedSize = firstVariant.size || '';
 
-  // تحديث وعرض الأبعاد بناءً على المقاس المختار
   function updateDimensionsDisplay(variant) {
     if (variant.length || variant.width) {
       dimensionsContainer.style.display = 'flex';
@@ -275,7 +264,6 @@ function openProductModal(id) {
 
   updateDimensionsDisplay(firstVariant);
 
-  // بناء أزرار المقاسات وتغيير الأبعاد مع كل ضغطة
   currentSelectedProduct.variants.forEach((v, idx) => {
     const btn = document.createElement('button');
     btn.className = `size-btn ${idx === 0 ? 'selected' : ''}`;
@@ -284,7 +272,7 @@ function openProductModal(id) {
       document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       selectedSize = v.size;
-      updateDimensionsDisplay(v); // تحديث الطول والعرض للمقاس المحدد فوراً
+      updateDimensionsDisplay(v);
     };
     sizesContainer.appendChild(btn);
   });
