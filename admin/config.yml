@@ -1,9 +1,12 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: souq-elektroni/My-Souq.github.io
   branch: main
 
+publish_mode: editorial_workflow
+
 media_folder: "images"
-public_folder: "/images"
+public_folder: "images"
 
 collections:
   - name: "products"
@@ -12,13 +15,38 @@ collections:
     create: true
     slug: "{{slug}}"
     fields:
-      - {label: "اسم المنتج", name: "title", widget: "string"}
-      - {label: "السعر", name: "price", widget: "string"}
-      - {
-          label: "التصنيف",
-          name: "category",
-          widget: "select",
-          options: ["ملابس شتويه", "ملابس خروج", "أحذيه", "عروض"]
+      - { label: "اسم المنتج", name: "title", widget: "string" }
+      - { 
+          label: "قسم / تصنيف المنتج", 
+          name: "category", 
+          widget: "select", 
+          options: ["عروض", "دفاية", "تيشرت", "بنطلون", "فستان", "عام"],
+          default: "عام"
         }
-      - {label: "صورة المنتج", name: "image", widget: "image"}
-      - {label: "وصف المنتج", name: "description", widget: "text", required: false}
+      - { label: "الصورة الرئيسية", name: "image", widget: "image" }
+      - { label: "صور إضافية (معرض المنتج)", name: "images", widget: "list", required: false, field: { label: "صورة", name: "image", widget: "image" } }
+      - { label: "السعر الأساسي (ج.م)", name: "price", widget: "string" }
+      - { 
+          label: "حالة المخزون", 
+          name: "stock", 
+          widget: "select", 
+          options: [
+            "🟢 متوفر بالمخزون - جاهز للشحن الفوري", 
+            "⚠️ متبقي قطعتين فقط - اطلبها الآن", 
+            "🔴 عذراً نفذت الكمية - قريباً بالمخزون"
+          ],
+          default: "🟢 متوفر بالمخزون - جاهز للشحن الفوري"
+        }
+      - { 
+          label: "المقاسات والأحجام والأسعار المتغيرة", 
+          name: "variants", 
+          widget: "list", 
+          required: false,
+          fields: [
+            { label: "المقاس / الحجم", name: "size", widget: "string" },
+            { label: "سعر المقاس (ج.م)", name: "price", widget: "string", required: false },
+            { label: "الطول (سم)", name: "length", widget: "string", required: false },
+            { label: "العرض (سم)", name: "width", widget: "string", required: false }
+          ]
+        }
+      - { label: "وصف وتفاصيل المنتج", name: "body", widget: "markdown" }
