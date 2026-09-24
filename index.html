@@ -32,16 +32,6 @@
       padding-bottom: 80px;
     }
 
-    /* ⏳ شريط عداد التخفيضات المؤقت (Flash Sale Banner) */
-    .flash-sale-banner {
-      background: linear-gradient(135deg, #803d48, #a95c6a);
-      color: white; text-align: center; padding: 10px 15px; font-weight: 800;
-      font-size: 14.5px; border-radius: 12px; margin-bottom: 20px;
-      box-shadow: 0 4px 15px rgba(128, 61, 72, 0.2); display: flex;
-      justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap;
-    }
-    .countdown-timer { background: rgba(0, 0, 0, 0.2); padding: 3px 10px; border-radius: 8px; font-family: monospace; font-size: 15px; }
-
     /* الشارة الدائرية العائمة */
     .brand-badge {
       position: fixed; top: 25px; right: 25px; width: 90px; height: 90px;
@@ -393,13 +383,6 @@
 </head>
 <body>
 
-  <!-- ⏳ شريط عداد التخفيضات المؤقت (Flash Sale Countdown) -->
-  <div class="flash-sale-banner">
-    <span>🔥 خصومات الشتاء الكبرى تنتهي خلال:</span>
-    <span class="countdown-timer" id="flashCountdown">05 : 22 : 10</span>
-    <span>- اطلب الآن واستفيد بالخصم!</span>
-  </div>
-
   <!-- شريط إشعار الإضافة للسلة (Toast) -->
   <div id="toastNotification">✓ تم إضافة المنتج إلى السلة بنجاح</div>
 
@@ -642,7 +625,6 @@
   </footer>
 
   <script>
-    // الجافاسكريبت والربط البرمجي الكامل
     let allProducts = [];
     let cart = [];
     let currentSelectedProduct = null;
@@ -650,10 +632,8 @@
     let currentCategory = 'الكل';
     let discountRate = 0;
 
-    // جلب المنتجات (تجريبي افتراضي وفي الواقع يمكن ربطه بملف Markdown أو JSON)
     window.addEventListener('DOMContentLoaded', () => {
       loadSampleProducts();
-      startCountdown();
       window.addEventListener('scroll', () => {
         const btn = document.getElementById('backToTopBtn');
         if (window.scrollY > 300) btn.classList.add('show');
@@ -725,7 +705,6 @@
       document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
       document.getElementById('modalDesc').innerText = currentSelectedProduct.desc;
 
-      // المقاسات
       const sizesContainer = document.getElementById('sizesContainer');
       sizesContainer.innerHTML = '';
       selectedSize = currentSelectedProduct.sizes[0] || '';
@@ -741,7 +720,6 @@
         sizesContainer.appendChild(btn);
       });
 
-      // رابط واتساب السريع
       const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${currentSelectedProduct.price} ج.م`);
       document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
 
@@ -947,19 +925,6 @@
 
     function scrollToTop() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function startCountdown() {
-      let time = 5 * 3600 + 22 * 60 + 10;
-      setInterval(() => {
-        if (time <= 0) return;
-        time--;
-        let h = Math.floor(time / 3600);
-        let m = Math.floor((time % 3600) / 60);
-        let s = time % 60;
-        document.getElementById('flashCountdown').innerText = 
-          String(h).padStart(2,'0') + ' : ' + String(m).padStart(2,'0') + ' : ' + String(s).padStart(2,'0');
-      }, 1000);
     }
 
     function shareProduct() {
