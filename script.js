@@ -56,7 +56,7 @@ async function loadRealProducts() {
     renderProducts(products);
   } catch (error) {
     console.error('خطأ في جلب المنتجات:', error);
-    productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: red; font-size: 16px;">عفواً، حدث خطأ أثناء تحميل المنتجات.</p>';
+    productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: red; font-size: 16px;">عفواً، تأكد من وجود ملفات منتجات داخل مجلد products.</p>';
   }
 }
 
@@ -79,7 +79,6 @@ function parseMarkdown(markdownText, id) {
     const category = getField('category') || 'ملابس شتوية';
     const image = getField('image') || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     
-    // جلب المقاسات إذا وجدت أو وضع مقاسات افتراضية تناسب الملابس والأحذية
     let sizes = ["M", "L", "XL", "XXL"];
     if (category === 'أحذية') {
       sizes = ["41", "42", "43", "44"];
@@ -149,7 +148,9 @@ function applySorting() {
   renderProducts(sorted);
 }
 
-// ===== Product Modal & Cart (Integration) =====
+// ===== Product Modal & Cart =====
+let currentSelectedProduct = null;
+
 function openProductModal(id) {
   currentSelectedProduct = products.find(p => p.id === id);
   if (!currentSelectedProduct) return;
