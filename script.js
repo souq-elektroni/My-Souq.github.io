@@ -55,7 +55,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown المتوافقة تماماً مع صيغة لوحة التحكم الخاصة بك وصور الألبوم
+// دالة تحليل الـ Markdown المحسنة (المقاسات، الأبعاد، والألبوم)
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -72,22 +72,19 @@ function parseMarkdown(markdownText, id) {
     const title = getField('title') || getField('name') || 'منتج جديد';
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
+    const lengthVal = getField('length');
+    const widthVal = getField('width');
     
-    // دالة تصحيح المسار لتقبل الشرطة المائلة / في البداية وتزيلها بذكاء
+    // دالة تصحيح المسار
     const fixImagePath = (rawPath) => {
       if (!rawPath) return '';
       let clean = rawPath.replace(/["'\[\]]/g, '').trim();
       if (!clean) return '';
       if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
-      
-      // إذا كانت تبدأ بـ /images/ أو / نحذف الشرطة الأولى لتصبح images/... بشكل صحيح
       if (clean.startsWith('/')) {
         clean = clean.substring(1);
       }
-      
-      // معالجة المسافات
       clean = clean.replace(/\s+/g, '%20');
-
       if (!clean.startsWith('images/')) {
         clean = 'images/' + clean;
       }
@@ -98,7 +95,7 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     const image = fixImagePath(rawImageField) || defaultImg;
 
-    // استخراج صور الكتالوج الإضافية (معالجة الأسطر التي تبدأ بـ - أو مسافات)
+    // استخراج صور الكتالوج (الألبوم) بدقة عالية
     let galleryImages = [];
     const lines = frontmatter.split('\n');
     let insideImagesBlock = false;
@@ -123,21 +120,23 @@ function parseMarkdown(markdownText, id) {
       }
     }
 
-    // دمج الصورة الرئيسية مع صور الكتالوج الإضافية بدون تكرار
     let allImages = [image, ...galleryImages.filter(img => img !== image)];
     if (allImages.length === 0) {
       allImages = [defaultImg];
     }
 
-    // استخراج المقاسات
+    // استخراج المقاسات وتطهيرها من علامات التنصيص
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (variantsMatch) {
       const variantBlocks = variantsMatch[1].split('- size:');
       variantBlocks.forEach(block => {
-        const sizeMatch = block.match(/["']?([^"\n]+)["']?/);
-        if (sizeMatch && sizeMatch[1].trim()) {
-          parsedVariants.push({ size: sizeMatch[1].trim() });
+        let sizeMatch = block.match(/["']?([^"\n]+)["']?/);
+        if (sizeMatch && sizeMatch[1]) {
+          let cleanSize = sizeMatch[1].trim().replace(/['"\[\]]/g, '');
+          if (cleanSize) {
+            parsedVariants.push({ size: cleanSize });
+          }
         }
       });
     }
@@ -151,6 +150,8 @@ function parseMarkdown(markdownText, id) {
       title: title,
       category: category,
       price: price,
+      length: lengthVal,
+      width: widthVal,
       image: image,
       images: allImages,
       variants: parsedVariants,
@@ -223,7 +224,8 @@ function openProductModal(id) {
   
   thumbsContainer.innerHTML = '';
 
-  if (currentSelectedProduct.images && currentSelectedProduct.images.length > 1) {
+  // تفعيل الألبوم وصور الكتالوج
+  if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
     thumbsContainer.style.display = 'flex';
     currentSelectedProduct.images.forEach((imgSrc, idx) => {
       const thumb = document.createElement('img');
@@ -245,6 +247,17 @@ function openProductModal(id) {
   document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
   document.getElementById('modalDesc').innerText = currentSelectedProduct.desc;
 
+  // إظهار الأبعاد بالسنتمتر (الطول والعرض) إن وجدت
+  const dimensionsContainer = document.getElementById('dimensionsContainer');
+  if (currentSelectedProduct.length || currentSelectedProduct.width) {
+    dimensionsContainer.style.display = 'flex';
+    document.getElementById('modalLength').innerText = currentSelectedProduct.length || '-';
+    document.getElementById('modalWidth').innerText = currentSelectedProduct.width || '-';
+  } else {
+    dimensionsContainer.style.display = 'none';
+  }
+
+  // عرض المقاسات بدون علامات تنصيص
   const sizesContainer = document.getElementById('sizesContainer');
   sizesContainer.innerHTML = '';
   selectedSize = currentSelectedProduct.variants[0].size || '';
