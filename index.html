@@ -213,7 +213,7 @@
     .total-price { font-size: 20px; font-weight: 800; display: flex; justify-content: space-between; }
     .proceed-btn { background: var(--burgundy-soft); color: white; text-align: center; padding: 14px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; font-size: 17px; display: none; width: 100%; }
 
-    /* تصميم نافذة الشروط والأحكام بالتعديل المطلوب */
+    /* شروط والأحكام */
     .terms-modal { max-width: 520px; padding: 24px; z-index: 1100; }
     .terms-header { font-size: 20px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
     .terms-body { background: #fffde7; border: 1px solid #ffe082; padding: 16px; border-radius: 12px; font-size: 13.5px; color: #5d4037; line-height: 1.8; margin-bottom: 15px; }
@@ -360,17 +360,16 @@
     </div>
   </div>
 
-  <!-- الشروط والأحكام بالتعديل الجديد والدقيق -->
+  <!-- الشروط والأحكام المطلوبة حرفياً -->
   <div class="modal-overlay" id="termsModal">
     <div class="modal-content terms-modal">
       <div class="terms-header">📌 الشروط والأحكام</div>
       <div class="terms-body">
         <strong>يرجى مراجعة الشروط بعناية قبل التأكيد:</strong>
         <ul>
-          <li>يجب على العميل التأكد جيداً من المقاسات ومراجعة الطلب قبل التأكيد النهائي.</li>
-          <li>سياسة الاسترجاع متاحة حصرياً في حالات وجود عيب مصنع بالمنتج فقط.</li>
-          <li>لا يحق للعميل إلغاء الطلب أو التعديل عليه نهائياً بعد تأكيد الحجز مع المصنع.</li>
-          <li>المعاينة عند الاستلام تتم بحضور المندوب.</li>
+          <li>يجب على العميل التأكد جيداً ومراجعة الطلب قبل التأكيد.</li>
+          <li>سياسة الاسترجاع متاحة في حالات وجود عيب مصنع بالمنتج فقط.</li>
+          <li>لا يحق للعميل إلغاء الطلب أو التعديل عليه بعد تأكيد الحجز مع المصنع.</li>
         </ul>
       </div>
       <div class="checkbox-container" onclick="toggleTermsCheckbox()">
@@ -801,7 +800,8 @@
       const name = document.getElementById('custName').value.trim();
       const phone = document.getElementById('custPhone').value.trim();
       const address = document.getElementById('custAddress').value.trim();
-      const payMethod = document.querySelector('input[name="payMethod"]:checked').value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
+      const payMethodInput = document.querySelector('input[name="payMethod"]:checked');
+      const payMethod = payMethodInput && payMethodInput.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay (انستا باي)';
       
       let itemsTest = cart.map(i => {
         const fullImgUrl = `${window.location.origin}/${i.image}`;
