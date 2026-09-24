@@ -416,6 +416,7 @@
     let currentCategory = "الكل";
     let selectedSize = null;
     let currentSelectedProduct = null;
+    let activeModalImage = ''; // متغير لتتبع الصورة المعروضة حالياً بدقة
     let discountRate = 0;
     const productsGrid = document.getElementById("products-container");
 
@@ -571,7 +572,9 @@
       const modalImg = document.getElementById('modalImage');
       const thumbsContainer = document.getElementById('thumbnailsContainer');
       
-      modalImg.src = currentSelectedProduct.image;
+      // تعيين الصورة الافتتاحية الأولى وتحديث المتجر النشط للصورة
+      activeModalImage = currentSelectedProduct.image;
+      modalImg.src = activeModalImage;
       modalImg.onerror = function() { this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'; };
       
       thumbsContainer.innerHTML = '';
@@ -585,8 +588,10 @@
           thumb.onerror = function() { this.style.display = 'none'; };
           thumb.onclick = () => {
             modalImg.src = imgSrc;
+            activeModalImage = imgSrc; // تحديث الصورة النشطة بناءً على اختيار العميل من الكاتالوج
             document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
             thumb.classList.add('active');
+            updateDirectWaLink(); // تحديث رابط الطلب الفوري للصورة المختارة مباشرة
           };
           thumbsContainer.appendChild(thumb);
         });
@@ -626,15 +631,19 @@
         sizesContainer.appendChild(btn);
       });
 
-      // تعديل مسار رابط الصورة لضمان فتحه بشكل مباشر وصحيح على GitHub Pages
-      let cleanPath = currentSelectedProduct.image.replace(/^\/+/, '');
+      updateDirectWaLink();
+      document.getElementById('productModal').classList.add('active');
+    }
+
+    // دالة لتحديث رابط طلب واتساب الفوري بناءً على الصورة النشطة المختارة حالياً
+    function updateDirectWaLink() {
+      if (!currentSelectedProduct) return;
+      let cleanPath = activeModalImage.replace(/^\/+/, '');
       if (!cleanPath.startsWith('images/')) cleanPath = 'images/' + cleanPath;
       const fullImgUrl = `https://souq-elektroni.github.io/My-Souq.github.io/${cleanPath}`;
 
       const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title}\n المقاس: ${selectedSize}\n السعر: ${currentSelectedProduct.price} ج.م\n 📷 صورة المنتج: ${fullImgUrl}`);
       document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
-
-      document.getElementById('productModal').classList.add('active');
     }
 
     function closeModal() { document.getElementById('productModal').classList.remove('active'); }
@@ -650,11 +659,12 @@
 
     function addToCart() {
       if (!currentSelectedProduct) return;
-      const existing = cart.find(item => item.id === currentSelectedProduct.id && item.size === selectedSize);
+      // حفظ المنتج في السلة مع الصورة النشطة المحددة بدقة
+      const existing = cart.find(item => item.id === currentSelectedProduct.id && item.size === selectedSize && item.image === activeModalImage);
       if (existing) {
         existing.qty += 1;
       } else {
-        cart.push({ ...currentSelectedProduct, size: selectedSize, qty: 1 });
+        cart.push({ ...currentSelectedProduct, image: activeModalImage, size: selectedSize, qty: 1 });
       }
       localStorage.setItem("souqCart", JSON.stringify(cart));
       updateCartCount();
@@ -678,7 +688,7 @@
       const container = document.getElementById('cartItemsContainer');
       const promoBox = document.getElementById('promoBox');
       const customerFormBox = document.getElementById('customerFormBox');
-      const proceedBtn = document.getElementById('proceedBtn');
+    const proceedBtn = document.getElementById('proceedBtn');
 
       if (cart.length === 0) {
         container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>';
