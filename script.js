@@ -62,7 +62,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown
+// دالة تحليل الـ Markdown (المحدثة لتتوافق مع قوائم الصور الـ list والـ image_item)
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -96,14 +96,18 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     
     let allExtractedImages = [];
-    const imagesMatch = frontmatter.match(/images:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     
+    // استخراج ألبوم الصور بناءً على هيكل الـ list (image_item)
+    const imagesMatch = frontmatter.match(/images:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (imagesMatch) {
       const imgLines = imagesMatch[1].split('\n');
       imgLines.forEach(line => {
         let cleanLine = line.replace(/-\s*/, '').trim();
+        if (cleanLine.includes('image_item:')) {
+          cleanLine = cleanLine.replace('image_item:', '').trim();
+        }
         if (cleanLine && (cleanLine.includes('/') || cleanLine.includes('.jpg') || cleanLine.includes('.png') || cleanLine.includes('.jpeg') || cleanLine.includes('.webp'))) {
-          if (cleanLine.includes(':')) {
+          if (cleanLine.includes(':') && !cleanLine.startsWith('http')) {
             cleanLine = cleanLine.split(':').slice(1).join(':').trim();
           }
           let fixed = fixImagePath(cleanLine);
@@ -114,6 +118,7 @@ function parseMarkdown(markdownText, id) {
       });
     }
 
+    // طريقة احتياطية في حال اختلاف التنسيق
     if (allExtractedImages.length === 0) {
       const lines = frontmatter.split('\n');
       for (let line of lines) {
@@ -273,7 +278,6 @@ function openProductModal(id) {
   selectedSize = firstVariant ? firstVariant.size : 'مقاس موحد';
   selectedVariantStatus = firstVariant ? firstVariant.status : 'available';
 
-  // تحديث شارة حالة المخزون العامة للمنتج
   if (stockBadge) {
     if (currentSelectedProduct.stock === 'out') {
       stockBadge.className = 'stock-badge out';
@@ -370,7 +374,6 @@ function openProductModal(id) {
 
   updateDimensionsDisplay(firstVariant);
 
-  // دالة للتحكم في إخفاء أو إظهار أزرار الشراء بناءً على حالة المخزون العامة للمنتج
   function setActionButtonsVisibility(isOutStock) {
     if (addBtn) {
       addBtn.style.display = isOutStock ? 'none' : 'block';
@@ -433,7 +436,6 @@ function openProductModal(id) {
     });
   }
 
-  // التحكم الحاسم في الإخفاء بناءً على قيمة stock العامة للمنتج
   if (currentSelectedProduct.stock === 'out') {
     setActionButtonsVisibility(true);
   } else {
