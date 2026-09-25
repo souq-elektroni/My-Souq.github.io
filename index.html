@@ -192,7 +192,6 @@
     .modal-price { font-size: 28px; font-weight: 900; color: var(--burgundy-soft); }
     .size-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
     
-    /* تصميم زر المقاس بالشكل النظيف المطلوب */
     .size-btn { 
       padding: 10px 18px; border: 2px solid var(--border-color); border-radius: 12px; 
       background: var(--bg-cream); cursor: pointer; font-size: 16px; font-weight: 800; 
@@ -565,7 +564,7 @@
 
         parsedVariants = parsedVariants.map(v => ({
           ...v,
-          code: v.code || 'R1',
+          code: v.code || '1',
           status: v.status || 'available'
         }));
 
@@ -641,13 +640,12 @@
         stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
       }
 
-      // عرض صور الألبوم بدون كتابة حروف R مزعجة تحتها للعميل
       let thumbContainer = document.getElementById('thumbnailsContainer');
       thumbContainer.innerHTML = '';
       if (product.images && product.images.length > 0) {
         product.images.forEach((imgSrc, idx) => {
           if (!imgSrc || imgSrc.includes('undefined')) return;
-          let imgCode = 'R' + (idx + 1);
+          let imgCode = (idx + 1).toString();
 
           let thumbImg = document.createElement('img');
           thumbImg.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
@@ -657,12 +655,9 @@
           thumbImg.onclick = () => {
             document.getElementById('modalImage').src = imgSrc;
             activeModalImage = imgSrc;
-            
-            // تحديث الصورة الرئيسية وتلقائياً تحديد المقاس المرتبط بهذا الكود لو وجد
             document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
             thumbImg.classList.add('active');
 
-            // البحث التلقائي عن زر المقاس المرتبط بهذا الكود وتحديده
             let matchingBtn = Array.from(document.querySelectorAll('.size-btn')).find(b => b.dataset.code === imgCode);
             if (matchingBtn) {
               matchingBtn.click();
@@ -681,10 +676,10 @@
         product.variants.forEach((v, index) => {
           let btn = document.createElement('button');
           btn.className = `size-btn ${v.status === 'out' ? 'out-variant' : ''}`;
-          btn.dataset.code = v.code || 'R1';
+          btn.dataset.code = v.code || '1';
           
           let statusText = v.status === 'out' ? ' (نفذ)' : '';
-          btn.innerHTML = `<input type="radio" name="sizeRadio" ${index === 0 ? 'checked' : ''}> ${v.size}${statusText}`;
+          btn.innerHTML = `<input type="radio" name="sizeRadio" ${index === 0 ? 'checked' : ''}> مقاس ${v.size}${statusText}`;
           
           btn.onclick = () => {
             document.querySelectorAll('.size-btn').forEach(b => {
@@ -696,12 +691,11 @@
             let radio = btn.querySelector('input[type="radio"]');
             if (radio) radio.checked = true;
 
-            selectedSize = `${v.size} (كود: ${v.code})`;
+            selectedSize = `مقاس ${v.size}`;
             selectedVariantStatus = v.status || 'available';
 
-            // ربط الصورة بالكود تلقائياً عند اختيار المقاس
             if (product.images && product.images.length > 0) {
-              let codeIndex = parseInt(v.code.replace('R', '')) - 1;
+              let codeIndex = parseInt(v.code) - 1;
               if (!isNaN(codeIndex) && product.images[codeIndex]) {
                 document.getElementById('modalImage').src = product.images[codeIndex];
                 activeModalImage = product.images[codeIndex];
@@ -730,7 +724,7 @@
             let waBtn = document.getElementById('directWaBtn');
             if (selectedVariantStatus === 'out') {
               addBtn.disabled = true;
-              addBtn.innerText = 'هذا الشكل غير متوفر ❌';
+              addBtn.innerText = 'هذا المقاس غير متوفر ❌';
               waBtn.classList.add('disabled');
               waBtn.removeAttribute('href');
             } else {
@@ -762,7 +756,7 @@
       if (!cleanPath.startsWith('images/')) cleanPath = 'images/' + cleanPath;
       const fullImgUrl = `https://souq-elektroni.github.io/My-Souq.github.io/${cleanPath}`;
 
-      let waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title}\n المقاس: ${selectedSize}\n السعر: ${currentSelectedProduct.price} ج.م\n 📷 صورة الشكل المطلوبة: ${fullImgUrl}`);
+      let waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title}\n ${selectedSize}\n السعر: ${currentSelectedProduct.price} ج.م\n 📷 صورة الشكل المطلوب: ${fullImgUrl}`);
       document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
     }
 
@@ -773,13 +767,13 @@
     function addToCart() {
       if (!currentSelectedProduct) return;
       if (selectedVariantStatus === 'out') {
-        alert('عذراً، هذا الشكل غير متوفر حالياً.');
+        alert('عذراً، هذا المقاس غير متوفر حالياً.');
         return;
       }
 
       let finalPrice = currentSelectedProduct.price;
       if (currentSelectedProduct.variants && currentSelectedProduct.variants.length > 0) {
-        let v = currentSelectedProduct.variants.find(item => `${item.size} (كود: ${item.code})` === selectedSize);
+        let v = currentSelectedProduct.variants.find(item => `مقاس ${item.size}` === selectedSize);
         if (v && v.price) finalPrice = v.price;
       }
 
@@ -851,7 +845,7 @@
           <img src="${item.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
           <div class="cart-item-info">
             <div class="cart-item-title">${item.title}</div>
-            <div class="cart-item-meta">المقاس: ${item.size}</div>
+            <div class="cart-item-meta">${item.size}</div>
           </div>
           <div class="quantity-controls">
             <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
