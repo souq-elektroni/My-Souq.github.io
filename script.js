@@ -29,30 +29,37 @@ async function loadRealProducts() {
     }
     
     const files = await response.json();
-    const mdFiles = files.filter(f => f.name.endsWith('.md'));
+    const mdFiles = files.filter(f => f.name.endsWith('.md') || f.name.endsWith('.markdown'));
 
     if (mdFiles.length === 0) {
-      productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 18px; font-weight: bold;">لا توجد منتجات منشورة حالياً.</p>';
+      productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 18px; font-weight: bold;">لا توجد منتجات منشورة حالياً في مجلد products.</p>';
       return;
     }
 
     products = [];
     for (let i = 0; i < mdFiles.length; i++) {
       const file = mdFiles[i];
-      const rawUrl = file.download_url || `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${file.name}`;
+      // استخدام مسار raw مباشر وآمن لملفات المنتجات
+      const rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encodeURIComponent(file.name)}`;
       const fileRes = await fetch(rawUrl);
-      const text = await fileRes.text();
+      if (!fileRes.ok) continue;
       
+      const text = await fileRes.text();
       const productData = parseMarkdown(text, i + 1);
       if (productData) {
         products.push(productData);
       }
     }
 
+    if (products.length === 0) {
+      productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 18px; font-weight: bold;">تعذر قراءة ملفات المنتجات، تأكد من صيغة الـ Markdown.</p>';
+      return;
+    }
+
     renderProducts(products);
   } catch (error) {
     console.error('خطأ في جلب المنتجات:', error);
-    productsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--burgundy-soft); font-size: 16px; font-weight: bold;">تأكد أن مستودع جيت هب عام (Public) وأن مجلد products يحتوي على منتجات.</p>`;
+    productsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--burgundy-soft); font-size: 16px; font-weight: bold;">تأكد أن مستودع جيت هب عام (Public) وأن مجلد products يحتوي على ملفات منتجات.</p>`;
   }
 }
 
@@ -263,7 +270,6 @@ function openProductModal(id) {
     modalImg.onerror = function() { this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'; };
   }
 
-  // اختيار أول مقاس متوفر كافتراضي بدلاً من المقاس النافذ إن أمكن
   const firstAvailableVariant = currentSelectedProduct.variants.find(v => v.status !== 'out') || currentSelectedProduct.variants[0];
   selectedSize = firstAvailableVariant ? firstAvailableVariant.size : 'مقاس موحد';
   selectedVariantStatus = firstAvailableVariant ? firstAvailableVariant.status : 'available';
@@ -394,7 +400,6 @@ function openProductModal(id) {
         if (priceEl) priceEl.innerText = (v.price || currentSelectedProduct.price) + ' ج.م';
         updateDimensionsDisplay(v);
 
-        // تفعيل أو تعطيل الأزرار حسب حالة المقاس المختار
         if (v.status === 'out' || currentSelectedProduct.stock === 'out') {
           if (addBtn) {
             addBtn.disabled = true;
@@ -441,7 +446,6 @@ function openProductModal(id) {
     });
   }
 
-  // تطبيق حالة الأزرار مباشرة عند فتح النافذة للمقاس الافتراضي
   if (selectedVariantStatus === 'out' || currentSelectedProduct.stock === 'out') {
     if (addBtn) {
       addBtn.disabled = true;
