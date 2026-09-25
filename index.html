@@ -180,8 +180,11 @@
     .modal-gallery-wrapper { display: flex; flex-direction: column; gap: 12px; }
     .modal-img { width: 100%; height: 350px; object-fit: cover; border-radius: 16px; border: 1px solid var(--border-color); }
     .thumbnails-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
-    .thumb-img { width: 65px; height: 65px; border-radius: 10px; object-fit: cover; cursor: pointer; border: 2px solid var(--border-color); flex-shrink: 0; }
-    .thumb-img.active { border-color: var(--burgundy-soft); }
+    .thumb-item { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; flex-shrink: 0; }
+    .thumb-img { width: 65px; height: 65px; border-radius: 10px; object-fit: cover; border: 2px solid var(--border-color); }
+    .thumb-item.active .thumb-img { border-color: var(--burgundy-soft); }
+    .thumb-code { font-size: 11px; font-weight: bold; color: var(--burgundy-soft); background: var(--pink-soft); padding: 1px 6px; border-radius: 6px; border: 1px solid var(--pink-accent); }
+
     .modal-info { display: flex; flex-direction: column; gap: 12px; }
     .modal-title { font-size: 26px; font-weight: 900; color: var(--burgundy-soft); }
     
@@ -190,9 +193,10 @@
 
     .modal-price { font-size: 28px; font-weight: 900; color: var(--burgundy-soft); }
     .size-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-    .size-btn { padding: 9px 18px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-cream); cursor: pointer; font-size: 15px; font-weight: 800; color: var(--text-dark); position: relative; }
+    .size-btn { padding: 9px 18px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-cream); cursor: pointer; font-size: 15px; font-weight: 800; color: var(--text-dark); position: relative; display: flex; align-items: center; gap: 6px; }
     .size-btn.selected { background: var(--burgundy-soft); color: white; border-color: var(--burgundy-soft); }
     .size-btn.out-variant { background: #ffebee !important; color: #c62828 !important; border-color: #ef9a9a !important; text-decoration: line-through; opacity: 0.7; }
+    .size-btn radio { accent-color: var(--burgundy-soft); }
 
     .dimensions-box { background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 14px; border-radius: 12px; font-size: 15px; display: flex; gap: 16px; color: var(--burgundy-soft); font-weight: 700; }
     .modal-actions-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
@@ -326,7 +330,7 @@
           <h2 class="modal-title" id="modalTitle"></h2>
           <div class="stock-badge" id="modalStockBadge">🟢 متوفر بالمخزون - جاهز للشحن الفوري</div>
           <div>
-            <label style="font-weight: bold; font-size: 15px; display: block; margin-bottom: 6px; color: var(--text-muted);">اختر المقاس والشكل المطلوب:</label>
+            <label style="font-weight: bold; font-size: 15px; display: block; margin-bottom: 6px; color: var(--text-muted);">اختر المقاس والكود المطلوب:</label>
             <div class="size-selector" id="sizesContainer"></div>
           </div>
           <div class="modal-price" id="modalPrice">- ج.م</div>
@@ -543,7 +547,7 @@
               let key = k.trim();
               let val = vParts.join(':').trim().replace(/^["']|["']$/g, '');
               if (key === 'size') currentVar.size = val;
-              if (key === 'variantName') currentVar.variantName = val;
+              if (key === 'code') currentVar.code = val;
               if (key === 'price') currentVar.price = parseFloat(val) || price;
               if (key === 'length') currentVar.length = val;
               if (key === 'width') currentVar.width = val;
@@ -557,6 +561,7 @@
 
         parsedVariants = parsedVariants.map(v => ({
           ...v,
+          code: v.code || 'R1',
           status: v.status || 'available'
         }));
 
@@ -602,7 +607,7 @@
           <div class="product-details">
             <div class="product-title">${product.title}</div>
             ${priceHtml}
-            <div class="click-hint">عرض التفاصيل والمقاسات ✨</div>
+            <div class="click-hint">عرض التفاصيل والمقاسات والأكواد ✨</div>
           </div>
         `;
         productsGrid.appendChild(card);
@@ -632,22 +637,28 @@
         stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
       }
 
+      // توليد صور الألبوم مع تميمة الأكواد التلقائية (R1, R2, R3...)
       let thumbContainer = document.getElementById('thumbnailsContainer');
       thumbContainer.innerHTML = '';
-      if (product.images && product.images.length > 1) {
+      if (product.images && product.images.length > 0) {
         product.images.forEach((imgSrc, idx) => {
           if (!imgSrc || imgSrc.includes('undefined')) return;
-          let thumb = document.createElement('img');
-          thumb.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
-          thumb.src = imgSrc;
-          thumb.onerror = function() { this.style.display = 'none'; };
-          thumb.onclick = () => {
+          let imgCode = 'R' + (idx + 1);
+
+          let thumbItem = document.createElement('div');
+          thumbItem.className = `thumb-item ${idx === 0 ? 'active' : ''}`;
+          thumbItem.innerHTML = `
+            <img src="${imgSrc}" class="thumb-img" onerror="this.style.display='none'">
+            <span class="thumb-code">${imgCode}</span>
+          `;
+          
+          thumbItem.onclick = () => {
             document.getElementById('modalImage').src = imgSrc;
             activeModalImage = imgSrc;
-            document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
-            thumb.classList.add('active');
+            document.querySelectorAll('.thumb-item').forEach(t => t.classList.remove('active'));
+            thumbItem.classList.add('active');
           };
-          thumbContainer.appendChild(thumb);
+          thumbContainer.appendChild(thumbItem);
         });
       }
 
@@ -661,19 +672,16 @@
           let btn = document.createElement('button');
           btn.className = `size-btn ${v.status === 'out' ? 'out-variant' : ''}`;
           
-          let displayName = v.size;
-          if (v.variantName) {
-            displayName += ` (${v.variantName})`;
-          }
-          if (v.status === 'out') {
-            displayName += ' [نفذ]';
-          }
-          btn.innerText = displayName;
+          let radioMark = v.status === 'out' ? '🔘' : '⚪';
+          let displayText = `${radioMark} ${v.size} [كود: ${v.code}]`;
+          if (v.status === 'out') displayText += ' (نفذ)';
+          
+          btn.innerHTML = displayText;
           
           btn.onclick = () => {
             document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
             btn.classList.add('selected');
-            selectedSize = v.size + (v.variantName ? ' - ' + v.variantName : '');
+            selectedSize = `${v.size} (كود: ${v.code})`;
             selectedVariantStatus = v.status || 'available';
 
             if (v.price) {
@@ -694,7 +702,7 @@
             let waBtn = document.getElementById('directWaBtn');
             if (selectedVariantStatus === 'out') {
               addBtn.disabled = true;
-              addBtn.innerText = 'هذا الشكل/المقاس غير متوفر ❌';
+              addBtn.innerText = 'هذا المقاس والكود غير متوفر ❌';
               waBtn.classList.add('disabled');
               waBtn.removeAttribute('href');
             } else {
@@ -726,7 +734,7 @@
       if (!cleanPath.startsWith('images/')) cleanPath = 'images/' + cleanPath;
       const fullImgUrl = `https://souq-elektroni.github.io/My-Souq.github.io/${cleanPath}`;
 
-      let waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title}\n المقاس والشكل: ${selectedSize}\n السعر: ${currentSelectedProduct.price} ج.م\n 📷 صورة الشكل المطلوب: ${fullImgUrl}`);
+      let waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title}\n المقاس والكود: ${selectedSize}\n السعر: ${currentSelectedProduct.price} ج.م\n 📷 صورة الشكل المطلوب: ${fullImgUrl}`);
       document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
     }
 
@@ -737,13 +745,13 @@
     function addToCart() {
       if (!currentSelectedProduct) return;
       if (selectedVariantStatus === 'out') {
-        alert('عذراً، هذا الشكل أو المقاس غير متوفر حالياً.');
+        alert('عذراً، هذا المقاس والكود غير متوفر حالياً.');
         return;
       }
 
       let finalPrice = currentSelectedProduct.price;
       if (currentSelectedProduct.variants && currentSelectedProduct.variants.length > 0) {
-        let v = currentSelectedProduct.variants.find(item => (item.size + (item.variantName ? ' - ' + item.variantName : '')) === selectedSize);
+        let v = currentSelectedProduct.variants.find(item => `${item.size} (كود: ${item.code})` === selectedSize);
         if (v && v.price) finalPrice = v.price;
       }
 
@@ -815,7 +823,7 @@
           <img src="${item.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
           <div class="cart-item-info">
             <div class="cart-item-title">${item.title}</div>
-            <div class="cart-item-meta">المقاس والشكل: ${item.size}</div>
+            <div class="cart-item-meta">المقاس والكود: ${item.size}</div>
           </div>
           <div class="quantity-controls">
             <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
@@ -936,7 +944,7 @@
         if (!cleanPath.startsWith('images/')) cleanPath = 'images/' + cleanPath;
         let fullImgUrl = `https://souq-elektroni.github.io/My-Souq.github.io/${cleanPath}`;
 
-        orderText += `- ${item.title} (المقاس/الشكل: ${item.size}) × ${item.quantity} = ${item.price * item.quantity} ج.م\n  📷 صورة المنتج: ${fullImgUrl}\n`;
+        orderText += `- ${item.title} (${item.size}) × ${item.quantity} = ${item.price * item.quantity} ج.م\n  📷 صورة الشكل المطلوب: ${fullImgUrl}\n`;
       });
 
       orderText += `\nالإجمالي: ${document.getElementById('cartTotalPrice').innerText}`;
