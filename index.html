@@ -192,7 +192,6 @@
     .modal-price { font-size: 28px; font-weight: 900; color: var(--burgundy-soft); }
     .size-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
     
-    /* تصميم زر المقاس النظيف والمنظم */
     .size-btn { 
       padding: 10px 18px; border: 2px solid var(--border-color); border-radius: 12px; 
       background: var(--bg-cream); cursor: pointer; font-size: 16px; font-weight: 800; 
@@ -495,9 +494,7 @@
           return clean.startsWith('images/') ? clean : 'images/' + clean;
         };
 
-        const mainImage = fixImagePath(getField('image')) || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
-
-        let allImages = [mainImage];
+        let allImages = [];
         const lines = frontmatter.split('\n');
         let insideImages = false;
 
@@ -529,7 +526,7 @@
         }
 
         allImages = allImages.filter(img => img && img !== 'images/' && img.length > 7);
-        if (allImages.length === 0) allImages = [mainImage];
+        const mainImage = allImages.length > 0 ? allImages[0] : 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
 
         let parsedVariants = [];
         const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
@@ -641,7 +638,6 @@
         stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
       }
 
-      // صور الألبوم نظيفة تماماً للعميل بدون أي كتابة مزعجة
       let thumbContainer = document.getElementById('thumbnailsContainer');
       thumbContainer.innerHTML = '';
       if (product.images && product.images.length > 0) {
@@ -660,7 +656,6 @@
             document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
             thumbImg.classList.add('active');
 
-            // عند الضغط على الصورة، يبحث تلقائياً عن المقاس المرتبط بهذا الكود ويختاره
             let matchingBtn = Array.from(document.querySelectorAll('.size-btn')).find(b => b.dataset.code === imgCode);
             if (matchingBtn) {
               matchingBtn.click();
@@ -694,10 +689,9 @@
             let radio = btn.querySelector('input[type="radio"]');
             if (radio) radio.checked = true;
 
-            selectedSize = `مقاس ${v.size} (${v.code})`;
+            selectedSize = `مقاس ${v.size}`;
             selectedVariantStatus = v.status || 'available';
 
-            // ربط المقاس بالصورة المرتبطة بكودها تلقائياً
             if (product.images && product.images.length > 0) {
               let codeNum = parseInt(v.code.replace('R', '')) - 1;
               if (!isNaN(codeNum) && product.images[codeNum]) {
@@ -728,7 +722,7 @@
             let waBtn = document.getElementById('directWaBtn');
             if (selectedVariantStatus === 'out') {
               addBtn.disabled = true;
-              addBtn.innerText = 'هذا المقاس غير متوفر ❌';
+              addBtn.innerText = 'هذا الشكل غير متوفر ❌';
               waBtn.classList.add('disabled');
               waBtn.removeAttribute('href');
             } else {
@@ -777,7 +771,7 @@
 
       let finalPrice = currentSelectedProduct.price;
       if (currentSelectedProduct.variants && currentSelectedProduct.variants.length > 0) {
-        let v = currentSelectedProduct.variants.find(item => `مقاس ${item.size} (${item.code})` === selectedSize);
+        let v = currentSelectedProduct.variants.find(item => `مقاس ${item.size}` === selectedSize);
         if (v && v.price) finalPrice = v.price;
       }
 
