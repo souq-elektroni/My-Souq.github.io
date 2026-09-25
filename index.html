@@ -180,9 +180,11 @@
     .modal-gallery-wrapper { display: flex; flex-direction: column; gap: 12px; }
     .modal-img { width: 100%; height: 350px; object-fit: cover; border-radius: 16px; border: 1px solid var(--border-color); }
     .thumbnails-bar { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
-    .thumb-wrapper { display: flex; flex-direction: column; align-items: center; cursor: pointer; flex-shrink: 0; }
+    .thumb-wrapper { display: flex; flex-direction: column; align-items: center; cursor: pointer; flex-shrink: 0; position: relative; }
     .thumb-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid transparent; }
     .thumb-wrapper.active .thumb-img { border-color: var(--burgundy-soft); }
+    .thumb-wrapper.out-thumb { opacity: 0.5; filter: grayscale(50%); cursor: not-allowed; }
+    .thumb-wrapper.out-thumb::after { content: 'نفذت'; position: absolute; top: 20px; right: 5px; background: #c62828; color: white; font-size: 9px; font-weight: bold; padding: 2px 4px; border-radius: 4px; }
     .thumb-code { font-size: 11px; color: var(--text-muted); margin-top: 3px; font-weight: bold; }
 
     .modal-info { display: flex; flex-direction: column; gap: 12px; }
@@ -515,7 +517,6 @@
             if (line.trim() && !line.startsWith(' ') && !line.startsWith('-')) {
               capturingImages = false;
             } else {
-              // استخراج أي قيمة نصية تمثل اسم ملف صورة ضمن حقل image_item أو كقيمة مباشرة
               let cleanLine = line.replace(/-\s*image_item:\s*/, '').replace(/-\s*/, '').trim();
               if (cleanLine && (cleanLine.includes('.jpg') || cleanLine.includes('.png') || cleanLine.includes('.webp') || cleanLine.includes('.jpeg'))) {
                 let fixed = fixImagePath(cleanLine);
@@ -682,8 +683,13 @@
         if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
           thumbsContainer.style.display = 'flex';
           currentSelectedProduct.images.forEach((imgSrc, idx) => {
+            const codeName = `R${idx + 1}`;
+            // البحث عن حالة هذا الكود في المقاسات
+            const matchedVariant = currentSelectedProduct.variants.find(v => v.code === codeName);
+            const isOut = matchedVariant && matchedVariant.status === 'out';
+
             const wrapper = document.createElement('div');
-            wrapper.className = `thumb-wrapper ${idx === 0 ? 'active' : ''}`;
+            wrapper.className = `thumb-wrapper ${idx === 0 ? 'active' : ''} ${isOut ? 'out-thumb' : ''}`;
             
             const img = document.createElement('img');
             img.className = 'thumb-img';
@@ -692,18 +698,18 @@
 
             const codeLabel = document.createElement('span');
             codeLabel.className = 'thumb-code';
-            codeLabel.innerText = `R${idx + 1}`;
+            codeLabel.innerText = codeName;
 
             wrapper.appendChild(img);
             wrapper.appendChild(codeLabel);
 
             wrapper.onclick = () => {
+              if (isOut) return; // منع الضغط على الصورة غير المتاحة
               if (modalImg) modalImg.src = imgSrc;
               activeModalImage = imgSrc;
               document.querySelectorAll('.thumb-wrapper').forEach(w => w.classList.remove('active'));
               wrapper.classList.add('active');
 
-              const matchedVariant = currentSelectedProduct.variants.find(v => v.code === `R${idx + 1}`);
               if (matchedVariant) {
                 const sizeBtns = document.querySelectorAll('.size-btn');
                 sizeBtns.forEach(btn => {
@@ -726,19 +732,20 @@
       const sizesContainer = document.getElementById('sizesContainer');
       sizesContainer.innerHTML = '';
 
-      const firstVariant = currentSelectedProduct.variants[0] || { size: 'مقاس موحد', code: 'none', price: currentSelectedProduct.price, length: '', width: '', status: 'available' };
-      selectedSize = firstVariant.size;
-      selectedVariantStatus = firstVariant.status;
+      const firstAvailableVariant = currentSelectedProduct.variants.find(v => v.status !== 'out') || currentSelectedProduct.variants[0];
+      selectedSize = firstAvailableVariant ? firstAvailableVariant.size : 'مقاس موحد';
+      selectedVariantStatus = firstAvailableVariant ? firstAvailableVariant.status : 'available';
 
-      document.getElementById('modalPrice').innerText = (firstVariant.price || currentSelectedProduct.price) + ' ج.م';
-      updateDimensionsDisplay(firstVariant);
+      document.getElementById('modalPrice').innerText = (firstAvailableVariant?.price || currentSelectedProduct.price) + ' ج.م';
+      updateDimensionsDisplay(firstAvailableVariant);
 
       currentSelectedProduct.variants.forEach((v, idx) => {
         const btn = document.createElement('div');
-        btn.className = `size-btn ${idx === 0 ? 'selected' : ''} ${v.status === 'out' ? 'out-variant' : ''}`;
+        const isSelected = v.size === selectedSize;
+        btn.className = `size-btn ${isSelected ? 'selected' : ''} ${v.status === 'out' ? 'out-variant' : ''}`;
         btn.dataset.size = v.size;
         btn.innerHTML = `
-          <input type="radio" name="productSize" value="${v.size}" ${idx === 0 ? 'checked' : ''} ${v.status === 'out' ? 'disabled' : ''}>
+          <input type="radio" name="productSize" value="${v.size}" ${isSelected ? 'checked' : ''} ${v.status === 'out' ? 'disabled' : ''}>
           <span>${v.size} ${v.status === 'out' ? '(نفذت)' : ''}</span>
         `;
 
@@ -767,13 +774,24 @@
           if (v.code && v.code !== 'none') {
             const imgIndex = parseInt(v.code.replace('R', '')) - 1;
             const wrappers = document.querySelectorAll('.thumb-wrapper');
-            if (!isNaN(imgIndex) && wrappers[imgIndex]) {
+            if (!isNaN(imgIndex) && wrappers[imgIndex] && !wrappers[imgIndex].classList.contains('out-thumb')) {
               wrappers[imgIndex].click();
             }
           }
         };
         sizesContainer.appendChild(btn);
       });
+
+      // ضبط حالة الأزرار بناءً على المقاس الافتراضي
+      const addBtn = document.getElementById('addCartBtn');
+      const waBtn = document.getElementById('directWaBtn');
+      if (selectedVariantStatus === 'out') {
+        if (addBtn) addBtn.disabled = true;
+        if (waBtn) waBtn.classList.add('disabled');
+      } else {
+        if (addBtn) addBtn.disabled = false;
+        if (waBtn) waBtn.classList.remove('disabled');
+      }
 
       const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${document.getElementById('modalPrice').innerText}`);
       document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
