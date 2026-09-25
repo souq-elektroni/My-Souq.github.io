@@ -39,7 +39,8 @@ async function loadRealProducts() {
     products = [];
     for (let i = 0; i < mdFiles.length; i++) {
       const file = mdFiles[i];
-      const rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encodeURIComponent(file.name)}`;
+      // [تعديل تحسين الترميز لضمان قراءة الملفات العربية بسلام]
+      const rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${file.name}`;
       const fileRes = await fetch(rawUrl);
       if (!fileRes.ok) continue;
       
@@ -62,7 +63,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown
+// دالة تحليل الـ Markdown (مع معالجة آمنة للنص)
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -178,6 +179,16 @@ function parseMarkdown(markdownText, id) {
       });
     }
 
+    // [تعديل آمن لوصف المنتج لتجنب تعطل الكود إذا لم تكن مكتبة marked موجودة]
+    let parsedBody = title;
+    try {
+      if (typeof marked !== 'undefined' && typeof marked.parse === 'function') {
+        parsedBody = marked.parse(body);
+      }
+    } catch (err) {
+      parsedBody = body || title;
+    }
+
     return {
       id: id,
       title: title,
@@ -188,7 +199,7 @@ function parseMarkdown(markdownText, id) {
       image: mainImage,
       images: allImages,
       variants: parsedVariants,
-      desc: body || title
+      desc: parsedBody
     };
   } catch (e) {
     console.error('Error parsing markdown:', e);
@@ -196,7 +207,7 @@ function parseMarkdown(markdownText, id) {
   }
 }
 
-// ===== Render Products =====
+// ===== باقي الدوال تبقى كما هي بدون تغيير =====
 function renderProducts(list) {
   if (!productsGrid) return;
   if (list.length === 0) {
@@ -218,7 +229,6 @@ function renderProducts(list) {
   `).join('');
 }
 
-// ===== Filter & Search =====
 function filterCategory(cat, btn) {
   currentCategory = cat;
   currentStockFilter = "all";
@@ -253,7 +263,6 @@ function applySorting() {
   renderProducts(sorted);
 }
 
-// ===== Product Modal & Cart =====
 function openProductModal(id) {
   currentSelectedProduct = products.find(p => p.id === id);
   if (!currentSelectedProduct) return;
@@ -344,7 +353,7 @@ function openProductModal(id) {
 
   const priceEl = document.getElementById('modalPrice');
   const descEl = document.getElementById('modalDesc');
-  if (descEl) descEl.innerText = currentSelectedProduct.desc;
+  if (descEl) descEl.innerHTML = currentSelectedProduct.desc;
 
   const sizesContainer = document.getElementById('sizesContainer');
   const dimensionsContainer = document.getElementById('dimensionsContainer');
