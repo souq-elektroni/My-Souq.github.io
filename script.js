@@ -89,7 +89,6 @@ function parseMarkdown(markdownText, id) {
 
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     
-    // 1. استخراج صور الألبوم (images widget) بدقة
     let allExtractedImages = [];
     const imagesMatch = frontmatter.match(/images:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     
@@ -125,7 +124,6 @@ function parseMarkdown(markdownText, id) {
     let mainImage = allExtractedImages.length > 0 ? allExtractedImages[0] : defaultImg;
     let allImages = allExtractedImages.length > 0 ? allExtractedImages : [defaultImg];
 
-    // 2. استخراج المقاسات وربطها بالأكواد والأبعاد وحالة المخزون (status) بدقة
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
     
@@ -256,7 +254,6 @@ function openProductModal(id) {
   const thumbsContainer = document.getElementById('thumbnailsContainer');
   const stockBadge = document.getElementById('modalStockBadge');
   
-  // تعريف أزرار الشراء للتحكم بها
   const addBtn = document.getElementById('addCartBtn');
   const waBtn = document.getElementById('directWaBtn');
 
@@ -265,6 +262,11 @@ function openProductModal(id) {
     activeModalImage = currentSelectedProduct.image;
     modalImg.onerror = function() { this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'; };
   }
+
+  // اختيار أول مقاس متوفر كافتراضي بدلاً من المقاس النافذ إن أمكن
+  const firstAvailableVariant = currentSelectedProduct.variants.find(v => v.status !== 'out') || currentSelectedProduct.variants[0];
+  selectedSize = firstAvailableVariant ? firstAvailableVariant.size : 'مقاس موحد';
+  selectedVariantStatus = firstAvailableVariant ? firstAvailableVariant.status : 'available';
 
   if (stockBadge) {
     if (currentSelectedProduct.stock === 'out') {
@@ -276,7 +278,6 @@ function openProductModal(id) {
     }
   }
   
-  // عرض الصور المصغرة (الألبوم) مع أثواب الأكواد R1, R2...
   if (thumbsContainer) {
     thumbsContainer.innerHTML = '';
     if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
@@ -344,10 +345,6 @@ function openProductModal(id) {
     sizesContainer.innerHTML = '';
   }
 
-  const firstAvailableVariant = currentSelectedProduct.variants.find(v => v.status !== 'out') || currentSelectedProduct.variants[0];
-  selectedSize = firstAvailableVariant ? firstAvailableVariant.size : 'مقاس موحد';
-  selectedVariantStatus = firstAvailableVariant ? firstAvailableVariant.status : 'available';
-
   if (priceEl) priceEl.innerText = (firstAvailableVariant?.price || currentSelectedProduct.price) + ' ج.م';
 
   function updateDimensionsDisplay(variant) {
@@ -372,7 +369,7 @@ function openProductModal(id) {
       
       btn.className = `size-btn ${isSelected ? 'selected' : ''} ${isOut ? 'out-variant' : ''}`;
       btn.dataset.size = v.size;
-      btn.style.cssText = `padding: 10px 18px; border: 2px solid ${isOut ? '#ef9a9a' : 'var(--border-color, #ebdcdb)'}; border-radius: 12px; background: ${isOut ? '#ffebee' : 'var(--bg-cream, #fdfbf7)'}; cursor: ${isOut ? 'not-allowed' : 'pointer'}; font-size: 16px; font-weight: 800; color: ${isOut ? '#c62828' : 'var(--text-dark, #2c2224)'}; display: flex; align-items: center; gap: 8px; opacity: ${isOut ? '0.8' : '1'}; text-decoration: ${isOut ? 'line-through' : 'none'};`;
+      btn.style.cssText = `padding: 10px 18px; border: 2px solid ${isOut ? '#ef9a9a' : 'var(--border-color, #ebdcdb)'}; border-radius: 12px; background: ${isOut ? '#ffebee' : (isSelected ? 'var(--pink-soft, #f8ecee)' : 'var(--bg-cream, #fdfbf7)')}; cursor: ${isOut ? 'not-allowed' : 'pointer'}; font-size: 16px; font-weight: 800; color: ${isOut ? '#c62828' : 'var(--text-dark, #2c2224)'}; display: flex; align-items: center; gap: 8px; opacity: ${isOut ? '0.8' : '1'}; text-decoration: ${isOut ? 'line-through' : 'none'};`;
       
       btn.innerHTML = `
         <input type="radio" name="productSize" value="${v.size}" ${isSelected ? 'checked' : ''} ${isOut ? 'disabled' : ''} style="accent-color: var(--burgundy-soft, #803d48); width: 18px; height: 18px; cursor: pointer;">
@@ -397,12 +394,13 @@ function openProductModal(id) {
         if (priceEl) priceEl.innerText = (v.price || currentSelectedProduct.price) + ' ج.م';
         updateDimensionsDisplay(v);
 
-        // التحكم في الأزرار بناءً على حالة المقاس أو المنتج العام
+        // تفعيل أو تعطيل الأزرار حسب حالة المقاس المختار
         if (v.status === 'out' || currentSelectedProduct.stock === 'out') {
           if (addBtn) {
             addBtn.disabled = true;
             addBtn.style.opacity = '0.5';
             addBtn.style.cursor = 'not-allowed';
+            addBtn.style.pointerEvents = 'none';
           }
           if (waBtn) {
             waBtn.classList.add('disabled');
@@ -414,12 +412,18 @@ function openProductModal(id) {
             addBtn.disabled = false;
             addBtn.style.opacity = '1';
             addBtn.style.cursor = 'pointer';
+            addBtn.style.pointerEvents = 'auto';
           }
           if (waBtn) {
             waBtn.classList.remove('disabled');
             waBtn.style.opacity = '1';
             waBtn.style.pointerEvents = 'auto';
           }
+        }
+
+        if (waBtn) {
+          const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${priceEl ? priceEl.innerText : currentSelectedProduct.price + ' ج.م'}`);
+          waBtn.href = `https://wa.me/201116339905?text=${waText}`;
         }
 
         if (v.code && v.code !== 'none') {
@@ -437,12 +441,13 @@ function openProductModal(id) {
     });
   }
 
-  // التحكم الأولي للأزرار عند فتح النافذة بناءً على الحالة العامة للمنتج أو المقاس الافتراضي
+  // تطبيق حالة الأزرار مباشرة عند فتح النافذة للمقاس الافتراضي
   if (selectedVariantStatus === 'out' || currentSelectedProduct.stock === 'out') {
     if (addBtn) {
       addBtn.disabled = true;
       addBtn.style.opacity = '0.5';
       addBtn.style.cursor = 'not-allowed';
+      addBtn.style.pointerEvents = 'none';
     }
     if (waBtn) {
       waBtn.classList.add('disabled');
@@ -454,6 +459,7 @@ function openProductModal(id) {
       addBtn.disabled = false;
       addBtn.style.opacity = '1';
       addBtn.style.cursor = 'pointer';
+      addBtn.style.pointerEvents = 'auto';
     }
     if (waBtn) {
       waBtn.classList.remove('disabled');
