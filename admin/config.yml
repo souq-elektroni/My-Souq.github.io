@@ -30,10 +30,9 @@ collections:
           default: "ملابس شتوية"
         }
       - { 
-          label: "ألبوم صور المنتج (الصورة الأولى هي الافتراضية، وتأخذ الأكواد R1, R2, R3... تباعاً)", 
+          label: "ألبوم صور المنتج (الصورة الأولى هي الافتراضية)", 
           name: "images", 
-          widget: "list", 
-          field: { label: "صورة الشكل", name: "image_item", widget: "image" } 
+          widget: "list"
         }
       - { label: "السعر الأساسي (ج.م)", name: "price", widget: "number", value_type: "float" }
       - { label: "السعر القديم قبل الخصم (اختياري)", name: "oldPrice", widget: "number", value_type: "float", required: false }
@@ -56,7 +55,7 @@ collections:
           fields: [
             { label: "المقاس (مثال: 2)", name: "size", widget: "string" },
             { 
-              label: "أكواد الصور المرتبطة بهذا المقاس (يمكنك اختيار أكثر من كود مثل R1, R2)", 
+              label: "أكواد الصور المرتبطة بهذا المقاس", 
               name: "codes", 
               widget: "list",
               field: {
