@@ -470,7 +470,9 @@
         const title = getField('title') || 'منتج جديد';
         const price = parseFloat(getField('price')) || 0;
         const category = getField('category') || 'ملابس شتوية';
-        const status = getField('status') || 'available'; // قراءة حالة المخزون من الـ Admin
+        
+        // قراءة حقل stock (المتوافق مع config.yml) أو status كاحتياط
+        const stockStatus = getField('stock') || getField('status') || 'available';
         
         const fixImagePath = (rawPath) => {
           if (!rawPath) return '';
@@ -526,7 +528,7 @@
 
         if (parsedVariants.length === 0) parsedVariants = [{ size: "مقاس موحد", length: "", width: "" }];
 
-        return { id, title, category, price, status, image: mainImage, images: allImages, variants: parsedVariants, desc: body || title };
+        return { id, title, category, price, stock: stockStatus, image: mainImage, images: allImages, variants: parsedVariants, desc: body || title };
       } catch (e) {
         console.error('Error parsing markdown:', e);
         return null;
@@ -544,7 +546,7 @@
           <div class="product-details">
             <h3 class="product-title">${p.title}</h3>
             <div class="price-tag">${p.price} ج.م</div>
-            <div class="click-hint">${p.status === 'out' ? '🔴 نفذت الكمية' : 'عرض التفاصيل والمقاسات 👈'}</div>
+            <div class="click-hint">${p.stock === 'out' ? '🔴 نفذت الكمية' : 'عرض التفاصيل والمقاسات 👈'}</div>
           </div>
         </div>
       `).join('');
@@ -610,8 +612,8 @@
       document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
       document.getElementById('modalDesc').innerText = currentSelectedProduct.desc;
 
-      // التحكم التلقائي في حالة المخزون والأزرار بناءً على الـ Admin
-      if (currentSelectedProduct.status === 'out') {
+      // التحكم التلقائي في حالة المخزون بناءً على حقل stock
+      if (currentSelectedProduct.stock === 'out') {
         stockBadge.className = 'stock-badge out';
         stockBadge.innerText = '🔴 نفذت الكمية - غير متاح للطلب';
         addCartBtn.disabled = true;
@@ -620,7 +622,7 @@
         directWaBtn.removeAttribute('href');
       } else {
         stockBadge.className = 'stock-badge';
-        stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
+        stockBadge.innerText = currentSelectedProduct.stock === 'low' ? '⚠️ كمية محدودة بالمخزون' : '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
         addCartBtn.disabled = false;
         addCartBtn.innerText = 'إضافة للسلة 🛒';
         directWaBtn.classList.remove('disabled');
@@ -659,7 +661,7 @@
     }
 
     function updateDirectWaLink() {
-      if (!currentSelectedProduct || currentSelectedProduct.status === 'out') return;
+      if (!currentSelectedProduct || currentSelectedProduct.stock === 'out') return;
       let cleanPath = activeModalImage.replace(/^\/+/, '');
       if (!cleanPath.startsWith('images/')) cleanPath = 'images/' + cleanPath;
       const fullImgUrl = `https://souq-elektroni.github.io/My-Souq.github.io/${cleanPath}`;
@@ -680,7 +682,7 @@
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
     function addToCart() {
-      if (!currentSelectedProduct || currentSelectedProduct.status === 'out') return;
+      if (!currentSelectedProduct || currentSelectedProduct.stock === 'out') return;
       const existing = cart.find(item => item.id === currentSelectedProduct.id && item.size === selectedSize && item.image === activeModalImage);
       if (existing) {
         existing.qty += 1;
