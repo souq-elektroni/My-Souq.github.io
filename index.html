@@ -192,7 +192,6 @@
     .size-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
     .size-btn { padding: 9px 18px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-cream); cursor: pointer; font-size: 16px; font-weight: 800; color: var(--text-dark); position: relative; }
     .size-btn.selected { background: var(--burgundy-soft); color: white; border-color: var(--burgundy-soft); }
-    /* ستايل المقاس الخالص (نفذ) */
     .size-btn.out-variant { background: #ffebee !important; color: #c62828 !important; border-color: #ef9a9a !important; text-decoration: line-through; opacity: 0.7; }
 
     .dimensions-box { background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 14px; border-radius: 12px; font-size: 15px; display: flex; gap: 16px; color: var(--burgundy-soft); font-weight: 700; }
@@ -225,7 +224,6 @@
     .total-price { font-size: 20px; font-weight: 800; display: flex; justify-content: space-between; }
     .proceed-btn { background: var(--burgundy-soft); color: white; text-align: center; padding: 14px; border-radius: 12px; font-weight: bold; border: none; cursor: pointer; font-size: 17px; display: none; width: 100%; }
 
-    /* شروط والأحكام */
     .terms-modal { max-width: 520px; padding: 24px; z-index: 1100; }
     .terms-header { font-size: 20px; font-weight: 900; color: var(--burgundy-soft); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
     .terms-body { background: #fffde7; border: 1px solid #ffe082; padding: 16px; border-radius: 12px; font-size: 13.5px; color: #5d4037; line-height: 1.8; margin-bottom: 15px; }
@@ -270,7 +268,6 @@
 
   <a href="https://wa.me/201116339905?text=مرحباً، أود الاستفسار عن منتجات متجر My Souq" target="_blank" class="whatsapp-float" title="تواصل معنا عبر واتساب">💬</a>
 
-  <!-- QR Code عائم -->
   <div class="floating-qr-container" id="floatingQr">
     <button class="close-qr-btn" onclick="toggleQrBox()">✕</button>
     <div class="qr-content">
@@ -317,7 +314,6 @@
     <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 18px; font-weight: bold;">جاري تحميل الموديلات...</p>
   </main>
 
-  <!-- نافذة تفاصيل المنتج -->
   <div class="modal-overlay" id="productModal">
     <div class="modal-content">
       <button class="close-btn" onclick="closeModal()">✕</button>
@@ -349,7 +345,6 @@
     </div>
   </div>
 
-  <!-- نافذة سلة التسوق -->
   <div class="modal-overlay" id="cartModal">
     <div class="modal-content cart-modal">
       <button class="close-btn" onclick="closeCartModal()">✕</button>
@@ -374,7 +369,6 @@
     </div>
   </div>
 
-  <!-- الشروط والأحكام -->
   <div class="modal-overlay" id="termsModal">
     <div class="modal-content terms-modal">
       <div class="terms-header">📌 الشروط والأحكام</div>
@@ -423,14 +417,13 @@
     </div>
   </div>
 
-  <!-- سكربت التشغيل -->
   <script>
     let products = [];
     let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
     let currentCategory = "الكل";
     let currentStockFilter = "all";
     let selectedSize = null;
-    let selectedVariantStatus = "available"; // تتبع حالة المقاس المختار حالياً
+    let selectedVariantStatus = "available";
     let currentSelectedProduct = null;
     let activeModalImage = '';
     let discountRate = 0;
@@ -481,8 +474,9 @@
 
         const title = getField('title') || 'منتج جديد';
         const price = parseFloat(getField('price')) || 0;
+        const oldPrice = parseFloat(getField('oldPrice')) || 0;
         const category = getField('category') || 'ملابس شتوية';
-        const stockStatus = getField('stock') || getField('status') || 'available';
+        const stockStatus = getField('stock') || 'available';
         
         const fixImagePath = (rawPath) => {
           if (!rawPath) return '';
@@ -527,337 +521,348 @@
         let parsedVariants = [];
         const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
         if (variantsMatch) {
-          variantsMatch[1].split(/(?=\n\s*-\s*size:|\n\s*-\s*المقاس:)/).forEach(block => {
-            if (!block.trim()) return;
-            let sizeVal = (block.match(/(?:size|المقاس):\s*["']?([^,\n]+)["']?/i) || [])[1] || '';
-            let lenVal = (block.match(/(?:الطول|length)[^0-9]*([0-9.]+)/i) || [])[1] || '';
-            let widVal = (block.match(/(?:العرض|width)[^0-9]*([0-9.]+)/i) || [])[1] || '';
-            // قراءة حالة المقاس الفردي (status)
-            let statusVal = (block.match(/(?:status|حالة):\s*["']?([^,\n]+)["']?/i) || [])[1] || 'available';
-            if (sizeVal) parsedVariants.push({ size: sizeVal.replace(/['"\[\]]/g, ''), length: lenVal, width: widVal, status: statusVal.trim() });
-          });
+          const variantLines = variantsMatch[1].split('\n');
+          let currentVar = {};
+          
+          for (let line of variantLines) {
+            let trimmed = line.trim();
+            if (trimmed.startsWith('-')) {
+              if (Object.keys(currentVar).length > 0) {
+                parsedVariants.push(currentVar);
+                currentVar = {};
+              }
+              trimmed = trimmed.replace('-', '').trim();
+            }
+            if (trimmed.includes(':')) {
+              let [k, ...vParts] = trimmed.split(':');
+              let key = k.trim();
+              let val = vParts.join(':').trim().replace(/^["']|["']$/g, '');
+              if (key === 'size') currentVar.size = val;
+              if (key === 'price') currentVar.price = parseFloat(val) || price;
+              if (key === 'length') currentVar.length = val;
+              if (key === 'width') currentVar.width = val;
+              if (key === 'status') currentVar.status = val;
+            }
+          }
+          if (Object.keys(currentVar).length > 0) {
+            parsedVariants.push(currentVar);
+          }
         }
 
-        if (parsedVariants.length === 0) parsedVariants = [{ size: "مقاس موحد", length: "", width: "", status: "available" }];
+        parsedVariants = parsedVariants.map(v => ({
+          ...v,
+          status: v.status || 'available'
+        }));
 
-        return { id, title, category, price, stock: stockStatus, image: mainImage, images: allImages, variants: parsedVariants, desc: body || title };
+        return {
+          id: id,
+          title: title,
+          price: price,
+          oldPrice: oldPrice,
+          category: category,
+          stock: stockStatus,
+          image: mainImage,
+          images: allImages,
+          variants: parsedVariants,
+          body: body
+        };
       } catch (e) {
-        console.error('Error parsing markdown:', e);
+        console.error('خطأ في معالجة الملف:', e);
         return null;
       }
     }
 
-    function renderProducts(list) {
-      if (list.length === 0) {
-        productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 18px; font-weight: bold;">لا توجد منتجات مطابقة لهذا الفلتر</p>';
+    function renderProducts(items) {
+      productsGrid.innerHTML = '';
+      if (items.length === 0) {
+        productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 18px; font-weight: bold;">لا توجد منتجات تطابق بحثك.</p>';
         return;
       }
-      productsGrid.innerHTML = list.map(p => `
-        <div class="product-card" onclick="openProductModal(${p.id})">
-          <div class="image-container"><img class="product-image" src="${p.image}" alt="${p.title}" onerror="this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'"></div>
-          <div class="product-details">
-            <h3 class="product-title">${p.title}</h3>
-            <div class="price-tag">${p.price} ج.م</div>
-            <div class="click-hint">${p.stock === 'out' ? '🔴 نفذت الكمية' : 'عرض التفاصيل والمقاسات 👈'}</div>
-          </div>
-        </div>
-      `).join('');
-    }
 
-    function filterCategory(cat, btn) {
-      currentCategory = cat;
-      currentStockFilter = "all";
-      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      handleSearchAndFilter();
-    }
+      items.forEach(product => {
+        let card = document.createElement('div');
+        card.className = 'product-card';
+        card.onclick = () => openProductModal(product);
 
-    function filterStock(stockType, btn) {
-      currentStockFilter = stockType;
-      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      handleSearchAndFilter();
-    }
-
-    function handleSearchAndFilter() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      
-      let filtered = products.filter(p => {
-        const matchesCategory = (currentCategory === 'الكل' || p.category === currentCategory);
-        const matchesSearch = p.title.toLowerCase().includes(query);
-        
-        let matchesStock = true;
-        if (currentStockFilter === 'available') {
-          matchesStock = (p.stock !== 'out');
-        } else if (currentStockFilter === 'out') {
-          matchesStock = (p.stock === 'out');
+        let priceHtml = `<div class="price-tag">${product.price} ج.م</div>`;
+        if (product.oldPrice && product.oldPrice > product.price) {
+          priceHtml = `<div class="price-tag">${product.price} ج.م <span style="font-size: 14px; text-decoration: line-through; color: var(--text-muted); margin-right: 6px;">${product.oldPrice} ج.م</span></div>`;
         }
 
-        return matchesCategory && matchesSearch && matchesStock;
+        card.innerHTML = `
+          <div class="image-container">
+            <img src="${product.image}" alt="${product.title}" class="product-image" onerror="this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'">
+          </div>
+          <div class="product-details">
+            <div class="product-title">${product.title}</div>
+            ${priceHtml}
+            <div class="click-hint">عرض التفاصيل والمقاسات ✨</div>
+          </div>
+        `;
+        productsGrid.appendChild(card);
       });
-
-      renderProducts(filtered);
     }
 
-    function applySorting() {
-      const val = document.getElementById('sortSelect').value;
-      let sorted = [...products];
-      if (val === 'low-high') sorted.sort((a,b) => a.price - b.price);
-      else if (val === 'high-low') sorted.sort((a,b) => b.price - a.price);
-      renderProducts(sorted);
-    }
+    function openProductModal(product) {
+      currentSelectedProduct = product;
+      selectedSize = null;
+      selectedVariantStatus = 'available';
+      activeModalImage = product.image;
 
-    function openProductModal(id) {
-      currentSelectedProduct = products.find(p => p.id === id);
-      if (!currentSelectedProduct) return;
+      document.getElementById('modalTitle').innerText = product.title;
+      document.getElementById('modalImage').src = product.image;
+      document.getElementById('modalPrice').innerText = product.price + ' ج.م';
+      document.getElementById('modalDesc').innerHTML = marked.parse(product.body || '');
 
-      const modalImg = document.getElementById('modalImage');
-      const thumbsContainer = document.getElementById('thumbnailsContainer');
-      const stockBadge = document.getElementById('modalStockBadge');
-      
-      activeModalImage = currentSelectedProduct.image;
-      modalImg.src = activeModalImage;
-      modalImg.onerror = function() { this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'; };
-      
-      thumbsContainer.innerHTML = '';
-
-      if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
-        thumbsContainer.style.display = 'flex';
-        currentSelectedProduct.images.forEach((imgSrc, idx) => {
-          const thumb = document.createElement('img');
-          thumb.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
-          thumb.src = imgSrc;
-          thumb.onerror = function() { this.style.display = 'none'; };
-          thumb.onclick = () => {
-            modalImg.src = imgSrc;
-            activeModalImage = imgSrc;
-            document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
-            thumb.classList.add('active');
-            updateDirectWaLink();
-          };
-          thumbsContainer.appendChild(thumb);
-        });
-      } else {
-        thumbsContainer.style.display = 'none';
-      }
-
-      document.getElementById('modalTitle').innerText = currentSelectedProduct.title;
-      document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
-      document.getElementById('modalDesc').innerText = currentSelectedProduct.desc;
-
-      // شارة المنتج العام
-      if (currentSelectedProduct.stock === 'out') {
+      let stockBadge = document.getElementById('modalStockBadge');
+      if (product.stock === 'out') {
         stockBadge.className = 'stock-badge out';
-        stockBadge.innerText = '🔴 المنتج بالكامل نفذت كميته';
+        stockBadge.innerText = '🔴 المنتج غير متوفر حالياً';
+      } else if (product.stock === 'low') {
+        stockBadge.className = 'stock-badge out';
+        stockBadge.innerText = '⚠️ كمية محدودة بالمخزون';
       } else {
         stockBadge.className = 'stock-badge';
         stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
       }
-      
-      const sizesContainer = document.getElementById('sizesContainer');
-      sizesContainer.innerHTML = '';
-      
-      const firstVariant = currentSelectedProduct.variants[0];
-      selectedSize = firstVariant.size || '';
-      selectedVariantStatus = firstVariant.status || 'available';
-      
-      function updateDim(v) {
-        const box = document.getElementById('dimensionsContainer');
-        if (v && (v.length || v.width)) {
-          box.style.display = 'flex';
-          document.getElementById('modalLength').innerText = v.length || '-';
-          document.getElementById('modalWidth').innerText = v.width || '-';
-        } else { box.style.display = 'none'; }
+
+      let thumbContainer = document.getElementById('thumbnailsContainer');
+      thumbContainer.innerHTML = '';
+      if (product.images && product.images.length > 1) {
+        product.images.forEach((imgSrc, idx) => {
+          let thumb = document.createElement('img');
+          thumb.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
+          thumb.src = imgSrc;
+          thumb.onclick = () => {
+            document.getElementById('modalImage').src = imgSrc;
+            activeModalImage = imgSrc;
+            document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
+            thumb.classList.add('active');
+          };
+          thumbContainer.appendChild(thumb);
+        });
       }
-      updateDim(firstVariant);
 
-      // تحديث حالة أزرار الشراء بناءً على حالة المقاس الأول افتراضياً
-      updateActionButtonsState();
+      let sizesContainer = document.getElementById('sizesContainer');
+      sizesContainer.innerHTML = '';
+      let dimBox = document.getElementById('dimensionsContainer');
+      dimBox.style.display = 'none';
 
-      currentSelectedProduct.variants.forEach((v, idx) => {
-        const btn = document.createElement('button');
-        let isOut = (v.status === 'out');
-        
-        btn.className = `size-btn ${idx === 0 ? 'selected' : ''} ${isOut ? 'out-variant' : ''}`;
-        btn.innerText = v.size + (isOut ? ' (خلص)' : '');
-        
-        btn.onclick = () => {
-          document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-          btn.classList.add('selected');
-          selectedSize = v.size;
-          selectedVariantStatus = v.status || 'available';
-          updateDim(v);
-          updateActionButtonsState(); // تحديث أزرار الشراء للمقاس المختار
-        };
-        sizesContainer.appendChild(btn);
-      });
+      if (product.variants && product.variants.length > 0) {
+        product.variants.forEach((v, index) => {
+          let btn = document.createElement('button');
+          btn.className = `size-btn ${v.status === 'out' ? 'out-variant' : ''}`;
+          btn.innerText = v.size + (v.status === 'out' ? ' (نفذ)' : '');
+          
+          btn.onclick = () => {
+            document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedSize = v.size;
+            selectedVariantStatus = v.status || 'available';
+
+            if (v.price) {
+              document.getElementById('modalPrice').innerText = v.price + ' ج.م';
+            } else {
+              document.getElementById('modalPrice').innerText = product.price + ' ج.م';
+            }
+
+            if (v.length || v.width) {
+              document.getElementById('modalLength').innerText = v.length || '-';
+              document.getElementById('modalWidth').innerText = v.width || '-';
+              dimBox.style.display = 'flex';
+            } else {
+              dimBox.style.display = 'none';
+            }
+
+            let addBtn = document.getElementById('addCartBtn');
+            let waBtn = document.getElementById('directWaBtn');
+            if (selectedVariantStatus === 'out') {
+              addBtn.disabled = true;
+              addBtn.innerText = 'المقاس غير متوفر حالياً ❌';
+              waBtn.classList.add('disabled');
+            } else {
+              addBtn.disabled = false;
+              addBtn.innerText = 'إضافة للسلة 🛒';
+              waBtn.classList.remove('disabled');
+            }
+          };
+
+          if (index === 0) {
+            btn.click();
+          }
+          sizesContainer.appendChild(btn);
+        });
+      } else {
+        sizesContainer.innerHTML = '<span style="font-size: 14px; color: var(--text-muted);">مقاس موحد / قياسي</span>';
+        selectedSize = 'مقاس موحد';
+        selectedVariantStatus = product.stock === 'out' ? 'out' : 'available';
+      }
+
+      let waBtn = document.getElementById('directWaBtn');
+      let encodedMsg = encodeURIComponent(`مرحباً، أود طلب منتج: ${product.title} بسعر ${product.price} ج.م والمقاس: ${selectedSize || 'موحد'}`);
+      waBtn.href = `https://wa.me/201116339905?text=${encodedMsg}`;
 
       document.getElementById('productModal').classList.add('active');
     }
 
-    // دالة لتحديث حالة أزرار الشراء (لو المقاس خلص يتعطل، لو متاح يشتغل)
-    function updateActionButtonsState() {
-      const addCartBtn = document.getElementById('addCartBtn');
-      const directWaBtn = document.getElementById('directWaBtn');
-
-      if (currentSelectedProduct.stock === 'out' || selectedVariantStatus === 'out') {
-        addCartBtn.disabled = true;
-        addCartBtn.innerText = 'هذا المقاس نفذ 🚫';
-        directWaBtn.classList.add('disabled');
-        directWaBtn.removeAttribute('href');
-      } else {
-        addCartBtn.disabled = false;
-        addCartBtn.innerText = 'إضافة للسلة 🛒';
-        directWaBtn.classList.remove('disabled');
-        updateDirectWaLink();
-      }
+    function closeModal() {
+      document.getElementById('productModal').classList.remove('active');
     }
-
-    function updateDirectWaLink() {
-      if (!currentSelectedProduct || currentSelectedProduct.stock === 'out' || selectedVariantStatus === 'out') return;
-      let cleanPath = activeModalImage.replace(/^\/+/, '');
-      if (!cleanPath.startsWith('images/')) cleanPath = 'images/' + cleanPath;
-      const fullImgUrl = `https://souq-elektroni.github.io/My-Souq.github.io/${cleanPath}`;
-
-      const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title}\n المقاس: ${selectedSize}\n السعر: ${currentSelectedProduct.price} ج.م\n 📷 صورة المنتج: ${fullImgUrl}`);
-      document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
-    }
-
-    function closeModal() { document.getElementById('productModal').classList.add('active'); } // ملاحظة: للإغلاق الصحيح
-    function closeModal() { document.getElementById('productModal').classList.remove('active'); }
-    
-    function openCartModal() { 
-      renderCartItems();
-      document.getElementById('cartModal').classList.add('active'); 
-    }
-    
-    function closeCartModal() { document.getElementById('cartModal').classList.remove('active'); }
-    function closeSuccessModal() { document.getElementById('successModal').classList.remove('active'); }
-    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
     function addToCart() {
-      if (!currentSelectedProduct || currentSelectedProduct.stock === 'out' || selectedVariantStatus === 'out') return;
-      const existing = cart.find(item => item.id === currentSelectedProduct.id && item.size === selectedSize && item.image === activeModalImage);
-      if (existing) {
-        existing.qty += 1;
-      } else {
-        cart.push({ ...currentSelectedProduct, image: activeModalImage, size: selectedSize, qty: 1 });
+      if (!currentSelectedProduct) return;
+      if (selectedVariantStatus === 'out') {
+        alert('عذراً، هذا المقاس غير متوفر حالياً.');
+        return;
       }
-      localStorage.setItem("souqCart", JSON.stringify(cart));
-      updateCartCount();
+
+      let finalPrice = currentSelectedProduct.price;
+      if (currentSelectedProduct.variants && currentSelectedProduct.variants.length > 0) {
+        let v = currentSelectedProduct.variants.find(item => item.size === selectedSize);
+        if (v && v.price) finalPrice = v.price;
+      }
+
+      let cartItem = {
+        id: currentSelectedProduct.id + '-' + (selectedSize || 'general'),
+        title: currentSelectedProduct.title,
+        size: selectedSize || 'موحد',
+        price: finalPrice,
+        image: activeModalImage || currentSelectedProduct.image,
+        quantity: 1
+      };
+
+      let existing = cart.find(item => item.id === cartItem.id);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push(cartItem);
+      }
+
+      saveCart();
       closeModal();
-      openCartModal();
       showToast();
     }
 
+    function saveCart() {
+      localStorage.setItem("souqCart", JSON.stringify(cart));
+      updateCartCount();
+    }
+
+    function updateCartCount() {
+      let count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cartCount').innerText = count;
+    }
+
     function showToast() {
-      const toast = document.getElementById('toastNotification');
+      let toast = document.getElementById('toastNotification');
       toast.classList.add('show');
       setTimeout(() => { toast.classList.remove('show'); }, 3000);
     }
 
-    function updateCartCount() {
-      const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
-      document.getElementById('cartCount').innerText = totalCount;
+    function openCartModal() {
+      renderCartItems();
+      document.getElementById('cartModal').classList.add('active');
+    }
+
+    function closeCartModal() {
+      document.getElementById('cartModal').classList.remove('active');
     }
 
     function renderCartItems() {
-      const container = document.getElementById('cartItemsContainer');
-      const promoBox = document.getElementById('promoBox');
-      const customerFormBox = document.getElementById('customerFormBox');
-      const proceedBtn = document.getElementById('proceedBtn');
+      let container = document.getElementById('cartItemsContainer');
+      container.innerHTML = '';
 
       if (cart.length === 0) {
         container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>';
-        promoBox.style.display = 'none';
-        customerFormBox.style.display = 'none';
-        proceedBtn.style.display = 'none';
         document.getElementById('cartTotalPrice').innerText = '0 ج.م';
+        document.getElementById('proceedBtn').style.display = 'none';
         return;
       }
 
-      promoBox.style.display = 'flex';
-      customerFormBox.style.display = 'flex';
-      proceedBtn.style.display = 'block';
+      let total = 0;
+      cart.forEach((item, index) => {
+        let itemTotal = item.price * item.quantity;
+        total += itemTotal;
 
-      container.innerHTML = cart.map((item, index) => `
-        <div class="cart-item">
+        let div = document.createElement('div');
+        div.className = 'cart-item';
+        div.innerHTML = `
+          <img src="${item.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
           <div class="cart-item-info">
-            <span class="cart-item-title">${item.title}</span>
-            <span class="cart-item-meta">المقاس: ${item.size}</span>
+            <div class="cart-item-title">${item.title}</div>
+            <div class="cart-item-meta">المقاس: ${item.size}</div>
           </div>
           <div class="quantity-controls">
             <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
-            <span class="qty-num">${item.qty}</span>
+            <span class="qty-num">${item.quantity}</span>
             <button class="qty-btn" onclick="changeQty(${index}, 1)">+</button>
           </div>
-          <span class="cart-item-price">${item.price * item.qty} ج.م</span>
+          <div class="cart-item-price">${itemTotal} ج.م</div>
           <button class="remove-btn" onclick="removeFromCart(${index})">✕</button>
-        </div>
-      `).join('');
+        `;
+        container.appendChild(div);
+      });
 
-      updateTotalPrice();
+      if (discountRate > 0) {
+        total = total * (1 - discountRate);
+      }
+
+      document.getElementById('cartTotalPrice').innerText = total.toFixed(2) + ' ج.م';
+      document.getElementById('proceedBtn').style.display = 'block';
     }
 
     function changeQty(index, delta) {
-      cart[index].qty += delta;
-      if (cart[index].qty <= 0) cart.splice(index, 1);
-      localStorage.setItem("souqCart", JSON.stringify(cart));
-      updateCartCount();
+      cart[index].quantity += delta;
+      if (cart[index].quantity <= 0) {
+        cart.splice(index, 1);
+      }
+      saveCart();
       renderCartItems();
     }
 
     function removeFromCart(index) {
       cart.splice(index, 1);
-      localStorage.setItem("souqCart", JSON.stringify(cart));
-      updateCartCount();
+      saveCart();
       renderCartItems();
     }
 
-    function updateTotalPrice() {
-      let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-      let total = subtotal * (1 - discountRate);
-      document.getElementById('cartTotalPrice').innerText = total.toFixed(0) + ' ج.م';
-    }
-
     function applyPromoCode() {
-      const code = document.getElementById('promoInput').value.trim();
+      let code = document.getElementById('promoInput').value.trim();
       if (code === 'SOUQ10') {
         discountRate = 0.10;
         alert('تم تطبيق خصم 10% بنجاح!');
-        updateTotalPrice();
+        renderCartItems();
       } else {
         alert('كود الخصم غير صحيح');
       }
     }
 
     function validateAndOpenTerms() {
-      const name = document.getElementById('custName').value.trim();
-      const phone = document.getElementById('custPhone').value.trim();
-      const address = document.getElementById('custAddress').value.trim();
+      let name = document.getElementById('custName').value.trim();
+      let phone = document.getElementById('custPhone').value.trim();
+      let address = document.getElementById('custAddress').value.trim();
 
       if (!name || !phone || !address) {
-        alert('يرجى استكمال كافة بيانات الشحن (الاسم، الهاتف، والعنوان)');
+        alert('يرجى استكمال بيانات الشحن (الاسم، الهاتف، والعنوان).');
         return;
       }
+
       closeCartModal();
-      document.getElementById('termsCheckbox').checked = false;
-      document.getElementById('agreeBtn').classList.remove('active');
       document.getElementById('termsModal').classList.add('active');
     }
 
     function toggleTermsCheckbox() {
-      const cb = document.getElementById('termsCheckbox');
+      let cb = document.getElementById('termsCheckbox');
       cb.checked = !cb.checked;
       handleCheckboxChange({ target: cb });
     }
 
     function handleCheckboxChange(e) {
-      const agreeBtn = document.getElementById('agreeBtn');
+      let btn = document.getElementById('agreeBtn');
       if (e.target.checked) {
-        agreeBtn.classList.add('active');
+        btn.classList.add('active');
       } else {
-        agreeBtn.classList.remove('active');
+        btn.classList.remove('active');
       }
     }
 
@@ -871,7 +876,7 @@
     }
 
     function selectPayment(method) {
-      document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+      document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('selected'));
       if (method === 'cod') {
         document.getElementById('optCod').classList.add('selected');
         document.getElementById('payCod').checked = true;
@@ -884,55 +889,110 @@
     function copyInstapay(e) {
       e.stopPropagation();
       navigator.clipboard.writeText('01116339905');
-      alert('تم نسخ رقم انستا باي بنجاح');
+      alert('تم نسخ رقم InstaPay بنجاح!');
     }
 
     function finalizeOrder() {
-      const name = document.getElementById('custName').value.trim();
-      const phone = document.getElementById('custPhone').value.trim();
-      const address = document.getElementById('custAddress').value.trim();
-      const payMethodInput = document.querySelector('input[name="payMethod"]:checked');
-      const payMethod = payMethodInput && payMethodInput.value === 'cod' ? '💵 الدفع عند الاستلام (كاش لمندوب الشحن)' : '📱 الدفع عن طريق InstaPay (رقم التحويل: 01116339905)';
-      
-      let itemsListText = cart.map((i, index) => {
-        let cleanPath = i.image.replace(/^\/+/, '');
-        if (!cleanPath.startsWith('images/')) cleanPath = 'images/' + cleanPath;
-        const fullImgUrl = `https://souq-elektroni.github.io/My-Souq.github.io/${cleanPath}`;
+      let name = document.getElementById('custName').value.trim();
+      let phone = document.getElementById('custPhone').value.trim();
+      let address = document.getElementById('custAddress').value.trim();
+      let payMethod = document.querySelector('input[name="payMethod"]:checked').value;
+      let payText = payMethod === 'cod' ? 'الدفع عند الاستلام' : 'InstaPay';
 
-        return `${index + 1}. *${i.title}*\n- المقاس: ${i.size}\n- السعر: ${i.price * i.qty} ج.م (الكمية: ${i.qty})\n- 📷 صورة المنتج: ${fullImgUrl}`;
-      }).join('\n\n');
-      
-      let totalText = document.getElementById('cartTotalPrice').innerText;
+      let orderText = `🛒 طلب جديد من متجر My Souq:\n\n`;
+      orderText += `👤 الاسم: ${name}\n`;
+      orderText += `📞 الهاتف: ${phone}\n`;
+      orderText += `📍 العنوان: ${address}\n`;
+      orderText += `💳 طريقة الدفع: ${payText}\n\n`;
+      orderText += `📦 المنتجات:\n`;
 
-      let msg = `🛍️ *طلب جديد من متجر My Souq*\n\n`;
-      msg += `👤 *بيانات العميل:*\n`;
-      msg += `• الاسم: ${name}\n`;
-      msg += `• رقم التواصل: ${phone}\n`;
-      msg += `• العنوان: ${address}\n`;
-      msg += `• طريقة الدفع: ${payMethod}\n\n`;
-      msg += `📦 *المنتجات المطلوبة:*\n${itemsListText}\n\n`;
-      msg += `💰 *الإجمالي الكلي:* ${totalText}\n\n`;
-      msg += `✅ *إقرار العميل:* أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
+      cart.forEach(item => {
+        orderText += `- ${item.title} (مقاس: ${item.size}) × ${item.quantity} = ${item.price * item.quantity} ج.م\n`;
+      });
 
-      const encodedMsg = encodeURIComponent(msg);
-      window.open(`https://wa.me/201116339905?text=${encodedMsg}`, '_blank');
+      orderText += `\nالإجمالي: ${document.getElementById('cartTotalPrice').innerText}`;
 
+      let encoded = encodeURIComponent(orderText);
+      window.open(`https://wa.me/201116339905?text=${encoded}`, '_blank');
+
+      cart = [];
+      saveCart();
       document.getElementById('paymentModal').classList.remove('active');
       document.getElementById('successModal').classList.add('active');
-      cart = [];
-      localStorage.removeItem("souqCart");
-      updateCartCount();
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
+    function closeSuccessModal() {
+      document.getElementById('successModal').classList.remove('active');
+    }
+
+    function filterCategory(cat, btn) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applySearchAndFilter();
+    }
+
+    function filterStock(status, btn) {
+      currentStockFilter = status;
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applySearchAndFilter();
+    }
+
+    function handleSearchAndFilter() {
+      applySearchAndFilter();
+    }
+
+    function applySearchAndFilter() {
+      let query = document.getElementById('searchInput').value.toLowerCase();
+      let filtered = products.filter(p => {
+        let matchCat = (currentCategory === 'الكل' || p.category === currentCategory);
+        let matchStock = (currentStockFilter === 'all' || p.stock === currentStockFilter);
+        let matchSearch = p.title.toLowerCase().includes(query);
+        return matchCat && matchStock && matchSearch;
+      });
+      renderProducts(filtered);
+    }
+
+    function applySorting() {
+      let val = document.getElementById('sortSelect').value;
+      if (val === 'low-high') {
+        products.sort((a, b) => a.price - b.price);
+      } else if (val === 'high-low') {
+        products.sort((a, b) => b.price - a.price);
+      }
+      applySearchAndFilter();
+    }
+
+    function shareProduct() {
+      if (navigator.share && currentSelectedProduct) {
+        navigator.share({
+          title: currentSelectedProduct.title,
+          text: `شاهد هذا المنتج الرائع من متجر My Souq`,
+          url: window.location.href,
+        }).catch(() => {});
+      } else {
+        alert('تم نسخ رابط المتجر');
+      }
+    }
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.onscroll = function() {
+      let btn = document.getElementById('backToTopBtn');
+      if (window.scrollY > 300) {
+        btn.classList.add('show');
+      } else {
+        btn.classList.remove('show');
+      }
+    };
+
+    window.onload = () => {
       loadRealProducts();
       updateCartCount();
-      window.addEventListener('scroll', () => {
-        const btn = document.getElementById('backToTopBtn');
-        if (window.scrollY > 300) btn.classList.add('show');
-        else btn.classList.remove('show');
-      });
-    });
+    };
   </script>
 </body>
 </html>
