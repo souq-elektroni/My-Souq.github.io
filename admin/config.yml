@@ -56,10 +56,11 @@ collections:
           fields: [
             { label: "المقاس (مثال: 3)", name: "size", widget: "string" },
             { 
-              label: "اختر كود الصورة لهذا المقاس", 
+              label: "اختر كود الصورة لهذا المقاس (أو اختر none لو مش مرتبط بصورة)", 
               name: "code", 
               widget: "select", 
               options: [
+                "none",
                 "R1", 
                 "R2", 
                 "R3", 
@@ -71,7 +72,7 @@ collections:
                 "R9", 
                 "R10"
               ], 
-              default: "R1" 
+              default: "none" 
             },
             { label: "السعر (اختياري)", name: "price", widget: "number", value_type: "float", required: false },
             { label: "الطول (سم)", name: "length", widget: "string", required: false },
