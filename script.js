@@ -54,7 +54,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown الذكية والمصححة بالكامل لمعالجة الصور والمقاسات
+// دالة تحليل الـ Markdown المتوافقة مع ألبوم الصور في لوحة التحكم
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -85,17 +85,16 @@ function parseMarkdown(markdownText, id) {
 
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     
-    // استخراج جميع الصور بمرونة تامة من أي شكل في الـ Frontmatter (سواء نص مباشر أو مصفوفة عناصر)
+    // استخراج كافة الصور من ألبوم الصور في ملف الـ Markdown بدقة فائقة
     let allExtractedImages = [];
     const lines = frontmatter.split('\n');
     
     for (let line of lines) {
-      // البحث عن أي سطر يحتوي على مسار صورة
       if (line.includes('.jpg') || line.includes('.png') || line.includes('.jpeg') || line.includes('.webp') || line.includes('/images/')) {
         let val = line;
         if (line.includes(':')) {
           const partsLine = line.split(':');
-          val = partsLine.slice(1).join(':'); // أخذ القسم الذي بعد النقطتين
+          val = partsLine.slice(1).join(':');
         }
         let fixed = fixImagePath(val);
         if (fixed && !allExtractedImages.includes(fixed)) {
@@ -107,7 +106,7 @@ function parseMarkdown(markdownText, id) {
     let mainImage = allExtractedImages.length > 0 ? allExtractedImages[0] : defaultImg;
     let allImages = allExtractedImages.length > 0 ? allExtractedImages : [defaultImg];
 
-    // استخراج المقاسات بدقة
+    // استخراج المقاسات
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
     
