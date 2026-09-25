@@ -62,7 +62,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown المتوافقة تماماً مع حالة المخزون
+// دالة تحليل الـ Markdown
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -269,14 +269,18 @@ function openProductModal(id) {
     modalImg.onerror = function() { this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'; };
   }
 
-  const firstAvailableVariant = currentSelectedProduct.variants.find(v => v.status !== 'out') || currentSelectedProduct.variants[0];
-  selectedSize = firstAvailableVariant ? firstAvailableVariant.size : 'مقاس موحد';
-  selectedVariantStatus = firstAvailableVariant ? firstAvailableVariant.status : 'available';
+  const firstVariant = currentSelectedProduct.variants[0];
+  selectedSize = firstVariant ? firstVariant.size : 'مقاس موحد';
+  selectedVariantStatus = firstVariant ? firstVariant.status : 'available';
 
+  // تحديث شارة حالة المخزون العامة للمنتج
   if (stockBadge) {
     if (currentSelectedProduct.stock === 'out') {
       stockBadge.className = 'stock-badge out';
       stockBadge.innerText = '🔴 نفذت الكمية';
+    } else if (currentSelectedProduct.stock === 'low') {
+      stockBadge.className = 'stock-badge low';
+      stockBadge.innerText = '🟡 كمية محدودة';
     } else {
       stockBadge.className = 'stock-badge';
       stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
@@ -317,7 +321,7 @@ function openProductModal(id) {
           img.style.borderColor = "var(--burgundy-soft, #803d48)";
 
           const matchedVariant = currentSelectedProduct.variants.find(v => v.code === codeName);
-          if (matchedVariant && matchedVariant.status !== 'out') {
+          if (matchedVariant) {
             const sizeBtns = document.querySelectorAll('.size-btn');
             sizeBtns.forEach(b => {
               if (b.dataset.size === matchedVariant.size) {
@@ -350,7 +354,7 @@ function openProductModal(id) {
     sizesContainer.innerHTML = '';
   }
 
-  if (priceEl) priceEl.innerText = (firstAvailableVariant?.price || currentSelectedProduct.price) + ' ج.م';
+  if (priceEl) priceEl.innerText = (firstVariant?.price || currentSelectedProduct.price) + ' ج.م';
 
   function updateDimensionsDisplay(variant) {
     if (dimensionsContainer && lengthSpan && widthSpan) {
@@ -364,15 +368,15 @@ function openProductModal(id) {
     }
   }
 
-  updateDimensionsDisplay(firstAvailableVariant);
+  updateDimensionsDisplay(firstVariant);
 
-  // دالة للتحكم في إخفاء أو إظهار أزرار الشراء تماماً حسب حالة التوفر (محدثة)
-  function setActionButtonsVisibility(isHidden) {
+  // دالة للتحكم في إخفاء أو إظهار أزرار الشراء بناءً على حالة المخزون العامة للمنتج
+  function setActionButtonsVisibility(isOutStock) {
     if (addBtn) {
-      addBtn.style.display = isHidden ? 'none' : 'block';
+      addBtn.style.display = isOutStock ? 'none' : 'block';
     }
     if (waBtn) {
-      waBtn.style.display = isHidden ? 'none' : 'flex';
+      waBtn.style.display = isOutStock ? 'none' : 'flex';
     }
   }
 
@@ -380,25 +384,25 @@ function openProductModal(id) {
     currentSelectedProduct.variants.forEach((v) => {
       const btn = document.createElement('div');
       const isSelected = v.size === selectedSize;
-      const isOut = v.status === 'out';
       
-      btn.className = `size-btn ${isSelected ? 'selected' : ''} ${isOut ? 'out-variant' : ''}`;
+      btn.className = `size-btn ${isSelected ? 'selected' : ''}`;
       btn.dataset.size = v.size;
-      btn.style.cssText = `padding: 10px 18px; border: 2px solid ${isOut ? '#ef9a9a' : 'var(--border-color, #ebdcdb)'}; border-radius: 12px; background: ${isOut ? '#ffebee' : (isSelected ? 'var(--pink-soft, #f8ecee)' : 'var(--bg-cream, #fdfbf7)')}; cursor: ${isOut ? 'not-allowed' : 'pointer'}; font-size: 16px; font-weight: 800; color: ${isOut ? '#c62828' : 'var(--text-dark, #2c2224)'}; display: flex; align-items: center; gap: 8px; opacity: ${isOut ? '0.8' : '1'}; text-decoration: ${isOut ? 'line-through' : 'none'};`;
+      btn.style.cssText = `padding: 10px 18px; border: 2px solid ${isSelected ? 'var(--burgundy-soft, #803d48)' : 'var(--border-color, #ebdcdb)'}; border-radius: 12px; background: ${isSelected ? 'var(--pink-soft, #f8ecee)' : 'var(--bg-cream, #fdfbf7)'}; cursor: pointer; font-size: 16px; font-weight: 800; color: var(--text-dark, #2c2224); display: flex; align-items: center; gap: 8px;`;
       
       btn.innerHTML = `
-        <input type="radio" name="productSize" value="${v.size}" ${isSelected ? 'checked' : ''} ${isOut ? 'disabled' : ''} style="accent-color: var(--burgundy-soft, #803d48); width: 18px; height: 18px; cursor: pointer;">
-        <span>${v.size} ${isOut ? '(نفذت)' : ''}</span>
+        <input type="radio" name="productSize" value="${v.size}" ${isSelected ? 'checked' : ''} style="accent-color: var(--burgundy-soft, #803d48); width: 18px; height: 18px; cursor: pointer;">
+        <span>${v.size}</span>
       `;
 
       btn.onclick = () => {
-        if (isOut) return;
         document.querySelectorAll('.size-btn').forEach(b => {
           b.classList.remove('selected');
-          b.style.background = b.classList.contains('out-variant') ? '#ffebee' : 'var(--bg-cream, #fdfbf7)';
+          b.style.background = 'var(--bg-cream, #fdfbf7)';
+          b.style.borderColor = 'var(--border-color, #ebdcdb)';
         });
         btn.classList.add('selected');
         btn.style.background = 'var(--pink-soft, #f8ecee)';
+        btn.style.borderColor = 'var(--burgundy-soft, #803d48)';
         
         const radio = btn.querySelector('input');
         if (radio) radio.checked = true;
@@ -408,12 +412,6 @@ function openProductModal(id) {
         
         if (priceEl) priceEl.innerText = (v.price || currentSelectedProduct.price) + ' ج.م';
         updateDimensionsDisplay(v);
-
-        if (v.status === 'out' || currentSelectedProduct.stock === 'out') {
-          setActionButtonsVisibility(true);
-        } else {
-          setActionButtonsVisibility(false);
-        }
 
         if (waBtn) {
           const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${priceEl ? priceEl.innerText : currentSelectedProduct.price + ' ج.م'}`);
@@ -435,7 +433,8 @@ function openProductModal(id) {
     });
   }
 
-  if (selectedVariantStatus === 'out' || currentSelectedProduct.stock === 'out') {
+  // التحكم الحاسم في الإخفاء بناءً على قيمة stock العامة للمنتج
+  if (currentSelectedProduct.stock === 'out') {
     setActionButtonsVisibility(true);
   } else {
     setActionButtonsVisibility(false);
@@ -456,7 +455,7 @@ function closeModal() {
 }
 
 function addToCart() {
-  if (!currentSelectedProduct || selectedVariantStatus === 'out') return;
+  if (!currentSelectedProduct || currentSelectedProduct.stock === 'out') return;
   const activeVariant = currentSelectedProduct.variants.find(v => v.size === selectedSize);
   const itemPrice = activeVariant && activeVariant.price ? activeVariant.price : currentSelectedProduct.price;
 
