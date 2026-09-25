@@ -54,7 +54,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown الذكية والمصححة بالكامل لجلب الصور والمقاسات
+// دالة تحليل الـ Markdown الذكية والمصححة بالكامل لمعالجة الصور والمقاسات
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -83,17 +83,20 @@ function parseMarkdown(markdownText, id) {
       return `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${clean}`;
     };
 
-    const rawImageField = getField('image');
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
-    const mainImage = fixImagePath(rawImageField) || defaultImg;
-
-    // استخراج كافة الصور بدقة من ملف الـ Frontmatter لضمان عدم تلف أي صورة مصغرة
-    let allExtractedImages = [mainImage];
+    
+    // استخراج جميع الصور بمرونة تامة من أي شكل في الـ Frontmatter (سواء نص مباشر أو مصفوفة عناصر)
+    let allExtractedImages = [];
     const lines = frontmatter.split('\n');
+    
     for (let line of lines) {
+      // البحث عن أي سطر يحتوي على مسار صورة
       if (line.includes('.jpg') || line.includes('.png') || line.includes('.jpeg') || line.includes('.webp') || line.includes('/images/')) {
-        let partsLine = line.split(':');
-        let val = partsLine.length > 1 ? partsLine[1] : line;
+        let val = line;
+        if (line.includes(':')) {
+          const partsLine = line.split(':');
+          val = partsLine.slice(1).join(':'); // أخذ القسم الذي بعد النقطتين
+        }
         let fixed = fixImagePath(val);
         if (fixed && !allExtractedImages.includes(fixed)) {
           allExtractedImages.push(fixed);
@@ -101,10 +104,10 @@ function parseMarkdown(markdownText, id) {
       }
     }
 
-    let allImages = allExtractedImages;
-    if (allImages.length === 0) allImages = [defaultImg];
+    let mainImage = allExtractedImages.length > 0 ? allExtractedImages[0] : defaultImg;
+    let allImages = allExtractedImages.length > 0 ? allExtractedImages : [defaultImg];
 
-    // استخراج المقاسات
+    // استخراج المقاسات بدقة
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
     
