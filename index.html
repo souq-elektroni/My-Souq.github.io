@@ -502,11 +502,11 @@
           return `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${clean.startsWith('images/') ? clean : 'images/' + clean}`;
         };
 
-        // استخراج الصور بقوة وذكاء من ألبوم الـ Decap CMS (حتى لو كانت داخل image_item)
+        // استخراج الصور مع دعم مفتاح image_item الناتج من Decap CMS
         let allImages = [];
         const lines = frontmatter.split('\n');
         for (let line of lines) {
-          if (line.includes('.jpg') || line.includes('.png') || line.includes('.webp') || line.includes('.jpeg')) {
+          if (line.includes('image_item:') || line.includes('.jpg') || line.includes('.png') || line.includes('.webp') || line.includes('.jpeg')) {
             let partsPath = line.split(':');
             let targetPath = partsPath.length > 1 ? partsPath.slice(1).join(':') : line;
             let fixed = fixImagePath(targetPath);
@@ -519,7 +519,7 @@
         allImages = allImages.filter(img => img && !img.endsWith('images/'));
         const mainImage = allImages.length > 0 ? allImages[0] : 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
 
-        // استخراج المقاسات والمتغيرات مع الأكواد والأبعاد
+        // استخراج المقاسات والمتغيرات مع الأكواد والأبعاد بدقة عالية
         let parsedVariants = [];
         const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
         if (variantsMatch) {
