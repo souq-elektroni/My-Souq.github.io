@@ -496,28 +496,10 @@
 
         let allImages = [];
         const lines = frontmatter.split('\n');
-        let insideImages = false;
-
         for (let line of lines) {
-          if (line.includes('images:')) {
-            insideImages = true;
-            continue;
-          }
-          if (insideImages) {
-            let trimmed = line.trim();
-            if (trimmed.startsWith('-')) {
-              let pathPart = trimmed.replace('-', '').trim();
-              let fixed = fixImagePath(pathPart);
-              if (fixed && !allImages.includes(fixed)) {
-                allImages.push(fixed);
-              }
-            } else if (trimmed && !line.startsWith(' ') && !line.startsWith('\t')) {
-              insideImages = false;
-            }
-          }
-          if ((line.includes('.jpg') || line.includes('.png') || line.includes('.webp') || line.includes('.jpeg')) && !line.includes('image:')) {
+          if (line.includes('.jpg') || line.includes('.png') || line.includes('.webp') || line.includes('.jpeg')) {
             let partsPath = line.split(':');
-            let targetPath = partsPath.length > 1 ? partsPath[1] : line;
+            let targetPath = partsPath.length > 1 ? partsPath.slice(1).join(':') : line;
             let fixed = fixImagePath(targetPath);
             if (fixed && !allImages.includes(fixed)) {
               allImages.push(fixed);
@@ -531,30 +513,31 @@
         let parsedVariants = [];
         const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
         if (variantsMatch) {
-          let vBlock = variantsMatch.1;
+          let vBlock = variantsMatch[1];
           let vLines = vBlock.split('\n');
           let currentVar = null;
 
           for (let vLine of vLines) {
-            if (vLine.trim().startsWith('-')) {
-              if (currentVar) parsedVariants.push(currentVar);
+            let trimmedLine = vLine.trim();
+            if (trimmedLine.startsWith('-')) {
+              if (currentVar && currentVar.size) parsedVariants.push(currentVar);
               currentVar = { size: '', code: 'none', price: null, length: '', width: '', status: 'available' };
-              vLine = vLine.replace('-', '').trim();
+              trimmedLine = trimmedLine.replace('-', '').trim();
             }
             if (!currentVar) continue;
 
-            if (vLine.includes('size:')) {
-              currentVar.size = vLine.split(':')[1].trim().replace(/["']/g, '');
-            } else if (vLine.includes('code:')) {
-              currentVar.code = vLine.split(':')[1].trim().replace(/["']/g, '');
-            } else if (vLine.includes('price:')) {
-              currentVar.price = parseFloat(vLine.split(':')[1].trim()) || null;
-            } else if (vLine.includes('length:')) {
-              currentVar.length = vLine.split(':')[1].trim().replace(/["']/g, '');
-            } else if (vLine.includes('width:')) {
-              currentVar.width = vLine.split(':')[1].trim().replace(/["']/g, '');
-            } else if (vLine.includes('status:')) {
-              currentVar.status = vLine.split(':')[1].trim().replace(/["']/g, '');
+            if (trimmedLine.includes('size:')) {
+              currentVar.size = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+            } else if (trimmedLine.includes('code:')) {
+              currentVar.code = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+            } else if (trimmedLine.includes('price:')) {
+              currentVar.price = parseFloat(trimmedLine.split(':')[1].trim()) || null;
+            } else if (trimmedLine.includes('length:')) {
+              currentVar.length = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+            } else if (trimmedLine.includes('width:')) {
+              currentVar.width = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+            } else if (trimmedLine.includes('status:')) {
+              currentVar.status = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
             }
           }
           if (currentVar && currentVar.size) parsedVariants.push(currentVar);
@@ -654,7 +637,7 @@
       dimensionsBox.style.display = 'none';
 
       if (p.variants && p.variants.length > 0) {
-        p.variants.forEach((v, index) => {
+        p.variants.forEach((v) => {
           const btn = document.createElement('div');
           const isOut = (v.status === 'out');
           btn.className = 'size-btn ' + (isOut ? 'out-variant' : '');
