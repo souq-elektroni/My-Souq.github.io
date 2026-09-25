@@ -39,7 +39,6 @@ async function loadRealProducts() {
     products = [];
     for (let i = 0; i < mdFiles.length; i++) {
       const file = mdFiles[i];
-      // [تعديل تحسين الترميز لضمان قراءة الملفات العربية بسلام]
       const rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${file.name}`;
       const fileRes = await fetch(rawUrl);
       if (!fileRes.ok) continue;
@@ -63,7 +62,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown (مع معالجة آمنة للنص)
+// دالة تحليل الـ Markdown (مع التعديل الصارم لقراءة الألبوم حصرياً دون تخمين صور عشوائية)
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -97,6 +96,7 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     let allExtractedImages = [];
     
+    // استخراج الصور من قسم images فقط بكل دقة وصرامة
     const imagesMatch = frontmatter.match(/images:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (imagesMatch) {
       const imgLines = imagesMatch[1].split('\n');
@@ -117,18 +117,7 @@ function parseMarkdown(markdownText, id) {
       });
     }
 
-    if (allExtractedImages.length === 0) {
-      const lines = frontmatter.split('\n');
-      for (let line of lines) {
-        if (line.includes('.jpg') || line.includes('.png') || line.includes('.jpeg') || line.includes('.webp') || line.includes('/images/')) {
-          let val = line.includes(':') ? line.split(':').slice(1).join(':') : line;
-          let fixed = fixImagePath(val);
-          if (fixed && !allExtractedImages.includes(fixed)) {
-            allExtractedImages.push(fixed);
-          }
-        }
-      }
-    }
+    // إزالة البحث العشوائي القديم تماماً لمنع جلب الصور غير المرغوبة
 
     let mainImage = allExtractedImages.length > 0 ? allExtractedImages[0] : defaultImg;
     let allImages = allExtractedImages.length > 0 ? allExtractedImages : [defaultImg];
@@ -179,7 +168,6 @@ function parseMarkdown(markdownText, id) {
       });
     }
 
-    // [تعديل آمن لوصف المنتج لتجنب تعطل الكود إذا لم تكن مكتبة marked موجودة]
     let parsedBody = title;
     try {
       if (typeof marked !== 'undefined' && typeof marked.parse === 'function') {
@@ -207,7 +195,7 @@ function parseMarkdown(markdownText, id) {
   }
 }
 
-// ===== باقي الدوال تبقى كما هي بدون تغيير =====
+// ===== باقي الدوال كما هي =====
 function renderProducts(list) {
   if (!productsGrid) return;
   if (list.length === 0) {
