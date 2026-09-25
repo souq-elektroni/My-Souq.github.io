@@ -39,7 +39,6 @@ async function loadRealProducts() {
     products = [];
     for (let i = 0; i < mdFiles.length; i++) {
       const file = mdFiles[i];
-      // استخدام مسار raw مباشر وآمن لملفات المنتجات
       const rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encodeURIComponent(file.name)}`;
       const fileRes = await fetch(rawUrl);
       if (!fileRes.ok) continue;
@@ -63,7 +62,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown المتوافقة تماماً مع الـ Config الجديد وحالة المخزون
+// دالة تحليل الـ Markdown المتوافقة تماماً مع حالة المخزون
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -367,6 +366,18 @@ function openProductModal(id) {
 
   updateDimensionsDisplay(firstAvailableVariant);
 
+  // دالة للتحكم في إخفاء أو إظهار أزرار الشراء تماماً حسب حالة التوفر
+  function setActionButtonsVisibility(isHidden) {
+    const actionButtonsContainer = addBtn ? addBtn.parentElement : null; // الحاوية التي تحتضن الأزرار
+    // بدلاً من ذلك، نتحكم في أزرار الإضافة للسلّة وواتساب مباشرة
+    if (addBtn) {
+      addBtn.style.display = isHidden ? 'none' : 'block';
+    }
+    if (waBtn) {
+      waBtn.style.display = isHidden ? 'none' : 'flex';
+    }
+  }
+
   if (sizesContainer) {
     currentSelectedProduct.variants.forEach((v) => {
       const btn = document.createElement('div');
@@ -401,29 +412,9 @@ function openProductModal(id) {
         updateDimensionsDisplay(v);
 
         if (v.status === 'out' || currentSelectedProduct.stock === 'out') {
-          if (addBtn) {
-            addBtn.disabled = true;
-            addBtn.style.opacity = '0.5';
-            addBtn.style.cursor = 'not-allowed';
-            addBtn.style.pointerEvents = 'none';
-          }
-          if (waBtn) {
-            waBtn.classList.add('disabled');
-            waBtn.style.opacity = '0.5';
-            waBtn.style.pointerEvents = 'none';
-          }
+          setActionButtonsVisibility(true); // إخفاء الأزرار تماماً
         } else {
-          if (addBtn) {
-            addBtn.disabled = false;
-            addBtn.style.opacity = '1';
-            addBtn.style.cursor = 'pointer';
-            addBtn.style.pointerEvents = 'auto';
-          }
-          if (waBtn) {
-            waBtn.classList.remove('disabled');
-            waBtn.style.opacity = '1';
-            waBtn.style.pointerEvents = 'auto';
-          }
+          setActionButtonsVisibility(false); // إظهار الأزرار
         }
 
         if (waBtn) {
@@ -446,30 +437,11 @@ function openProductModal(id) {
     });
   }
 
+  // تطبيق حالة الإخفاء فوراً عند فتح النافذة للمنتج غير المتاح
   if (selectedVariantStatus === 'out' || currentSelectedProduct.stock === 'out') {
-    if (addBtn) {
-      addBtn.disabled = true;
-      addBtn.style.opacity = '0.5';
-      addBtn.style.cursor = 'not-allowed';
-      addBtn.style.pointerEvents = 'none';
-    }
-    if (waBtn) {
-      waBtn.classList.add('disabled');
-      waBtn.style.opacity = '0.5';
-      waBtn.style.pointerEvents = 'none';
-    }
+    setActionButtonsVisibility(true);
   } else {
-    if (addBtn) {
-      addBtn.disabled = false;
-      addBtn.style.opacity = '1';
-      addBtn.style.cursor = 'pointer';
-      addBtn.style.pointerEvents = 'auto';
-    }
-    if (waBtn) {
-      waBtn.classList.remove('disabled');
-      waBtn.style.opacity = '1';
-      waBtn.style.pointerEvents = 'auto';
-    }
+    setActionButtonsVisibility(false);
   }
 
   if (waBtn) {
