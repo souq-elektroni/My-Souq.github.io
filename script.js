@@ -11,10 +11,29 @@ let discountRate = 0;
 const productsGrid = document.getElementById("products-container");
 const cartCount = document.getElementById("cartCount");
 
+// دالة مركزية لتنظيف وتصحيح مسارات الصور بشكل مطلق وصحيح
+function fixImagePath(rawPath) {
+  if (!rawPath) return '';
+  // إزالة أي علامات اقتباس، أقواس، مسافات، أو شرطة مائلة زائدة في نهاية المسار
+  let clean = rawPath.replace(/["'\[\]]/g, '').trim();
+  clean = clean.replace(/\/+$/, ''); 
+  if (!clean) return '';
+  
+  if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
+  if (clean.startsWith('/')) clean = clean.substring(1);
+  clean = clean.replace(/\s+/g, '%20');
+  
+  if (!clean.startsWith('images/')) {
+    clean = 'images/' + clean;
+  }
+  
+  // تحويل المسار إلى رابط كامل عبر جيت هب لضمان عمله في الـ Modal والـ Popup وفي أي صفحة
+  return `https://raw.githubusercontent.com/souq-elektroni/My-Souq.github.io/main/${clean}`;
+}
+
 // ===== Load Real Products from GitHub =====
 async function loadRealProducts() {
   try {
-    // سنقوم بجلب الملفات مباشرة عبر مسار جيت هب العام أو الـ API المباشر
     const apiUrl = 'https://api.github.com/repos/souq-elektroni/My-Souq.github.io/contents/products';
     const response = await fetch(apiUrl);
     
@@ -33,7 +52,6 @@ async function loadRealProducts() {
     products = [];
     for (let i = 0; i < mdFiles.length; i++) {
       const file = mdFiles[i];
-      // استخدام رابط الـ raw المباشر لتجنب مشاكل الـ CORS
       const rawUrl = file.download_url || `https://raw.githubusercontent.com/souq-elektroni/My-Souq.github.io/main/products/${file.name}`;
       const fileRes = await fetch(rawUrl);
       const text = await fileRes.text();
@@ -47,7 +65,6 @@ async function loadRealProducts() {
     renderProducts(products);
   } catch (error) {
     console.error('خطأ في جلب المنتجات:', error);
-    // طريقة احتياطية في حال فشل الـ API: محاولة جلب ملف تجريبي أو تنبيه واضح
     productsGrid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--burgundy-soft); font-size: 16px; font-weight: bold;">تأكد أن مستودع جيت هب عام (Public) وأن مجلد products يحتوي على منتجات.</p>`;
   }
 }
@@ -70,17 +87,6 @@ function parseMarkdown(markdownText, id) {
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
     
-    const fixImagePath = (rawPath) => {
-      if (!rawPath) return '';
-      let clean = rawPath.replace(/["'\[\]]/g, '').trim();
-      if (!clean) return '';
-      if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
-      if (clean.startsWith('/')) clean = clean.substring(1);
-      clean = clean.replace(/\s+/g, '%20');
-      if (!clean.startsWith('images/')) clean = 'images/' + clean;
-      return clean;
-    };
-
     const rawImageField = getField('image');
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     const mainImage = fixImagePath(rawImageField) || defaultImg;
