@@ -2,8 +2,11 @@
 let products = [];
 let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
 let currentCategory = "الكل";
+let currentStockFilter = "all";
 let selectedSize = null;
+let selectedVariantStatus = "available";
 let currentSelectedProduct = null;
+let activeModalImage = '';
 let discountRate = 0;
 
 // ===== GitHub Config =====
@@ -53,7 +56,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown المتوافقة تماماً مع الـ Config الجديد
+// دالة تحليل الـ Markdown المتوافقة تماماً مع الـ Config الجديد وحالة المخزون
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -69,7 +72,9 @@ function parseMarkdown(markdownText, id) {
 
     const title = getField('title') || 'منتج جديد';
     const price = parseFloat(getField('price')) || 0;
+    const oldPrice = parseFloat(getField('oldPrice')) || 0;
     const category = getField('category') || 'ملابس شتوية';
+    const stockStatus = getField('stock') || 'available';
     
     const fixImagePath = (rawPath) => {
       if (!rawPath) return '';
@@ -92,9 +97,7 @@ function parseMarkdown(markdownText, id) {
       const imgLines = imagesMatch[1].split('\n');
       imgLines.forEach(line => {
         let cleanLine = line.replace(/-\s*/, '').trim();
-        // لو السطر يحتوي على مسار صورة أو صيغة ملف
         if (cleanLine && (cleanLine.includes('/') || cleanLine.includes('.jpg') || cleanLine.includes('.png') || cleanLine.includes('.jpeg') || cleanLine.includes('.webp'))) {
-          // لو السطر فيه مفتاح مثل image_item: path
           if (cleanLine.includes(':')) {
             cleanLine = cleanLine.split(':').slice(1).join(':').trim();
           }
@@ -106,7 +109,6 @@ function parseMarkdown(markdownText, id) {
       });
     }
 
-    // لو الـ regex مالقش بالطريقة القياسية، نبحث عن أي مسار صور في الـ frontmatter
     if (allExtractedImages.length === 0) {
       const lines = frontmatter.split('\n');
       for (let line of lines) {
@@ -123,56 +125,50 @@ function parseMarkdown(markdownText, id) {
     let mainImage = allExtractedImages.length > 0 ? allExtractedImages[0] : defaultImg;
     let allImages = allExtractedImages.length > 0 ? allExtractedImages : [defaultImg];
 
-    // 2. استخراج المقاسات وربطها بالأكواد والأبعاد
+    // 2. استخراج المقاسات وربطها بالأكواد والأبعاد وحالة المخزون (status) بدقة
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
     
     if (variantsMatch) {
       const variantText = variantsMatch[1];
-      const blocks = variantText.split(/(?=\n\s*-\s*size:)/);
-      
-      blocks.forEach(block => {
-        if (!block.trim()) return;
-        
-        let sizeVal = '';
-        const sizeMatch = block.match(/size:\s*["']?([^,\n]+)["']?/i);
-        if (sizeMatch) sizeVal = sizeMatch[1].trim();
+      const vLines = variantText.split('\n');
+      let currentVar = null;
 
-        let codeVal = '';
-        const codeMatch = block.match(/code:\s*["']?([^,\n]+)["']?/i);
-        if (codeMatch) codeVal = codeMatch[1].trim();
-
-        let lenVal = '';
-        const lenMatch = block.match(/length:\s*["']?([^,\n]+)["']?/i);
-        if (lenMatch) lenVal = lenMatch[1].trim();
-
-        let widVal = '';
-        const widMatch = block.match(/width:\s*["']?([^,\n]+)["']?/i);
-        if (widMatch) widVal = widMatch[1].trim();
-
-        let priceVal = '';
-        const priceMatch = block.match(/price:\s*([0-9.]+)/i);
-        if (priceMatch) priceVal = priceMatch[1].trim();
-
-        if (sizeVal && sizeVal.toLowerCase() !== 'variants') {
-          parsedVariants.push({
-            size: sizeVal.replace(/['"\[\]]/g, ''),
-            code: codeVal && codeVal !== 'none' ? codeVal : '',
-            length: lenVal,
-            width: widVal,
-            price: priceVal ? parseFloat(priceVal) : price
-          });
+      for (let vLine of vLines) {
+        let trimmedLine = vLine.trim();
+        if (trimmedLine.startsWith('-')) {
+          if (currentVar && currentVar.size) parsedVariants.push(currentVar);
+          currentVar = { size: '', code: 'none', price: null, length: '', width: '', status: 'available' };
+          trimmedLine = trimmedLine.replace('-', '').trim();
         }
-      });
+        if (!currentVar) continue;
+
+        if (trimmedLine.startsWith('size:')) {
+          currentVar.size = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+        } else if (trimmedLine.startsWith('code:')) {
+          currentVar.code = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+        } else if (trimmedLine.startsWith('price:')) {
+          let pVal = parseFloat(trimmedLine.split(':')[1].trim());
+          if (!isNaN(pVal)) currentVar.price = pVal;
+        } else if (trimmedLine.startsWith('length:')) {
+          currentVar.length = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+        } else if (trimmedLine.startsWith('width:')) {
+          currentVar.width = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+        } else if (trimmedLine.startsWith('status:')) {
+          currentVar.status = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+        }
+      }
+      if (currentVar && currentVar.size) parsedVariants.push(currentVar);
     }
 
     if (parsedVariants.length === 0) {
       parsedVariants.push({
         size: "مقاس موحد",
-        code: "",
+        code: "none",
         length: "",
         width: "",
-        price: price
+        price: price,
+        status: stockStatus
       });
     }
 
@@ -181,6 +177,8 @@ function parseMarkdown(markdownText, id) {
       title: title,
       category: category,
       price: price,
+      oldPrice: oldPrice,
+      stock: stockStatus,
       image: mainImage,
       images: allImages,
       variants: parsedVariants,
@@ -217,6 +215,14 @@ function renderProducts(list) {
 // ===== Filter & Search =====
 function filterCategory(cat, btn) {
   currentCategory = cat;
+  currentStockFilter = "all";
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  handleSearchAndFilter();
+}
+
+function filterStock(status, btn) {
+  currentStockFilter = status;
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   handleSearchAndFilter();
@@ -225,9 +231,10 @@ function filterCategory(cat, btn) {
 function handleSearchAndFilter() {
   const query = document.getElementById('searchInput') ? document.getElementById('searchInput').value.toLowerCase() : '';
   let filtered = products.filter(p => {
-    const matchesCat = currentCategory === 'الكل' || p.category === currentCategory;
+    const matchesCat = currentCategory === 'الكل' || p.category === currentCategory || (currentCategory === 'عروض' && p.oldPrice > 0);
+    const matchesStock = currentStockFilter === 'all' || p.stock === currentStockFilter;
     const matchesSearch = p.title.toLowerCase().includes(query);
-    return matchesCat && matchesSearch;
+    return matchesCat && matchesStock && matchesSearch;
   });
   renderProducts(filtered);
 }
@@ -247,55 +254,70 @@ function openProductModal(id) {
 
   const modalImg = document.getElementById('modalImage');
   const thumbsContainer = document.getElementById('thumbnailsContainer');
-  
+  const stockBadge = document.getElementById('modalStockBadge');
+
   if (modalImg) {
     modalImg.src = currentSelectedProduct.image;
+    activeModalImage = currentSelectedProduct.image;
     modalImg.onerror = function() { this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'; };
   }
+
+  if (stockBadge) {
+    if (currentSelectedProduct.stock === 'out') {
+      stockBadge.className = 'stock-badge out';
+      stockBadge.innerText = '🔴 نفذت الكمية';
+    } else {
+      stockBadge.className = 'stock-badge';
+      stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
+    }
+  }
   
-  // عرض الصور المصغرة (الألبوم) مع ربطها بالأكواد لو وجدت (مثل R1, R2...)
+  // عرض الصور المصغرة (الألبوم) مع أثواب الأكواد R1, R2...
   if (thumbsContainer) {
     thumbsContainer.innerHTML = '';
     if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
       thumbsContainer.style.display = 'flex';
       currentSelectedProduct.images.forEach((imgSrc, idx) => {
-        const thumb = document.createElement('div');
-        thumb.className = `thumb-wrapper ${idx === 0 ? 'active' : ''}`;
-        thumb.style.cssText = "display: flex; flex-direction: column; align-items: center; cursor: pointer;";
+        const codeName = `R${idx + 1}`;
+        const wrapper = document.createElement('div');
+        wrapper.className = `thumb-wrapper ${idx === 0 ? 'active' : ''}`;
+        wrapper.style.cssText = "display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative;";
         
         const img = document.createElement('img');
         img.className = `thumb-img`;
         img.src = imgSrc;
-        img.style.cssText = "width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 2px solid transparent;";
-        if(idx === 0) img.style.borderColor = "var(--burgundy, #800020)";
-        img.onerror = function() { thumb.style.display = 'none'; };
+        img.style.cssText = "width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid transparent;";
+        if(idx === 0) img.style.borderColor = "var(--burgundy-soft, #803d48)";
+        img.onerror = function() { wrapper.style.display = 'none'; };
         
-        // تسمية الكود تبعا لتسلسل الصور R1, R2, R3...
         const codeLabel = document.createElement('span');
-        codeLabel.innerText = `R${idx + 1}`;
-        codeLabel.style.cssText = "font-size: 11px; color: #666; margin-top: 2px; font-weight: bold;";
+        codeLabel.className = 'thumb-code';
+        codeLabel.innerText = codeName;
+        codeLabel.style.cssText = "font-size: 11px; color: var(--text-muted); margin-top: 3px; font-weight: bold;";
 
-        thumb.appendChild(img);
-        thumb.appendChild(codeLabel);
+        wrapper.appendChild(img);
+        wrapper.appendChild(codeLabel);
 
-        thumb.onclick = () => {
+        wrapper.onclick = () => {
           if (modalImg) modalImg.src = imgSrc;
+          activeModalImage = imgSrc;
+          document.querySelectorAll('.thumb-wrapper').forEach(w => w.classList.remove('active'));
+          wrapper.classList.add('active');
           document.querySelectorAll('.thumb-img').forEach(t => t.style.borderColor = 'transparent');
-          img.style.borderColor = "var(--burgundy, #800020)";
-          
-          // لو الصورة مرتبطة بمقاس معين عن طريق الكود RX، يمكننا اختيار المقاس تلقائياً
-          const matchedVariant = currentSelectedProduct.variants.find(v => v.code === `R${idx + 1}`);
-          if (matchedVariant) {
+          img.style.borderColor = "var(--burgundy-soft, #803d48)";
+
+          const matchedVariant = currentSelectedProduct.variants.find(v => v.code === codeName);
+          if (matchedVariant && matchedVariant.status !== 'out') {
             const sizeBtns = document.querySelectorAll('.size-btn');
             sizeBtns.forEach(b => {
-              if (b.innerText.trim() === matchedVariant.size) {
+              if (b.dataset.size === matchedVariant.size) {
                 b.click();
               }
             });
           }
         };
 
-        thumbsContainer.appendChild(thumb);
+        thumbsContainer.appendChild(wrapper);
       });
     } else {
       thumbsContainer.style.display = 'none';
@@ -306,8 +328,6 @@ function openProductModal(id) {
   if (titleEl) titleEl.innerText = currentSelectedProduct.title;
 
   const priceEl = document.getElementById('modalPrice');
-  if (priceEl) priceEl.innerText = currentSelectedProduct.price + ' ج.م';
-
   const descEl = document.getElementById('modalDesc');
   if (descEl) descEl.innerText = currentSelectedProduct.desc;
 
@@ -319,10 +339,12 @@ function openProductModal(id) {
   if (sizesContainer) {
     sizesContainer.innerHTML = '';
   }
-  
-  const firstVariant = currentSelectedProduct.variants[0] || { size: 'مقاس موحد', code: '', length: '', width: '', price: currentSelectedProduct.price };
-  selectedSize = firstVariant.size || '';
-  if (priceEl) priceEl.innerText = (firstVariant.price || currentSelectedProduct.price) + ' ج.م';
+
+  const firstAvailableVariant = currentSelectedProduct.variants.find(v => v.status !== 'out') || currentSelectedProduct.variants[0];
+  selectedSize = firstAvailableVariant ? firstAvailableVariant.size : 'مقاس موحد';
+  selectedVariantStatus = firstAvailableVariant ? firstAvailableVariant.status : 'available';
+
+  if (priceEl) priceEl.innerText = (firstAvailableVariant?.price || currentSelectedProduct.price) + ' ج.م';
 
   function updateDimensionsDisplay(variant) {
     if (dimensionsContainer && lengthSpan && widthSpan) {
@@ -336,43 +358,78 @@ function openProductModal(id) {
     }
   }
 
-  updateDimensionsDisplay(firstVariant);
+  updateDimensionsDisplay(firstAvailableVariant);
 
   if (sizesContainer) {
-    currentSelectedProduct.variants.forEach((v, idx) => {
-      const btn = document.createElement('button');
-      btn.className = `size-btn ${idx === 0 ? 'selected' : ''}`;
-      btn.innerText = v.size;
+    currentSelectedProduct.variants.forEach((v) => {
+      const btn = document.createElement('div');
+      const isSelected = v.size === selectedSize;
+      const isOut = v.status === 'out';
+      
+      btn.className = `size-btn ${isSelected ? 'selected' : ''} ${isOut ? 'out-variant' : ''}`;
+      btn.dataset.size = v.size;
+      btn.style.cssText = `padding: 10px 18px; border: 2px solid ${isOut ? '#ef9a9a' : 'var(--border-color, #ebdcdb)'}; border-radius: 12px; background: ${isOut ? '#ffebee' : 'var(--bg-cream, #fdfbf7)'}; cursor: ${isOut ? 'not-allowed' : 'pointer'}; font-size: 16px; font-weight: 800; color: ${isOut ? '#c62828' : 'var(--text-dark, #2c2224)'}; display: flex; align-items: center; gap: 8px; opacity: ${isOut ? '0.8' : '1'}; text-decoration: ${isOut ? 'line-through' : 'none'};`;
+      
+      btn.innerHTML = `
+        <input type="radio" name="productSize" value="${v.size}" ${isSelected ? 'checked' : ''} ${isOut ? 'disabled' : ''} style="accent-color: var(--burgundy-soft, #803d48); width: 18px; height: 18px; cursor: pointer;">
+        <span>${v.size} ${isOut ? '(نفذت)' : ''}</span>
+      `;
+
       btn.onclick = () => {
-        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+        if (isOut) return;
+        document.querySelectorAll('.size-btn').forEach(b => {
+          b.classList.remove('selected');
+          b.style.background = b.classList.contains('out-variant') ? '#ffebee' : 'var(--bg-cream, #fdfbf7)';
+        });
         btn.classList.add('selected');
+        btn.style.background = 'var(--pink-soft, #f8ecee)';
+        
+        const radio = btn.querySelector('input');
+        if (radio) radio.checked = true;
+
         selectedSize = v.size;
+        selectedVariantStatus = v.status;
         
         if (priceEl) priceEl.innerText = (v.price || currentSelectedProduct.price) + ' ج.م';
         updateDimensionsDisplay(v);
 
-        // لو المقاس مربوط بكود صورة معين (مثل R1, R2...) نقوم بتغيير الصورة الرئيسية وتحديد الصورة المصغرة المقابلة تلقائياً
+        const addBtn = document.getElementById('addCartBtn');
+        const waBtn = document.getElementById('directWaBtn');
+        if (isOut) {
+          if (addBtn) addBtn.disabled = true;
+          if (waBtn) waBtn.classList.add('disabled');
+        } else {
+          if (addBtn) addBtn.disabled = false;
+          if (waBtn) waBtn.classList.remove('disabled');
+        }
+
         if (v.code && v.code !== 'none') {
-          const matchIndex = parseInt(v.code.replace('R', '')) - 1;
-          if (!isNaN(matchIndex) && currentSelectedProduct.images[matchIndex]) {
-            if (modalImg) modalImg.src = currentSelectedProduct.images[matchIndex];
-            const thumbWrappers = document.querySelectorAll('.thumb-wrapper');
-            thumbWrappers.forEach((tw, tIdx) => {
-              const im = tw.querySelector('.thumb-img');
-              if (im) {
-                im.style.borderColor = tIdx === matchIndex ? "var(--burgundy, #800020)" : "transparent";
-              }
-            });
-          }
+          const thumbWrappers = document.querySelectorAll('.thumb-wrapper');
+          thumbWrappers.forEach((tw) => {
+            const codeSpan = tw.querySelector('.thumb-code');
+            if (codeSpan && codeSpan.innerText === v.code) {
+              tw.click();
+            }
+          });
         }
       };
+
       sizesContainer.appendChild(btn);
     });
   }
 
+  const addBtn = document.getElementById('addCartBtn');
   const waBtn = document.getElementById('directWaBtn');
+  if (selectedVariantStatus === 'out') {
+    if (addBtn) addBtn.disabled = true;
+    if (waBtn) waBtn.classList.add('disabled');
+  } else {
+    if (addBtn) addBtn.disabled = false;
+    if (waBtn) waBtn.classList.remove('disabled');
+  }
+
   if (waBtn) {
-    const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${currentSelectedProduct.price} ج.م`);
+    const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${priceEl ? priceEl.innerText : currentSelectedProduct.price + ' ج.م'}`);
     waBtn.href = `https://wa.me/201116339905?text=${waText}`;
   }
 
@@ -386,7 +443,7 @@ function closeModal() {
 }
 
 function addToCart() {
-  if (!currentSelectedProduct) return;
+  if (!currentSelectedProduct || selectedVariantStatus === 'out') return;
   const activeVariant = currentSelectedProduct.variants.find(v => v.size === selectedSize);
   const itemPrice = activeVariant && activeVariant.price ? activeVariant.price : currentSelectedProduct.price;
 
@@ -394,7 +451,14 @@ function addToCart() {
   if (existing) {
     existing.qty += 1;
   } else {
-    cart.push({ ...currentSelectedProduct, price: itemPrice, size: selectedSize, qty: 1 });
+    cart.push({
+      id: currentSelectedProduct.id,
+      title: currentSelectedProduct.title,
+      price: itemPrice,
+      image: activeModalImage || currentSelectedProduct.image,
+      size: selectedSize,
+      qty: 1
+    });
   }
   localStorage.setItem("souqCart", JSON.stringify(cart));
   updateCartCount();
@@ -580,7 +644,7 @@ function selectPayment(method) {
     if (payCod) payCod.checked = true;
   } else {
     if (optInstapay) optInstapay.classList.add('selected');
-    if (payInstapay) payInstapay.checked, payInstapay.checked = true;
+    if (payInstapay) payInstapay.checked = true;
   }
 }
 
@@ -611,7 +675,7 @@ function finalizeOrder() {
   msg += `📞 الهاتف: ${phone}\n`;
   msg += `📍 العنوان: ${address}\n\n`;
   msg += `🛒 *المنتجات المطلوبة:*\n${itemsTest}\n\n`;
-  msg+= `💰 *الإجمالي النهائي:* ${totalText}\n`;
+  msg += `💰 *الإجمالي النهائي:* ${totalText}\n`;
   msg += `💳 *طريقة الدفع:* ${payMethod}`;
 
   const encodedMsg = encodeURIComponent(msg);
@@ -620,7 +684,7 @@ function finalizeOrder() {
   const paymentModal = document.getElementById('paymentModal');
   const successModal = document.getElementById('successModal');
   if (paymentModal) paymentModal.classList.remove('active');
-  if(successModal) successModal.classList.add('active');
+  if (successModal) successModal.classList.add('active');
   
   cart = [];
   updateCartCount();
