@@ -62,7 +62,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown مع القراءة الصارمة والحصرية للصور من الـ Frontmatter فقط
+// ===== دالة تحليل الـ Markdown المطورة والمرنة =====
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -96,7 +96,17 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     let allExtractedImages = [];
     
-    // استخراج الصور بدقة تامة من قسم الـ images المخصص في الـ Frontmatter فقط
+    // 1. البحث عن الصورة الرئيسية إن وجدت (بدون اشتراط وجودها)
+    const singleImgMatch = frontmatter.match(/image:\s*(.+)/);
+    if (singleImgMatch) {
+      let cleaned = singleImgMatch[1].trim();
+      if (cleaned && cleaned !== 'none' && !cleaned.startsWith('images:')) {
+        let fixed = fixImagePath(cleaned);
+        if (fixed) allExtractedImages.push(fixed);
+      }
+    }
+
+    // 2. استخراج صور الألبوم من قسم images بدقة
     const imagesMatch = frontmatter.match(/images:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (imagesMatch) {
       const imgLines = imagesMatch[1].split('\n');
@@ -645,7 +655,7 @@ function finalizeOrder() {
   const address = addressEl ? addressEl.value.trim() : '';
   
   const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
-  const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلاستلام' : 'Instapay';
+  const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
   
   let itemsTest = cart.map(i => `- ${i.title} (مقاس: ${i.size}) × ${i.qty} = ${i.price * i.qty} ج.م`).join('\n');
   const totalPriceEl = document.getElementById('cartTotalPrice');
