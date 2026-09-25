@@ -683,13 +683,10 @@
         if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
           thumbsContainer.style.display = 'flex';
           
-          // عكس ترتيب الصور لتعرض بالترتيب الطبيعي (R1 أولاً ثم R2 وهكذا)
-          const orderedImages = [...currentSelectedProduct.images].reverse();
-
-          orderedImages.forEach((imgSrc, idx) => {
-            const originalIndex = currentSelectedProduct.images.length - 1 - idx;
-            const codeName = `R${originalIndex + 1}`;
+          currentSelectedProduct.images.forEach((imgSrc, idx) => {
+            const codeName = `R${idx + 1}`;
             
+            // فحص هل الصورة مرتبطة بمقاس حالته out أو لا
             const matchedVariant = currentSelectedProduct.variants.find(v => v.code === codeName);
             const isOut = matchedVariant && matchedVariant.status === 'out';
 
@@ -777,7 +774,6 @@
           }
 
           if (v.code && v.code !== 'none') {
-            const imgNum = parseInt(v.code.replace('R', ''));
             const wrappers = document.querySelectorAll('.thumb-wrapper');
             wrappers.forEach(w => {
               const codeSpan = w.querySelector('.thumb-code');
@@ -995,7 +991,7 @@
       document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
       if (method === 'cod') {
         document.getElementById('optCod').classList.add('selected');
-        document.getElementById('payCod').checked, true;
+        document.getElementById('payCod').checked = true;
       } else {
         document.getElementById('optInstapay').classList.add('selected');
         document.getElementById('payInstapay').checked = true;
