@@ -62,7 +62,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown (المحدثة لتتوافق مع قوائم الصور الـ list والـ image_item)
+// دالة تحليل الـ Markdown
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -94,10 +94,8 @@ function parseMarkdown(markdownText, id) {
     };
 
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
-    
     let allExtractedImages = [];
     
-    // استخراج ألبوم الصور بناءً على هيكل الـ list (image_item)
     const imagesMatch = frontmatter.match(/images:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (imagesMatch) {
       const imgLines = imagesMatch[1].split('\n');
@@ -118,7 +116,6 @@ function parseMarkdown(markdownText, id) {
       });
     }
 
-    // طريقة احتياطية في حال اختلاف التنسيق
     if (allExtractedImages.length === 0) {
       const lines = frontmatter.split('\n');
       for (let line of lines) {
@@ -354,10 +351,7 @@ function openProductModal(id) {
   const lengthSpan = document.getElementById('modalLength');
   const widthSpan = document.getElementById('modalWidth');
 
-  if (sizesContainer) {
-    sizesContainer.innerHTML = '';
-  }
-
+  if (sizesContainer) sizesContainer.innerHTML = '';
   if (priceEl) priceEl.innerText = (firstVariant?.price || currentSelectedProduct.price) + ' ج.م';
 
   function updateDimensionsDisplay(variant) {
@@ -375,12 +369,8 @@ function openProductModal(id) {
   updateDimensionsDisplay(firstVariant);
 
   function setActionButtonsVisibility(isOutStock) {
-    if (addBtn) {
-      addBtn.style.display = isOutStock ? 'none' : 'block';
-    }
-    if (waBtn) {
-      waBtn.style.display = isOutStock ? 'none' : 'flex';
-    }
+    if (addBtn) addBtn.style.display = isOutStock ? 'none' : 'block';
+    if (waBtn) waBtn.style.display = isOutStock ? 'none' : 'flex';
   }
 
   if (sizesContainer) {
@@ -420,27 +410,13 @@ function openProductModal(id) {
           const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${priceEl ? priceEl.innerText : currentSelectedProduct.price + ' ج.م'}`);
           waBtn.href = `https://wa.me/201116339905?text=${waText}`;
         }
-
-        if (v.code && v.code !== 'none') {
-          const thumbWrappers = document.querySelectorAll('.thumb-wrapper');
-          thumbWrappers.forEach((tw) => {
-            const codeSpan = tw.querySelector('.thumb-code');
-            if (codeSpan && codeSpan.innerText === v.code) {
-              tw.click();
-            }
-          });
-        }
       };
 
       sizesContainer.appendChild(btn);
     });
   }
 
-  if (currentSelectedProduct.stock === 'out') {
-    setActionButtonsVisibility(true);
-  } else {
-    setActionButtonsVisibility(false);
-  }
+  setActionButtonsVisibility(currentSelectedProduct.stock === 'out');
 
   if (waBtn) {
     const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${priceEl ? priceEl.innerText : currentSelectedProduct.price + ' ج.م'}`);
@@ -474,7 +450,6 @@ function addToCart() {
       qty: 1
     });
   }
-  localStorage.setItem("souqCart", JSON.stringify(cart));
   updateCartCount();
   closeModal();
   openCartModal();
@@ -485,9 +460,7 @@ function showToast() {
   const toast = document.getElementById('toastNotification');
   if (toast) {
     toast.classList.add('show');
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, 3000);
+    setTimeout(() => { toast.classList.remove('show'); }, 3000);
   }
 }
 
