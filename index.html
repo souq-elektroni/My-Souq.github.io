@@ -502,16 +502,40 @@
           return `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${clean.startsWith('images/') ? clean : 'images/' + clean}`;
         };
 
-        // استخراج الصور مع دعم مفتاح image_item الناتج من Decap CMS
         let allImages = [];
         const lines = frontmatter.split('\n');
+        let capturingImages = false;
+
         for (let line of lines) {
-          if (line.includes('image_item:') || line.includes('.jpg') || line.includes('.png') || line.includes('.webp') || line.includes('.jpeg')) {
-            let partsPath = line.split(':');
-            let targetPath = partsPath.length > 1 ? partsPath.slice(1).join(':') : line;
-            let fixed = fixImagePath(targetPath);
-            if (fixed && !allImages.includes(fixed)) {
-              allImages.push(fixed);
+          if (line.trim().startsWith('images:')) {
+            capturingImages = true;
+            continue;
+          }
+          if (capturingImages) {
+            if (line.trim() && !line.startsWith(' ') && !line.startsWith('-')) {
+              capturingImages = false;
+            } else {
+              if (line.includes('.jpg') || line.includes('.png') || line.includes('.webp') || line.includes('.jpeg')) {
+                let partsPath = line.split(':');
+                let targetPath = partsPath.length > 1 ? partsPath.slice(1).join(':') : line;
+                let fixed = fixImagePath(targetPath);
+                if (fixed && !allImages.includes(fixed)) {
+                  allImages.push(fixed);
+                }
+              }
+            }
+          }
+        }
+
+        if (allImages.length === 0) {
+          for (let line of lines) {
+            if (line.includes('.jpg') || line.includes('.png') || line.includes('.webp') || line.includes('.jpeg')) {
+              let partsPath = line.split(':');
+              let targetPath = partsPath.length > 1 ? partsPath.slice(1).join(':') : line;
+              let fixed = fixImagePath(targetPath);
+              if (fixed && !allImages.includes(fixed)) {
+                allImages.push(fixed);
+              }
             }
           }
         }
@@ -519,7 +543,6 @@
         allImages = allImages.filter(img => img && !img.endsWith('images/'));
         const mainImage = allImages.length > 0 ? allImages[0] : 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
 
-        // استخراج المقاسات والمتغيرات مع الأكواد والأبعاد بدقة عالية
         let parsedVariants = [];
         const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
         if (variantsMatch) {
