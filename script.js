@@ -2,7 +2,6 @@
 let products = [];
 let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
 let currentCategory = "الكل";
-let maxAllowedPrice = 2000;
 let selectedSize = null;
 let currentSelectedProduct = null;
 let discountRate = 0;
@@ -54,7 +53,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown المتوافقة مع ألبوم الصور في لوحة التحكم
+// دالة تحليل الـ Markdown المتوافقة تماماً مع الـ Config الجديد
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -68,7 +67,7 @@ function parseMarkdown(markdownText, id) {
       return match ? match[1].trim().replace(/^["']|["']$/g, '') : '';
     };
 
-    const title = getField('title') || getField('name') || 'منتج جديد';
+    const title = getField('title') || 'منتج جديد';
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
     
@@ -85,20 +84,38 @@ function parseMarkdown(markdownText, id) {
 
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     
-    // استخراج كافة الصور من ألبوم الصور في ملف الـ Markdown بدقة فائقة
+    // 1. استخراج صور الألبوم (images widget) بدقة
     let allExtractedImages = [];
-    const lines = frontmatter.split('\n');
+    const imagesMatch = frontmatter.match(/images:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     
-    for (let line of lines) {
-      if (line.includes('.jpg') || line.includes('.png') || line.includes('.jpeg') || line.includes('.webp') || line.includes('/images/')) {
-        let val = line;
-        if (line.includes(':')) {
-          const partsLine = line.split(':');
-          val = partsLine.slice(1).join(':');
+    if (imagesMatch) {
+      const imgLines = imagesMatch[1].split('\n');
+      imgLines.forEach(line => {
+        let cleanLine = line.replace(/-\s*/, '').trim();
+        // لو السطر يحتوي على مسار صورة أو صيغة ملف
+        if (cleanLine && (cleanLine.includes('/') || cleanLine.includes('.jpg') || cleanLine.includes('.png') || cleanLine.includes('.jpeg') || cleanLine.includes('.webp'))) {
+          // لو السطر فيه مفتاح مثل image_item: path
+          if (cleanLine.includes(':')) {
+            cleanLine = cleanLine.split(':').slice(1).join(':').trim();
+          }
+          let fixed = fixImagePath(cleanLine);
+          if (fixed && !allExtractedImages.includes(fixed)) {
+            allExtractedImages.push(fixed);
+          }
         }
-        let fixed = fixImagePath(val);
-        if (fixed && !allExtractedImages.includes(fixed)) {
-          allExtractedImages.push(fixed);
+      });
+    }
+
+    // لو الـ regex مالقش بالطريقة القياسية، نبحث عن أي مسار صور في الـ frontmatter
+    if (allExtractedImages.length === 0) {
+      const lines = frontmatter.split('\n');
+      for (let line of lines) {
+        if (line.includes('.jpg') || line.includes('.png') || line.includes('.jpeg') || line.includes('.webp') || line.includes('/images/')) {
+          let val = line.includes(':') ? line.split(':').slice(1).join(':') : line;
+          let fixed = fixImagePath(val);
+          if (fixed && !allExtractedImages.includes(fixed)) {
+            allExtractedImages.push(fixed);
+          }
         }
       }
     }
@@ -106,39 +123,44 @@ function parseMarkdown(markdownText, id) {
     let mainImage = allExtractedImages.length > 0 ? allExtractedImages[0] : defaultImg;
     let allImages = allExtractedImages.length > 0 ? allExtractedImages : [defaultImg];
 
-    // استخراج المقاسات
+    // 2. استخراج المقاسات وربطها بالأكواد والأبعاد
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
     
     if (variantsMatch) {
       const variantText = variantsMatch[1];
-      const blocks = variantText.split(/(?=\n\s*-\s*size:|\n\s*-\s*المقاس:|\n\s*-\s*["']?[0-9a-zA-Z\u0600-\u06FF]+["']?\s*:)/);
+      const blocks = variantText.split(/(?=\n\s*-\s*size:)/);
       
       blocks.forEach(block => {
         if (!block.trim()) return;
         
         let sizeVal = '';
-        const sizeMatch1 = block.match(/(?:size|المقاس):\s*["']?([^,\n]+)["']?/i);
-        const sizeMatch2 = block.match(/-\s*["']?([0-9a-zA-Z\u0600-\u06FF\s]+)["']?\s*:/);
-        const sizeMatch3 = block.match(/([0-9a-zA-Z\u0600-\u06FF]+):\s*\n/);
-        
-        if (sizeMatch1) sizeVal = sizeMatch1[1].trim();
-        else if (sizeMatch2) sizeVal = sizeMatch2[1].trim();
-        else if (sizeMatch3) sizeVal = sizeMatch3[1].trim();
+        const sizeMatch = block.match(/size:\s*["']?([^,\n]+)["']?/i);
+        if (sizeMatch) sizeVal = sizeMatch[1].trim();
+
+        let codeVal = '';
+        const codeMatch = block.match(/code:\s*["']?([^,\n]+)["']?/i);
+        if (codeMatch) codeVal = codeMatch[1].trim();
 
         let lenVal = '';
-        const lenMatch = block.match(/(?:الطول|length)[^0-9]*([0-9.]+)/i);
+        const lenMatch = block.match(/length:\s*["']?([^,\n]+)["']?/i);
         if (lenMatch) lenVal = lenMatch[1].trim();
 
         let widVal = '';
-        const widMatch = block.match(/(?:العرض|width)[^0-9]*([0-9.]+)/i);
+        const widMatch = block.match(/width:\s*["']?([^,\n]+)["']?/i);
         if (widMatch) widVal = widMatch[1].trim();
+
+        let priceVal = '';
+        const priceMatch = block.match(/price:\s*([0-9.]+)/i);
+        if (priceMatch) priceVal = priceMatch[1].trim();
 
         if (sizeVal && sizeVal.toLowerCase() !== 'variants') {
           parsedVariants.push({
             size: sizeVal.replace(/['"\[\]]/g, ''),
+            code: codeVal && codeVal !== 'none' ? codeVal : '',
             length: lenVal,
-            width: widVal
+            width: widVal,
+            price: priceVal ? parseFloat(priceVal) : price
           });
         }
       });
@@ -147,8 +169,10 @@ function parseMarkdown(markdownText, id) {
     if (parsedVariants.length === 0) {
       parsedVariants.push({
         size: "مقاس موحد",
-        length: getField('الطول') || getField('length') || '',
-        width: getField('العرض') || getField('width') || ''
+        code: "",
+        length: "",
+        width: "",
+        price: price
       });
     }
 
@@ -229,20 +253,48 @@ function openProductModal(id) {
     modalImg.onerror = function() { this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'; };
   }
   
+  // عرض الصور المصغرة (الألبوم) مع ربطها بالأكواد لو وجدت (مثل R1, R2...)
   if (thumbsContainer) {
     thumbsContainer.innerHTML = '';
     if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
       thumbsContainer.style.display = 'flex';
       currentSelectedProduct.images.forEach((imgSrc, idx) => {
-        const thumb = document.createElement('img');
-        thumb.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
-        thumb.src = imgSrc;
-        thumb.onerror = function() { this.style.display = 'none'; };
+        const thumb = document.createElement('div');
+        thumb.className = `thumb-wrapper ${idx === 0 ? 'active' : ''}`;
+        thumb.style.cssText = "display: flex; flex-direction: column; align-items: center; cursor: pointer;";
+        
+        const img = document.createElement('img');
+        img.className = `thumb-img`;
+        img.src = imgSrc;
+        img.style.cssText = "width: 60px; height: 60px; object-fit: cover; border-radius: 6px; border: 2px solid transparent;";
+        if(idx === 0) img.style.borderColor = "var(--burgundy, #800020)";
+        img.onerror = function() { thumb.style.display = 'none'; };
+        
+        // تسمية الكود تبعا لتسلسل الصور R1, R2, R3...
+        const codeLabel = document.createElement('span');
+        codeLabel.innerText = `R${idx + 1}`;
+        codeLabel.style.cssText = "font-size: 11px; color: #666; margin-top: 2px; font-weight: bold;";
+
+        thumb.appendChild(img);
+        thumb.appendChild(codeLabel);
+
         thumb.onclick = () => {
           if (modalImg) modalImg.src = imgSrc;
-          document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
-          thumb.classList.add('active');
+          document.querySelectorAll('.thumb-img').forEach(t => t.style.borderColor = 'transparent');
+          img.style.borderColor = "var(--burgundy, #800020)";
+          
+          // لو الصورة مرتبطة بمقاس معين عن طريق الكود RX، يمكننا اختيار المقاس تلقائياً
+          const matchedVariant = currentSelectedProduct.variants.find(v => v.code === `R${idx + 1}`);
+          if (matchedVariant) {
+            const sizeBtns = document.querySelectorAll('.size-btn');
+            sizeBtns.forEach(b => {
+              if (b.innerText.trim() === matchedVariant.size) {
+                b.click();
+              }
+            });
+          }
         };
+
         thumbsContainer.appendChild(thumb);
       });
     } else {
@@ -268,8 +320,9 @@ function openProductModal(id) {
     sizesContainer.innerHTML = '';
   }
   
-  const firstVariant = currentSelectedProduct.variants[0] || { size: 'مقاس موحد', length: '', width: '' };
+  const firstVariant = currentSelectedProduct.variants[0] || { size: 'مقاس موحد', code: '', length: '', width: '', price: currentSelectedProduct.price };
   selectedSize = firstVariant.size || '';
+  if (priceEl) priceEl.innerText = (firstVariant.price || currentSelectedProduct.price) + ' ج.م';
 
   function updateDimensionsDisplay(variant) {
     if (dimensionsContainer && lengthSpan && widthSpan) {
@@ -294,7 +347,24 @@ function openProductModal(id) {
         document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
         btn.classList.add('selected');
         selectedSize = v.size;
+        
+        if (priceEl) priceEl.innerText = (v.price || currentSelectedProduct.price) + ' ج.م';
         updateDimensionsDisplay(v);
+
+        // لو المقاس مربوط بكود صورة معين (مثل R1, R2...) نقوم بتغيير الصورة الرئيسية وتحديد الصورة المصغرة المقابلة تلقائياً
+        if (v.code && v.code !== 'none') {
+          const matchIndex = parseInt(v.code.replace('R', '')) - 1;
+          if (!isNaN(matchIndex) && currentSelectedProduct.images[matchIndex]) {
+            if (modalImg) modalImg.src = currentSelectedProduct.images[matchIndex];
+            const thumbWrappers = document.querySelectorAll('.thumb-wrapper');
+            thumbWrappers.forEach((tw, tIdx) => {
+              const im = tw.querySelector('.thumb-img');
+              if (im) {
+                im.style.borderColor = tIdx === matchIndex ? "var(--burgundy, #800020)" : "transparent";
+              }
+            });
+          }
+        }
       };
       sizesContainer.appendChild(btn);
     });
@@ -317,11 +387,14 @@ function closeModal() {
 
 function addToCart() {
   if (!currentSelectedProduct) return;
+  const activeVariant = currentSelectedProduct.variants.find(v => v.size === selectedSize);
+  const itemPrice = activeVariant && activeVariant.price ? activeVariant.price : currentSelectedProduct.price;
+
   const existing = cart.find(item => item.id === currentSelectedProduct.id && item.size === selectedSize);
   if (existing) {
     existing.qty += 1;
   } else {
-    cart.push({ ...currentSelectedProduct, size: selectedSize, qty: 1 });
+    cart.push({ ...currentSelectedProduct, price: itemPrice, size: selectedSize, qty: 1 });
   }
   localStorage.setItem("souqCart", JSON.stringify(cart));
   updateCartCount();
@@ -507,7 +580,7 @@ function selectPayment(method) {
     if (payCod) payCod.checked = true;
   } else {
     if (optInstapay) optInstapay.classList.add('selected');
-    if (payInstapay) payInstapay.checked = true;
+    if (payInstapay) payInstapay.checked, payInstapay.checked = true;
   }
 }
 
@@ -538,7 +611,7 @@ function finalizeOrder() {
   msg += `📞 الهاتف: ${phone}\n`;
   msg += `📍 العنوان: ${address}\n\n`;
   msg += `🛒 *المنتجات المطلوبة:*\n${itemsTest}\n\n`;
-  msg += `💰 *الإجمالي النهائي:* ${totalText}\n`;
+  msg+= `💰 *الإجمالي النهائي:* ${totalText}\n`;
   msg += `💳 *طريقة الدفع:* ${payMethod}`;
 
   const encodedMsg = encodeURIComponent(msg);
@@ -547,7 +620,7 @@ function finalizeOrder() {
   const paymentModal = document.getElementById('paymentModal');
   const successModal = document.getElementById('successModal');
   if (paymentModal) paymentModal.classList.remove('active');
-  if (successModal) successModal.classList.add('active');
+  if(successModal) successModal.classList.add('active');
   
   cart = [];
   updateCartCount();
