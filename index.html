@@ -491,7 +491,7 @@
       }
     }
 
-    // دالة تحليل الـ Markdown المطابقة تماماً لتركيبة الـ Variants المستقلة
+    // دالة تحليل الـ Markdown المتوافقة مع الأكواد المتعددة للمقاس الواحد
     function parseMarkdown(markdownText, id) {
       try {
         const parts = markdownText.split('---');
@@ -566,28 +566,40 @@
           const variantText = variantsMatch[1];
           const vLines = variantText.split('\n');
           let currentVar = null;
+          let capturingCodes = false;
 
           for (let vLine of vLines) {
             let trimmedLine = vLine.trim();
             if (trimmedLine.startsWith('-')) {
               if (currentVar && currentVar.size) parsedVariants.push(currentVar);
-              currentVar = { size: '', code: 'none', price: null, length: '', width: '', status: 'available' };
+              currentVar = { size: '', codes: [], price: null, length: '', width: '', status: 'available' };
+              capturingCodes = false;
               trimmedLine = trimmedLine.replace('-', '').trim();
             }
             if (!currentVar) continue;
 
             if (trimmedLine.startsWith('size:')) {
               currentVar.size = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
-            } else if (trimmedLine.startsWith('code:')) {
-              currentVar.code = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+              capturingCodes = false;
+            } else if (trimmedLine.startsWith('codes:')) {
+              capturingCodes = true;
+            } else if (capturingCodes && (trimmedLine.startsWith('-') || !trimmedLine.includes(':'))) {
+              let codeItem = trimmedLine.replace(/-\s*/, '').trim().replace(/["']/g, '');
+              if (codeItem && codeItem !== 'none') {
+                currentVar.codes.push(codeItem);
+              }
             } else if (trimmedLine.startsWith('price:')) {
+              capturingCodes = false;
               let pVal = parseFloat(trimmedLine.split(':')[1].trim());
               if (!isNaN(pVal)) currentVar.price = pVal;
             } else if (trimmedLine.startsWith('length:')) {
+              capturingCodes = false;
               currentVar.length = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
             } else if (trimmedLine.startsWith('width:')) {
+              capturingCodes = false;
               currentVar.width = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
             } else if (trimmedLine.startsWith('status:')) {
+              capturingCodes = false;
               currentVar.status = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
             }
           }
@@ -597,7 +609,7 @@
         if (parsedVariants.length === 0) {
           parsedVariants.push({
             size: "مقاس موحد",
-            code: "none",
+            codes: [],
             length: "",
             width: "",
             price: price,
@@ -705,7 +717,7 @@
         }
       }
       
-      // عرض الألبوم والصور المصغرة مطابقة تماماً لأكواد R1, R2 المستقلة
+      // عرض الألبوم والصور المصغرة مطابقة تماماً لأكواد R1, R2 المتعددة
       if (thumbsContainer) {
         thumbsContainer.innerHTML = '';
         if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
@@ -736,9 +748,9 @@
               document.querySelectorAll('.thumb-img').forEach(t => t.style.borderColor = 'transparent');
               img.style.borderColor = "var(--burgundy-soft, #803d48)";
 
-              // ربط الصورة المصغرة حصرياً بالمقاس المرتبط بنفس الكود (codeName) في الـ variants
-              const matchedVariant = currentSelectedProduct.variants.find(v => v.code === codeName);
-              if (matchedVariant && matchedVariant.status !== 'out') {
+              // البحث عن أول مقاس متاح يحتوي على هذا الكود ضمن مصفوفة الأكواد codes
+              const matchedVariant = currentSelectedProduct.variants.find(v => v.codes && v.codes.includes(codeName) && v.status !== 'out');
+              if (matchedVariant) {
                 const sizeBtns = document.querySelectorAll('.size-btn');
                 sizeBtns.forEach(b => {
                   if (b.dataset.size === matchedVariant.size) {
@@ -829,12 +841,13 @@
               if (waBtn) waBtn.classList.remove('disabled');
             }
 
-            // تفعيل الصورة المصغرة المقابلة حصرياً للكود الخاص بهذا المقاس
-            if (v.code && v.code !== 'none') {
+            // تفعيل الصورة المصغرة المقابلة إذا كان المقاس يحتوي على كود ضمن مصفوفة الأكواد
+            if (v.codes && v.codes.length > 0) {
+              const primaryCode = v.codes[0];
               const thumbWrappers = document.querySelectorAll('.thumb-wrapper');
               thumbWrappers.forEach((tw) => {
                 const codeSpan = tw.querySelector('.thumb-code');
-                if (codeSpan && codeSpan.innerText === v.code) {
+                if (codeSpan && codeSpan.innerText === primaryCode) {
                   tw.click();
                 }
               });
