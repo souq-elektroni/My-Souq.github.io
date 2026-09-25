@@ -49,36 +49,28 @@ collections:
           default: "available"
         }
       - { 
-          label: "المقاسات وربطها بأكواد الصور", 
+          label: "المقاسات وربطها بأكواد الصور متعددة", 
           name: "variants", 
           widget: "list", 
           required: false,
           fields: [
-            { label: "المقاس (مثال: 3)", name: "size", widget: "string" },
+            { label: "المقاس (مثال: 2)", name: "size", widget: "string" },
             { 
-              label: "اختر كود الصورة لهذا المقاس (أو اختر none لو مش مرتبط بصورة)", 
-              name: "code", 
-              widget: "select", 
-              options: [
-                "none",
-                "R1", 
-                "R2", 
-                "R3", 
-                "R4", 
-                "R5", 
-                "R6", 
-                "R7", 
-                "R8", 
-                "R9", 
-                "R10"
-              ], 
-              default: "none" 
+              label: "أكواد الصور المرتبطة بهذا المقاس (يمكنك اختيار أكثر من كود مثل R1, R2)", 
+              name: "codes", 
+              widget: "list",
+              field: {
+                label: "الكود",
+                name: "code_item",
+                widget: "select",
+                options: ["none", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10"]
+              }
             },
             { label: "السعر (اختياري)", name: "price", widget: "number", value_type: "float", required: false },
             { label: "الطول (سم)", name: "length", widget: "string", required: false },
             { label: "العرض (سم)", name: "width", widget: "string", required: false },
             { 
-              label: "حالة الكود", 
+              label: "حالة هذه المقاسات/الأكواد", 
               name: "status", 
               widget: "select", 
               options: [
