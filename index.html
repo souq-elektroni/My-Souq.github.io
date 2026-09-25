@@ -125,6 +125,12 @@
     .cat-btn.active, .cat-btn:hover { background: var(--burgundy-soft); color: white; border-color: var(--burgundy-soft); }
     .cat-btn.offer-tab { background: #fff3cd; color: #856404; border-color: #ffeeba; }
     .cat-btn.offer-tab.active, .cat-btn.offer-tab:hover { background: #d39e00; color: white; border-color: #b38600; }
+    
+    /* أزرار الفلترة الجديدة للمخزون */
+    .cat-btn.stock-avail { background: #e8f5e9; color: #2e7d32; border-color: #a5d6a7; }
+    .cat-btn.stock-avail.active, .cat-btn.stock-avail:hover { background: #2e7d32; color: white; border-color: #1b5e20; }
+    .cat-btn.stock-out { background: #ffebee; color: #c62828; border-color: #ef9a9a; }
+    .cat-btn.stock-out.active, .cat-btn.stock-out:hover { background: #c62828; color: white; border-color: #b71c1c; }
 
     .search-sort-box { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
     .search-input {
@@ -289,6 +295,9 @@
       <button class="cat-btn" onclick="filterCategory('ملابس خروج', this)">ملابس خروج</button>
       <button class="cat-btn" onclick="filterCategory('أحذية', this)">أحذية</button>
       <button class="cat-btn offer-tab" onclick="filterCategory('عروض', this)">🔥 عروض</button>
+      <!-- أزرار الفلترة الجديدة للمخزون -->
+      <button class="cat-btn stock-avail" onclick="filterStock('available', this)">🟢 متوفرة</button>
+      <button class="cat-btn stock-out" onclick="filterStock('out', this)">🔴 نفذت</button>
     </div>
 
     <div class="search-sort-box">
@@ -418,6 +427,7 @@
     let products = [];
     let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
     let currentCategory = "الكل";
+    let currentStockFilter = "all"; // متغير لتتبع فلتر المخزون الجديد
     let selectedSize = null;
     let currentSelectedProduct = null;
     let activeModalImage = '';
@@ -470,8 +480,6 @@
         const title = getField('title') || 'منتج جديد';
         const price = parseFloat(getField('price')) || 0;
         const category = getField('category') || 'ملابس شتوية';
-        
-        // قراءة حقل stock (المتوافق مع config.yml) أو status كاحتياط
         const stockStatus = getField('stock') || getField('status') || 'available';
         
         const fixImagePath = (rawPath) => {
@@ -537,7 +545,7 @@
 
     function renderProducts(list) {
       if (list.length === 0) {
-        productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">لا توجد منتجات مطابقة</p>';
+        productsGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); font-size: 18px; font-weight: bold;">لا توجد منتجات مطابقة لهذا الفلتر</p>';
         return;
       }
       productsGrid.innerHTML = list.map(p => `
@@ -554,6 +562,15 @@
 
     function filterCategory(cat, btn) {
       currentCategory = cat;
+      currentStockFilter = "all"; // إعادة ضبط فلتر المخزون عند اختيار تصنيف جديد
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      handleSearchAndFilter();
+    }
+
+    // دالة فلترة المخزون الجديدة (متوفرة / نفذت)
+    function filterStock(stockType, btn) {
+      currentStockFilter = stockType;
       document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       handleSearchAndFilter();
@@ -561,7 +578,22 @@
 
     function handleSearchAndFilter() {
       const query = document.getElementById('searchInput').value.toLowerCase();
-      renderProducts(products.filter(p => (currentCategory === 'الكل' || p.category === currentCategory) && p.title.toLowerCase().includes(query)));
+      
+      let filtered = products.filter(p => {
+        const matchesCategory = (currentCategory === 'الكل' || p.category === currentCategory);
+        const matchesSearch = p.title.toLowerCase().includes(query);
+        
+        let matchesStock = true;
+        if (currentStockFilter === 'available') {
+          matchesStock = (p.stock !== 'out'); // المنتجات المتاحة (تشمل available و low)
+        } else if (currentStockFilter === 'out') {
+          matchesStock = (p.stock === 'out'); // المنتجات التي نفذت فقط
+        }
+
+        return matchesCategory && matchesSearch && matchesStock;
+      });
+
+      renderProducts(filtered);
     }
 
     function applySorting() {
@@ -612,7 +644,6 @@
       document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
       document.getElementById('modalDesc').innerText = currentSelectedProduct.desc;
 
-      // التحكم التلقائي في حالة المخزون بناءً على حقل stock
       if (currentSelectedProduct.stock === 'out') {
         stockBadge.className = 'stock-badge out';
         stockBadge.innerText = '🔴 نفذت الكمية - غير متاح للطلب';
