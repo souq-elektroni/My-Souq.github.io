@@ -31,11 +31,11 @@ collections:
         }
       - { label: "الصورة الرئيسية", name: "image", widget: "image" }
       - { 
-          label: "صور الألبوم (أشكال المنتج)", 
+          label: "صور الألبوم (أشكال المنتج - يتم ترقيمها تنازلياً R1, R2, R3...)", 
           name: "images", 
           widget: "list", 
           required: false, 
-          field: { label: "صورة الشكل", name: "image_item", widget: "image" } 
+          field: { label: "صورة", name: "image_item", widget: "image" } 
         }
       - { label: "السعر الأساسي (ج.م)", name: "price", widget: "number", value_type: "float" }
       - { label: "السعر القديم قبل الخصم (اختياري)", name: "oldPrice", widget: "number", value_type: "float", required: false }
@@ -51,18 +51,35 @@ collections:
           default: "available"
         }
       - { 
-          label: "المقاسات والحالة", 
+          label: "المقاسات وربطها بأكواد الصور والحالة", 
           name: "variants", 
           widget: "list", 
           required: false,
           fields: [
             { label: "المقاس (مثال: 3)", name: "size", widget: "string" },
-            { label: "رقم الصورة المرتبطة (مثال: 1 للصورة الأولى، 2 للثانية)", name: "code", widget: "string", default: "1" },
+            { 
+              label: "اختر كود الصورة لهذا المقاس", 
+              name: "code", 
+              widget: "select", 
+              options: [
+                "R1", 
+                "R2", 
+                "R3", 
+                "R4", 
+                "R5", 
+                "R6", 
+                "R7", 
+                "R8", 
+                "R9", 
+                "R10"
+              ], 
+              default: "R1" 
+            },
             { label: "السعر (اختياري)", name: "price", widget: "number", value_type: "float", required: false },
             { label: "الطول (سم)", name: "length", widget: "string", required: false },
             { label: "العرض (سم)", name: "width", widget: "string", required: false },
             { 
-              label: "الحالة", 
+              label: "حالة الكود والمقاس", 
               name: "status", 
               widget: "select", 
               options: [
