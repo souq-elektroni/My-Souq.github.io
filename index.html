@@ -638,6 +638,7 @@
         stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
       }
 
+      // عرض صور الألبوم بدون أي كتابة مزعجة للعميل
       let thumbContainer = document.getElementById('thumbnailsContainer');
       thumbContainer.innerHTML = '';
       if (product.images && product.images.length > 0) {
@@ -656,6 +657,7 @@
             document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
             thumbImg.classList.add('active');
 
+            // عند الضغط على الصورة، يتم تحديد زر المقاس المرتبط بهذا الكود تلقائياً
             let matchingBtn = Array.from(document.querySelectorAll('.size-btn')).find(b => b.dataset.code === imgCode);
             if (matchingBtn) {
               matchingBtn.click();
@@ -692,6 +694,7 @@
             selectedSize = `مقاس ${v.size}`;
             selectedVariantStatus = v.status || 'available';
 
+            // ربط المقاس بالصورة المرتبطة بكودها (تغيير الصورة الكبيرة فوراً عند اختيار المقاس)
             if (product.images && product.images.length > 0) {
               let codeNum = parseInt(v.code.replace('R', '')) - 1;
               if (!isNaN(codeNum) && product.images[codeNum]) {
@@ -722,7 +725,7 @@
             let waBtn = document.getElementById('directWaBtn');
             if (selectedVariantStatus === 'out') {
               addBtn.disabled = true;
-              addBtn.innerText = 'هذا الشكل غير متوفر ❌';
+              addBtn.innerText = 'هذا المقاس غير متوفر ❌';
               waBtn.classList.add('disabled');
               waBtn.removeAttribute('href');
             } else {
