@@ -366,10 +366,8 @@ function openProductModal(id) {
 
   updateDimensionsDisplay(firstAvailableVariant);
 
-  // دالة للتحكم في إخفاء أو إظهار أزرار الشراء تماماً حسب حالة التوفر
+  // دالة للتحكم في إخفاء أو إظهار أزرار الشراء تماماً حسب حالة التوفر (محدثة)
   function setActionButtonsVisibility(isHidden) {
-    const actionButtonsContainer = addBtn ? addBtn.parentElement : null; // الحاوية التي تحتضن الأزرار
-    // بدلاً من ذلك، نتحكم في أزرار الإضافة للسلّة وواتساب مباشرة
     if (addBtn) {
       addBtn.style.display = isHidden ? 'none' : 'block';
     }
@@ -412,9 +410,9 @@ function openProductModal(id) {
         updateDimensionsDisplay(v);
 
         if (v.status === 'out' || currentSelectedProduct.stock === 'out') {
-          setActionButtonsVisibility(true); // إخفاء الأزرار تماماً
+          setActionButtonsVisibility(true);
         } else {
-          setActionButtonsVisibility(false); // إظهار الأزرار
+          setActionButtonsVisibility(false);
         }
 
         if (waBtn) {
@@ -437,7 +435,6 @@ function openProductModal(id) {
     });
   }
 
-  // تطبيق حالة الإخفاء فوراً عند فتح النافذة للمنتج غير المتاح
   if (selectedVariantStatus === 'out' || currentSelectedProduct.stock === 'out') {
     setActionButtonsVisibility(true);
   } else {
