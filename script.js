@@ -255,6 +255,10 @@ function openProductModal(id) {
   const modalImg = document.getElementById('modalImage');
   const thumbsContainer = document.getElementById('thumbnailsContainer');
   const stockBadge = document.getElementById('modalStockBadge');
+  
+  // تعريف أزرار الشراء للتحكم بها
+  const addBtn = document.getElementById('addCartBtn');
+  const waBtn = document.getElementById('directWaBtn');
 
   if (modalImg) {
     modalImg.src = currentSelectedProduct.image;
@@ -393,14 +397,29 @@ function openProductModal(id) {
         if (priceEl) priceEl.innerText = (v.price || currentSelectedProduct.price) + ' ج.م';
         updateDimensionsDisplay(v);
 
-        const addBtn = document.getElementById('addCartBtn');
-        const waBtn = document.getElementById('directWaBtn');
-        if (isOut) {
-          if (addBtn) addBtn.disabled = true;
-          if (waBtn) waBtn.classList.add('disabled');
+        // التحكم في الأزرار بناءً على حالة المقاس أو المنتج العام
+        if (v.status === 'out' || currentSelectedProduct.stock === 'out') {
+          if (addBtn) {
+            addBtn.disabled = true;
+            addBtn.style.opacity = '0.5';
+            addBtn.style.cursor = 'not-allowed';
+          }
+          if (waBtn) {
+            waBtn.classList.add('disabled');
+            waBtn.style.opacity = '0.5';
+            waBtn.style.pointerEvents = 'none';
+          }
         } else {
-          if (addBtn) addBtn.disabled = false;
-          if (waBtn) waBtn.classList.remove('disabled');
+          if (addBtn) {
+            addBtn.disabled = false;
+            addBtn.style.opacity = '1';
+            addBtn.style.cursor = 'pointer';
+          }
+          if (waBtn) {
+            waBtn.classList.remove('disabled');
+            waBtn.style.opacity = '1';
+            waBtn.style.pointerEvents = 'auto';
+          }
         }
 
         if (v.code && v.code !== 'none') {
@@ -418,14 +437,29 @@ function openProductModal(id) {
     });
   }
 
-  const addBtn = document.getElementById('addCartBtn');
-  const waBtn = document.getElementById('directWaBtn');
-  if (selectedVariantStatus === 'out') {
-    if (addBtn) addBtn.disabled = true;
-    if (waBtn) waBtn.classList.add('disabled');
+  // التحكم الأولي للأزرار عند فتح النافذة بناءً على الحالة العامة للمنتج أو المقاس الافتراضي
+  if (selectedVariantStatus === 'out' || currentSelectedProduct.stock === 'out') {
+    if (addBtn) {
+      addBtn.disabled = true;
+      addBtn.style.opacity = '0.5';
+      addBtn.style.cursor = 'not-allowed';
+    }
+    if (waBtn) {
+      waBtn.classList.add('disabled');
+      waBtn.style.opacity = '0.5';
+      waBtn.style.pointerEvents = 'none';
+    }
   } else {
-    if (addBtn) addBtn.disabled = false;
-    if (waBtn) waBtn.classList.remove('disabled');
+    if (addBtn) {
+      addBtn.disabled = false;
+      addBtn.style.opacity = '1';
+      addBtn.style.cursor = 'pointer';
+    }
+    if (waBtn) {
+      waBtn.classList.remove('disabled');
+      waBtn.style.opacity = '1';
+      waBtn.style.pointerEvents = 'auto';
+    }
   }
 
   if (waBtn) {
