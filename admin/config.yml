@@ -51,28 +51,18 @@ collections:
           default: "available"
         }
       - { 
-          label: "المقاسات وحالة الأشكال (حسب ترتيب صور الألبوم R1, R2, R3...)", 
+          label: "المقاسات والحالة", 
           name: "variants", 
           widget: "list", 
           required: false,
           fields: [
-            { label: "المقاس / الحجم (مثال: مقاس 3)", name: "size", widget: "string" },
-            { 
-              label: "كود الشكل المرتبط بالصورة", 
-              name: "code", 
-              widget: "select", 
-              options: [
-                "R1", 
-                "R2", 
-                "R3"
-              ], 
-              default: "R1" 
-            },
-            { label: "سعر هذا المقاس/الشكل (ج.م - اختياري)", name: "price", widget: "number", value_type: "float", required: false },
+            { label: "المقاس (مثال: 3)", name: "size", widget: "string" },
+            { label: "رقم الصورة المرتبطة (مثال: 1 للصورة الأولى، 2 للثانية)", name: "code", widget: "string", default: "1" },
+            { label: "السعر (اختياري)", name: "price", widget: "number", value_type: "float", required: false },
             { label: "الطول (سم)", name: "length", widget: "string", required: false },
             { label: "العرض (سم)", name: "width", widget: "string", required: false },
             { 
-              label: "حالة الكود لهذا المقاس", 
+              label: "الحالة", 
               name: "status", 
               widget: "select", 
               options: [
