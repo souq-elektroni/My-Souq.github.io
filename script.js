@@ -7,34 +7,19 @@ let selectedSize = null;
 let currentSelectedProduct = null;
 let discountRate = 0;
 
+// ===== GitHub Config =====
+const GITHUB_USER = 'souq-elektroni';
+const GITHUB_REPO = 'My-Souq.github.io';
+const GITHUB_BRANCH = 'main';
+
 // ===== DOM Elements =====
 const productsGrid = document.getElementById("products-container");
 const cartCount = document.getElementById("cartCount");
 
-// دالة مركزية لتنظيف وتصحيح مسارات الصور بشكل مطلق وصحيح
-function fixImagePath(rawPath) {
-  if (!rawPath) return '';
-  // إزالة أي علامات اقتباس، أقواس، مسافات، أو شرطة مائلة زائدة في نهاية المسار
-  let clean = rawPath.replace(/["'\[\]]/g, '').trim();
-  clean = clean.replace(/\/+$/, ''); 
-  if (!clean) return '';
-  
-  if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
-  if (clean.startsWith('/')) clean = clean.substring(1);
-  clean = clean.replace(/\s+/g, '%20');
-  
-  if (!clean.startsWith('images/')) {
-    clean = 'images/' + clean;
-  }
-  
-  // تحويل المسار إلى رابط كامل عبر جيت هب لضمان عمله في الـ Modal والـ Popup وفي أي صفحة
-  return `https://raw.githubusercontent.com/souq-elektroni/My-Souq.github.io/main/${clean}`;
-}
-
 // ===== Load Real Products from GitHub =====
 async function loadRealProducts() {
   try {
-    const apiUrl = 'https://api.github.com/repos/souq-elektroni/My-Souq.github.io/contents/products';
+    const apiUrl = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/products`;
     const response = await fetch(apiUrl);
     
     if (!response.ok) {
@@ -52,7 +37,7 @@ async function loadRealProducts() {
     products = [];
     for (let i = 0; i < mdFiles.length; i++) {
       const file = mdFiles[i];
-      const rawUrl = file.download_url || `https://raw.githubusercontent.com/souq-elektroni/My-Souq.github.io/main/products/${file.name}`;
+      const rawUrl = file.download_url || `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${file.name}`;
       const fileRes = await fetch(rawUrl);
       const text = await fileRes.text();
       
@@ -69,7 +54,7 @@ async function loadRealProducts() {
   }
 }
 
-// دالة تحليل الـ Markdown الذكية الشاملة
+// دالة تحليل الـ Markdown الذكية والمصححة بالكامل لجلب الصور والمقاسات
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -87,27 +72,39 @@ function parseMarkdown(markdownText, id) {
     const price = parseFloat(getField('price')) || 0;
     const category = getField('category') || 'ملابس شتوية';
     
+    const fixImagePath = (rawPath) => {
+      if (!rawPath) return '';
+      let clean = rawPath.replace(/["'\[\]]/g, '').trim().replace(/\/+$/, '');
+      if (!clean) return '';
+      if (clean.startsWith('http://') || clean.startsWith('https://')) return clean;
+      if (clean.startsWith('/')) clean = clean.substring(1);
+      clean = clean.replace(/\s+/g, '%20');
+      if (!clean.startsWith('images/')) clean = 'images/' + clean;
+      return `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/${clean}`;
+    };
+
     const rawImageField = getField('image');
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     const mainImage = fixImagePath(rawImageField) || defaultImg;
 
-    let allExtractedImages = [];
+    // استخراج كافة الصور بدقة من ملف الـ Frontmatter لضمان عدم تلف أي صورة مصغرة
+    let allExtractedImages = [mainImage];
     const lines = frontmatter.split('\n');
     for (let line of lines) {
-      let trimmed = line.trim().replace(/^[-*]\s*/, '').replace(/["']/g, '');
-      if (trimmed.includes('images/') || trimmed.endsWith('.jpg') || trimmed.endsWith('.png') || trimmed.endsWith('.jpeg') || trimmed.endsWith('.webp')) {
-        let partsPath = trimmed.split(':');
-        let possiblePath = partsPath.length > 1 ? partsPath[1].trim() : trimmed;
-        let fixed = fixImagePath(possiblePath);
+      if (line.includes('.jpg') || line.includes('.png') || line.includes('.jpeg') || line.includes('.webp') || line.includes('/images/')) {
+        let partsLine = line.split(':');
+        let val = partsLine.length > 1 ? partsLine[1] : line;
+        let fixed = fixImagePath(val);
         if (fixed && !allExtractedImages.includes(fixed)) {
           allExtractedImages.push(fixed);
         }
       }
     }
 
-    let allImages = [mainImage, ...allExtractedImages.filter(img => img !== mainImage)];
+    let allImages = allExtractedImages;
     if (allImages.length === 0) allImages = [defaultImg];
 
+    // استخراج المقاسات
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
     
@@ -195,7 +192,7 @@ function renderProducts(list) {
 function filterCategory(cat, btn) {
   currentCategory = cat;
   document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
   handleSearchAndFilter();
 }
 
@@ -210,7 +207,7 @@ function handleSearchAndFilter() {
 }
 
 function applySorting() {
-  const sortVal = document.getElementById('sortSelect').value;
+  const sortVal = document.getElementById('sortSelect') ? document.getElementById('sortSelect').value : '';
   let sorted = [...products];
   if (sortVal === 'low-high') sorted.sort((a,b) => a.price - b.price);
   else if (sortVal === 'high-low') sorted.sort((a,b) => b.price - a.price);
@@ -225,76 +222,95 @@ function openProductModal(id) {
   const modalImg = document.getElementById('modalImage');
   const thumbsContainer = document.getElementById('thumbnailsContainer');
   
-  modalImg.src = currentSelectedProduct.image;
-  modalImg.onerror = function() { this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'; };
+  if (modalImg) {
+    modalImg.src = currentSelectedProduct.image;
+    modalImg.onerror = function() { this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'; };
+  }
   
-  thumbsContainer.innerHTML = '';
-
-  if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
-    thumbsContainer.style.display = 'flex';
-    currentSelectedProduct.images.forEach((imgSrc, idx) => {
-      const thumb = document.createElement('img');
-      thumb.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
-      thumb.src = imgSrc;
-      thumb.onerror = function() { this.style.display = 'none'; };
-      thumb.onclick = () => {
-        modalImg.src = imgSrc;
-        document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
-        thumb.classList.add('active');
-      };
-      thumbsContainer.appendChild(thumb);
-    });
-  } else {
-    thumbsContainer.style.display = 'none';
+  if (thumbsContainer) {
+    thumbsContainer.innerHTML = '';
+    if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
+      thumbsContainer.style.display = 'flex';
+      currentSelectedProduct.images.forEach((imgSrc, idx) => {
+        const thumb = document.createElement('img');
+        thumb.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
+        thumb.src = imgSrc;
+        thumb.onerror = function() { this.style.display = 'none'; };
+        thumb.onclick = () => {
+          if (modalImg) modalImg.src = imgSrc;
+          document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
+          thumb.classList.add('active');
+        };
+        thumbsContainer.appendChild(thumb);
+      });
+    } else {
+      thumbsContainer.style.display = 'none';
+    }
   }
 
-  document.getElementById('modalTitle').innerText = currentSelectedProduct.title;
-  document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
-  document.getElementById('modalDesc').innerText = currentSelectedProduct.desc;
+  const titleEl = document.getElementById('modalTitle');
+  if (titleEl) titleEl.innerText = currentSelectedProduct.title;
+
+  const priceEl = document.getElementById('modalPrice');
+  if (priceEl) priceEl.innerText = currentSelectedProduct.price + ' ج.م';
+
+  const descEl = document.getElementById('modalDesc');
+  if (descEl) descEl.innerText = currentSelectedProduct.desc;
 
   const sizesContainer = document.getElementById('sizesContainer');
   const dimensionsContainer = document.getElementById('dimensionsContainer');
   const lengthSpan = document.getElementById('modalLength');
   const widthSpan = document.getElementById('modalWidth');
 
-  sizesContainer.innerHTML = '';
+  if (sizesContainer) {
+    sizesContainer.innerHTML = '';
+  }
   
-  const firstVariant = currentSelectedProduct.variants[0];
+  const firstVariant = currentSelectedProduct.variants[0] || { size: 'مقاس موحد', length: '', width: '' };
   selectedSize = firstVariant.size || '';
 
   function updateDimensionsDisplay(variant) {
-    if (variant && (variant.length || variant.width)) {
-      dimensionsContainer.style.display = 'flex';
-      lengthSpan.innerText = variant.length || '-';
-      widthSpan.innerText = variant.width || '-';
-    } else {
-      dimensionsContainer.style.display = 'none';
+    if (dimensionsContainer && lengthSpan && widthSpan) {
+      if (variant && (variant.length || variant.width)) {
+        dimensionsContainer.style.display = 'flex';
+        lengthSpan.innerText = variant.length || '-';
+        widthSpan.innerText = variant.width || '-';
+      } else {
+        dimensionsContainer.style.display = 'none';
+      }
     }
   }
 
   updateDimensionsDisplay(firstVariant);
 
-  currentSelectedProduct.variants.forEach((v, idx) => {
-    const btn = document.createElement('button');
-    btn.className = `size-btn ${idx === 0 ? 'selected' : ''}`;
-    btn.innerText = v.size;
-    btn.onclick = () => {
-      document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      selectedSize = v.size;
-      updateDimensionsDisplay(v);
-    };
-    sizesContainer.appendChild(btn);
-  });
+  if (sizesContainer) {
+    currentSelectedProduct.variants.forEach((v, idx) => {
+      const btn = document.createElement('button');
+      btn.className = `size-btn ${idx === 0 ? 'selected' : ''}`;
+      btn.innerText = v.size;
+      btn.onclick = () => {
+        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        selectedSize = v.size;
+        updateDimensionsDisplay(v);
+      };
+      sizesContainer.appendChild(btn);
+    });
+  }
 
-  const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${currentSelectedProduct.price} ج.م`);
-  document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
+  const waBtn = document.getElementById('directWaBtn');
+  if (waBtn) {
+    const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${currentSelectedProduct.price} ج.م`);
+    waBtn.href = `https://wa.me/201116339905?text=${waText}`;
+  }
 
-  document.getElementById('productModal').classList.add('active');
+  const productModal = document.getElementById('productModal');
+  if (productModal) productModal.classList.add('active');
 }
 
 function closeModal() {
-  document.getElementById('productModal').classList.remove('active');
+  const productModal = document.getElementById('productModal');
+  if (productModal) productModal.classList.remove('active');
 }
 
 function addToCart() {
@@ -305,6 +321,7 @@ function addToCart() {
   } else {
     cart.push({ ...currentSelectedProduct, size: selectedSize, qty: 1 });
   }
+  localStorage.setItem("souqCart", JSON.stringify(cart));
   updateCartCount();
   closeModal();
   openCartModal();
@@ -313,24 +330,29 @@ function addToCart() {
 
 function showToast() {
   const toast = document.getElementById('toastNotification');
-  toast.classList.add('show');
-  setTimeout(() => {
-    toast.classList.remove('show');
-  }, 3000);
+  if (toast) {
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3000);
+  }
 }
 
 function updateCartCount() {
   const totalCount = cart.reduce((sum, item) => sum + item.qty, 0);
-  document.getElementById('cartCount').innerText = totalCount;
+  if (cartCount) cartCount.innerText = totalCount;
+  localStorage.setItem("souqCart", JSON.stringify(cart));
 }
 
 function openCartModal() {
   renderCartItems();
-  document.getElementById('cartModal').classList.add('active');
+  const cartModal = document.getElementById('cartModal');
+  if (cartModal) cartModal.classList.add('active');
 }
 
 function closeCartModal() {
-  document.getElementById('cartModal').classList.remove('active');
+  const cartModal = document.getElementById('cartModal');
+  if (cartModal) cartModal.classList.remove('active');
 }
 
 function renderCartItems() {
@@ -339,17 +361,20 @@ function renderCartItems() {
   const customerFormBox = document.getElementById('customerFormBox');
   const proceedBtn = document.getElementById('proceedBtn');
 
+  if (!container) return;
+
   if (cart.length === 0) {
     container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>';
-    promoBox.style.display = 'none';
-    customerFormBox.style.display = 'none';
-    proceedBtn.style.display = 'none';
-    document.getElementById('cartTotalPrice').innerText = '0 ج.م';
+    if (promoBox) promoBox.style.display = 'none';
+    if (customerFormBox) customerFormBox.style.display = 'none';
+    if (proceedBtn) proceedBtn.style.display = 'none';
+    const totalPriceEl = document.getElementById('cartTotalPrice');
+    if (totalPriceEl) totalPriceEl.innerText = '0 ج.م';
     return;
   }
 
-  promoBox.style.display = 'flex';
-  customerFormBox.style.display = 'flex';
+  if (promoBox) promoBox.style.display = 'flex';
+  if (customerFormBox) customerFormBox.style.display = 'flex';
 
   container.innerHTML = cart.map((item, index) => `
     <div class="cart-item">
@@ -387,11 +412,13 @@ function removeFromCart(index) {
 function updateTotalPrice() {
   let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
   let total = subtotal * (1 - discountRate);
-  document.getElementById('cartTotalPrice').innerText = total.toFixed(0) + ' ج.م';
+  const totalPriceEl = document.getElementById('cartTotalPrice');
+  if (totalPriceEl) totalPriceEl.innerText = total.toFixed(0) + ' ج.م';
 }
 
 function applyPromoCode() {
-  const code = document.getElementById('promoInput').value.trim();
+  const promoInput = document.getElementById('promoInput');
+  const code = promoInput ? promoInput.value.trim() : '';
   if (code === 'SOUQ10') {
     discountRate = 0.10;
     alert('تم تطبيق خصم 10% بنجاح!');
@@ -402,10 +429,16 @@ function applyPromoCode() {
 }
 
 function checkFormCompletion() {
-  const name = document.getElementById('custName').value.trim();
-  const phone = document.getElementById('custPhone').value.trim();
-  const address = document.getElementById('custAddress').value.trim();
+  const nameEl = document.getElementById('custName');
+  const phoneEl = document.getElementById('custPhone');
+  const addressEl = document.getElementById('custAddress');
   const proceedBtn = document.getElementById('proceedBtn');
+
+  if (!nameEl || !phoneEl || !addressEl || !proceedBtn) return;
+
+  const name = nameEl.value.trim();
+  const phone = phoneEl.value.trim();
+  const address = addressEl.value.trim();
 
   if (name && phone && address && cart.length > 0) {
     proceedBtn.style.display = 'block';
@@ -415,47 +448,64 @@ function checkFormCompletion() {
 }
 
 function validateAndOpenTerms() {
-  const name = document.getElementById('custName').value.trim();
-  const phone = document.getElementById('custPhone').value.trim();
-  const address = document.getElementById('custAddress').value.trim();
+  const nameEl = document.getElementById('custName');
+  const phoneEl = document.getElementById('custPhone');
+  const addressEl = document.getElementById('custAddress');
+
+  const name = nameEl ? nameEl.value.trim() : '';
+  const phone = phoneEl ? phoneEl.value.trim() : '';
+  const address = addressEl ? addressEl.value.trim() : '';
 
   if (!name || !phone || !address) {
     alert('يرجى استكمال كافة بيانات الشحن المطلوبة');
     return;
   }
   closeCartModal();
-  document.getElementById('termsModal').classList.add('active');
+  const termsModal = document.getElementById('termsModal');
+  if (termsModal) termsModal.classList.add('active');
 }
 
 function toggleTermsCheckbox() {
   const cb = document.getElementById('termsCheckbox');
-  cb.checked = !cb.checked;
-  handleCheckboxChange({ target: cb });
+  if (cb) {
+    cb.checked = !cb.checked;
+    handleCheckboxChange({ target: cb });
+  }
 }
 
 function handleCheckboxChange(e) {
   const agreeBtn = document.getElementById('agreeBtn');
-  if (e.target.checked) agreeBtn.classList.add('active');
-  else agreeBtn.classList.remove('active');
+  if (agreeBtn) {
+    if (e.target.checked) agreeBtn.classList.add('active');
+    else agreeBtn.classList.remove('active');
+  }
 }
 
 function declineTerms() {
-  document.getElementById('termsModal').classList.remove('active');
+  const termsModal = document.getElementById('termsModal');
+  if (termsModal) termsModal.classList.remove('active');
 }
 
 function proceedToPayment() {
-  document.getElementById('termsModal').classList.remove('active');
-  document.getElementById('paymentModal').classList.add('active');
+  const termsModal = document.getElementById('termsModal');
+  const paymentModal = document.getElementById('paymentModal');
+  if (termsModal) termsModal.classList.remove('active');
+  if (paymentModal) paymentModal.classList.add('active');
 }
 
 function selectPayment(method) {
   document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+  const optCod = document.getElementById('optCod');
+  const payCod = document.getElementById('payCod');
+  const optInstapay = document.getElementById('optInstapay');
+  const payInstapay = document.getElementById('payInstapay');
+
   if (method === 'cod') {
-    document.getElementById('optCod').classList.add('selected');
-    document.getElementById('payCod').checked = true;
+    if (optCod) optCod.classList.add('selected');
+    if (payCod) payCod.checked = true;
   } else {
-    document.getElementById('optInstapay').classList.add('selected');
-    document.getElementById('payInstapay').checked = true;
+    if (optInstapay) optInstapay.classList.add('selected');
+    if (payInstapay) payInstapay.checked = true;
   }
 }
 
@@ -466,13 +516,20 @@ function copyInstapay(e) {
 }
 
 function finalizeOrder() {
-  const name = document.getElementById('custName').value.trim();
-  const phone = document.getElementById('custPhone').value.trim();
-  const address = document.getElementById('custAddress').value.trim();
-  const payMethod = document.querySelector('input[name="payMethod"]:checked').value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
+  const nameEl = document.getElementById('custName');
+  const phoneEl = document.getElementById('custPhone');
+  const addressEl = document.getElementById('custAddress');
+  
+  const name = nameEl ? nameEl.value.trim() : '';
+  const phone = phoneEl ? phoneEl.value.trim() : '';
+  const address = addressEl ? addressEl.value.trim() : '';
+  
+  const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
+  const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
   
   let itemsTest = cart.map(i => `- ${i.title} (مقاس: ${i.size}) × ${i.qty} = ${i.price * i.qty} ج.م`).join('\n');
-  let totalText = document.getElementById('cartTotalPrice').innerText;
+  const totalPriceEl = document.getElementById('cartTotalPrice');
+  let totalText = totalPriceEl ? totalPriceEl.innerText : '0 ج.م';
 
   let msg = `🛍️ *طلب جديد من متجر My Souq*\n\n`;
   msg += `👤 الاسم: ${name}\n`;
@@ -485,14 +542,18 @@ function finalizeOrder() {
   const encodedMsg = encodeURIComponent(msg);
   window.open(`https://wa.me/201116339905?text=${encodedMsg}`, '_blank');
 
-  document.getElementById('paymentModal').classList.remove('active');
-  document.getElementById('successModal').classList.add('active');
+  const paymentModal = document.getElementById('paymentModal');
+  const successModal = document.getElementById('successModal');
+  if (paymentModal) paymentModal.classList.remove('active');
+  if (successModal) successModal.classList.add('active');
+  
   cart = [];
   updateCartCount();
 }
 
 function closeSuccessModal() {
-  document.getElementById('successModal').classList.remove('active');
+  const successModal = document.getElementById('successModal');
+  if (successModal) successModal.classList.remove('active');
 }
 
 function scrollToTop() {
@@ -517,7 +578,9 @@ window.addEventListener('DOMContentLoaded', () => {
   updateCartCount();
   window.addEventListener('scroll', () => {
     const btn = document.getElementById('backToTopBtn');
-    if (window.scrollY > 300) btn.classList.add('show');
-    else btn.classList.remove('show');
+    if (btn) {
+      if (window.scrollY > 300) btn.classList.add('show');
+      else btn.classList.remove('show');
+    }
   });
 });
