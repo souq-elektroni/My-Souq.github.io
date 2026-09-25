@@ -179,7 +179,10 @@
     .thumb-img.active { border-color: var(--burgundy-soft); }
     .modal-info { display: flex; flex-direction: column; gap: 12px; }
     .modal-title { font-size: 26px; font-weight: 900; color: var(--burgundy-soft); }
+    
     .stock-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13.5px; font-weight: 800; width: fit-content; background: #e8f5e9; color: #2e7d32; }
+    .stock-badge.out { background: #ffebee; color: #c62828; }
+
     .modal-price { font-size: 28px; font-weight: 900; color: var(--burgundy-soft); }
     .size-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
     .size-btn { padding: 9px 18px; border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-cream); cursor: pointer; font-size: 16px; font-weight: 800; color: var(--text-dark); }
@@ -187,6 +190,7 @@
     .dimensions-box { background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 14px; border-radius: 12px; font-size: 15px; display: flex; gap: 16px; color: var(--burgundy-soft); font-weight: 700; }
     .modal-actions-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
     .add-cart-btn { flex: 1; background: var(--burgundy-soft); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; text-align: center; }
+    .add-cart-btn:disabled, .direct-wa-btn.disabled { background: #ccc !important; cursor: not-allowed !important; pointer-events: none; opacity: 0.6; }
     .direct-wa-btn { background: #25d366; color: white; border: none; padding: 14px 16px; border-radius: 14px; font-weight: 800; font-size: 15px; text-decoration: none; display: flex; align-items: center; justify-content: center; }
     .share-btn { background: var(--pink-soft); color: var(--burgundy-soft); border: 1px solid var(--pink-accent); padding: 14px 16px; border-radius: 14px; font-weight: 800; cursor: pointer; }
 
@@ -314,7 +318,7 @@
         </div>
         <div class="modal-info">
           <h2 class="modal-title" id="modalTitle"></h2>
-          <div class="stock-badge">🟢 متوفر بالمخزون - جاهز للشحن الفوري</div>
+          <div class="stock-badge" id="modalStockBadge">🟢 متوفر بالمخزون - جاهز للشحن الفوري</div>
           <div>
             <label style="font-weight: bold; font-size: 15px; display: block; margin-bottom: 6px; color: var(--text-muted);">اختر المقاس المطلوب:</label>
             <div class="size-selector" id="sizesContainer"></div>
@@ -326,7 +330,7 @@
           </div>
           <p id="modalDesc" style="font-size: 15px; color: var(--text-muted); line-height: 1.5;"></p>
           <div class="modal-actions-row">
-            <button onclick="addToCart()" class="add-cart-btn">إضافة للسلة 🛒</button>
+            <button onclick="addToCart()" id="addCartBtn" class="add-cart-btn">إضافة للسلة 🛒</button>
             <a href="#" id="directWaBtn" class="direct-wa-btn" target="_blank">💬 اطلب فوراً</a>
             <button onclick="shareProduct()" class="share-btn">📤</button>
           </div>
@@ -416,7 +420,7 @@
     let currentCategory = "الكل";
     let selectedSize = null;
     let currentSelectedProduct = null;
-    let activeModalImage = ''; // متغير لتتبع الصورة المعروضة حالياً بدقة
+    let activeModalImage = '';
     let discountRate = 0;
     const productsGrid = document.getElementById("products-container");
 
@@ -466,6 +470,7 @@
         const title = getField('title') || 'منتج جديد';
         const price = parseFloat(getField('price')) || 0;
         const category = getField('category') || 'ملابس شتوية';
+        const status = getField('status') || 'available'; // قراءة حالة المخزون من الـ Admin
         
         const fixImagePath = (rawPath) => {
           if (!rawPath) return '';
@@ -521,7 +526,7 @@
 
         if (parsedVariants.length === 0) parsedVariants = [{ size: "مقاس موحد", length: "", width: "" }];
 
-        return { id, title, category, price, image: mainImage, images: allImages, variants: parsedVariants, desc: body || title };
+        return { id, title, category, price, status, image: mainImage, images: allImages, variants: parsedVariants, desc: body || title };
       } catch (e) {
         console.error('Error parsing markdown:', e);
         return null;
@@ -539,7 +544,7 @@
           <div class="product-details">
             <h3 class="product-title">${p.title}</h3>
             <div class="price-tag">${p.price} ج.م</div>
-            <div class="click-hint">عرض التفاصيل والمقاسات 👈</div>
+            <div class="click-hint">${p.status === 'out' ? '🔴 نفذت الكمية' : 'عرض التفاصيل والمقاسات 👈'}</div>
           </div>
         </div>
       `).join('');
@@ -571,8 +576,10 @@
 
       const modalImg = document.getElementById('modalImage');
       const thumbsContainer = document.getElementById('thumbnailsContainer');
+      const stockBadge = document.getElementById('modalStockBadge');
+      const addCartBtn = document.getElementById('addCartBtn');
+      const directWaBtn = document.getElementById('directWaBtn');
       
-      // تعيين الصورة الافتتاحية الأولى وتحديث المتجر النشط للصورة
       activeModalImage = currentSelectedProduct.image;
       modalImg.src = activeModalImage;
       modalImg.onerror = function() { this.src='https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500'; };
@@ -588,10 +595,10 @@
           thumb.onerror = function() { this.style.display = 'none'; };
           thumb.onclick = () => {
             modalImg.src = imgSrc;
-            activeModalImage = imgSrc; // تحديث الصورة النشطة بناءً على اختيار العميل من الكاتالوج
+            activeModalImage = imgSrc;
             document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
             thumb.classList.add('active');
-            updateDirectWaLink(); // تحديث رابط الطلب الفوري للصورة المختارة مباشرة
+            updateDirectWaLink();
           };
           thumbsContainer.appendChild(thumb);
         });
@@ -602,6 +609,23 @@
       document.getElementById('modalTitle').innerText = currentSelectedProduct.title;
       document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
       document.getElementById('modalDesc').innerText = currentSelectedProduct.desc;
+
+      // التحكم التلقائي في حالة المخزون والأزرار بناءً على الـ Admin
+      if (currentSelectedProduct.status === 'out') {
+        stockBadge.className = 'stock-badge out';
+        stockBadge.innerText = '🔴 نفذت الكمية - غير متاح للطلب';
+        addCartBtn.disabled = true;
+        addCartBtn.innerText = 'نفذت الكمية 🚫';
+        directWaBtn.classList.add('disabled');
+        directWaBtn.removeAttribute('href');
+      } else {
+        stockBadge.className = 'stock-badge';
+        stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
+        addCartBtn.disabled = false;
+        addCartBtn.innerText = 'إضافة للسلة 🛒';
+        directWaBtn.classList.remove('disabled');
+        updateDirectWaLink();
+      }
       
       const sizesContainer = document.getElementById('sizesContainer');
       sizesContainer.innerHTML = '';
@@ -631,13 +655,11 @@
         sizesContainer.appendChild(btn);
       });
 
-      updateDirectWaLink();
       document.getElementById('productModal').classList.add('active');
     }
 
-    // دالة لتحديث رابط طلب واتساب الفوري بناءً على الصورة النشطة المختارة حالياً
     function updateDirectWaLink() {
-      if (!currentSelectedProduct) return;
+      if (!currentSelectedProduct || currentSelectedProduct.status === 'out') return;
       let cleanPath = activeModalImage.replace(/^\/+/, '');
       if (!cleanPath.startsWith('images/')) cleanPath = 'images/' + cleanPath;
       const fullImgUrl = `https://souq-elektroni.github.io/My-Souq.github.io/${cleanPath}`;
@@ -658,8 +680,7 @@
     function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
     function addToCart() {
-      if (!currentSelectedProduct) return;
-      // حفظ المنتج في السلة مع الصورة النشطة المحددة بدقة
+      if (!currentSelectedProduct || currentSelectedProduct.status === 'out') return;
       const existing = cart.find(item => item.id === currentSelectedProduct.id && item.size === selectedSize && item.image === activeModalImage);
       if (existing) {
         existing.qty += 1;
@@ -688,7 +709,7 @@
       const container = document.getElementById('cartItemsContainer');
       const promoBox = document.getElementById('promoBox');
       const customerFormBox = document.getElementById('customerFormBox');
-    const proceedBtn = document.getElementById('proceedBtn');
+      const proceedBtn = document.getElementById('proceedBtn');
 
       if (cart.length === 0) {
         container.innerHTML = '<p style="text-align: center; color: var(--text-muted);">السلة فارغة حالياً</p>';
