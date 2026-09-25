@@ -562,7 +562,7 @@
 
         parsedVariants = parsedVariants.map(v => ({
           ...v,
-          code: v.code || 'R1',
+          code: v.code || 'none',
           status: v.status || 'available'
         }));
 
@@ -638,7 +638,6 @@
         stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
       }
 
-      // عرض صور الألبوم بدون أي كتابة مزعجة للعميل
       let thumbContainer = document.getElementById('thumbnailsContainer');
       thumbContainer.innerHTML = '';
       if (product.images && product.images.length > 0) {
@@ -657,7 +656,6 @@
             document.querySelectorAll('.thumb-img').forEach(t => t.classList.remove('active'));
             thumbImg.classList.add('active');
 
-            // عند الضغط على الصورة، يتم تحديد زر المقاس المرتبط بهذا الكود تلقائياً
             let matchingBtn = Array.from(document.querySelectorAll('.size-btn')).find(b => b.dataset.code === imgCode);
             if (matchingBtn) {
               matchingBtn.click();
@@ -676,7 +674,7 @@
         product.variants.forEach((v, index) => {
           let btn = document.createElement('button');
           btn.className = `size-btn ${v.status === 'out' ? 'out-variant' : ''}`;
-          btn.dataset.code = v.code || 'R1';
+          btn.dataset.code = v.code || 'none';
           
           let statusText = v.status === 'out' ? ' (نفذ)' : '';
           btn.innerHTML = `<input type="radio" name="sizeRadio" ${index === 0 ? 'checked' : ''}> مقاس ${v.size}${statusText}`;
@@ -694,10 +692,10 @@
             selectedSize = `مقاس ${v.size}`;
             selectedVariantStatus = v.status || 'available';
 
-            // ربط المقاس بالصورة المرتبطة بكودها (تغيير الصورة الكبيرة فوراً عند اختيار المقاس)
-            if (product.images && product.images.length > 0) {
+            // التعامل مع خيار none أو الكود المرتبط
+            if (v.code && v.code !== 'none' && v.code.startsWith('R')) {
               let codeNum = parseInt(v.code.replace('R', '')) - 1;
-              if (!isNaN(codeNum) && product.images[codeNum]) {
+              if (!isNaN(codeNum) && product.images && product.images[codeNum]) {
                 document.getElementById('modalImage').src = product.images[codeNum];
                 activeModalImage = product.images[codeNum];
                 document.querySelectorAll('.thumb-img').forEach((t, i) => {
@@ -705,6 +703,14 @@
                   else t.classList.remove('active');
                 });
               }
+            } else {
+              // لو none تفضل الصورة الافتراضية
+              document.getElementById('modalImage').src = product.image;
+              activeModalImage = product.image;
+              document.querySelectorAll('.thumb-img').forEach((t, i) => {
+                if (i === 0) t.classList.add('active');
+                else t.classList.remove('active');
+              });
             }
 
             if (v.price) {
