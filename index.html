@@ -515,10 +515,10 @@
             if (line.trim() && !line.startsWith(' ') && !line.startsWith('-')) {
               capturingImages = false;
             } else {
-              if (line.includes('.jpg') || line.includes('.png') || line.includes('.webp') || line.includes('.jpeg')) {
-                let partsPath = line.split(':');
-                let targetPath = partsPath.length > 1 ? partsPath.slice(1).join(':') : line;
-                let fixed = fixImagePath(targetPath);
+              // استخراج أي قيمة نصية تمثل اسم ملف صورة ضمن حقل image_item أو كقيمة مباشرة
+              let cleanLine = line.replace(/-\s*image_item:\s*/, '').replace(/-\s*/, '').trim();
+              if (cleanLine && (cleanLine.includes('.jpg') || cleanLine.includes('.png') || cleanLine.includes('.webp') || cleanLine.includes('.jpeg'))) {
+                let fixed = fixImagePath(cleanLine);
                 if (fixed && !allImages.includes(fixed)) {
                   allImages.push(fixed);
                 }
