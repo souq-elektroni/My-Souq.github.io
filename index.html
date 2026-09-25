@@ -481,6 +481,7 @@
         const fixImagePath = (rawPath) => {
           if (!rawPath) return '';
           let clean = rawPath.replace(/["'\[\]]/g, '').trim();
+          if (clean === '' || clean === 'images/' || clean === 'null' || clean === 'undefined') return '';
           if (clean.startsWith('http')) return clean;
           clean = clean.replace(/^\/+/, '');
           return clean.startsWith('images/') ? clean : 'images/' + clean;
@@ -498,17 +499,18 @@
             continue;
           }
           if (insideImages) {
-            if (line.trim().startsWith('-') || line.includes('/') || line.includes('.jpg') || line.includes('.png') || line.includes('.webp')) {
-              let pathPart = line.replace('-', '').split(':')[1] || line.replace('-', '');
+            let trimmed = line.trim();
+            if (trimmed.startsWith('-')) {
+              let pathPart = trimmed.replace('-', '').trim();
               let fixed = fixImagePath(pathPart);
               if (fixed && !allImages.includes(fixed)) {
                 allImages.push(fixed);
               }
-            } else if (line.trim() && !line.startsWith(' ') && !line.startsWith('\t')) {
+            } else if (trimmed && !line.startsWith(' ') && !line.startsWith('\t')) {
               insideImages = false;
             }
           }
-          if (line.includes('/') && (line.endsWith('.jpg') || line.endsWith('.png') || line.endsWith('.webp') || line.includes('_'))) {
+          if ((line.includes('.jpg') || line.includes('.png') || line.includes('.webp') || line.includes('.jpeg')) && !line.includes('image:')) {
             let partsPath = line.split(':');
             let targetPath = partsPath.length > 1 ? partsPath[1] : line;
             let fixed = fixImagePath(targetPath);
@@ -517,6 +519,9 @@
             }
           }
         }
+
+        allImages = allImages.filter(img => img && img !== 'images/' && img.length > 7);
+        if (allImages.length === 0) allImages = [mainImage];
 
         let parsedVariants = [];
         const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
@@ -630,9 +635,11 @@
       thumbContainer.innerHTML = '';
       if (product.images && product.images.length > 1) {
         product.images.forEach((imgSrc, idx) => {
+          if (!imgSrc || imgSrc.includes('undefined')) return;
           let thumb = document.createElement('img');
           thumb.className = `thumb-img ${idx === 0 ? 'active' : ''}`;
           thumb.src = imgSrc;
+          thumb.onerror = function() { this.style.display = 'none'; };
           thumb.onclick = () => {
             document.getElementById('modalImage').src = imgSrc;
             activeModalImage = imgSrc;
@@ -680,10 +687,12 @@
               addBtn.disabled = true;
               addBtn.innerText = 'المقاس غير متوفر حالياً ❌';
               waBtn.classList.add('disabled');
+              waBtn.removeAttribute('href');
             } else {
               addBtn.disabled = false;
               addBtn.innerText = 'إضافة للسلة 🛒';
               waBtn.classList.remove('disabled');
+              updateDirectWaLink();
             }
           };
 
@@ -696,13 +705,20 @@
         sizesContainer.innerHTML = '<span style="font-size: 14px; color: var(--text-muted);">مقاس موحد / قياسي</span>';
         selectedSize = 'مقاس موحد';
         selectedVariantStatus = product.stock === 'out' ? 'out' : 'available';
+        updateDirectWaLink();
       }
 
-      let waBtn = document.getElementById('directWaBtn');
-      let encodedMsg = encodeURIComponent(`مرحباً، أود طلب منتج: ${product.title} بسعر ${product.price} ج.م والمقاس: ${selectedSize || 'موحد'}`);
-      waBtn.href = `https://wa.me/201116339905?text=${encodedMsg}`;
-
       document.getElementById('productModal').classList.add('active');
+    }
+
+    function updateDirectWaLink() {
+      if (!currentSelectedProduct || selectedVariantStatus === 'out') return;
+      let cleanPath = activeModalImage.replace(/^\/+/, '');
+      if (!cleanPath.startsWith('images/')) cleanPath = 'images/' + cleanPath;
+      const fullImgUrl = `https://souq-elektroni.github.io/My-Souq.github.io/${cleanPath}`;
+
+      let waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title}\n المقاس: ${selectedSize}\n السعر: ${currentSelectedProduct.price} ج.م\n 📷 صورة المنتج: ${fullImgUrl}`);
+      document.getElementById('directWaBtn').href = `https://wa.me/201116339905?text=${waText}`;
     }
 
     function closeModal() {
@@ -907,7 +923,11 @@
       orderText += `📦 المنتجات:\n`;
 
       cart.forEach(item => {
-        orderText += `- ${item.title} (مقاس: ${item.size}) × ${item.quantity} = ${item.price * item.quantity} ج.م\n`;
+        let cleanPath = item.image.replace(/^\/+/, '');
+        if (!cleanPath.startsWith('images/')) cleanPath = 'images/' + cleanPath;
+        let fullImgUrl = `https://souq-elektroni.github.io/My-Souq.github.io/${cleanPath}`;
+
+        orderText += `- ${item.title} (مقاس: ${item.size}) × ${item.quantity} = ${item.price * item.quantity} ج.م\n  📷 الصورة: ${fullImgUrl}\n`;
       });
 
       orderText += `\nالإجمالي: ${document.getElementById('cartTotalPrice').innerText}`;
