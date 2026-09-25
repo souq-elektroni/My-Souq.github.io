@@ -183,8 +183,6 @@
     .thumb-wrapper { display: flex; flex-direction: column; align-items: center; cursor: pointer; flex-shrink: 0; position: relative; }
     .thumb-img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid transparent; }
     .thumb-wrapper.active .thumb-img { border-color: var(--burgundy-soft); }
-    .thumb-wrapper.out-thumb { opacity: 0.5; filter: grayscale(50%); cursor: not-allowed; }
-    .thumb-wrapper.out-thumb::after { content: 'نفذت'; position: absolute; top: 20px; right: 5px; background: #c62828; color: white; font-size: 9px; font-weight: bold; padding: 2px 4px; border-radius: 4px; }
     .thumb-code { font-size: 11px; color: var(--text-muted); margin-top: 3px; font-weight: bold; }
 
     .modal-info { display: flex; flex-direction: column; gap: 12px; }
@@ -204,6 +202,7 @@
     .size-btn input[type="radio"] { accent-color: var(--burgundy-soft); width: 18px; height: 18px; cursor: pointer; }
     .size-btn.selected { background: var(--pink-soft); border-color: var(--burgundy-soft); color: var(--burgundy-soft); }
     .size-btn.out-variant { background: #ffebee !important; color: #c62828 !important; border-color: #ef9a9a !important; text-decoration: line-through; opacity: 0.8; cursor: not-allowed; pointer-events: none; }
+    .size-btn.out-variant span::after { content: ' (نفذت)'; color: #c62828; font-size: 12px; }
 
     .dimensions-box { background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 14px; border-radius: 12px; font-size: 15px; display: flex; gap: 16px; color: var(--burgundy-soft); font-weight: 700; }
     .modal-actions-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
@@ -678,6 +677,7 @@
         }
       }
 
+      // رسم ألبوم الصور المصغرة بدقة
       if (thumbsContainer) {
         thumbsContainer.innerHTML = '';
         if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
@@ -685,13 +685,9 @@
           
           currentSelectedProduct.images.forEach((imgSrc, idx) => {
             const codeName = `R${idx + 1}`;
-            
-            // فحص هل الصورة مرتبطة بمقاس حالته out أو لا
-            const matchedVariant = currentSelectedProduct.variants.find(v => v.code === codeName);
-            const isOut = matchedVariant && matchedVariant.status === 'out';
 
             const wrapper = document.createElement('div');
-            wrapper.className = `thumb-wrapper ${idx === 0 ? 'active' : ''} ${isOut ? 'out-thumb' : ''}`;
+            wrapper.className = `thumb-wrapper ${idx === 0 ? 'active' : ''}`;
             
             const img = document.createElement('img');
             img.className = 'thumb-img';
@@ -706,13 +702,14 @@
             wrapper.appendChild(codeLabel);
 
             wrapper.onclick = () => {
-              if (isOut) return;
               if (modalImg) modalImg.src = imgSrc;
               activeModalImage = imgSrc;
               document.querySelectorAll('.thumb-wrapper').forEach(w => w.classList.remove('active'));
               wrapper.classList.add('active');
 
-              if (matchedVariant) {
+              // عند الضغط على الصورة، اختر المقاس المرتبط بها تلقائياً إذا كان متاحاً
+              const matchedVariant = currentSelectedProduct.variants.find(v => v.code === codeName);
+              if (matchedVariant && matchedVariant.status !== 'out') {
                 const sizeBtns = document.querySelectorAll('.size-btn');
                 sizeBtns.forEach(btn => {
                   if (btn.dataset.size === matchedVariant.size) {
@@ -748,7 +745,7 @@
         btn.dataset.size = v.size;
         btn.innerHTML = `
           <input type="radio" name="productSize" value="${v.size}" ${isSelected ? 'checked' : ''} ${v.status === 'out' ? 'disabled' : ''}>
-          <span>${v.size} ${v.status === 'out' ? '(نفذت)' : ''}</span>
+          <span>${v.size}</span>
         `;
 
         btn.onclick = () => {
@@ -773,11 +770,12 @@
             if (waBtn) waBtn.classList.remove('disabled');
           }
 
+          // لو المقاس مربوط بكود صورة، قم بتحديد صورة الألبوم المرتبطة به
           if (v.code && v.code !== 'none') {
             const wrappers = document.querySelectorAll('.thumb-wrapper');
             wrappers.forEach(w => {
               const codeSpan = w.querySelector('.thumb-code');
-              if (codeSpan && codeSpan.innerText === v.code && !w.classList.contains('out-thumb')) {
+              if (codeSpan && codeSpan.innerText === v.code) {
                 w.click();
               }
             });
