@@ -548,40 +548,38 @@
         
         if (variantsMatch) {
           const variantText = variantsMatch[1];
-          const vLines = variantText.split('\n');
-          let currentVar = null;
-
-          for (let vLine of vLines) {
-            let trimmedLine = vLine.trim();
-            if (trimmedLine.startsWith('-')) {
-              if (currentVar && currentVar.size) parsedVariants.push(currentVar);
-              currentVar = { size: '', code: 'none', price: null, length: '', width: '', status: 'available' };
-              trimmedLine = trimmedLine.replace('-', '').trim();
-            }
-            if (!currentVar) continue;
-
-            if (trimmedLine.startsWith('size:')) {
-              currentVar.size = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
-            } else if (trimmedLine.startsWith('code:')) {
-              currentVar.code = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
-            } else if (trimmedLine.startsWith('price:')) {
-              let pVal = parseFloat(trimmedLine.split(':')[1].trim());
-              if (!isNaN(pVal)) currentVar.price = pVal;
-            } else if (trimmedLine.startsWith('length:')) {
-              currentVar.length = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
-            } else if (trimmedLine.startsWith('width:')) {
-              currentVar.width = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
-            } else if (trimmedLine.startsWith('status:')) {
-              currentVar.status = trimmedLine.split(':')[1].trim().replace(/["']/g, '').toLowerCase();
-            }
-          }
-          if (currentVar && currentVar.size) parsedVariants.push(currentVar);
+          const vBlocks = variantText.split(/-\s+(?=[a-zA-Z0-9]+:)/);
+          
+          vBlocks.forEach(block => {
+            if (!block.trim()) return;
+            let vObj = { size: '', code: 'none', price: null, length: '', width: '', status: 'available' };
+            
+            const lines = block.split('\n');
+            lines.forEach(l => {
+              let line = l.replace(/^-\s*/, '').trim();
+              if (line.startsWith('size:')) {
+                vObj.size = line.split(':')[1].trim().replace(/["']/g, '');
+              } else if (line.startsWith('code:')) {
+                vObj.code = line.split(':')[1].trim().replace(/["']/g, '').toUpperCase();
+              } else if (line.startsWith('price:')) {
+                let p = parseFloat(line.split(':')[1].trim());
+                if (!isNaN(p)) vObj.price = p;
+              } else if (line.startsWith('length:')) {
+                vObj.length = line.split(':')[1].trim().replace(/["']/g, '');
+              } else if (line.startsWith('width:')) {
+                vObj.width = line.split(':')[1].trim().replace(/["']/g, '');
+              } else if (line.startsWith('status:')) {
+                vObj.status = line.split(':')[1].trim().replace(/["']/g, '').toLowerCase();
+              }
+            });
+            if (vObj.size) parsedVariants.push(vObj);
+          });
         }
 
         if (parsedVariants.length === 0) {
           parsedVariants.push({
             size: "مقاس موحد",
-            code: "none",
+            code: "NONE",
             length: "",
             width: "",
             price: price,
@@ -747,6 +745,7 @@
               document.querySelectorAll('.thumb-img').forEach(t => t.style.borderColor = 'transparent');
               img.style.borderColor = "var(--burgundy-soft, #803d48)";
 
+              // البحث عن المقاس المرتبط بهذا الكود (مثل R1 أو R2) وتفعيله تلقائياً
               const matchedVariant = currentSelectedProduct.variants.find(v => v.code === codeName);
               if (matchedVariant) {
                 const sizeBtns = document.querySelectorAll('.size-btn');
