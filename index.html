@@ -188,12 +188,11 @@
     
     .stock-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; font-size: 13.5px; font-weight: 800; width: fit-content; background: #e8f5e9; color: #2e7d32; }
     .stock-badge.out { background: #ffebee; color: #c62828; }
-    .stock-badge.low { background: #fff3cd; color: #856404; }
 
     .modal-price { font-size: 28px; font-weight: 900; color: var(--burgundy-soft); }
     .size-selector { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
     
-    .dimensions-box { background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 14px; border-radius: 12px; font-size: 15px; display: flex; gap: 16px; color: var(--burgundy-soft); font-weight: 700; }
+    .dimensions-box { background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 14px; border-radius: 12px; font-size: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; color: var(--burgundy-soft); font-weight: 700; }
     .modal-actions-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
     
     .add-cart-btn { flex: 1; background: var(--burgundy-soft); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; text-align: center; }
@@ -330,10 +329,14 @@
             <div class="size-selector" id="sizesContainer"></div>
           </div>
           <div class="modal-price" id="modalPrice">- ج.م</div>
+          
           <div id="dimensionsContainer" class="dimensions-box" style="display: none;">
-            <div>📏 <span>الطول:</span> <span id="modalLength">-</span> سم</div>
-            <div>📐 <span>العرض:</span> <span id="modalWidth">-</span> سم</div>
+            <div>📏 <span>طول البنطلون:</span> <span id="modalPantsLen">-</span></div>
+            <div>👕 <span>طول التيشرت:</span> <span id="modalTshirtLen">-</span></div>
+            <div>📐 <span>عرض التيشرت:</span> <span id="modalTshirtWidth">-</span></div>
+            <div>🏷️ <span>القطعة الإضافية:</span> <span id="modalExtraPiece">-</span></div>
           </div>
+
           <p id="modalDesc" style="font-size: 15px; color: var(--text-muted); line-height: 1.5;"></p>
           <div class="modal-actions-row">
             <button onclick="addToCart()" id="addCartBtn" class="add-cart-btn">إضافة للسلة 🛒</button>
@@ -557,12 +560,18 @@
             } else if (line.includes('price:')) {
               let pr = line.split(':')[1];
               if (pr) currentVar.price = parseFloat(pr) || price;
-            } else if (line.includes('length:')) {
-              let ln = line.split(':')[1];
-              if (ln) currentVar.length = ln.trim().replace(/['"]/g, '');
-            } else if (line.includes('width:')) {
-              let wd = line.split(':')[1];
-              if (wd) currentVar.width = wd.trim().replace(/['"]/g, '');
+            } else if (line.includes('pants_length:')) {
+              let pl = line.split(':')[1];
+              if (pl) currentVar.pants_length = pl.trim().replace(/['"]/g, '');
+            } else if (line.includes('tshirt_length:')) {
+              let tl = line.split(':')[1];
+              if (tl) currentVar.tshirt_length = tl.trim().replace(/['"]/g, '');
+            } else if (line.includes('tshirt_width:')) {
+              let tw = line.split(':')[1];
+              if (tw) currentVar.tshirt_width = tw.trim().replace(/['"]/g, '');
+            } else if (line.includes('extra_piece:')) {
+              let ep = line.split(':')[1];
+              if (ep) currentVar.extra_piece = ep.trim().replace(/['"]/g, '');
             }
           });
           if (currentVar.size) variants.push(currentVar);
@@ -731,10 +740,17 @@
       const waBtn = document.getElementById('directWaBtn');
       const dimBox = document.getElementById('dimensionsContainer');
 
-      if (matchedVariant && (matchedVariant.length || matchedVariant.width)) {
-        document.getElementById('modalLength').innerText = matchedVariant.length || '-';
-        document.getElementById('modalWidth').innerText = matchedVariant.width || '-';
-        dimBox.style.display = 'flex';
+      if (matchedVariant) {
+        let hasAnyDim = matchedVariant.pants_length || matchedVariant.tshirt_length || matchedVariant.tshirt_width || matchedVariant.extra_piece;
+        if (hasAnyDim) {
+          dimBox.style.display = 'grid';
+          document.getElementById('modalPantsLen').innerText = matchedVariant.pants_length && matchedVariant.pants_length !== 'None' ? matchedVariant.pants_length : '-';
+          document.getElementById('modalTshirtLen').innerText = matchedVariant.tshirt_length && matchedVariant.tshirt_length !== 'None' ? matchedVariant.tshirt_length : '-';
+          document.getElementById('modalTshirtWidth').innerText = matchedVariant.tshirt_width && matchedVariant.tshirt_width !== 'None' ? matchedVariant.tshirt_width : '-';
+          document.getElementById('modalExtraPiece').innerText = matchedVariant.extra_piece && matchedVariant.extra_piece !== 'None' ? matchedVariant.extra_piece : '-';
+        } else {
+          dimBox.style.display = 'none';
+        }
       } else {
         dimBox.style.display = 'none';
       }
@@ -787,7 +803,7 @@
 
       saveCart();
       closeModal();
-      openCartModal(); // فتح السلة تلقائياً بعد الإضافة
+      openCartModal();
     }
 
     function showToast() {
