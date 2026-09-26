@@ -62,7 +62,7 @@ async function loadRealProducts() {
   }
 }
 
-// ===== دالة تحليل الـ Markdown النظيفة بدون أكواد صور معقدة =====
+// ===== تحليل الـ Markdown =====
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -155,7 +155,8 @@ function parseMarkdown(markdownText, id) {
         } else if (trimmedLine.startsWith('width:')) {
           currentVar.width = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
         } else if (trimmedLine.startsWith('status:')) {
-          currentVar.status = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+          let stVal = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+          currentVar.status = stVal || 'available';
         }
       }
       if (currentVar && currentVar.size) parsedVariants.push(currentVar);
@@ -272,22 +273,19 @@ function openProductModal(id) {
 
   const firstVariant = currentSelectedProduct.variants[0];
   selectedSize = firstVariant ? firstVariant.size : 'مقاس موحد';
-  selectedVariantStatus = firstVariant ? firstVariant.status : 'available';
+  selectedVariantStatus = firstVariant ? (firstVariant.status || 'available') : 'available';
 
+  // ضبط الحالة الافتراضية للباقة بناءً على حالة أول مقاس بدقة
   if (stockBadge) {
-    if (currentSelectedProduct.stock === 'out') {
+    if (selectedVariantStatus === 'out') {
       stockBadge.className = 'stock-badge out';
-      stockBadge.innerText = '🔴 نفذت الكمية';
-    } else if (currentSelectedProduct.stock === 'low') {
-      stockBadge.className = 'stock-badge low';
-      stockBadge.innerText = '🟡 كمية محدودة';
+      stockBadge.innerText = '🔴 نفذت الكمية لهذا المقاس';
     } else {
       stockBadge.className = 'stock-badge';
       stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
     }
   }
   
-  // معرض الصور البصري النظيف بدون أي أكواد
   if (thumbsContainer) {
     thumbsContainer.innerHTML = '';
     if (currentSelectedProduct.images && currentSelectedProduct.images.length > 1) {
@@ -356,11 +354,13 @@ function openProductModal(id) {
     if (waBtn) waBtn.style.display = isOutStock ? 'none' : 'flex';
   }
 
+  setActionButtonsVisibility(selectedVariantStatus === 'out');
+
   if (sizesContainer) {
     currentSelectedProduct.variants.forEach((v) => {
       const btn = document.createElement('div');
       const isSelected = v.size === selectedSize;
-      const isSizeOut = v.status === 'out';
+      const isSizeOut = (v.status || 'available') === 'out';
       
       btn.className = `size-btn ${isSelected ? 'selected' : ''}`;
       btn.dataset.size = v.size;
@@ -386,13 +386,12 @@ function openProductModal(id) {
         if (radio) radio.checked = true;
 
         selectedSize = v.size;
-        selectedVariantStatus = v.status;
+        selectedVariantStatus = v.status || 'available';
         
         if (priceEl) priceEl.innerText = (v.price || currentSelectedProduct.price) + ' ج.م';
         updateDimensionsDisplay(v);
 
-        // التحقق من حالة المقاس عند الضغط عليه لتحديث أزرار الشراء فوراً
-        if (v.status === 'out') {
+        if (selectedVariantStatus === 'out') {
           if (stockBadge) {
             stockBadge.className = 'stock-badge out';
             stockBadge.innerText = '🔴 نفذت الكمية لهذا المقاس';
@@ -416,17 +415,6 @@ function openProductModal(id) {
 
       sizesContainer.appendChild(btn);
     });
-  }
-
-  // ضبط الحالة الافتراضية لأول مقاس
-  if (firstVariant && firstVariant.status === 'out') {
-    if (stockBadge) {
-      stockBadge.className = 'stock-badge out';
-      stockBadge.innerText = '🔴 نفذت الكمية لهذا المقاس';
-    }
-    setActionButtonsVisibility(true);
-  } else {
-    setActionButtonsVisibility(currentSelectedProduct.stock === 'out');
   }
 
   if (waBtn) {
