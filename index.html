@@ -331,7 +331,7 @@
           <div class="modal-price" id="modalPrice">- ج.م</div>
           
           <div id="dimensionsContainer" class="dimensions-box" style="display: none;">
-            <div>📏 <span>طول البنطلون:</span> <span id="modalPantsLen">-</span></div>
+            <div>👖 <span>طول البنطلون:</span> <span id="modalPantsLen">-</span></div>
             <div>👕 <span>طول التيشرت:</span> <span id="modalTshirtLen">-</span></div>
             <div>📐 <span>عرض التيشرت:</span> <span id="modalTshirtWidth">-</span></div>
             <div>🏷️ <span>القطعة الإضافية:</span> <span id="modalExtraPiece">-</span></div>
@@ -549,11 +549,29 @@
           const vLines = variantsMatch[1].split('\n');
           let currentVar = {};
           vLines.forEach(line => {
-            if (line.includes('- size:')) {
-              if (currentVar.size) variants.push(currentVar);
+            if (line.includes('- size_years:') || line.includes('- size_months:') || line.includes('- size_general:')) {
+              if (currentVar.size && currentVar.size !== 'None') variants.push(currentVar);
               currentVar = {};
-              let sz = line.split(':')[1];
-              if (sz) currentVar.size = sz.trim().replace(/['"]/g, '');
+            }
+            
+            if (line.includes('size_years:')) {
+              let val = line.split(':')[1];
+              if (val) {
+                let v = val.trim().replace(/['"]/g, '');
+                if (v && v !== 'None') currentVar.size = v;
+              }
+            } else if (line.includes('size_months:')) {
+              let val = line.split(':')[1];
+              if (val) {
+                let v = val.trim().replace(/['"]/g, '');
+                if (v && v !== 'None') currentVar.size = v;
+              }
+            } else if (line.includes('size_general:')) {
+              let val = line.split(':')[1];
+              if (val) {
+                let v = val.trim().replace(/['"]/g, '');
+                if (v && v !== 'None') currentVar.size = v;
+              }
             } else if (line.includes('status:')) {
               let st = line.split(':')[1];
               if (st) currentVar.status = st.trim().replace(/['"]/g, '');
@@ -574,7 +592,7 @@
               if (ep) currentVar.extra_piece = ep.trim().replace(/['"]/g, '');
             }
           });
-          if (currentVar.size) variants.push(currentVar);
+          if (currentVar.size && currentVar.size !== 'None') variants.push(currentVar);
         }
 
         return {
@@ -741,7 +759,11 @@
       const dimBox = document.getElementById('dimensionsContainer');
 
       if (matchedVariant) {
-        let hasAnyDim = matchedVariant.pants_length || matchedVariant.tshirt_length || matchedVariant.tshirt_width || matchedVariant.extra_piece;
+        let hasAnyDim = (matchedVariant.pants_length && matchedVariant.pants_length !== 'None') ||
+                        (matchedVariant.tshirt_length && matchedVariant.tshirt_length !== 'None') ||
+                        (matchedVariant.tshirt_width && matchedVariant.tshirt_width !== 'None') ||
+                        (matchedVariant.extra_piece && matchedVariant.extra_piece !== 'None');
+
         if (hasAnyDim) {
           dimBox.style.display = 'grid';
           document.getElementById('modalPantsLen').innerText = matchedVariant.pants_length && matchedVariant.pants_length !== 'None' ? matchedVariant.pants_length : '-';
