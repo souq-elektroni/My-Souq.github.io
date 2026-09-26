@@ -553,7 +553,7 @@
           
           vBlocks.forEach(block => {
             if (!block.trim()) return;
-            let vObj = { size: '', code: 'R1', price: null, length: '', width: '', status: 'available' };
+            let vObj = { size: '', code: 'none', price: null, length: '', width: '', status: 'available' };
             
             const lines = block.split('\n');
             lines.forEach(l => {
@@ -580,7 +580,7 @@
         if (parsedVariants.length === 0) {
           parsedVariants.push({
             size: "مقاس موحد",
-            code: "R1",
+            code: "none",
             length: "",
             width: "",
             price: price,
@@ -688,10 +688,14 @@
 
       const firstVariant = currentSelectedProduct.variants[0];
       selectedSize = firstVariant ? firstVariant.size : 'مقاس موحد';
-      selectedCode = 'R1';
+      selectedCode = 'R1'; // الكود الافتراضي للصورة الأولى
 
       function evaluateCurrentStatus() {
+        // البحث بالملائمة الدقيقة للمقاس والكود الحالي معاً، أو البحث بالكود 'none'، أو المقاس وحده كاحتياطي
         let matched = currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === selectedCode);
+        if (!matched) {
+          matched = currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === 'NONE');
+        }
         if (!matched) {
           matched = currentSelectedProduct.variants.find(v => v.size === selectedSize);
         }
@@ -724,7 +728,7 @@
         if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
           thumbsContainer.style.display = 'flex';
           currentSelectedProduct.images.forEach((imgSrc, idx) => {
-            const codeName = `R${idx + 1}`;
+            const codeName = `R${idx + 1}`; // ربط تلقائي وترتيب تصاعدي للأكواد R1, R2, R3...
             const wrapper = document.createElement('div');
             wrapper.className = `thumb-wrapper ${idx === 0 ? 'active' : ''}`;
             wrapper.style.cssText = "display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative;";
@@ -757,7 +761,7 @@
               evaluateCurrentStatus();
 
               const priceEl = document.getElementById('modalPrice');
-              const matchedVar = currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === selectedCode) || currentSelectedProduct.variants.find(v => v.size === selectedSize);
+              const matchedVar = currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === selectedCode) || currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === 'NONE') || currentSelectedProduct.variants.find(v => v.size === selectedSize);
               if (priceEl && matchedVar) {
                 priceEl.innerText = (matchedVar.price || currentSelectedProduct.price) + ' ج.م';
               }
@@ -830,7 +834,7 @@
             selectedSize = sizeVal;
             evaluateCurrentStatus();
 
-            const matchedVar = currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === selectedCode) || currentSelectedProduct.variants.find(v => v.size === selectedSize);
+            const matchedVar = currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === selectedCode) || currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === 'NONE') || currentSelectedProduct.variants.find(v => v.size === selectedSize);
             if (priceEl && matchedVar) {
               priceEl.innerText = (matchedVar.price || currentSelectedProduct.price) + ' ج.م';
               updateDimensionsDisplay(matchedVar);
@@ -861,7 +865,7 @@
 
     function addToCart() {
       if (!currentSelectedProduct || currentSelectedProduct.stock === 'out' || selectedVariantStatus === 'out') return;
-      const activeVariant = currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === selectedCode) || currentSelectedProduct.variants.find(v => v.size === selectedSize);
+      const activeVariant = currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === selectedCode) || currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === 'NONE') || currentSelectedProduct.variants.find(v => v.size === selectedSize);
       const itemPrice = activeVariant && activeVariant.price ? activeVariant.price : currentSelectedProduct.price;
 
       const cartItemKey = `${currentSelectedProduct.id}-${selectedSize}-${selectedCode}`;
@@ -1022,7 +1026,7 @@
 
       const name = nameEl ? nameEl.value.trim() : '';
       const phone = phoneEl ? phoneEl.value.trim() : '';
-      const address = addressEl ? address.value.trim() : '';
+      const address = addressEl ? addressEl.value.trim() : '';
 
       if (!name || !phone || !address) {
         alert('يرجى استكمال كافة بيانات الشحن المطلوبة');
@@ -1062,7 +1066,6 @@
     }
 
     function selectPayment(method) {
-      document.querySelectorAll('.payment-option').forEach,forEach = null; // safe
       document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
       const optCod = document.getElementById('optCod');
       const payCod = document.getElementById('payCod');
@@ -1091,7 +1094,7 @@
       
       const name = nameEl ? nameEl.value.trim() : '';
       const phone = phoneEl ? phoneEl.value.trim() : '';
-      const address = addressEl ? addressEl.value.trim() : '';
+      const address = addressEl ? address.value.trim() : '';
       
       const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
       const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
