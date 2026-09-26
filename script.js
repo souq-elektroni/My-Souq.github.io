@@ -62,7 +62,7 @@ async function loadRealProducts() {
   }
 }
 
-// ===== دالة تحليل الـ Markdown المطورة والمرنة =====
+// ===== دالة تحليل الـ Markdown النظيفة بدون أكواد صور معقدة =====
 function parseMarkdown(markdownText, id) {
   try {
     const parts = markdownText.split('---');
@@ -140,15 +140,13 @@ function parseMarkdown(markdownText, id) {
         let trimmedLine = vLine.trim();
         if (trimmedLine.startsWith('-')) {
           if (currentVar && currentVar.size) parsedVariants.push(currentVar);
-          currentVar = { size: '', code: 'none', price: null, length: '', width: '', status: 'available' };
+          currentVar = { size: '', price: null, length: '', width: '', status: 'available' };
           trimmedLine = trimmedLine.replace('-', '').trim();
         }
         if (!currentVar) continue;
 
         if (trimmedLine.startsWith('size:')) {
           currentVar.size = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
-        } else if (trimmedLine.startsWith('code:')) {
-          currentVar.code = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
         } else if (trimmedLine.startsWith('price:')) {
           let pVal = parseFloat(trimmedLine.split(':')[1].trim());
           if (!isNaN(pVal)) currentVar.price = pVal;
@@ -166,7 +164,6 @@ function parseMarkdown(markdownText, id) {
     if (parsedVariants.length === 0) {
       parsedVariants.push({
         size: "مقاس موحد",
-        code: "none",
         length: "",
         width: "",
         price: price,
@@ -290,12 +287,12 @@ function openProductModal(id) {
     }
   }
   
+  // معرض الصور البصري النظيف بدون أي أكواد
   if (thumbsContainer) {
     thumbsContainer.innerHTML = '';
-    if (currentSelectedProduct.images && currentSelectedProduct.images.length > 0) {
+    if (currentSelectedProduct.images && currentSelectedProduct.images.length > 1) {
       thumbsContainer.style.display = 'flex';
       currentSelectedProduct.images.forEach((imgSrc, idx) => {
-        const codeName = `R${idx + 1}`;
         const wrapper = document.createElement('div');
         wrapper.className = `thumb-wrapper ${idx === 0 ? 'active' : ''}`;
         wrapper.style.cssText = "display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative;";
@@ -303,17 +300,11 @@ function openProductModal(id) {
         const img = document.createElement('img');
         img.className = `thumb-img`;
         img.src = imgSrc;
-        img.style.cssText = "width: 60px; height: 60px; object-fit: cover; border-radius: 8px; border: 2px solid transparent;";
+        img.style.cssText = "width: 65px; height: 65px; object-fit: cover; border-radius: 8px; border: 2px solid transparent;";
         if(idx === 0) img.style.borderColor = "var(--burgundy-soft, #803d48)";
         img.onerror = function() { wrapper.style.display = 'none'; };
-        
-        const codeLabel = document.createElement('span');
-        codeLabel.className = 'thumb-code';
-        codeLabel.innerText = codeName;
-        codeLabel.style.cssText = "font-size: 11px; color: var(--text-muted); margin-top: 3px; font-weight: bold;";
 
         wrapper.appendChild(img);
-        wrapper.appendChild(codeLabel);
 
         wrapper.onclick = () => {
           if (modalImg) modalImg.src = imgSrc;
@@ -322,16 +313,6 @@ function openProductModal(id) {
           wrapper.classList.add('active');
           document.querySelectorAll('.thumb-img').forEach(t => t.style.borderColor = 'transparent');
           img.style.borderColor = "var(--burgundy-soft, #803d48)";
-
-          const matchedVariant = currentSelectedProduct.variants.find(v => v.code === codeName);
-          if (matchedVariant) {
-            const sizeBtns = document.querySelectorAll('.size-btn');
-            sizeBtns.forEach(b => {
-              if (b.dataset.size === matchedVariant.size) {
-                b.click();
-              }
-            });
-          }
         };
 
         thumbsContainer.appendChild(wrapper);
@@ -379,25 +360,27 @@ function openProductModal(id) {
     currentSelectedProduct.variants.forEach((v) => {
       const btn = document.createElement('div');
       const isSelected = v.size === selectedSize;
+      const isSizeOut = v.status === 'out';
       
       btn.className = `size-btn ${isSelected ? 'selected' : ''}`;
       btn.dataset.size = v.size;
-      btn.style.cssText = `padding: 10px 18px; border: 2px solid ${isSelected ? 'var(--burgundy-soft, #803d48)' : 'var(--border-color, #ebdcdb)'}; border-radius: 12px; background: ${isSelected ? 'var(--pink-soft, #f8ecee)' : 'var(--bg-cream, #fdfbf7)'}; cursor: pointer; font-size: 16px; font-weight: 800; color: var(--text-dark, #2c2224); display: flex; align-items: center; gap: 8px;`;
+      btn.style.cssText = `padding: 10px 18px; border: 2px solid ${isSelected ? 'var(--burgundy-soft, #803d48)' : 'var(--border-color, #ebdcdb)'}; border-radius: 12px; background: ${isSizeOut ? '#ffebee' : (isSelected ? 'var(--pink-soft, #f8ecee)' : 'var(--bg-cream, #fdfbf7)')}; cursor: pointer; font-size: 16px; font-weight: 800; color: ${isSizeOut ? '#c62828' : 'var(--text-dark, #2c2224)'}; display: flex; align-items: center; gap: 8px; opacity: ${isSizeOut ? '0.8' : '1'};`;
       
       btn.innerHTML = `
         <input type="radio" name="productSize" value="${v.size}" ${isSelected ? 'checked' : ''} style="accent-color: var(--burgundy-soft, #803d48); width: 18px; height: 18px; cursor: pointer;">
-        <span>${v.size}</span>
+        <span>${v.size} ${isSizeOut ? '(نفذت)' : ''}</span>
       `;
 
       btn.onclick = () => {
         document.querySelectorAll('.size-btn').forEach(b => {
           b.classList.remove('selected');
-          b.style.background = 'var(--bg-cream, #fdfbf7)';
+          let outCheck = b.style.color === 'rgb(198, 40, 40)' || b.style.color === '#c62828';
+          b.style.background = outCheck ? '#ffebee' : 'var(--bg-cream, #fdfbf7)';
           b.style.borderColor = 'var(--border-color, #ebdcdb)';
         });
         btn.classList.add('selected');
-        btn.style.background = 'var(--pink-soft, #f8ecee)';
-        btn.style.borderColor = 'var(--burgundy-soft, #803d48)';
+        btn.style.background = isSizeOut ? '#ffebee' : 'var(--pink-soft, #f8ecee)';
+        btn.style.borderColor = isSizeOut ? '#c62828' : 'var(--burgundy-soft, #803d48)';
         
         const radio = btn.querySelector('input');
         if (radio) radio.checked = true;
@@ -407,6 +390,23 @@ function openProductModal(id) {
         
         if (priceEl) priceEl.innerText = (v.price || currentSelectedProduct.price) + ' ج.م';
         updateDimensionsDisplay(v);
+
+        // التحقق من حالة المقاس عند الضغط عليه لتحديث أزرار الشراء فوراً
+        if (v.status === 'out') {
+          if (stockBadge) {
+            stockBadge.className = 'stock-badge out';
+            stockBadge.innerText = '🔴 نفذت الكمية لهذا المقاس';
+          }
+          if (addBtn) addBtn.style.display = 'none';
+          if (waBtn) waBtn.style.display = 'none';
+        } else {
+          if (stockBadge) {
+            stockBadge.className = 'stock-badge';
+            stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
+          }
+          if (addBtn) addBtn.style.display = 'block';
+          if (waBtn) waBtn.style.display = 'flex';
+        }
 
         if (waBtn) {
           const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${priceEl ? priceEl.innerText : currentSelectedProduct.price + ' ج.م'}`);
@@ -418,7 +418,16 @@ function openProductModal(id) {
     });
   }
 
-  setActionButtonsVisibility(currentSelectedProduct.stock === 'out');
+  // ضبط الحالة الافتراضية لأول مقاس
+  if (firstVariant && firstVariant.status === 'out') {
+    if (stockBadge) {
+      stockBadge.className = 'stock-badge out';
+      stockBadge.innerText = '🔴 نفذت الكمية لهذا المقاس';
+    }
+    setActionButtonsVisibility(true);
+  } else {
+    setActionButtonsVisibility(currentSelectedProduct.stock === 'out');
+  }
 
   if (waBtn) {
     const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${priceEl ? priceEl.innerText : currentSelectedProduct.price + ' ج.م'}`);
@@ -435,7 +444,10 @@ function closeModal() {
 }
 
 function addToCart() {
-  if (!currentSelectedProduct || currentSelectedProduct.stock === 'out') return;
+  if (!currentSelectedProduct || currentSelectedProduct.stock === 'out' || selectedVariantStatus === 'out') {
+    alert('عذراً، هذا المقاس نفذت كميته');
+    return;
+  }
   const activeVariant = currentSelectedProduct.variants.find(v => v.size === selectedSize);
   const itemPrice = activeVariant && activeVariant.price ? activeVariant.price : currentSelectedProduct.price;
 
@@ -456,7 +468,6 @@ function addToCart() {
   closeModal();
   showToast();
 
-  // فتح نافذة السلة إجبارياً وتلقائياً فور الإضافة
   renderCartItems();
   const cartModal = document.getElementById('cartModal');
   if (cartModal) {
