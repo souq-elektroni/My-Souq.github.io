@@ -167,8 +167,8 @@
       color: var(--burgundy-soft); font-weight: 700; 
     }
     .modal-actions-row { display: flex; gap: 8px; align-items: center; margin-top: 6px; flex-wrap: wrap; }
-    .add-cart-btn { flex: 1; background: var(--burgundy-soft); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; text-align: center; }
-    .direct-wa-btn { background: #25d366; color: white; border: none; padding: 14px 16px; border-radius: 14px; font-weight: 800; font-size: 15px; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+    .add-cart-btn { flex: 1; background: var(--burgundy-soft); color: white; border: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 16px; cursor: pointer; text-align: center; transition: all 0.2s; }
+    .direct-wa-btn { background: #25d366; color: white; border: none; padding: 14px 16px; border-radius: 14px; font-weight: 800; font-size: 15px; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
     .share-btn { background: var(--pink-soft); color: var(--burgundy-soft); border: 1px solid var(--pink-accent); padding: 14px 16px; border-radius: 14px; font-weight: 800; cursor: pointer; }
     .cart-modal { max-width: 580px; padding: 24px; }
     .cart-title { font-size: 22px; font-weight: bold; margin-bottom: 16px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; color: var(--burgundy-soft); }
@@ -649,6 +649,37 @@
       renderProducts(sorted);
     }
 
+    function updateActionButtons(isOut) {
+      const addBtn = document.getElementById('addCartBtn');
+      const waBtn = document.getElementById('directWaBtn');
+
+      if (addBtn) {
+        if (isOut) {
+          addBtn.style.opacity = '0.45';
+          addBtn.style.pointerEvents = 'none';
+          addBtn.style.textDecoration = 'line-through';
+          addBtn.innerText = 'غير متاح حالياً';
+        } else {
+          addBtn.style.opacity = '1';
+          addBtn.style.pointerEvents = 'auto';
+          addBtn.style.textDecoration = 'none';
+          addBtn.innerText = 'إضافة للسلة 🛒';
+        }
+      }
+
+      if (waBtn) {
+        if (isOut) {
+          waBtn.style.opacity = '0.45';
+          waBtn.style.pointerEvents = 'none';
+          waBtn.style.textDecoration = 'line-through';
+        } else {
+          waBtn.style.opacity = '1';
+          waBtn.style.pointerEvents = 'auto';
+          waBtn.style.textDecoration = 'none';
+        }
+      }
+    }
+
     function openProductModal(id) {
       currentSelectedProduct = products.find(p => p.id === id);
       if (!currentSelectedProduct) return;
@@ -656,8 +687,6 @@
       const modalImg = document.getElementById('modalImage');
       const thumbsContainer = document.getElementById('thumbnailsContainer');
       const stockBadge = document.getElementById('modalStockBadge');
-      const addBtn = document.getElementById('addCartBtn');
-      const waBtn = document.getElementById('directWaBtn');
 
       if (modalImg) {
         modalImg.src = currentSelectedProduct.images[0];
@@ -670,6 +699,7 @@
 
       const isProductOut = currentSelectedProduct.stock === 'out';
       const isSizeOut = selectedVariantStatus === 'out';
+      const isOut = isProductOut || isSizeOut;
 
       if (stockBadge) {
         if (isProductOut) {
@@ -741,6 +771,7 @@
       }
 
       updateDimensionsDisplay(firstVariant);
+      updateActionButtons(isOut);
 
       if (sizesContainer) {
         sizesContainer.innerHTML = '';
@@ -786,6 +817,7 @@
 
             const productOut = currentSelectedProduct.stock === 'out';
             const sizeOut = selectedVariantStatus === 'out';
+            const currentlyOut = productOut || sizeOut;
 
             if (productOut) {
               stockBadge.className = 'stock-badge out';
@@ -798,9 +830,9 @@
               stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
             }
 
-            if (addBtn) addBtn.style.display = (productOut || sizeOut) ? 'none' : 'block';
-            if (waBtn) waBtn.style.display = (productOut || sizeOut) ? 'none' : 'flex';
+            updateActionButtons(currentlyOut);
 
+            const waBtn = document.getElementById('directWaBtn');
             if (waBtn) {
               const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${priceEl.innerText}`);
               waBtn.href = `https://wa.me/201116339905?text=${waText}`;
@@ -811,13 +843,11 @@
         });
       }
 
+      const waBtn = document.getElementById('directWaBtn');
       if (waBtn) {
         const waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} - المقاس: ${selectedSize} - السعر: ${priceEl.innerText}`);
         waBtn.href = `https://wa.me/201116339905?text=${waText}`;
       }
-
-      if (addBtn) addBtn.style.display = (isProductOut || isSizeOut) ? 'none' : 'block';
-      if (waBtn) waBtn.style.display = (isProductOut || isSizeOut) ? 'none' : 'flex';
 
       document.getElementById('productModal').classList.add('active');
     }
