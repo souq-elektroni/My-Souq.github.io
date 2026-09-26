@@ -30,7 +30,7 @@ collections:
           default: "ملابس شتوية"
         }
       - { 
-          label: "ألبوم صور المنتج (الصورة الأولى هي الافتراضية)", 
+          label: "ألبوم صور المنتج (الصورة الأولى هي الافتراضية وترقم تلقائياً R1 ثم R2 الخ)", 
           name: "images", 
           widget: "list"
         }
@@ -58,8 +58,8 @@ collections:
               label: "كود الصورة المرتبطة", 
               name: "code", 
               widget: "select",
-              options: ["R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10"],
-              default: "R1"
+              options: ["none", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10"],
+              default: "none"
             },
             { label: "السعر (اختياري)", name: "price", widget: "number", value_type: "float", required: false },
             { label: "الطول (سم)", name: "length", widget: "string", required: false },
