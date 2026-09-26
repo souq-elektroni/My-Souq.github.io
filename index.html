@@ -663,6 +663,8 @@
       if (!variants || variants.length === 0) {
         container.innerHTML = '<span style="font-size: 14px; color: var(--text-muted);">المقاس قياسي وموحد</span>';
         selectedSize = 'Standard';
+        selectedSizeStatus = currentSelectedProduct.stock || 'available';
+        evaluateStockStatus();
         return;
       }
 
@@ -672,31 +674,50 @@
         btn.className = `size-btn ${idx === 0 ? 'active' : ''}`;
         btn.innerText = v.size;
         
-        let isSizeOut = v.status === 'out';
-        let bgStyle = idx === 0 ? 'var(--burgundy-soft)' : 'white';
-        let colorStyle = idx === 0 ? 'white' : 'var(--text-dark)';
-        if (isSizeOut) {
-          bgStyle = '#ffebee';
-          colorStyle = '#c62828';
+        let isSizeOut = (v.status || 'available') === 'out';
+        
+        if (idx === 0) {
+          selectedSize = v.size;
+          selectedSizeStatus = v.status || 'available';
         }
 
-        btn.style.cssText = `padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border-color); background: ${bgStyle}; color: ${colorStyle}; font-weight: bold; cursor: pointer; opacity: ${isSizeOut ? '0.7' : '1'};`;
-        
-        if (idx === 0) selectedSize = v.size;
+        updateSizeButtonStyle(btn, idx === 0, isSizeOut);
 
         btn.onclick = () => {
           selectedSize = v.size;
+          selectedSizeStatus = v.status || 'available';
+          
           document.querySelectorAll('.size-btn').forEach(b => {
-            let outCheck = b.style.color === 'rgb(198, 40, 40)';
-            b.style.background = outCheck ? '#ffebee' : 'white';
-            b.style.color = outCheck ? '#c62828' : 'var(--text-dark)';
+            let outCheck = b.getAttribute('data-out') === 'true';
+            updateSizeButtonStyle(b, false, outCheck);
           });
-          btn.style.background = isSizeOut ? '#c62828' : 'var(--burgundy-soft)';
-          btn.style.color = 'white';
+          updateSizeButtonStyle(btn, true, isSizeOut);
           evaluateStockStatus();
         };
+
+        btn.setAttribute('data-out', isSizeOut);
         container.appendChild(btn);
       });
+    }
+
+    function updateSizeButtonStyle(btn, isSelected, isOut) {
+      let bg = 'white';
+      let color = 'var(--text-dark)';
+      let border = '1px solid var(--border-color)';
+
+      if (isOut) {
+        bg = '#ffebee';
+        color = '#c62828';
+        border = '1px solid #ef9a9a';
+      }
+
+      if (isSelected) {
+        bg = isOut ? '#c62828' : 'var(--burgundy-soft)';
+        color = 'white';
+        border = '1px solid ' + (isOut ? '#b71c1c' : 'var(--burgundy-soft)');
+      }
+
+      btn.style.cssText = `padding: 8px 16px; border-radius: 10px; border: ${border}; background: ${bg}; color: ${color}; font-weight: bold; cursor: pointer;`;
     }
 
     function evaluateStockStatus() {
