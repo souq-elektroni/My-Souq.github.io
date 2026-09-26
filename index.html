@@ -663,7 +663,7 @@
     }
 
     function applySorting() {
-      const sortVal = document.getElementById('sortSelect') ? document.getElementById('sortSelect'].value : '';
+      const sortVal = document.getElementById('sortSelect') ? document.getElementById('sortSelect').value : '';
       let sorted = [...products];
       if (sortVal === 'low-high') sorted.sort((a,b) => a.price - b.price);
       else if (sortVal === 'high-low') sorted.sort((a,b) => b.price - a.price);
@@ -690,12 +690,8 @@
       selectedSize = firstVariant ? firstVariant.size : 'مقاس موحد';
       selectedCode = 'R1';
 
-      // الدالة الذكية لتقييم الحالة بناءً على تطابق المقاس مع الكود الحالي بدقة تامة
       function evaluateCurrentStatus() {
-        // البحث بالملائمة الدقيقة بين المقاس والكود معاً
         let matched = currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === selectedCode);
-        
-        // إذا لم توجد مطابقة دقيقة، نبحث عن المقاس وحده كحل احتياطي
         if (!matched) {
           matched = currentSelectedProduct.variants.find(v => v.size === selectedSize);
         }
@@ -758,7 +754,6 @@
               document.querySelectorAll('.thumb-img').forEach(t => t.style.borderColor = 'transparent');
               img.style.borderColor = "var(--burgundy-soft, #803d48)";
 
-              // إعادة تقييم الحالة فوراً عند اختيار الصورة لتتحدث الشالة وزر الشراء
               evaluateCurrentStatus();
 
               const priceEl = document.getElementById('modalPrice');
