@@ -96,7 +96,7 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     let allExtractedImages = [];
     
-    // 1. البحث عن الصورة الرئيسية إن وجدت (بدون اشتراط وجودها)
+    // 1. البحث عن الصورة الرئيسية إن وجدت (اختياري)
     const singleImgMatch = frontmatter.match(/image:\s*(.+)/);
     if (singleImgMatch) {
       let cleaned = singleImgMatch[1].trim();
@@ -657,7 +657,15 @@ function finalizeOrder() {
   const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
   const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
   
-  let itemsTest = cart.map(i => `- ${i.title} (مقاس: ${i.size}) × ${i.qty} = ${i.price * i.qty} ج.م`).join('\n');
+  // دمج تفاصيل المنتجات مع رابط الصورة الخاص بكل منتج لتظهر في الواتساب
+  let itemsTest = cart.map(i => {
+    let itemText = `- ${i.title} (مقاس: ${i.size}) × ${i.qty} = ${i.price * i.qty} ج.م`;
+    if (i.image) {
+      itemText += `\n  🖼️ صورة المنتج: ${i.image}`;
+    }
+    return itemText;
+  }).join('\n\n');
+
   const totalPriceEl = document.getElementById('cartTotalPrice');
   let totalText = totalPriceEl ? totalPriceEl.innerText : '0 ج.م';
 
