@@ -30,9 +30,14 @@ collections:
           default: "ملابس شتوية"
         }
       - { 
-          label: "ألبوم صور المنتج", 
-          name: "images", 
-          widget: "list"
+      - label: "ألبوم صور المنتج"
+  name: "images"
+  widget: "list"
+  summary: "{{fields.image}}"
+  field:
+    label: "صورة"
+    name: "image"
+    widget: "image"
         }
       - { label: "السعر الأساسي (ج.م)", name: "price", widget: "number", value_type: "float" }
       - { label: "السعر القديم قبل الخصم (اختياري)", name: "oldPrice", widget: "number", value_type: "float", required: false }
