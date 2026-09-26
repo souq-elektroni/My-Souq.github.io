@@ -423,7 +423,7 @@
     let currentCategory = "الكل";
     let currentStockFilter = "all";
     let selectedSize = null;
-    let selectedCode = 'R1';
+    let selectedCode = 'AU'; // البدء بالحرف الافتراضي الأول بدلاً من R1
     let selectedVariantStatus = "available";
     let currentSelectedProduct = null;
     let activeModalImage = '';
@@ -615,7 +615,7 @@
     function openProductModal(product) {
       currentSelectedProduct = product;
       activeModalImage = product.images[0];
-      selectedCode = 'R1';
+      selectedCode = 'AU'; // افتراضي الصورة الأولى
       selectedSize = null;
 
       document.getElementById('modalTitle').innerText = product.title;
@@ -640,13 +640,17 @@
       if (!images || images.length <= 1) return;
 
       images.forEach((imgSrc, idx) => {
+        // توليد الأكواد بالحروف مثل AU, BU, CU... تفادياً للتداخل مع أرقام المقاسات
+        let letterCode = String.fromCharCode(65 + idx) + 'U';
+        
         const thumb = document.createElement('img');
         thumb.src = imgSrc;
         thumb.className = `modal-img-thumb ${imgSrc === activeModalImage ? 'active' : ''}`;
         thumb.style.cssText = "width: 65px; height: 65px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid " + (imgSrc === activeModalImage ? 'var(--burgundy-soft)' : 'transparent');
+        
         thumb.onclick = () => {
           activeModalImage = imgSrc;
-          selectedCode = `R${idx + 1}`;
+          selectedCode = letterCode;
           document.getElementById('modalImage').src = imgSrc;
           document.querySelectorAll('.modal-img-thumb').forEach(t => t.style.borderColor = 'transparent');
           thumb.style.borderColor = 'var(--burgundy-soft)';
