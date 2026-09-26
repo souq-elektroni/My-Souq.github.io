@@ -96,7 +96,6 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     let allExtractedImages = [];
     
-    // 1. البحث عن الصورة الرئيسية إن وجدت (اختياري)
     const singleImgMatch = frontmatter.match(/image:\s*(.+)/);
     if (singleImgMatch) {
       let cleaned = singleImgMatch[1].trim();
@@ -106,7 +105,6 @@ function parseMarkdown(markdownText, id) {
       }
     }
 
-    // 2. استخراج صور الألبوم من قسم images بدقة
     const imagesMatch = frontmatter.match(/images:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (imagesMatch) {
       const imgLines = imagesMatch[1].split('\n');
@@ -456,7 +454,7 @@ function addToCart() {
   }
   updateCartCount();
   closeModal();
-  openCartModal();
+  openCartModal(); // فتح شاشة السلة تلقائياً مباشرة
   showToast();
 }
 
@@ -657,11 +655,11 @@ function finalizeOrder() {
   const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
   const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
   
-  // دمج تفاصيل المنتجات مع رابط الصورة الخاص بكل منتج لتظهر في الواتساب
-  let itemsTest = cart.map(i => {
-    let itemText = `- ${i.title} (مقاس: ${i.size}) × ${i.qty} = ${i.price * i.qty} ج.م`;
+  // تنسيق رسالة الواتساب تماماً بالشكل المطلوب مع رابط الصورة وصياغة الشروط والإقرار
+  let itemsTest = cart.map((i, index) => {
+    let itemText = `${index + 1}. ${i.title}\n- المقاس: ${i.size}\n- السعر: ${i.price} ج.م (الكمية: ${i.qty})`;
     if (i.image) {
-      itemText += `\n  🖼️ صورة المنتج: ${i.image}`;
+      itemText += `\n- صورة المنتج: ${i.image}`;
     }
     return itemText;
   }).join('\n\n');
@@ -669,13 +667,15 @@ function finalizeOrder() {
   const totalPriceEl = document.getElementById('cartTotalPrice');
   let totalText = totalPriceEl ? totalPriceEl.innerText : '0 ج.م';
 
-  let msg = `🛍️ *طلب جديد من متجر My Souq*\n\n`;
-  msg += `👤 الاسم: ${name}\n`;
-  msg += `📞 الهاتف: ${phone}\n`;
-  msg += `📍 العنوان: ${address}\n\n`;
-  msg += `🛒 *المنتجات المطلوبة:*\n${itemsTest}\n\n`;
-  msg += `💰 *الإجمالي النهائي:* ${totalText}\n`;
-  msg += `💳 *طريقة الدفع:* ${payMethod}`;
+  let msg = `🛒 طلب جديد من متجر My Souq\n\n`;
+  msg += `بيانات العميل:\n`;
+  msg += `• الاسم: ${name}\n`;
+  msg += `• رقم التواصل: ${phone}\n`;
+  msg += `• العنوان: ${address}\n`;
+  msg += `• طريقة الدفع: ${payMethod}\n\n`;
+  msg += `المنتجات المطلوبة:\n${itemsTest}\n\n`;
+  msg += `الإجمالي الكلي: ${totalText}\n\n`;
+  msg += `إقرار العميل: أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
 
   const encodedMsg = encodeURIComponent(msg);
   window.open(`https://wa.me/201116339905?text=${encodedMsg}`, '_blank');
