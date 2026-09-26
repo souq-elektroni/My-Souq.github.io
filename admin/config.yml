@@ -30,7 +30,7 @@ collections:
           default: "ملابس شتوية"
         }
       - { 
-          label: "ألبوم صور المنتج (الصورة الأولى هي الافتراضية وترقم تلقائياً R1 ثم R2 الخ)", 
+          label: "ألبوم صور المنتج (الصورة الأولى AU، الثانية BU، الثالثة CU الترتيب تلقائي بالحروف)", 
           name: "images", 
           widget: "list"
         }
@@ -58,7 +58,7 @@ collections:
               label: "كود الصورة المرتبطة", 
               name: "code", 
               widget: "select",
-              options: ["none", "R1", "R2", "R3", "R4", "R5", "R6", "R7", "R8", "R9", "R10"],
+              options: ["none", "AU", "BU", "CU", "DU", "EU", "FU", "GU", "HU", "IU", "JU"],
               default: "none"
             },
             { label: "السعر (اختياري)", name: "price", widget: "number", value_type: "float", required: false },
