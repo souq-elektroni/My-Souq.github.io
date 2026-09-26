@@ -663,7 +663,7 @@
     }
 
     function applySorting() {
-      const sortVal = document.getElementById('sortSelect') ? document.getElementById('sortSelect').value : '';
+      const sortVal = document.getElementById('sortSelect') ? document.getElementById('sortSelect'].value : '';
       let sorted = [...products];
       if (sortVal === 'low-high') sorted.sort((a,b) => a.price - b.price);
       else if (sortVal === 'high-low') sorted.sort((a,b) => b.price - a.price);
@@ -690,16 +690,17 @@
       selectedSize = firstVariant ? firstVariant.size : 'مقاس موحد';
       selectedCode = 'R1';
 
-      // الدالة الذكية لتقييم حالة المخزون بناءً على المقاس الكود معاً (استقلالية تامة)
+      // الدالة الذكية لتقييم الحالة بناءً على تطابق المقاس مع الكود الحالي بدقة تامة
       function evaluateCurrentStatus() {
-        const matched = currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === selectedCode);
-        if (matched) {
-          selectedVariantStatus = matched.status || 'available';
-        } else {
-          // جرب البحث بالمقاس فقط كخيار احتياطي
-          const sizeOnly = currentSelectedProduct.variants.find(v => v.size === selectedSize);
-          selectedVariantStatus = sizeOnly ? (sizeOnly.status || 'available') : 'available';
+        // البحث بالملائمة الدقيقة بين المقاس والكود معاً
+        let matched = currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === selectedCode);
+        
+        // إذا لم توجد مطابقة دقيقة، نبحث عن المقاس وحده كحل احتياطي
+        if (!matched) {
+          matched = currentSelectedProduct.variants.find(v => v.size === selectedSize);
         }
+
+        selectedVariantStatus = matched ? (matched.status || 'available') : 'available';
 
         if (!stockBadge) return;
         if (selectedVariantStatus === 'out') {
@@ -757,7 +758,14 @@
               document.querySelectorAll('.thumb-img').forEach(t => t.style.borderColor = 'transparent');
               img.style.borderColor = "var(--burgundy-soft, #803d48)";
 
+              // إعادة تقييم الحالة فوراً عند اختيار الصورة لتتحدث الشالة وزر الشراء
               evaluateCurrentStatus();
+
+              const priceEl = document.getElementById('modalPrice');
+              const matchedVar = currentSelectedProduct.variants.find(v => v.size === selectedSize && v.code === selectedCode) || currentSelectedProduct.variants.find(v => v.size === selectedSize);
+              if (priceEl && matchedVar) {
+                priceEl.innerText = (matchedVar.price || currentSelectedProduct.price) + ' ج.م';
+              }
             };
             thumbsContainer.appendChild(wrapper);
           });
@@ -796,7 +804,6 @@
       updateDimensionsDisplay(firstVariant);
 
       if (sizesContainer) {
-        // استخراج المقاسات الفريدة فقط لإنشاء الأزرار بشكل نظيف
         const uniqueSizes = [...new Set(currentSelectedProduct.variants.map(v => v.size))];
         
         uniqueSizes.forEach((sizeVal) => {
