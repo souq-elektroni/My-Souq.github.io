@@ -53,10 +53,43 @@ collections:
           widget: "list", 
           required: false,
           fields: [
-            { label: "المقاس (مثال: 2، أو S، أو M)", name: "size", widget: "string" },
+            { 
+              label: "1. مقاس السنين", 
+              name: "size_years", 
+              widget: "select", 
+              options: [
+                "None", "1 سنة", "2 سنة", "3 سنة", "4 سنة", "5 سنة", "6 سنة", 
+                "7 سنة", "8 سنة", "9 سنة", "10 سنة", "11 سنة", "12 سنة", 
+                "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة", "19 سنة", "20 سنة"
+              ], 
+              default: "None",
+              required: false 
+            },
+            { 
+              label: "2. مقاس الشهور", 
+              name: "size_months", 
+              widget: "select", 
+              options: [
+                "None", "0M", "1M", "3M", "6M", "9M", "12M", "18M", "24M"
+              ], 
+              default: "None",
+              required: false 
+            },
+            { 
+              label: "3. مقاسات الملابس العامة", 
+              name: "size_general", 
+              widget: "select", 
+              options: [
+                "None", "M", "L", "XL", "2XL", "3XL", "4XL", "5XL", "6XL"
+              ], 
+              default: "None",
+              required: false 
+            },
             { label: "السعر لهذا المقاس (اختياري)", name: "price", widget: "number", value_type: "float", required: false },
-            { label: "الطول (سم)", name: "length", widget: "string", required: false },
-            { label: "العرض (سم)", name: "width", widget: "string", required: false },
+            { label: "طول البنطلون", name: "pants_length", widget: "string", required: false, default: "None" },
+            { label: "طول التيشرت", name: "tshirt_length", widget: "string", required: false, default: "None" },
+            { label: "عرض التيشرت", name: "tshirt_width", widget: "string", required: false, default: "None" },
+            { label: "طول وعرض القطعة الإضافية", name: "extra_piece", widget: "string", required: false, default: "None" },
             { 
               label: "حالة هذا المقاس", 
               name: "status", 
