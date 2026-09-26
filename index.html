@@ -692,7 +692,6 @@
       selectedSize = firstVariant ? firstVariant.size : 'مقاس موحد';
       selectedVariantStatus = firstVariant ? (firstVariant.status || 'available') : 'available';
 
-      // دالة لتحديث حالة المخزون وزر الطلب حسب المقاس المختار
       function updateStockDisplay(status) {
         if (!stockBadge) return;
         if (status === 'out') {
@@ -752,7 +751,11 @@
               if (matchedVariant) {
                 const sizeBtns = document.querySelectorAll('.size-btn');
                 sizeBtns.forEach(b => {
-                  if (b.dataset.size === matchedVariant.size) b.click();
+                  if (b.dataset.size === matchedVariant.size) {
+                    const radio = b.querySelector('input');
+                    if (radio) radio.checked = true;
+                    b.click();
+                  }
                 });
               }
             };
@@ -1102,7 +1105,7 @@
       msg += `• طريقة الدفع: ${payMethod}\n\n`;
       msg += `المنتجات المطلوبة:\n${itemsTest}\n\n`;
       msg += `الإجمالي الكلي: ${totalText}\n\n`;
-      msgشارة العميل: أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
+      msg += `إقرار العميل: أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
 
       const encodedMsg = encodeURIComponent(msg);
       window.open(`https://wa.me/201116339905?text=${encodedMsg}`, '_blank');
