@@ -39,7 +39,7 @@ async function loadRealProducts() {
     products = [];
     for (let i = 0; i < mdFiles.length; i++) {
       const file = mdFiles[i];
-      const rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${file.name}`;
+      const rawUrl = `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encodeURIComponent(file.name)}`;
       const fileRes = await fetch(rawUrl);
       if (!fileRes.ok) continue;
       
@@ -96,6 +96,7 @@ function parseMarkdown(markdownText, id) {
     const defaultImg = 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500';
     let allExtractedImages = [];
     
+    // صورة واحدة
     const singleImgMatch = frontmatter.match(/image:\s*(.+)/);
     if (singleImgMatch) {
       let cleaned = singleImgMatch[1].trim();
@@ -105,6 +106,7 @@ function parseMarkdown(markdownText, id) {
       }
     }
 
+    // ألبوم الصور
     const imagesMatch = frontmatter.match(/images:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
     if (imagesMatch) {
       const imgLines = imagesMatch[1].split('\n');
@@ -128,6 +130,7 @@ function parseMarkdown(markdownText, id) {
     let mainImage = allExtractedImages.length > 0 ? allExtractedImages[0] : defaultImg;
     let allImages = allExtractedImages.length > 0 ? allExtractedImages : [defaultImg];
 
+    // ===== تحليل المقاسات (الهيكل الجديد) =====
     let parsedVariants = [];
     const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*)/);
     
@@ -138,25 +141,50 @@ function parseMarkdown(markdownText, id) {
 
       for (let vLine of vLines) {
         let trimmedLine = vLine.trim();
+        
         if (trimmedLine.startsWith('-')) {
           if (currentVar && currentVar.size) parsedVariants.push(currentVar);
-          currentVar = { size: '', price: null, length: '', width: '', status: 'available' };
-          trimmedLine = trimmedLine.replace('-', '').trim();
+          currentVar = { 
+            size: '', 
+            price: null, 
+            pants_length: '', 
+            tshirt_length: '', 
+            tshirt_width: '', 
+            extra_piece: '',
+            length: '',      // للتوافق مع العرض القديم
+            width: '', 
+            status: 'available' 
+          };
+          trimmedLine = trimmedLine.replace(/^-\s*/, '').trim();
         }
+        
         if (!currentVar) continue;
 
         if (trimmedLine.startsWith('size:')) {
-          currentVar.size = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+          currentVar.size = trimmedLine.split(':').slice(1).join(':').trim().replace(/["']/g, '');
         } else if (trimmedLine.startsWith('price:')) {
           let pVal = parseFloat(trimmedLine.split(':')[1].trim());
           if (!isNaN(pVal)) currentVar.price = pVal;
-        } else if (trimmedLine.startsWith('length:')) {
-          currentVar.length = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
-        } else if (trimmedLine.startsWith('width:')) {
-          currentVar.width = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+        } else if (trimmedLine.startsWith('pants_length:')) {
+          currentVar.pants_length = trimmedLine.split(':').slice(1).join(':').trim().replace(/["']/g, '');
+          currentVar.length = currentVar.pants_length; // للتوافق
+        } else if (trimmedLine.startsWith('tshirt_length:')) {
+          currentVar.tshirt_length = trimmedLine.split(':').slice(1).join(':').trim().replace(/["']/g, '');
+          if (!currentVar.length) currentVar.length = currentVar.tshirt_length;
+        } else if (trimmedLine.startsWith('tshirt_width:')) {
+          currentVar.tshirt_width = trimmedLine.split(':').slice(1).join(':').trim().replace(/["']/g, '');
+          currentVar.width = currentVar.tshirt_width;
+        } else if (trimmedLine.startsWith('extra_piece:')) {
+          currentVar.extra_piece = trimmedLine.split(':').slice(1).join(':').trim().replace(/["']/g, '');
         } else if (trimmedLine.startsWith('status:')) {
           let stVal = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
           currentVar.status = stVal || 'available';
+        }
+        // دعم الهيكل القديم لو لسه موجود
+        else if (trimmedLine.startsWith('length:')) {
+          currentVar.length = trimmedLine.split(':').slice(1).join(':').trim().replace(/["']/g, '');
+        } else if (trimmedLine.startsWith('width:')) {
+          currentVar.width = trimmedLine.split(':').slice(1).join(':').trim().replace(/["']/g, '');
         }
       }
       if (currentVar && currentVar.size) parsedVariants.push(currentVar);
@@ -167,6 +195,10 @@ function parseMarkdown(markdownText, id) {
         size: "مقاس موحد",
         length: "",
         width: "",
+        pants_length: "",
+        tshirt_length: "",
+        tshirt_width: "",
+        extra_piece: "",
         price: price,
         status: stockStatus
       });
@@ -275,7 +307,6 @@ function openProductModal(id) {
   selectedSize = firstVariant ? firstVariant.size : 'مقاس موحد';
   selectedVariantStatus = firstVariant ? (firstVariant.status || 'available') : 'available';
 
-  // ضبط الحالة الافتراضية للباقة بناءً على حالة أول مقاس بدقة
   if (stockBadge) {
     if (selectedVariantStatus === 'out') {
       stockBadge.className = 'stock-badge out';
@@ -333,14 +364,19 @@ function openProductModal(id) {
   const widthSpan = document.getElementById('modalWidth');
 
   if (sizesContainer) sizesContainer.innerHTML = '';
+
   if (priceEl) priceEl.innerText = (firstVariant?.price || currentSelectedProduct.price) + ' ج.م';
 
   function updateDimensionsDisplay(variant) {
     if (dimensionsContainer && lengthSpan && widthSpan) {
-      if (variant && (variant.length || variant.width)) {
+      // نعرض أفضل قيمة موجودة
+      const lengthVal = variant.tshirt_length || variant.pants_length || variant.length || '-';
+      const widthVal = variant.tshirt_width || variant.width || '-';
+      
+      if (variant && (lengthVal !== '-' || widthVal !== '-')) {
         dimensionsContainer.style.display = 'flex';
-        lengthSpan.innerText = variant.length || '-';
-        widthSpan.innerText = variant.width || '-';
+        lengthSpan.innerText = lengthVal;
+        widthSpan.innerText = widthVal;
       } else {
         dimensionsContainer.style.display = 'none';
       }
@@ -436,6 +472,7 @@ function addToCart() {
     alert('عذراً، هذا المقاس نفذت كميته');
     return;
   }
+
   const activeVariant = currentSelectedProduct.variants.find(v => v.size === selectedSize);
   const itemPrice = activeVariant && activeVariant.price ? activeVariant.price : currentSelectedProduct.price;
 
@@ -452,11 +489,12 @@ function addToCart() {
       qty: 1
     });
   }
+
   updateCartCount();
   closeModal();
   showToast();
-
   renderCartItems();
+
   const cartModal = document.getElementById('cartModal');
   if (cartModal) {
     cartModal.classList.add('active');
@@ -573,7 +611,6 @@ function checkFormCompletion() {
   const phoneEl = document.getElementById('custPhone');
   const addressEl = document.getElementById('custAddress');
   const proceedBtn = document.getElementById('proceedBtn');
-
   if (!nameEl || !phoneEl || !addressEl || !proceedBtn) return;
 
   const name = nameEl.value.trim();
@@ -600,6 +637,7 @@ function validateAndOpenTerms() {
     alert('يرجى استكمال كافة بيانات الشحن المطلوبة');
     return;
   }
+
   closeCartModal();
   const termsModal = document.getElementById('termsModal');
   if (termsModal) termsModal.classList.add('active');
@@ -725,6 +763,7 @@ function shareProduct() {
 window.addEventListener('DOMContentLoaded', () => {
   loadRealProducts();
   updateCartCount();
+
   window.addEventListener('scroll', () => {
     const btn = document.getElementById('backToTopBtn');
     if (btn) {
