@@ -326,7 +326,7 @@
           <h2 class="modal-title" id="modalTitle"></h2>
           <div class="stock-badge" id="modalStockBadge">🟢 متوفر بالمخزون - جاهز للشحن الفوري</div>
           <div>
-            <label style="font-weight: bold; font-size: 15px; display: block; margin-bottom: 6px; color: var(--text-muted);">اختر المقاس / الكود:</label>
+            <label style="font-weight: bold; font-size: 15px; display: block; margin-bottom: 6px; color: var(--text-muted);">اختر المقاس:</label>
             <div class="size-selector" id="sizesContainer"></div>
           </div>
           <div class="modal-price" id="modalPrice">- ج.م</div>
@@ -423,8 +423,7 @@
     let currentCategory = "الكل";
     let currentStockFilter = "all";
     let selectedSize = null;
-    let selectedCode = 'AU'; // البدء بالحرف الافتراضي الأول بدلاً من R1
-    let selectedVariantStatus = "available";
+    let selectedSizeStatus = "available";
     let currentSelectedProduct = null;
     let activeModalImage = '';
     let discountRate = 0;
@@ -544,7 +543,7 @@
         let variants = [];
         const variantsMatch = frontmatter.match(/variants:\s*\n([\s\S]*?)(?=\n[a-zA-Z_-]+:|$)/);
         if (variantsMatch) {
-          const vLines = variantsMatch.variantsText = variantsMatch[1].split('\n');
+          const vLines = variantsMatch[1].split('\n');
           let currentVar = {};
           vLines.forEach(line => {
             if (line.includes('- size:')) {
@@ -552,15 +551,18 @@
               currentVar = {};
               let sz = line.split(':')[1];
               if (sz) currentVar.size = sz.trim().replace(/['"]/g, '');
-            } else if (line.includes('code:')) {
-              let cd = line.split(':')[1];
-              if (cd) currentVar.code = cd.trim().replace(/['"]/g, '');
             } else if (line.includes('status:')) {
               let st = line.split(':')[1];
               if (st) currentVar.status = st.trim().replace(/['"]/g, '');
             } else if (line.includes('price:')) {
               let pr = line.split(':')[1];
               if (pr) currentVar.price = parseFloat(pr) || price;
+            } else if (line.includes('length:')) {
+              let ln = line.split(':')[1];
+              if (ln) currentVar.length = ln.trim().replace(/['"]/g, '');
+            } else if (line.includes('width:')) {
+              let wd = line.split(':')[1];
+              if (wd) currentVar.width = wd.trim().replace(/['"]/g, '');
             }
           });
           if (currentVar.size) variants.push(currentVar);
@@ -615,7 +617,6 @@
     function openProductModal(product) {
       currentSelectedProduct = product;
       activeModalImage = product.images[0];
-      selectedCode = 'AU'; // افتراضي الصورة الأولى
       selectedSize = null;
 
       document.getElementById('modalTitle').innerText = product.title;
@@ -625,7 +626,7 @@
 
       renderThumbnails(product.images);
       renderSizes(product.variants);
-      evaluateCurrentStatus();
+      evaluateStockStatus();
 
       document.getElementById('productModal').classList.add('active');
     }
@@ -639,10 +640,7 @@
       container.innerHTML = '';
       if (!images || images.length <= 1) return;
 
-      images.forEach((imgSrc, idx) => {
-        // توليد الأكواد بالحروف مثل AU, BU, CU... تفادياً للتداخل مع أرقام المقاسات
-        let letterCode = String.fromCharCode(65 + idx) + 'U';
-        
+      images.forEach((imgSrc) => {
         const thumb = document.createElement('img');
         thumb.src = imgSrc;
         thumb.className = `modal-img-thumb ${imgSrc === activeModalImage ? 'active' : ''}`;
@@ -650,11 +648,9 @@
         
         thumb.onclick = () => {
           activeModalImage = imgSrc;
-          selectedCode = letterCode;
           document.getElementById('modalImage').src = imgSrc;
           document.querySelectorAll('.modal-img-thumb').forEach(t => t.style.borderColor = 'transparent');
           thumb.style.borderColor = 'var(--burgundy-soft)';
-          evaluateCurrentStatus();
         };
         container.appendChild(thumb);
       });
@@ -670,52 +666,69 @@
         return;
       }
 
-      let uniqueSizes = [...new Set(variants.map(v => v.size))];
-      uniqueSizes.forEach((sz, idx) => {
+      variants.forEach((v, idx) => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = `size-btn ${idx === 0 ? 'active' : ''}`;
-        btn.innerText = sz;
-        btn.style.cssText = `padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border-color); background: ${idx === 0 ? 'var(--burgundy-soft)' : 'white'}; color: ${idx === 0 ? 'white' : 'var(--text-dark)'}; font-weight: bold; cursor: pointer;`;
+        btn.innerText = v.size;
         
-        if (idx === 0) selectedSize = sz;
+        let isSizeOut = v.status === 'out';
+        let bgStyle = idx === 0 ? 'var(--burgundy-soft)' : 'white';
+        let colorStyle = idx === 0 ? 'white' : 'var(--text-dark)';
+        if (isSizeOut) {
+          bgStyle = '#ffebee';
+          colorStyle = '#c62828';
+        }
+
+        btn.style.cssText = `padding: 8px 16px; border-radius: 10px; border: 1px solid var(--border-color); background: ${bgStyle}; color: ${colorStyle}; font-weight: bold; cursor: pointer; opacity: ${isSizeOut ? '0.7' : '1'};`;
+        
+        if (idx === 0) selectedSize = v.size;
 
         btn.onclick = () => {
-          selectedSize = sz;
+          selectedSize = v.size;
           document.querySelectorAll('.size-btn').forEach(b => {
-            b.style.background = 'white';
-            b.style.color = 'var(--text-dark)';
+            let outCheck = b.style.color === 'rgb(198, 40, 40)';
+            b.style.background = outCheck ? '#ffebee' : 'white';
+            b.style.color = outCheck ? '#c62828' : 'var(--text-dark)';
           });
-          btn.style.background = 'var(--burgundy-soft)';
+          btn.style.background = isSizeOut ? '#c62828' : 'var(--burgundy-soft)';
           btn.style.color = 'white';
-          evaluateCurrentStatus();
+          evaluateStockStatus();
         };
         container.appendChild(btn);
       });
     }
 
-    function evaluateCurrentStatus() {
+    function evaluateStockStatus() {
       if (!currentSelectedProduct) return;
-      let matched = currentSelectedProduct.variants.find(v => String(v.size).trim() === String(selectedSize).trim() && String(v.code).trim().toUpperCase() === String(selectedCode).trim());
-      if (!matched) {
-        matched = currentSelectedProduct.variants.find(v => String(v.size).trim() === String(selectedSize).trim());
-      }
-
-      selectedVariantStatus = matched ? (matched.status || 'available') : (currentSelectedProduct.stock || 'available');
+      
+      let matchedVariant = currentSelectedProduct.variants.find(v => String(v.size).trim() === String(selectedSize).trim());
+      selectedSizeStatus = matchedVariant ? (matchedVariant.status || 'available') : (currentSelectedProduct.stock || 'available');
+      
       const badge = document.getElementById('modalStockBadge');
       const addBtn = document.getElementById('addCartBtn');
       const waBtn = document.getElementById('directWaBtn');
+      const dimBox = document.getElementById('dimensionsContainer');
 
-      if (selectedVariantStatus === 'out') {
+      if (matchedVariant && (matchedVariant.length || matchedVariant.width)) {
+        document.getElementById('modalLength').innerText = matchedVariant.length || '-';
+        document.getElementById('modalWidth').innerText = matchedVariant.width || '-';
+        dimBox.style.display = 'flex';
+      } else {
+        dimBox.style.display = 'none';
+      }
+
+      if (matchedVariant && matchedVariant.price) {
+        document.getElementById('modalPrice').innerText = matchedVariant.price + ' ج.م';
+      } else {
+        document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
+      }
+
+      if (selectedSizeStatus === 'out') {
         badge.className = 'stock-badge out';
-        badge.innerText = '🔴 نفذت الكمية لهذا المقاس/الكود';
+        badge.innerText = '🔴 نفذت الكمية لهذا المقاس';
         if (addBtn) addBtn.style.display = 'none';
         if (waBtn) waBtn.style.display = 'none';
-      } else if (selectedVariantStatus === 'low') {
-        badge.className = 'stock-badge low';
-        badge.innerText = '🟡 كمية محدودة متاحة';
-        if (addBtn) addBtn.style.display = 'block';
-        if (waBtn) waBtn.style.display = 'flex';
       } else {
         badge.className = 'stock-badge';
         badge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
@@ -723,22 +736,21 @@
         if (waBtn) waBtn.style.display = 'flex';
       }
 
-      if (matched && matched.price) {
-        document.getElementById('modalPrice').innerText = matched.price + ' ج.م';
-      } else {
-        document.getElementById('modalPrice').innerText = currentSelectedProduct.price + ' ج.م';
-      }
-
-      let waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} (المقاس: ${selectedSize || 'عام'} - الكود: ${selectedCode}) بسعر ${document.getElementById('modalPrice').innerText}`);
+      let waText = encodeURIComponent(`مرحباً، أود طلب منتج: ${currentSelectedProduct.title} (المقاس: ${selectedSize || 'عام'}) بسعر ${document.getElementById('modalPrice').innerText}`);
       waBtn.href = `https://wa.me/201116339905?text=${waText}`;
     }
 
     function addToCart() {
       if (!currentSelectedProduct) return;
+      if (selectedSizeStatus === 'out') {
+        alert('عذراً، هذا المقاس نفذت كميته');
+        return;
+      }
+
       let priceText = document.getElementById('modalPrice').innerText;
       let finalPrice = parseFloat(priceText) || currentSelectedProduct.price;
 
-      let existing = cart.find(item => item.id === currentSelectedProduct.id && item.size === selectedSize && item.code === selectedCode);
+      let existing = cart.find(item => item.id === currentSelectedProduct.id && item.size === selectedSize);
       if (existing) {
         existing.quantity += 1;
       } else {
@@ -748,7 +760,6 @@
           price: finalPrice,
           image: activeModalImage,
           size: selectedSize || 'عام',
-          code: selectedCode,
           quantity: 1
         });
       }
@@ -804,7 +815,7 @@
         row.innerHTML = `
           <div class="cart-item-info">
             <span class="cart-item-title">${item.title}</span>
-            <span class="cart-item-meta">المقاس: ${item.size} | الكود: ${item.code}</span>
+            <span class="cart-item-meta">المقاس: ${item.size}</span>
           </div>
           <div class="quantity-controls">
             <button class="qty-btn" onclick="changeQty(${index}, -1)">-</button>
@@ -924,7 +935,7 @@
       msg += `📦 *المنتجات المطلوبة:*\n`;
 
       cart.forEach((item, idx) => {
-        msg += `${idx + 1}. ${item.title} (مقاس: ${item.size} - كود: ${item.code}) - الكمية: ${item.quantity} - السعر: ${item.price * item.quantity} ج.م\n`;
+        msg += `${idx + 1}. ${item.title} (مقاس: ${item.size}) - الكمية: ${item.quantity} - السعر: ${item.price * item.quantity} ج.م\n`;
       });
 
       msg += `\n💰 الإجمالي الكلي: ${document.getElementById('cartTotalPrice').innerText}`;
