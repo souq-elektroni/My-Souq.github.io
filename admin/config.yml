@@ -30,7 +30,7 @@ collections:
           default: "ملابس شتوية"
         }
       - { 
-          label: "ألبوم صور المنتج (الصورة الأولى AU، الثانية BU، الثالثة CU... وهكذا تلقائياً)", 
+          label: "ألبوم صور المنتج", 
           name: "images", 
           widget: "list"
         }
@@ -48,28 +48,17 @@ collections:
           default: "available"
         }
       - { 
-          label: "المقاسات وحالة المخزون لكل كود صورة", 
+          label: "المقاسات المتاحة", 
           name: "variants", 
           widget: "list", 
           required: false,
           fields: [
-            { label: "المقاس (مثال: 2، 3، 4)", name: "size", widget: "string" },
-            { 
-              label: "كود الصورة المرتبطة (AU للصورة الأولى، BU للثانية، وهكذا)", 
-              name: "code", 
-              widget: "select",
-              options: [
-                "none", "AU", "BU", "CU", "DU", "EU", "FU", "GU", "HU", "IU", "JU",
-                "KU", "LU", "MU", "NU", "OU", "PU", "QU", "RU", "SU", "TU",
-                "UU", "VU", "WU", "XU", "YU", "ZU"
-              ],
-              default: "none"
-            },
-            { label: "السعر (اختياري)", name: "price", widget: "number", value_type: "float", required: false },
+            { label: "المقاس (مثال: 2، أو S، أو M)", name: "size", widget: "string" },
+            { label: "السعر لهذا المقاس (اختياري)", name: "price", widget: "number", value_type: "float", required: false },
             { label: "الطول (سم)", name: "length", widget: "string", required: false },
             { label: "العرض (سم)", name: "width", widget: "string", required: false },
             { 
-              label: "حالة هذا المقاس لهذا الكود فقط", 
+              label: "حالة هذا المقاس", 
               name: "status", 
               widget: "select", 
               options: [
