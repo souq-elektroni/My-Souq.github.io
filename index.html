@@ -1022,7 +1022,7 @@
 
       const name = nameEl ? nameEl.value.trim() : '';
       const phone = phoneEl ? phoneEl.value.trim() : '';
-      const address = addressEl ? addressEl.value.trim() : '';
+      const address = addressEl ? address.value.trim() : '';
 
       if (!name || !phone || !address) {
         alert('يرجى استكمال كافة بيانات الشحن المطلوبة');
@@ -1062,6 +1062,7 @@
     }
 
     function selectPayment(method) {
+      document.querySelectorAll('.payment-option').forEach,forEach = null; // safe
       document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
       const optCod = document.getElementById('optCod');
       const payCod = document.getElementById('payCod');
@@ -1090,7 +1091,7 @@
       
       const name = nameEl ? nameEl.value.trim() : '';
       const phone = phoneEl ? phoneEl.value.trim() : '';
-      const address = addressEl ? address.value.trim() : '';
+      const address = addressEl ? addressEl.value.trim() : '';
       
       const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
       const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
