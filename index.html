@@ -572,7 +572,7 @@
             } else if (trimmedLine.startsWith('width:')) {
               currentVar.width = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
             } else if (trimmedLine.startsWith('status:')) {
-              currentVar.status = trimmedLine.split(':')[1].trim().replace(/["']/g, '');
+              currentVar.status = trimmedLine.split(':')[1].trim().replace(/["']/g, '').toLowerCase();
             }
           }
           if (currentVar && currentVar.size) parsedVariants.push(currentVar);
@@ -690,20 +690,30 @@
 
       const firstVariant = currentSelectedProduct.variants[0];
       selectedSize = firstVariant ? firstVariant.size : 'مقاس موحد';
-      selectedVariantStatus = firstVariant ? firstVariant.status : 'available';
+      selectedVariantStatus = firstVariant ? (firstVariant.status || 'available') : 'available';
 
-      if (stockBadge) {
-        if (currentSelectedProduct.stock === 'out') {
+      // دالة لتحديث حالة المخزون وزر الطلب حسب المقاس المختار
+      function updateStockDisplay(status) {
+        if (!stockBadge) return;
+        if (status === 'out') {
           stockBadge.className = 'stock-badge out';
-          stockBadge.innerText = '🔴 نفذت الكمية';
-        } else if (currentSelectedProduct.stock === 'low') {
+          stockBadge.innerText = '🔴 نفذت الكمية لهذا المقاس';
+          if (addBtn) addBtn.style.display = 'none';
+          if (waBtn) waBtn.style.display = 'none';
+        } else if (status === 'low') {
           stockBadge.className = 'stock-badge low';
           stockBadge.innerText = '🟡 كمية محدودة';
+          if (addBtn) addBtn.style.display = 'block';
+          if (waBtn) waBtn.style.display = 'flex';
         } else {
           stockBadge.className = 'stock-badge';
           stockBadge.innerText = '🟢 متوفر بالمخزون - جاهز للشحن الفوري';
+          if (addBtn) addBtn.style.display = 'block';
+          if (waBtn) waBtn.style.display = 'flex';
         }
       }
+
+      updateStockDisplay(selectedVariantStatus);
       
       if (thumbsContainer) {
         thumbsContainer.innerHTML = '';
@@ -810,8 +820,10 @@
             if (radio) radio.checked = true;
 
             selectedSize = v.size;
-            selectedVariantStatus = v.status;
+            selectedVariantStatus = v.status || 'available';
             
+            updateStockDisplay(selectedVariantStatus);
+
             if (priceEl) priceEl.innerText = (v.price || currentSelectedProduct.price) + ' ج.م';
             updateDimensionsDisplay(v);
 
@@ -839,7 +851,7 @@
     }
 
     function addToCart() {
-      if (!currentSelectedProduct || currentSelectedProduct.stock === 'out') return;
+      if (!currentSelectedProduct || currentSelectedProduct.stock === 'out' || selectedVariantStatus === 'out') return;
       const activeVariant = currentSelectedProduct.variants.find(v => v.size === selectedSize);
       const itemPrice = activeVariant && activeVariant.price ? activeVariant.price : currentSelectedProduct.price;
 
@@ -860,7 +872,6 @@
       closeModal();
       showToast();
 
-      // فتح شاشة السلة تلقائياً فور الإضافة
       renderCartItems();
       const cartModal = document.getElementById('cartModal');
       if (cartModal) {
@@ -1091,7 +1102,7 @@
       msg += `• طريقة الدفع: ${payMethod}\n\n`;
       msg += `المنتجات المطلوبة:\n${itemsTest}\n\n`;
       msg += `الإجمالي الكلي: ${totalText}\n\n`;
-      msg += `إقرار العميل: أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
+      msgشارة العميل: أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
 
       const encodedMsg = encodeURIComponent(msg);
       window.open(`https://wa.me/201116339905?text=${encodedMsg}`, '_blank');
