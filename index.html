@@ -787,7 +787,7 @@
 
       saveCart();
       closeModal();
-      openCartModal(); // فتح شاشة السلة تلقائياً لإتمام الطلب
+      openCartModal(); // فتح السلة تلقائياً بعد الإضافة
     }
 
     function showToast() {
@@ -956,10 +956,15 @@
       msg += `📦 *المنتجات المطلوبة:*\n`;
 
       cart.forEach((item, idx) => {
-        msg += `${idx + 1}. ${item.title} (مقاس: ${item.size}) - الكمية: ${item.quantity} - السعر: ${item.price * item.quantity} ج.م\n`;
+        msg += `${idx + 1}. ${item.title}\n- المقاس: ${item.size}\n- السعر: ${item.price} ج.م (الكمية: ${item.quantity})`;
+        if (item.image) {
+          msg += `\n- صورة المنتج: ${item.image}`;
+        }
+        msg += `\n\n`;
       });
 
-      msg += `\n💰 الإجمالي الكلي: ${document.getElementById('cartTotalPrice').innerText}`;
+      msg += `💰 الإجمالي الكلي: ${document.getElementById('cartTotalPrice').innerText}\n\n`;
+      msg += `📌 إقرار العميل: أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
 
       let encodedUrl = `https://wa.me/201116339905?text=${encodeURIComponent(msg)}`;
       window.open(encodedUrl, '_blank');
