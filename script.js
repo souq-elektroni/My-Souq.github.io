@@ -454,8 +454,15 @@ function addToCart() {
   }
   updateCartCount();
   closeModal();
-  openCartModal(); // فتح شاشة السلة تلقائياً مباشرة
   showToast();
+
+  // فتح نافذة السلة إجبارياً وتلقائياً فور الإضافة
+  renderCartItems();
+  const cartModal = document.getElementById('cartModal');
+  if (cartModal) {
+    cartModal.classList.add('active');
+    cartModal.style.display = 'flex';
+  }
 }
 
 function showToast() {
@@ -475,12 +482,18 @@ function updateCartCount() {
 function openCartModal() {
   renderCartItems();
   const cartModal = document.getElementById('cartModal');
-  if (cartModal) cartModal.classList.add('active');
+  if (cartModal) {
+    cartModal.classList.add('active');
+    cartModal.style.display = 'flex';
+  }
 }
 
 function closeCartModal() {
   const cartModal = document.getElementById('cartModal');
-  if (cartModal) cartModal.classList.remove('active');
+  if (cartModal) {
+    cartModal.classList.remove('active');
+    cartModal.style.display = 'none';
+  }
 }
 
 function renderCartItems() {
@@ -655,7 +668,6 @@ function finalizeOrder() {
   const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
   const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
   
-  // تنسيق رسالة الواتساب تماماً بالشكل المطلوب مع رابط الصورة وصياغة الشروط والإقرار
   let itemsTest = cart.map((i, index) => {
     let itemText = `${index + 1}. ${i.title}\n- المقاس: ${i.size}\n- السعر: ${i.price} ج.م (الكمية: ${i.qty})`;
     if (i.image) {
