@@ -45,10 +45,10 @@
 
     .brand-badge {
       position: fixed;
-      top: 12px;
-      right: 12px;
-      width: 65px;
-      height: 65px;
+      top: 10px;
+      right: 10px;
+      width: 56px;
+      height: 56px;
       background: var(--burgundy-soft);
       color: var(--bg-cream);
       border-radius: 50%;
@@ -58,7 +58,7 @@
       justify-content: center;
       text-align: center;
       font-weight: 900;
-      font-size: 11px;
+      font-size: 10px;
       line-height: 1.1;
       box-shadow: 0 4px 15px rgba(128, 61, 72, 0.3);
       border: 2px solid var(--pink-accent);
@@ -84,11 +84,20 @@
 
     .top-actions {
       position: fixed;
-      top: 12px;
-      left: 12px;
+      top: 10px;
+      left: 10px;
       z-index: 900;
       display: flex;
+      flex-direction: column;
       gap: 6px;
+      max-width: calc(100% - 90px); /* عشان ما يتصادمش مع البادج */
+    }
+
+    @media (min-width: 480px) {
+      .top-actions {
+        flex-direction: row;
+        max-width: none;
+      }
     }
 
     @media (min-width: 768px) {
@@ -96,23 +105,25 @@
         top: 25px;
         left: 20px;
         gap: 10px;
+        flex-direction: row;
       }
     }
 
     .cart-trigger, .track-trigger {
       background: var(--burgundy-soft);
       color: white;
-      padding: 8px 14px;
+      padding: 7px 11px;
       border-radius: 30px;
       font-weight: 800;
-      font-size: 13px;
+      font-size: 12px;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(128, 61, 72, 0.25);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       border: 1px solid var(--pink-accent);
       transition: all 0.2s;
+      white-space: nowrap;
     }
 
     @media (min-width: 768px) {
@@ -355,7 +366,7 @@
 
     header {
       text-align: center;
-      padding: 10px 5px 15px;
+      padding: 78px 5px 15px; /* مساحة علوية كافية عشان أزرار السلة والتتبع والبادج ما يغطيوش الاسم على الموبايل */
       max-width: 950px;
       margin: 0 auto;
     }
@@ -367,10 +378,11 @@
     }
 
     header h1 {
-      font-size: 26px;
+      font-size: 24px;
       color: var(--burgundy-soft);
       margin-bottom: 8px;
       font-weight: 900;
+      line-height: 1.25;
     }
 
     @media (min-width: 768px) {
@@ -381,7 +393,7 @@
     }
 
     header p {
-      font-size: 13.5px;
+      font-size: 13px;
       color: var(--burgundy-soft);
       font-weight: 800;
       line-height: 1.4;
@@ -580,6 +592,7 @@
       }
     }
 
+    /* تحسين شبكة المنتجات على الهواتف لتناسب عمودين بمسافات متناسقة وجميلة */
     .products-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -2246,7 +2259,7 @@
         📦 تتبع حالة طلبك
       </div>
       <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 10px;">
-        أدخل رقم الطلب الخاص بك (مثال: MS-123456) لمعرفة أحدث مستجدات وتجهيزات الطلب:
+        أدخل رقم الطلب الخاص بك (مثال: MS-260927-1234567ABCD) لمعرفة أحدث مستجدات وتجهيزات الطلب:
       </p>
       <div style="display: flex; gap: 6px; margin-bottom: 12px;">
         <input
@@ -2329,6 +2342,16 @@
     const productsGrid = document.getElementById("products-container");
     const cartCount = document.getElementById("cartCount");
 
+    /* أرقام طلبات أقوى: MS- + تاريخ مختصر + عشوائي طويل */
+    function generateStrongOrderId() {
+      const now = new Date();
+      const yy = String(now.getFullYear()).slice(-2);
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const dd = String(now.getDate()).padStart(2, '0');
+      const rand = Math.floor(1000000 + Math.random() * 9000000); // 7 أرقام
+      const extra = Math.random().toString(36).substring(2, 6).toUpperCase(); // 4 حروف
+      return `MS-${yy}${mm}${dd}-${rand}${extra}`;
+    }
 
     function toggleQrBox() {
       document.getElementById('floatingQr').classList.toggle('show');
@@ -3087,7 +3110,7 @@
         currentSelectedProduct.images[0] ||
         '';
 
-      const instantOrderId = 'MS-' + Math.floor(100000 + Math.random() * 900000);
+      const instantOrderId = generateStrongOrderId();
 
       const waText =
 `مرحباً، أود طلب المنتج التالي من متجر My Souq 🛒
@@ -4253,7 +4276,7 @@ ${selectedImage}
       const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
       const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
 
-      generatedOrderId = 'MS-' + Math.floor(100000 + Math.random() * 900000);
+      generatedOrderId = generateStrongOrderId();
 
       let productsHtml = cart.map(item => `
         <div class="summary-product-row">
@@ -4369,8 +4392,10 @@ ${selectedImage}
         payMethod: payMethod,
         total: totalText,
         items: [...cart],
-        status: 'قيد التجهيز 📦',
-        date: new Date().toLocaleDateString('ar-EG')
+        statusCode: 0, // 0: تحت التنفيذ | 1: تم الحجز | 2: جاري الشحن | 3: تم التوريد
+        status: 'تحت التنفيذ 📦',
+        date: new Date().toLocaleDateString('ar-EG'),
+        createdAt: Date.now()
       };
       
       ordersHistory.push(newOrderRecord);
@@ -4467,20 +4492,71 @@ ${selectedImage}
         return;
       }
 
-      const foundOrder = ordersHistory.find(o => o.orderId.toLowerCase() === searchId.toLowerCase());
+      let foundOrder = ordersHistory.find(o => o.orderId.toLowerCase() === searchId.toLowerCase());
 
       resultBox.style.display = 'block';
 
       if (foundOrder) {
+        // محاكاة تقدم الحالة حسب الوقت (للتجربة بدون سيرفر)
+        // 0: تحت التنفيذ | 1: تم الحجز | 2: جاري الشحن | 3: تم التوريد
+        const statuses = [
+          { code: 0, label: 'تحت التنفيذ 📦', color: '#e65100' },
+          { code: 1, label: 'تم الحجز ✅', color: '#1565c0' },
+          { code: 2, label: 'جاري الشحن 🚚', color: '#6a1b9a' },
+          { code: 3, label: 'تم التوريد 🎉', color: '#2e7d32' }
+        ];
+
+        let currentCode = typeof foundOrder.statusCode === 'number' ? foundOrder.statusCode : 0;
+
+        // تقدم تلقائي بسيط حسب مرور الوقت (كل ~2 دقيقة مرحلة) للتجربة
+        if (foundOrder.createdAt) {
+          const minsPassed = (Date.now() - foundOrder.createdAt) / 60000;
+          if (minsPassed >= 6) currentCode = 3;
+          else if (minsPassed >= 4) currentCode = 2;
+          else if (minsPassed >= 2) currentCode = 1;
+          else currentCode = 0;
+
+          // تحديث الحالة المحفوظة
+          foundOrder.statusCode = currentCode;
+          foundOrder.status = statuses[currentCode].label;
+          localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
+        }
+
+        const current = statuses[currentCode];
+
+        let timelineHtml = statuses.map((s, idx) => {
+          const isDone = idx <= currentCode;
+          const isCurrent = idx === currentCode;
+          return `
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+              <div style="width:22px; height:22px; border-radius:50%; background:${isDone ? s.color : '#ddd'}; color:white; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold; flex-shrink:0;">
+                ${isDone ? '✓' : (idx + 1)}
+              </div>
+              <div style="flex:1; font-size:12.5px; font-weight:${isCurrent ? '900' : '600'}; color:${isDone ? s.color : '#999'};">
+                ${s.label}
+                ${isCurrent ? ' ← الحالة الحالية' : ''}
+              </div>
+            </div>
+          `;
+        }).join('');
+
         resultBox.innerHTML = `
-          <div style="font-weight: 900; color: var(--burgundy-soft); margin-bottom: 5px;">
+          <div style="font-weight: 900; color: var(--burgundy-soft); margin-bottom: 8px; font-size:14px;">
             ✅ تم العثور على الطلب بنجاح
           </div>
-          <div><strong>🆔 رقم الطلب:</strong> ${foundOrder.orderId}</div>
-          <div><strong>👤 اسم العميل:</strong> ${foundOrder.name}</div>
-          <div><strong>📌 حالة الطلب:</strong> <span style="color: #2e7d32; font-weight: bold;">${foundOrder.status}</span></div>
-          <div><strong>💰 الإجمالي:</strong> ${foundOrder.total}</div>
-          <div><strong>📅 تاريخ الطلب:</strong> ${foundOrder.date}</div>
+          <div style="font-size:12.5px; margin-bottom:3px;"><strong>🆔 رقم الطلب:</strong> ${foundOrder.orderId}</div>
+          <div style="font-size:12.5px; margin-bottom:3px;"><strong>👤 اسم العميل:</strong> ${foundOrder.name}</div>
+          <div style="font-size:12.5px; margin-bottom:3px;"><strong>💰 الإجمالي:</strong> ${foundOrder.total}</div>
+          <div style="font-size:12.5px; margin-bottom:10px;"><strong>📅 تاريخ الطلب:</strong> ${foundOrder.date}</div>
+          
+          <div style="background:white; border:1px solid var(--border-color); border-radius:10px; padding:10px; margin-top:6px;">
+            <div style="font-weight:900; color:var(--burgundy-soft); margin-bottom:10px; font-size:13px;">📍 مسار الطلب:</div>
+            ${timelineHtml}
+          </div>
+          
+          <div style="margin-top:10px; padding:8px; background:${current.color}15; border-radius:8px; border:1px solid ${current.color}40; text-align:center;">
+            <span style="font-weight:900; color:${current.color}; font-size:13.5px;">الحالة الحالية: ${current.label}</span>
+          </div>
         `;
       } else {
         resultBox.innerHTML = `
@@ -4488,31 +4564,18 @@ ${selectedImage}
             ❌ عذراً، لم يتم العثور على أي طلب بهذا الرقم
           </div>
           <div style="font-size: 11.5px; margin-top: 3px; color: var(--text-muted);">
-            تأكد من كتابة رقم الطلب بالشكل الصحيح (مثال: MS-123456).
+            تأكد من كتابة الرقم بشكل صحيح (مثال: MS-260927-1234567ABCD)<br>
+            ملاحظة: التتبع يعمل للطلبات اللي اتعملت من نفس الجهاز/المتصفح.
           </div>
         `;
       }
     }
 
 
-    window.addEventListener("DOMContentLoaded", () => {
+    window.onload = function() {
       loadRealProducts();
-    });
-
-    window.addEventListener("scroll", () => {
-      const btn = document.getElementById("backToTopBtn");
-      if (window.scrollY > 300) {
-        btn.classList.add("show");
-      } else {
-        btn.classList.remove("show");
-      }
-    });
-
-    function scrollToTop() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    };
 
   </script>
-
 </body>
 </html>
