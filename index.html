@@ -87,16 +87,19 @@
       top: 12px;
       left: 12px;
       z-index: 900;
+      display: flex;
+      gap: 6px;
     }
 
     @media (min-width: 768px) {
       .top-actions {
         top: 25px;
         left: 20px;
+        gap: 10px;
       }
     }
 
-    .cart-trigger {
+    .cart-trigger, .track-trigger {
       background: var(--burgundy-soft);
       color: white;
       padding: 8px 14px;
@@ -113,14 +116,14 @@
     }
 
     @media (min-width: 768px) {
-      .cart-trigger {
+      .cart-trigger, .track-trigger {
         padding: 12px 22px;
         font-size: 15px;
         gap: 8px;
       }
     }
 
-    .cart-trigger:hover {
+    .cart-trigger:hover, .track-trigger:hover {
       background: var(--burgundy-hover);
       transform: translateY(-2px);
     }
@@ -1675,6 +1678,9 @@
   </div>
 
   <div class="top-actions">
+    <div class="track-trigger" onclick="openTrackingModal()">
+      🔍 تتبع طلبك
+    </div>
     <div class="cart-trigger" onclick="openCartModal()">
       🛒 السلة <span class="cart-count" id="cartCount">0</span>
     </div>
@@ -2232,6 +2238,38 @@
     </div>
   </div>
 
+  <!-- Tracking Modal (New Feature) -->
+  <div class="modal-overlay" id="trackingModal">
+    <div class="modal-content" style="max-width: 500px; padding: 20px;">
+      <button class="close-btn" onclick="closeTrackingModal()">✕</button>
+      <div class="terms-header" style="font-size: 18px; margin-bottom: 12px;">
+        📦 تتبع حالة طلبك
+      </div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+        أدخل رقم الطلب الخاص بك (مثال: MS-123456) لمعرفة أحدث مستجدات وتجهيزات الطلب:
+      </p>
+      <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+        <input
+          type="text"
+          id="trackInputId"
+          class="promo-input"
+          placeholder="أدخل رقم الطلب هنا..."
+          style="font-size: 14px; padding: 10px;"
+        >
+        <button
+          class="promo-btn"
+          style="padding: 0 16px; font-size: 14px;"
+          onclick="searchOrderTracking()"
+        >
+          بحث 🔍
+        </button>
+      </div>
+      <div id="trackingResultContainer" style="display: none; background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 12px; border-radius: 10px; font-size: 13.5px; line-height: 1.6;">
+        <!-- نتيجة التتبع -->
+      </div>
+    </div>
+  </div>
+
   <!-- Success Modal -->
 
   <div class="modal-overlay" id="successModal">
@@ -2271,6 +2309,7 @@
 
     let products = [];
     let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
+    let ordersHistory = JSON.parse(localStorage.getItem("souqOrdersHistory")) || [];
 
     let currentCategory = "الكل";
     let currentStockFilter = "all";
@@ -4322,6 +4361,23 @@ ${selectedImage}
           .innerText;
 
 
+      // حفظ الطلب في سجل تتبع الطلبات المحلي (localStorage)
+      const newOrderRecord = {
+        orderId: generatedOrderId,
+        name: name,
+        phone: phone,
+        address: address,
+        payMethod: payMethod,
+        total: totalText,
+        items: [...cart],
+        status: 'قيد التجهيز 📦',
+        date: new Date().toLocaleDateString('ar-EG')
+      };
+      
+      ordersHistory.push(newOrderRecord);
+      localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
+
+
       let msg =
         `🛒 طلب جديد من متجر My Souq\n\n`;
 
@@ -4390,6 +4446,53 @@ ${selectedImage}
         .getElementById('successModal')
         .classList.remove('active');
 
+    }
+
+
+    function openTrackingModal() {
+      document.getElementById('trackingModal').classList.add('active');
+    }
+
+
+    function closeTrackingModal() {
+      document.getElementById('trackingModal').classList.remove('active');
+    }
+
+
+    function searchOrderTracking() {
+      const searchId = document.getElementById('trackInputId').value.trim();
+      const resultBox = document.getElementById('trackingResultContainer');
+
+      if (!searchId) {
+        alert('يرجى إدخال رقم الطلب أولاً');
+        return;
+      }
+
+      const foundOrder = ordersHistory.find(o => o.orderId.toLowerCase() === searchId.toLowerCase());
+
+      resultBox.style.display = 'block';
+
+      if (foundOrder) {
+        resultBox.innerHTML = `
+          <div style="font-weight: 900; color: var(--burgundy-soft); margin-bottom: 6px;">
+            ✅ تم العثور على الطلب بنجاح
+          </div>
+          <div><strong>🆔 رقم الطلب:</strong> ${foundOrder.orderId}</div>
+          <div><strong>👤 اسم العميل:</strong> ${foundOrder.name}</div>
+          <div><strong>📌 حالة الطلب:</strong> <span style="color: #2e7d32; font-weight: bold;">${foundOrder.status}</span></div>
+          <div><strong>💰 الإجمالي:</strong> ${foundOrder.total}</div>
+          <div><strong>📅 تاريخ الطلب:</strong> ${foundOrder.date}</div>
+        `;
+      } else {
+        resultBox.innerHTML = `
+          <div style="color: #c62828; font-weight: bold;">
+            ❌ عذراً، لم يتم العثور على أي طلب بهذا الرقم في سجل المتجر المحلي.
+          </div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+            تأكد من كتابة الرقم بشكل صحيح (مثال: MS-123456) أو تواصل معنا عبر الواتساب للاستعلام.
+          </div>
+        `;
+      }
     }
 
 
