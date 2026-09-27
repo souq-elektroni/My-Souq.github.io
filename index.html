@@ -25,13 +25,14 @@
       margin: 0;
       padding: 0;
       font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       background: radial-gradient(circle at top right, #f4e8ea 0%, #fdfbf7 55%, #f9ecee 100%);
       background-attachment: fixed;
       color: var(--text-dark);
-      padding: 12px;
+      padding: 10px;
       min-height: 100vh;
       padding-bottom: 90px;
     }
@@ -42,12 +43,13 @@
       }
     }
 
+    /* تحسين شريط التنقل العلوي الثابت لتجربة موبايل احترافية */
     .brand-badge {
       position: fixed;
-      top: 15px;
-      right: 15px;
-      width: 75px;
-      height: 75px;
+      top: 12px;
+      right: 12px;
+      width: 65px;
+      height: 65px;
       background: var(--burgundy-soft);
       color: var(--bg-cream);
       border-radius: 50%;
@@ -57,9 +59,9 @@
       justify-content: center;
       text-align: center;
       font-weight: 900;
-      font-size: 13px;
+      font-size: 11px;
       line-height: 1.1;
-      box-shadow: 0 6px 20px rgba(128, 61, 72, 0.35);
+      box-shadow: 0 4px 15px rgba(128, 61, 72, 0.3);
       border: 2px solid var(--pink-accent);
       z-index: 950;
       transform: rotate(-5deg);
@@ -83,8 +85,8 @@
 
     .top-actions {
       position: fixed;
-      top: 15px;
-      left: 15px;
+      top: 12px;
+      left: 12px;
       z-index: 900;
     }
 
@@ -98,12 +100,12 @@
     .cart-trigger {
       background: var(--burgundy-soft);
       color: white;
-      padding: 10px 16px;
+      padding: 8px 14px;
       border-radius: 30px;
       font-weight: 800;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
-      box-shadow: 0 4px 15px rgba(128, 61, 72, 0.25);
+      box-shadow: 0 4px 12px rgba(128, 61, 72, 0.25);
       display: flex;
       align-items: center;
       gap: 6px;
@@ -128,12 +130,12 @@
       background: var(--pink-accent);
       color: var(--burgundy-soft);
       border-radius: 50%;
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: bold;
     }
 
@@ -147,20 +149,21 @@
 
     .whatsapp-float {
       position: fixed;
-      bottom: 85px;
-      left: 15px;
+      bottom: 80px;
+      left: 12px;
       background: #25d366;
       color: white;
-      width: 45px;
-      height: 45px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 22px;
-      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+      font-size: 20px;
+      box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
       z-index: 900;
       text-decoration: none;
+      transition: transform 0.2s;
     }
 
     @media (min-width: 768px) {
@@ -180,19 +183,19 @@
 
     .qr-toggle-fab {
       position: fixed;
-      bottom: 20px;
-      left: 15px;
+      bottom: 15px;
+      left: 12px;
       background: var(--burgundy-soft);
       color: white;
       border: 2px solid var(--pink-accent);
-      width: 50px;
-      height: 50px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 15px rgba(128, 61, 72, 0.3);
+      box-shadow: 0 4px 12px rgba(128, 61, 72, 0.3);
       z-index: 999;
     }
 
@@ -207,15 +210,15 @@
 
     .floating-qr-container {
       position: fixed;
-      bottom: 80px;
-      left: 15px;
+      bottom: 75px;
+      left: 12px;
       background: #ffffff;
       padding: 12px;
       border-radius: 16px;
       box-shadow: 0 8px 25px rgba(0,0,0,0.15);
       z-index: 998;
       text-align: center;
-      width: 160px;
+      width: 150px;
       display: none;
       border: 1px solid var(--border-color);
     }
@@ -253,8 +256,8 @@
     }
 
     .floating-qr-container img {
-      width: 130px;
-      height: 130px;
+      width: 120px;
+      height: 120px;
       border-radius: 6px;
     }
 
@@ -275,18 +278,18 @@
 
     .back-to-top {
       position: fixed;
-      bottom: 20px;
-      right: 15px;
+      bottom: 15px;
+      right: 12px;
       background: var(--burgundy-soft);
       color: white;
-      width: 45px;
-      height: 45px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       z-index: 900;
       cursor: pointer;
       opacity: 0;
@@ -312,25 +315,25 @@
 
     #toastNotification {
       position: fixed;
-      top: 15px;
+      top: 12px;
       left: 50%;
       transform: translateX(-50%) translateY(-100px);
       background: var(--burgundy-soft);
       color: white;
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 30px;
       font-weight: 800;
-      font-size: 13px;
-      box-shadow: 0 8px 25px rgba(128, 61, 72, 0.3);
+      font-size: 12px;
+      box-shadow: 0 6px 20px rgba(128, 61, 72, 0.3);
       z-index: 2000;
       transition: transform 0.3s ease-in-out;
       border: 2px solid var(--pink-accent);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       pointer-events: none;
       width: 90%;
-      max-width: 350px;
+      max-width: 330px;
       justify-content: center;
       text-align: center;
     }
@@ -350,7 +353,7 @@
 
     header {
       text-align: center;
-      padding: 15px 5px 20px;
+      padding: 10px 5px 15px;
       max-width: 950px;
       margin: 0 auto;
     }
@@ -362,9 +365,9 @@
     }
 
     header h1 {
-      font-size: 32px;
+      font-size: 26px;
       color: var(--burgundy-soft);
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       font-weight: 900;
     }
 
@@ -376,13 +379,13 @@
     }
 
     header p {
-      font-size: 15px;
+      font-size: 13.5px;
       color: var(--burgundy-soft);
       font-weight: 800;
-      line-height: 1.5;
+      line-height: 1.4;
       background: rgba(248, 236, 238, 0.9);
-      padding: 12px 15px;
-      border-radius: 16px;
+      padding: 10px 12px;
+      border-radius: 12px;
       border: 2px dashed var(--pink-accent);
     }
 
@@ -396,13 +399,13 @@
 
     .controls-wrapper {
       max-width: 1200px;
-      margin: 0 auto 20px;
+      margin: 0 auto 15px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
       background: rgba(255, 253, 250, 0.95);
-      padding: 12px;
-      border-radius: 16px;
+      padding: 10px;
+      border-radius: 14px;
       border: 1px solid var(--border-color);
     }
 
@@ -418,28 +421,42 @@
       }
     }
 
+    /* تحسين شريط الأقسام ليكون قابلاً للتمرير بسلاسة أفقياً على الموبايل */
     .categories-bar {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      gap: 6px;
       align-items: center;
+      padding-bottom: 4px;
+      scrollbar-width: none; /* إخفاء شريط التمرير لجمالية العرض */
+    }
+
+    .categories-bar::-webkit-scrollbar {
+      display: none;
     }
 
     @media (min-width: 768px) {
       .categories-bar {
+        flex-wrap: wrap;
+        overflow-x: visible;
         gap: 10px;
+        padding-bottom: 0;
       }
     }
 
     .cat-btn {
-      padding: 8px 14px;
+      padding: 7px 12px;
       border: 1px solid var(--border-color);
-      border-radius: 16px;
+      border-radius: 14px;
       background: var(--bg-cream);
       color: var(--text-dark);
-      font-size: 13.5px;
+      font-size: 12.5px;
       font-weight: 800;
       cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+      transition: all 0.2s;
     }
 
     @media (min-width: 768px) {
@@ -495,7 +512,7 @@
 
     .search-sort-box {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
       align-items: center;
       width: 100%;
@@ -509,12 +526,12 @@
     }
 
     .search-input {
-      padding: 9px 12px;
+      padding: 8px 10px;
       border-radius: 10px;
       border: 1px solid var(--border-color);
       background: var(--bg-cream);
       color: var(--text-dark);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       outline: none;
       flex: 1;
@@ -542,12 +559,12 @@
 
     .sort-wrapper select {
       width: 100%;
-      padding: 9px 12px;
+      padding: 8px 10px;
       border-radius: 10px;
       border: 1px solid var(--border-color);
       background: var(--bg-cream);
       color: var(--text-dark);
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       cursor: pointer;
       outline: none;
@@ -562,10 +579,11 @@
       }
     }
 
+    /* تحسين شبكة عرض المنتجات لتكون متناسقة وأكثر أناقة على الهواتف */
     .products-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
+      gap: 10px;
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -586,9 +604,9 @@
 
     .product-card {
       background: var(--card-cream);
-      border-radius: 14px;
+      border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.03);
       border: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
@@ -611,8 +629,14 @@
     .image-container {
       position: relative;
       width: 100%;
-      height: 190px;
+      height: 165px;
       background: var(--pink-soft);
+    }
+
+    @media (min-width: 400px) {
+      .image-container {
+        height: 190px;
+      }
     }
 
     @media (min-width: 576px) {
@@ -634,10 +658,10 @@
     }
 
     .product-details {
-      padding: 12px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
       flex-grow: 1;
     }
 
@@ -649,13 +673,14 @@
     }
 
     .product-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 800;
       color: var(--text-dark);
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      line-height: 1.3;
     }
 
     @media (min-width: 768px) {
@@ -666,7 +691,7 @@
     }
 
     .price-tag {
-      font-size: 16px;
+      font-size: 14.5px;
       font-weight: 900;
       color: var(--burgundy-soft);
       margin-top: auto;
@@ -684,14 +709,14 @@
     }
 
     .click-hint {
-      font-size: 11px;
+      font-size: 10px;
       color: var(--burgundy-soft);
       font-weight: 800;
       text-align: center;
-      margin-top: 6px;
+      margin-top: 4px;
       background: var(--pink-soft);
-      padding: 6px;
-      border-radius: 8px;
+      padding: 5px;
+      border-radius: 6px;
     }
 
     @media (min-width: 768px) {
@@ -703,6 +728,7 @@
       }
     }
 
+    /* تصميم النافذة المنبثقة (Modals) لتناسب الشاشات الصغيرة بسلاسة وصورة واضحة */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -715,7 +741,7 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
-      padding: 10px;
+      padding: 8px;
     }
 
     @media (min-width: 768px) {
@@ -730,10 +756,10 @@
 
     .modal-content {
       background: var(--card-cream);
-      border-radius: 18px;
+      border-radius: 16px;
       max-width: 850px;
       width: 100%;
-      max-height: 95vh;
+      max-height: 94vh;
       overflow-y: auto;
       box-shadow: 0 20px 40px rgba(0,0,0,0.25);
       display: flex;
@@ -755,10 +781,10 @@
       left: 10px;
       background: var(--pink-soft);
       border: none;
-      width: 36px;
-      height: 36px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
-      font-size: 18px;
+      font-size: 16px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -781,8 +807,8 @@
     .modal-body {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 16px;
-      padding: 20px 15px;
+      gap: 12px;
+      padding: 16px 12px;
     }
 
     @media (min-width: 650px) {
@@ -797,12 +823,12 @@
     .modal-gallery-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .modal-img {
       width: 100%;
-      height: 260px;
+      height: 240px;
       object-fit: cover;
       border-radius: 12px;
       border: 1px solid var(--border-color);
@@ -817,15 +843,15 @@
 
     .thumbnails-bar {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       overflow-x: auto;
-      padding-bottom: 4px;
+      padding-bottom: 2px;
     }
 
     .modal-info {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     @media (min-width: 768px) {
@@ -835,7 +861,7 @@
     }
 
     .modal-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 900;
       color: var(--burgundy-soft);
     }
@@ -849,10 +875,10 @@
     .stock-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 5px 12px;
+      gap: 5px;
+      padding: 4px 10px;
       border-radius: 20px;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 800;
       width: fit-content;
       background: #e8f5e9;
@@ -872,7 +898,7 @@
     }
 
     .modal-price {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 900;
       color: var(--burgundy-soft);
     }
@@ -893,12 +919,12 @@
     .dimensions-box {
       background: var(--pink-soft);
       border: 1px solid var(--pink-accent);
-      padding: 12px;
+      padding: 10px;
       border-radius: 10px;
-      font-size: 13px;
+      font-size: 12px;
       display: grid;
       grid-template-columns: 1fr;
-      gap: 6px;
+      gap: 5px;
       color: var(--burgundy-soft);
       font-weight: 700;
     }
@@ -915,7 +941,7 @@
 
     .modal-actions-row {
       display: flex;
-      gap: 8px;
+      gap: 6px;
       align-items: center;
       margin-top: 4px;
       flex-wrap: wrap;
@@ -926,10 +952,10 @@
       background: var(--burgundy-soft);
       color: white;
       border: none;
-      padding: 12px;
-      border-radius: 12px;
+      padding: 10px;
+      border-radius: 10px;
       font-weight: 800;
-      font-size: 15px;
+      font-size: 14px;
       cursor: pointer;
       text-align: center;
       transition: all 0.2s;
@@ -947,10 +973,10 @@
       background: #25d366;
       color: white;
       border: none;
-      padding: 12px 14px;
-      border-radius: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
       font-weight: 800;
-      font-size: 14px;
+      font-size: 13px;
       text-decoration: none;
       display: flex;
       align-items: center;
@@ -970,15 +996,15 @@
       background: var(--pink-soft);
       color: var(--burgundy-soft);
       border: 1px solid var(--pink-accent);
-      padding: 12px 14px;
-      border-radius: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
       font-weight: 800;
       cursor: pointer;
     }
 
     .cart-modal {
       max-width: 580px;
-      padding: 18px;
+      padding: 15px;
     }
 
     @media (min-width: 768px) {
@@ -988,9 +1014,9 @@
     }
 
     .cart-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: bold;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       border-bottom: 2px solid var(--border-color);
       padding-bottom: 6px;
       color: var(--burgundy-soft);
@@ -1007,10 +1033,10 @@
     .cart-items {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       max-height: 220px;
       overflow-y: auto;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .cart-item {
@@ -1018,10 +1044,10 @@
       justify-content: space-between;
       align-items: center;
       background: var(--pink-soft);
-      padding: 10px 12px;
+      padding: 8px 10px;
       border-radius: 10px;
       border: 1px solid var(--pink-accent);
-      gap: 8px;
+      gap: 6px;
     }
 
     @media (min-width: 768px) {
@@ -1041,7 +1067,7 @@
 
     .cart-item-title {
       font-weight: bold;
-      font-size: 13.5px;
+      font-size: 13px;
     }
 
     @media (min-width: 768px) {
@@ -1051,7 +1077,7 @@
     }
 
     .cart-item-meta {
-      font-size: 11.5px;
+      font-size: 11px;
       color: var(--text-muted);
     }
 
@@ -1064,9 +1090,9 @@
     .quantity-controls {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       background: white;
-      padding: 3px 8px;
+      padding: 2px 6px;
       border-radius: 6px;
       border: 1px solid var(--border-color);
     }
@@ -1075,14 +1101,14 @@
       background: none;
       border: none;
       font-weight: bold;
-      font-size: 15px;
+      font-size: 14px;
       cursor: pointer;
       color: var(--burgundy-soft);
     }
 
     .qty-num {
       font-weight: 800;
-      font-size: 13px;
+      font-size: 12.5px;
       min-width: 12px;
       text-align: center;
     }
@@ -1090,7 +1116,7 @@
     .cart-item-price {
       font-weight: 900;
       color: var(--burgundy-soft);
-      font-size: 14px;
+      font-size: 13.5px;
     }
 
     @media (min-width: 768px) {
@@ -1104,22 +1130,22 @@
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 14px;
       font-weight: bold;
     }
 
     .promo-box {
       display: flex;
       gap: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .promo-input {
       flex: 1;
-      padding: 9px;
+      padding: 8px;
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 12.5px;
       outline: none;
       background: white;
     }
@@ -1128,21 +1154,21 @@
       background: var(--burgundy-soft);
       color: white;
       border: none;
-      padding: 0 14px;
+      padding: 0 12px;
       border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 12.5px;
     }
 
     .customer-form {
       background: var(--bg-cream);
-      padding: 12px;
-      border-radius: 12px;
+      padding: 10px;
+      border-radius: 10px;
       border: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       margin-top: 4px;
     }
 
@@ -1157,11 +1183,11 @@
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 2px;
     }
 
     .form-group label {
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: bold;
       color: var(--burgundy-soft);
     }
@@ -1174,10 +1200,10 @@
 
     .form-group input,
     .form-group textarea {
-      padding: 9px 10px;
+      padding: 8px 10px;
       border: 1px solid var(--border-color);
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 12.5px;
       outline: none;
       background: white;
       width: 100%;
@@ -1192,16 +1218,16 @@
     }
 
     .cart-footer {
-      margin-top: 12px;
+      margin-top: 10px;
       border-top: 1px solid var(--border-color);
-      padding-top: 10px;
+      padding-top: 8px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .total-price {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 800;
       display: flex;
       justify-content: space-between;
@@ -1217,12 +1243,12 @@
       background: var(--burgundy-soft);
       color: white;
       text-align: center;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 10px;
+      border-radius: 8px;
       font-weight: bold;
       border: none;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 14px;
       display: none;
       width: 100%;
     }
@@ -1237,7 +1263,7 @@
 
     .terms-modal {
       max-width: 520px;
-      padding: 18px;
+      padding: 15px;
       z-index: 1100;
     }
 
@@ -1248,10 +1274,10 @@
     }
 
     .terms-header {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 900;
       color: var(--burgundy-soft);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     @media (min-width: 768px) {
@@ -1264,12 +1290,12 @@
     .terms-body {
       background: #fffde7;
       border: 1px solid #ffe082;
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 12.5px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
       color: #5d4037;
-      line-height: 1.6;
-      margin-bottom: 12px;
+      line-height: 1.5;
+      margin-bottom: 10px;
     }
 
     @media (min-width: 768px) {
@@ -1283,21 +1309,21 @@
     }
 
     .terms-body ul {
-      margin-right: 16px;
+      margin-right: 15px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
     }
 
     .checkbox-container {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       background: var(--pink-soft);
-      padding: 10px 12px;
-      border-radius: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
       border: 1px solid var(--pink-accent);
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       cursor: pointer;
     }
 
@@ -1311,14 +1337,14 @@
     }
 
     .checkbox-container input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       cursor: pointer;
       accent-color: var(--burgundy-soft);
     }
 
     .checkbox-container label {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: bold;
       color: var(--burgundy-soft);
       cursor: pointer;
@@ -1332,7 +1358,7 @@
 
     .terms-actions {
       display: flex;
-      gap: 10px;
+      gap: 8px;
     }
 
     .btn-agree {
@@ -1340,10 +1366,10 @@
       background: var(--burgundy-soft);
       color: white;
       border: none;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 10px;
+      border-radius: 8px;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 13.5px;
       cursor: pointer;
       opacity: 0.5;
       pointer-events: none;
@@ -1367,10 +1393,10 @@
       background: #f44336;
       color: white;
       border: none;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 10px;
+      border-radius: 8px;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 13.5px;
       cursor: pointer;
       text-align: center;
     }
@@ -1385,7 +1411,7 @@
 
     .payment-modal {
       max-width: 500px;
-      padding: 18px;
+      padding: 15px;
       z-index: 1200;
     }
 
@@ -1398,12 +1424,12 @@
     .payment-option {
       display: flex;
       align-items: flex-start;
-      gap: 10px;
+      gap: 8px;
       background: var(--bg-cream);
-      padding: 12px;
-      border-radius: 10px;
+      padding: 10px;
+      border-radius: 8px;
       border: 2px solid var(--border-color);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       cursor: pointer;
     }
 
@@ -1424,13 +1450,13 @@
     .payment-details {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
       width: 100%;
     }
 
     .payment-title {
       font-weight: 800;
-      font-size: 13.5px;
+      font-size: 13px;
       color: var(--burgundy-soft);
     }
 
@@ -1443,11 +1469,11 @@
     .instapay-box {
       background: #e8f5e9;
       border: 1px solid #a5d6a7;
-      padding: 8px 10px;
-      border-radius: 8px;
-      font-size: 12px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 11.5px;
       color: #1b5e20;
-      margin-top: 6px;
+      margin-top: 5px;
       font-weight: bold;
       display: flex;
       justify-content: space-between;
@@ -1466,9 +1492,9 @@
       background: #2e7d32;
       color: white;
       border: none;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 11px;
+      padding: 3px 7px;
+      border-radius: 5px;
+      font-size: 10.5px;
       cursor: pointer;
     }
 
@@ -1483,14 +1509,14 @@
       background: #25d366;
       color: white;
       text-align: center;
-      padding: 12px;
-      border-radius: 10px;
+      padding: 10px;
+      border-radius: 8px;
       font-weight: bold;
       border: none;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 14px;
       width: 100%;
-      margin-top: 8px;
+      margin-top: 6px;
     }
 
     @media (min-width: 768px) {
@@ -1504,7 +1530,7 @@
 
     .confirmation-modal {
       max-width: 650px;
-      padding: 18px;
+      padding: 15px;
       z-index: 1250;
     }
 
@@ -1517,14 +1543,14 @@
     .order-summary-box {
       background: var(--pink-soft);
       border: 1px solid var(--pink-accent);
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      font-size: 13.5px;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      font-size: 13px;
       color: var(--text-dark);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
       max-height: 45vh;
       overflow-y: auto;
     }
@@ -1543,10 +1569,10 @@
     .summary-product-row {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       background: white;
-      padding: 10px;
-      border-radius: 10px;
+      padding: 8px;
+      border-radius: 8px;
       border: 1px solid var(--border-color);
     }
 
@@ -1559,10 +1585,10 @@
     }
 
     .summary-product-img {
-      width: 60px;
-      height: 60px;
+      width: 50px;
+      height: 50px;
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: 6px;
       border: 1px solid var(--border-color);
     }
 
@@ -1576,7 +1602,7 @@
 
     .success-modal {
       max-width: 450px;
-      padding: 25px 20px;
+      padding: 22px 16px;
       text-align: center;
       z-index: 1300;
     }
@@ -1588,8 +1614,8 @@
     }
 
     .success-icon {
-      font-size: 50px;
-      margin-bottom: 12px;
+      font-size: 45px;
+      margin-bottom: 10px;
     }
 
     @media (min-width: 768px) {
@@ -1600,10 +1626,10 @@
     }
 
     .success-title {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 900;
       color: var(--burgundy-soft);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     @media (min-width: 768px) {
@@ -1617,19 +1643,19 @@
       background: var(--burgundy-soft);
       color: white;
       border: none;
-      padding: 10px 22px;
-      border-radius: 10px;
+      padding: 9px 20px;
+      border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 8px;
+      margin-top: 6px;
     }
 
     footer {
       text-align: center;
-      margin-top: 40px;
-      padding: 15px;
+      margin-top: 30px;
+      padding: 12px;
       color: var(--text-muted);
-      font-size: 13px;
+      font-size: 12px;
       border-top: 1px solid var(--border-color);
     }
 
@@ -1681,8 +1707,8 @@
 
   <button class="qr-toggle-fab" onclick="toggleQrBox()">
     <svg
-      width="22"
-      height="22"
+      width="20"
+      height="20"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -1775,7 +1801,7 @@
     class="products-grid"
     id="products-container"
   >
-    <p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:16px;font-weight:bold;">
+    <p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">
       جاري تحميل الموديلات...
     </p>
   </main>
@@ -1823,7 +1849,7 @@
           <div>
 
             <label
-              style="font-weight:bold;font-size:13.5px;display:block;margin-bottom:4px;color:var(--text-muted);"
+              style="font-weight:bold;font-size:13px;display:block;margin-bottom:4px;color:var(--text-muted);"
             >
               اختر المقاس:
             </label>
@@ -1870,7 +1896,7 @@
 
           <p
             id="modalDesc"
-            style="font-size:13.5px;color:var(--text-muted);line-height:1.5;"
+            style="font-size:13px;color:var(--text-muted);line-height:1.4;"
           ></p>
 
           <div class="modal-actions-row">
@@ -1956,7 +1982,7 @@
         id="customerFormBox"
       >
 
-        <h4 style="color:var(--burgundy-soft);font-size:14px;font-weight:bold;">
+        <h4 style="color:var(--burgundy-soft);font-size:13.5px;font-weight:bold;">
           📝 بيانات الشحن:
         </h4>
 
@@ -2188,7 +2214,7 @@
   <!-- Order Final Confirmation Modal -->
   <div class="modal-overlay" id="confirmationModal">
     <div class="modal-content confirmation-modal">
-      <div class="terms-header" style="font-size:20px;">
+      <div class="terms-header" style="font-size:18px;">
         🔍 تأكيد بيانات الطلب النهائي
       </div>
       <div class="order-summary-box" id="confirmationSummaryContent">
@@ -2202,7 +2228,7 @@
       </button>
       <button
         class="btn-decline"
-        style="width:100%; margin-top:8px; background:#615053; padding:12px; font-size:15px;"
+        style="width:100%; margin-top:8px; background:#615053; padding:10px; font-size:14px;"
         onclick="backToCustomerData()"
       >
         العودة لتعديل البيانات ✏️
@@ -2224,7 +2250,7 @@
         تم إرسال طلبك بنجاح!
       </div>
       
-      <p id="successOrderIdDisplay" style="font-weight:bold; color:var(--burgundy-soft); margin-bottom:12px; font-size:14px;"></p>
+      <p id="successOrderIdDisplay" style="font-weight:bold; color:var(--burgundy-soft); margin-bottom:10px; font-size:13.5px;"></p>
 
       <button
         class="success-btn"
@@ -2296,7 +2322,7 @@
         if (mdFiles.length === 0) {
 
           productsGrid.innerHTML =
-            '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:16px;font-weight:bold;">لا توجد منتجات منشورة حالياً.</p>';
+            '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">لا توجد منتجات منشورة حالياً.</p>';
 
           return;
         }
@@ -2327,7 +2353,7 @@
         if (products.length === 0) {
 
           productsGrid.innerHTML =
-            '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:16px;font-weight:bold;">تعذر قراءة ملفات المنتجات.</p>';
+            '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">تعذر قراءة ملفات المنتجات.</p>';
 
           return;
         }
@@ -2340,7 +2366,7 @@
         console.error('خطأ:', error);
 
         productsGrid.innerHTML =
-          `<p style="grid-column:1/-1;text-align:center;color:var(--burgundy-soft);font-size:14px;font-weight:bold;">تأكد أن المستودع عام ويحتوي على ملفات منتجات.</p>`;
+          `<p style="grid-column:1/-1;text-align:center;color:var(--burgundy-soft);font-size:13.5px;font-weight:bold;">تأكد أن المستودع عام ويحتوي على ملفات منتجات.</p>`;
 
       }
 
@@ -2771,7 +2797,7 @@
       if (list.length === 0) {
 
         productsGrid.innerHTML =
-          '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:16px;font-weight:bold;">لا توجد منتجات مطابقة</p>';
+          '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">لا توجد منتجات مطابقة</p>';
 
         return;
 
@@ -2812,7 +2838,7 @@
                   p.oldPrice > 0
                   ? `
                     <span
-                      style="font-size:13px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;"
+                      style="font-size:12px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;"
                     >
                       ${p.oldPrice} ج.م
                     </span>
@@ -3166,7 +3192,7 @@ ${selectedImage}
 
 
               img.style.cssText =
-                "width:55px;height:55px;object-fit:cover;border-radius:8px;border:2px solid transparent;cursor:pointer;";
+                "width:50px;height:50px;object-fit:cover;border-radius:6px;border:2px solid transparent;cursor:pointer;flex-shrink:0;";
 
 
               if (idx === 0) {
@@ -3256,7 +3282,7 @@ ${selectedImage}
         ) {
 
           priceHtml +=
-            ` <span style="font-size:15px;color:#999;text-decoration:line-through;margin-right:6px;font-weight:600;">
+            ` <span style="font-size:14px;color:#999;text-decoration:line-through;margin-right:6px;font-weight:600;">
               ${currentSelectedProduct.oldPrice} ج.م
             </span>`;
 
@@ -3361,7 +3387,7 @@ ${selectedImage}
 
             btn.style.cssText = `
 
-              padding:8px 14px;
+              padding:7px 12px;
 
               border:2px solid ${
                 isSelected
@@ -3369,7 +3395,7 @@ ${selectedImage}
                 : 'var(--border-color)'
               };
 
-              border-radius:10px;
+              border-radius:8px;
 
               background:${
                 isThisSizeOut
@@ -3383,7 +3409,7 @@ ${selectedImage}
 
               cursor:pointer;
 
-              font-size:14px;
+              font-size:13px;
 
               font-weight:800;
 
@@ -3397,7 +3423,7 @@ ${selectedImage}
 
               align-items:center;
 
-              gap:6px;
+              gap:5px;
 
             `;
 
@@ -3413,7 +3439,7 @@ ${selectedImage}
                   ? 'checked'
                   : ''
                 }
-                style="accent-color:var(--burgundy-soft);width:16px;height:16px;"
+                style="accent-color:var(--burgundy-soft);width:15px;height:15px;"
               >
 
               <span>
@@ -3491,7 +3517,7 @@ ${selectedImage}
                 ) {
 
                   priceHtml +=
-                    ` <span style="font-size:15px;color:#999;text-decoration:line-through;margin-right:6px;font-weight:600;">
+                    ` <span style="font-size:14px;color:#999;text-decoration:line-through;margin-right:6px;font-weight:600;">
                       ${currentSelectedProduct.oldPrice} ج.م
                     </span>`;
 
@@ -3761,7 +3787,7 @@ ${selectedImage}
       if (cart.length === 0) {
 
         container.innerHTML =
-          '<p style="text-align:center;color:var(--text-muted);font-size:14px;">السلة فارغة حالياً</p>';
+          '<p style="text-align:center;color:var(--text-muted);font-size:13.5px;">السلة فارغة حالياً</p>';
 
         if (promoBox) {
           promoBox.style.display =
@@ -4190,7 +4216,7 @@ ${selectedImage}
       const totalText = document.getElementById('cartTotalPrice').innerText;
       
       const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
-      const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
+      const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلاستلام' : 'Instapay';
 
       generatedOrderId = 'MS-' + Math.floor(100000 + Math.random() * 900000);
 
@@ -4198,27 +4224,27 @@ ${selectedImage}
         <div class="summary-product-row">
           <img src="${item.image}" class="summary-product-img" alt="${item.title}">
           <div style="flex:1;">
-            <div style="font-weight:900; font-size:14px; color:var(--text-dark);">${item.title}</div>
-            <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">المقاس: ${item.size} | الكمية: ${item.qty}</div>
-            <div style="font-weight:900; color:var(--burgundy-soft); font-size:14px; margin-top:3px;">${item.price * item.qty} ج.م</div>
+            <div style="font-weight:900; font-size:13.5px; color:var(--text-dark);">${item.title}</div>
+            <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">المقاس: ${item.size} | الكمية: ${item.qty}</div>
+            <div style="font-weight:900; color:var(--burgundy-soft); font-size:13.5px; margin-top:2px;">${item.price * item.qty} ج.م</div>
           </div>
         </div>
       `).join('');
 
       const summaryBox = document.getElementById('confirmationSummaryContent');
       summaryBox.innerHTML = `
-        <div style="font-weight:900; color:var(--burgundy-soft); font-size:14.5px; border-bottom:2px solid var(--pink-accent); padding-bottom:6px;">
+        <div style="font-weight:900; color:var(--burgundy-soft); font-size:14px; border-bottom:2px solid var(--pink-accent); padding-bottom:5px;">
           🆔 رقم الطلب المؤقت: ${generatedOrderId}
         </div>
-        <div style="display:grid; grid-template-columns:1fr; gap:4px; font-size:13.5px;">
+        <div style="display:grid; grid-template-columns:1fr; gap:3px; font-size:13px;">
           <div><strong>الاسم:</strong> ${name}</div>
           <div><strong>رقم التليفون:</strong> ${phone}</div>
         </div>
-        <div style="font-size:13.5px;"><strong>العنوان:</strong> ${address}</div>
-        <div style="font-size:13.5px;"><strong>طريقة الدفع:</strong> ${payMethod}</div>
-        <div style="margin-top:4px; font-weight:bold; color:var(--burgundy-soft); font-size:13.5px;">المنتجات المختارة:</div>
+        <div style="font-size:13px;"><strong>العنوان:</strong> ${address}</div>
+        <div style="font-size:13px;"><strong>طريقة الدفع:</strong> ${payMethod}</div>
+        <div style="margin-top:3px; font-weight:bold; color:var(--burgundy-soft); font-size:13px;">المنتجات المختارة:</div>
         ${productsHtml}
-        <div style="font-size:16px; font-weight:900; color:var(--burgundy-soft); margin-top:4px; border-top:2px solid var(--pink-accent); padding-top:8px; display:flex; justify-content:space-between;">
+        <div style="font-size:15px; font-weight:900; color:var(--burgundy-soft); margin-top:4px; border-top:2px solid var(--pink-accent); padding-top:6px; display:flex; justify-content:space-between;">
           <span>الإجمالي الكلي:</span>
           <span>${totalText}</span>
         </div>
@@ -4322,7 +4348,7 @@ ${selectedImage}
         `• طريقة الدفع: ${payMethod}\n\n`;
 
       msg +=
-        `المنتجات المطلوبة:\n${itemsText}\n\n`;
+        `المنتجات المطلوبة:\n${itemsTest}\n\n`;
 
       msg +=
         `الإجمالي الكلي: ${totalText}\n\n`;
