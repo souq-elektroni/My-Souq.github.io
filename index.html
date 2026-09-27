@@ -21,6 +21,20 @@
       --text-dark: #2c2224;
       --text-muted: #615053;
       --border-color: #ebdcdb;
+      --bg-gradient: radial-gradient(circle at top right, #f4e8ea 0%, #fdfbf7 55%, #f9ecee 100%);
+    }
+
+    body.dark-mode {
+      --bg-cream: #1a1416;
+      --card-cream: #2a2225;
+      --burgundy-soft: #e8a0ab;
+      --burgundy-hover: #f0b8c0;
+      --pink-soft: #3a2a2e;
+      --pink-accent: #5a3a42;
+      --text-dark: #f5eef0;
+      --text-muted: #c4b0b5;
+      --border-color: #4a3a3e;
+      --bg-gradient: radial-gradient(circle at top right, #2a1a1e 0%, #1a1416 55%, #22181c 100%);
     }
 
     * {
@@ -32,7 +46,7 @@
     }
 
     body {
-      background: radial-gradient(circle at top right, #f4e8ea 0%, #fdfbf7 55%, #f9ecee 100%);
+      background: var(--bg-gradient);
       background-attachment: fixed;
       color: var(--text-dark);
       padding: 10px;
@@ -1681,6 +1695,182 @@
         font-size: 14px;
       }
     }
+
+    /* Dark mode toggle */
+    .theme-toggle {
+      background: var(--burgundy-soft);
+      color: white;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--pink-accent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(128, 61, 72, 0.25);
+      flex-shrink: 0;
+    }
+    @media (min-width: 768px) {
+      .theme-toggle { width: 46px; height: 46px; font-size: 20px; }
+    }
+
+    .admin-orders-trigger {
+      background: #1565c0;
+      color: white;
+      padding: 7px 11px;
+      border-radius: 30px;
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(21, 101, 192, 0.25);
+      display: none;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid #90caf9;
+      white-space: nowrap;
+    }
+    .admin-orders-trigger.show { display: flex; }
+    @media (min-width: 768px) {
+      .admin-orders-trigger { padding: 12px 18px; font-size: 14px; }
+    }
+
+    .size-filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+      width: 100%;
+    }
+    .size-btn {
+      padding: 5px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      background: var(--bg-cream);
+      color: var(--text-dark);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .size-btn.active, .size-btn:hover {
+      background: var(--burgundy-soft);
+      color: white;
+      border-color: var(--burgundy-soft);
+    }
+
+    .featured-section {
+      max-width: 1200px;
+      margin: 0 auto 18px;
+    }
+    .featured-title {
+      font-size: 16px;
+      font-weight: 900;
+      color: var(--burgundy-soft);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    @media (min-width: 768px) {
+      .featured-title { font-size: 22px; margin-bottom: 16px; }
+    }
+    .featured-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: thin;
+    }
+    .featured-scroll .product-card {
+      min-width: 160px;
+      max-width: 180px;
+      flex-shrink: 0;
+    }
+    @media (min-width: 576px) {
+      .featured-scroll .product-card {
+        min-width: 200px;
+        max-width: 220px;
+      }
+    }
+
+    /* Image zoom modal */
+    .zoom-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.92);
+      z-index: 3000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+    .zoom-overlay.active { display: flex; }
+    .zoom-overlay img {
+      max-width: 95vw;
+      max-height: 90vh;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .modal-img { cursor: zoom-in; }
+    .gallery-nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .gallery-nav button {
+      background: var(--pink-soft);
+      border: 1px solid var(--pink-accent);
+      color: var(--burgundy-soft);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .orders-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    .order-card-admin {
+      background: var(--pink-soft);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 12.5px;
+    }
+    .order-card-admin .oid {
+      font-weight: 900;
+      color: var(--burgundy-soft);
+      font-size: 13px;
+    }
+    .status-btns-mini {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 6px;
+    }
+    .status-btns-mini button {
+      font-size: 10.5px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid;
+      cursor: pointer;
+      font-weight: 800;
+    }
+
+    body.dark-mode .product-card,
+    body.dark-mode .modal-content,
+    body.dark-mode .controls-wrapper {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+    }
+
   </style>
 </head>
 
@@ -1694,6 +1884,10 @@
   </div>
 
   <div class="top-actions">
+    <button class="theme-toggle" id="themeToggle" onclick="toggleDarkMode()" title="الوضع الليلي">🌙</button>
+    <div class="admin-orders-trigger" id="adminOrdersBtn" onclick="openAdminOrdersModal()">
+      📋 الطلبات
+    </div>
     <div class="track-trigger" onclick="openTrackingModal()">
       🔍 تتبع طلبك
     </div>
@@ -1791,6 +1985,20 @@
         onclick="filterStock('out', this)"
       >🔴 نفذت</button>
 
+      <button
+        class="cat-btn"
+        onclick="filterCategory('جديد', this)"
+      >✨ وصل حديثاً</button>
+
+      <button
+        class="cat-btn"
+        onclick="filterCategory('الأكثر مبيعاً', this)"
+      >⭐ الأكثر مبيعاً</button>
+
+    </div>
+
+    <div class="size-filter-bar" id="sizeFilterBar">
+      <button class="size-btn active" onclick="filterSize('الكل', this)">كل المقاسات</button>
     </div>
 
     <div class="search-sort-box">
@@ -1813,6 +2021,13 @@
 
     </div>
 
+  </div>
+
+  <div class="featured-section" id="featuredSection" style="display:none;">
+    <div class="featured-title">✨ وصل حديثاً</div>
+    <div class="featured-scroll" id="featuredNew"></div>
+    <div class="featured-title" style="margin-top:14px;">⭐ الأكثر مبيعاً</div>
+    <div class="featured-scroll" id="featuredBest"></div>
   </div>
 
   <main
@@ -1847,6 +2062,11 @@
             class="thumbnails-bar"
             id="thumbnailsContainer"
           ></div>
+          <div class="gallery-nav">
+            <button type="button" onclick="galleryPrev()" aria-label="السابق">‹</button>
+            <button type="button" onclick="openZoom()" aria-label="تكبير">🔍</button>
+            <button type="button" onclick="galleryNext()" aria-label="التالي">›</button>
+          </div>
 
         </div>
 
@@ -2287,6 +2507,23 @@
     </div>
   </div>
 
+  <!-- Zoom Image Overlay -->
+  <div class="zoom-overlay" id="zoomOverlay" onclick="closeZoom()">
+    <img id="zoomImage" src="" alt="zoom">
+  </div>
+
+  <!-- Admin Orders Modal -->
+  <div class="modal-overlay" id="adminOrdersModal">
+    <div class="modal-content" style="max-width:560px; padding:16px;">
+      <button class="close-btn" onclick="closeAdminOrdersModal()">✕</button>
+      <div class="terms-header" style="font-size:17px; margin-bottom:10px;">📋 إدارة كل الطلبات</div>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">جميع الطلبات من السحابة — غيّر الحالة مباشرة</p>
+      <div id="adminOrdersList" class="orders-list">
+        <p style="text-align:center; color:var(--text-muted);">جاري التحميل...</p>
+      </div>
+    </div>
+  </div>
+
   <!-- Success Modal -->
 
   <div class="modal-overlay" id="successModal">
@@ -2448,6 +2685,9 @@
 
     let currentCategory = "الكل";
     let currentStockFilter = "all";
+    let currentSizeFilter = "الكل";
+    let galleryIndex = 0;
+    let productSales = JSON.parse(localStorage.getItem("souqProductSales") || "{}");
 
     let selectedSize = null;
     let selectedVariantStatus = "available";
@@ -2546,7 +2786,10 @@
         }
 
         renderProducts(products);
+        buildSizeFilterButtons();
+        renderFeatured();
         updateCartCount();
+        handleDeepLink();
 
       } catch (error) {
 
@@ -2977,182 +3220,158 @@
     }
 
 
-    function renderProducts(list) {
-
-      if (!productsGrid) return;
-
-      if (list.length === 0) {
-
-        productsGrid.innerHTML =
-          '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">لا توجد منتجات مطابقة</p>';
-
-        return;
-
-      }
-
-
-      productsGrid.innerHTML =
-        list.map(p => `
-
-          <div
-            class="product-card"
-            onclick="openProductModal(${p.id})"
-          >
-
+    function productCardHtml(p) {
+      return `
+          <div class="product-card" onclick="openProductModal(${p.id})">
             <div class="image-container">
-
-              <img
-                class="product-image"
-                src="${p.images[0]}"
-                alt="${p.title}"
-                loading="lazy"
-                onerror="this.src='https://via.placeholder.com/300?text=My+Souq'"
-              >
-
+              <img class="product-image" src="${p.images[0]}" alt="${p.title}"
+                loading="lazy" decoding="async"
+                onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">
             </div>
-
             <div class="product-details">
-
-              <h3 class="product-title">
-                ${p.title}
-              </h3>
-
+              <h3 class="product-title">${p.title}</h3>
               <div class="price-tag">
-
                 ${p.price} ج.م
-
-                ${
-                  p.oldPrice > 0
-                  ? `
-                    <span
-                      style="font-size:11px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;"
-                    >
-                      ${p.oldPrice} ج.م
-                    </span>
-                  `
-                  : ''
-                }
-
+                ${p.oldPrice > 0 ? `<span style="font-size:11px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;">${p.oldPrice} ج.م</span>` : ''}
               </div>
-
-              <div class="click-hint">
-                عرض التفاصيل 👈
-              </div>
-
+              <div class="click-hint">عرض التفاصيل 👈</div>
             </div>
-
-          </div>
-
-        `).join('');
-
+          </div>`;
     }
 
+    function renderProducts(list) {
+      if (!productsGrid) return;
+      if (list.length === 0) {
+        productsGrid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">لا توجد منتجات مطابقة</p>';
+        return;
+      }
+      productsGrid.innerHTML = list.map(productCardHtml).join('');
+    }
+
+    function buildSizeFilterButtons() {
+      const bar = document.getElementById('sizeFilterBar');
+      if (!bar) return;
+      const sizes = new Set();
+      products.forEach(p => {
+        (p.variants || []).forEach(v => {
+          if (v.size) sizes.add(v.size);
+        });
+      });
+      let html = `<button class="size-btn ${currentSizeFilter === 'الكل' ? 'active' : ''}" onclick="filterSize('الكل', this)">كل المقاسات</button>`;
+      [...sizes].sort().forEach(s => {
+        html += `<button class="size-btn ${currentSizeFilter === s ? 'active' : ''}" onclick="filterSize('${s.replace(/'/g, "\\'")}', this)">${s}</button>`;
+      });
+      bar.innerHTML = html;
+    }
+
+    function filterSize(size, btn) {
+      currentSizeFilter = size;
+      document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      handleSearchAndFilter();
+    }
+
+    function renderFeatured() {
+      const section = document.getElementById('featuredSection');
+      const newEl = document.getElementById('featuredNew');
+      const bestEl = document.getElementById('featuredBest');
+      if (!section || !products.length) return;
+
+      const newest = [...products].slice().reverse().slice(0, 8);
+      const best = [...products].sort((a, b) => (productSales[b.id] || 0) - (productSales[a.id] || 0)).slice(0, 8);
+
+      if (newest.length) {
+        section.style.display = 'block';
+        newEl.innerHTML = newest.map(productCardHtml).join('');
+        bestEl.innerHTML = best.map(productCardHtml).join('');
+      }
+    }
 
     function filterCategory(cat, btn) {
-
       currentCategory = cat;
       currentStockFilter = "all";
-
-      document
-        .querySelectorAll('.cat-btn')
-        .forEach(b => b.classList.remove('active'));
-
-      if (btn) {
-        btn.classList.add('active');
-      }
-
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
       handleSearchAndFilter();
-
     }
-
 
     function filterStock(status, btn) {
-
       currentStockFilter = status;
-
-      document
-        .querySelectorAll('.cat-btn')
-        .forEach(b => b.classList.remove('active'));
-
-      if (btn) {
-        btn.classList.add('active');
-      }
-
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
       handleSearchAndFilter();
-
     }
-
 
     function handleSearchAndFilter() {
-
-      const query =
-        document.getElementById('searchInput')
-        ? document
-            .getElementById('searchInput')
-            .value
-            .toLowerCase()
+      const query = document.getElementById('searchInput')
+        ? document.getElementById('searchInput').value.toLowerCase()
         : '';
 
-      let filtered =
-        products.filter(p => {
+      let filtered = products.filter(p => {
+        let matchesCat =
+          currentCategory === 'الكل' ||
+          p.category === currentCategory ||
+          (currentCategory === 'عروض' && p.oldPrice > 0);
 
-          const matchesCat =
-            currentCategory === 'الكل' ||
-            p.category === currentCategory ||
-            (
-              currentCategory === 'عروض' &&
-              p.oldPrice > 0
-            );
+        if (currentCategory === 'جديد') {
+          const newestIds = [...products].slice().reverse().slice(0, 8).map(x => x.id);
+          matchesCat = newestIds.includes(p.id);
+        }
+        if (currentCategory === 'الأكثر مبيعاً') {
+          const bestIds = [...products].sort((a, b) => (productSales[b.id] || 0) - (productSales[a.id] || 0)).slice(0, 8).map(x => x.id);
+          matchesCat = bestIds.includes(p.id);
+        }
 
-          const matchesStock =
-            currentStockFilter === 'all' ||
-            p.stock === currentStockFilter;
+        const matchesStock =
+          currentStockFilter === 'all' ||
+          p.stock === currentStockFilter;
 
-          const matchesSearch =
-            p.title
-              .toLowerCase()
-              .includes(query);
+        const matchesSearch = p.title.toLowerCase().includes(query);
 
-          return (
-            matchesCat &&
-            matchesStock &&
-            matchesSearch
-          );
+        const matchesSize =
+          currentSizeFilter === 'الكل' ||
+          (p.variants || []).some(v => v.size === currentSizeFilter);
 
-        });
+        return matchesCat && matchesStock && matchesSearch && matchesSize;
+      });
 
       renderProducts(filtered);
-
     }
 
-
     function applySorting() {
-
-      const sortVal =
-        document.getElementById('sortSelect')
+      const sortVal = document.getElementById('sortSelect')
         ? document.getElementById('sortSelect').value
         : '';
-
       let sorted = [...products];
-
-      if (sortVal === 'low-high') {
-
-        sorted.sort(
-          (a, b) => a.price - b.price
-        );
-
-      }
-
-      else if (sortVal === 'high-low') {
-
-        sorted.sort(
-          (a, b) => b.price - a.price
-        );
-
-      }
-
+      if (sortVal === 'low-high') sorted.sort((a, b) => a.price - b.price);
+      else if (sortVal === 'high-low') sorted.sort((a, b) => b.price - a.price);
       renderProducts(sorted);
+    }
 
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('souqDarkMode', isDark ? '1' : '0');
+      const btn = document.getElementById('themeToggle');
+      if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+    }
+
+    function loadCustomerData() {
+      try {
+        const data = JSON.parse(localStorage.getItem('souqCustomerData') || '{}');
+        if (data.name) document.getElementById('custName').value = data.name;
+        if (data.phone) document.getElementById('custPhone').value = data.phone;
+        if (data.address) document.getElementById('custAddress').value = data.address;
+      } catch (e) {}
+    }
+
+    function saveCustomerData() {
+      const data = {
+        name: document.getElementById('custName').value.trim(),
+        phone: document.getElementById('custPhone').value.trim(),
+        address: document.getElementById('custAddress').value.trim()
+      };
+      localStorage.setItem('souqCustomerData', JSON.stringify(data));
     }
 
 
@@ -3280,15 +3499,16 @@ ${selectedImage}
         document.getElementById('modalStockBadge');
 
 
+      galleryIndex = 0;
       if (modalImg) {
-
-        modalImg.src =
-          currentSelectedProduct.images[0];
-
-        activeModalImage =
-          currentSelectedProduct.images[0];
-
+        modalImg.src = currentSelectedProduct.images[0];
+        activeModalImage = currentSelectedProduct.images[0];
+        modalImg.onclick = () => openZoom();
       }
+      // رابط مباشر للمنتج في العنوان
+      try {
+        history.replaceState(null, '', '?product=' + id);
+      } catch (e) {}
 
 
       const firstVariant =
@@ -3391,30 +3611,12 @@ ${selectedImage}
 
 
               img.onclick = () => {
-
-                modalImg.src =
-                  imgSrc;
-
-                activeModalImage =
-                  imgSrc;
-
-
-                document
-                  .querySelectorAll(
-                    '#thumbnailsContainer img'
-                  )
-                  .forEach(
-                    t =>
-                      t.style.borderColor =
-                        'transparent'
-                  );
-
-
-                img.style.borderColor =
-                  "var(--burgundy-soft)";
-
+                galleryIndex = idx;
+                modalImg.src = imgSrc;
+                activeModalImage = imgSrc;
+                document.querySelectorAll('#thumbnailsContainer img').forEach(t => t.style.borderColor = 'transparent');
+                img.style.borderColor = "var(--burgundy-soft)";
                 updateDirectWhatsAppButton();
-
               };
 
 
@@ -3929,13 +4131,9 @@ ${selectedImage}
 
 
     function openCartModal() {
-
+      loadCustomerData();
       renderCartItems();
-
-      document
-        .getElementById('cartModal')
-        .classList.add('active');
-
+      document.getElementById('cartModal').classList.add('active');
     }
 
 
@@ -4527,7 +4725,16 @@ ${selectedImage}
         createdAt: Date.now()
       };
 
-      // حفظ على السحابة (أي جهاز) + محلياً
+      // حفظ بيانات العميل للمرة الجاية
+      saveCustomerData();
+
+      // تحديث عداد المبيعات (للأكثر مبيعاً)
+      cart.forEach(item => {
+        productSales[item.id] = (productSales[item.id] || 0) + item.qty;
+      });
+      localStorage.setItem('souqProductSales', JSON.stringify(productSales));
+
+      // حفظ على السحابة (أي جهاز) + محلياً + إشعار واتساب تلقائي
       saveOrderToCloud(newOrderRecord);
 
 
@@ -4627,14 +4834,16 @@ ${selectedImage}
       if (inputVal && inputVal.trim().toLowerCase() === ADMIN_PIN) {
         isAdminMode = true;
         localStorage.setItem("souqAdminUnlocked", "1");
-        alert('تم تفعيل وضع الإدارة بنجاح 🔐\nدلوقتي تقدر تبحث عن أي طلب وتغيّر حالته بنفسك.');
+        const b = document.getElementById('adminOrdersBtn');
+        if (b) b.classList.add('show');
+        alert('تم تفعيل وضع الإدارة بنجاح 🔐\nظهر زر «الطلبات» فوق — تقدر تشوف كل الطلبات وتغيّر حالتها.');
         document.getElementById('trackInputId').value = '';
         const resultBox = document.getElementById('trackingResultContainer');
         resultBox.style.display = 'block';
         resultBox.innerHTML = `
           <div style="font-weight:900; color:#2e7d32; margin-bottom:6px;">🔐 وضع الإدارة مفعّل</div>
           <div style="font-size:12.5px; color:var(--text-muted);">
-            ابحث برقم الطلب عشان تغيّر حالته (تحت التنفيذ ← تم الحجز ← جاري الشحن ← تم التوريد)
+            اضغط زر «📋 الطلبات» فوق عشان تشوف كل الطلبات، أو ابحث برقم طلب معيّن.
           </div>
         `;
         return true;
@@ -4767,8 +4976,146 @@ ${selectedImage}
     }
 
 
+    function setGalleryImage(idx) {
+      if (!currentSelectedProduct || !currentSelectedProduct.images.length) return;
+      const imgs = currentSelectedProduct.images;
+      galleryIndex = (idx + imgs.length) % imgs.length;
+      const modalImg = document.getElementById('modalImage');
+      if (modalImg) {
+        modalImg.src = imgs[galleryIndex];
+        activeModalImage = imgs[galleryIndex];
+      }
+      document.querySelectorAll('#thumbnailsContainer img').forEach((t, i) => {
+        t.style.borderColor = i === galleryIndex ? 'var(--burgundy-soft)' : 'transparent';
+      });
+      updateDirectWhatsAppButton();
+    }
+
+    function galleryPrev() { setGalleryImage(galleryIndex - 1); }
+    function galleryNext() { setGalleryImage(galleryIndex + 1); }
+
+    function openZoom() {
+      const src = activeModalImage || (currentSelectedProduct && currentSelectedProduct.images[0]);
+      if (!src) return;
+      document.getElementById('zoomImage').src = src;
+      document.getElementById('zoomOverlay').classList.add('active');
+    }
+
+    function closeZoom() {
+      document.getElementById('zoomOverlay').classList.remove('active');
+    }
+
+    function shareProduct() {
+      if (!currentSelectedProduct) return;
+      const url = location.origin + location.pathname + '?product=' + currentSelectedProduct.id;
+      const text = currentSelectedProduct.title + ' — ' + (document.getElementById('modalPrice')?.innerText || '') + '\n' + url;
+      if (navigator.share) {
+        navigator.share({ title: currentSelectedProduct.title, text: text, url: url }).catch(() => {});
+      } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => alert('تم نسخ رابط المنتج ✅')).catch(() => {
+          prompt('انسخ الرابط:', url);
+        });
+      } else {
+        prompt('انسخ الرابط:', url);
+      }
+    }
+
+    function handleDeepLink() {
+      const params = new URLSearchParams(location.search);
+      const pid = params.get('product');
+      if (pid) {
+        const id = parseInt(pid, 10);
+        if (!isNaN(id)) setTimeout(() => openProductModal(id), 400);
+      }
+    }
+
+    function openAdminOrdersModal() {
+      if (!isAdminMode) {
+        alert('فعّل وضع الإدارة أولاً من تتبع الطلب (اكتب الرمز في خانة البحث)');
+        return;
+      }
+      document.getElementById('adminOrdersModal').classList.add('active');
+      loadAllOrdersAdmin();
+    }
+
+    function closeAdminOrdersModal() {
+      document.getElementById('adminOrdersModal').classList.remove('active');
+    }
+
+    async function loadAllOrdersAdmin() {
+      const box = document.getElementById('adminOrdersList');
+      box.innerHTML = '<p style="text-align:center;color:var(--text-muted);">جاري تحميل الطلبات...</p>';
+
+      let list = [];
+      if (firebaseReady && db) {
+        try {
+          const snap = await db.collection('orders').orderBy('createdAt', 'desc').limit(100).get();
+          snap.forEach(doc => list.push(doc.data()));
+        } catch (e) {
+          try {
+            const snap2 = await db.collection('orders').limit(100).get();
+            snap2.forEach(doc => list.push(doc.data()));
+            list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          } catch (e2) { console.error(e2); }
+        }
+      }
+      if (!list.length) {
+        list = [...ordersHistory].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      }
+
+      if (!list.length) {
+        box.innerHTML = '<p style="text-align:center;color:var(--text-muted);">لا توجد طلبات بعد</p>';
+        return;
+      }
+
+      box.innerHTML = list.map(o => {
+        const code = typeof o.statusCode === 'number' ? o.statusCode : 0;
+        const st = ORDER_STATUSES[code] || ORDER_STATUSES[0];
+        const btns = ORDER_STATUSES.map(s => `
+          <button style="border-color:${s.color};background:${code===s.code?s.color:'white'};color:${code===s.code?'white':s.color};"
+            onclick="updateOrderStatusFromAdmin('${o.orderId}', ${s.code})">${s.label}</button>
+        `).join('');
+        return `
+          <div class="order-card-admin">
+            <div class="oid">🆔 ${o.orderId}</div>
+            <div>👤 ${o.name || '-'} | 📱 ${o.phone || '-'}</div>
+            <div>💰 ${o.total || '-'} | 📅 ${o.date || '-'}</div>
+            <div style="margin-top:4px;font-weight:800;color:${st.color};">الحالة: ${st.label}</div>
+            <div class="status-btns-mini">${btns}</div>
+          </div>`;
+      }).join('');
+    }
+
+    async function updateOrderStatusFromAdmin(orderId, newCode) {
+      const status = ORDER_STATUSES.find(s => s.code === newCode);
+      if (!status) return;
+      await updateOrderStatusCloud(orderId, newCode, status.label);
+      loadAllOrdersAdmin();
+    }
+
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.addEventListener('scroll', () => {
+      const btn = document.getElementById('backToTopBtn');
+      if (!btn) return;
+      if (window.scrollY > 300) btn.classList.add('show');
+      else btn.classList.remove('show');
+    });
+
     window.onload = function() {
       initFirebase();
+      if (localStorage.getItem('souqDarkMode') === '1') {
+        document.body.classList.add('dark-mode');
+        const btn = document.getElementById('themeToggle');
+        if (btn) btn.textContent = '☀️';
+      }
+      if (isAdminMode) {
+        const b = document.getElementById('adminOrdersBtn');
+        if (b) b.classList.add('show');
+      }
+      loadCustomerData();
       loadRealProducts();
     };
 
