@@ -25,16 +25,16 @@
     }
 
     body.dark-mode {
-      --bg-cream: #1a1416;
-      --card-cream: #2a2225;
-      --burgundy-soft: #e8a0ab;
-      --burgundy-hover: #f0b8c0;
-      --pink-soft: #3a2a2e;
-      --pink-accent: #5a3a42;
-      --text-dark: #f5eef0;
-      --text-muted: #c4b0b5;
-      --border-color: #4a3a3e;
-      --bg-gradient: radial-gradient(circle at top right, #2a1a1e 0%, #1a1416 55%, #22181c 100%);
+      --bg-cream: #121014;
+      --card-cream: #1e1a1c;
+      --burgundy-soft: #f0a8b4;
+      --burgundy-hover: #ffc0cb;
+      --pink-soft: #2a2226;
+      --pink-accent: #4a3840;
+      --text-dark: #f7f0f2;
+      --text-muted: #b8a5aa;
+      --border-color: #3d3236;
+      --bg-gradient: radial-gradient(ellipse at top, #2a1c22 0%, #121014 45%, #0e0c0e 100%);
     }
 
     * {
@@ -1865,10 +1865,219 @@
       font-weight: 800;
     }
 
+    /* ===== Dark mode polish ===== */
     body.dark-mode .product-card,
     body.dark-mode .modal-content,
     body.dark-mode .controls-wrapper {
-      box-shadow: 0 2px 12px rgba(0,0,0,0.35);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+      background: var(--card-cream);
+      border-color: var(--border-color);
+    }
+
+    body.dark-mode .cart-trigger,
+    body.dark-mode .track-trigger,
+    body.dark-mode .theme-toggle,
+    body.dark-mode .brand-badge {
+      background: #3d2a30;
+      color: #f5dce2;
+      border-color: #6a4a52;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+    }
+
+    body.dark-mode .cart-trigger:hover,
+    body.dark-mode .track-trigger:hover,
+    body.dark-mode .theme-toggle:hover {
+      background: #523840;
+    }
+
+    body.dark-mode .admin-orders-trigger {
+      background: #1a3a5c;
+      border-color: #3a6a9c;
+      color: #c8e0ff;
+    }
+
+    body.dark-mode .cart-count {
+      background: #f0a8b4;
+      color: #2a1518;
+    }
+
+    body.dark-mode header h1 {
+      color: #f0a8b4;
+      text-shadow: 0 2px 12px rgba(240, 168, 180, 0.25);
+    }
+
+    body.dark-mode header p {
+      background: rgba(42, 34, 38, 0.95);
+      border-color: #5a4248;
+      color: #e8c8d0;
+    }
+
+    body.dark-mode .controls-wrapper {
+      background: rgba(30, 26, 28, 0.98);
+      border-color: var(--border-color);
+    }
+
+    body.dark-mode .cat-btn,
+    body.dark-mode .size-btn {
+      background: #2a2226;
+      color: #e8d8dc;
+      border-color: #4a3a40;
+    }
+
+    body.dark-mode .cat-btn.active,
+    body.dark-mode .cat-btn:hover,
+    body.dark-mode .size-btn.active,
+    body.dark-mode .size-btn:hover {
+      background: #f0a8b4;
+      color: #1a1012;
+      border-color: #f0a8b4;
+    }
+
+    body.dark-mode .cat-btn.offer-tab {
+      background: #3a3020;
+      color: #f0d080;
+      border-color: #5a4a30;
+    }
+
+    body.dark-mode .cat-btn.offer-tab.active,
+    body.dark-mode .cat-btn.offer-tab:hover {
+      background: #d4a017;
+      color: #1a1408;
+    }
+
+    body.dark-mode .cat-btn.stock-avail {
+      background: #1a2e1c;
+      color: #8fd99a;
+      border-color: #2e4a32;
+    }
+
+    body.dark-mode .cat-btn.stock-avail.active,
+    body.dark-mode .cat-btn.stock-avail:hover {
+      background: #2e7d32;
+      color: white;
+    }
+
+    body.dark-mode .cat-btn.stock-out {
+      background: #2e1a1a;
+      color: #f0a0a0;
+      border-color: #4a2a2a;
+    }
+
+    body.dark-mode .cat-btn.stock-out.active,
+    body.dark-mode .cat-btn.stock-out:hover {
+      background: #c62828;
+      color: white;
+    }
+
+    body.dark-mode .search-input,
+    body.dark-mode .sort-wrapper select,
+    body.dark-mode .promo-input,
+    body.dark-mode .form-group input,
+    body.dark-mode .form-group textarea {
+      background: #2a2226;
+      color: var(--text-dark);
+      border-color: var(--border-color);
+    }
+
+    body.dark-mode .search-input::placeholder {
+      color: #8a7a80;
+    }
+
+    body.dark-mode .product-title {
+      color: #f0e8ea;
+    }
+
+    body.dark-mode .price-tag {
+      color: #f0a8b4;
+    }
+
+    body.dark-mode .click-hint {
+      background: #2a2226;
+      color: #e8b0bc;
+    }
+
+    body.dark-mode .image-container {
+      background: #1a1618;
+    }
+
+    body.dark-mode .featured-title {
+      color: #f0a8b4;
+    }
+
+    body.dark-mode .modal-overlay {
+      background: rgba(8, 6, 8, 0.85);
+    }
+
+    body.dark-mode .close-btn {
+      background: #3a2a30;
+      color: #f0a8b4;
+    }
+
+    body.dark-mode .add-cart-btn {
+      background: #c45a6a;
+    }
+
+    body.dark-mode .add-cart-btn:hover {
+      background: #d46a7a;
+    }
+
+    body.dark-mode .share-btn {
+      background: #2a2226;
+      color: #f0a8b4;
+      border-color: #5a4248;
+    }
+
+    body.dark-mode .cart-item {
+      background: #2a2226;
+      border-color: #4a3a40;
+    }
+
+    body.dark-mode .customer-form {
+      background: #1a1618;
+      border-color: var(--border-color);
+    }
+
+    body.dark-mode .terms-body {
+      background: #2a2418;
+      border-color: #5a4a30;
+      color: #e0d0b0;
+    }
+
+    body.dark-mode .payment-option {
+      background: #1a1618;
+      border-color: var(--border-color);
+    }
+
+    body.dark-mode .payment-option.selected {
+      background: #2a2226;
+      border-color: #f0a8b4;
+    }
+
+    body.dark-mode .order-card-admin {
+      background: #2a2226;
+      border-color: #4a3a40;
+    }
+
+    body.dark-mode footer {
+      border-color: var(--border-color);
+      color: var(--text-muted);
+    }
+
+    body.dark-mode .whatsapp-float {
+      box-shadow: 0 4px 18px rgba(37, 211, 102, 0.35);
+    }
+
+    body.dark-mode .back-to-top,
+    body.dark-mode .qr-toggle-fab {
+      background: #3d2a30;
+      border-color: #6a4a52;
+      color: #f5dce2;
+    }
+
+    body.dark-mode #toastNotification {
+      background: #3d2a30;
+      border-color: #f0a8b4;
+      color: #f5eef0;
     }
 
   </style>
@@ -1997,10 +2206,6 @@
 
     </div>
 
-    <div class="size-filter-bar" id="sizeFilterBar">
-      <button class="size-btn active" onclick="filterSize('الكل', this)">كل المقاسات</button>
-    </div>
-
     <div class="search-sort-box">
 
       <input
@@ -2010,6 +2215,12 @@
         placeholder="🔍 بحث عن منتج..."
         oninput="handleSearchAndFilter()"
       >
+
+      <div class="sort-wrapper">
+        <select id="sizeSelect" onchange="filterSize(this.value)">
+          <option value="الكل">📏 كل المقاسات</option>
+        </select>
+      </div>
 
       <div class="sort-wrapper">
         <select id="sortSelect" onchange="applySorting()">
@@ -3249,25 +3460,26 @@
     }
 
     function buildSizeFilterButtons() {
-      const bar = document.getElementById('sizeFilterBar');
-      if (!bar) return;
+      const sel = document.getElementById('sizeSelect');
+      if (!sel) return;
       const sizes = new Set();
       products.forEach(p => {
         (p.variants || []).forEach(v => {
           if (v.size) sizes.add(v.size);
         });
       });
-      let html = `<button class="size-btn ${currentSizeFilter === 'الكل' ? 'active' : ''}" onclick="filterSize('الكل', this)">كل المقاسات</button>`;
+      const current = currentSizeFilter || 'الكل';
+      let html = `<option value="الكل">📏 كل المقاسات</option>`;
       [...sizes].sort().forEach(s => {
-        html += `<button class="size-btn ${currentSizeFilter === s ? 'active' : ''}" onclick="filterSize('${s.replace(/'/g, "\\'")}', this)">${s}</button>`;
+        const safe = s.replace(/"/g, '&quot;');
+        html += `<option value="${safe}" ${current === s ? 'selected' : ''}>${s}</option>`;
       });
-      bar.innerHTML = html;
+      sel.innerHTML = html;
+      sel.value = current;
     }
 
-    function filterSize(size, btn) {
-      currentSizeFilter = size;
-      document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
+    function filterSize(size) {
+      currentSizeFilter = size || 'الكل';
       handleSearchAndFilter();
     }
 
