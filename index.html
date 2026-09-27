@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#803d48">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="My Souq">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="https://souq-elektroni.github.io/My-Souq.github.io/images/icon-192.png">
   <title>My Souq - سوق إلكتروني</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
@@ -2706,7 +2712,15 @@
     <div class="modal-content" style="max-width:560px; padding:16px;">
       <button class="close-btn" onclick="closeAdminOrdersModal()">✕</button>
       <div class="terms-header" style="font-size:17px; margin-bottom:10px;">📋 إدارة كل الطلبات</div>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:10px;">جميع الطلبات من السحابة — غيّر الحالة مباشرة</p>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">ابحث بالاسم أو رقم التليفون أو رقم الطلب — غيّر الحالة وانسخ رسالة الشحن</p>
+      <input
+        type="text"
+        id="adminOrderSearch"
+        class="promo-input"
+        placeholder="🔍 بحث: اسم / تليفون / رقم طلب..."
+        style="width:100%; margin-bottom:10px; font-size:13px; padding:9px;"
+        oninput="filterAdminOrders()"
+      >
       <div id="adminOrdersList" class="orders-list">
         <p style="text-align:center; color:var(--text-muted);">جاري التحميل...</p>
       </div>
@@ -3414,7 +3428,8 @@
           <div class="product-card" onclick="openProductModal(${p.id})">
             <div class="image-container">
               <img class="product-image" src="${p.images[0]}" alt="${p.title}"
-                loading="lazy" decoding="async"
+                loading="lazy" decoding="async" fetchpriority="low"
+                width="300" height="300"
                 onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">
             </div>
             <div class="product-details">
@@ -5221,6 +5236,8 @@ ${selectedImage}
       document.getElementById('adminOrdersModal').classList.remove('active');
     }
 
+    let adminOrdersCache = [];
+
     async function loadAllOrdersAdmin() {
       const box = document.getElementById('adminOrdersList');
       box.innerHTML = '<p style="text-align:center;color:var(--text-muted);">جاري تحميل الطلبات...</p>';
@@ -5228,11 +5245,11 @@ ${selectedImage}
       let list = [];
       if (firebaseReady && db) {
         try {
-          const snap = await db.collection('orders').orderBy('createdAt', 'desc').limit(100).get();
+          const snap = await db.collection('orders').orderBy('createdAt', 'desc').limit(150).get();
           snap.forEach(doc => list.push(doc.data()));
         } catch (e) {
           try {
-            const snap2 = await db.collection('orders').limit(100).get();
+            const snap2 = await db.collection('orders').limit(150).get();
             snap2.forEach(doc => list.push(doc.data()));
             list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
           } catch (e2) { console.error(e2); }
@@ -5242,34 +5259,110 @@ ${selectedImage}
         list = [...ordersHistory].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
       }
 
+      adminOrdersCache = list;
+      filterAdminOrders();
+    }
+
+    function filterAdminOrders() {
+      const box = document.getElementById('adminOrdersList');
+      const q = (document.getElementById('adminOrderSearch')?.value || '').trim().toLowerCase();
+
+      let list = adminOrdersCache;
+      if (q) {
+        list = adminOrdersCache.filter(o => {
+          const id = (o.orderId || '').toLowerCase();
+          const name = (o.name || '').toLowerCase();
+          const phone = (o.phone || '').toLowerCase().replace(/\s/g, '');
+          const qPhone = q.replace(/\s/g, '');
+          return id.includes(q) || name.includes(q) || phone.includes(qPhone);
+        });
+      }
+
       if (!list.length) {
-        box.innerHTML = '<p style="text-align:center;color:var(--text-muted);">لا توجد طلبات بعد</p>';
+        box.innerHTML = '<p style="text-align:center;color:var(--text-muted);">لا توجد طلبات مطابقة</p>';
         return;
       }
 
       box.innerHTML = list.map(o => {
         const code = typeof o.statusCode === 'number' ? o.statusCode : 0;
         const st = ORDER_STATUSES[code] || ORDER_STATUSES[0];
+        const safeId = (o.orderId || '').replace(/'/g, "\\'");
         const btns = ORDER_STATUSES.map(s => `
           <button style="border-color:${s.color};background:${code===s.code?s.color:'white'};color:${code===s.code?'white':s.color};"
-            onclick="updateOrderStatusFromAdmin('${o.orderId}', ${s.code})">${s.label}</button>
+            onclick="updateOrderStatusFromAdmin('${safeId}', ${s.code})">${s.label}</button>
         `).join('');
         return `
           <div class="order-card-admin">
-            <div class="oid">🆔 ${o.orderId}</div>
+            <div class="oid">🆔 ${o.orderId || '-'}</div>
             <div>👤 ${o.name || '-'} | 📱 ${o.phone || '-'}</div>
             <div>💰 ${o.total || '-'} | 📅 ${o.date || '-'}</div>
             <div style="margin-top:4px;font-weight:800;color:${st.color};">الحالة: ${st.label}</div>
             <div class="status-btns-mini">${btns}</div>
+            <button
+              onclick="copyShippingMessage('${safeId}')"
+              style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:none;background:#25d366;color:white;font-weight:800;font-size:12px;cursor:pointer;"
+            >📋 نسخ رسالة «تم الشحن» للعميل</button>
           </div>`;
       }).join('');
+    }
+
+    function copyShippingMessage(orderId) {
+      const o = adminOrdersCache.find(x => x.orderId === orderId);
+      if (!o) {
+        alert('الطلب غير موجود');
+        return;
+      }
+      const itemsText = (o.items || []).map((it, i) =>
+        `${i + 1}) ${it.title || ''} — مقاس: ${it.size || '-'} × ${it.qty || 1}`
+      ).join('\n');
+
+      const msg =
+`مرحباً ${o.name || ''} 👋
+تم شحن طلبك بنجاح من متجر My Souq 🚚
+
+🆔 رقم الطلب: ${o.orderId}
+💰 الإجمالي: ${o.total || '-'}
+
+📦 المنتجات:
+${itemsText || '-'}
+
+📍 العنوان: ${o.address || '-'}
+
+هيوصلك خلال أيام الشحن المعتادة إن شاء الله.
+للاستفسار رد على الرسالة 💬
+شكراً لثقتك فينا ❤️`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(msg).then(() => {
+          alert('تم نسخ رسالة الشحن ✅\nالصقها في واتساب العميل');
+        }).catch(() => {
+          prompt('انسخ الرسالة:', msg);
+        });
+      } else {
+        prompt('انسخ الرسالة:', msg);
+      }
+
+      // فتح واتساب العميل مباشرة لو الرقم موجود
+      const phone = (o.phone || '').replace(/\D/g, '');
+      if (phone.length >= 10) {
+        let wa = phone;
+        if (wa.startsWith('0')) wa = '20' + wa.slice(1);
+        if (!wa.startsWith('20')) wa = '20' + wa;
+        window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
+      }
     }
 
     async function updateOrderStatusFromAdmin(orderId, newCode) {
       const status = ORDER_STATUSES.find(s => s.code === newCode);
       if (!status) return;
       await updateOrderStatusCloud(orderId, newCode, status.label);
-      loadAllOrdersAdmin();
+      // حدّث الكاش محلياً
+      const o = adminOrdersCache.find(x => x.orderId === orderId);
+      if (o) {
+        o.statusCode = newCode;
+        o.status = status.label;
+      }
+      filterAdminOrders();
     }
 
     function scrollToTop() {
@@ -5296,6 +5389,11 @@ ${selectedImage}
       }
       loadCustomerData();
       loadRealProducts();
+
+      // تسجيل Service Worker للـ PWA وتسريع التحميل
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      }
     };
 
   </script>
