@@ -990,6 +990,43 @@
       margin-top: 10px;
     }
 
+    /* نافذة تأكيد الطلب المضافة حديثاً */
+    .confirmation-modal {
+      max-width: 520px;
+      padding: 24px;
+      z-index: 1250;
+    }
+
+    .order-summary-box {
+      background: var(--pink-soft);
+      border: 1px solid var(--pink-accent);
+      padding: 15px;
+      border-radius: 14px;
+      margin-bottom: 15px;
+      font-size: 14px;
+      color: var(--text-dark);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .summary-product-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: white;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+    }
+
+    .summary-product-img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
     .success-modal {
       max-width: 450px;
       padding: 35px 25px;
@@ -1564,13 +1601,38 @@
 
       <button
         class="send-final-btn"
-        onclick="finalizeOrder()"
+        onclick="openOrderConfirmationModal()"
       >
-        إرسال الطلب عبر الواتساب 🚀
+        مراجعة وتأكيد الطلب 📋
       </button>
 
     </div>
 
+  </div>
+
+  <!-- Order Final Confirmation Modal (صفحة تأكيد الطلب المطلوبة) -->
+  <div class="modal-overlay" id="confirmationModal">
+    <div class="modal-content confirmation-modal">
+      <div class="terms-header">
+        🔍 تأكيد بيانات الطلب النهائي
+      </div>
+      <div class="order-summary-box" id="confirmationSummaryContent">
+        <!-- سيتم تعبئتها ديناميكياً -->
+      </div>
+      <button
+        class="send-final-btn"
+        onclick="finalizeOrder()"
+      >
+        تأكيد الإرسال عبر الواتساب 🚀
+      </button>
+      <button
+        class="btn-decline"
+        style="width:100%; margin-top:8px; background:#615053;"
+        onclick="closeConfirmationModal()"
+      >
+        تعديل البيانات
+      </button>
+    </div>
   </div>
 
   <!-- Success Modal -->
@@ -1586,6 +1648,8 @@
       <div class="success-title">
         تم إرسال طلبك بنجاح!
       </div>
+      
+      <p id="successOrderIdDisplay" style="font-weight:bold; color:var(--burgundy-soft); margin-bottom:15px; font-size:16px;"></p>
 
       <button
         class="success-btn"
@@ -1618,11 +1682,9 @@
     let selectedVariantStatus = "available";
 
     let currentSelectedProduct = null;
-
-    // الصورة التي اختارها العميل حالياً
     let activeModalImage = '';
-
     let discountRate = 0;
+    let generatedOrderId = ''; // لتخزين رقم الطلب الحالي
 
     const GITHUB_USER = 'souq-elektroni';
     const GITHUB_REPO = 'My-Souq.github.io';
@@ -2361,19 +2423,6 @@
     }
 
 
-    /*
-      ============================================================
-      الدالة الجديدة المهمة
-      ============================================================
-
-      هذه الدالة مسؤولة عن تجهيز زر "اطلب فوراً".
-
-      وهي تستخدم activeModalImage
-      وهي الصورة التي اختارها العميل حالياً.
-
-      ثم تضيف رابط الصورة داخل رسالة واتساب.
-    */
-
     function updateDirectWhatsAppButton() {
 
       const waBtn =
@@ -2402,9 +2451,12 @@
         currentSelectedProduct.images[0] ||
         '';
 
+      // توليد رقم طلب عشوائي لطلب الواتساب الفوري
+      const instantOrderId = 'MS-' + Math.floor(100000 + Math.random() * 900000);
 
       const waText =
 `مرحباً، أود طلب المنتج التالي من متجر My Souq 🛒
+🆔 رقم الطلب: ${instantOrderId}
 
 📦 اسم المنتج: ${currentSelectedProduct.title}
 📏 المقاس: ${selectedSize}
@@ -2440,11 +2492,6 @@ ${selectedImage}
       const stockBadge =
         document.getElementById('modalStockBadge');
 
-
-      /*
-        الصورة الأولى تصبح الصورة المختارة
-        عند فتح المنتج.
-      */
 
       if (modalImg) {
 
@@ -2556,14 +2603,6 @@ ${selectedImage}
               }
 
 
-              /*
-                عند اختيار صورة جديدة:
-
-                1. نغير الصورة الكبيرة.
-                2. نغير activeModalImage.
-                3. نحدث زر واتساب.
-              */
-
               img.onclick = () => {
 
                 modalImg.src =
@@ -2587,8 +2626,6 @@ ${selectedImage}
                 img.style.borderColor =
                   "var(--burgundy-soft)";
 
-
-                // تحديث رابط صورة المنتج داخل رسالة واتساب
                 updateDirectWhatsAppButton();
 
               };
@@ -2941,15 +2978,6 @@ ${selectedImage}
                 currentlyOut
               );
 
-
-              /*
-                مهم:
-
-                تغيير المقاس لا يغير الصورة،
-                لذلك نعيد فقط بناء رسالة واتساب
-                بنفس الصورة المختارة حالياً.
-              */
-
               updateDirectWhatsAppButton();
 
             };
@@ -2962,14 +2990,7 @@ ${selectedImage}
 
       }
 
-
-      /*
-        تجهيز زر واتساب لأول مرة
-        عند فتح المنتج.
-      */
-
       updateDirectWhatsAppButton();
-
 
       document
         .getElementById('productModal')
@@ -3586,6 +3607,58 @@ ${selectedImage}
     }
 
 
+    // دالة فتح نافذة تأكيد الطلب قبل الإرسال (الطلب رقم 1)
+    function openOrderConfirmationModal() {
+      document.getElementById('paymentModal').classList.remove('active');
+
+      const name = document.getElementById('custName').value.trim();
+      const phone = document.getElementById('custPhone').value.trim();
+      const address = document.getElementById('custAddress').value.trim();
+      const totalText = document.getElementById('cartTotalPrice').innerText;
+      
+      const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
+      const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
+
+      // توليد رقم طلب فريد
+      generatedOrderId = 'MS-' + Math.floor(100000 + Math.random() * 900000);
+
+      let productsHtml = cart.map(item => `
+        <div class="summary-product-row">
+          <img src="${item.image}" class="summary-product-img" alt="${item.title}">
+          <div style="flex:1;">
+            <div style="font-weight:bold;">${item.title}</div>
+            <div style="font-size:12px; color:var(--text-muted);">المقاس: ${item.size} | الكمية: ${item.qty}</div>
+            <div style="font-weight:900; color:var(--burgundy-soft);">${item.price * item.qty} ج.م</div>
+          </div>
+        </div>
+      `).join('');
+
+      const summaryBox = document.getElementById('confirmationSummaryContent');
+      summaryBox.innerHTML = `
+        <div style="font-weight:bold; color:var(--burgundy-soft); border-bottom:1px solid var(--pink-accent); padding-bottom:6px;">
+          🆔 رقم الطلب المؤقت: ${generatedOrderId}
+        </div>
+        <div><strong>الاسم:</strong> ${name}</div>
+        <div><strong>رقم التليفون:</strong> ${phone}</div>
+        <div><strong>العنوان:</strong> ${address}</div>
+        <div><strong>طريقة الدفع:</strong> ${payMethod}</div>
+        <div style="margin-top:5px; font-weight:bold;">المنتجات المختارة والصور:</div>
+        ${productsHtml}
+        <div style="font-size:16px; font-weight:900; color:var(--burgundy-soft); margin-top:5px; border-top:1px solid var(--pink-accent); pt-2;">
+          الإجمالي الكلي: ${totalText}
+        </div>
+      `;
+
+      document.getElementById('confirmationModal').classList.add('active');
+    }
+
+    function closeConfirmationModal() {
+      document.getElementById('confirmationModal').classList.remove('active');
+      document.getElementById('paymentModal').classList.add('active');
+    }
+
+
+    // دالة إتمام الطلب وإرسال رسالة الواتساب وتأكيد رقم الطلب (الطلب رقم 2)
     function finalizeOrder() {
 
       const name =
@@ -3622,11 +3695,6 @@ ${selectedImage}
         : 'Instapay';
 
 
-      /*
-        هنا أيضًا رابط صورة كل منتج
-        موجود داخل رسالة الطلب النهائي.
-      */
-
       let itemsText =
         cart.map(
           (i, index) => {
@@ -3659,6 +3727,9 @@ ${selectedImage}
 
       let msg =
         `🛒 طلب جديد من متجر My Souq\n\n`;
+
+      msg +=
+        `🆔 رقم الطلب: ${generatedOrderId}\n`;
 
       msg +=
         `بيانات العميل:\n`;
@@ -3704,10 +3775,12 @@ ${selectedImage}
 
 
       document
-        .getElementById('paymentModal')
+        .getElementById('confirmationModal')
         .classList.remove('active');
 
 
+      // عرض رسالة التأكيد مع رقم الطلب للعميل داخل النافذة المنبثقة الأخيرة
+      document.getElementById('successOrderIdDisplay').innerText = `رقم طلبك هو: ${generatedOrderId}`;
       document
         .getElementById('successModal')
         .classList.add('active');
