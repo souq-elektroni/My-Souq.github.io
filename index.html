@@ -990,41 +990,44 @@
       margin-top: 10px;
     }
 
-    /* نافذة تأكيد الطلب المضافة حديثاً */
+    /* نافذة تأكيد الطلب المضافة حديثاً (مكبرة وأكثر وضوحاً) */
     .confirmation-modal {
-      max-width: 520px;
-      padding: 24px;
+      max-width: 650px;
+      padding: 30px;
       z-index: 1250;
     }
 
     .order-summary-box {
       background: var(--pink-soft);
       border: 1px solid var(--pink-accent);
-      padding: 15px;
-      border-radius: 14px;
-      margin-bottom: 15px;
-      font-size: 14px;
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      font-size: 15px;
       color: var(--text-dark);
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 14px;
+      max-height: 50vh;
+      overflow-y: auto;
     }
 
     .summary-product-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 15px;
       background: white;
-      padding: 10px;
-      border-radius: 10px;
+      padding: 12px;
+      border-radius: 12px;
       border: 1px solid var(--border-color);
     }
 
     .summary-product-img {
-      width: 60px;
-      height: 60px;
+      width: 75px;
+      height: 75px;
       object-fit: cover;
-      border-radius: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
     }
 
     .success-modal {
@@ -1610,10 +1613,10 @@
 
   </div>
 
-  <!-- Order Final Confirmation Modal (صفحة تأكيد الطلب المطلوبة) -->
+  <!-- Order Final Confirmation Modal (صفحة تأكيد الطلب المكبرة) -->
   <div class="modal-overlay" id="confirmationModal">
     <div class="modal-content confirmation-modal">
-      <div class="terms-header">
+      <div class="terms-header" style="font-size:24px;">
         🔍 تأكيد بيانات الطلب النهائي
       </div>
       <div class="order-summary-box" id="confirmationSummaryContent">
@@ -1627,10 +1630,10 @@
       </button>
       <button
         class="btn-decline"
-        style="width:100%; margin-top:8px; background:#615053;"
-        onclick="closeConfirmationModal()"
+        style="width:100%; margin-top:10px; background:#615053; padding:14px; font-size:16px;"
+        onclick="backToCustomerData()"
       >
-        تعديل البيانات
+        العودة لتعديل البيانات ✏️
       </button>
     </div>
   </div>
@@ -2451,7 +2454,6 @@
         currentSelectedProduct.images[0] ||
         '';
 
-      // توليد رقم طلب عشوائي لطلب الواتساب الفوري
       const instantOrderId = 'MS-' + Math.floor(100000 + Math.random() * 900000);
 
       const waText =
@@ -3607,7 +3609,7 @@ ${selectedImage}
     }
 
 
-    // دالة فتح نافذة تأكيد الطلب قبل الإرسال (الطلب رقم 1)
+    // دالة فتح نافذة تأكيد الطلب
     function openOrderConfirmationModal() {
       document.getElementById('paymentModal').classList.remove('active');
 
@@ -3619,46 +3621,49 @@ ${selectedImage}
       const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
       const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
 
-      // توليد رقم طلب فريد
       generatedOrderId = 'MS-' + Math.floor(100000 + Math.random() * 900000);
 
       let productsHtml = cart.map(item => `
         <div class="summary-product-row">
           <img src="${item.image}" class="summary-product-img" alt="${item.title}">
           <div style="flex:1;">
-            <div style="font-weight:bold;">${item.title}</div>
-            <div style="font-size:12px; color:var(--text-muted);">المقاس: ${item.size} | الكمية: ${item.qty}</div>
-            <div style="font-weight:900; color:var(--burgundy-soft);">${item.price * item.qty} ج.م</div>
+            <div style="font-weight:900; font-size:16px; color:var(--text-dark);">${item.title}</div>
+            <div style="font-size:13.5px; color:var(--text-muted); margin-top:2px;">المقاس: ${item.size} | الكمية: ${item.qty}</div>
+            <div style="font-weight:900; color:var(--burgundy-soft); font-size:15px; margin-top:4px;">${item.price * item.qty} ج.م</div>
           </div>
         </div>
       `).join('');
 
       const summaryBox = document.getElementById('confirmationSummaryContent');
       summaryBox.innerHTML = `
-        <div style="font-weight:bold; color:var(--burgundy-soft); border-bottom:1px solid var(--pink-accent); padding-bottom:6px;">
+        <div style="font-weight:900; color:var(--burgundy-soft); font-size:16px; border-bottom:2px solid var(--pink-accent); padding-bottom:8px;">
           🆔 رقم الطلب المؤقت: ${generatedOrderId}
         </div>
-        <div><strong>الاسم:</strong> ${name}</div>
-        <div><strong>رقم التليفون:</strong> ${phone}</div>
-        <div><strong>العنوان:</strong> ${address}</div>
-        <div><strong>طريقة الدفع:</strong> ${payMethod}</div>
-        <div style="margin-top:5px; font-weight:bold;">المنتجات المختارة والصور:</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:14.5px;">
+          <div><strong>الاسم:</strong> ${name}</div>
+          <div><strong>رقم التليفون:</strong> ${phone}</div>
+        </div>
+        <div style="font-size:14.5px;"><strong>العنوان:</strong> ${address}</div>
+        <div style="font-size:14.5px;"><strong>طريقة الدفع:</strong> ${payMethod}</div>
+        <div style="margin-top:5px; font-weight:bold; color:var(--burgundy-soft);">المنتجات المختارة:</div>
         ${productsHtml}
-        <div style="font-size:16px; font-weight:900; color:var(--burgundy-soft); margin-top:5px; border-top:1px solid var(--pink-accent); pt-2;">
-          الإجمالي الكلي: ${totalText}
+        <div style="font-size:18px; font-weight:900; color:var(--burgundy-soft); margin-top:5px; border-top:2px solid var(--pink-accent); padding-top:10px; display:flex; justify-content:space-between;">
+          <span>الإجمالي الكلي:</span>
+          <span>${totalText}</span>
         </div>
       `;
 
       document.getElementById('confirmationModal').classList.add('active');
     }
 
-    function closeConfirmationModal() {
+    // زر العودة لتعديل البيانات (يعيد العميل لصفحة كتابة البيانات الأولى في السلة)
+    function backToCustomerData() {
       document.getElementById('confirmationModal').classList.remove('active');
-      document.getElementById('paymentModal').classList.add('active');
+      openCartModal();
     }
 
 
-    // دالة إتمام الطلب وإرسال رسالة الواتساب وتأكيد رقم الطلب (الطلب رقم 2)
+    // دالة إتمام الطلب وإرسال رسالة الواتساب
     function finalizeOrder() {
 
       const name =
@@ -3779,7 +3784,6 @@ ${selectedImage}
         .classList.remove('active');
 
 
-      // عرض رسالة التأكيد مع رقم الطلب للعميل داخل النافذة المنبثقة الأخيرة
       document.getElementById('successOrderIdDisplay').innerText = `رقم طلبك هو: ${generatedOrderId}`;
       document
         .getElementById('successModal')
@@ -3820,64 +3824,15 @@ ${selectedImage}
             currentSelectedProduct.title,
 
           text:
-            `تسوق الآن من My Souq: ${currentSelectedProduct.title}`,
-
-          url:
-            window.location.href
-
-        }).catch(console.error);
-
-      }
-
-      else {
-
-        alert(
-          'خاصية المشاركة غير مدعومة في متصفحك الحالي'
-        );
+            `تسوق الآن`
+        });
 
       }
 
     }
 
-
-    window.addEventListener(
-      'DOMContentLoaded',
-      () => {
-
-        loadRealProducts();
-
-        updateCartCount();
-
-
-        window.addEventListener(
-          'scroll',
-          () => {
-
-            const btn =
-              document.getElementById(
-                'backToTopBtn'
-              );
-
-
-            if (window.scrollY > 300) {
-
-              btn.classList.add('show');
-
-            }
-
-            else {
-
-              btn.classList.remove('show');
-
-            }
-
-          }
-        );
-
-      }
-    );
+    loadRealProducts();
 
   </script>
-
 </body>
 </html>
