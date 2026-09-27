@@ -1,0 +1,27 @@
+{
+  "name": "My Souq - سوق إلكتروني",
+  "short_name": "My Souq",
+  "description": "تسوق ملابس رجالي ونسائي وأطفالي بأفضل سعر",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fdfbf7",
+  "theme_color": "#803d48",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "https://souq-elektroni.github.io/My-Souq.github.io/images/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://souq-elektroni.github.io/My-Souq.github.io/images/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
