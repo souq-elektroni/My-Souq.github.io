@@ -43,7 +43,6 @@
       }
     }
 
-    /* تحسين شريط التنقل العلوي الثابت لتجربة موبايل احترافية */
     .brand-badge {
       position: fixed;
       top: 12px;
@@ -421,7 +420,6 @@
       }
     }
 
-    /* تحسين شريط الأقسام ليكون قابلاً للتمرير بسلاسة أفقياً على الموبايل */
     .categories-bar {
       display: flex;
       flex-wrap: nowrap;
@@ -429,7 +427,7 @@
       gap: 6px;
       align-items: center;
       padding-bottom: 4px;
-      scrollbar-width: none; /* إخفاء شريط التمرير لجمالية العرض */
+      scrollbar-width: none;
     }
 
     .categories-bar::-webkit-scrollbar {
@@ -579,7 +577,6 @@
       }
     }
 
-    /* تحسين شبكة عرض المنتجات لتكون متناسقة وأكثر أناقة على الهواتف */
     .products-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -728,7 +725,6 @@
       }
     }
 
-    /* تصميم النافذة المنبثقة (Modals) لتناسب الشاشات الصغيرة بسلاسة وصورة واضحة */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -4216,7 +4212,7 @@ ${selectedImage}
       const totalText = document.getElementById('cartTotalPrice').innerText;
       
       const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
-      const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلاستلام' : 'Instapay';
+      const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
 
       generatedOrderId = 'MS-' + Math.floor(100000 + Math.random() * 900000);
 
@@ -4348,7 +4344,7 @@ ${selectedImage}
         `• طريقة الدفع: ${payMethod}\n\n`;
 
       msg +=
-        `المنتجات المطلوبة:\n${itemsTest}\n\n`;
+        `المنتجات المطلوبة:\n${itemsText}\n\n`;
 
       msg +=
         `الإجمالي الكلي: ${totalText}\n\n`;
