@@ -47,8 +47,8 @@
       position: fixed;
       top: 12px;
       right: 12px;
-      width: 55px;
-      height: 55px;
+      width: 65px;
+      height: 65px;
       background: var(--burgundy-soft);
       color: var(--bg-cream);
       border-radius: 50%;
@@ -58,7 +58,7 @@
       justify-content: center;
       text-align: center;
       font-weight: 900;
-      font-size: 10px;
+      font-size: 11px;
       line-height: 1.1;
       box-shadow: 0 4px 15px rgba(128, 61, 72, 0.3);
       border: 2px solid var(--pink-accent);
@@ -82,23 +82,19 @@
       transform: rotate(0deg) scale(1.08);
     }
 
-    /* تعديل مكان الأزرار العلوية على الموبايل لكي لا تتداخل مع شعار المتجر */
     .top-actions {
       position: fixed;
       top: 12px;
-      left: 75px; /* ترك مساحة لشعار المتجر على اليمين وشمال أضيق */
-      right: 12px;
+      left: 12px;
       z-index: 900;
       display: flex;
-      gap: 5px;
-      justify-content: flex-start;
+      gap: 6px;
     }
 
     @media (min-width: 768px) {
       .top-actions {
         top: 25px;
         left: 20px;
-        right: auto;
         gap: 10px;
       }
     }
@@ -106,18 +102,17 @@
     .cart-trigger, .track-trigger {
       background: var(--burgundy-soft);
       color: white;
-      padding: 6px 10px;
-      border-radius: 20px;
+      padding: 8px 14px;
+      border-radius: 30px;
       font-weight: 800;
-      font-size: 11.5px;
+      font-size: 13px;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(128, 61, 72, 0.25);
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
       border: 1px solid var(--pink-accent);
       transition: all 0.2s;
-      white-space: nowrap;
     }
 
     @media (min-width: 768px) {
@@ -125,7 +120,6 @@
         padding: 12px 22px;
         font-size: 15px;
         gap: 8px;
-        border-radius: 30px;
       }
     }
 
@@ -138,12 +132,12 @@
       background: var(--pink-accent);
       color: var(--burgundy-soft);
       border-radius: 50%;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
+      font-size: 11px;
       font-weight: bold;
     }
 
@@ -361,7 +355,7 @@
 
     header {
       text-align: center;
-      padding: 40px 5px 15px; /* إضافة مساحة علوية للأيقونات الماثلة في الموبايل */
+      padding: 10px 5px 15px;
       max-width: 950px;
       margin: 0 auto;
     }
@@ -373,7 +367,7 @@
     }
 
     header h1 {
-      font-size: 24px;
+      font-size: 26px;
       color: var(--burgundy-soft);
       margin-bottom: 8px;
       font-weight: 900;
@@ -387,7 +381,7 @@
     }
 
     header p {
-      font-size: 13px;
+      font-size: 13.5px;
       color: var(--burgundy-soft);
       font-weight: 800;
       line-height: 1.4;
@@ -586,10 +580,11 @@
       }
     }
 
+    /* تحسين شبكة المنتجات على الهواتف لتناسب عمودين بمسافات متناسقة وجميلة */
     .products-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
+      gap: 8px;
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -610,9 +605,9 @@
 
     .product-card {
       background: var(--card-cream);
-      border-radius: 12px;
+      border-radius: 10px;
       overflow: hidden;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
       border: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
@@ -635,13 +630,13 @@
     .image-container {
       position: relative;
       width: 100%;
-      height: 165px;
+      height: 155px;
       background: var(--pink-soft);
     }
 
     @media (min-width: 400px) {
       .image-container {
-        height: 190px;
+        height: 180px;
       }
     }
 
@@ -664,10 +659,10 @@
     }
 
     .product-details {
-      padding: 10px;
+      padding: 8px;
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
       flex-grow: 1;
     }
 
@@ -679,7 +674,7 @@
     }
 
     .product-title {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 800;
       color: var(--text-dark);
       display: -webkit-box;
@@ -697,7 +692,7 @@
     }
 
     .price-tag {
-      font-size: 14.5px;
+      font-size: 13.5px;
       font-weight: 900;
       color: var(--burgundy-soft);
       margin-top: auto;
@@ -715,14 +710,14 @@
     }
 
     .click-hint {
-      font-size: 10px;
+      font-size: 9.5px;
       color: var(--burgundy-soft);
       font-weight: 800;
       text-align: center;
-      margin-top: 4px;
+      margin-top: 3px;
       background: var(--pink-soft);
-      padding: 5px;
-      border-radius: 6px;
+      padding: 4px;
+      border-radius: 5px;
     }
 
     @media (min-width: 768px) {
@@ -761,7 +756,7 @@
 
     .modal-content {
       background: var(--card-cream);
-      border-radius: 16px;
+      border-radius: 14px;
       max-width: 850px;
       width: 100%;
       max-height: 94vh;
@@ -786,10 +781,10 @@
       left: 10px;
       background: var(--pink-soft);
       border: none;
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      font-size: 16px;
+      font-size: 15px;
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -813,7 +808,7 @@
       display: grid;
       grid-template-columns: 1fr;
       gap: 12px;
-      padding: 16px 12px;
+      padding: 14px 10px;
     }
 
     @media (min-width: 650px) {
@@ -828,14 +823,14 @@
     .modal-gallery-wrapper {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .modal-img {
       width: 100%;
-      height: 240px;
+      height: 220px;
       object-fit: cover;
-      border-radius: 12px;
+      border-radius: 10px;
       border: 1px solid var(--border-color);
     }
 
@@ -848,7 +843,7 @@
 
     .thumbnails-bar {
       display: flex;
-      gap: 6px;
+      gap: 5px;
       overflow-x: auto;
       padding-bottom: 2px;
     }
@@ -856,7 +851,7 @@
     .modal-info {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     @media (min-width: 768px) {
@@ -866,7 +861,7 @@
     }
 
     .modal-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       color: var(--burgundy-soft);
     }
@@ -880,10 +875,10 @@
     .stock-badge {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
+      gap: 4px;
+      padding: 3px 8px;
       border-radius: 20px;
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 800;
       width: fit-content;
       background: #e8f5e9;
@@ -903,7 +898,7 @@
     }
 
     .modal-price {
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 900;
       color: var(--burgundy-soft);
     }
@@ -917,19 +912,19 @@
     .size-selector {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 5px;
       margin-top: 2px;
     }
 
     .dimensions-box {
       background: var(--pink-soft);
       border: 1px solid var(--pink-accent);
-      padding: 10px;
-      border-radius: 10px;
-      font-size: 12px;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 11.5px;
       display: grid;
       grid-template-columns: 1fr;
-      gap: 5px;
+      gap: 4px;
       color: var(--burgundy-soft);
       font-weight: 700;
     }
@@ -957,10 +952,10 @@
       background: var(--burgundy-soft);
       color: white;
       border: none;
-      padding: 10px;
-      border-radius: 10px;
+      padding: 9px;
+      border-radius: 8px;
       font-weight: 800;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
       text-align: center;
       transition: all 0.2s;
@@ -978,10 +973,10 @@
       background: #25d366;
       color: white;
       border: none;
-      padding: 10px 12px;
-      border-radius: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
       font-weight: 800;
-      font-size: 13px;
+      font-size: 12px;
       text-decoration: none;
       display: flex;
       align-items: center;
@@ -1001,15 +996,15 @@
       background: var(--pink-soft);
       color: var(--burgundy-soft);
       border: 1px solid var(--pink-accent);
-      padding: 10px 12px;
-      border-radius: 10px;
+      padding: 9px 10px;
+      border-radius: 8px;
       font-weight: 800;
       cursor: pointer;
     }
 
     .cart-modal {
       max-width: 580px;
-      padding: 15px;
+      padding: 12px;
     }
 
     @media (min-width: 768px) {
@@ -1019,11 +1014,11 @@
     }
 
     .cart-title {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: bold;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       border-bottom: 2px solid var(--border-color);
-      padding-bottom: 6px;
+      padding-bottom: 5px;
       color: var(--burgundy-soft);
     }
 
@@ -1038,10 +1033,10 @@
     .cart-items {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      max-height: 220px;
+      gap: 6px;
+      max-height: 200px;
       overflow-y: auto;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
 
     .cart-item {
@@ -1049,10 +1044,10 @@
       justify-content: space-between;
       align-items: center;
       background: var(--pink-soft);
-      padding: 8px 10px;
-      border-radius: 10px;
+      padding: 7px 8px;
+      border-radius: 8px;
       border: 1px solid var(--pink-accent);
-      gap: 6px;
+      gap: 5px;
     }
 
     @media (min-width: 768px) {
@@ -1072,7 +1067,7 @@
 
     .cart-item-title {
       font-weight: bold;
-      font-size: 13px;
+      font-size: 12px;
     }
 
     @media (min-width: 768px) {
@@ -1082,7 +1077,7 @@
     }
 
     .cart-item-meta {
-      font-size: 11px;
+      font-size: 10.5px;
       color: var(--text-muted);
     }
 
@@ -1095,10 +1090,10 @@
     .quantity-controls {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
       background: white;
-      padding: 2px 6px;
-      border-radius: 6px;
+      padding: 2px 5px;
+      border-radius: 5px;
       border: 1px solid var(--border-color);
     }
 
@@ -1106,22 +1101,22 @@
       background: none;
       border: none;
       font-weight: bold;
-      font-size: 14px;
+      font-size: 13px;
       cursor: pointer;
       color: var(--burgundy-soft);
     }
 
     .qty-num {
       font-weight: 800;
-      font-size: 12.5px;
-      min-width: 12px;
+      font-size: 12px;
+      min-width: 10px;
       text-align: center;
     }
 
     .cart-item-price {
       font-weight: 900;
       color: var(--burgundy-soft);
-      font-size: 13.5px;
+      font-size: 12.5px;
     }
 
     @media (min-width: 768px) {
@@ -1135,22 +1130,22 @@
       background: none;
       border: none;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: bold;
     }
 
     .promo-box {
       display: flex;
-      gap: 6px;
-      margin-bottom: 8px;
+      gap: 5px;
+      margin-bottom: 6px;
     }
 
     .promo-input {
       flex: 1;
-      padding: 8px;
+      padding: 7px;
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 12.5px;
+      border-radius: 7px;
+      font-size: 12px;
       outline: none;
       background: white;
     }
@@ -1159,22 +1154,22 @@
       background: var(--burgundy-soft);
       color: white;
       border: none;
-      padding: 0 12px;
-      border-radius: 8px;
+      padding: 0 10px;
+      border-radius: 7px;
       font-weight: bold;
       cursor: pointer;
-      font-size: 12.5px;
+      font-size: 12px;
     }
 
     .customer-form {
       background: var(--bg-cream);
-      padding: 10px;
-      border-radius: 10px;
+      padding: 8px;
+      border-radius: 8px;
       border: 1px solid var(--border-color);
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      margin-top: 4px;
+      gap: 5px;
+      margin-top: 3px;
     }
 
     @media (min-width: 768px) {
@@ -1192,7 +1187,7 @@
     }
 
     .form-group label {
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: bold;
       color: var(--burgundy-soft);
     }
@@ -1205,10 +1200,10 @@
 
     .form-group input,
     .form-group textarea {
-      padding: 8px 10px;
+      padding: 7px 8px;
       border: 1px solid var(--border-color);
-      border-radius: 8px;
-      font-size: 12.5px;
+      border-radius: 7px;
+      font-size: 12px;
       outline: none;
       background: white;
       width: 100%;
@@ -1223,16 +1218,16 @@
     }
 
     .cart-footer {
-      margin-top: 10px;
+      margin-top: 8px;
       border-top: 1px solid var(--border-color);
-      padding-top: 8px;
+      padding-top: 6px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .total-price {
-      font-size: 17px;
+      font-size: 15px;
       font-weight: 800;
       display: flex;
       justify-content: space-between;
@@ -1248,12 +1243,12 @@
       background: var(--burgundy-soft);
       color: white;
       text-align: center;
-      padding: 10px;
-      border-radius: 8px;
+      padding: 9px;
+      border-radius: 7px;
       font-weight: bold;
       border: none;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       display: none;
       width: 100%;
     }
@@ -1268,7 +1263,7 @@
 
     .terms-modal {
       max-width: 520px;
-      padding: 15px;
+      padding: 12px;
       z-index: 1100;
     }
 
@@ -1279,10 +1274,10 @@
     }
 
     .terms-header {
-      font-size: 17px;
+      font-size: 16px;
       font-weight: 900;
       color: var(--burgundy-soft);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     @media (min-width: 768px) {
@@ -1295,12 +1290,12 @@
     .terms-body {
       background: #fffde7;
       border: 1px solid #ffe082;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 12px;
+      padding: 8px;
+      border-radius: 7px;
+      font-size: 11.5px;
       color: #5d4037;
-      line-height: 1.5;
-      margin-bottom: 10px;
+      line-height: 1.4;
+      margin-bottom: 8px;
     }
 
     @media (min-width: 768px) {
@@ -1314,21 +1309,21 @@
     }
 
     .terms-body ul {
-      margin-right: 15px;
+      margin-right: 12px;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
     }
 
     .checkbox-container {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: var(--pink-soft);
-      padding: 8px 10px;
-      border-radius: 8px;
+      padding: 7px 8px;
+      border-radius: 7px;
       border: 1px solid var(--pink-accent);
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       cursor: pointer;
     }
 
@@ -1342,14 +1337,14 @@
     }
 
     .checkbox-container input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       cursor: pointer;
       accent-color: var(--burgundy-soft);
     }
 
     .checkbox-container label {
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
       color: var(--burgundy-soft);
       cursor: pointer;
@@ -1363,7 +1358,7 @@
 
     .terms-actions {
       display: flex;
-      gap: 8px;
+      gap: 6px;
     }
 
     .btn-agree {
@@ -1371,10 +1366,10 @@
       background: var(--burgundy-soft);
       color: white;
       border: none;
-      padding: 10px;
-      border-radius: 8px;
+      padding: 9px;
+      border-radius: 7px;
       font-weight: bold;
-      font-size: 13.5px;
+      font-size: 13px;
       cursor: pointer;
       opacity: 0.5;
       pointer-events: none;
@@ -1398,10 +1393,10 @@
       background: #f44336;
       color: white;
       border: none;
-      padding: 10px;
-      border-radius: 8px;
+      padding: 9px;
+      border-radius: 7px;
       font-weight: bold;
-      font-size: 13.5px;
+      font-size: 13px;
       cursor: pointer;
       text-align: center;
     }
@@ -1416,7 +1411,7 @@
 
     .payment-modal {
       max-width: 500px;
-      padding: 15px;
+      padding: 12px;
       z-index: 1200;
     }
 
@@ -1429,12 +1424,12 @@
     .payment-option {
       display: flex;
       align-items: flex-start;
-      gap: 8px;
+      gap: 6px;
       background: var(--bg-cream);
-      padding: 10px;
-      border-radius: 8px;
+      padding: 8px;
+      border-radius: 7px;
       border: 2px solid var(--border-color);
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       cursor: pointer;
     }
 
@@ -1455,13 +1450,13 @@
     .payment-details {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 2px;
       width: 100%;
     }
 
     .payment-title {
       font-weight: 800;
-      font-size: 13px;
+      font-size: 12px;
       color: var(--burgundy-soft);
     }
 
@@ -1474,11 +1469,11 @@
     .instapay-box {
       background: #e8f5e9;
       border: 1px solid #a5d6a7;
-      padding: 6px 8px;
-      border-radius: 6px;
-      font-size: 11.5px;
+      padding: 5px 6px;
+      border-radius: 5px;
+      font-size: 11px;
       color: #1b5e20;
-      margin-top: 5px;
+      margin-top: 4px;
       font-weight: bold;
       display: flex;
       justify-content: space-between;
@@ -1497,9 +1492,9 @@
       background: #2e7d32;
       color: white;
       border: none;
-      padding: 3px 7px;
-      border-radius: 5px;
-      font-size: 10.5px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
       cursor: pointer;
     }
 
@@ -1514,14 +1509,14 @@
       background: #25d366;
       color: white;
       text-align: center;
-      padding: 10px;
-      border-radius: 8px;
+      padding: 9px;
+      border-radius: 7px;
       font-weight: bold;
       border: none;
       cursor: pointer;
-      font-size: 14px;
+      font-size: 13px;
       width: 100%;
-      margin-top: 6px;
+      margin-top: 5px;
     }
 
     @media (min-width: 768px) {
@@ -1535,7 +1530,7 @@
 
     .confirmation-modal {
       max-width: 650px;
-      padding: 15px;
+      padding: 12px;
       z-index: 1250;
     }
 
@@ -1548,14 +1543,14 @@
     .order-summary-box {
       background: var(--pink-soft);
       border: 1px solid var(--pink-accent);
-      padding: 10px;
-      border-radius: 10px;
-      margin-bottom: 12px;
-      font-size: 13px;
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 12px;
       color: var(--text-dark);
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
       max-height: 45vh;
       overflow-y: auto;
     }
@@ -1574,10 +1569,10 @@
     .summary-product-row {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       background: white;
-      padding: 8px;
-      border-radius: 8px;
+      padding: 6px;
+      border-radius: 6px;
       border: 1px solid var(--border-color);
     }
 
@@ -1590,10 +1585,10 @@
     }
 
     .summary-product-img {
-      width: 50px;
-      height: 50px;
+      width: 45px;
+      height: 45px;
       object-fit: cover;
-      border-radius: 6px;
+      border-radius: 5px;
       border: 1px solid var(--border-color);
     }
 
@@ -1607,7 +1602,7 @@
 
     .success-modal {
       max-width: 450px;
-      padding: 22px 16px;
+      padding: 18px 12px;
       text-align: center;
       z-index: 1300;
     }
@@ -1619,8 +1614,8 @@
     }
 
     .success-icon {
-      font-size: 45px;
-      margin-bottom: 10px;
+      font-size: 40px;
+      margin-bottom: 8px;
     }
 
     @media (min-width: 768px) {
@@ -1631,10 +1626,10 @@
     }
 
     .success-title {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 900;
       color: var(--burgundy-soft);
-      margin-bottom: 6px;
+      margin-bottom: 5px;
     }
 
     @media (min-width: 768px) {
@@ -1648,19 +1643,19 @@
       background: var(--burgundy-soft);
       color: white;
       border: none;
-      padding: 9px 20px;
-      border-radius: 8px;
+      padding: 8px 16px;
+      border-radius: 7px;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 6px;
+      margin-top: 5px;
     }
 
     footer {
       text-align: center;
-      margin-top: 30px;
-      padding: 12px;
+      margin-top: 25px;
+      padding: 10px;
       color: var(--text-muted);
-      font-size: 12px;
+      font-size: 11.5px;
       border-top: 1px solid var(--border-color);
     }
 
@@ -1857,7 +1852,7 @@
           <div>
 
             <label
-              style="font-weight:bold;font-size:13px;display:block;margin-bottom:4px;color:var(--text-muted);"
+              style="font-weight:bold;font-size:12px;display:block;margin-bottom:3px;color:var(--text-muted);"
             >
               اختر المقاس:
             </label>
@@ -1904,7 +1899,7 @@
 
           <p
             id="modalDesc"
-            style="font-size:13px;color:var(--text-muted);line-height:1.4;"
+            style="font-size:12.5px;color:var(--text-muted);line-height:1.4;"
           ></p>
 
           <div class="modal-actions-row">
@@ -1990,7 +1985,7 @@
         id="customerFormBox"
       >
 
-        <h4 style="color:var(--burgundy-soft);font-size:13.5px;font-weight:bold;">
+        <h4 style="color:var(--burgundy-soft);font-size:12.5px;font-weight:bold;">
           📝 بيانات الشحن:
         </h4>
 
@@ -2222,7 +2217,7 @@
   <!-- Order Final Confirmation Modal -->
   <div class="modal-overlay" id="confirmationModal">
     <div class="modal-content confirmation-modal">
-      <div class="terms-header" style="font-size:18px;">
+      <div class="terms-header" style="font-size:17px;">
         🔍 تأكيد بيانات الطلب النهائي
       </div>
       <div class="order-summary-box" id="confirmationSummaryContent">
@@ -2236,7 +2231,7 @@
       </button>
       <button
         class="btn-decline"
-        style="width:100%; margin-top:8px; background:#615053; padding:10px; font-size:14px;"
+        style="width:100%; margin-top:6px; background:#615053; padding:9px; font-size:13px;"
         onclick="backToCustomerData()"
       >
         العودة لتعديل البيانات ✏️
@@ -2246,31 +2241,31 @@
 
   <!-- Tracking Modal (New Feature) -->
   <div class="modal-overlay" id="trackingModal">
-    <div class="modal-content" style="max-width: 500px; padding: 20px;">
+    <div class="modal-content" style="max-width: 500px; padding: 18px;">
       <button class="close-btn" onclick="closeTrackingModal()">✕</button>
-      <div class="terms-header" style="font-size: 18px; margin-bottom: 12px;">
+      <div class="terms-header" style="font-size: 17px; margin-bottom: 10px;">
         📦 تتبع حالة طلبك
       </div>
-      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+      <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 10px;">
         أدخل رقم الطلب الخاص بك (مثال: MS-123456) لمعرفة أحدث مستجدات وتجهيزات الطلب:
       </p>
-      <div style="display: flex; gap: 8px; margin-bottom: 15px;">
+      <div style="display: flex; gap: 6px; margin-bottom: 12px;">
         <input
           type="text"
           id="trackInputId"
           class="promo-input"
           placeholder="أدخل رقم الطلب هنا..."
-          style="font-size: 14px; padding: 10px;"
+          style="font-size: 13.5px; padding: 9px;"
         >
         <button
           class="promo-btn"
-          style="padding: 0 16px; font-size: 14px;"
+          style="padding: 0 14px; font-size: 13.5px;"
           onclick="searchOrderTracking()"
         >
           بحث 🔍
         </button>
       </div>
-      <div id="trackingResultContainer" style="display: none; background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 12px; border-radius: 10px; font-size: 13.5px; line-height: 1.6;">
+      <div id="trackingResultContainer" style="display: none; background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 10px; border-radius: 8px; font-size: 13px; line-height: 1.5;">
         <!-- نتيجة التتبع -->
       </div>
     </div>
@@ -2290,7 +2285,7 @@
         تم إرسال طلبك بنجاح!
       </div>
       
-      <p id="successOrderIdDisplay" style="font-weight:bold; color:var(--burgundy-soft); margin-bottom:10px; font-size:13.5px;"></p>
+      <p id="successOrderIdDisplay" style="font-weight:bold; color:var(--burgundy-soft); margin-bottom:8px; font-size:13px;"></p>
 
       <button
         class="success-btn"
@@ -2879,7 +2874,7 @@
                   p.oldPrice > 0
                   ? `
                     <span
-                      style="font-size:12px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;"
+                      style="font-size:11px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;"
                     >
                       ${p.oldPrice} ج.م
                     </span>
@@ -2890,7 +2885,7 @@
               </div>
 
               <div class="click-hint">
-                عرض التفاصيل والمقاسات 👈
+                عرض التفاصيل 👈
               </div>
 
             </div>
@@ -3233,7 +3228,7 @@ ${selectedImage}
 
 
               img.style.cssText =
-                "width:50px;height:50px;object-fit:cover;border-radius:6px;border:2px solid transparent;cursor:pointer;flex-shrink:0;";
+                "width:45px;height:45px;object-fit:cover;border-radius:5px;border:2px solid transparent;cursor:pointer;flex-shrink:0;";
 
 
               if (idx === 0) {
@@ -3323,7 +3318,7 @@ ${selectedImage}
         ) {
 
           priceHtml +=
-            ` <span style="font-size:14px;color:#999;text-decoration:line-through;margin-right:6px;font-weight:600;">
+            ` <span style="font-size:12px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;">
               ${currentSelectedProduct.oldPrice} ج.م
             </span>`;
 
@@ -3428,7 +3423,7 @@ ${selectedImage}
 
             btn.style.cssText = `
 
-              padding:7px 12px;
+              padding:6px 10px;
 
               border:2px solid ${
                 isSelected
@@ -3436,7 +3431,7 @@ ${selectedImage}
                 : 'var(--border-color)'
               };
 
-              border-radius:8px;
+              border-radius:7px;
 
               background:${
                 isThisSizeOut
@@ -3450,7 +3445,7 @@ ${selectedImage}
 
               cursor:pointer;
 
-              font-size:13px;
+              font-size:12px;
 
               font-weight:800;
 
@@ -3464,7 +3459,7 @@ ${selectedImage}
 
               align-items:center;
 
-              gap:5px;
+              gap:4px;
 
             `;
 
@@ -3480,7 +3475,7 @@ ${selectedImage}
                   ? 'checked'
                   : ''
                 }
-                style="accent-color:var(--burgundy-soft);width:15px;height:15px;"
+                style="accent-color:var(--burgundy-soft);width:13px;height:13px;"
               >
 
               <span>
@@ -3558,7 +3553,7 @@ ${selectedImage}
                 ) {
 
                   priceHtml +=
-                    ` <span style="font-size:14px;color:#999;text-decoration:line-through;margin-right:6px;font-weight:600;">
+                    ` <span style="font-size:12px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;">
                       ${currentSelectedProduct.oldPrice} ج.م
                     </span>`;
 
@@ -3828,7 +3823,7 @@ ${selectedImage}
       if (cart.length === 0) {
 
         container.innerHTML =
-          '<p style="text-align:center;color:var(--text-muted);font-size:13.5px;">السلة فارغة حالياً</p>';
+          '<p style="text-align:center;color:var(--text-muted);font-size:13px;">السلة فارغة حالياً</p>';
 
         if (promoBox) {
           promoBox.style.display =
@@ -4265,27 +4260,27 @@ ${selectedImage}
         <div class="summary-product-row">
           <img src="${item.image}" class="summary-product-img" alt="${item.title}">
           <div style="flex:1;">
-            <div style="font-weight:900; font-size:13.5px; color:var(--text-dark);">${item.title}</div>
-            <div style="font-size:11.5px; color:var(--text-muted); margin-top:2px;">المقاس: ${item.size} | الكمية: ${item.qty}</div>
-            <div style="font-weight:900; color:var(--burgundy-soft); font-size:13.5px; margin-top:2px;">${item.price * item.qty} ج.م</div>
+            <div style="font-weight:900; font-size:12.5px; color:var(--text-dark);">${item.title}</div>
+            <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">المقاس: ${item.size} | الكمية: ${item.qty}</div>
+            <div style="font-weight:900; color:var(--burgundy-soft); font-size:12.5px; margin-top:2px;">${item.price * item.qty} ج.م</div>
           </div>
         </div>
       `).join('');
 
       const summaryBox = document.getElementById('confirmationSummaryContent');
       summaryBox.innerHTML = `
-        <div style="font-weight:900; color:var(--burgundy-soft); font-size:14px; border-bottom:2px solid var(--pink-accent); padding-bottom:5px;">
+        <div style="font-weight:900; color:var(--burgundy-soft); font-size:13px; border-bottom:2px solid var(--pink-accent); padding-bottom:4px;">
           🆔 رقم الطلب المؤقت: ${generatedOrderId}
         </div>
-        <div style="display:grid; grid-template-columns:1fr; gap:3px; font-size:13px;">
+        <div style="display:grid; grid-template-columns:1fr; gap:2px; font-size:12.5px;">
           <div><strong>الاسم:</strong> ${name}</div>
           <div><strong>رقم التليفون:</strong> ${phone}</div>
         </div>
-        <div style="font-size:13px;"><strong>العنوان:</strong> ${address}</div>
-        <div style="font-size:13px;"><strong>طريقة الدفع:</strong> ${payMethod}</div>
-        <div style="margin-top:3px; font-weight:bold; color:var(--burgundy-soft); font-size:13px;">المنتجات المختارة:</div>
+        <div style="font-size:12.5px;"><strong>العنوان:</strong> ${address}</div>
+        <div style="font-size:12.5px;"><strong>طريقة الدفع:</strong> ${payMethod}</div>
+        <div style="margin-top:2px; font-weight:bold; color:var(--burgundy-soft); font-size:12.5px;">المنتجات المختارة:</div>
         ${productsHtml}
-        <div style="font-size:15px; font-weight:900; color:var(--burgundy-soft); margin-top:4px; border-top:2px solid var(--pink-accent); padding-top:6px; display:flex; justify-content:space-between;">
+        <div style="font-size:14px; font-weight:900; color:var(--burgundy-soft); margin-top:3px; border-top:2px solid var(--pink-accent); padding-top:5px; display:flex; justify-content:space-between;">
           <span>الإجمالي الكلي:</span>
           <span>${totalText}</span>
         </div>
@@ -4367,7 +4362,6 @@ ${selectedImage}
           .innerText;
 
 
-      // حفظ الطلب في سجل تتبع الطلبات المحلي (localStorage)
       const newOrderRecord = {
         orderId: generatedOrderId,
         name: name,
@@ -4480,7 +4474,7 @@ ${selectedImage}
 
       if (foundOrder) {
         resultBox.innerHTML = `
-          <div style="font-weight: 900; color: var(--burgundy-soft); margin-bottom: 6px;">
+          <div style="font-weight: 900; color: var(--burgundy-soft); margin-bottom: 5px;">
             ✅ تم العثور على الطلب بنجاح
           </div>
           <div><strong>🆔 رقم الطلب:</strong> ${foundOrder.orderId}</div>
@@ -4491,13 +4485,21 @@ ${selectedImage}
         `;
       } else {
         resultBox.innerHTML = `
-          <div style="font-weight: 900; color: #c62828; margin-bottom: 6px;">
-            ❌ عذراً، لم يتم العثور على طلب بهذا الرقم
+          <div style="font-weight: 900; color: #c62828;">
+            ❌ عذراً، لم يتم العثور على أي طلب بهذا الرقم
           </div>
-          <div style="font-size: 12px; color: var(--text-muted);">تأكد من كتابة رقم الطلب بشكل صحيح (مثل MS-123456) وأنه تم إرساله من نفس المتصفح والجهاز.</div>
+          <div style="font-size: 11.5px; margin-top: 3px; color: var(--text-muted);">
+            تأكد من كتابة الرقم بشكل صحيح (مثال: MS-123456)
+          </div>
         `;
       }
     }
+
+
+    window.onload = function() {
+      loadRealProducts();
+    };
+
   </script>
 </body>
 </html>
