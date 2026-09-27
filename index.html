@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>My Souq - سوق إلكتروني</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap');
 
@@ -2327,6 +2330,122 @@
     let isAdminMode = localStorage.getItem("souqAdminUnlocked") === "1";
     const ADMIN_PIN = "mysouq2026"; // غيّر الرمز ده لو حابب
 
+    /* ========== Firebase Config ==========
+       املأ البيانات دي من مشروعك في Firebase Console
+       (Project settings → Your apps → SDK setup and configuration)
+    ====================================== */
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyCGSFAnYRmauxCAa7HmyVenPlWy-KJHsxg",
+      authDomain: "my-souq0.firebaseapp.com",
+      projectId: "my-souq0",
+      storageBucket: "my-souq0.firebasestorage.app",
+      messagingSenderId: "334605657240",
+      appId: "1:334605657240:web:9f9adbcbdfa60e74855ced",
+      measurementId: "G-XT0QZ1T2Y0"
+    };
+
+    let db = null;
+    let firebaseReady = false;
+
+    function initFirebase() {
+      try {
+        if (!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey === "PASTE_YOUR_API_KEY") {
+          console.warn("Firebase مش متضبط — التتبع هيشتغل محلياً فقط لحد ما تحط الإعدادات.");
+          return;
+        }
+        if (!firebase.apps.length) {
+          firebase.initializeApp(FIREBASE_CONFIG);
+        }
+        db = firebase.firestore();
+        firebaseReady = true;
+        console.log("Firebase جاهز ✅");
+      } catch (e) {
+        console.error("خطأ Firebase:", e);
+        firebaseReady = false;
+      }
+    }
+
+    // حفظ طلب على Firebase + محلياً
+    async function saveOrderToCloud(orderRecord) {
+      // محلي دائماً
+      const exists = ordersHistory.findIndex(o => o.orderId === orderRecord.orderId);
+      if (exists >= 0) ordersHistory[exists] = orderRecord;
+      else ordersHistory.push(orderRecord);
+      localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
+
+      if (!firebaseReady || !db) return false;
+      try {
+        await db.collection("orders").doc(orderRecord.orderId).set({
+          ...orderRecord,
+          items: orderRecord.items || [],
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        return true;
+      } catch (e) {
+        console.error("فشل حفظ الطلب على السحابة:", e);
+        return false;
+      }
+    }
+
+    // جلب طلب من Firebase (أو محلي كاحتياطي)
+    async function fetchOrderFromCloud(orderId) {
+      if (firebaseReady && db) {
+        try {
+          const snap = await db.collection("orders").doc(orderId).get();
+          if (snap.exists) {
+            const data = snap.data();
+            // حدّث الكاش المحلي
+            const idx = ordersHistory.findIndex(o => o.orderId === orderId);
+            if (idx >= 0) ordersHistory[idx] = data;
+            else ordersHistory.push(data);
+            localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
+            return data;
+          }
+        } catch (e) {
+          console.error("خطأ قراءة الطلب:", e);
+        }
+      }
+      // احتياطي محلي
+      return ordersHistory.find(o => o.orderId.toLowerCase() === orderId.toLowerCase()) || null;
+    }
+
+    // تحديث حالة الطلب على Firebase + محلي
+    async function updateOrderStatusCloud(orderId, newCode, newLabel) {
+      const order = ordersHistory.find(o => o.orderId === orderId);
+      if (order) {
+        order.statusCode = newCode;
+        order.status = newLabel;
+        localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
+      }
+
+      if (!firebaseReady || !db) return !!order;
+      try {
+        await db.collection("orders").doc(orderId).update({
+          statusCode: newCode,
+          status: newLabel,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        return true;
+      } catch (e) {
+        console.error("فشل تحديث الحالة:", e);
+        // لو الطلب مش موجود على السحابة نحاول set كامل
+        if (order) {
+          try {
+            await db.collection("orders").doc(orderId).set({
+              ...order,
+              statusCode: newCode,
+              status: newLabel,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+            return true;
+          } catch (e2) {
+            console.error(e2);
+          }
+        }
+        return false;
+      }
+    }
+
     let currentCategory = "الكل";
     let currentStockFilter = "all";
 
@@ -4407,9 +4526,9 @@ ${selectedImage}
         date: new Date().toLocaleDateString('ar-EG'),
         createdAt: Date.now()
       };
-      
-      ordersHistory.push(newOrderRecord);
-      localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
+
+      // حفظ على السحابة (أي جهاز) + محلياً
+      saveOrderToCloud(newOrderRecord);
 
 
       let msg =
@@ -4523,27 +4642,30 @@ ${selectedImage}
       return false;
     }
 
-    function updateOrderStatus(orderId, newCode) {
+    async function updateOrderStatus(orderId, newCode) {
       if (!isAdminMode) {
         alert('وضع الإدارة مش مفعّل');
         return;
       }
-      const order = ordersHistory.find(o => o.orderId === orderId);
-      if (!order) return;
 
       const status = ORDER_STATUSES.find(s => s.code === newCode);
       if (!status) return;
 
-      order.statusCode = newCode;
-      order.status = status.label;
-      localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
+      const resultBox = document.getElementById('trackingResultContainer');
+      if (resultBox) {
+        resultBox.innerHTML = `<div style="text-align:center; padding:12px; font-weight:800; color:var(--burgundy-soft);">جاري تحديث الحالة...</div>`;
+      }
 
-      // إعادة عرض النتيجة بنفس الرقم
+      const ok = await updateOrderStatusCloud(orderId, newCode, status.label);
+      if (!ok) {
+        alert('تعذر تحديث الحالة. تأكد من اتصال الإنترنت وإعدادات Firebase.');
+      }
+
       document.getElementById('trackInputId').value = orderId;
-      searchOrderTracking();
+      await searchOrderTracking();
     }
 
-    function searchOrderTracking() {
+    async function searchOrderTracking() {
       const searchId = document.getElementById('trackInputId').value.trim();
       const resultBox = document.getElementById('trackingResultContainer');
 
@@ -4555,9 +4677,11 @@ ${selectedImage}
       // لو كتب رمز الإدارة
       if (tryUnlockAdmin(searchId)) return;
 
-      let foundOrder = ordersHistory.find(o => o.orderId.toLowerCase() === searchId.toLowerCase());
-
       resultBox.style.display = 'block';
+      resultBox.innerHTML = `<div style="text-align:center; padding:12px; font-weight:800; color:var(--text-muted);">جاري البحث...</div>`;
+
+      // جلب من السحابة (أي جهاز) مع احتياطي محلي
+      const foundOrder = await fetchOrderFromCloud(searchId);
 
       if (foundOrder) {
         let currentCode = typeof foundOrder.statusCode === 'number' ? foundOrder.statusCode : 0;
@@ -4579,7 +4703,6 @@ ${selectedImage}
           `;
         }).join('');
 
-        // أزرار تغيير الحالة (للأدمن فقط)
         let adminControls = '';
         if (isAdminMode) {
           adminControls = `
@@ -4604,14 +4727,18 @@ ${selectedImage}
           `;
         }
 
+        const cloudBadge = firebaseReady
+          ? '<span style="font-size:10px; background:#e8f5e9; color:#2e7d32; padding:2px 6px; border-radius:4px; margin-right:4px;">☁️ سحابي</span>'
+          : '<span style="font-size:10px; background:#fff3e0; color:#e65100; padding:2px 6px; border-radius:4px; margin-right:4px;">📱 محلي</span>';
+
         resultBox.innerHTML = `
           <div style="font-weight: 900; color: var(--burgundy-soft); margin-bottom: 8px; font-size:14px;">
-            ✅ تم العثور على الطلب بنجاح
+            ✅ تم العثور على الطلب بنجاح ${cloudBadge}
           </div>
           <div style="font-size:12.5px; margin-bottom:3px;"><strong>🆔 رقم الطلب:</strong> ${foundOrder.orderId}</div>
-          <div style="font-size:12.5px; margin-bottom:3px;"><strong>👤 اسم العميل:</strong> ${foundOrder.name}</div>
-          <div style="font-size:12.5px; margin-bottom:3px;"><strong>💰 الإجمالي:</strong> ${foundOrder.total}</div>
-          <div style="font-size:12.5px; margin-bottom:10px;"><strong>📅 تاريخ الطلب:</strong> ${foundOrder.date}</div>
+          <div style="font-size:12.5px; margin-bottom:3px;"><strong>👤 اسم العميل:</strong> ${foundOrder.name || '-'}</div>
+          <div style="font-size:12.5px; margin-bottom:3px;"><strong>💰 الإجمالي:</strong> ${foundOrder.total || '-'}</div>
+          <div style="font-size:12.5px; margin-bottom:10px;"><strong>📅 تاريخ الطلب:</strong> ${foundOrder.date || '-'}</div>
           
           <div style="background:white; border:1px solid var(--border-color); border-radius:10px; padding:10px; margin-top:6px;">
             <div style="font-weight:900; color:var(--burgundy-soft); margin-bottom:10px; font-size:13px;">📍 مسار الطلب:</div>
@@ -4630,7 +4757,9 @@ ${selectedImage}
           </div>
           <div style="font-size: 11.5px; margin-top: 3px; color: var(--text-muted);">
             تأكد من كتابة الرقم بشكل صحيح (مثال: MS-K7P2M9X4)<br>
-            ملاحظة: التتبع يعمل للطلبات اللي اتعملت من نفس الجهاز/المتصفح.
+            ${firebaseReady
+              ? 'الطلب مش موجود على السحابة. تأكد إن العميل خلّص الطلب بنجاح.'
+              : 'Firebase لسه مش متضبط — التتبع شغال محلياً فقط.'}
             ${!isAdminMode ? '<br><br>للإدارة: اكتب رمز الإدارة في خانة البحث.' : ''}
           </div>
         `;
@@ -4639,6 +4768,7 @@ ${selectedImage}
 
 
     window.onload = function() {
+      initFirebase();
       loadRealProducts();
     };
 
