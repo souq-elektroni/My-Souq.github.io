@@ -47,8 +47,8 @@
       position: fixed;
       top: 12px;
       right: 12px;
-      width: 65px;
-      height: 65px;
+      width: 55px;
+      height: 55px;
       background: var(--burgundy-soft);
       color: var(--bg-cream);
       border-radius: 50%;
@@ -58,7 +58,7 @@
       justify-content: center;
       text-align: center;
       font-weight: 900;
-      font-size: 11px;
+      font-size: 10px;
       line-height: 1.1;
       box-shadow: 0 4px 15px rgba(128, 61, 72, 0.3);
       border: 2px solid var(--pink-accent);
@@ -82,19 +82,23 @@
       transform: rotate(0deg) scale(1.08);
     }
 
+    /* تعديل مكان الأزرار العلوية على الموبايل لكي لا تتداخل مع شعار المتجر */
     .top-actions {
       position: fixed;
       top: 12px;
-      left: 12px;
+      left: 75px; /* ترك مساحة لشعار المتجر على اليمين وشمال أضيق */
+      right: 12px;
       z-index: 900;
       display: flex;
-      gap: 6px;
+      gap: 5px;
+      justify-content: flex-start;
     }
 
     @media (min-width: 768px) {
       .top-actions {
         top: 25px;
         left: 20px;
+        right: auto;
         gap: 10px;
       }
     }
@@ -102,17 +106,18 @@
     .cart-trigger, .track-trigger {
       background: var(--burgundy-soft);
       color: white;
-      padding: 8px 14px;
-      border-radius: 30px;
+      padding: 6px 10px;
+      border-radius: 20px;
       font-weight: 800;
-      font-size: 13px;
+      font-size: 11.5px;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(128, 61, 72, 0.25);
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       border: 1px solid var(--pink-accent);
       transition: all 0.2s;
+      white-space: nowrap;
     }
 
     @media (min-width: 768px) {
@@ -120,6 +125,7 @@
         padding: 12px 22px;
         font-size: 15px;
         gap: 8px;
+        border-radius: 30px;
       }
     }
 
@@ -132,12 +138,12 @@
       background: var(--pink-accent);
       color: var(--burgundy-soft);
       border-radius: 50%;
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: bold;
     }
 
@@ -355,7 +361,7 @@
 
     header {
       text-align: center;
-      padding: 10px 5px 15px;
+      padding: 40px 5px 15px; /* إضافة مساحة علوية للأيقونات الماثلة في الموبايل */
       max-width: 950px;
       margin: 0 auto;
     }
@@ -367,7 +373,7 @@
     }
 
     header h1 {
-      font-size: 26px;
+      font-size: 24px;
       color: var(--burgundy-soft);
       margin-bottom: 8px;
       font-weight: 900;
@@ -381,7 +387,7 @@
     }
 
     header p {
-      font-size: 13.5px;
+      font-size: 13px;
       color: var(--burgundy-soft);
       font-weight: 800;
       line-height: 1.4;
@@ -4485,49 +4491,13 @@ ${selectedImage}
         `;
       } else {
         resultBox.innerHTML = `
-          <div style="color: #c62828; font-weight: bold;">
-            ❌ عذراً، لم يتم العثور على أي طلب بهذا الرقم في سجل المتجر المحلي.
+          <div style="font-weight: 900; color: #c62828; margin-bottom: 6px;">
+            ❌ عذراً، لم يتم العثور على طلب بهذا الرقم
           </div>
-          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
-            تأكد من كتابة الرقم بشكل صحيح (مثال: MS-123456) أو تواصل معنا عبر الواتساب للاستعلام.
-          </div>
+          <div style="font-size: 12px; color: var(--text-muted);">تأكد من كتابة رقم الطلب بشكل صحيح (مثل MS-123456) وأنه تم إرساله من نفس المتصفح والجهاز.</div>
         `;
       }
     }
-
-
-    function scrollToTop() {
-
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-
-    }
-
-
-    function shareProduct() {
-
-      if (
-        navigator.share &&
-        currentSelectedProduct
-      ) {
-
-        navigator.share({
-
-          title:
-            currentSelectedProduct.title,
-
-          text:
-            `تسوق الآن`
-        });
-
-      }
-
-    }
-
-    loadRealProducts();
-
   </script>
 </body>
 </html>
