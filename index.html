@@ -37,7 +37,6 @@
       padding-bottom: 90px;
     }
 
-    /* تحسين الشعار العائم ليناسب الموبايل بشكل لا يعيق القراءة */
     .brand-badge {
       position: fixed;
       top: 15px;
@@ -262,7 +261,6 @@
       border: 2px dashed var(--pink-accent);
     }
 
-    /* تحسين شريط التحكم والأزرار لتكون قابلة للتمرير بسلاسة على الهواتف الصغيره */
     .controls-wrapper {
       max-width: 1200px;
       margin: 0 auto 20px;
@@ -280,7 +278,7 @@
       gap: 8px;
       overflow-x: auto;
       padding-bottom: 4px;
-      scrollbar-width: none; /* إخفاء الشريط المزعج في متصفحات الجوال */
+      scrollbar-width: none;
     }
 
     .categories-bar::-webkit-scrollbar {
@@ -373,7 +371,6 @@
       outline: none;
     }
 
-    /* شبكة المنتجات متجاوبة لتعرض عمودين على الموبايل لسهولة التصفح */
     .products-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -404,7 +401,7 @@
       display: flex;
       flex-direction: column;
       cursor: pointer;
-      transition: transform 0.2s;
+      -webkit-tap-highlight-color: rgba(128, 61, 72, 0.2);
     }
 
     .image-container {
@@ -412,6 +409,7 @@
       width: 100%;
       height: 190px;
       background: var(--pink-soft);
+      pointer-events: none; /* لمنع تداخل اللمس مع العناصر الداخلية */
     }
 
     @media (min-width: 768px) {
@@ -432,6 +430,7 @@
       flex-direction: column;
       gap: 6px;
       flex-grow: 1;
+      pointer-events: none;
     }
 
     .product-title {
@@ -483,7 +482,6 @@
       }
     }
 
-    /* تصميم النافذة المنسدلة لتناسب شاشات الموبايل بالكامل وبشكل مريح */
     .modal-overlay {
       position: fixed;
       top: 0;
@@ -494,9 +492,13 @@
       backdrop-filter: blur(4px);
       display: none;
       justify-content: center;
-      align-items: flex-end; /* تظهر من أسفل الشاشة في الهواتف لتسهيل التحكم بالإصبع */
+      align-items: flex-end;
       z-index: 1000;
       padding: 0;
+    }
+
+    .modal-overlay.active {
+      display: flex;
     }
 
     @media (min-width: 768px) {
@@ -887,16 +889,6 @@
       font-size: 16px;
       display: none;
       width: 100%;
-    }
-
-    .terms-modal, .payment-modal, .confirmation-modal, .success-modal {
-      border-radius: 24px 24px 0 0;
-    }
-
-    @media (min-width: 768px) {
-      .terms-modal, .payment-modal, .confirmation-modal, .success-modal {
-        border-radius: 22px;
-      }
     }
 
     .terms-body {
@@ -1890,6 +1882,10 @@
       handleCheckboxChange({ target: cb });
     }
 
+    function handleCheckboxCode(e) {
+      // helper
+    }
+
     function handleCheckboxChange(e) {
       const agreeBtn = document.getElementById('agreeBtn');
       if (e.target.checked) agreeBtn.classList.add('active');
@@ -1912,7 +1908,7 @@
         document.getElementById('payCod').checked = true;
       } else {
         document.getElementById('optInstapay').classList.add('selected');
-        document.getElementById('payInstapay').checked = true;
+        document.getElementById('payInstapay').checked, true;
       }
     }
 
@@ -1957,7 +1953,7 @@
         ${productsHtml}
         <div style="font-size:16px; font-weight:900; color:var(--burgundy-soft); margin-top:4px; border-top:2px solid var(--pink-accent); padding-top:8px; display:flex; justify-content:space-between;">
           <span>الإجمالي الكلي:</span>
-          <span>${totalText}</span>
+          <span>${totalTitleText || totalText}</span>
         </div>
       `;
       document.getElementById('confirmationModal').classList.add('active');
