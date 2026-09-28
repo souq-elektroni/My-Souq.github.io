@@ -12,6 +12,72 @@ let phoneConfirmationResult = null;
 let phoneRecaptchaVerifier = null;
 let otpRequestInProgress = false;
 
+// ===== حماية من التكرار =====
+const ORDER_COOLDOWN_MINUTES = 15; // ممنوع طلب جديد من نفس الرقم قبل مرور 15 دقيقة
+
+function getRecentOrdersMap() {
+  try {
+    return JSON.parse(localStorage.getItem('souqRecentOrders') || '{}');
+  } catch {
+    return {};
+  }
+}
+
+function isPhoneRecentlyUsed(phone) {
+  const map = getRecentOrdersMap();
+  const lastTime = map[phone];
+  if (!lastTime) return false;
+  const diffMinutes = (Date.now() - lastTime) / (1000 * 60);
+  return diffMinutes < ORDER_COOLDOWN_MINUTES;
+}
+
+function markPhoneAsUsed(phone) {
+  const map = getRecentOrdersMap();
+  map[phone] = Date.now();
+  const cutoff = Date.now() - (ORDER_COOLDOWN_MINUTES * 60 * 1000 * 2);
+  Object.keys(map).forEach(k => {
+    if (map[k] < cutoff) delete map[k];
+  });
+  localStorage.setItem('souqRecentOrders', JSON.stringify(map));
+}
+
+// ===== reCAPTCHA (مجاني من Google) =====
+// اعمل Site Key مجاني من: https://www.google.com/recaptcha/admin
+// بعدين حط المفتاح مكان YOUR_SITE_KEY_HERE
+const RECAPTCHA_SITE_KEY = 'YOUR_SITE_KEY_HERE';
+let recaptchaWidgetId = null;
+let recaptchaSolved = false;
+
+function onRecaptchaSuccess() {
+  recaptchaSolved = true;
+}
+
+function onRecaptchaExpired() {
+  recaptchaSolved = false;
+}
+
+function renderRecaptchaIfNeeded() {
+  const container = document.getElementById('order-recaptcha');
+  if (!container) return;
+  if (typeof grecaptcha === 'undefined' || RECAPTCHA_SITE_KEY === 'YOUR_SITE_KEY_HERE') {
+    recaptchaSolved = true;
+    container.innerHTML = '<p style="font-size:12px;color:#888;text-align:center;margin:8px 0;">reCAPTCHA مش مفعّل (حط Site Key عشان يتفعل)</p>';
+    return;
+  }
+  if (recaptchaWidgetId === null) {
+    try {
+      recaptchaWidgetId = grecaptcha.render('order-recaptcha', {
+        sitekey: RECAPTCHA_SITE_KEY,
+        callback: onRecaptchaSuccess,
+        'expired-callback': onRecaptchaExpired
+      });
+    } catch (e) {
+      console.warn('reCAPTCHA render error:', e);
+      recaptchaSolved = true;
+    }
+  }
+}
+
 /* ========== Firebase Config ==========
    املأ البيانات دي من مشروعك في Firebase Console
    (Project settings → Your apps → SDK setup and configuration)
@@ -1903,6 +1969,12 @@ function validateAndOpenTerms() {
     return;
   }
 
+  // حماية من التكرار مبكرًا
+  if (isPhoneRecentlyUsed(phone)) {
+    alert('تم استلام طلب من هذا الرقم مؤخرًا.\nانتظر ' + ORDER_COOLDOWN_MINUTES + ' دقيقة قبل إرسال طلب جديد.');
+    return;
+  }
+
   closeCartModal();
   document.getElementById('termsModal').classList.add('active');
 }
@@ -2165,6 +2237,9 @@ function openOrderConfirmationModal() {
   const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
   const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
 
+  // عرض reCAPTCHA
+  setTimeout(() => renderRecaptchaIfNeeded(), 300);
+
   generatedOrderId = generateStrongOrderId();
 
   let productsHtml = cart.map(item => `
@@ -2214,6 +2289,18 @@ async function finalizeOrder() {
 
   if (!isValidEgyptianMobile(phone)) {
     alert('رقم الهاتف غير صحيح. لا يمكن إتمام الطلب.');
+    return;
+  }
+
+  // حماية من التكرار
+  if (isPhoneRecentlyUsed(phone)) {
+    alert('تم استلام طلب من هذا الرقم مؤخرًا.\nانتظر ' + ORDER_COOLDOWN_MINUTES + ' دقيقة قبل إرسال طلب جديد.');
+    return;
+  }
+
+  // التحقق من reCAPTCHA
+  if (!recaptchaSolved && RECAPTCHA_SITE_KEY !== 'YOUR_SITE_KEY_HERE') {
+    alert('يرجى تأكيد أنك لست روبوت (reCAPTCHA) قبل إرسال الطلب.');
     return;
   }
 
@@ -2285,6 +2372,9 @@ async function finalizeOrder() {
 
   // حفظ الطلب على السحابة (أو محلياً كاحتياطي)
   await saveOrderToCloud(newOrderRecord);
+
+  // تسجيل الرقم عشان منع التكرار
+  markPhoneAsUsed(phone);
 
 
   let msg =
@@ -2435,12 +2525,34 @@ async function updateOrderStatus(orderId, newCode) {
   await searchOrderTracking();
 }
 
+// رمز سري لتفعيل وضع الإدارة من خانة التتبع (اختياري)
+const ADMIN_SECRET_CODE = 'ADMIN2026';
+
+function tryUnlockAdmin(code) {
+  if (code && code.trim().toUpperCase() === ADMIN_SECRET_CODE) {
+    isAdminMode = true;
+    const hint = document.getElementById('adminHint');
+    if (hint) {
+      hint.style.display = 'block';
+      hint.innerText = '🔐 وضع الإدارة مفعّل — تقدر تغيّر حالة أي طلب';
+    }
+    alert('تم تفعيل وضع الإدارة بنجاح');
+    return true;
+  }
+  return false;
+}
+
 async function searchOrderTracking() {
   const searchId = document.getElementById('trackInputId').value.trim();
   const resultBox = document.getElementById('trackingResultContainer');
 
   if (!searchId) {
     alert('يرجى إدخال رقم الطلب أولاً');
+    return;
+  }
+
+  if (!resultBox) {
+    console.error('trackingResultContainer مش موجود في الصفحة');
     return;
   }
 
