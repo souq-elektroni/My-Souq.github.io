@@ -44,7 +44,7 @@ function markPhoneAsUsed(phone) {
 // ===== reCAPTCHA (مجاني من Google) =====
 // اعمل Site Key مجاني من: https://www.google.com/recaptcha/admin
 // بعدين حط المفتاح مكان YOUR_SITE_KEY_HERE
-const RECAPTCHA_SITE_KEY = 'YOUR_SITE_KEY_HERE';
+const RECAPTCHA_SITE_KEY = '6Lc1X9QtAAAAAO9fudClqmrzRq8MnnN2f7bIr7M4';
 let recaptchaWidgetId = null;
 let recaptchaSolved = false;
 
