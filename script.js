@@ -15,6 +15,107 @@ let otpRequestInProgress = false;
 // ===== حماية من التكرار =====
 const ORDER_COOLDOWN_MINUTES = 15; // ممنوع طلب جديد من نفس الرقم قبل مرور 15 دقيقة
 
+// ===== وضع الصيانة (يتحكم فيه الأدمن من الصفحة) =====
+let maintenanceModeActive = localStorage.getItem('souqMaintenance') === '1';
+
+function applyMaintenanceMode() {
+  // الأدمن المسجل دخوله يقدر يشوف الموقع حتى لو الصيانة شغالة
+  if (isAdminMode && currentAdminUser) {
+    const overlay = document.getElementById('maintenanceOverlay');
+    if (overlay) overlay.style.display = 'none';
+    document.body.style.overflow = '';
+    updateMaintenanceButton();
+    return;
+  }
+  const overlay = document.getElementById('maintenanceOverlay');
+  if (!overlay) return;
+  if (maintenanceModeActive) {
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  } else {
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  updateMaintenanceButton();
+}
+
+function updateMaintenanceButton() {
+  const btn = document.getElementById('maintenanceToggleBtn');
+  if (!btn) return;
+  if (maintenanceModeActive) {
+    btn.textContent = '✅ إلغاء الصيانة';
+    btn.style.background = '#2e7d32';
+  } else {
+    btn.textContent = '🔧 تفعيل الصيانة';
+    btn.style.background = '#e65100';
+  }
+}
+
+async function loadMaintenanceFromCloud() {
+  if (!firebaseReady || !db) {
+    applyMaintenanceMode();
+    return;
+  }
+  try {
+    const snap = await db.collection('settings').doc('site').get();
+    if (snap.exists && typeof snap.data().maintenance === 'boolean') {
+      maintenanceModeActive = snap.data().maintenance;
+      localStorage.setItem('souqMaintenance', maintenanceModeActive ? '1' : '0');
+    }
+  } catch (e) {
+    console.warn('تعذر قراءة وضع الصيانة:', e);
+  }
+  applyMaintenanceMode();
+}
+
+async function toggleMaintenanceMode() {
+  if (!isAdminMode || !currentAdminUser) {
+    alert('يجب تسجيل دخول الأدمن أولاً');
+    return;
+  }
+  const newValue = !maintenanceModeActive;
+  const confirmMsg = newValue
+    ? 'هل تريد تفعيل وضع الصيانة؟\nالزوار لن يتمكنوا من استخدام الموقع.'
+    : 'هل تريد إلغاء وضع الصيانة وفتح الموقع للزوار؟';
+  if (!confirm(confirmMsg)) return;
+
+  maintenanceModeActive = newValue;
+  localStorage.setItem('souqMaintenance', newValue ? '1' : '0');
+
+  if (firebaseReady && db) {
+    try {
+      await db.collection('settings').doc('site').set({
+        maintenance: newValue,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedBy: currentAdminUser.email || 'admin'
+      }, { merge: true });
+    } catch (e) {
+      console.error('فشل حفظ وضع الصيانة:', e);
+      alert('تم التغيير محليًا، لكن فشل الحفظ على السحابة. تأكد من قواعد Firestore.');
+    }
+  }
+
+  applyMaintenanceMode();
+  alert(newValue ? 'تم تفعيل وضع الصيانة ✅' : 'تم فتح الموقع للزوار ✅');
+}
+
+// ===== جلب IP العميل (مجاني) =====
+async function getClientIP() {
+  try {
+    const res = await fetch('https://api.ipify.org?format=json', { timeout: 4000 });
+    if (!res.ok) return 'unknown';
+    const data = await res.json();
+    return data.ip || 'unknown';
+  } catch (e) {
+    try {
+      const res2 = await fetch('https://ipapi.co/ip/');
+      if (res2.ok) return (await res2.text()).trim() || 'unknown';
+    } catch (_) {}
+    return 'unknown';
+  }
+}
+
+
 function getRecentOrdersMap() {
   try {
     return JSON.parse(localStorage.getItem('souqRecentOrders') || '{}');
@@ -2287,6 +2388,14 @@ async function finalizeOrder() {
   const phone = normalizeEgyptianPhone(document.getElementById('custPhone').value);
   const address = document.getElementById('custAddress').value.trim();
 
+  // Honeypot: لو البوت ملأ الخانة المخفية نرفض الطلب بصمت
+  const honeypot = document.getElementById('website_url');
+  if (honeypot && honeypot.value.trim() !== '') {
+    console.warn('Honeypot triggered - bot blocked');
+    alert('حدث خطأ غير متوقع. حاول مرة أخرى.');
+    return;
+  }
+
   if (!isValidEgyptianMobile(phone)) {
     alert('رقم الهاتف غير صحيح. لا يمكن إتمام الطلب.');
     return;
@@ -2303,6 +2412,9 @@ async function finalizeOrder() {
     alert('يرجى تأكيد أنك لست روبوت (reCAPTCHA) قبل إرسال الطلب.');
     return;
   }
+
+  // جلب IP العميل
+  const clientIP = await getClientIP();
 
   const selectedPayRadio =
     document.querySelector(
@@ -2358,7 +2470,8 @@ async function finalizeOrder() {
     statusCode: 0, // 0: تحت التنفيذ | 1: تم الحجز | 2: جاري الشحن | 3: تم التوريد
     status: 'تحت التنفيذ 📦',
     date: new Date().toLocaleDateString('ar-EG'),
-    createdAt: Date.now()
+    createdAt: Date.now(),
+    clientIP: clientIP || 'unknown'
   };
 
   // حفظ بيانات العميل للمرة الجاية
@@ -2705,6 +2818,7 @@ function handleDeepLink() {
 function openAdminOrdersModal() {
   if (!isAdminMode || !currentAdminUser) { document.getElementById('adminLoginModal')?.classList.add('active'); return; }
   document.getElementById('adminOrdersModal').classList.add('active');
+  updateMaintenanceButton();
   loadAllOrdersAdmin();
 }
 
@@ -2854,6 +2968,8 @@ window.addEventListener('scroll', () => {
 
 window.onload = function() {
   initFirebase();
+  // بعد تهيئة Firebase نقرأ وضع الصيانة من السحابة
+  setTimeout(() => loadMaintenanceFromCloud(), 800);
   if (localStorage.getItem('souqDarkMode') === '1') {
     document.body.classList.add('dark-mode');
     const btn = document.getElementById('themeToggle');
