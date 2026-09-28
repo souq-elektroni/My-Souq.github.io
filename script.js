@@ -699,13 +699,35 @@ async function finalizeOrder() {
   const addressEl = document.getElementById('custAddress');
 
   const name = nameEl ? nameEl.value.trim() : '';
-  const phone = phoneEl ? phoneEl.value.trim() : '';
+  const rawPhone = phoneEl ? phoneEl.value.trim() : '';
   const address = addressEl ? addressEl.value.trim() : '';
+
+  // تحويل الأرقام العربية/الفارسية إلى أرقام إنجليزية، مع إزالة المسافات والشرطات
+  const phone = rawPhone
+    .replace(/[٠-٩]/g, digit => String(digit.charCodeAt(0) - 1632))
+    .replace(/[۰-۹]/g, digit => String(digit.charCodeAt(0) - 1776))
+    .replace(/[\s-]/g, '');
 
   // التحقق من بيانات العميل والسلة قبل إنشاء الطلب
   if (!name || !phone || !address) {
     alert('يرجى استكمال كافة بيانات الشحن المطلوبة');
     return;
+  }
+
+  // التحقق الصارم من رقم الموبايل المصري: 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015
+  const egyptianMobileRegex = /^01[0125][0-9]{8}$/;
+  if (!egyptianMobileRegex.test(phone)) {
+    if (phoneEl) {
+      phoneEl.focus();
+      phoneEl.setCustomValidity('أدخل رقم موبايل مصري صحيح مكون من 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015');
+    }
+    alert('رقم الهاتف غير صحيح. يجب إدخال رقم موبايل مصري صحيح مكون من 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015.');
+    return;
+  }
+
+  if (phoneEl) {
+    phoneEl.setCustomValidity('');
+    phoneEl.value = phone;
   }
 
   if (!Array.isArray(cart) || cart.length === 0) {
@@ -818,6 +840,31 @@ function shareProduct() {
 
 // ===== Initializing =====
 window.addEventListener('DOMContentLoaded', () => {
+  // تقييد خانة الهاتف أثناء الكتابة إلى 11 رقم فقط
+  const custPhoneInput = document.getElementById('custPhone');
+  if (custPhoneInput) {
+    custPhoneInput.setAttribute('inputmode', 'numeric');
+    custPhoneInput.setAttribute('autocomplete', 'tel');
+    custPhoneInput.setAttribute('maxlength', '11');
+    custPhoneInput.setAttribute('minlength', '11');
+    custPhoneInput.setAttribute('pattern', '01[0125][0-9]{8}');
+
+    custPhoneInput.addEventListener('input', function () {
+      this.value = this.value
+        .replace(/[٠-٩]/g, digit => String(digit.charCodeAt(0) - 1632))
+        .replace(/[۰-۹]/g, digit => String(digit.charCodeAt(0) - 1776))
+        .replace(/\D/g, '')
+        .slice(0, 11);
+
+      const valid = /^01[0125][0-9]{8}$/.test(this.value);
+      this.setCustomValidity(
+        valid || this.value === ''
+          ? ''
+          : 'أدخل رقم موبايل مصري صحيح مكون من 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015'
+      );
+    });
+  }
+
   loadRealProducts();
   updateCartCount();
 
