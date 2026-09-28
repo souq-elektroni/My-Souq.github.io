@@ -1727,7 +1727,7 @@
       font-size: 12px;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(21, 101, 192, 0.25);
-      display: flex;
+      display: none;
       align-items: center;
       gap: 5px;
       border: 1px solid #90caf9;
@@ -2096,7 +2096,7 @@
 
   <div class="top-actions">
     <button class="theme-toggle" id="themeToggle" onclick="toggleDarkMode()" title="الوضع الليلي">🌙</button>
-    <div class="admin-orders-trigger" id="adminOrdersBtn" onclick="handleAdminButton()">
+    <div class="admin-orders-trigger" id="adminOrdersBtn" onclick="openAdminOrdersModal()">
       📋 الطلبات
     </div>
     <div class="track-trigger" onclick="openTrackingModal()">
@@ -2708,20 +2708,6 @@
     <img id="zoomImage" src="" alt="zoom">
   </div>
 
-  <!-- Admin Login Modal -->
-  <div class="modal-overlay" id="adminLoginModal">
-    <div class="modal-content" style="max-width:420px; padding:18px;">
-      <button class="close-btn" onclick="closeAdminLogin()">✕</button>
-      <div class="terms-header">🔐 دخول الإدارة</div>
-      <div class="customer-form">
-        <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="adminEmail" placeholder="البريد الإلكتروني"></div>
-        <div class="form-group"><label>كلمة المرور</label><input type="password" id="adminPassword" placeholder="كلمة المرور"></div>
-        <button class="proceed-btn" style="display:block;" onclick="loginAdmin()">دخول</button>
-        <p id="adminLoginMessage" style="font-size:12px;color:#c62828;text-align:center;"></p>
-      </div>
-    </div>
-  </div>
-
   <!-- Admin Orders Modal -->
   <div class="modal-overlay" id="adminOrdersModal">
     <div class="modal-content" style="max-width:560px; padding:16px;">
@@ -2782,21 +2768,21 @@
     let products = [];
     let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
     let ordersHistory = JSON.parse(localStorage.getItem("souqOrdersHistory")) || [];
-    let isAdminMode = false;
-    let currentAdminUser = null;
+    let isAdminMode = localStorage.getItem("souqAdminUnlocked") === "1";
+    const ADMIN_PIN = "mysouq2026"; // غيّر الرمز ده لو حابب
 
     /* ========== Firebase Config ==========
        املأ البيانات دي من مشروعك في Firebase Console
        (Project settings → Your apps → SDK setup and configuration)
     ====================================== */
     const FIREBASE_CONFIG = {
-      apiKey: "AIzaSyCGSFAnYRmauxCAa7HmyVenPlWy-KJHsxg",
+      apiKey: "AIzaSyCGSFAnYRmauxCAa7HmyVenPWIy-KJHsxg",
       authDomain: "my-souq0.firebaseapp.com",
       projectId: "my-souq0",
       storageBucket: "my-souq0.firebasestorage.app",
       messagingSenderId: "334605657240",
-      appId: "1:334605657240:web:9f9adbcbdfa60e74855ced",
-      measurementId: "G-XT0QZ1T2Y0"
+      appId: "1:334605657240:web:6598cf95d6a010ea855ced",
+      measurementId: "G-R11Z1VRYTZ"
     };
 
     let db = null;
@@ -2813,7 +2799,6 @@
         }
         db = firebase.firestore();
         firebaseReady = true;
-        firebase.auth().onAuthStateChanged(user => { currentAdminUser = user; isAdminMode = !!user; });
         console.log("Firebase جاهز ✅");
       } catch (e) {
         console.error("خطأ Firebase:", e);
@@ -5239,28 +5224,11 @@ ${selectedImage}
       }
     }
 
-    function handleAdminButton() {
-      if (isAdminMode && currentAdminUser) openAdminOrdersModal();
-      else document.getElementById('adminLoginModal')?.classList.add('active');
-    }
-    function closeAdminLogin() { document.getElementById('adminLoginModal')?.classList.remove('active'); }
-    async function loginAdmin() {
-      const email = document.getElementById('adminEmail').value.trim();
-      const password = document.getElementById('adminPassword').value;
-      const msg = document.getElementById('adminLoginMessage');
-      try {
-        const result = await firebase.auth().signInWithEmailAndPassword(email, password);
-        currentAdminUser = result.user; isAdminMode = true;
-        closeAdminLogin(); openAdminOrdersModal();
-      } catch (e) { console.error(e); msg.textContent = 'بيانات الدخول غير صحيحة أو حدث خطأ'; }
-    }
-    async function logoutAdmin() {
-      await firebase.auth().signOut(); isAdminMode = false; currentAdminUser = null;
-      closeAdminOrdersModal();
-    }
-
     function openAdminOrdersModal() {
-      if (!isAdminMode || !currentAdminUser) { document.getElementById('adminLoginModal')?.classList.add('active'); return; }
+      if (!isAdminMode) {
+        alert('فعّل وضع الإدارة أولاً من تتبع الطلب (اكتب الرمز في خانة البحث)');
+        return;
+      }
       document.getElementById('adminOrdersModal').classList.add('active');
       loadAllOrdersAdmin();
     }
