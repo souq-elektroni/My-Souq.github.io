@@ -2088,6 +2088,14 @@
 
 <body>
 
+  <!-- وضع الصيانة -->
+  <div id="maintenanceOverlay" style="display:none;position:fixed;inset:0;background:rgba(18,16,20,0.97);z-index:99999;align-items:center;justify-content:center;flex-direction:column;color:#f7f0f2;text-align:center;padding:20px;">
+    <div style="font-size:48px;margin-bottom:16px;">🔧</div>
+    <h2 style="font-size:22px;font-weight:900;margin-bottom:10px;color:#f0a8b4;">الموقع تحت الصيانة</h2>
+    <p style="font-size:15px;opacity:0.85;max-width:320px;line-height:1.6;">نقوم حالياً ببعض التحديثات. سنعود قريباً إن شاء الله.</p>
+  </div>
+
+
   <div id="toastNotification">✓ تم إضافة المنتج إلى السلة بنجاح</div>
 
   <div class="brand-badge">
@@ -2463,6 +2471,12 @@
 
         </div>
 
+        <!-- Honeypot ضد البوتات - مخفي تمامًا -->
+        <div style="position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden;" aria-hidden="true">
+          <label for="website_url">الموقع</label>
+          <input type="text" id="website_url" name="website_url" tabindex="-1" autocomplete="off">
+        </div>
+
       </div>
 
       <div class="cart-footer">
@@ -2756,7 +2770,10 @@
     <div class="modal-content" style="max-width:560px; padding:16px;">
       <button class="close-btn" onclick="closeAdminOrdersModal()">✕</button>
       <div class="terms-header" style="font-size:17px; margin-bottom:10px;">📋 إدارة كل الطلبات</div>
-      <button id="adminLogoutBtn" onclick="logoutAdmin()" style="background:#c62828;color:white;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:bold;margin-bottom:8px;">خروج</button>
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;">
+        <button id="adminLogoutBtn" onclick="logoutAdmin()" style="background:#c62828;color:white;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:bold;">خروج</button>
+        <button id="maintenanceToggleBtn" onclick="toggleMaintenanceMode()" style="background:#e65100;color:white;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:bold;">🔧 تفعيل الصيانة</button>
+      </div>
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">ابحث بالاسم أو رقم التليفون أو رقم الطلب — غيّر الحالة وانسخ رسالة الشحن</p>
       <input
         type="text"
