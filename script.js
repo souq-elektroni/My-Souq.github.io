@@ -693,19 +693,33 @@ function copyInstapay(e) {
   alert('تم نسخ رقم انستا باي بنجاح');
 }
 
-function finalizeOrder() {
+async function finalizeOrder() {
   const nameEl = document.getElementById('custName');
   const phoneEl = document.getElementById('custPhone');
   const addressEl = document.getElementById('custAddress');
-  
+
   const name = nameEl ? nameEl.value.trim() : '';
   const phone = phoneEl ? phoneEl.value.trim() : '';
   const address = addressEl ? addressEl.value.trim() : '';
-  
+
+  // التحقق من بيانات العميل والسلة قبل إنشاء الطلب
+  if (!name || !phone || !address) {
+    alert('يرجى استكمال كافة بيانات الشحن المطلوبة');
+    return;
+  }
+
+  if (!Array.isArray(cart) || cart.length === 0) {
+    alert('السلة فارغة، لا يمكن إتمام الطلب');
+    return;
+  }
+
   const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
-  const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
-  
-  let itemsTest = cart.map((i, index) => {
+  const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod'
+    ? 'الدفع عند الاستلام'
+    : 'Instapay';
+
+  // تجهيز المنتجات للرسالة المرسلة على واتساب
+  const itemsTest = cart.map((i, index) => {
     let itemText = `${index + 1}. ${i.title}\n- المقاس: ${i.size}\n- السعر: ${i.price} ج.م (الكمية: ${i.qty})`;
     if (i.image) {
       itemText += `\n- صورة المنتج: ${i.image}`;
@@ -714,28 +728,71 @@ function finalizeOrder() {
   }).join('\n\n');
 
   const totalPriceEl = document.getElementById('cartTotalPrice');
-  let totalText = totalPriceEl ? totalPriceEl.innerText : '0 ج.م';
+  const totalText = totalPriceEl ? totalPriceEl.innerText : '0 ج.م';
 
-  let msg = `🛒 طلب جديد من متجر My Souq\n\n`;
-  msg += `بيانات العميل:\n`;
-  msg += `• الاسم: ${name}\n`;
-  msg += `• رقم التواصل: ${phone}\n`;
-  msg += `• العنوان: ${address}\n`;
-  msg += `• طريقة الدفع: ${payMethod}\n\n`;
-  msg += `المنتجات المطلوبة:\n${itemsTest}\n\n`;
-  msg += `الإجمالي الكلي: ${totalText}\n\n`;
-  msg += `إقرار العميل: أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
+  // رقم طلب فريد
+  const generatedOrderId =
+    'ORD-' +
+    Date.now() +
+    '-' +
+    Math.random().toString(36).substring(2, 7).toUpperCase();
 
-  const encodedMsg = encodeURIComponent(msg);
-  window.open(`https://wa.me/201116339905?text=${encodedMsg}`, '_blank');
+  // نسخة مستقلة من السلة حتى لا تتغير بيانات الطلب بعد تفريغ السلة
+  const orderItems = cart.map(item => ({ ...item }));
 
-  const paymentModal = document.getElementById('paymentModal');
-  const successModal = document.getElementById('successModal');
-  if (paymentModal) paymentModal.classList.remove('active');
-  if (successModal) successModal.classList.add('active');
-  
-  cart = [];
-  updateCartCount();
+  // سجل الطلب الذي ستقرأه لوحة الإدارة
+  const newOrderRecord = {
+    orderId: generatedOrderId,
+    name: name,
+    phone: phone,
+    address: address,
+    payMethod: payMethod,
+    total: totalText,
+    items: orderItems,
+    statusCode: 0,
+    status: 'طلب جديد',
+    date: new Date().toLocaleDateString('ar-EG'),
+    createdAt: Date.now()
+  };
+
+  try {
+    // حفظ الطلب في Firebase Realtime Database.
+    // هذا يعتمد على تحميل Firebase Database في صفحة المتجر بنفس طريقة لوحة الإدارة.
+    if (typeof firebase === 'undefined' || !firebase.database) {
+      throw new Error('Firebase Database غير مهيأة في الموقع. تأكد من تحميل Firebase Realtime Database وإعدادها قبل script.js.');
+    }
+
+    const database = firebase.database();
+    await database.ref('orders/' + generatedOrderId).set(newOrderRecord);
+
+    // تجهيز رسالة واتساب بعد نجاح حفظ الطلب
+    let msg = `🛒 طلب جديد من متجر My Souq\n\n`;
+    msg += `رقم الطلب: ${generatedOrderId}\n\n`;
+    msg += `بيانات العميل:\n`;
+    msg += `• الاسم: ${name}\n`;
+    msg += `• رقم التواصل: ${phone}\n`;
+    msg += `• العنوان: ${address}\n`;
+    msg += `• طريقة الدفع: ${payMethod}\n\n`;
+    msg += `المنتجات المطلوبة:\n${itemsTest}\n\n`;
+    msg += `الإجمالي الكلي: ${totalText}\n\n`;
+    msg += `إقرار العميل: أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
+
+    const encodedMsg = encodeURIComponent(msg);
+    window.open(`https://wa.me/201116339905?text=${encodedMsg}`, '_blank');
+
+    const paymentModal = document.getElementById('paymentModal');
+    const successModal = document.getElementById('successModal');
+    if (paymentModal) paymentModal.classList.remove('active');
+    if (successModal) successModal.classList.add('active');
+
+    // تفريغ السلة فقط بعد نجاح حفظ الطلب
+    cart = [];
+    discountRate = 0;
+    updateCartCount();
+  } catch (error) {
+    console.error('خطأ أثناء حفظ الطلب:', error);
+    alert(`تعذر حفظ الطلب في النظام.\n\n${error.message || error}`);
+  }
 }
 
 function closeSuccessModal() {
