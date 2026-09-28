@@ -4,11 +4,12 @@ let ordersHistory = JSON.parse(localStorage.getItem("souqOrdersHistory")) || [];
 let isAdminMode = false;
 let currentAdminUser = null;
 
-// ===== Phone OTP Verification =====
-let phoneConfirmationResult = null;
-let phoneRecaptchaVerifier = null;
+// ===== Phone Validation (بدون OTP حالياً) =====
+// تم تعطيل نظام OTP مؤقتاً بناءً على طلب صاحب الموقع
 let phoneVerified = false;
 let verifiedPhone = '';
+let phoneConfirmationResult = null;
+let phoneRecaptchaVerifier = null;
 let otpRequestInProgress = false;
 
 /* ========== Firebase Config ==========
@@ -56,32 +57,24 @@ function initFirebase() {
   }
 }
 
-// حفظ طلب على Firebase + محلياً
+// حفظ طلب على Firebase + محلياً (بدون شرط OTP)
 async function saveOrderToCloud(orderRecord) {
-  // لا نسمح بالحفظ بدون جلسة Firebase Authentication برقم هاتف موثَّق.
-  const authUser = firebaseReady && firebase.auth ? firebase.auth().currentUser : null;
-  const normalizedOrderPhone = normalizeEgyptianPhone(orderRecord.phone || '');
-  const authPhone = authUser && authUser.phoneNumber
-    ? authUser.phoneNumber.replace(/^\+20/, '0')
-    : '';
-
-  if (!authUser || !authUser.phoneNumber || authPhone !== normalizedOrderPhone) {
-    console.error('رفض حفظ الطلب: رقم الهاتف لم يتم التحقق منه عبر Firebase OTP.');
-    return false;
+  if (!firebaseReady || !db) {
+    // حفظ محلي كاحتياطي
+    const exists = ordersHistory.findIndex(o => o.orderId === orderRecord.orderId);
+    if (exists >= 0) ordersHistory[exists] = orderRecord;
+    else ordersHistory.push(orderRecord);
+    localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
+    return true;
   }
-
-  if (!firebaseReady || !db) return false;
 
   try {
     await db.collection("orders").doc(orderRecord.orderId).set({
       ...orderRecord,
       items: orderRecord.items || [],
-      phoneVerified: true,
-      verifiedPhone: authUser.phoneNumber,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    // التخزين المحلي بعد نجاح الحفظ السحابي فقط.
     const exists = ordersHistory.findIndex(o => o.orderId === orderRecord.orderId);
     if (exists >= 0) ordersHistory[exists] = orderRecord;
     else ordersHistory.push(orderRecord);
@@ -90,7 +83,12 @@ async function saveOrderToCloud(orderRecord) {
     return true;
   } catch (e) {
     console.error("فشل حفظ الطلب على السحابة:", e);
-    return false;
+    // احتياطي محلي
+    const exists = ordersHistory.findIndex(o => o.orderId === orderRecord.orderId);
+    if (exists >= 0) ordersHistory[exists] = orderRecord;
+    else ordersHistory.push(orderRecord);
+    localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
+    return true;
   }
 }
 
@@ -1905,12 +1903,6 @@ function validateAndOpenTerms() {
     return;
   }
 
-  // لا نسمح بالوصول للشروط قبل إثبات ملكية الرقم بالـOTP.
-  if (!phoneVerified || verifiedPhone !== phone) {
-    openPhoneOtpModal(phone);
-    return;
-  }
-
   closeCartModal();
   document.getElementById('termsModal').classList.add('active');
 }
@@ -2099,16 +2091,6 @@ function declineTerms() {
 
 
 function proceedToPayment() {
-  const currentPhone = normalizeEgyptianPhone(
-    document.getElementById('custPhone')?.value || ''
-  );
-  if (!phoneVerified || verifiedPhone !== currentPhone) {
-    alert('لا يمكن متابعة الطلب قبل تأكيد رقم الهاتف بكود SMS.');
-    document.getElementById('termsModal')?.classList.remove('active');
-    openPhoneOtpModal(currentPhone);
-    return;
-  }
-
   document.getElementById('termsModal')?.classList.remove('active');
   document.getElementById('paymentModal')?.classList.add('active');
 }
@@ -2173,14 +2155,6 @@ function copyInstapay(e) {
 
 
 function openOrderConfirmationModal() {
-  const currentPhone = normalizeEgyptianPhone(document.getElementById('custPhone')?.value || '');
-  if (!phoneVerified || verifiedPhone !== currentPhone) {
-    alert('لا يمكن تأكيد الطلب قبل تأكيد رقم الهاتف بكود SMS.');
-    document.getElementById('paymentModal')?.classList.remove('active');
-    openPhoneOtpModal(currentPhone);
-    return;
-  }
-
   document.getElementById('paymentModal').classList.remove('active');
 
   const name = document.getElementById('custName').value.trim();
@@ -2234,46 +2208,14 @@ function backToCustomerData() {
 
 
 async function finalizeOrder() {
-
-  const currentPhone = normalizeEgyptianPhone(document.getElementById('custPhone')?.value || '');
-  if (!phoneVerified || verifiedPhone !== currentPhone) {
-    alert('لا يمكن إرسال الطلب قبل تأكيد رقم الهاتف بكود SMS.');
-    document.getElementById('confirmationModal')?.classList.remove('active');
-    openPhoneOtpModal(currentPhone);
-    return;
-  }
-
-  const name =
-    document
-      .getElementById('custName')
-      .value
-      .trim();
-
-
-  const phone =
-    document
-      .getElementById('custPhone')
-      .value
-      .trim();
-
-
-  const address =
-    document
-      .getElementById('custAddress')
-      .value
-      .trim();
-
+  const name = document.getElementById('custName').value.trim();
+  const phone = normalizeEgyptianPhone(document.getElementById('custPhone').value);
+  const address = document.getElementById('custAddress').value.trim();
 
   if (!isValidEgyptianMobile(phone)) {
     alert('رقم الهاتف غير صحيح. لا يمكن إتمام الطلب.');
     return;
   }
-
-  if (!phoneVerified || verifiedPhone !== phone) {
-    alert('رقم الهاتف لم يتم التحقق منه بكود SMS.');
-    return;
-  }
-
 
   const selectedPayRadio =
     document.querySelector(
@@ -2341,13 +2283,8 @@ async function finalizeOrder() {
   });
   localStorage.setItem('souqProductSales', JSON.stringify(productSales));
 
-  // حفظ على السحابة بعد نجاح التحقق بالـOTP فقط.
-  const cloudSaved = await saveOrderToCloud(newOrderRecord);
-
-  if (!cloudSaved) {
-    alert('لم يتم حفظ الطلب لأن رقم الهاتف لم يتم التحقق منه عبر SMS أو حدث خطأ في Firebase. لم يتم إرسال الطلب عبر واتساب.');
-    return;
-  }
+  // حفظ الطلب على السحابة (أو محلياً كاحتياطي)
+  await saveOrderToCloud(newOrderRecord);
 
 
   let msg =
