@@ -384,7 +384,7 @@
 
     header {
       text-align: center;
-      padding: 58px 5px 12px;
+      padding: 58px 5px 12px; /* مساحة علوية للأزرار الثابتة بدون تغطية العنوان */
       max-width: 950px;
       margin: 0 auto;
     }
@@ -610,6 +610,7 @@
       }
     }
 
+    /* تحسين شبكة المنتجات على الهواتف لتناسب عمودين بمسافات متناسقة وجميلة */
     .products-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -1696,6 +1697,7 @@
       }
     }
 
+    /* Dark mode toggle */
     .theme-toggle {
       background: var(--burgundy-soft);
       color: white;
@@ -1793,6 +1795,7 @@
       }
     }
 
+    /* Image zoom modal */
     .zoom-overlay {
       position: fixed;
       inset: 0;
@@ -1863,6 +1866,7 @@
       font-weight: 800;
     }
 
+    /* ===== Dark mode polish ===== */
     body.dark-mode .product-card,
     body.dark-mode .modal-content,
     body.dark-mode .controls-wrapper {
@@ -2077,27 +2081,6 @@
       color: #f5eef0;
     }
 
-    /* تنسيقات حماية لوحة التحكم وخطأ الهاتف */
-    .admin-pin-overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.7);
-      display: none;
-      justify-content: center; align-items: center;
-      z-index: 3500;
-    }
-    .admin-pin-overlay.active { display: flex; }
-    .admin-pin-box {
-      background: var(--card-cream);
-      padding: 20px;
-      border-radius: 14px;
-      width: 90%;
-      max-width: 340px;
-      text-align: center;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-    .error-input { border: 2px solid #c62828 !important; }
   </style>
 </head>
 
@@ -2112,7 +2095,7 @@
 
   <div class="top-actions">
     <button class="theme-toggle" id="themeToggle" onclick="toggleDarkMode()" title="الوضع الليلي">🌙</button>
-    <div class="admin-orders-trigger" id="adminOrdersBtn" onclick="requestAdminAccess()">
+    <div class="admin-orders-trigger" id="adminOrdersBtn" onclick="openAdminOrdersModal()">
       📋 الطلبات
     </div>
     <div class="track-trigger" onclick="openTrackingModal()">
@@ -2120,19 +2103,6 @@
     </div>
     <div class="cart-trigger" onclick="openCartModal()">
       🛒 السلة <span class="cart-count" id="cartCount">0</span>
-    </div>
-  </div>
-
-  <!-- نافذة إدخال رمز لوحة التحكم (Admin PIN Modal) -->
-  <div class="admin-pin-overlay" id="adminPinModal">
-    <div class="admin-pin-box">
-      <h3 style="color:var(--burgundy-soft); margin-bottom:10px; font-size:16px;">🔐 لوحة تحكم الإدارة</h3>
-      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">أدخل رمز المرور الخاص بالإدارة لعرض الطلبات:</p>
-      <input type="password" id="adminPinField" class="promo-input" placeholder="رمز المرور (PIN)" style="width:100%; margin-bottom:10px; text-align:center; font-size:14px; padding:10px;">
-      <div style="display:flex; gap:6px;">
-        <button onclick="verifyAdminAccess()" class="promo-btn" style="flex:1; padding:10px; font-size:13px;">دخول 👈</button>
-        <button onclick="closeAdminPinModal()" class="btn-decline" style="flex:1; padding:10px; font-size:13px;">إلغاء</button>
-      </div>
     </div>
   </div>
 
@@ -2470,7 +2440,7 @@
             type="tel"
             id="custPhone"
             placeholder="01xxxxxxxx"
-            oninput="validatePhoneInput(this); checkFormCompletion()"
+            oninput="checkFormCompletion()"
           >
 
         </div>
@@ -2798,7 +2768,7 @@
     let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
     let ordersHistory = JSON.parse(localStorage.getItem("souqOrdersHistory")) || [];
     let isAdminMode = localStorage.getItem("souqAdminUnlocked") === "1";
-    const ADMIN_PIN = "mysouq2026"; // رمز الحماية لوحة التحكم
+    const ADMIN_PIN = "mysouq2026"; // غيّر الرمز ده لو حابب
 
     /* ========== Firebase Config ==========
        املأ البيانات دي من مشروعك في Firebase Console
@@ -3596,21 +3566,6 @@
         address: document.getElementById('custAddress').value.trim()
       };
       localStorage.setItem('souqCustomerData', JSON.stringify(data));
-    }
-
-    // التحقق من صحة رقم الهاتف المصري (يبدأ بـ 01 ويتكون من 11 رقمًا صحيحًا)
-    function validateEgyptianPhone(phone) {
-      const regex = /^01[0125][0-9]{8}$/;
-      return regex.test(phone);
-    }
-
-    function validatePhoneInput(input) {
-      const val = input.value.trim();
-      if (val.length > 0 && !validateEgyptianPhone(val)) {
-        input.classList.add('error-input');
-      } else {
-        input.classList.remove('error-input');
-      }
     }
 
 
@@ -4637,7 +4592,7 @@ ${selectedImage}
 
       if (
         name &&
-        validateEgyptianPhone(phone) &&
+        phone &&
         address &&
         cart.length > 0
       ) {
@@ -4682,12 +4637,12 @@ ${selectedImage}
 
       if (
         !name ||
-        !validateEgyptianPhone(phone) ||
+        !phone ||
         !address
       ) {
 
         alert(
-          'يرجى التأكد من كتابة الاسم، العنوان، ورقم واتساب مصري صحيح (11 رقم يبدأ بـ 01)'
+          'يرجى استكمال كافة بيانات الشحن المطلوبة'
         );
 
         return;
@@ -5069,35 +5024,25 @@ ${selectedImage}
       document.getElementById('trackingModal').classList.remove('active');
     }
 
-    // دوال حماية لوحة التحكم (Admin PIN)
-    function requestAdminAccess() {
-      if (isAdminMode) {
-        openAdminOrdersModal();
-      } else {
-        document.getElementById('adminPinModal').classList.add('active');
-        document.getElementById('adminPinField').value = '';
-        document.getElementById('adminPinField').focus();
-      }
-    }
-
-    function closeAdminPinModal() {
-      document.getElementById('adminPinModal').classList.remove('active');
-    }
-
-    function verifyAdminAccess() {
-      const pin = document.getElementById('adminPinField').value.trim();
-      if (pin === ADMIN_PIN) {
+    function tryUnlockAdmin(inputVal) {
+      if (inputVal && inputVal.trim().toLowerCase() === ADMIN_PIN) {
         isAdminMode = true;
         localStorage.setItem("souqAdminUnlocked", "1");
-        closeAdminPinModal();
         const b = document.getElementById('adminOrdersBtn');
         if (b) b.classList.add('show');
-        alert('تم تفعيل وضع الإدارة بنجاح 🔐');
-        openAdminOrdersModal();
-      } else {
-        alert('كلمة المرور غير صحيحة!');
-        document.getElementById('adminPinField').value = '';
+        alert('تم تفعيل وضع الإدارة بنجاح 🔐\nظهر زر «الطلبات» فوق — تقدر تشوف كل الطلبات وتغيّر حالتها.');
+        document.getElementById('trackInputId').value = '';
+        const resultBox = document.getElementById('trackingResultContainer');
+        resultBox.style.display = 'block';
+        resultBox.innerHTML = `
+          <div style="font-weight:900; color:#2e7d32; margin-bottom:6px;">🔐 وضع الإدارة مفعّل</div>
+          <div style="font-size:12.5px; color:var(--text-muted);">
+            اضغط زر «📋 الطلبات» فوق عشان تشوف كل الطلبات، أو ابحث برقم طلب معيّن.
+          </div>
+        `;
+        return true;
       }
+      return false;
     }
 
     async function updateOrderStatus(orderId, newCode) {
@@ -5131,6 +5076,9 @@ ${selectedImage}
         alert('يرجى إدخال رقم الطلب أولاً');
         return;
       }
+
+      // لو كتب رمز الإدارة
+      if (tryUnlockAdmin(searchId)) return;
 
       resultBox.style.display = 'block';
       resultBox.innerHTML = `<div style="text-align:center; padding:12px; font-weight:800; color:var(--text-muted);">جاري البحث...</div>`;
@@ -5166,7 +5114,7 @@ ${selectedImage}
               <div style="display:flex; flex-wrap:wrap; gap:6px;">
                 ${ORDER_STATUSES.map(s => `
                   <button
-                    onclick="updateOrderStatus('${foundOrder.orderId}',${s.code})"
+                    onclick="updateOrderStatus('${foundOrder.orderId}', ${s.code})"
                     style="
                       flex:1; min-width:110px; padding:8px 6px; border-radius:8px; border:2px solid ${s.color};
                       background:${currentCode === s.code ? s.color : 'white'};
@@ -5211,7 +5159,11 @@ ${selectedImage}
             ❌ عذراً، لم يتم العثور على أي طلب بهذا الرقم
           </div>
           <div style="font-size: 11.5px; margin-top: 3px; color: var(--text-muted);">
-            تأكد من كتابة الرقم بشكل صحيح (مثال: MS-K7P2M9X4)
+            تأكد من كتابة الرقم بشكل صحيح (مثال: MS-K7P2M9X4)<br>
+            ${firebaseReady
+              ? 'الطلب مش موجود على السحابة. تأكد إن العميل خلّص الطلب بنجاح.'
+              : 'Firebase لسه مش متضبط — التتبع شغال محلياً فقط.'}
+            ${!isAdminMode ? '<br><br>للإدارة: اكتب رمز الإدارة في خانة البحث.' : ''}
           </div>
         `;
       }
@@ -5272,6 +5224,10 @@ ${selectedImage}
     }
 
     function openAdminOrdersModal() {
+      if (!isAdminMode) {
+        alert('فعّل وضع الإدارة أولاً من تتبع الطلب (اكتب الرمز في خانة البحث)');
+        return;
+      }
       document.getElementById('adminOrdersModal').classList.add('active');
       loadAllOrdersAdmin();
     }
