@@ -1727,7 +1727,7 @@
       font-size: 12px;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(21, 101, 192, 0.25);
-      display: none;
+      display: flex;
       align-items: center;
       gap: 5px;
       border: 1px solid #90caf9;
@@ -2714,8 +2714,8 @@
       <button class="close-btn" onclick="closeAdminLogin()">✕</button>
       <div class="terms-header">🔐 دخول الإدارة</div>
       <div class="customer-form">
-        <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="adminEmail" placeholder="البريد الإلكتروني" autocomplete="username"></div>
-        <div class="form-group"><label>كلمة المرور</label><input type="password" id="adminPassword" placeholder="كلمة المرور" autocomplete="current-password"></div>
+        <div class="form-group"><label>البريد الإلكتروني</label><input type="email" id="adminEmail" placeholder="البريد الإلكتروني"></div>
+        <div class="form-group"><label>كلمة المرور</label><input type="password" id="adminPassword" placeholder="كلمة المرور"></div>
         <button class="proceed-btn" style="display:block;" onclick="loginAdmin()">دخول</button>
         <p id="adminLoginMessage" style="font-size:12px;color:#c62828;text-align:center;"></p>
       </div>
@@ -2727,7 +2727,6 @@
     <div class="modal-content" style="max-width:560px; padding:16px;">
       <button class="close-btn" onclick="closeAdminOrdersModal()">✕</button>
       <div class="terms-header" style="font-size:17px; margin-bottom:10px;">📋 إدارة كل الطلبات</div>
-      <button id="adminLogoutBtn" onclick="logoutAdmin()" style="display:none;background:#c62828;color:white;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:bold;margin-bottom:8px;">خروج</button>
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">ابحث بالاسم أو رقم التليفون أو رقم الطلب — غيّر الحالة وانسخ رسالة الشحن</p>
       <input
         type="text"
@@ -2814,13 +2813,7 @@
         }
         db = firebase.firestore();
         firebaseReady = true;
-        firebase.auth().onAuthStateChanged(user => {
-          currentAdminUser = user; isAdminMode = !!user;
-          const adminBtn = document.getElementById('adminOrdersBtn');
-          const logoutBtn = document.getElementById('adminLogoutBtn');
-          if (isAdminMode) { adminBtn?.classList.add('show'); if (logoutBtn) logoutBtn.style.display = 'inline-block'; }
-          else { adminBtn?.classList.remove('show'); if (logoutBtn) logoutBtn.style.display = 'none'; }
-        });
+        firebase.auth().onAuthStateChanged(user => { currentAdminUser = user; isAdminMode = !!user; });
         console.log("Firebase جاهز ✅");
       } catch (e) {
         console.error("خطأ Firebase:", e);
@@ -5047,42 +5040,25 @@ ${selectedImage}
       document.getElementById('trackingModal').classList.remove('active');
     }
 
-    function handleAdminButton() {
-      if (isAdminMode && currentAdminUser) openAdminOrdersModal();
-      else document.getElementById('adminLoginModal')?.classList.add('active');
-    }
-
-    function closeAdminLogin() {
-      document.getElementById('adminLoginModal')?.classList.remove('active');
-    }
-
-    async function loginAdmin() {
-      const email = document.getElementById('adminEmail')?.value.trim();
-      const password = document.getElementById('adminPassword')?.value || '';
-      const message = document.getElementById('adminLoginMessage');
-      if (!email || !password) { if (message) message.textContent = 'اكتب البريد الإلكتروني وكلمة المرور'; return; }
-      try {
-        const result = await firebase.auth().signInWithEmailAndPassword(email, password);
-        currentAdminUser = result.user; isAdminMode = true;
-        document.getElementById('adminOrdersBtn')?.classList.add('show');
-        const logoutBtn = document.getElementById('adminLogoutBtn');
-        if (logoutBtn) logoutBtn.style.display = 'inline-block';
-        if (message) message.textContent = '';
-        closeAdminLogin(); openAdminOrdersModal();
-      } catch (error) {
-        console.error('Admin login error:', error);
-        if (message) message.textContent = 'بيانات الدخول غير صحيحة أو حدث خطأ';
+    function tryUnlockAdmin(inputVal) {
+      if (inputVal && inputVal.trim().toLowerCase() === ADMIN_PIN) {
+        isAdminMode = true;
+        localStorage.setItem("souqAdminUnlocked", "1");
+        const b = document.getElementById('adminOrdersBtn');
+        if (b) b.classList.add('show');
+        alert('تم تفعيل وضع الإدارة بنجاح 🔐\nظهر زر «الطلبات» فوق — تقدر تشوف كل الطلبات وتغيّر حالتها.');
+        document.getElementById('trackInputId').value = '';
+        const resultBox = document.getElementById('trackingResultContainer');
+        resultBox.style.display = 'block';
+        resultBox.innerHTML = `
+          <div style="font-weight:900; color:#2e7d32; margin-bottom:6px;">🔐 وضع الإدارة مفعّل</div>
+          <div style="font-size:12.5px; color:var(--text-muted);">
+            اضغط زر «📋 الطلبات» فوق عشان تشوف كل الطلبات، أو ابحث برقم طلب معيّن.
+          </div>
+        `;
+        return true;
       }
-    }
-
-    async function logoutAdmin() {
-      try {
-        await firebase.auth().signOut(); isAdminMode = false; currentAdminUser = null;
-        document.getElementById('adminOrdersBtn')?.classList.remove('show');
-        const logoutBtn = document.getElementById('adminLogoutBtn');
-        if (logoutBtn) logoutBtn.style.display = 'none';
-        closeAdminOrdersModal();
-      } catch (error) { console.error('Logout error:', error); }
+      return false;
     }
 
     async function updateOrderStatus(orderId, newCode) {
@@ -5263,11 +5239,28 @@ ${selectedImage}
       }
     }
 
+    function handleAdminButton() {
+      if (isAdminMode && currentAdminUser) openAdminOrdersModal();
+      else document.getElementById('adminLoginModal')?.classList.add('active');
+    }
+    function closeAdminLogin() { document.getElementById('adminLoginModal')?.classList.remove('active'); }
+    async function loginAdmin() {
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      const msg = document.getElementById('adminLoginMessage');
+      try {
+        const result = await firebase.auth().signInWithEmailAndPassword(email, password);
+        currentAdminUser = result.user; isAdminMode = true;
+        closeAdminLogin(); openAdminOrdersModal();
+      } catch (e) { console.error(e); msg.textContent = 'بيانات الدخول غير صحيحة أو حدث خطأ'; }
+    }
+    async function logoutAdmin() {
+      await firebase.auth().signOut(); isAdminMode = false; currentAdminUser = null;
+      closeAdminOrdersModal();
+    }
+
     function openAdminOrdersModal() {
-      if (!isAdminMode || !currentAdminUser) {
-        document.getElementById('adminLoginModal')?.classList.add('active');
-        return;
-      }
+      if (!isAdminMode || !currentAdminUser) { document.getElementById('adminLoginModal')?.classList.add('active'); return; }
       document.getElementById('adminOrdersModal').classList.add('active');
       loadAllOrdersAdmin();
     }
@@ -5422,6 +5415,10 @@ ${itemsText || '-'}
         document.body.classList.add('dark-mode');
         const btn = document.getElementById('themeToggle');
         if (btn) btn.textContent = '☀️';
+      }
+      if (isAdminMode) {
+        const b = document.getElementById('adminOrdersBtn');
+        if (b) b.classList.add('show');
       }
       loadCustomerData();
       loadRealProducts();
