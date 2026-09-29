@@ -2,6 +2,8 @@ backend:
   name: github
   repo: souq-elektroni/My-Souq.github.io
   branch: main
+  auth_methods: [oauth]
+  base_url: https://YOUR-SVELTIA-AUTH-WORKER.workers.dev
 
 publish_mode: simple
 
