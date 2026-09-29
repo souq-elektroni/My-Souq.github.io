@@ -83,52 +83,26 @@ let products = [];
     }
   }
 
-  // جلب طلب من التخزين المحلي أولاً ثم Firebase (لضمان عمل التتبع بعد إزالة OTP)
+  // جلب طلب من Firebase (أو محلي كاحتياطي)
   async function fetchOrderFromCloud(orderId) {
-    const normalizedId = String(orderId || '').trim();
-    if (!normalizedId) return null;
-
-    const localMatch = ordersHistory.find(o =>
-      String(o.orderId || '').trim().toLowerCase() === normalizedId.toLowerCase()
-    );
-    if (localMatch) return localMatch;
-
     if (firebaseReady && db) {
       try {
-        const snap = await db.collection("orders").doc(normalizedId).get();
+        const snap = await db.collection("orders").doc(orderId).get();
         if (snap.exists) {
           const data = snap.data();
-          const idx = ordersHistory.findIndex(o =>
-            String(o.orderId || '').trim().toLowerCase() === normalizedId.toLowerCase()
-          );
+          // حدّث الكاش المحلي
+          const idx = ordersHistory.findIndex(o => o.orderId === orderId);
           if (idx >= 0) ordersHistory[idx] = data;
           else ordersHistory.push(data);
           localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
           return data;
         }
       } catch (e) {
-        console.error("خطأ قراءة الطلب من Firebase:", e);
-      }
-
-      // احتياطي: ابحث بالـ orderId نفسه لو كان اختلاف حالة الأحرف هو المشكلة.
-      try {
-        const q = await db.collection("orders").where("orderId", "==", normalizedId).limit(1).get();
-        if (!q.empty) {
-          const data = q.docs[0].data();
-          const idx = ordersHistory.findIndex(o =>
-            String(o.orderId || '').trim().toLowerCase() === normalizedId.toLowerCase()
-          );
-          if (idx >= 0) ordersHistory[idx] = data;
-          else ordersHistory.push(data);
-          localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
-          return data;
-        }
-      } catch (e) {
-        console.error("خطأ البحث الاحتياطي عن الطلب:", e);
+        console.error("خطأ قراءة الطلب:", e);
       }
     }
-
-    return null;
+    // احتياطي محلي
+    return ordersHistory.find(o => o.orderId.toLowerCase() === orderId.toLowerCase()) || null;
   }
 
   // تحديث حالة الطلب على Firebase + محلي
@@ -2261,16 +2235,13 @@ function continueAfterOrderRecaptcha() {
 
   async function searchOrderTracking() {
     const searchInput = document.getElementById('trackInputId');
-    const searchId = searchInput ? searchInput.value.trim().replace(/\s+/g, '') : '';
+    const searchId = searchInput ? searchInput.value.trim() : '';
     const resultBox = document.getElementById('trackingResultContainer');
 
     if (!searchId) {
       alert('يرجى إدخال رقم الطلب أولاً');
       return;
     }
-
-    // لو كتب رمز الإدارة
-    if (tryUnlockAdmin(searchId)) return;
 
     resultBox.style.display = 'block';
     resultBox.innerHTML = `<div style="text-align:center; padding:12px; font-weight:800; color:var(--text-muted);">جاري البحث...</div>`;
