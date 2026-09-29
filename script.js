@@ -55,51 +55,80 @@ let products = [];
     }
   }
 
-  // حفظ طلب على Firebase + محلياً
+  // حفظ طلب محلياً أولاً ثم على Firebase
+  // ملاحظة: لا يتم تغيير مسار الإرسال؛ التخزين المحلي يضمن أن التتبع يعمل على نفس الجهاز حتى لو تعذّر الحفظ السحابي.
   async function saveOrderToCloud(orderRecord) {
-  try {
-    if (!firebaseReady || !db || typeof firebase === 'undefined') {
-      console.error('Firebase غير جاهز لحفظ الطلب.');
+    try {
+      const normalizedId = String(orderRecord.orderId || '').trim();
+      const localRecord = { ...orderRecord, orderId: normalizedId, items: orderRecord.items || [] };
+      const exists = ordersHistory.findIndex(o => String(o.orderId || '').trim().toLowerCase() === normalizedId.toLowerCase());
+      if (exists >= 0) ordersHistory[exists] = localRecord;
+      else ordersHistory.push(localRecord);
+      localStorage.setItem('souqOrdersHistory', JSON.stringify(ordersHistory));
+
+      if (!firebaseReady || !db || typeof firebase === 'undefined') {
+        console.error('Firebase غير جاهز لحفظ الطلب على السحابة.');
+        return false;
+      }
+
+      await db.collection('orders').doc(normalizedId).set({
+        ...localRecord,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+
+      return true;
+    } catch (e) {
+      console.error('فشل حفظ الطلب على Firestore:', e);
       return false;
     }
-
-    await db.collection('orders').doc(orderRecord.orderId).set({
-      ...orderRecord,
-      items: orderRecord.items || [],
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-
-    const exists = ordersHistory.findIndex(o => o.orderId === orderRecord.orderId);
-    if (exists >= 0) ordersHistory[exists] = orderRecord;
-    else ordersHistory.push(orderRecord);
-    localStorage.setItem('souqOrdersHistory', JSON.stringify(ordersHistory));
-    return true;
-  } catch (e) {
-    console.error('فشل حفظ الطلب على Firestore:', e);
-    return false;
   }
-}
 
-  // جلب طلب من Firebase (أو محلي كاحتياطي)
+  // جلب طلب من التخزين المحلي أولاً ثم Firebase (لضمان عمل التتبع بعد إزالة OTP)
   async function fetchOrderFromCloud(orderId) {
+    const normalizedId = String(orderId || '').trim();
+    if (!normalizedId) return null;
+
+    const localMatch = ordersHistory.find(o =>
+      String(o.orderId || '').trim().toLowerCase() === normalizedId.toLowerCase()
+    );
+    if (localMatch) return localMatch;
+
     if (firebaseReady && db) {
       try {
-        const snap = await db.collection("orders").doc(orderId).get();
+        const snap = await db.collection("orders").doc(normalizedId).get();
         if (snap.exists) {
           const data = snap.data();
-          // حدّث الكاش المحلي
-          const idx = ordersHistory.findIndex(o => o.orderId === orderId);
+          const idx = ordersHistory.findIndex(o =>
+            String(o.orderId || '').trim().toLowerCase() === normalizedId.toLowerCase()
+          );
           if (idx >= 0) ordersHistory[idx] = data;
           else ordersHistory.push(data);
           localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
           return data;
         }
       } catch (e) {
-        console.error("خطأ قراءة الطلب:", e);
+        console.error("خطأ قراءة الطلب من Firebase:", e);
+      }
+
+      // احتياطي: ابحث بالـ orderId نفسه لو كان اختلاف حالة الأحرف هو المشكلة.
+      try {
+        const q = await db.collection("orders").where("orderId", "==", normalizedId).limit(1).get();
+        if (!q.empty) {
+          const data = q.docs[0].data();
+          const idx = ordersHistory.findIndex(o =>
+            String(o.orderId || '').trim().toLowerCase() === normalizedId.toLowerCase()
+          );
+          if (idx >= 0) ordersHistory[idx] = data;
+          else ordersHistory.push(data);
+          localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
+          return data;
+        }
+      } catch (e) {
+        console.error("خطأ البحث الاحتياطي عن الطلب:", e);
       }
     }
-    // احتياطي محلي
-    return ordersHistory.find(o => o.orderId.toLowerCase() === orderId.toLowerCase()) || null;
+
+    return null;
   }
 
   // تحديث حالة الطلب على Firebase + محلي
@@ -2151,7 +2180,17 @@ function continueAfterOrderRecaptcha() {
   ];
 
   function openTrackingModal() {
-    document.getElementById('trackingModal').classList.add('active');
+    const modal = document.getElementById('trackingModal');
+    if (modal) modal.classList.add('active');
+    const resultBox = document.getElementById('trackingResultContainer');
+    if (resultBox) {
+      resultBox.style.display = 'none';
+      resultBox.innerHTML = '';
+    }
+    const input = document.getElementById('trackInputId');
+    if (input) {
+      setTimeout(() => input.focus(), 50);
+    }
     // لو الأدمن مفتوح نعرض تلميح صغير
     const hint = document.getElementById('adminHint');
     if (hint) {
@@ -2221,7 +2260,8 @@ function continueAfterOrderRecaptcha() {
   }
 
   async function searchOrderTracking() {
-    const searchId = document.getElementById('trackInputId').value.trim();
+    const searchInput = document.getElementById('trackInputId');
+    const searchId = searchInput ? searchInput.value.trim().replace(/\s+/g, '') : '';
     const resultBox = document.getElementById('trackingResultContainer');
 
     if (!searchId) {
