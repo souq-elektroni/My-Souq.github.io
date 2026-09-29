@@ -1637,6 +1637,41 @@ function toWesternDigits(value) {
     .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776));
 }
 
+// ===== Compatibility / phone validation helpers =====
+// تم الحفاظ على هذه الدوال للتوافق مع النسخ السابقة ومنع أي كسر في وظائف التحقق.
+function isValidEgyptianPhone(value) {
+  return isValidEgyptianMobile(value);
+}
+
+function validateCustomerPhone(showAlert = true) {
+  const phoneEl = document.getElementById('custPhone');
+  if (!phoneEl) return false;
+
+  const phone = normalizeEgyptianPhone(phoneEl.value);
+  phoneEl.value = phone;
+
+  if (!isValidEgyptianPhone(phone)) {
+    phoneEl.setCustomValidity(
+      'أدخل رقم موبايل مصري صحيح مكون من 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015'
+    );
+    if (showAlert) {
+      phoneEl.focus();
+      alert('لا يمكن إتمام الطلب. رقم الهاتف يجب أن يكون رقم موبايل مصري صحيح مكون من 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015.');
+    }
+    return false;
+  }
+
+  phoneEl.setCustomValidity('');
+  return true;
+}
+
+function setActionButtonsVisibility(isOutStock) {
+  const addBtn = document.getElementById('addCartBtn');
+  const waBtn = document.getElementById('directWaBtn');
+  if (addBtn) addBtn.style.display = isOutStock ? 'none' : 'block';
+  if (waBtn) waBtn.style.display = isOutStock ? 'none' : 'flex';
+}
+
 function normalizeEgyptianPhone(value) {
   return toWesternDigits(value).replace(/[\s-]/g, '');
 }
