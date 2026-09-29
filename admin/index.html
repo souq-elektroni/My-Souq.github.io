@@ -7,27 +7,433 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="My Souq Admin" />
-    <title>لوحة التحكم - My Souq</title>
+    <title>تسجيل دخول الإدارة - My Souq</title>
     <style>
-      html, body { margin: 0; min-height: 100%; background: #fdfbf7; }
-      body { font-family: Arial, sans-serif; }
-      #loading { padding: 28px 16px; text-align: center; color: #803d48; font-weight: 700; }
-      #loading small { display: block; margin-top: 8px; color: #615053; font-weight: 400; }
+      :root {
+        --primary: #803d48;
+        --primary-dark: #642e38;
+        --bg: #fdfbf7;
+        --card: #ffffff;
+        --text: #241d1f;
+        --muted: #6f6466;
+        --border: #e5dfe0;
+        --danger: #b3261e;
+        --success: #2f6b43;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100%; background: var(--bg); }
+      body {
+        font-family: Arial, sans-serif;
+        color: var(--text);
+      }
+
+      #loginScreen {
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .login-card {
+        width: min(430px, 100%);
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 30px 24px 24px;
+        box-shadow: 0 14px 45px rgba(50, 30, 35, 0.10);
+      }
+
+      .brand {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+
+      .brand-badge {
+        width: 58px;
+        height: 58px;
+        margin: 0 auto 12px;
+        border-radius: 17px;
+        display: grid;
+        place-items: center;
+        background: var(--primary);
+        color: #fff;
+        font-size: 25px;
+        font-weight: 900;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 25px;
+      }
+
+      .subtitle {
+        margin: 8px 0 0;
+        color: var(--muted);
+        line-height: 1.7;
+        font-size: 14px;
+      }
+
+      .field { margin-top: 16px; }
+      .field label {
+        display: block;
+        margin-bottom: 7px;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .field input {
+        width: 100%;
+        height: 48px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+        padding: 0 14px;
+        font-size: 16px;
+        outline: none;
+        direction: ltr;
+        text-align: left;
+      }
+
+      .field input:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(128, 61, 72, 0.10);
+      }
+
+      .password-wrap { position: relative; }
+      .password-wrap input { padding-right: 80px; }
+      .toggle-password {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        transform: translateY(-50%);
+        height: 36px;
+        padding: 0 10px;
+        border: 0;
+        background: transparent;
+        color: var(--primary);
+        cursor: pointer;
+        font-weight: 700;
+      }
+
+      #loginButton {
+        width: 100%;
+        height: 50px;
+        margin-top: 20px;
+        border: 0;
+        border-radius: 13px;
+        background: var(--primary);
+        color: #fff;
+        font-size: 16px;
+        font-weight: 800;
+        cursor: pointer;
+      }
+
+      #loginButton:hover { background: var(--primary-dark); }
+      #loginButton:disabled { opacity: 0.65; cursor: wait; }
+
+      #resetButton {
+        width: 100%;
+        margin-top: 12px;
+        padding: 10px;
+        border: 0;
+        background: transparent;
+        color: var(--primary);
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      #loginMessage {
+        min-height: 24px;
+        margin: 14px 2px 0;
+        text-align: center;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .login-note {
+        margin-top: 18px;
+        padding-top: 15px;
+        border-top: 1px solid var(--border);
+        text-align: center;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.7;
+      }
+
+      #cmsScreen { display: none; min-height: 100vh; }
+      #loading {
+        padding: 28px 16px;
+        text-align: center;
+        color: var(--primary);
+        font-weight: 700;
+      }
+      #loading small {
+        display: block;
+        margin-top: 8px;
+        color: #615053;
+        font-weight: 400;
+      }
+
+      @media (max-width: 480px) {
+        .login-card { padding: 26px 18px 20px; border-radius: 18px; }
+      }
     </style>
+
+    <!-- Firebase Authentication: نفس مشروع Firebase المستخدم في المتجر -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   </head>
+
   <body>
-    <div id="loading">
-      جاري تحميل لوحة الإدارة...
-      <small>يمكنك رفع ألبوم الصور من الهاتف دفعة واحدة.</small>
-    </div>
+    <section id="loginScreen" aria-label="تسجيل دخول الإدارة">
+      <div class="login-card">
+        <div class="brand">
+          <div class="brand-badge">MS</div>
+          <h1>لوحة إدارة My Souq</h1>
+          <p class="subtitle">سجّل الدخول بحساب الإدارة لفتح شاشة إضافة وتعديل المنتجات.</p>
+        </div>
+
+        <form id="adminLoginForm" autocomplete="on">
+          <div class="field">
+            <label for="adminEmail">البريد الإلكتروني / اسم مستخدم الإدارة</label>
+            <input
+              id="adminEmail"
+              name="username"
+              type="email"
+              inputmode="email"
+              autocomplete="username"
+              placeholder="admin@example.com"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label for="adminPassword">كلمة المرور</label>
+            <div class="password-wrap">
+              <input
+                id="adminPassword"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                placeholder="اكتب كلمة المرور"
+                required
+              />
+              <button class="toggle-password" type="button" id="togglePassword">إظهار</button>
+            </div>
+          </div>
+
+          <button id="loginButton" type="submit">دخول لوحة الإدارة</button>
+          <button id="resetButton" type="button">نسيت كلمة المرور؟</button>
+          <div id="loginMessage" role="status" aria-live="polite"></div>
+        </form>
+
+        <div class="login-note">
+          نظام الدخول يستخدم Firebase Authentication. لا يتم تخزين كلمة المرور داخل هذا الملف.
+        </div>
+      </div>
+    </section>
+
+    <section id="cmsScreen" aria-label="لوحة إدارة المنتجات">
+      <div id="loading">
+        جاري تحميل لوحة الإدارة...
+        <small>يمكنك رفع ألبوم الصور من الهاتف دفعة واحدة.</small>
+      </div>
+    </section>
 
     <script>
-      window.addEventListener('error', function () {
-        var el = document.getElementById('loading');
-        if (el) el.innerHTML = 'تعذر تحميل لوحة الإدارة.<small>راجع وجود ملف admin/config.yml ثم أعد المحاولة.</small>';
-      });
-    </script>
+      (function () {
+        'use strict';
 
-    <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+        var FIREBASE_CONFIG = {
+          apiKey: "AIzaSyCGSFAnYRmauxCAa7HmyVenPWIy-KJHsxg",
+          authDomain: "my-souq0.firebaseapp.com",
+          projectId: "my-souq0",
+          storageBucket: "my-souq0.firebasestorage.app",
+          messagingSenderId: "334605657240",
+          appId: "1:334605657240:web:6598cf95d6a010ea855ced",
+          measurementId: "G-R11Z1VRYTZ"
+        };
+
+        var loginScreen = document.getElementById('loginScreen');
+        var cmsScreen = document.getElementById('cmsScreen');
+        var loading = document.getElementById('loading');
+        var form = document.getElementById('adminLoginForm');
+        var emailInput = document.getElementById('adminEmail');
+        var passwordInput = document.getElementById('adminPassword');
+        var loginButton = document.getElementById('loginButton');
+        var resetButton = document.getElementById('resetButton');
+        var togglePassword = document.getElementById('togglePassword');
+        var loginMessage = document.getElementById('loginMessage');
+
+        var firebaseApp;
+        var auth;
+        var cmsLoaded = false;
+        var authStateHandled = false;
+
+        function setMessage(message, type) {
+          loginMessage.textContent = message || '';
+          loginMessage.style.color = type === 'error'
+            ? 'var(--danger)'
+            : type === 'success'
+              ? 'var(--success)'
+              : 'var(--muted)';
+        }
+
+        function firebaseErrorMessage(error) {
+          var code = error && error.code ? error.code : '';
+
+          switch (code) {
+            case 'auth/invalid-credential':
+            case 'auth/wrong-password':
+            case 'auth/user-not-found':
+              return 'البريد الإلكتروني أو كلمة المرور غير صحيحة.';
+            case 'auth/invalid-email':
+              return 'البريد الإلكتروني غير صحيح.';
+            case 'auth/too-many-requests':
+              return 'تم إيقاف محاولات الدخول مؤقتًا. حاول لاحقًا.';
+            case 'auth/user-disabled':
+              return 'حساب الإدارة معطّل.';
+            case 'auth/network-request-failed':
+              return 'تعذر الاتصال. افحص الإنترنت وحاول مرة أخرى.';
+            case 'auth/operation-not-allowed':
+              return 'تسجيل الدخول بالبريد وكلمة المرور غير مفعّل في Firebase.';
+            default:
+              return 'تعذر تسجيل الدخول. حاول مرة أخرى.';
+          }
+        }
+
+        function showLogin() {
+          loginScreen.style.display = 'flex';
+          cmsScreen.style.display = 'none';
+          emailInput.focus();
+        }
+
+        function showCMS() {
+          loginScreen.style.display = 'none';
+          cmsScreen.style.display = 'block';
+          loadSveltiaOnce();
+        }
+
+        function loadSveltiaOnce() {
+          if (cmsLoaded) return;
+          cmsLoaded = true;
+
+          var script = document.createElement('script');
+          script.src = 'https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js';
+          script.async = true;
+          script.onload = function () {
+            if (loading) loading.style.display = 'none';
+          };
+          script.onerror = function () {
+            cmsLoaded = false;
+            if (loading) {
+              loading.innerHTML = 'تعذر تحميل لوحة الإدارة.' +
+                '<small>راجع اتصال الإنترنت ووجود ملف admin/config.yml ثم أعد المحاولة.</small>';
+            }
+          };
+          document.body.appendChild(script);
+        }
+
+        togglePassword.addEventListener('click', function () {
+          var visible = passwordInput.type === 'text';
+          passwordInput.type = visible ? 'password' : 'text';
+          togglePassword.textContent = visible ? 'إظهار' : 'إخفاء';
+        });
+
+        form.addEventListener('submit', function (event) {
+          event.preventDefault();
+
+          var email = emailInput.value.trim().toLowerCase();
+          var password = passwordInput.value;
+
+          if (!email || !password) {
+            setMessage('اكتب البريد الإلكتروني وكلمة المرور.', 'error');
+            return;
+          }
+
+          loginButton.disabled = true;
+          setMessage('جاري التحقق من بيانات الإدارة...', 'info');
+
+          auth.signInWithEmailAndPassword(email, password)
+            .then(function (credential) {
+              if (!credential || !credential.user || !credential.user.email) {
+                throw new Error('ADMIN_ACCOUNT_REQUIRED');
+              }
+
+              setMessage('تم تسجيل الدخول بنجاح.', 'success');
+              passwordInput.value = '';
+            })
+            .catch(function (error) {
+              console.error('Admin login error:', error);
+              setMessage(
+                error && error.message === 'ADMIN_ACCOUNT_REQUIRED'
+                  ? 'حساب الإدارة يجب أن يكون مسجّلًا ببريد إلكتروني.'
+                  : firebaseErrorMessage(error),
+                'error'
+              );
+            })
+            .finally(function () {
+              loginButton.disabled = false;
+            });
+        });
+
+        resetButton.addEventListener('click', function () {
+          var email = emailInput.value.trim().toLowerCase();
+
+          if (!email) {
+            setMessage('اكتب بريد حساب الإدارة أولًا ثم اضغط «نسيت كلمة المرور؟».', 'error');
+            emailInput.focus();
+            return;
+          }
+
+          auth.sendPasswordResetEmail(email)
+            .then(function () {
+              setMessage('تم إرسال رابط إعادة تعيين كلمة المرور إلى البريد إذا كان الحساب موجودًا.', 'success');
+            })
+            .catch(function (error) {
+              console.error('Password reset error:', error);
+              setMessage(firebaseErrorMessage(error), 'error');
+            });
+        });
+
+        window.addEventListener('error', function () {
+          if (authStateHandled) return;
+          if (loading) {
+            loading.innerHTML = 'تعذر تحميل لوحة الإدارة.' +
+              '<small>راجع وجود ملف admin/config.yml ثم أعد المحاولة.</small>';
+          }
+        });
+
+        try {
+          if (!window.firebase) {
+            throw new Error('Firebase SDK لم يتم تحميله.');
+          }
+
+          firebaseApp = firebase.apps.length
+            ? firebase.app()
+            : firebase.initializeApp(FIREBASE_CONFIG);
+
+          auth = firebaseApp.auth();
+
+          auth.onAuthStateChanged(function (user) {
+            authStateHandled = true;
+
+            // الإدارة هنا بالبريد الإلكتروني فقط. حسابات الهاتف OTP لا تفتح لوحة الأدمن.
+            if (user && user.email) {
+              showCMS();
+            } else {
+              showLogin();
+            }
+          });
+        } catch (error) {
+          console.error('Firebase initialization error:', error);
+          setMessage('تعذر تشغيل نظام تسجيل الدخول. تأكد من تحميل Firebase.', 'error');
+          loginButton.disabled = true;
+        }
+      })();
+    </script>
   </body>
 </html>
