@@ -5,86 +5,179 @@ backend:
 
 publish_mode: simple
 
-media_folder: "images"
-public_folder: "images"
+media_folder: "images/products"
+public_folder: "/images/products"
+
+media_libraries:
+  default:
+    config:
+      transformations:
+        raster_image:
+          format: webp
+          quality: 82
+          width: 1600
+          height: 1600
 
 collections:
   - name: "products"
     label: "المنتجات"
     folder: "products"
     create: true
+    delete: true
     slug: "{{slug}}"
+    identifier_field: "title"
+
     fields:
-      - { label: "اسم المنتج", name: "title", widget: "string" }
-      - { 
-          label: "قسم / تصنيف المنتج", 
-          name: "category", 
-          widget: "select", 
-          options: [
-            "الكل",
-            "ملابس شتوية",
-            "ملابس خروج",
-            "أحذية",
-            "عروض"
-          ], 
-          default: "ملابس شتوية"
-        }
-      - label: "ألبوم صور المنتج"
+      - label: "اسم المنتج / الكوليكشن"
+        name: "title"
+        widget: "string"
+
+      - label: "القسم"
+        name: "category"
+        widget: "select"
+        options:
+          - "ملابس شتوية"
+          - "ملابس خروج"
+          - "أحذية"
+          - "عروض"
+        default: "ملابس شتوية"
+
+      - label: "صور الكوليكشن"
         name: "images"
+        widget: "image"
+        multiple: true
+        required: true
+        min: 1
+        max: 15
+        media_library:
+          config:
+            multiple: true
+
+      - label: "السعر الأساسي (ج.م)"
+        name: "price"
+        widget: "number"
+        value_type: "int"
+        min: 0
+
+      - label: "السعر القديم قبل الخصم (اختياري)"
+        name: "oldPrice"
+        widget: "number"
+        value_type: "int"
+        min: 0
+        required: false
+
+      - label: "حالة المخزون العامة"
+        name: "stock"
+        widget: "select"
+        options:
+          - label: "متوفر"
+            value: "available"
+          - label: "كمية قليلة"
+            value: "low"
+          - label: "نفد"
+            value: "out"
+        default: "available"
+
+      - label: "المقاسات المتاحة"
+        name: "variants"
         widget: "list"
-        summary: "{{fields.image}}"
-        field:
-          label: "صورة"
-          name: "image"
-          widget: "image"
-      - { label: "السعر الأساسي (ج.م)", name: "price", widget: "number", value_type: "float" }
-      - { label: "السعر القديم قبل الخصم (اختياري)", name: "oldPrice", widget: "number", value_type: "float", required: false }
-      - { 
-          label: "حالة المخزون العامة للمنتج", 
-          name: "stock", 
-          widget: "select", 
-          options: [
-            "available", 
-            "low", 
-            "out"
-          ], 
-          default: "available"
-        }
-      - { 
-          label: "المقاسات المتاحة", 
-          name: "variants", 
-          widget: "list", 
-          required: false,
-          summary: "{{fields.size}} - {{fields.status}}",
-          fields: [
-            { 
-              label: "المقاس", 
-              name: "size", 
-              widget: "select", 
-              options: [
-                "0M", "1M", "3M", "6M", "9M", "12M", "18M", "24M",
-                "1 سنة", "2 سنة", "3 سنة", "4 سنة", "5 سنة", "6 سنة",
-                "7 سنة", "8 سنة", "9 سنة", "10 سنة", "11 سنة", "12 سنة",
-                "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة", "19 سنة", "20 سنة",
-                "M", "L", "XL", "2XL", "3XL", "4XL", "5XL", "6XL"
-              ],
-              required: true
-            },
-            { label: "السعر لهذا المقاس (اختياري)", name: "price", widget: "number", value_type: "float", required: false },
-            { label: "طول البنطلون", name: "pants_length", widget: "string", required: false },
-            { label: "طول التيشرت", name: "tshirt_length", widget: "string", required: false },
-            { label: "عرض التيشرت", name: "tshirt_width", widget: "string", required: false },
-            { label: "طول وعرض القطعة الإضافية", name: "extra_piece", widget: "string", required: false },
-            { 
-              label: "حالة هذا المقاس", 
-              name: "status", 
-              widget: "select", 
-              options: [
-                "available", 
-                "out"
-              ], 
-              default: "available"
-            }
-          ]
-        }
-      - { label: "وصف وتفاصيل المنتج", name: "body", widget: "markdown" }
+        required: false
+        minimize_collapsed: true
+        summary: "{{fields.size}} - {{fields.color}} - {{fields.status}}"
+        fields:
+          - label: "المقاس"
+            name: "size"
+            widget: "select"
+            options:
+              - "مقاس موحد"
+              - "0M"
+              - "1M"
+              - "3M"
+              - "6M"
+              - "9M"
+              - "12M"
+              - "18M"
+              - "24M"
+              - "1 سنة"
+              - "2 سنة"
+              - "3 سنة"
+              - "4 سنة"
+              - "5 سنة"
+              - "6 سنة"
+              - "7 سنة"
+              - "8 سنة"
+              - "9 سنة"
+              - "10 سنة"
+              - "11 سنة"
+              - "12 سنة"
+              - "13 سنة"
+              - "14 سنة"
+              - "15 سنة"
+              - "16 سنة"
+              - "17 سنة"
+              - "18 سنة"
+              - "19 سنة"
+              - "20 سنة"
+              - "M"
+              - "L"
+              - "XL"
+              - "2XL"
+              - "3XL"
+              - "4XL"
+              - "5XL"
+              - "6XL"
+
+          - label: "اللون"
+            name: "color"
+            widget: "string"
+            required: false
+
+          - label: "السعر لهذا المقاس"
+            name: "price"
+            widget: "number"
+            value_type: "int"
+            min: 0
+            required: false
+
+          - label: "الكمية المتاحة"
+            name: "quantity"
+            widget: "number"
+            value_type: "int"
+            min: 0
+            default: 0
+            required: false
+
+          - label: "طول البنطلون"
+            name: "pants_length"
+            widget: "string"
+            required: false
+
+          - label: "طول التيشرت"
+            name: "tshirt_length"
+            widget: "string"
+            required: false
+
+          - label: "عرض التيشرت"
+            name: "tshirt_width"
+            widget: "string"
+            required: false
+
+          - label: "القطعة الإضافية"
+            name: "extra_piece"
+            widget: "string"
+            required: false
+
+          - label: "حالة هذا المقاس"
+            name: "status"
+            widget: "select"
+            options:
+              - label: "متوفر"
+                value: "available"
+              - label: "نفد"
+                value: "out"
+            default: "available"
+
+      - label: "وصف وتفاصيل المنتج"
+        name: "body"
+        widget: "markdown"
+        required: false
