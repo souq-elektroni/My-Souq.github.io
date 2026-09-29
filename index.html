@@ -2441,7 +2441,7 @@
             type="tel"
             id="custPhone"
             placeholder="01xxxxxxxx"
-            oninput="handlePhoneInput()"
+            oninput="checkFormCompletion()"
           >
 
         </div>
@@ -2490,25 +2490,52 @@
 
   </div>
 
-  <!-- Phone OTP Verification Modal -->
-  <div class="modal-overlay" id="phoneOtpModal">
+  <!-- Order reCAPTCHA Modal (مستقل عن OTP) -->
+
+  <div class="modal-overlay" id="orderRecaptchaModal">
+
     <div class="modal-content" style="max-width:460px; text-align:center;">
-      <div class="terms-header">📱 تأكيد رقم الهاتف</div>
-      <div style="font-size:13px; line-height:1.8; margin:10px 0; color:var(--text-dark);">
-        سيتم إرسال كود تحقق SMS إلى رقمك:
-        <div id="otpPhoneDisplay" style="font-weight:900; color:var(--burgundy-soft); margin-top:4px;"></div>
+
+      <div class="terms-header">🛡️ التحقق الأمني</div>
+
+      <p style="font-size:13px; line-height:1.8; margin:10px 0; color:var(--text-dark);">
+        يرجى اجتياز التحقق الأمني قبل الانتقال إلى الشروط والأحكام.
+      </p>
+
+      <div
+        id="orderRecaptchaContainer"
+        style="display:flex; justify-content:center; margin:14px 0; min-height:78px;"
+      ></div>
+
+      <div
+        id="orderRecaptchaMessage"
+        style="min-height:22px; margin-top:8px; font-size:12px; font-weight:800;"
+      >
+        يرجى اجتياز التحقق الأمني للمتابعة.
       </div>
-      <div id="recaptcha-container" style="display:flex; justify-content:center; margin:12px 0;"></div>
-      <button type="button" id="sendOtpBtn" class="send-final-btn" onclick="sendPhoneVerificationCode()">إرسال كود التحقق 📩</button>
-      <div id="otpCodeBox" style="display:none; margin-top:12px;">
-        <input type="tel" id="otpCodeInput" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="أدخل كود الـ 6 أرقام"
-          style="width:100%; box-sizing:border-box; text-align:center; font-size:22px; font-weight:900; letter-spacing:6px; padding:12px; border:1px solid var(--border-color); border-radius:10px; background:var(--card-cream); color:var(--text-dark);"
-          oninput="this.value=this.value.replace(/\D/g,'').slice(0,6)">
-        <button type="button" id="verifyOtpBtn" class="send-final-btn" onclick="verifyPhoneOtp()" style="margin-top:10px;">تأكيد الرقم ✅</button>
-      </div>
-      <div id="otpMessage" style="min-height:22px; margin-top:10px; font-size:12px; font-weight:800;"></div>
-      <button type="button" class="btn-decline" onclick="closePhoneOtpModal()" style="width:100%; margin-top:8px;">إلغاء</button>
+
+      <button
+        type="button"
+        id="orderRecaptchaContinueBtn"
+        class="send-final-btn"
+        onclick="continueAfterOrderRecaptcha()"
+        disabled
+        style="width:100%; margin-top:8px; opacity:0.55; cursor:not-allowed;"
+      >
+        متابعة للشروط والأحكام 👈
+      </button>
+
+      <button
+        type="button"
+        class="btn-decline"
+        onclick="closeOrderRecaptchaModal()"
+        style="width:100%; margin-top:8px;"
+      >
+        إلغاء
+      </button>
+
     </div>
+
   </div>
 
   <!-- Terms Modal -->
