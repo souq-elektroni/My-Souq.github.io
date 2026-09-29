@@ -1,12 +1,33 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>لوحة التحكم - إدارة المنتجات</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#803d48" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="My Souq Admin" />
+    <title>لوحة التحكم - My Souq</title>
+    <style>
+      html, body { margin: 0; min-height: 100%; background: #fdfbf7; }
+      body { font-family: Arial, sans-serif; }
+      #loading { padding: 28px 16px; text-align: center; color: #803d48; font-weight: 700; }
+      #loading small { display: block; margin-top: 8px; color: #615053; font-weight: 400; }
+    </style>
   </head>
   <body>
-    <!-- جلب المحرك المتوافق مباشرة مع GitHub Pages -->
+    <div id="loading">
+      جاري تحميل لوحة الإدارة...
+      <small>يمكنك رفع ألبوم الصور من الهاتف دفعة واحدة.</small>
+    </div>
+
+    <script>
+      window.addEventListener('error', function () {
+        var el = document.getElementById('loading');
+        if (el) el.innerHTML = 'تعذر تحميل لوحة الإدارة.<small>راجع وجود ملف admin/config.yml ثم أعد المحاولة.</small>';
+      });
+    </script>
+
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
   </body>
 </html>
