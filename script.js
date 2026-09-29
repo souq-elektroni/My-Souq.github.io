@@ -21,6 +21,12 @@ let products = [];
   let db = null;
   let firebaseReady = false;
 
+  // ===== Order reCAPTCHA (بدون OTP) =====
+  let orderRecaptchaVerifier = null;
+  let orderRecaptchaWidgetId = null;
+  let orderRecaptchaVerified = false;
+  let orderRecaptchaInProgress = false;
+
   function initFirebase() {
     try {
       if (!FIREBASE_CONFIG.apiKey || FIREBASE_CONFIG.apiKey === "PASTE_YOUR_API_KEY") {
@@ -33,7 +39,7 @@ let products = [];
       db = firebase.firestore();
       firebaseReady = true;
         firebase.auth().onAuthStateChanged(user => {
-          // جلسة OTP الهاتف ليست جلسة إدارة. الإدارة فقط بحساب بريد إلكتروني.
+          // تسجيل دخول الإدارة فقط يتم بحساب البريد الإلكتروني.
           if (user && user.email) {
           currentAdminUser = user;
           isAdminMode = true;
@@ -52,27 +58,14 @@ let products = [];
   // حفظ طلب على Firebase + محلياً
   async function saveOrderToCloud(orderRecord) {
   try {
-    if (!firebaseReady || !db || typeof firebase === 'undefined' || !firebase.auth) {
+    if (!firebaseReady || !db || typeof firebase === 'undefined') {
       console.error('Firebase غير جاهز لحفظ الطلب.');
-      return false;
-    }
-
-    const authUser = firebase.auth().currentUser;
-    const orderPhone = normalizeEgyptianPhone(orderRecord.phone || '');
-    const authPhone = authUser && authUser.phoneNumber
-      ? normalizeEgyptianPhone(authUser.phoneNumber.replace(/^\+20/, '0'))
-      : '';
-
-    if (!authUser || !authUser.phoneNumber || authPhone !== orderPhone || !phoneVerified || verifiedPhone !== orderPhone) {
-      console.error('رفض حفظ الطلب: رقم الهاتف لم يتم التحقق منه عبر Firebase OTP.');
       return false;
     }
 
     await db.collection('orders').doc(orderRecord.orderId).set({
       ...orderRecord,
       items: orderRecord.items || [],
-      phoneVerified: true,
-      verifiedPhone: authUser.phoneNumber,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
 
@@ -611,7 +604,6 @@ function productCardHtml(p) {
         if (data.name) document.getElementById('custName').value = data.name;
         if (data.phone) document.getElementById('custPhone').value = normalizeEgyptianPhone(data.phone);
         if (data.address) document.getElementById('custAddress').value = data.address;
-        if (typeof resetPhoneVerification === 'function') resetPhoneVerification();
       } catch (e) {}
     }
 
@@ -1624,21 +1616,14 @@ ${selectedImage}
   }
 
 
-// ===== Phone OTP Verification (Firebase Auth) =====
-let phoneConfirmationResult = null;
-let phoneRecaptchaVerifier = null;
-let phoneVerified = false;
-let verifiedPhone = '';
-let otpRequestInProgress = false;
-
+// ===== Phone validation =====
 function toWesternDigits(value) {
   return String(value || '')
     .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632))
     .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776));
 }
 
-// ===== Compatibility / phone validation helpers =====
-// تم الحفاظ على هذه الدوال للتوافق مع النسخ السابقة ومنع أي كسر في وظائف التحقق.
+// Compatibility helper kept for older calls.
 function isValidEgyptianPhone(value) {
   return isValidEgyptianMobile(value);
 }
@@ -1680,28 +1665,6 @@ function isValidEgyptianMobile(phone) {
   return /^01[0125]\d{8}$/.test(normalizeEgyptianPhone(phone));
 }
 
-function formatPhoneForFirebase(phone) {
-  const normalized = normalizeEgyptianPhone(phone);
-  return '+20' + normalized.substring(1);
-}
-
-function maskPhone(phone) {
-  const normalized = normalizeEgyptianPhone(phone);
-  if (normalized.length !== 11) return normalized;
-  return normalized.substring(0, 3) + '****' + normalized.substring(7);
-}
-
-function resetPhoneVerification() {
-  phoneConfirmationResult = null;
-  phoneVerified = false;
-  verifiedPhone = '';
-  otpRequestInProgress = false;
-  if (phoneRecaptchaVerifier) {
-    try { phoneRecaptchaVerifier.clear(); } catch (e) {}
-  }
-  phoneRecaptchaVerifier = null;
-}
-
 function handlePhoneInput() {
   const input = document.getElementById('custPhone');
   if (!input) return;
@@ -1712,10 +1675,6 @@ function handlePhoneInput() {
 
   if (input.value !== normalized) input.value = normalized;
 
-  if (verifiedPhone && normalized !== verifiedPhone) {
-    resetPhoneVerification();
-  }
-
   const valid = normalized === '' || isValidEgyptianMobile(normalized);
   input.setCustomValidity(
     valid ? '' : 'أدخل رقم موبايل مصري صحيح مكون من 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015'
@@ -1724,178 +1683,131 @@ function handlePhoneInput() {
   checkFormCompletion();
 }
 
-function showOtpMessage(message, type) {
-  const el = document.getElementById('otpMessage');
-  if (!el) return;
-  el.textContent = message || '';
-  el.style.color = type === 'error' ? '#c62828' : '#2e7d32';
+// ===== Order reCAPTCHA (خطوة أمنية مستقلة عن OTP) =====
+
+function resetOrderRecaptcha() {
+  orderRecaptchaVerified = false;
+  orderRecaptchaInProgress = false;
+
+  if (orderRecaptchaVerifier) {
+    try {
+      orderRecaptchaVerifier.clear();
+    } catch (e) {}
+  }
+
+  orderRecaptchaVerifier = null;
+  orderRecaptchaWidgetId = null;
+
+  const container = document.getElementById('orderRecaptchaContainer');
+  if (container) container.innerHTML = '';
+
+  const continueBtn = document.getElementById('orderRecaptchaContinueBtn');
+  if (continueBtn) {
+    continueBtn.disabled = true;
+    continueBtn.style.opacity = '0.55';
+    continueBtn.style.cursor = 'not-allowed';
+  }
 }
 
-function initializePhoneRecaptcha() {
+async function initializeOrderRecaptcha() {
   if (typeof firebase === 'undefined' || !firebase.auth) {
     throw new Error('Firebase Authentication غير مهيأ في الصفحة.');
   }
 
-  if (phoneRecaptchaVerifier) {
-    try { phoneRecaptchaVerifier.clear(); } catch (e) {}
+  resetOrderRecaptcha();
+
+  const container = document.getElementById('orderRecaptchaContainer');
+  if (!container) {
+    throw new Error('حاوية reCAPTCHA غير موجودة.');
   }
 
-  phoneRecaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+  orderRecaptchaVerifier = new firebase.auth.RecaptchaVerifier('orderRecaptchaContainer', {
     size: 'normal',
     callback: function() {
-      showOtpMessage('تم اجتياز التحقق، اضغط إرسال كود التحقق.', 'success');
+      orderRecaptchaVerified = true;
+      const message = document.getElementById('orderRecaptchaMessage');
+      if (message) {
+        message.textContent = 'تم اجتياز التحقق الأمني بنجاح ✅';
+        message.style.color = '#2e7d32';
+      }
+
+      const continueBtn = document.getElementById('orderRecaptchaContinueBtn');
+      if (continueBtn) {
+        continueBtn.disabled = false;
+        continueBtn.style.opacity = '1';
+        continueBtn.style.cursor = 'pointer';
+      }
     },
     'expired-callback': function() {
-      showOtpMessage('انتهت صلاحية reCAPTCHA. أعد المحاولة.', 'error');
+      orderRecaptchaVerified = false;
+      const message = document.getElementById('orderRecaptchaMessage');
+      if (message) {
+        message.textContent = 'انتهت صلاحية التحقق. أعد التحقق مرة أخرى.';
+        message.style.color = '#c62828';
+      }
+
+      const continueBtn = document.getElementById('orderRecaptchaContinueBtn');
+      if (continueBtn) {
+        continueBtn.disabled = true;
+        continueBtn.style.opacity = '0.55';
+        continueBtn.style.cursor = 'not-allowed';
+      }
     }
   });
 
-  return phoneRecaptchaVerifier.render();
+  orderRecaptchaWidgetId = await orderRecaptchaVerifier.render();
+  return orderRecaptchaVerifier;
 }
 
-async function openPhoneOtpModal(phone) {
-  if (!isValidEgyptianMobile(phone)) {
-    alert('أدخل رقم موبايل مصري صحيح أولاً.');
+async function openOrderRecaptchaModal() {
+  const modal = document.getElementById('orderRecaptchaModal');
+  if (!modal) {
+    alert('تعذر فتح خطوة التحقق الأمني.');
     return;
   }
 
-  const modal = document.getElementById('phoneOtpModal');
-  const display = document.getElementById('otpPhoneDisplay');
-  const codeBox = document.getElementById('otpCodeBox');
-  const codeInput = document.getElementById('otpCodeInput');
-  const sendBtn = document.getElementById('sendOtpBtn');
+  resetOrderRecaptcha();
+  modal.classList.add('active');
 
-  if (display) display.textContent = maskPhone(phone);
-  if (codeBox) codeBox.style.display = 'none';
-  if (codeInput) codeInput.value = '';
-  if (sendBtn) sendBtn.disabled = false;
-  showOtpMessage('', 'success');
-
-  if (modal) modal.classList.add('active');
+  const message = document.getElementById('orderRecaptchaMessage');
+  if (message) {
+    message.textContent = 'يرجى اجتياز التحقق الأمني للمتابعة.';
+    message.style.color = 'var(--text-muted)';
+  }
 
   try {
-    await initializePhoneRecaptcha();
+    await initializeOrderRecaptcha();
   } catch (error) {
-    console.error('فشل تهيئة reCAPTCHA:', error);
-    showOtpMessage('تعذر تشغيل التحقق. تأكد من إعداد Firebase Authorized Domains.', 'error');
+    console.error('Order reCAPTCHA init error:', error);
+    if (message) {
+      message.textContent = 'تعذر تشغيل التحقق الأمني. تأكد من إعداد Firebase Authorized Domains.';
+      message.style.color = '#c62828';
+    }
   }
 }
 
-function closePhoneOtpModal() {
-  const modal = document.getElementById('phoneOtpModal');
+function closeOrderRecaptchaModal() {
+  const modal = document.getElementById('orderRecaptchaModal');
   if (modal) modal.classList.remove('active');
+  resetOrderRecaptcha();
 }
 
-async function sendPhoneVerificationCode() {
-  const phoneInput = document.getElementById('custPhone');
-  const phone = phoneInput ? normalizeEgyptianPhone(phoneInput.value) : '';
-
-  if (!isValidEgyptianMobile(phone)) {
-    showOtpMessage('رقم الهاتف غير صحيح.', 'error');
-    return;
-  }
-
-  if (typeof firebase === 'undefined' || !firebase.auth) {
-    showOtpMessage('Firebase Authentication غير متاح.', 'error');
-    return;
-  }
-
-  if (otpRequestInProgress) return;
-  otpRequestInProgress = true;
-
-  const sendBtn = document.getElementById('sendOtpBtn');
-  if (sendBtn) sendBtn.disabled = true;
-
-  try {
-    if (!phoneRecaptchaVerifier) await initializePhoneRecaptcha();
-
-    phoneConfirmationResult = await firebase.auth().signInWithPhoneNumber(
-      formatPhoneForFirebase(phone),
-      phoneRecaptchaVerifier
-    );
-
-    verifiedPhone = '';
-    phoneVerified = false;
-
-    const codeBox = document.getElementById('otpCodeBox');
-    if (codeBox) codeBox.style.display = 'block';
-
-    showOtpMessage('تم إرسال كود التحقق SMS. أدخل الكود المكوّن من 6 أرقام.', 'success');
-    const codeInput = document.getElementById('otpCodeInput');
-    if (codeInput) codeInput.focus();
-  } catch (error) {
-    console.error('فشل إرسال OTP:', error);
-    showOtpMessage(
-      error && error.code === 'auth/too-many-requests'
-        ? 'تم تجاوز عدد المحاولات مؤقتاً. انتظر قليلاً ثم حاول مرة أخرى.'
-        : (error && error.message ? error.message : 'تعذر إرسال كود التحقق.'),
-      'error'
-    );
-    try {
-      if (phoneRecaptchaVerifier) phoneRecaptchaVerifier.clear();
-    } catch (e) {}
-    phoneRecaptchaVerifier = null;
-    if (sendBtn) sendBtn.disabled = false;
-  } finally {
-    otpRequestInProgress = false;
-  }
-}
-
-async function verifyPhoneOtp() {
-  const codeInput = document.getElementById('otpCodeInput');
-  const code = codeInput ? toWesternDigits(codeInput.value).replace(/\D/g, '') : '';
-
-  if (!phoneConfirmationResult) {
-    showOtpMessage('أرسل كود التحقق أولاً.', 'error');
-    return;
-  }
-
-  if (!/^\d{6}$/.test(code)) {
-    showOtpMessage('أدخل كود التحقق المكوّن من 6 أرقام.', 'error');
-    return;
-  }
-
-  const verifyBtn = document.getElementById('verifyOtpBtn');
-  if (verifyBtn) verifyBtn.disabled = true;
-
-  try {
-    const result = await phoneConfirmationResult.confirm(code);
-    if (!result || !result.user || !result.user.phoneNumber) {
-      throw new Error('تعذر تأكيد رقم الهاتف.');
+function continueAfterOrderRecaptcha() {
+  if (!orderRecaptchaVerified) {
+    const message = document.getElementById('orderRecaptchaMessage');
+    if (message) {
+      message.textContent = 'يجب اجتياز التحقق الأمني أولاً.';
+      message.style.color = '#c62828';
     }
-
-    const phoneInput = document.getElementById('custPhone');
-    const currentPhone = phoneInput ? normalizeEgyptianPhone(phoneInput.value) : '';
-
-    if (formatPhoneForFirebase(currentPhone) !== result.user.phoneNumber) {
-      throw new Error('رقم الهاتف الحالي لا يطابق الرقم الذي تم التحقق منه.');
-    }
-
-    phoneVerified = true;
-    verifiedPhone = currentPhone;
-    phoneConfirmationResult = null;
-
-    showOtpMessage('تم التحقق من رقم الهاتف بنجاح ✅', 'success');
-    closePhoneOtpModal();
-
-    const termsModal = document.getElementById('termsModal');
-    if (termsModal) termsModal.classList.add('active');
-
-    checkFormCompletion();
-  } catch (error) {
-    console.error('فشل تأكيد OTP:', error);
-    showOtpMessage(
-      error && error.code === 'auth/invalid-verification-code'
-        ? 'كود التحقق غير صحيح.'
-        : (error && error.message ? error.message : 'تعذر تأكيد رقم الهاتف.'),
-      'error'
-    );
-  } finally {
-    if (verifyBtn) verifyBtn.disabled = false;
+    return;
   }
+
+  closeOrderRecaptchaModal();
+  const termsModal = document.getElementById('termsModal');
+  if (termsModal) termsModal.classList.add('active');
 }
 
-// ===== Cloud order save: Firebase Firestore + verified phone =====
+// ===== Cloud order save: Firebase Firestore =====
 
     function checkFormCompletion() {
       const nameEl = document.getElementById('custName');
@@ -1927,14 +1839,8 @@ async function verifyPhoneOtp() {
         return;
       }
 
-      if (!phoneVerified || verifiedPhone !== phone) {
-        openPhoneOtpModal(phone);
-        return;
-      }
-
       closeCartModal();
-      const termsModal = document.getElementById('termsModal');
-      if (termsModal) termsModal.classList.add('active');
+      openOrderRecaptchaModal();
     }
 
   function toggleTermsCheckbox() {
@@ -1996,10 +1902,9 @@ async function verifyPhoneOtp() {
       const phoneEl = document.getElementById('custPhone');
       const phone = phoneEl ? normalizeEgyptianPhone(phoneEl.value) : '';
 
-      if (!phoneVerified || verifiedPhone !== phone) {
-        const termsModal = document.getElementById('termsModal');
-        if (termsModal) termsModal.classList.remove('active');
-        openPhoneOtpModal(phone);
+      if (!isValidEgyptianMobile(phone)) {
+        alert('رقم الهاتف غير صحيح. يرجى إدخال رقم موبايل مصري صحيح.');
+        if (phoneEl) phoneEl.focus();
         return;
       }
 
@@ -2152,23 +2057,6 @@ async function verifyPhoneOtp() {
         return;
       }
 
-      const authUser = (typeof firebase !== 'undefined' && firebase.auth)
-        ? firebase.auth().currentUser
-        : null;
-      const authPhone = authUser && authUser.phoneNumber
-        ? normalizeEgyptianPhone(authUser.phoneNumber.replace(/^\+20/, '0'))
-        : '';
-
-      if (!phoneVerified || verifiedPhone !== phone || !authUser || !authUser.phoneNumber || authPhone !== phone) {
-        alert('يجب التحقق من رقم الهاتف عبر كود SMS قبل إرسال الطلب.');
-        const confirmationModal = document.getElementById('confirmationModal');
-        if (confirmationModal) confirmationModal.classList.remove('active');
-        const paymentModal = document.getElementById('paymentModal');
-        if (paymentModal) paymentModal.classList.remove('active');
-        openPhoneOtpModal(phone);
-        return;
-      }
-
       const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
       const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod'
         ? 'الدفع عند الاستلام'
@@ -2209,7 +2097,7 @@ async function verifyPhoneOtp() {
       try {
         const cloudSaved = await saveOrderToCloud(newOrderRecord);
         if (!cloudSaved) {
-          alert('لم يتم حفظ الطلب لأن رقم الهاتف لم يتم التحقق منه عبر SMS أو حدث خطأ في Firebase. لم يتم إرسال الطلب عبر واتساب.');
+          alert('تعذر حفظ الطلب في Firebase. لم يتم إرسال الطلب عبر واتساب. تأكد من إعداد Firestore وقواعد الوصول.');
           return;
         }
 
