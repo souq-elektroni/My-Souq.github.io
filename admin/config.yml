@@ -80,12 +80,12 @@ collections:
             value: "out"
         default: "available"
 
-      - label: "المقاسات وتفاصيل الأبعاد"
+      - label: "المقاسات المتاحة"
         name: "variants"
         widget: "list"
         required: false
         minimize_collapsed: true
-        summary: "مقاس: {{fields.size}} | طول التيشرت: {{fields.tshirt_length}} | عرض التيشرت: {{fields.tshirt_width}} | طول البنطلون: {{fields.pants_length}}"
+        summary: "{{fields.size}} - {{fields.color}} - {{fields.status}}"
         fields:
           - label: "المقاس"
             name: "size"
@@ -129,12 +129,12 @@ collections:
               - "5XL"
               - "6XL"
 
-          - label: "اللون (اختياري)"
+          - label: "اللون"
             name: "color"
             widget: "string"
             required: false
 
-          - label: "السعر لهذا المقاس (لو مختلف)"
+          - label: "السعر لهذا المقاس"
             name: "price"
             widget: "number"
             value_type: "int"
@@ -149,22 +149,22 @@ collections:
             default: 0
             required: false
 
-          - label: "طول البنطلون (سم)"
+          - label: "طول البنطلون"
             name: "pants_length"
             widget: "string"
             required: false
 
-          - label: "طول التيشرت (سم)"
+          - label: "طول التيشرت"
             name: "tshirt_length"
             widget: "string"
             required: false
 
-          - label: "عرض التيشرت (سم)"
+          - label: "عرض التيشرت"
             name: "tshirt_width"
             widget: "string"
             required: false
 
-          - label: "القطعة الإضافية (إن وجدت)"
+          - label: "القطعة الإضافية"
             name: "extra_piece"
             widget: "string"
             required: false
