@@ -23,6 +23,140 @@
         font-weight: bold;
         font-size: 18px;
       }
+
+      /* ===== My Souq - جدول المقاسات المخصص ===== */
+      .my-souq-size-table {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border: 1px solid #e4ddd7;
+        border-radius: 10px;
+        background: #fff;
+        direction: rtl;
+      }
+
+      .my-souq-size-table table {
+        width: 100%;
+        min-width: 1120px;
+        border-collapse: collapse;
+        table-layout: fixed;
+      }
+
+      .my-souq-size-table th,
+      .my-souq-size-table td {
+        border-bottom: 1px solid #eee7e2;
+        border-left: 1px solid #eee7e2;
+        padding: 7px;
+        vertical-align: middle;
+        text-align: center;
+      }
+
+      .my-souq-size-table th {
+        background: #f8f1f2;
+        color: #803d48;
+        font-size: 13px;
+        font-weight: bold;
+        white-space: nowrap;
+      }
+
+      .my-souq-size-table td {
+        background: #fff;
+      }
+
+      .my-souq-size-table input,
+      .my-souq-size-table select {
+        box-sizing: border-box;
+        width: 100%;
+        min-height: 38px;
+        padding: 7px 8px;
+        border: 1px solid #d8cfca;
+        border-radius: 6px;
+        background: #fff;
+        font-family: Arial, sans-serif;
+        font-size: 13px;
+        color: #333;
+        outline: none;
+      }
+
+      .my-souq-size-table input:focus,
+      .my-souq-size-table select:focus {
+        border-color: #803d48;
+        box-shadow: 0 0 0 2px rgba(128, 61, 72, 0.08);
+      }
+
+      .my-souq-size-table .size-cell { min-width: 135px; }
+      .my-souq-size-table .measure-cell { min-width: 105px; }
+      .my-souq-size-table .extra-cell { min-width: 165px; }
+      .my-souq-size-table .price-cell { min-width: 105px; }
+      .my-souq-size-table .quantity-cell { min-width: 95px; }
+      .my-souq-size-table .status-cell { min-width: 120px; }
+      .my-souq-size-table .color-cell { min-width: 115px; }
+      .my-souq-size-table .actions-cell { min-width: 78px; }
+
+      .my-souq-size-table .delete-row {
+        border: 0;
+        border-radius: 6px;
+        padding: 8px 10px;
+        background: #f7e7e9;
+        color: #a02f3e;
+        cursor: pointer;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+
+      .my-souq-size-table .delete-row:hover {
+        background: #f1d5d9;
+      }
+
+      .my-souq-size-table .table-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 10px;
+        border-top: 1px solid #eee7e2;
+        background: #fff;
+      }
+
+      .my-souq-size-table .add-row {
+        border: 0;
+        border-radius: 7px;
+        padding: 10px 16px;
+        background: #803d48;
+        color: #fff;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 13px;
+      }
+
+      .my-souq-size-table .add-row:hover {
+        opacity: 0.92;
+      }
+
+      .my-souq-size-table .rows-count {
+        color: #777;
+        font-size: 12px;
+      }
+
+      .my-souq-size-table .empty-message {
+        padding: 18px;
+        text-align: center;
+        color: #777;
+        font-size: 13px;
+      }
+
+      @media (max-width: 700px) {
+        .my-souq-size-table th,
+        .my-souq-size-table td {
+          padding: 6px;
+        }
+
+        .my-souq-size-table input,
+        .my-souq-size-table select {
+          min-height: 36px;
+          font-size: 12px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -30,5 +164,337 @@
 
     <!-- Sveltia CMS Script -->
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+
+    <!-- My Souq: Custom Size Table Field -->
+    <script>
+      (function () {
+        "use strict";
+
+        /*
+         * هذا الحقل المخصص اسمه size-table.
+         * القيمة التي يحفظها تظل Array باسم variants،
+         * بنفس البنية التي يستخدمها المتجر الحالي.
+         */
+
+        var SIZE_OPTIONS = [
+          "مقاس موحد",
+          "0M", "1M", "3M", "6M", "9M", "12M", "18M", "24M",
+          "1 سنة", "2 سنة", "3 سنة", "4 سنة", "5 سنة", "6 سنة",
+          "7 سنة", "8 سنة", "9 سنة", "10 سنة", "11 سنة", "12 سنة",
+          "13 سنة", "14 سنة", "15 سنة", "16 سنة", "17 سنة", "18 سنة",
+          "19 سنة", "20 سنة",
+          "M", "L", "XL", "2XL", "3XL", "4XL", "5XL", "6XL"
+        ];
+
+        function makeElement(tag, attrs) {
+          var args = Array.prototype.slice.call(arguments, 2);
+          var children = [];
+
+          function addChild(child) {
+            if (child === null || child === undefined || child === false) return;
+            if (Array.isArray(child)) {
+              child.forEach(addChild);
+            } else {
+              children.push(child);
+            }
+          }
+
+          args.forEach(addChild);
+
+          return h(
+            tag,
+            attrs || {},
+            children
+          );
+        }
+
+        function getArray(value) {
+          return Array.isArray(value) ? value : [];
+        }
+
+        function normalizeRow(row) {
+          row = row || {};
+          return {
+            size: row.size || "",
+            color: row.color || "",
+            pants_length: row.pants_length || "",
+            tshirt_length: row.tshirt_length || "",
+            tshirt_width: row.tshirt_width || "",
+            extra_piece: row.extra_piece || "",
+            price: row.price === undefined || row.price === null ? "" : row.price,
+            quantity: row.quantity === undefined || row.quantity === null ? 0 : row.quantity,
+            status: row.status || "available"
+          };
+        }
+
+        function cloneRows(value) {
+          return getArray(value).map(normalizeRow);
+        }
+
+        var SizeTableControl = createClass({
+          updateRow: function (index, key, value) {
+            var rows = cloneRows(this.props.value);
+
+            if (!rows[index]) {
+              rows[index] = normalizeRow({});
+            }
+
+            rows[index][key] = value;
+
+            this.props.onChange(rows);
+          },
+
+          addRow: function () {
+            var rows = cloneRows(this.props.value);
+
+            rows.push(normalizeRow({
+              size: "",
+              color: "",
+              pants_length: "",
+              tshirt_length: "",
+              tshirt_width: "",
+              extra_piece: "",
+              price: "",
+              quantity: 0,
+              status: "available"
+            }));
+
+            this.props.onChange(rows);
+          },
+
+          deleteRow: function (index) {
+            var rows = cloneRows(this.props.value);
+
+            rows.splice(index, 1);
+            this.props.onChange(rows);
+          },
+
+          renderSelect: function (value, index, key, options) {
+            var self = this;
+
+            return makeElement(
+              "select",
+              {
+                value: value || "",
+                onChange: function (event) {
+                  self.updateRow(index, key, event.target.value);
+                }
+              },
+              options.map(function (option) {
+                var optionValue = typeof option === "string" ? option : option.value;
+                var optionLabel = typeof option === "string" ? option : option.label;
+
+                return h(
+                  "option",
+                  { key: optionValue, value: optionValue },
+                  optionLabel
+                );
+              })
+            );
+          },
+
+          renderInput: function (value, index, key, type, placeholder) {
+            var self = this;
+
+            return makeElement("input", {
+              type: type || "text",
+              value: value === undefined || value === null ? "" : value,
+              placeholder: placeholder || "",
+              inputMode: type === "number" ? "numeric" : undefined,
+              min: type === "number" ? 0 : undefined,
+              onChange: function (event) {
+                var nextValue = event.target.value;
+
+                if (type === "number") {
+                  nextValue = nextValue === "" ? "" : Number(nextValue);
+                  if (nextValue < 0) nextValue = 0;
+                }
+
+                self.updateRow(index, key, nextValue);
+              }
+            });
+          },
+
+          render: function () {
+            var self = this;
+            var rows = cloneRows(this.props.value);
+
+            return makeElement(
+              "div",
+              {
+                id: this.props.forID,
+                className: "my-souq-size-table"
+              },
+
+              rows.length
+                ? h(
+                    "table",
+                    {},
+                    h(
+                      "thead",
+                      {},
+                      h(
+                        "tr",
+                        {},
+                        h("th", { className: "size-cell" }, "المقاس"),
+                        h("th", { className: "measure-cell" }, "طول البنطلون"),
+                        h("th", { className: "measure-cell" }, "طول التيشرت"),
+                        h("th", { className: "measure-cell" }, "عرض التيشرت"),
+                        h("th", { className: "extra-cell" }, "طول و عرض القطعة الإضافية"),
+                        h("th", { className: "price-cell" }, "سعر هذا المقاس"),
+                        h("th", { className: "quantity-cell" }, "الكمية المتاحة"),
+                        h("th", { className: "status-cell" }, "حالة هذا المقاس"),
+                        h("th", { className: "color-cell" }, "اللون (اختياري)"),
+                        h("th", { className: "actions-cell" }, "حذف")
+                      )
+                    ),
+                    h(
+                      "tbody",
+                      {},
+                      rows.map(function (row, index) {
+                        return h(
+                          "tr",
+                          { key: index },
+
+                          h(
+                            "td",
+                            { className: "size-cell" },
+                            self.renderSelect(row.size, index, "size", SIZE_OPTIONS)
+                          ),
+
+                          h(
+                            "td",
+                            { className: "measure-cell" },
+                            self.renderInput(row.pants_length, index, "pants_length", "text", "سم")
+                          ),
+
+                          h(
+                            "td",
+                            { className: "measure-cell" },
+                            self.renderInput(row.tshirt_length, index, "tshirt_length", "text", "سم")
+                          ),
+
+                          h(
+                            "td",
+                            { className: "measure-cell" },
+                            self.renderInput(row.tshirt_width, index, "tshirt_width", "text", "سم")
+                          ),
+
+                          h(
+                            "td",
+                            { className: "extra-cell" },
+                            self.renderInput(row.extra_piece, index, "extra_piece", "text", "مثال: 30 × 25 سم")
+                          ),
+
+                          h(
+                            "td",
+                            { className: "price-cell" },
+                            self.renderInput(row.price, index, "price", "number", "ج.م")
+                          ),
+
+                          h(
+                            "td",
+                            { className: "quantity-cell" },
+                            self.renderInput(row.quantity, index, "quantity", "number", "0")
+                          ),
+
+                          h(
+                            "td",
+                            { className: "status-cell" },
+                            self.renderSelect(
+                              row.status,
+                              index,
+                              "status",
+                              [
+                                { label: "متوفر", value: "available" },
+                                { label: "نفد", value: "out" }
+                              ]
+                            )
+                          ),
+
+                          h(
+                            "td",
+                            { className: "color-cell" },
+                            self.renderInput(row.color, index, "color", "text", "اختياري")
+                          ),
+
+                          h(
+                            "td",
+                            { className: "actions-cell" },
+                            h(
+                              "button",
+                              {
+                                type: "button",
+                                className: "delete-row",
+                                onClick: function () {
+                                  self.deleteRow(index);
+                                }
+                              },
+                              "حذف"
+                            )
+                          )
+                        );
+                      })
+                    )
+                  )
+                : h(
+                    "div",
+                    { className: "empty-message" },
+                    "لم تتم إضافة أي مقاس بعد. اضغط «＋ إضافة مقاس» لإضافة أول صف."
+                  ),
+
+              h(
+                "div",
+                { className: "table-actions" },
+                h(
+                  "button",
+                  {
+                    type: "button",
+                    className: "add-row",
+                    onClick: function () {
+                      self.addRow();
+                    }
+                  },
+                  "＋ إضافة مقاس"
+                ),
+                h(
+                  "span",
+                  { className: "rows-count" },
+                  "عدد المقاسات: " + rows.length
+                )
+              )
+            );
+          }
+        });
+
+        var SizeTablePreview = createClass({
+          render: function () {
+            var rows = cloneRows(this.props.value);
+
+            if (!rows.length) {
+              return h("span", {}, "لا توجد مقاسات");
+            }
+
+            return h(
+              "span",
+              {},
+              rows.map(function (row) {
+                return row.size || "مقاس بدون اسم";
+              }).join("، ")
+            );
+          }
+        });
+
+        /*
+         * تسجيل الحقل المخصص مع Sveltia.
+         * التسجيل متزامن، وهو ما تتطلبه Sveltia عند استخدام schema/config.
+         */
+        CMS.registerFieldType(
+          "size-table",
+          SizeTableControl,
+          SizeTablePreview
+        );
+      })();
+    </script>
   </body>
 </html>
