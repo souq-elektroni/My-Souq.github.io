@@ -4,6 +4,7 @@ backend:
   branch: main
   auth_methods: [oauth]
   base_url: https://sveltia-cms-auth.ahmedaly1g.workers.dev
+  auth_endpoint: https://sveltia-cms-auth.ahmedaly1g.workers.dev/auth
 
 publish_mode: simple
 
