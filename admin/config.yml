@@ -3,7 +3,7 @@ backend:
   repo: souq-elektroni/My-Souq.github.io
   branch: main
   auth_methods: [oauth]
-  base_url: https://YOUR-SVELTIA-AUTH-WORKER.workers.dev
+  base_url: https://sveltia-cms-auth.ahmedaly1g.workers.dev
 
 publish_mode: simple
 
