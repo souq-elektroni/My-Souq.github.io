@@ -311,40 +311,91 @@
             });
           };
 
+          const stableJSON = function (value) {
+            try {
+              return JSON.stringify(value || []);
+            } catch (e) {
+              return "[]";
+            }
+          };
+
           const SizeTableControl = createClass({
-            handleChange: function (index, field, rawValue) {
-              const rows = normalizeRows(this.props.value);
+            getInitialState: function () {
+              return {
+                rows: normalizeRows(this.props.value),
+                dirty: false,
+                lastEmitted: null
+              };
+            },
 
-              const next = rows.map(function (row, rowIndex) {
-                if (rowIndex !== index) {
-                  return row;
+            componentWillReceiveProps: function (nextProps) {
+              const incoming = normalizeRows(nextProps.value);
+              const incomingJSON = stableJSON(incoming);
+
+              /*
+               * IMPORTANT:
+               * Sveltia may re-render this control while the entry draft is
+               * being updated. During that short cycle the value can briefly
+               * be empty/old. Never replace the user's visible rows with that
+               * transient value while we have a local edit waiting to settle.
+               */
+              if (this.state.dirty) {
+                if (incomingJSON === this.state.lastEmitted) {
+                  this.setState({
+                    rows: incoming,
+                    dirty: false,
+                    lastEmitted: null
+                  });
                 }
+                return;
+              }
 
-                const updated = Object.assign({}, row);
+              this.setState({ rows: incoming });
+            },
 
-                if (field === "quantity" || field === "price") {
-                  if (rawValue === "") {
-                    updated[field] = null;
-                  } else {
-                    const numberValue = Number(rawValue);
-                    updated[field] = Number.isFinite(numberValue)
-                      ? numberValue
-                      : null;
-                  }
-                } else {
-                  updated[field] = rawValue;
-                }
+            emitRows: function (rows) {
+              const plainRows = normalizeRows(rows);
+              const emittedJSON = stableJSON(plainRows);
 
-                return updated;
+              this.setState({
+                rows: plainRows,
+                dirty: true,
+                lastEmitted: emittedJSON
               });
 
-              // Always send a plain JS array back to Sveltia.
-              // This keeps the field stable while other entry fields update.
-              this.props.onChange(next);
+              /* Sveltia's custom field API accepts the new field value here. */
+              this.props.onChange(plainRows);
+            },
+
+            handleChange: function (index, field, rawValue) {
+              const rows = this.state.rows.map(function (row) {
+                return Object.assign({}, row);
+              });
+
+              if (!rows[index]) {
+                return;
+              }
+
+              if (field === "quantity" || field === "price") {
+                if (rawValue === "") {
+                  rows[index][field] = null;
+                } else {
+                  const numberValue = Number(rawValue);
+                  rows[index][field] = Number.isFinite(numberValue)
+                    ? numberValue
+                    : null;
+                }
+              } else {
+                rows[index][field] = rawValue;
+              }
+
+              this.emitRows(rows);
             },
 
             addRow: function () {
-              const rows = normalizeRows(this.props.value);
+              const rows = this.state.rows.map(function (row) {
+                return Object.assign({}, row);
+              });
 
               rows.push({
                 size: "",
@@ -358,27 +409,20 @@
                 status: "available"
               });
 
-              // Additive operation: preserve all existing rows and append one.
-              this.props.onChange(rows);
+              this.emitRows(rows);
             },
 
             deleteRow: function (index) {
-              const rows = normalizeRows(this.props.value);
+              const rows = this.state.rows.map(function (row) {
+                return Object.assign({}, row);
+              });
 
               rows.splice(index, 1);
-
-              this.props.onChange(rows);
+              this.emitRows(rows);
             },
 
-            renderInput: function (
-              row,
-              index,
-              field,
-              type,
-              className
-            ) {
-              const value =
-                row[field] == null ? "" : row[field];
+            renderInput: function (row, index, field, type, className) {
+              const value = row[field] == null ? "" : row[field];
 
               return h("input", {
                 type: type || "text",
@@ -386,13 +430,8 @@
                 value: value,
                 min: type === "number" ? 0 : undefined,
                 step: type === "number" ? 1 : undefined,
-
                 onChange: function (event) {
-                  this.handleChange(
-                    index,
-                    field,
-                    event.target.value
-                  );
+                  this.handleChange(index, field, event.target.value);
                 }.bind(this)
               });
             },
@@ -403,33 +442,13 @@
                 {
                   className: "mst-size",
                   value: row.size || "",
-
                   onChange: function (event) {
-                    this.handleChange(
-                      index,
-                      "size",
-                      event.target.value
-                    );
+                    this.handleChange(index, "size", event.target.value);
                   }.bind(this)
                 },
-
-                h(
-                  "option",
-                  {
-                    value: ""
-                  },
-                  "اختر المقاس"
-                ),
-
+                h("option", { value: "" }, "اختر المقاس"),
                 SIZE_OPTIONS.map(function (size) {
-                  return h(
-                    "option",
-                    {
-                      key: size,
-                      value: size
-                    },
-                    size
-                  );
+                  return h("option", { key: size, value: size }, size);
                 })
               );
             },
@@ -440,324 +459,114 @@
                 {
                   className: "mst-status",
                   value: row.status || "available",
-
                   onChange: function (event) {
-                    this.handleChange(
-                      index,
-                      "status",
-                      event.target.value
-                    );
+                    this.handleChange(index, "status", event.target.value);
                   }.bind(this)
                 },
-
                 STATUS_OPTIONS.map(function (status) {
-                  return h(
-                    "option",
-                    {
-                      key: status.value,
-                      value: status.value
-                    },
-                    status.label
-                  );
+                  return h("option", { key: status.value, value: status.value }, status.label);
                 })
               );
             },
 
             render: function () {
-              const rows = normalizeRows(this.props.value);
+              const rows = this.state.rows;
 
               return h(
                 "div",
-                {
-                  style: {
-                    width: "100%"
-                  }
-                },
-
+                { style: { width: "100%" } },
                 h(
                   "div",
-                  {
-                    className: "my-souq-size-table-wrap"
-                  },
-
-                  rows.length
-                    ? h(
-                        "table",
-                        {
-                          className: "my-souq-size-table"
-                        },
-
-                        h(
-                          "thead",
-                          {},
-
-                          h(
+                  { className: "my-souq-size-table-wrap" },
+                  h(
+                    "table",
+                    { className: "my-souq-size-table" },
+                    h(
+                      "thead",
+                      {},
+                      h(
+                        "tr",
+                        {},
+                        h("th", { className: "mst-size" }, "المقاس"),
+                        h("th", { className: "mst-color" }, "اللون"),
+                        h("th", { className: "mst-number" }, "طول البنطلون"),
+                        h("th", { className: "mst-number" }, "طول التيشرت"),
+                        h("th", { className: "mst-number" }, "عرض التيشرت"),
+                        h("th", { className: "mst-extra" }, "طول وعرض القطعة الإضافية"),
+                        h("th", { className: "mst-price" }, "سعر هذا المقاس"),
+                        h("th", { className: "mst-quantity" }, "الكمية المتاحة"),
+                        h("th", { className: "mst-status" }, "حالة هذا المقاس"),
+                        h("th", { className: "mst-actions" }, "حذف")
+                      )
+                    ),
+                    h(
+                      "tbody",
+                      {},
+                      rows.length
+                        ? rows.map(function (row, index) {
+                            return h(
+                              "tr",
+                              { key: "mst-row-" + index },
+                              h("td", {}, this.renderSizeSelect(row, index)),
+                              h("td", {}, this.renderInput(row, index, "color", "text", "mst-color")),
+                              h("td", {}, this.renderInput(row, index, "pants_length", "text", "mst-number")),
+                              h("td", {}, this.renderInput(row, index, "tshirt_length", "text", "mst-number")),
+                              h("td", {}, this.renderInput(row, index, "tshirt_width", "text", "mst-number")),
+                              h("td", {}, this.renderInput(row, index, "extra_piece", "text", "mst-extra")),
+                              h("td", {}, this.renderInput(row, index, "price", "number", "mst-price")),
+                              h("td", {}, this.renderInput(row, index, "quantity", "number", "mst-quantity")),
+                              h("td", {}, this.renderStatusSelect(row, index)),
+                              h(
+                                "td",
+                                {},
+                                h(
+                                  "button",
+                                  {
+                                    type: "button",
+                                    className: "mst-delete",
+                                    onClick: function () {
+                                      this.deleteRow(index);
+                                    }.bind(this)
+                                  },
+                                  "حذف"
+                                )
+                              )
+                            );
+                          }, this)
+                        : h(
                             "tr",
                             {},
-
                             h(
-                              "th",
-                              {
-                                className: "mst-size"
-                              },
-                              "المقاس"
-                            ),
-
-                            h(
-                              "th",
-                              {
-                                className: "mst-color"
-                              },
-                              "اللون"
-                            ),
-
-                            h(
-                              "th",
-                              {
-                                className: "mst-number"
-                              },
-                              "طول البنطلون"
-                            ),
-
-                            h(
-                              "th",
-                              {
-                                className: "mst-number"
-                              },
-                              "طول التيشرت"
-                            ),
-
-                            h(
-                              "th",
-                              {
-                                className: "mst-number"
-                              },
-                              "عرض التيشرت"
-                            ),
-
-                            h(
-                              "th",
-                              {
-                                className: "mst-extra"
-                              },
-                              "طول وعرض القطعة الإضافية"
-                            ),
-
-                            h(
-                              "th",
-                              {
-                                className: "mst-price"
-                              },
-                              "سعر هذا المقاس"
-                            ),
-
-                            h(
-                              "th",
-                              {
-                                className: "mst-quantity"
-                              },
-                              "الكمية المتاحة"
-                            ),
-
-                            h(
-                              "th",
-                              {
-                                className: "mst-status"
-                              },
-                              "حالة هذا المقاس"
-                            ),
-
-                            h(
-                              "th",
-                              {
-                                className: "mst-actions"
-                              },
-                              "حذف"
+                              "td",
+                              { colSpan: 10, className: "my-souq-size-table-empty" },
+                              "لا توجد مقاسات بعد — اضغط «＋ إضافة مقاس» لإضافة أول صف."
                             )
                           )
-                        ),
-
-                        h(
-                          "tbody",
-                          {},
-
-                          rows.map(
-                            function (row, index) {
-                              return h(
-                                "tr",
-                                {
-                                  key: index
-                                },
-
-                                h(
-                                  "td",
-                                  {},
-                                  this.renderSizeSelect(
-                                    row,
-                                    index
-                                  )
-                                ),
-
-                                h(
-                                  "td",
-                                  {},
-
-                                  this.renderInput(
-                                    row,
-                                    index,
-                                    "color",
-                                    "text",
-                                    "mst-color"
-                                  )
-                                ),
-
-                                h(
-                                  "td",
-                                  {},
-
-                                  this.renderInput(
-                                    row,
-                                    index,
-                                    "pants_length",
-                                    "text",
-                                    "mst-number"
-                                  )
-                                ),
-
-                                h(
-                                  "td",
-                                  {},
-
-                                  this.renderInput(
-                                    row,
-                                    index,
-                                    "tshirt_length",
-                                    "text",
-                                    "mst-number"
-                                  )
-                                ),
-
-                                h(
-                                  "td",
-                                  {},
-
-                                  this.renderInput(
-                                    row,
-                                    index,
-                                    "tshirt_width",
-                                    "text",
-                                    "mst-number"
-                                  )
-                                ),
-
-                                h(
-                                  "td",
-                                  {},
-
-                                  this.renderInput(
-                                    row,
-                                    index,
-                                    "extra_piece",
-                                    "text",
-                                    "mst-extra"
-                                  )
-                                ),
-
-                                h(
-                                  "td",
-                                  {},
-
-                                  this.renderInput(
-                                    row,
-                                    index,
-                                    "price",
-                                    "number",
-                                    "mst-price"
-                                  )
-                                ),
-
-                                h(
-                                  "td",
-                                  {},
-
-                                  this.renderInput(
-                                    row,
-                                    index,
-                                    "quantity",
-                                    "number",
-                                    "mst-quantity"
-                                  )
-                                ),
-
-                                h(
-                                  "td",
-                                  {},
-
-                                  this.renderStatusSelect(
-                                    row,
-                                    index
-                                  )
-                                ),
-
-                                h(
-                                  "td",
-                                  {},
-
-                                  h(
-                                    "button",
-                                    {
-                                      type: "button",
-                                      className: "mst-delete",
-
-                                      onClick: function () {
-                                        this.deleteRow(index);
-                                      }.bind(this)
-                                    },
-                                    "حذف"
-                                  )
-                                )
-                              );
-                            },
-                            this
-                          )
-                        )
-                      )
-                    : h(
-                        "div",
-                        {
-                          className:
-                            "my-souq-size-table-empty"
-                        },
-                        "لم تتم إضافة مقاسات بعد — اضغط «＋ إضافة مقاس»."
-                      )
+                    )
+                  )
                 ),
-
-                /*
-                 * FIX:
-                 * استخدمنا function + bind(this)
-                 * بدل تمرير this.addRow مباشرة.
-                 * بهذا يظل this مرتبطًا بالـ SizeTableControl
-                 * عند الضغط على زر إضافة مقاس.
-                 */
                 h(
                   "button",
                   {
                     type: "button",
                     className: "my-souq-size-table-add",
-
-                    onClick: function () {
+                    onMouseDown: function (event) {
+                      /* Keep focus inside the custom field; do not let the
+                         CMS treat the button click as a field blur. */
+                      event.preventDefault();
+                    },
+                    onClick: function (event) {
+                      event.preventDefault();
+                      event.stopPropagation();
                       this.addRow();
                     }.bind(this)
                   },
                   "＋ إضافة مقاس"
                 ),
-
                 h(
                   "div",
-                  {
-                    className: "my-souq-size-table-note"
-                  },
-                  "يمكنك تعديل الكمية والحالة بشكل مستقل. تغيير الكمية لا يغيّر حالة المقاس تلقائيًا."
+                  { className: "my-souq-size-table-note" },
+                  "يمكنك تعديل كل صف بشكل مستقل. تغيير أي حقل آخر في المنتج لن يمسح صفوف المقاسات."
                 )
               );
             }
