@@ -385,7 +385,7 @@
 
     header {
       text-align: center;
-      padding: 58px 5px 12px;
+      padding: 58px 5px 12px; /* مساحة علوية للأزرار الثابتة بدون تغطية العنوان */
       max-width: 950px;
       margin: 0 auto;
     }
@@ -611,6 +611,7 @@
       }
     }
 
+    /* تحسين شبكة المنتجات على الهواتف لتناسب عمودين بمسافات متناسقة وجميلة */
     .products-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -1031,269 +1032,6 @@
       font-weight: 800;
       cursor: pointer;
     }
-
-    /* ===== Virtual Try-On: additions only ===== */
-    .try-on-btn {
-      flex: 1 1 100%;
-      background: linear-gradient(135deg, #803d48, #a95765);
-      color: #fff;
-      border: none;
-      padding: 10px;
-      border-radius: 8px;
-      font-weight: 900;
-      font-size: 13px;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: 0 4px 12px rgba(128,61,72,.18);
-    }
-
-    .try-on-btn:hover {
-      transform: translateY(-2px);
-      background: linear-gradient(135deg, #672f38, #8d4451);
-    }
-
-    .tryon-modal-content {
-      position: relative;
-      width: min(94vw, 620px);
-      max-height: 92vh;
-      overflow-y: auto;
-      background: var(--card-cream);
-      color: var(--text-dark);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.3);
-      border: 1px solid var(--border-color);
-    }
-
-    .tryon-header {
-      text-align: center;
-      margin-bottom: 16px;
-    }
-
-    .tryon-icon {
-      font-size: 40px;
-      margin-bottom: 4px;
-    }
-
-    .tryon-header h2 {
-      color: var(--burgundy-soft);
-      margin-bottom: 6px;
-      font-size: 21px;
-      font-weight: 900;
-    }
-
-    .tryon-header p {
-      color: var(--text-muted);
-      font-size: 12.5px;
-      line-height: 1.7;
-    }
-
-    .tryon-product-preview {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px;
-      border-radius: 14px;
-      background: var(--pink-soft);
-      border: 1px solid var(--pink-accent);
-      margin-bottom: 14px;
-    }
-
-    .tryon-product-preview img {
-      width: 76px;
-      height: 92px;
-      object-fit: cover;
-      border-radius: 10px;
-      background: #fff;
-      border: 1px solid var(--border-color);
-    }
-
-    .tryon-product-info {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      min-width: 0;
-    }
-
-    .tryon-product-info strong {
-      color: var(--burgundy-soft);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .tryon-product-info span {
-      color: var(--text-muted);
-      font-size: 12px;
-      font-weight: 800;
-    }
-
-    .tryon-upload-box {
-      text-align: center;
-      border: 2px dashed var(--pink-accent);
-      border-radius: 16px;
-      padding: 25px 15px;
-      background: var(--bg-cream);
-    }
-
-    .tryon-upload-icon {
-      font-size: 40px;
-    }
-
-    .tryon-upload-box h3 {
-      margin: 8px 0 5px;
-      color: var(--burgundy-soft);
-      font-size: 16px;
-    }
-
-    .tryon-upload-box p {
-      margin-bottom: 14px;
-      color: var(--text-muted);
-      font-size: 12px;
-    }
-
-    .tryon-upload-btn {
-      display: inline-block;
-      background: var(--burgundy-soft);
-      color: #fff;
-      padding: 11px 20px;
-      border-radius: 11px;
-      cursor: pointer;
-      font-weight: 900;
-      font-size: 13px;
-    }
-
-    .tryon-upload-box small {
-      display: block;
-      margin-top: 12px;
-      color: var(--text-muted);
-      font-size: 10.5px;
-      line-height: 1.6;
-    }
-
-    .tryon-selected-photo {
-      text-align: center;
-    }
-
-    .tryon-selected-photo img {
-      display: block;
-      width: min(100%, 360px);
-      max-height: 420px;
-      object-fit: contain;
-      margin: 0 auto 10px;
-      border-radius: 15px;
-      background: #fff;
-      border: 1px solid var(--border-color);
-    }
-
-    .tryon-change-photo,
-    .tryon-retry-btn {
-      border: none;
-      background: transparent;
-      color: var(--burgundy-soft);
-      cursor: pointer;
-      font-weight: 900;
-      font-size: 12px;
-    }
-
-    .tryon-loading {
-      text-align: center;
-      padding: 28px 10px;
-    }
-
-    .tryon-spinner {
-      width: 46px;
-      height: 46px;
-      margin: 0 auto 14px;
-      border: 4px solid rgba(128,61,72,.18);
-      border-top-color: var(--burgundy-soft);
-      border-radius: 50%;
-      animation: tryonSpin .8s linear infinite;
-    }
-
-    @keyframes tryonSpin {
-      to { transform: rotate(360deg); }
-    }
-
-    .tryon-loading h3 {
-      color: var(--burgundy-soft);
-      margin-bottom: 5px;
-      font-size: 16px;
-    }
-
-    .tryon-loading p,
-    .tryon-loading small {
-      color: var(--text-muted);
-      font-size: 12px;
-      line-height: 1.7;
-    }
-
-    .tryon-result {
-      text-align: center;
-    }
-
-    .tryon-result h3 {
-      color: var(--burgundy-soft);
-      margin-bottom: 10px;
-      font-size: 17px;
-    }
-
-    .tryon-result img {
-      display: block;
-      width: 100%;
-      max-height: 620px;
-      object-fit: contain;
-      border-radius: 16px;
-      background: #fff;
-      border: 1px solid var(--border-color);
-      margin-bottom: 12px;
-    }
-
-    .tryon-notice {
-      margin-top: 14px;
-      padding: 10px;
-      border-radius: 11px;
-      background: var(--pink-soft);
-      border: 1px solid var(--pink-accent);
-      color: var(--text-muted);
-      font-size: 11px;
-      line-height: 1.7;
-      text-align: center;
-    }
-
-    .start-tryon-btn {
-      width: 100%;
-      margin-top: 14px;
-      border: none;
-      border-radius: 12px;
-      padding: 13px;
-      background: var(--burgundy-soft);
-      color: #fff;
-      font-size: 15px;
-      font-weight: 900;
-      cursor: pointer;
-    }
-
-    .start-tryon-btn:disabled {
-      opacity: .45;
-      cursor: not-allowed;
-    }
-
-    body.dark-mode .tryon-modal-content {
-      background: var(--card-cream);
-      border-color: var(--border-color);
-    }
-
-    body.dark-mode .tryon-upload-box {
-      background: #1a1618;
-      border-color: #5a4248;
-    }
-
-    body.dark-mode .tryon-product-preview {
-      background: #2a2226;
-      border-color: #4a3a40;
-    }
-
-    /* ===== End Virtual Try-On additions ===== */
 
     .cart-modal {
       max-width: 580px;
@@ -1960,6 +1698,7 @@
       }
     }
 
+    /* Dark mode toggle */
     .theme-toggle {
       background: var(--burgundy-soft);
       color: white;
@@ -2057,6 +1796,7 @@
       }
     }
 
+    /* Image zoom modal */
     .zoom-overlay {
       position: fixed;
       inset: 0;
@@ -2127,6 +1867,7 @@
       font-weight: 800;
     }
 
+    /* ===== Dark mode polish ===== */
     body.dark-mode .product-card,
     body.dark-mode .modal-content,
     body.dark-mode .controls-wrapper {
@@ -2619,187 +2360,11 @@
               📤
             </button>
 
-            <!-- Virtual Try-On: إضافة فقط -->
-            <button
-              type="button"
-              id="tryOnBtn"
-              class="try-on-btn"
-              onclick="openTryOnModal()"
-            >
-              ✨ جرّب الطقم عليك
-            </button>
-
           </div>
 
         </div>
 
       </div>
-
-    </div>
-
-  </div>
-
-  <!-- Virtual Try-On Modal: إضافة مستقلة -->
-
-  <div class="modal-overlay" id="tryOnModal">
-
-    <div class="tryon-modal-content">
-
-      <button
-        type="button"
-        class="close-btn"
-        onclick="closeTryOnModal()"
-        aria-label="إغلاق"
-      >
-        ✕
-      </button>
-
-      <div class="tryon-header">
-        <div class="tryon-icon">✨</div>
-
-        <h2>جرّب الطقم عليك</h2>
-
-        <p>
-          ارفع صورة واضحة لك أو لطفلك، والذكاء الاصطناعي سيحاول
-          إظهار شكل الطقم على الصورة.
-        </p>
-      </div>
-
-      <div class="tryon-product-preview">
-
-        <img
-          id="tryOnProductPreview"
-          src=""
-          alt="صورة المنتج الحالية"
-        >
-
-        <div class="tryon-product-info">
-
-          <strong id="tryOnProductTitle"></strong>
-
-          <span id="tryOnSelectedSize">
-            لم يتم اختيار مقاس
-          </span>
-
-        </div>
-
-      </div>
-
-      <div
-        class="tryon-upload-box"
-        id="tryOnUploadBox"
-      >
-
-        <div class="tryon-upload-icon">📸</div>
-
-        <h3>ارفع صورة الشخص</h3>
-
-        <p>
-          اختر صورة من الجهاز أو التقط صورة بالكاميرا
-        </p>
-
-        <label
-          for="tryOnPhotoInput"
-          class="tryon-upload-btn"
-        >
-          📷 اختيار الصورة
-        </label>
-
-        <input
-          type="file"
-          id="tryOnPhotoInput"
-          accept="image/*"
-          capture="user"
-          style="display:none;"
-          onchange="handleTryOnPhoto(this)"
-        >
-
-        <small>
-          يفضل أن تكون الصورة واضحة ويظهر فيها الجسم بقدر مناسب.
-        </small>
-
-      </div>
-
-      <div
-        class="tryon-selected-photo"
-        id="tryOnSelectedPhoto"
-        style="display:none;"
-      >
-
-        <img
-          id="tryOnPersonPreview"
-          src=""
-          alt="الصورة المختارة"
-        >
-
-        <button
-          type="button"
-          class="tryon-change-photo"
-          onclick="document.getElementById('tryOnPhotoInput').click()"
-        >
-          🔄 تغيير الصورة
-        </button>
-
-      </div>
-
-      <div
-        class="tryon-loading"
-        id="tryOnLoading"
-        style="display:none;"
-      >
-
-        <div class="tryon-spinner"></div>
-
-        <h3>جاري تجهيز التجربة ✨</h3>
-
-        <p>
-          الذكاء الاصطناعي يقوم بتجربة الطقم على الصورة...
-        </p>
-
-        <small>
-          قد تستغرق العملية بعض الوقت.
-        </small>
-
-      </div>
-
-      <div
-        class="tryon-result"
-        id="tryOnResult"
-        style="display:none;"
-      >
-
-        <h3>✨ النتيجة</h3>
-
-        <img
-          id="tryOnResultImage"
-          src=""
-          alt="نتيجة تجربة الملابس"
-        >
-
-        <button
-          type="button"
-          class="tryon-retry-btn"
-          onclick="resetTryOn()"
-        >
-          🔄 تجربة صورة أخرى
-        </button>
-
-      </div>
-
-      <div class="tryon-notice">
-        ℹ️ التجربة للمعاينة البصرية فقط، وليست ضمانًا للمقاس أو
-        الملاءمة الفعلية.
-      </div>
-
-      <button
-        type="button"
-        id="startTryOnBtn"
-        class="start-tryon-btn"
-        onclick="startVirtualTryOn()"
-        disabled
-      >
-        ✨ ابدأ التجربة
-      </button>
 
     </div>
 
@@ -3239,7 +2804,7 @@
       <div class="success-title">
         تم إرسال طلبك بنجاح!
       </div>
-
+      
       <p id="successOrderIdDisplay" style="font-weight:bold; color:var(--burgundy-soft); margin-bottom:8px; font-size:13px;"></p>
 
       <button
@@ -3261,7 +2826,8 @@
 
   </footer>
 
-  <script src="script.js"></script>
+    <script src="script.js"></script>
+
 
 </body>
 </html>
