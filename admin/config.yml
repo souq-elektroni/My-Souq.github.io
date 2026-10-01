@@ -80,13 +80,15 @@ collections:
             value: "out"
         default: "available"
 
+      # Stable native Sveltia list.
+      # Keeps the same variants array and all existing variant fields.
       - label: "جدول المقاسات"
         name: "variants"
         widget: "list"
         required: false
         collapsed: false
-        summary: "{{size}} — {{color}}"
         add_to_top: true
+        summary: "{{size}} — {{color}}"
         fields:
           - label: "المقاس"
             name: "size"
@@ -168,8 +170,8 @@ collections:
             widget: "number"
             value_type: "int"
             min: 0
-            required: false
             default: 0
+            required: false
 
           - label: "حالة هذا المقاس"
             name: "status"
