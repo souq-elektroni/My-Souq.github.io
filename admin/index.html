@@ -1,45 +1,134 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#803d48" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="My Souq Admin" />
-    <title>لوحة إدارة المنتجات - My Souq</title>
-    <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        min-height: 100%;
-        background: #fdfbf7;
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#803d48" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="My Souq Admin" />
+  <title>لوحة إدارة المنتجات - My Souq</title>
+  <style>
+    body{margin:0;padding:0;font-family:Arial,sans-serif;background:#fdfbf7}
+    #loading{display:grid;place-items:center;height:100vh;color:#803d48;font-weight:bold;font-size:18px}
+
+    /* تنسيق جدول المقاسات فوق عناصر Sveltia الأصلية.
+       لا يغير البيانات ولا يستبدل عناصر الإدخال؛ فقط يعيد ترتيبها بصرياً. */
+    .my-souq-variants-table{width:100%;overflow-x:auto;background:#fff;border:1px solid #e3ddd6;border-radius:12px;padding:0;margin-top:8px;box-sizing:border-box}
+    .my-souq-variants-head{display:grid;grid-template-columns:110px 120px 120px 120px minmax(180px,1fr) 110px 52px;gap:8px;min-width:850px;padding:10px 12px;background:#f6f1ec;border-bottom:1px solid #e3ddd6;font-weight:700;color:#5f3038;font-size:13px;align-items:center}
+    .my-souq-variants-head div{white-space:normal;text-align:center;line-height:1.35}
+    .my-souq-variants-row{display:grid!important;grid-template-columns:110px 120px 120px 120px minmax(180px,1fr) 110px 52px;gap:8px;min-width:850px;padding:10px 12px!important;border-bottom:1px solid #eee7e1!important;align-items:center}
+    .my-souq-variants-row:last-child{border-bottom:0!important}
+    .my-souq-variants-row > *{min-width:0!important;margin:0!important}
+    .my-souq-variants-row .my-souq-field-label{display:none!important}
+    .my-souq-variants-row input,.my-souq-variants-row select{width:100%;box-sizing:border-box;min-height:38px;border:1px solid #d9d0c8;border-radius:7px;padding:6px 8px;background:#fff}
+    .my-souq-variants-row input:focus,.my-souq-variants-row select:focus{outline:2px solid rgba(128,61,72,.18);border-color:#803d48}
+    .my-souq-variants-row .my-souq-delete{display:flex!important;align-items:center;justify-content:center}
+    .my-souq-variants-row .my-souq-delete button{min-height:36px}
+    .my-souq-variants-mobile-note{display:none;padding:9px 12px;color:#765b50;font-size:12px;background:#fffaf5;border-bottom:1px solid #eee7e1}
+    @media(max-width:900px){
+      .my-souq-variants-head,.my-souq-variants-row{min-width:780px;grid-template-columns:95px 105px 105px 105px minmax(150px,1fr) 95px 48px}
+      .my-souq-variants-mobile-note{display:block}
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">جاري تحميل لوحة إدارة My Souq...</div>
+
+  <script>
+  (function(){
+    'use strict';
+
+    var LABELS = [
+      'المقاس',
+      'طول البنطلون',
+      'طول التيشرت',
+      'عرض التيشرت',
+      'طول وعرض القطعة الإضافية',
+      'حالة هذا المقاس'
+    ];
+
+    function textOf(el){return (el && (el.textContent||'')).replace(/\\s+/g,' ').trim();}
+    function hasControl(el){return !!(el && el.querySelector && el.querySelector('input,select,textarea'))}
+
+    function findFieldBox(label){
+      var node=label;
+      for(var i=0;i<7 && node;i++,node=node.parentElement){
+        if(hasControl(node) && node.querySelectorAll('input,select,textarea').length<=2) return node;
       }
+      return label.parentElement || label;
+    }
 
-      body {
-        font-family: Arial, sans-serif;
+    function closestRow(box){
+      var node=box;
+      for(var i=0;i<8 && node;i++,node=node.parentElement){
+        var controls=node.querySelectorAll && node.querySelectorAll('input,select,textarea');
+        var labels=node.querySelectorAll && node.querySelectorAll('label');
+        if(controls && controls.length>=5 && controls.length<=12 && labels && labels.length>=5) return node;
       }
+      return null;
+    }
 
-      #loading {
-        display: grid;
-        place-items: center;
-        min-height: 100vh;
-        color: #803d48;
-        font-weight: bold;
-        font-size: 18px;
+    function markFields(row){
+      if(!row || row.dataset.mySouqRow==='1') return true;
+      var all=Array.prototype.slice.call(row.querySelectorAll('label'));
+      var boxes=[];
+      LABELS.forEach(function(wanted){
+        var label=all.find(function(l){return textOf(l).replace(/\\s+/g,' ').trim()===wanted;});
+        if(label){var box=findFieldBox(label);box.classList.add('my-souq-field-label');boxes.push(box)}
+      });
+      var status=all.find(function(l){return textOf(l)==='حالة هذا المقاس';});
+      if(boxes.length>=4){
+        boxes.forEach(function(b){b.classList.add('my-souq-variant-cell')});
+        if(status) findFieldBox(status).classList.add('my-souq-status-cell');
+        row.classList.add('my-souq-variants-row');
+        row.dataset.mySouqRow='1';
+        var buttons=row.querySelectorAll('button');
+        if(buttons.length) buttons[buttons.length-1].parentElement.classList.add('my-souq-delete');
+        return true;
       }
+      return false;
+    }
 
-      /* تحسين بسيط للتناسق العام بدون التدخل في عناصر Sveltia الداخلية */
-      * {
-        box-sizing: border-box;
+    function addHeader(container){
+      if(!container || container.querySelector(':scope > .my-souq-variants-head')) return;
+      var head=document.createElement('div');
+      head.className='my-souq-variants-head';
+      ['المقاس','طول البنطلون','طول التيشرت','عرض التيشرت','طول وعرض القطعة الإضافية','حالة هذا المقاس',''].forEach(function(x){var d=document.createElement('div');d.textContent=x;head.appendChild(d)});
+      var note=document.createElement('div');note.className='my-souq-variants-mobile-note';note.textContent='اسحب الجدول أفقياً لرؤية كل الخانات.';
+      container.insertBefore(note,container.firstChild);container.insertBefore(head,note.nextSibling);
+    }
+
+    function scan(){
+      var labels=Array.prototype.slice.call(document.querySelectorAll('label'));
+      var candidates=[];
+      labels.forEach(function(l){if(textOf(l)==='المقاس'){var r=closestRow(findFieldBox(l));if(r)candidates.push(r)}});
+      candidates.forEach(markFields);
+      if(candidates.length){
+        var row=candidates[0];
+        var parent=row.parentElement;
+        if(parent){
+          var wrap=parent;
+          for(var i=0;i<5 && wrap;i++,wrap=wrap.parentElement){
+            if(wrap.querySelectorAll && wrap.querySelectorAll('.my-souq-variants-row').length>=candidates.length){
+              wrap.classList.add('my-souq-variants-table');addHeader(wrap);break;
+            }
+          }
+        }
       }
-    </style>
-  </head>
+    }
 
-  <body>
-    <div id="loading">جاري تحميل لوحة إدارة My Souq...</div>
+    function start(){
+      var loading=document.getElementById('loading'); if(loading) loading.style.display='none';
+      scan();
+      var observer=new MutationObserver(function(){scan()});
+      observer.observe(document.body,{childList:true,subtree:true});
+      setTimeout(scan,500);setTimeout(scan,1500);setTimeout(scan,3000);
+    }
+    if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',start); else start();
+  })();
+  </script>
 
-    <!-- Sveltia CMS -->
-    <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
-  </body>
+  <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
+</body>
 </html>
