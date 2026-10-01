@@ -578,44 +578,110 @@
 
               if (!rows.length) {
                 return h(
-                  "span",
-                  {},
+                  "div",
+                  {
+                    style: {
+                      padding: "10px 0",
+                      color: "#777"
+                    }
+                  },
                   "لا توجد مقاسات"
                 );
               }
 
+              const cell = function (value) {
+                return value == null || value === "" ? "—" : String(value);
+              };
+
               return h(
                 "div",
-                {},
-
-                rows.map(function (row, index) {
-                  return h(
-                    "div",
-                    {
-                      key: index,
-
-                      style: {
-                        padding: "4px 0",
-                        borderBottom: "1px solid #eee"
-                      }
-                    },
-
-                    [
-                      row.size || "بدون مقاس",
-                      row.color
-                        ? " — " + row.color
-                        : "",
-                      " | الكمية: ",
-                      row.quantity == null
-                        ? ""
-                        : String(row.quantity),
-                      " | الحالة: ",
-                      row.status === "out"
-                        ? "نفد"
-                        : "متوفر"
-                    ].join("")
-                  );
-                })
+                {
+                  style: {
+                    width: "100%",
+                    overflowX: "auto",
+                    direction: "rtl"
+                  }
+                },
+                h(
+                  "table",
+                  {
+                    style: {
+                      width: "100%",
+                      minWidth: "980px",
+                      borderCollapse: "collapse",
+                      fontSize: "12px",
+                      background: "#fff"
+                    }
+                  },
+                  h(
+                    "thead",
+                    {},
+                    h(
+                      "tr",
+                      {},
+                      [
+                        "المقاس",
+                        "اللون",
+                        "طول البنطلون",
+                        "طول التيشرت",
+                        "عرض التيشرت",
+                        "طول وعرض القطعة الإضافية",
+                        "السعر",
+                        "الكمية",
+                        "الحالة"
+                      ].map(function (label) {
+                        return h(
+                          "th",
+                          {
+                            style: {
+                              padding: "7px 6px",
+                              border: "1px solid #ddd",
+                              background: "#803d48",
+                              color: "#fff",
+                              textAlign: "center",
+                              whiteSpace: "nowrap"
+                            }
+                          },
+                          label
+                        );
+                      })
+                    )
+                  ),
+                  h(
+                    "tbody",
+                    {},
+                    rows.map(function (row, index) {
+                      return h(
+                        "tr",
+                        { key: "preview-row-" + index },
+                        [
+                          cell(row.size),
+                          cell(row.color),
+                          cell(row.pants_length),
+                          cell(row.tshirt_length),
+                          cell(row.tshirt_width),
+                          cell(row.extra_piece),
+                          cell(row.price),
+                          cell(row.quantity),
+                          row.status === "out" ? "نفد" : "متوفر"
+                        ].map(function (value) {
+                          return h(
+                            "td",
+                            {
+                              style: {
+                                padding: "7px 6px",
+                                border: "1px solid #ddd",
+                                textAlign: "center",
+                                whiteSpace: "nowrap"
+                              }
+                            },
+                            value
+                          );
+                        })
+                      );
+                    })
+                  )
+                )
               );
             }
           });
