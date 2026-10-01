@@ -259,12 +259,39 @@
             }
           ];
 
-          const normalizeRows = function (value) {
-            if (!Array.isArray(value)) {
-              return [];
+          /*
+           * Sveltia may pass field values as Immutable collections during
+           * entry updates. The old code accepted Array only, so after typing
+           * or clicking another field it could turn a valid variants list
+           * into [] and the table disappeared.
+           *
+           * Convert Array / Immutable List / array-like values to plain JS
+           * without changing the stored variants schema.
+           */
+          const toPlainArray = function (value) {
+            if (Array.isArray(value)) {
+              return value;
             }
 
-            return value.map(function (row) {
+            if (value && typeof value.toJS === "function") {
+              const converted = value.toJS();
+              return Array.isArray(converted) ? converted : [];
+            }
+
+            if (value && typeof value.toArray === "function") {
+              return value.toArray().map(function (item) {
+                if (item && typeof item.toJS === "function") {
+                  return item.toJS();
+                }
+                return item;
+              });
+            }
+
+            return [];
+          };
+
+          const normalizeRows = function (value) {
+            return toPlainArray(value).map(function (row) {
               return Object.assign(
                 {
                   size: "",
@@ -277,7 +304,9 @@
                   extra_piece: "",
                   status: "available"
                 },
-                row || {}
+                row && typeof row.toJS === "function"
+                  ? row.toJS()
+                  : (row || {})
               );
             });
           };
@@ -309,6 +338,8 @@
                 return updated;
               });
 
+              // Always send a plain JS array back to Sveltia.
+              // This keeps the field stable while other entry fields update.
               this.props.onChange(next);
             },
 
@@ -327,6 +358,7 @@
                 status: "available"
               });
 
+              // Additive operation: preserve all existing rows and append one.
               this.props.onChange(rows);
             },
 
