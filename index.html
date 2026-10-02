@@ -2467,22 +2467,55 @@ footer{
  font-size:12px!important;font-weight:800;
 }
 
-/* Mobile */
+/* Mobile – compact top dock, no overflow/collision */
 @media(max-width:767px){
- .brand-badge{top:10px!important;right:10px!important;width:58px!important;height:58px!important;border-radius:18px!important;font-size:9px!important}
- .top-actions{
-  top:8px!important;left:8px!important;right:78px!important;width:auto!important;max-width:none!important;
-  overflow:visible!important;flex-wrap:wrap!important;padding:5px!important;border-radius:17px;
+ .brand-badge{
+  top:10px!important;right:10px!important;
+  width:52px!important;height:52px!important;
+  border-radius:16px!important;font-size:8px!important;
+  z-index:1300!important;
  }
- .top-actions>*{flex:0 0 auto}
- .admin-orders-trigger,.track-trigger,.cart-trigger{padding:8px 10px!important;font-size:10px!important}
- header{min-height:315px;padding:118px 16px 40px!important}
- header::before{inset:72px 8px 12px;border-radius:28px}
- .brand-wordmark h1{font-size:48px!important;letter-spacing:-1.5px!important}
- .brand-logo-lockup{gap:12px;margin-bottom:16px}
- .brand-cart-icon{width:48px;height:48px}
- .brand-underline{margin-top:9px;height:4px}
- header p{max-width:94%;font-size:11px!important;padding:10px 13px!important;border-radius:18px!important}
+ .top-actions{
+  top:10px!important;
+  left:8px!important;
+  right:68px!important;
+  width:auto!important;
+  max-width:calc(100vw - 76px)!important;
+  overflow-x:auto!important;
+  overflow-y:visible!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  gap:5px!important;
+  padding:4px 5px!important;
+  border-radius:16px!important;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+ }
+ .top-actions::-webkit-scrollbar{display:none}
+ .top-actions>*{flex:0 0 auto;min-height:34px!important}
+ .theme-toggle{
+  width:34px!important;height:34px!important;min-height:34px!important;
+  border-radius:11px!important;font-size:14px!important;
+ }
+ .theme-palette-btn{
+  width:34px!important;height:34px!important;min-height:34px!important;
+  border-radius:11px!important;font-size:13px!important;
+ }
+ .admin-orders-trigger,.track-trigger,.cart-trigger{
+  padding:6px 9px!important;
+  font-size:10px!important;
+  border-radius:11px!important;
+  white-space:nowrap!important;
+  line-height:1.2!important;
+ }
+ .cart-count{width:18px!important;height:18px!important;font-size:10px!important}
+ header{min-height:300px;padding:108px 14px 36px!important}
+ header::before{inset:68px 8px 12px;border-radius:26px}
+ .brand-wordmark h1{font-size:44px!important;letter-spacing:-1.4px!important}
+ .brand-logo-lockup{gap:10px;margin-bottom:14px}
+ .brand-cart-icon{width:44px;height:44px}
+ .brand-underline{margin-top:8px;height:3px}
+ header p{max-width:94%;font-size:11px!important;padding:10px 12px!important;border-radius:16px!important}
  .cat-divider{height:18px;margin:0 2px}
  .search-sort-box{border-top:1px solid rgba(139,63,82,.08);padding-top:10px}
  .controls-wrapper{position:relative;top:auto;width:calc(100% - 18px)!important;border-radius:20px!important}
@@ -2504,11 +2537,12 @@ footer{
  .back-to-top{right:12px!important;bottom:18px!important;width:44px!important;height:44px!important}
  .floating-qr-container{left:12px!important;bottom:70px!important}
 }
-@media(max-width:390px){
- .top-actions{right:72px!important}
- .admin-orders-trigger,.track-trigger,.cart-trigger{padding:7px 8px!important;font-size:9px!important}
- .brand-wordmark h1{font-size:40px!important}
- .brand-cart-icon{width:40px;height:40px}
+@media(max-width:420px){
+ .top-actions{right:62px!important;left:6px!important;gap:4px!important;padding:3px 4px!important}
+ .admin-orders-trigger,.track-trigger,.cart-trigger{padding:5px 7px!important;font-size:9.5px!important}
+ .brand-badge{width:48px!important;height:48px!important;font-size:7.5px!important}
+ .brand-wordmark h1{font-size:38px!important}
+ .brand-cart-icon{width:38px;height:38px}
  .image-container{height:185px!important}
  .product-title{font-size:11px!important}.price-tag{font-size:14px!important}
  .cat-btn{padding:7px 12px!important;font-size:11px!important}
@@ -2570,7 +2604,8 @@ body.dark-mode .theme-palette-btn {
   flex-direction: column;
   gap: 10px;
   z-index: 2500;
-  min-width: 200px;
+  min-width: 230px;
+  max-width: min(280px, calc(100vw - 24px));
   direction: rtl;
   pointer-events: auto;
 }
@@ -2588,7 +2623,7 @@ body.dark-mode .theme-palette-panel {
 }
 .theme-swatches {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 .theme-swatch {
@@ -2712,6 +2747,81 @@ html[data-theme="teal"] {
   --pink-soft: #eef6f6; --pink-accent: #c5d9d9;
   --bg-cream: #f7fbfb; --card-cream: #ffffff;
   --text-dark: #1e2a2a; --text-muted: #5a6b6b; --border-color: #d5e3e3;
+}
+/* Theme: Coral */
+html[data-theme="coral"] {
+  --msq-primary: #c45c4a; --msq-primary-2: #e07a68; --msq-rose: #f8e0db;
+  --msq-ink: #2a1e1c; --msq-muted: #6b5a56; --msq-line: rgba(196,92,74,.14);
+  --msq-glow-1: rgba(196,92,74,.20); --msq-glow-2: rgba(248,224,219,.65);
+  --msq-base-1: #fff9f7; --msq-base-2: #fef1ee; --msq-base-3: #fff9f7;
+  --msq-hero-a: #fff6f4; --msq-hero-b: #f8e0db; --msq-hero-c: #fffcfb;
+  --msq-hero-blob: rgba(255,200,190,.88);
+  --msq-glass: rgba(255,255,255,.55); --msq-glass-border: rgba(255,255,255,.72);
+  --msq-glass-shadow: rgba(90,40,30,.10);
+  --burgundy-soft: #c45c4a; --burgundy-hover: #a3483a;
+  --pink-soft: #fef1ee; --pink-accent: #f0c9c2;
+  --bg-cream: #fff9f7; --card-cream: #ffffff;
+  --text-dark: #2a1e1c; --text-muted: #6b5a56; --border-color: #ecd5d0;
+}
+/* Theme: Peach */
+html[data-theme="peach"] {
+  --msq-primary: #d4896a; --msq-primary-2: #e8a888; --msq-rose: #fce8de;
+  --msq-ink: #2a211c; --msq-muted: #6b5e56; --msq-line: rgba(212,137,106,.14);
+  --msq-glow-1: rgba(212,137,106,.20); --msq-glow-2: rgba(252,232,222,.65);
+  --msq-base-1: #fffaf7; --msq-base-2: #fef4ee; --msq-base-3: #fffaf7;
+  --msq-hero-a: #fff7f2; --msq-hero-b: #fce8de; --msq-hero-c: #fffcfa;
+  --msq-hero-blob: rgba(255,210,185,.88);
+  --msq-glass: rgba(255,255,255,.55); --msq-glass-border: rgba(255,255,255,.72);
+  --msq-glass-shadow: rgba(90,50,30,.09);
+  --burgundy-soft: #d4896a; --burgundy-hover: #b87255;
+  --pink-soft: #fef4ee; --pink-accent: #f0d5c5;
+  --bg-cream: #fffaf7; --card-cream: #ffffff;
+  --text-dark: #2a211c; --text-muted: #6b5e56; --border-color: #ecd9ce;
+}
+/* Theme: Mint */
+html[data-theme="mint"] {
+  --msq-primary: #3d8a78; --msq-primary-2: #5aada0; --msq-rose: #d8f2ec;
+  --msq-ink: #1c2a26; --msq-muted: #566b65; --msq-line: rgba(61,138,120,.14);
+  --msq-glow-1: rgba(61,138,120,.18); --msq-glow-2: rgba(216,242,236,.65);
+  --msq-base-1: #f6fcfa; --msq-base-2: #eaf8f4; --msq-base-3: #f6fcfa;
+  --msq-hero-a: #f2faf7; --msq-hero-b: #d8f2ec; --msq-hero-c: #f8fdfb;
+  --msq-hero-blob: rgba(170,230,210,.85);
+  --msq-glass: rgba(255,255,255,.55); --msq-glass-border: rgba(255,255,255,.72);
+  --msq-glass-shadow: rgba(30,70,60,.09);
+  --burgundy-soft: #3d8a78; --burgundy-hover: #2e6e60;
+  --pink-soft: #eaf8f4; --pink-accent: #c0e0d6;
+  --bg-cream: #f6fcfa; --card-cream: #ffffff;
+  --text-dark: #1c2a26; --text-muted: #566b65; --border-color: #d0e6df;
+}
+/* Theme: Plum */
+html[data-theme="plum"] {
+  --msq-primary: #7a3d5c; --msq-primary-2: #a05a7e; --msq-rose: #f0dce6;
+  --msq-ink: #261c22; --msq-muted: #6b5660; --msq-line: rgba(122,61,92,.14);
+  --msq-glow-1: rgba(122,61,92,.20); --msq-glow-2: rgba(240,220,230,.65);
+  --msq-base-1: #fcf7fa; --msq-base-2: #f7eef3; --msq-base-3: #fcf7fa;
+  --msq-hero-a: #faf2f6; --msq-hero-b: #f0dce6; --msq-hero-c: #fdf8fb;
+  --msq-hero-blob: rgba(230,180,205,.85);
+  --msq-glass: rgba(255,255,255,.55); --msq-glass-border: rgba(255,255,255,.72);
+  --msq-glass-shadow: rgba(70,30,50,.10);
+  --burgundy-soft: #7a3d5c; --burgundy-hover: #5e2e47;
+  --pink-soft: #f7eef3; --pink-accent: #e0c5d4;
+  --bg-cream: #fcf7fa; --card-cream: #ffffff;
+  --text-dark: #261c22; --text-muted: #6b5660; --border-color: #e6d5de;
+}
+/* Theme: Navy */
+html[data-theme="navy"] {
+  --msq-primary: #3d4a6b; --msq-primary-2: #5a6b8f; --msq-rose: #dce0ee;
+  --msq-ink: #1c1e2a; --msq-muted: #565a6b; --msq-line: rgba(61,74,107,.14);
+  --msq-glow-1: rgba(61,74,107,.18); --msq-glow-2: rgba(220,224,238,.65);
+  --msq-base-1: #f7f8fc; --msq-base-2: #eef0f7; --msq-base-3: #f7f8fc;
+  --msq-hero-a: #f2f4fa; --msq-hero-b: #dce0ee; --msq-hero-c: #f8f9fd;
+  --msq-hero-blob: rgba(170,185,220,.85);
+  --msq-glass: rgba(255,255,255,.55); --msq-glass-border: rgba(255,255,255,.72);
+  --msq-glass-shadow: rgba(30,35,70,.09);
+  --burgundy-soft: #3d4a6b; --burgundy-hover: #2e3854;
+  --pink-soft: #eef0f7; --pink-accent: #c5cadc;
+  --bg-cream: #f7f8fc; --card-cream: #ffffff;
+  --text-dark: #1c1e2a; --text-muted: #565a6b; --border-color: #d5d8e6;
 }
 
 /* Apply theme colors to key elements that use old vars */
@@ -3074,11 +3184,16 @@ html[data-theme] .product-card:hover {
         <div class="theme-palette-title">اختر لون المتجر</div>
         <div class="theme-swatches">
           <button class="theme-swatch active" data-theme="rose" data-label="وردي" style="background:linear-gradient(135deg,#8b3f52,#b75b72)" onclick="setSiteTheme('rose',this)" title="وردي هادئ"></button>
-          <button class="theme-swatch" data-theme="sage" data-label="أخضر" style="background:linear-gradient(135deg,#4a6b5a,#6b8f7a)" onclick="setSiteTheme('sage',this)" title="أخضر مريمي"></button>
-          <button class="theme-swatch" data-theme="sky" data-label="أزرق" style="background:linear-gradient(135deg,#4a6b8a,#6b8faf)" onclick="setSiteTheme('sky',this)" title="أزرق ناعم"></button>
+          <button class="theme-swatch" data-theme="sage" data-label="مريمي" style="background:linear-gradient(135deg,#4a6b5a,#6b8f7a)" onclick="setSiteTheme('sage',this)" title="أخضر مريمي"></button>
+          <button class="theme-swatch" data-theme="sky" data-label="سماوي" style="background:linear-gradient(135deg,#4a6b8a,#6b8faf)" onclick="setSiteTheme('sky',this)" title="أزرق ناعم"></button>
           <button class="theme-swatch" data-theme="sand" data-label="رملي" style="background:linear-gradient(135deg,#8a6b4a,#af8f6b)" onclick="setSiteTheme('sand',this)" title="رملي دافئ"></button>
-          <button class="theme-swatch" data-theme="lavender" data-label="بنفسجي" style="background:linear-gradient(135deg,#6b5a8a,#8f7aaf)" onclick="setSiteTheme('lavender',this)" title="لافندر"></button>
+          <button class="theme-swatch" data-theme="lavender" data-label="لافندر" style="background:linear-gradient(135deg,#6b5a8a,#8f7aaf)" onclick="setSiteTheme('lavender',this)" title="لافندر"></button>
           <button class="theme-swatch" data-theme="teal" data-label="تركواز" style="background:linear-gradient(135deg,#3d7a7a,#5a9a9a)" onclick="setSiteTheme('teal',this)" title="تركواز هادئ"></button>
+          <button class="theme-swatch" data-theme="coral" data-label="مرجاني" style="background:linear-gradient(135deg,#c45c4a,#e07a68)" onclick="setSiteTheme('coral',this)" title="مرجاني"></button>
+          <button class="theme-swatch" data-theme="peach" data-label="خوخي" style="background:linear-gradient(135deg,#d4896a,#e8a888)" onclick="setSiteTheme('peach',this)" title="خوخي ناعم"></button>
+          <button class="theme-swatch" data-theme="mint" data-label="نعناعي" style="background:linear-gradient(135deg,#3d8a78,#5aada0)" onclick="setSiteTheme('mint',this)" title="نعناعي"></button>
+          <button class="theme-swatch" data-theme="plum" data-label="برقوقي" style="background:linear-gradient(135deg,#7a3d5c,#a05a7e)" onclick="setSiteTheme('plum',this)" title="برقوقي"></button>
+          <button class="theme-swatch" data-theme="navy" data-label="كحلي" style="background:linear-gradient(135deg,#3d4a6b,#5a6b8f)" onclick="setSiteTheme('navy',this)" title="كحلي هادئ"></button>
         </div>
       </div>
     </div>
@@ -3460,6 +3575,30 @@ html[data-theme] .product-card:hover {
 
     </div>
 
+  </div>
+
+  <!-- Order reCAPTCHA security step -->
+  <div class="modal-overlay" id="orderRecaptchaModal">
+    <div class="modal-content" style="max-width:380px;text-align:center;">
+      <button class="close-modal-btn" onclick="closeOrderRecaptchaModal()" aria-label="إغلاق">✕</button>
+      <div class="terms-header" style="font-size:17px;">🔐 التحقق الأمني</div>
+      <p id="orderRecaptchaMessage" style="font-size:13px;font-weight:700;color:var(--text-muted);margin:8px 0 14px;line-height:1.6;">
+        يرجى اجتياز التحقق الأمني للمتابعة.
+      </p>
+      <div id="orderRecaptchaContainer" style="display:flex;justify-content:center;min-height:78px;margin-bottom:14px;"></div>
+      <button
+        id="orderRecaptchaContinueBtn"
+        class="send-final-btn"
+        style="opacity:0.55;cursor:not-allowed;"
+        disabled
+        onclick="continueAfterOrderRecaptcha()"
+      >
+        متابعة للشروط والأحكام ←
+      </button>
+      <p style="font-size:11px;color:var(--text-muted);margin-top:10px;font-weight:600;">
+        خطوة بسيطة ضد الطلبات الوهمية — لن تستغرق سوى ثوانٍ
+      </p>
+    </div>
   </div>
 
   <!-- Terms Modal -->
@@ -4237,16 +4376,96 @@ html[data-theme] .product-card:hover {
     }
 
     function statusNotifyMessage(order, statusLabel) {
+      var code = typeof order.statusCode === 'number' ? order.statusCode : -1;
+      var statusLine = statusLabel || order.status || '';
+      // رسائل أوضح حسب المرحلة مع إيموجي تظهر في واتساب
+      var bodyExtra = '';
+      if (code === 0 || /تنفيذ/.test(statusLine)) {
+        bodyExtra = 'طلبك قيد التجهيز حالياً.\nهنبلغك فور أي تحديث جديد.';
+      } else if (code === 1 || /حجز/.test(statusLine)) {
+        bodyExtra = 'تم تأكيد وحجز طلبك بنجاح.\nجاري التحضير للشحن.';
+      } else if (code === 2 || /شحن/.test(statusLine)) {
+        bodyExtra = 'طلبك خرج للشحن.\nهيوصلك خلال أيام الشحن المعتادة إن شاء الله.';
+      } else if (code === 3 || /توريد|تسليم|استلام/.test(statusLine)) {
+        bodyExtra = 'تم توريد/تسليم طلبك بنجاح.\nنتمنى يكون عجبك، وفي خدمتك دائماً.';
+      } else {
+        bodyExtra = 'تم تحديث حالة طلبك.\nتقدر تتابع التفاصيل من المتجر.';
+      }
+
+      var itemsBrief = '';
+      try {
+        if (order.items && order.items.length) {
+          itemsBrief = order.items.map(function (it, i) {
+            return (i + 1) + ') ' + (it.title || 'منتج') +
+              (it.size ? ' — مقاس: ' + it.size : '') +
+              (it.qty ? ' × ' + it.qty : '');
+          }).join('\n');
+        }
+      } catch (e) {}
+
       return (
-        'مرحباً ' + (order.name || '') + ' 👋\n' +
-        'تحديث من متجر My Souq 🛒\n\n' +
-        '🆔 رقم الطلب: ' + (order.orderId || '') + '\n' +
-        '📦 الحالة الجديدة: ' + (statusLabel || order.status || '') + '\n' +
-        '💰 الإجمالي: ' + (order.total || '-') + '\n\n' +
-        'تقدر تتابع طلبك من زر «تتبع طلبك» في المتجر.\n' +
-        'شكراً لثقتك فينا ❤️'
+        'مرحباً ' + (order.name || 'عميلنا العزيز') + ' \u{1F44B}\n' +
+        'تحديث من متجر *My Souq*\n\n' +
+        '\u{1F194} رقم الطلب: ' + (order.orderId || '') + '\n' +
+        '\u{1F4E6} الحالة: ' + statusLine + '\n' +
+        '\u{1F4B0} الإجمالي: ' + (order.total || '-') + '\n' +
+        (itemsBrief ? ('\n\u{1F6D2} المنتجات:\n' + itemsBrief + '\n') : '') +
+        '\n' + bodyExtra + '\n\n' +
+        'للاستفسار رد على الرسالة.\n' +
+        'شكراً لثقتك فينا \u{2764}\u{FE0F}'
       );
     }
+
+    // تحسين رسالة الشحن المنسوخة (الإيموجي تظهر بشكل صحيح)
+    window.copyShippingMessage = function (orderId) {
+      var o = (typeof adminOrdersCache !== 'undefined' ? adminOrdersCache : [])
+        .find(function (x) { return String(x.orderId || '') === String(orderId || ''); });
+      if (!o) {
+        try {
+          o = (ordersHistory || []).find(function (x) { return String(x.orderId || '') === String(orderId || ''); });
+        } catch (e) {}
+      }
+      if (!o) {
+        alert('الطلب غير موجود');
+        return;
+      }
+
+      var itemsText = '';
+      if (o.items && o.items.length) {
+        itemsText = o.items.map(function (it, i) {
+          return (i + 1) + ') ' + (it.title || 'منتج') +
+            (it.size ? ' — مقاس: ' + it.size : '') +
+            (it.qty ? ' × ' + it.qty : '');
+        }).join('\n');
+      }
+
+      var msg =
+        'مرحباً ' + (o.name || '') + ' \u{1F44B}\n' +
+        'تم شحن طلبك بنجاح من متجر *My Souq* \u{1F69A}\n\n' +
+        '\u{1F194} رقم الطلب: ' + (o.orderId || '') + '\n' +
+        '\u{1F4B0} الإجمالي: ' + (o.total || '-') + '\n' +
+        (itemsText ? ('\n\u{1F6D2} المنتجات:\n' + itemsText + '\n') : '') +
+        (o.address ? ('\n\u{1F4CD} العنوان: ' + o.address + '\n') : '') +
+        '\nهيوصلك خلال أيام الشحن المعتادة إن شاء الله.\n' +
+        'للاستفسار رد على الرسالة.\n' +
+        'شكراً لثقتك فينا \u{2764}\u{FE0F}';
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(msg).then(function () {
+          alert('تم نسخ رسالة الشحن ✅');
+        }).catch(function () {
+          window.prompt('انسخ الرسالة:', msg);
+        });
+      } else {
+        window.prompt('انسخ الرسالة:', msg);
+      }
+
+      // فتح واتساب العميل مباشرة لو الرقم موجود
+      var wa = toWaPhone(o.phone);
+      if (wa) {
+        window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+      }
+    };
 
     window.notifyCustomerStatus = function (orderId, statusLabel) {
       var o = (typeof adminOrdersCache !== 'undefined' ? adminOrdersCache : [])
