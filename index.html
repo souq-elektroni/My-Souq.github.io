@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="My Souq">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="https://souq-elektroni.github.io/My-Souq.github.io/images/icon-192.png">
-  <title>My Souq - سوق إلكتروني</title>
+  <title>My Souq</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -2083,6 +2083,9 @@
     }
 
   </style>
+
+  <!-- My Souq modern visual layer -->
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -2149,7 +2152,7 @@
   >▲</div>
 
   <header>
-    <h1>سوق إلكتروني 🛒</h1>
+    <h1>My Souq 🛒</h1>
 
     <p>
       تسوق وأنت بمكانك
@@ -2485,54 +2488,6 @@
         </button>
 
       </div>
-
-    </div>
-
-  </div>
-
-  <!-- Order reCAPTCHA Modal (مستقل عن OTP) -->
-
-  <div class="modal-overlay" id="orderRecaptchaModal">
-
-    <div class="modal-content" style="max-width:460px; text-align:center;">
-
-      <div class="terms-header">🛡️ التحقق الأمني</div>
-
-      <p style="font-size:13px; line-height:1.8; margin:10px 0; color:var(--text-dark);">
-        يرجى اجتياز التحقق الأمني قبل الانتقال إلى الشروط والأحكام.
-      </p>
-
-      <div
-        id="orderRecaptchaContainer"
-        style="display:flex; justify-content:center; margin:14px 0; min-height:78px;"
-      ></div>
-
-      <div
-        id="orderRecaptchaMessage"
-        style="min-height:22px; margin-top:8px; font-size:12px; font-weight:800;"
-      >
-        يرجى اجتياز التحقق الأمني للمتابعة.
-      </div>
-
-      <button
-        type="button"
-        id="orderRecaptchaContinueBtn"
-        class="send-final-btn"
-        onclick="continueAfterOrderRecaptcha()"
-        disabled
-        style="width:100%; margin-top:8px; opacity:0.55; cursor:not-allowed;"
-      >
-        متابعة للشروط والأحكام 👈
-      </button>
-
-      <button
-        type="button"
-        class="btn-decline"
-        onclick="closeOrderRecaptchaModal()"
-        style="width:100%; margin-top:8px;"
-      >
-        إلغاء
-      </button>
 
     </div>
 
