@@ -10,15 +10,62 @@ publish_mode: simple
 media_folder: "images/products"
 public_folder: "/images/products"
 
+# تحويل الصور إلى WebP عند الرفع (في المتصفح قبل الحفظ على GitHub)
+# حسب توثيق Sveltia: المفتاح all هو الأساس + default.config للتوافق
 media_libraries:
+  all:
+    max_file_size: 15728640
+    slugify_filename: true
+    transformations:
+      raster_image:
+        format: webp
+        quality: 82
+        width: 1600
+        height: 1600
+      jpeg:
+        format: webp
+        quality: 82
+        width: 1600
+        height: 1600
+      png:
+        format: webp
+        quality: 82
+        width: 1600
+        height: 1600
+      heic:
+        format: webp
+        quality: 80
+        width: 1600
+        height: 1600
+      svg:
+        optimize: true
   default:
     config:
+      max_file_size: 15728640
+      slugify_filename: true
       transformations:
         raster_image:
           format: webp
           quality: 82
           width: 1600
           height: 1600
+        jpeg:
+          format: webp
+          quality: 82
+          width: 1600
+          height: 1600
+        png:
+          format: webp
+          quality: 82
+          width: 1600
+          height: 1600
+        heic:
+          format: webp
+          quality: 80
+          width: 1600
+          height: 1600
+        svg:
+          optimize: true
 
 collections:
   - name: "products"
@@ -51,9 +98,43 @@ collections:
         required: true
         min: 1
         max: 15
-        media_library:
-          config:
-            multiple: true
+        media_libraries:
+          all:
+            transformations:
+              raster_image:
+                format: webp
+                quality: 82
+                width: 1600
+                height: 1600
+              jpeg:
+                format: webp
+                quality: 82
+                width: 1600
+                height: 1600
+              png:
+                format: webp
+                quality: 82
+                width: 1600
+                height: 1600
+          default:
+            config:
+              multiple: true
+              transformations:
+                raster_image:
+                  format: webp
+                  quality: 82
+                  width: 1600
+                  height: 1600
+                jpeg:
+                  format: webp
+                  quality: 82
+                  width: 1600
+                  height: 1600
+                png:
+                  format: webp
+                  quality: 82
+                  width: 1600
+                  height: 1600
 
       - label: "السعر الأساسي (ج.م)"
         name: "price"
