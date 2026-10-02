@@ -2870,6 +2870,32 @@ html[data-theme] .product-card:hover {
   border: 1px solid var(--border-color);
   flex-shrink: 0;
   background: #f5f0f2;
+  cursor: zoom-in;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.track-product-img:hover {
+  transform: scale(1.04);
+  box-shadow: 0 6px 16px rgba(0,0,0,.12);
+}
+.track-product-img-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.track-product-img-wrap::after {
+  content: "🔍";
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  font-size: 11px;
+  background: rgba(0,0,0,.45);
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
 }
 .track-product-info {
   flex: 1;
@@ -2896,15 +2922,26 @@ html[data-theme] .product-card:hover {
 .track-dims {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 4px;
+  gap: 6px;
+  margin-top: 6px;
+  padding: 8px;
+  background: var(--pink-soft);
+  border: 1px solid var(--pink-accent);
+  border-radius: 10px;
+}
+.track-dims-title {
+  width: 100%;
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--msq-primary, var(--burgundy-soft));
+  margin-bottom: 2px;
 }
 .track-dim-chip {
-  font-size: 10.5px;
+  font-size: 11px;
   font-weight: 800;
-  padding: 3px 8px;
+  padding: 4px 9px;
   border-radius: 999px;
-  background: var(--pink-soft);
+  background: #fff;
   color: var(--msq-primary, var(--burgundy-soft));
   border: 1px solid var(--pink-accent);
 }
@@ -3820,25 +3857,84 @@ html[data-theme] .product-card:hover {
         .replace(/"/g, '&quot;');
     }
 
+    function cmLabel(val) {
+      if (val == null || val === '') return '';
+      var s = String(val).trim();
+      if (!s) return '';
+      // لو مفيش وحدة مكتوبة نضيف سم
+      if (!/[اأسمcmCM]/.test(s) && /^\d/.test(s)) s = s + ' سم';
+      return s;
+    }
+
+    function enrichItemFromCatalog(it) {
+      var out = Object.assign({}, it);
+      var hasDims = out.pants_length || out.tshirt_length || out.tshirt_width || out.extra_piece;
+      if (hasDims) return out;
+      try {
+        if (typeof products !== 'undefined' && Array.isArray(products) && out.id != null) {
+          var p = products.find(function (x) { return String(x.id) === String(out.id); });
+          if (p && Array.isArray(p.variants)) {
+            var v = p.variants.find(function (vr) {
+              return String(vr.size || '') === String(out.size || '');
+            }) || p.variants[0];
+            if (v) {
+              if (!out.pants_length && v.pants_length) out.pants_length = v.pants_length;
+              if (!out.tshirt_length && v.tshirt_length) out.tshirt_length = v.tshirt_length;
+              if (!out.tshirt_width && v.tshirt_width) out.tshirt_width = v.tshirt_width;
+              if (!out.extra_piece && v.extra_piece) out.extra_piece = v.extra_piece;
+            }
+          }
+          if (!out.image && p && p.images && p.images[0]) out.image = p.images[0];
+        }
+      } catch (e) {}
+      return out;
+    }
+
+    window.openTrackImageZoom = function (src) {
+      if (!src) return;
+      var zoomImg = document.getElementById('zoomImage');
+      var overlay = document.getElementById('zoomOverlay');
+      if (zoomImg) zoomImg.src = src;
+      if (overlay) overlay.classList.add('active');
+    };
+
     function buildTrackItemsHtml(items) {
       if (!items || !items.length) {
         return '<div class="track-product-row" style="padding:8px 0;color:var(--text-muted);">لا توجد تفاصيل منتجات محفوظة لهذا الطلب.</div>';
       }
-      return items.map(function (it) {
+      return items.map(function (raw) {
+        var it = enrichItemFromCatalog(raw);
         var img = it.image || '';
         var title = escapeHtml(it.title || 'منتج');
         var size = escapeHtml(it.size || '-');
         var color = it.color ? escapeHtml(it.color) : '';
         var qty = it.qty || 1;
         var price = it.price != null ? it.price : '';
+
+        var pants = cmLabel(it.pants_length);
+        var tLen = cmLabel(it.tshirt_length);
+        var tWidth = cmLabel(it.tshirt_width);
+        var extra = it.extra_piece ? String(it.extra_piece).trim() : '';
+
         var chips = '';
-        if (it.pants_length) chips += '<span class="track-dim-chip">👖 طول البنطلون: ' + escapeHtml(it.pants_length) + '</span>';
-        if (it.tshirt_length) chips += '<span class="track-dim-chip">👕 طول التيشرت: ' + escapeHtml(it.tshirt_length) + '</span>';
-        if (it.tshirt_width) chips += '<span class="track-dim-chip">📐 عرض التيشرت: ' + escapeHtml(it.tshirt_width) + '</span>';
-        if (it.extra_piece) chips += '<span class="track-dim-chip">🏷️ إضافي: ' + escapeHtml(it.extra_piece) + '</span>';
+        if (pants) chips += '<span class="track-dim-chip">👖 طول البنطلون: ' + escapeHtml(pants) + '</span>';
+        if (tLen) chips += '<span class="track-dim-chip">👕 طول التيشرت: ' + escapeHtml(tLen) + '</span>';
+        if (tWidth) chips += '<span class="track-dim-chip">📐 عرض التيشرت: ' + escapeHtml(tWidth) + '</span>';
+        if (extra) chips += '<span class="track-dim-chip">🏷️ القطعة الإضافية: ' + escapeHtml(extra) + '</span>';
+
+        var dimsHtml = chips
+          ? '<div class="track-dims"><div class="track-dims-title">📏 المقاسات بالسنتيمتر</div>' + chips + '</div>'
+          : '<div class="track-dims"><div class="track-dims-title">📏 المقاسات بالسنتيمتر</div><span class="track-dim-chip" style="opacity:.75;">غير مسجّلة لهذا الطلب</span></div>';
+
+        var safeSrc = escapeHtml(img);
         var imgHtml = img
-          ? '<img class="track-product-img" src="' + escapeHtml(img) + '" alt="' + title + '" loading="lazy" onerror="this.style.display=\'none\'">'
-          : '<div class="track-product-img" style="display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-muted);">📦</div>';
+          ? '<div class="track-product-img-wrap">' +
+              '<img class="track-product-img" src="' + safeSrc + '" alt="' + title + '" loading="lazy" ' +
+              'onclick="openTrackImageZoom(this.src)" title="اضغط لتكبير الصورة" ' +
+              'onerror="this.style.display=\'none\'">' +
+            '</div>'
+          : '<div class="track-product-img" style="display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-muted);cursor:default;">📦</div>';
+
         return (
           '<div class="track-product-card">' +
             imgHtml +
@@ -3850,7 +3946,7 @@ html[data-theme] .product-card:hover {
               '<div class="track-product-row">الكمية: <b>' + qty + '</b>' +
                 (price !== '' ? ' · السعر: <b>' + escapeHtml(String(price)) + ' ج.م</b>' : '') +
               '</div>' +
-              (chips ? '<div class="track-dims">' + chips + '</div>' : '') +
+              dimsHtml +
             '</div>' +
           '</div>'
         );
