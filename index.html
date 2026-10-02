@@ -3893,6 +3893,10 @@ html[data-theme] .product-card:hover {
           id="trackInputId"
           class="promo-input track-search-input"
           placeholder="أدخل رقم الطلب هنا..."
+          autocomplete="off"
+          spellcheck="false"
+          style="text-transform:uppercase;"
+          oninput="this.value=this.value.replace(/\s+/g,'').toUpperCase()"
         >
         <button
           class="promo-btn track-search-btn"
@@ -4258,20 +4262,68 @@ html[data-theme] .product-card:hover {
       }).join('');
     }
 
+    // تطبيع رقم الطلب: مسافات زائدة + حروف صغيرة → كابيتال
+    function normalizeOrderIdInput(raw) {
+      return String(raw || '')
+        .trim()
+        .replace(/\s+/g, '')
+        .toUpperCase();
+    }
+
+    // بحث مرن: Firebase بالـ ID الكابيتال + احتياطي محلي بدون حساسية لحالة الحروف
+    async function findOrderFlexible(searchId) {
+      var id = normalizeOrderIdInput(searchId);
+      if (!id) return null;
+
+      var found = null;
+      try {
+        if (typeof fetchOrderFromCloud === 'function') {
+          found = await fetchOrderFromCloud(id);
+        }
+      } catch (e) {}
+
+      if (found) return found;
+
+      // احتياطي محلي case-insensitive
+      try {
+        if (typeof ordersHistory !== 'undefined' && Array.isArray(ordersHistory)) {
+          found = ordersHistory.find(function (o) {
+            return normalizeOrderIdInput(o.orderId) === id;
+          }) || null;
+        }
+      } catch (e) {}
+
+      // محاولة أخرى من كاش الأدمن
+      if (!found) {
+        try {
+          if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) {
+            found = adminOrdersCache.find(function (o) {
+              return normalizeOrderIdInput(o.orderId) === id;
+            }) || null;
+          }
+        } catch (e) {}
+      }
+
+      return found || null;
+    }
+
     window.searchOrderTracking = async function () {
       var searchInput = document.getElementById('trackInputId');
-      var searchId = searchInput ? searchInput.value.trim() : '';
+      var rawId = searchInput ? searchInput.value.trim() : '';
+      var searchId = normalizeOrderIdInput(rawId);
       var resultBox = document.getElementById('trackingResultContainer');
       if (!searchId) {
         alert('يرجى إدخال رقم الطلب أولاً');
         return;
       }
+      // اعرض الرقم بالكابيتال للعميل
+      if (searchInput) searchInput.value = searchId;
       if (!resultBox) return;
 
       resultBox.style.display = 'block';
       resultBox.innerHTML = '<div style="text-align:center;padding:14px;font-weight:800;color:var(--text-muted);">جاري البحث...</div>';
 
-      var foundOrder = await fetchOrderFromCloud(searchId);
+      var foundOrder = await findOrderFlexible(searchId);
 
       if (foundOrder) {
         var currentCode = typeof foundOrder.statusCode === 'number' ? foundOrder.statusCode : 0;
