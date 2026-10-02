@@ -2960,6 +2960,65 @@ html[data-theme] .product-card:hover {
   font-weight: 900;
   font-size: 14px;
 }
+
+/* InstaPay receipt upload */
+.instapay-receipt-box {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #f3faf4;
+  border: 1px dashed #a5d6a7;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.instapay-receipt-label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #1b5e20;
+}
+.instapay-receipt-box input[type="file"] {
+  font-size: 12px;
+  width: 100%;
+}
+.instapay-receipt-preview-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 220px;
+}
+.instapay-receipt-preview-wrap img {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #c8e6c9;
+  display: block;
+}
+.instapay-receipt-remove {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  border: none;
+  background: #c62828;
+  color: #fff;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.instapay-receipt-hint {
+  font-size: 11px;
+  color: #2e7d32;
+  font-weight: 700;
+  margin: 0;
+}
+.admin-receipt-img {
+  max-width: 100%;
+  max-height: 220px;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  margin-top: 8px;
+  cursor: zoom-in;
+}
 @media (max-width: 520px) {
   .track-modal-content {
     max-width: 100% !important;
@@ -3541,6 +3600,22 @@ html[data-theme] .product-card:hover {
               نسخ
             </button>
 
+          </div>
+
+          <div id="instapayReceiptBox" class="instapay-receipt-box" style="display:none;">
+            <label class="instapay-receipt-label">📎 ارفع صورة إيصال التحويل (اختياري لكن مُفضّل)</label>
+            <input
+              type="file"
+              id="instapayReceiptInput"
+              accept="image/*"
+              capture="environment"
+              onchange="handleInstapayReceipt(event)"
+            >
+            <div id="instapayReceiptPreviewWrap" class="instapay-receipt-preview-wrap" style="display:none;">
+              <img id="instapayReceiptPreview" alt="إيصال التحويل">
+              <button type="button" class="instapay-receipt-remove" onclick="clearInstapayReceipt(event)">✕ إزالة</button>
+            </div>
+            <p class="instapay-receipt-hint">بعد التحويل ارفع صورة الإيصال عشان نؤكد الطلب أسرع</p>
           </div>
 
         </div>
@@ -4136,6 +4211,10 @@ html[data-theme] .product-card:hover {
                 'style="flex:1;min-width:120px;padding:9px;border-radius:8px;border:1px solid var(--burgundy-soft);background:var(--pink-soft);color:var(--burgundy-soft);font-weight:800;font-size:12px;cursor:pointer;">' +
                 '🧾 تفاصيل الطلب' +
               '</button>' +
+              '<button onclick="notifyCustomerStatus(\'' + safeId + '\')" ' +
+                'style="flex:1;min-width:120px;padding:9px;border-radius:8px;border:1px solid #1565c0;background:#e3f2fd;color:#1565c0;font-weight:800;font-size:12px;cursor:pointer;">' +
+                '💬 إشعار واتساب' +
+              '</button>' +
               '<button onclick="copyShippingMessage(\'' + safeId + '\')" ' +
                 'style="flex:1;min-width:120px;padding:9px;border-radius:8px;border:none;background:#25d366;color:white;font-weight:800;font-size:12px;cursor:pointer;">' +
                 '📋 نسخ رسالة الشحن' +
@@ -4145,6 +4224,250 @@ html[data-theme] .product-card:hover {
         );
       }).join('');
     };
+
+    /* ========== 1) WhatsApp status notify + 2) InstaPay receipt + 3) Product WA message ========== */
+    window.__instapayReceiptDataUrl = null;
+
+    function toWaPhone(phone) {
+      var p = String(phone || '').replace(/\D/g, '');
+      if (!p) return '';
+      if (p.startsWith('0')) p = '20' + p.slice(1);
+      if (!p.startsWith('20')) p = '20' + p;
+      return p;
+    }
+
+    function statusNotifyMessage(order, statusLabel) {
+      return (
+        'مرحباً ' + (order.name || '') + ' 👋\n' +
+        'تحديث من متجر My Souq 🛒\n\n' +
+        '🆔 رقم الطلب: ' + (order.orderId || '') + '\n' +
+        '📦 الحالة الجديدة: ' + (statusLabel || order.status || '') + '\n' +
+        '💰 الإجمالي: ' + (order.total || '-') + '\n\n' +
+        'تقدر تتابع طلبك من زر «تتبع طلبك» في المتجر.\n' +
+        'شكراً لثقتك فينا ❤️'
+      );
+    }
+
+    window.notifyCustomerStatus = function (orderId, statusLabel) {
+      var o = (typeof adminOrdersCache !== 'undefined' ? adminOrdersCache : [])
+        .find(function (x) { return String(x.orderId || '') === String(orderId || ''); });
+      if (!o) {
+        // fallback local history
+        try {
+          o = (ordersHistory || []).find(function (x) { return String(x.orderId || '') === String(orderId || ''); });
+        } catch (e) {}
+      }
+      if (!o) {
+        alert('الطلب غير موجود');
+        return;
+      }
+      var label = statusLabel || o.status || '';
+      var wa = toWaPhone(o.phone);
+      if (!wa) {
+        alert('لا يوجد رقم واتساب محفوظ لهذا الطلب');
+        return;
+      }
+      var msg = statusNotifyMessage(o, label);
+      window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+    };
+
+    // Auto-notify after admin status change
+    if (typeof updateOrderStatusFromAdmin === 'function') {
+      var _origUpdateFromAdmin = updateOrderStatusFromAdmin;
+      window.updateOrderStatusFromAdmin = async function (orderId, newCode) {
+        await _origUpdateFromAdmin(orderId, newCode);
+        var status = (ORDER_STATUSES || []).find(function (s) { return s.code === newCode; });
+        var label = status ? status.label : '';
+        // تحديث الكاش ثم إشعار
+        setTimeout(function () {
+          if (confirm('تم تحديث الحالة.\nهل تريد إرسال إشعار واتساب للعميل الآن؟')) {
+            notifyCustomerStatus(orderId, label);
+          }
+        }, 200);
+      };
+    }
+
+    if (typeof updateOrderStatus === 'function') {
+      var _origUpdateStatus = updateOrderStatus;
+      window.updateOrderStatus = async function (orderId, newCode) {
+        await _origUpdateStatus(orderId, newCode);
+        var status = (ORDER_STATUSES || []).find(function (s) { return s.code === newCode; });
+        var label = status ? status.label : '';
+        setTimeout(function () {
+          if (confirm('تم تحديث الحالة.\nهل تريد إرسال إشعار واتساب للعميل الآن؟')) {
+            notifyCustomerStatus(orderId, label);
+          }
+        }, 200);
+      };
+    }
+
+    // InstaPay receipt helpers
+    window.clearInstapayReceipt = function (e) {
+      if (e) e.stopPropagation();
+      window.__instapayReceiptDataUrl = null;
+      var input = document.getElementById('instapayReceiptInput');
+      var wrap = document.getElementById('instapayReceiptPreviewWrap');
+      var img = document.getElementById('instapayReceiptPreview');
+      if (input) input.value = '';
+      if (wrap) wrap.style.display = 'none';
+      if (img) img.src = '';
+    };
+
+    window.handleInstapayReceipt = function (event) {
+      var file = event && event.target && event.target.files && event.target.files[0];
+      if (!file) return;
+      if (!file.type || file.type.indexOf('image/') !== 0) {
+        alert('من فضلك اختر صورة فقط');
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function () {
+        var dataUrl = reader.result;
+        // ضغط بسيط لتقليل حجم الحفظ
+        var img = new Image();
+        img.onload = function () {
+          try {
+            var maxW = 900;
+            var scale = Math.min(1, maxW / img.width);
+            var w = Math.round(img.width * scale);
+            var h = Math.round(img.height * scale);
+            var canvas = document.createElement('canvas');
+            canvas.width = w;
+            canvas.height = h;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            var compressed = canvas.toDataURL('image/jpeg', 0.72);
+            window.__instapayReceiptDataUrl = compressed;
+            var preview = document.getElementById('instapayReceiptPreview');
+            var wrap = document.getElementById('instapayReceiptPreviewWrap');
+            if (preview) preview.src = compressed;
+            if (wrap) wrap.style.display = 'block';
+          } catch (err) {
+            window.__instapayReceiptDataUrl = dataUrl;
+            var preview2 = document.getElementById('instapayReceiptPreview');
+            var wrap2 = document.getElementById('instapayReceiptPreviewWrap');
+            if (preview2) preview2.src = dataUrl;
+            if (wrap2) wrap2.style.display = 'block';
+          }
+        };
+        img.onerror = function () {
+          alert('تعذر قراءة الصورة');
+        };
+        img.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // Show/hide receipt box with payment method
+    if (typeof selectPayment === 'function') {
+      var _origSelectPayment = selectPayment;
+      window.selectPayment = function (method) {
+        _origSelectPayment(method);
+        var box = document.getElementById('instapayReceiptBox');
+        if (box) box.style.display = method === 'instapay' ? 'flex' : 'none';
+        if (method !== 'instapay') clearInstapayReceipt();
+      };
+    }
+
+    // Enhance product WhatsApp message: name + size + price + link
+    window.updateDirectWhatsAppButton = function () {
+      var waBtn = document.getElementById('directWaBtn');
+      if (!waBtn || !currentSelectedProduct) return;
+
+      var priceEl = document.getElementById('modalPrice');
+      var currentPrice = priceEl ? priceEl.innerText.replace(/\s+/g, ' ').trim() : ((currentSelectedProduct.price || '') + ' ج.م');
+      var selectedImage = activeModalImage || (currentSelectedProduct.images && currentSelectedProduct.images[0]) || '';
+      var productUrl = '';
+      try {
+        productUrl = location.origin + location.pathname + '?product=' + currentSelectedProduct.id;
+      } catch (e) {
+        productUrl = location.href;
+      }
+
+      var sizeLine = selectedSize || '-';
+      var colorLine = (typeof selectedColor !== 'undefined' && selectedColor) ? ('\n🎨 اللون: ' + selectedColor) : '';
+
+      var waText =
+        'مرحباً، أود طلب المنتج التالي من متجر My Souq 🛒\n\n' +
+        '📦 اسم المنتج: ' + currentSelectedProduct.title + '\n' +
+        '📏 المقاس: ' + sizeLine + colorLine + '\n' +
+        '💰 السعر: ' + currentPrice + '\n' +
+        '🔗 رابط المنتج:\n' + productUrl + '\n' +
+        (selectedImage ? ('\n🖼️ صورة المنتج:\n' + selectedImage + '\n') : '') +
+        '\nأرغب في إتمام الطلب.';
+
+      waBtn.href = 'https://wa.me/201116339905?text=' + encodeURIComponent(waText);
+    };
+
+    // Hook finalizeOrder to attach receipt
+    if (typeof finalizeOrder === 'function') {
+      var _origFinalize = finalizeOrder;
+      window.finalizeOrder = async function () {
+        var selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
+        var isInstapay = selectedPayRadio && selectedPayRadio.value === 'instapay';
+
+        // monkey-patch saveOrderToCloud temporarily to inject receipt
+        var _origSave = typeof saveOrderToCloud === 'function' ? saveOrderToCloud : null;
+        if (_origSave) {
+          window.saveOrderToCloud = async function (orderRecord) {
+            if (isInstapay && window.__instapayReceiptDataUrl) {
+              orderRecord.instapayReceipt = window.__instapayReceiptDataUrl;
+              orderRecord.hasInstapayReceipt = true;
+            } else {
+              orderRecord.hasInstapayReceipt = false;
+            }
+            return _origSave(orderRecord);
+          };
+        }
+
+        // Also enhance WhatsApp open by wrapping window.open briefly
+        var _origOpen = window.open;
+        window.open = function (url, target) {
+          if (url && String(url).indexOf('wa.me') !== -1 && isInstapay) {
+            try {
+              var u = new URL(url);
+              var text = u.searchParams.get('text') || '';
+              if (window.__instapayReceiptDataUrl) {
+                text += '\n\n📎 تم رفع إيصال تحويل InstaPay مع الطلب (يظهر في لوحة الإدارة).';
+              } else {
+                text += '\n\n⚠️ الدفع InstaPay — لم يتم رفع إيصال بعد.';
+              }
+              u.searchParams.set('text', text);
+              url = u.toString();
+            } catch (e) {}
+          }
+          return _origOpen.call(window, url, target);
+        };
+
+        try {
+          await _origFinalize.apply(this, arguments);
+        } finally {
+          window.open = _origOpen;
+          if (_origSave) window.saveOrderToCloud = _origSave;
+          // clear receipt after successful flow attempt
+          clearInstapayReceipt();
+        }
+      };
+    }
+
+    // Show receipt in admin order details
+    var _origShowDetails = window.showAdminOrderDetails;
+    if (typeof _origShowDetails === 'function') {
+      window.showAdminOrderDetails = function (orderId) {
+        _origShowDetails(orderId);
+        var o = (typeof adminOrdersCache !== 'undefined' ? adminOrdersCache : [])
+          .find(function (x) { return String(x.orderId || '') === String(orderId || ''); });
+        if (!o || !o.instapayReceipt) return;
+        var body = document.getElementById('adminOrderDetailsBody');
+        if (!body) return;
+        var block =
+          '<div style="margin-top:12px;">' +
+            '<div class="track-products-title">📎 إيصال InstaPay</div>' +
+            '<img class="admin-receipt-img" src="' + o.instapayReceipt + '" alt="إيصال" onclick="openTrackImageZoom(this.src)">' +
+          '</div>';
+        body.insertAdjacentHTML('beforeend', block);
+      };
+    }
   })();
   </script>
 
