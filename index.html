@@ -3396,6 +3396,15 @@ html[data-theme] .product-card:hover {
 }
 </style>
 
+
+/* ===== Added features: maintenance mode + permanent admin order cancellation ===== */
+.maintenance-admin-box{margin:8px 0 12px;padding:10px;border-radius:10px;border:1px solid #ffe082;background:#fff8e1;}
+.maintenance-admin-row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap;}
+.maintenance-toggle-btn{border:none;border-radius:8px;padding:8px 12px;color:#fff;font-weight:900;cursor:pointer;}
+.maintenance-toggle-btn.on{background:#c62828}.maintenance-toggle-btn.off{background:#2e7d32}
+.cancel-order-btn{flex:1;min-width:120px;padding:9px;border-radius:8px;border:1px solid #c62828;background:#ffebee;color:#c62828;font-weight:900;font-size:12px;cursor:pointer;}
+.cancel-order-btn:hover{background:#c62828;color:#fff;}
+
 <style id="mysouq-mobile-desktop-layout-fix">
 /* My Souq — Layout Fix: تنسيق فقط، بدون حذف أو تغيير أي وظيفة */
 .controls-wrapper{flex-direction:column!important;align-items:stretch!important;width:min(1200px,calc(100% - 18px))!important;}
@@ -5529,5 +5538,337 @@ window.addToCartAndContinue = function () {
   #productModal .modal-actions-row .action-icon{font-size:15px;}
 }
 </style>
+
+  <!-- Maintenance Mode Overlay: added without removing existing features -->
+  <div id="maintenanceModeOverlay" class="modal-overlay" style="display:none;z-index:10000;background:rgba(18,16,20,.96);">
+    <div class="modal-content" style="max-width:520px;padding:28px;text-align:center;">
+      <div style="font-size:54px;margin-bottom:10px;">🛠️</div>
+      <div style="font-size:24px;font-weight:900;color:var(--burgundy-soft);margin-bottom:10px;">المتجر تحت الصيانة</div>
+      <p style="font-size:14px;line-height:1.8;color:var(--text-muted);margin-bottom:14px;">
+        نعمل حالياً على تحديث المتجر وتحسين الخدمة. برجاء المحاولة مرة أخرى بعد قليل.
+      </p>
+      <div id="maintenanceModeMessage" style="font-size:12px;font-weight:800;color:var(--burgundy-soft);margin-bottom:14px;"></div>
+      <button type="button" onclick="handleAdminButton()" style="background:#1565c0;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-weight:900;cursor:pointer;">
+        🔐 دخول الإدارة
+      </button>
+    </div>
+  </div>
+
+  <script id="mysouq-maintenance-cancel-features">
+  /* ===== My Souq: Maintenance Mode + Permanent Admin Order Cancellation =====
+     Added as an extension layer. Existing functions/features are not removed.
+  ===== */
+  (function () {
+    var MAINT_COLLECTION = 'siteSettings';
+    var MAINT_DOC = 'maintenance';
+    var MAINT_LOCAL_KEY = 'mysouq_maintenance_mode';
+    var MAINT_POLL_MS = 20000;
+
+    function isAdminNow() {
+      try { return typeof isAdminMode !== 'undefined' && !!isAdminMode; } catch (e) { return false; }
+    }
+
+    function getDb() {
+      try {
+        if (typeof firebase !== 'undefined' && firebase.firestore) return firebase.firestore();
+      } catch (e) {}
+      return null;
+    }
+
+    function setMaintenanceOverlay(enabled, message) {
+      var overlay = document.getElementById('maintenanceModeOverlay');
+      var msg = document.getElementById('maintenanceModeMessage');
+      if (msg) msg.textContent = message || '';
+      if (!overlay) return;
+      if (enabled && !isAdminNow()) {
+        overlay.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+      } else {
+        overlay.style.display = 'none';
+        document.body.style.overflow = '';
+      }
+    }
+
+    function updateMaintenanceAdminUi(enabled) {
+      var status = document.getElementById('maintenanceAdminStatus');
+      var btn = document.getElementById('maintenanceAdminToggle');
+      if (status) {
+        status.textContent = enabled ? '🔴 الصيانة مفعّلة الآن' : '🟢 المتجر يعمل بشكل طبيعي';
+        status.style.color = enabled ? '#c62828' : '#2e7d32';
+      }
+      if (btn) {
+        btn.textContent = enabled ? 'إيقاف الصيانة' : 'تشغيل الصيانة';
+        btn.className = 'maintenance-toggle-btn ' + (enabled ? 'on' : 'off');
+      }
+    }
+
+    async function readMaintenanceMode() {
+      var db = getDb();
+      var data = null;
+      if (db) {
+        var paths = [
+          [MAINT_COLLECTION, MAINT_DOC],
+          ['settings', MAINT_DOC]
+        ];
+        for (var i = 0; i < paths.length; i++) {
+          try {
+            var snap = await db.collection(paths[i][0]).doc(paths[i][1]).get();
+            if (snap.exists) {
+              data = snap.data() || {};
+              break;
+            }
+          } catch (e) {}
+        }
+      }
+      if (!data) {
+        try {
+          data = JSON.parse(localStorage.getItem(MAINT_LOCAL_KEY) || 'null');
+        } catch (e) { data = null; }
+      }
+      var enabled = !!(data && (data.enabled === true || data.maintenance === true));
+      var message = data && (data.message || data.notice) ? (data.message || data.notice) : 'سيعود المتجر للعمل فور انتهاء الصيانة.';
+      updateMaintenanceAdminUi(enabled);
+      setMaintenanceOverlay(enabled, message);
+      return enabled;
+    }
+
+    window.toggleMaintenanceMode = async function () {
+      if (!isAdminNow()) {
+        alert('يجب تسجيل الدخول كمسؤول أولاً.');
+        return;
+      }
+
+      var db = getDb();
+      if (!db) {
+        alert('Firebase غير متاح حالياً، لذلك لم يتم تغيير وضع الصيانة.');
+        return;
+      }
+
+      var current = false;
+      try {
+        var snap = await db.collection(MAINT_COLLECTION).doc(MAINT_DOC).get();
+        if (snap.exists) current = !!(snap.data() || {}).enabled;
+      } catch (e) {}
+
+      var next = !current;
+      var payload = {
+        enabled: next,
+        message: next ? 'سيعود المتجر للعمل فور انتهاء الصيانة.' : '',
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        await db.collection(MAINT_COLLECTION).doc(MAINT_DOC).set(payload, { merge: true });
+      } catch (e) {
+        alert('تعذر حفظ وضع الصيانة على السحابة. تأكد من صلاحيات Firestore.\n' + (e && e.message ? e.message : ''));
+        return;
+      }
+
+      try { localStorage.setItem(MAINT_LOCAL_KEY, JSON.stringify(payload)); } catch (e) {}
+      updateMaintenanceAdminUi(next);
+      setMaintenanceOverlay(next, payload.message);
+      alert(next ? 'تم تشغيل وضع الصيانة ✅' : 'تم إيقاف وضع الصيانة ✅');
+    };
+
+    async function removeOrderLocally(orderId) {
+      try {
+        if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) {
+          for (var i = adminOrdersCache.length - 1; i >= 0; i--) {
+            if (String(adminOrdersCache[i].orderId || '') === String(orderId || '')) adminOrdersCache.splice(i, 1);
+          }
+        }
+      } catch (e) {}
+      try {
+        if (typeof ordersHistory !== 'undefined' && Array.isArray(ordersHistory)) {
+          for (var j = ordersHistory.length - 1; j >= 0; j--) {
+            if (String(ordersHistory[j].orderId || '') === String(orderId || '')) ordersHistory.splice(j, 1);
+          }
+        }
+      } catch (e) {}
+
+      var helperNames = ['saveOrdersHistory', 'persistOrdersHistory', 'saveOrderHistoryToLocal'];
+      for (var k = 0; k < helperNames.length; k++) {
+        try {
+          if (typeof window[helperNames[k]] === 'function') {
+            await window[helperNames[k]]();
+            break;
+          }
+        } catch (e) {}
+      }
+
+      try {
+        if (typeof filterAdminOrders === 'function') filterAdminOrders();
+      } catch (e) {}
+    }
+
+    window.cancelOrderPermanently = async function (orderId) {
+      if (!isAdminNow()) {
+        alert('يجب تسجيل الدخول كمسؤول أولاً.');
+        return;
+      }
+      var id = String(orderId || '').trim();
+      if (!id) {
+        alert('رقم الطلب غير صالح.');
+        return;
+      }
+
+      var order = null;
+      try {
+        order = (typeof adminOrdersCache !== 'undefined' ? adminOrdersCache : []).find(function (x) {
+          return String(x.orderId || '') === id;
+        });
+      } catch (e) {}
+
+      var customer = order && order.name ? (' للعميل "' + order.name + '"') : '';
+      var ok = confirm(
+        '⚠️ تأكيد الإلغاء النهائي\n\n' +
+        'سيتم حذف الطلب رقم ' + id + customer + ' نهائياً من قاعدة البيانات، وليس مجرد تغيير حالته.\n\n' +
+        'هذا الإجراء لا يمكن التراجع عنه.\n\nهل تريد المتابعة؟'
+      );
+      if (!ok) return;
+
+      var btns = document.querySelectorAll('.cancel-order-btn[data-order-id]');
+      btns.forEach(function (b) {
+        if (b.getAttribute('data-order-id') === id) {
+          b.disabled = true;
+          b.textContent = 'جاري الإلغاء...';
+        }
+      });
+
+      try {
+        if (typeof window.deleteOrderFromCloud === 'function') {
+          await window.deleteOrderFromCloud(id);
+        } else {
+          var db = getDb();
+          if (!db) throw new Error('Firebase غير متاح حالياً.');
+
+          var snap = await db.collection('orders').where('orderId', '==', id).get();
+          if (snap.empty) {
+            try {
+              var direct = await db.collection('orders').doc(id).get();
+              if (direct.exists) {
+                await direct.ref.delete();
+              } else {
+                throw new Error('لم يتم العثور على الطلب داخل مجموعة orders.');
+              }
+            } catch (directErr) {
+              throw new Error('لم يتم العثور على الطلب داخل مجموعة orders.');
+            }
+          } else {
+            var batch = db.batch();
+            snap.forEach(function (doc) { batch.delete(doc.ref); });
+            await batch.commit();
+          }
+        }
+
+        await removeOrderLocally(id);
+        try { closeAdminOrderDetails(); } catch (e) {}
+        alert('تم إلغاء وحذف الطلب ' + id + ' نهائياً من النظام ✅');
+      } catch (e) {
+        btns.forEach(function (b) {
+          if (b.getAttribute('data-order-id') === id) {
+            b.disabled = false;
+            b.textContent = '🗑️ إلغاء نهائي';
+          }
+        });
+        alert(
+          'تعذر إلغاء الطلب نهائياً.\n\n' +
+          'لم يتم حذف أي شيء بسبب الخطأ.\n' +
+          (e && e.message ? e.message : 'خطأ غير معروف')
+        );
+      }
+    };
+
+    function injectAdminMaintenanceControl() {
+      var modal = document.getElementById('adminOrdersModal');
+      if (!modal || document.getElementById('maintenanceAdminBox')) return;
+      var logout = document.getElementById('adminLogoutBtn');
+      if (!logout) return;
+      var wrap = document.createElement('div');
+      wrap.id = 'maintenanceAdminBox';
+      wrap.className = 'maintenance-admin-box';
+      wrap.innerHTML = "      <div class=\"maintenance-admin-box\">\n        <div style=\"font-weight:900;color:var(--burgundy-soft);margin-bottom:7px;\">🛠️ وضع الصيانة</div>\n        <div class=\"maintenance-admin-row\">\n          <span id=\"maintenanceAdminStatus\" style=\"font-size:12px;font-weight:800;\">جاري قراءة الحالة...</span>\n          <button id=\"maintenanceAdminToggle\" type=\"button\" class=\"maintenance-toggle-btn off\" onclick=\"toggleMaintenanceMode()\">تشغيل الصيانة</button>\n        </div>\n        <div style=\"font-size:10.5px;color:var(--text-muted);margin-top:6px;\">عند تشغيله سيتم إخفاء المتجر عن العملاء، وتظل الإدارة متاحة.</div>\n      </div>";
+      logout.parentNode.insertBefore(wrap, logout.nextSibling);
+      readMaintenanceMode();
+    }
+
+    function enhanceAdminOrderRenderer() {
+      if (typeof window.filterAdminOrders !== 'function' || window.filterAdminOrders.__cancelEnhanced) return;
+      var original = window.filterAdminOrders;
+      window.filterAdminOrders = function () {
+        original.apply(this, arguments);
+        var box = document.getElementById('adminOrdersList');
+        if (!box) return;
+        var cards = box.querySelectorAll('.order-card-admin');
+        var list = (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) ? adminOrdersCache : [];
+        cards.forEach(function (card) {
+          var existing = card.querySelector('.cancel-order-btn');
+          if (existing) return;
+          var oidEl = card.querySelector('.oid');
+          var text = oidEl ? oidEl.textContent.replace(/^\s*🆔\s*/, '').trim() : '';
+          var match = list.find(function (o) { return String(o.orderId || '') === text; });
+          if (!match) return;
+          var row = document.createElement('div');
+          row.style.cssText = 'display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;';
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'cancel-order-btn';
+          btn.setAttribute('data-order-id', text);
+          btn.textContent = '🗑️ إلغاء نهائي';
+          btn.onclick = function () { cancelOrderPermanently(text); };
+          row.appendChild(btn);
+          card.appendChild(row);
+        });
+      };
+      window.filterAdminOrders.__cancelEnhanced = true;
+    }
+
+    function enhanceAdminOrderDetails() {
+      if (typeof window.showAdminOrderDetails !== 'function' || window.showAdminOrderDetails.__cancelEnhanced) return;
+      var original = window.showAdminOrderDetails;
+      window.showAdminOrderDetails = function (orderId) {
+        original.apply(this, arguments);
+        var body = document.getElementById('adminOrderDetailsBody');
+        if (!body) return;
+        if (body.querySelector('.cancel-order-btn[data-details-cancel="1"]')) return;
+        var row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:6px;margin-top:12px;';
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'cancel-order-btn';
+        btn.setAttribute('data-order-id', String(orderId || ''));
+        btn.setAttribute('data-details-cancel', '1');
+        btn.style.flex = '1';
+        btn.textContent = '🗑️ إلغاء الطلب نهائياً';
+        btn.onclick = function () { cancelOrderPermanently(orderId); };
+        row.appendChild(btn);
+        body.appendChild(row);
+      };
+      window.showAdminOrderDetails.__cancelEnhanced = true;
+    }
+
+    function bootEnhancements() {
+      injectAdminMaintenanceControl();
+      enhanceAdminOrderRenderer();
+      enhanceAdminOrderDetails();
+      readMaintenanceMode();
+    }
+
+    var tries = 0;
+    var timer = setInterval(function () {
+      tries++;
+      bootEnhancements();
+      if (tries >= 30) clearInterval(timer);
+    }, 250);
+
+    setTimeout(function () {
+      bootEnhancements();
+    }, 1200);
+
+    setInterval(function () {
+      readMaintenanceMode();
+    }, MAINT_POLL_MS);
+  })();
+  </script>
 </body>
 </html>
