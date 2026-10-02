@@ -2551,6 +2551,144 @@ footer{
  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;transition-duration:.001ms!important}
 }
 
+
+/* ===== UX extras: call FAB, gallery mode, voice search ===== */
+.call-float {
+  position: fixed;
+  left: 22px;
+  bottom: 148px;
+  z-index: 1200;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 24px;
+  background: linear-gradient(135deg, #2e7d32, #43a047);
+  color: #fff !important;
+  box-shadow: 0 10px 28px rgba(46,125,50,.35);
+  border: 1px solid rgba(255,255,255,.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: transform .2s ease;
+}
+.call-float:hover { transform: translateY(-3px) scale(1.05); }
+body.dark-mode .call-float {
+  box-shadow: 0 10px 28px rgba(0,0,0,.45);
+}
+@media (max-width: 767px) {
+  .call-float {
+    left: 12px !important;
+    bottom: 134px !important;
+    width: 48px !important;
+    height: 48px !important;
+    font-size: 22px;
+  }
+  .whatsapp-float { bottom: 76px !important; }
+  .qr-toggle-fab { bottom: 18px !important; }
+}
+
+.search-field-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  grid-column: 1 / -1;
+}
+.search-field-wrap .search-input {
+  flex: 1;
+  width: 100%;
+  padding-left: 44px !important;
+}
+.voice-search-btn {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(139,63,82,.1);
+  color: var(--msq-primary, #8b3f52);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  -webkit-tap-highlight-color: transparent;
+}
+.voice-search-btn.listening {
+  background: #c62828;
+  color: #fff;
+  animation: msq-pulse 1s infinite;
+}
+@keyframes msq-pulse {
+  0%, 100% { transform: translateY(-50%) scale(1); }
+  50% { transform: translateY(-50%) scale(1.08); }
+}
+.gallery-mode-btn {
+  border: 1px solid var(--msq-line, rgba(139,63,82,.14));
+  border-radius: 12px;
+  background: rgba(255,255,255,.7);
+  color: var(--msq-ink, #251b20);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 8px 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  min-height: 40px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+body.dark-mode .gallery-mode-btn {
+  background: rgba(40,30,35,.75);
+  color: #fff;
+}
+.gallery-mode-btn.active {
+  background: linear-gradient(135deg, var(--msq-primary, #8b3f52), var(--msq-primary-2, #b75b72));
+  color: #fff !important;
+  border-color: transparent;
+}
+
+/* وضع الصور فقط */
+body.gallery-mode .product-details {
+  display: none !important;
+}
+body.gallery-mode .product-card {
+  padding: 0 !important;
+  overflow: hidden;
+}
+body.gallery-mode .image-container {
+  height: 260px !important;
+  border-radius: 18px !important;
+}
+body.gallery-mode .products-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 12px !important;
+}
+@media (min-width: 768px) {
+  body.gallery-mode .products-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+  body.gallery-mode .image-container {
+    height: 320px !important;
+  }
+}
+@media (max-width: 767px) {
+  body.gallery-mode .image-container {
+    height: 200px !important;
+  }
+  body.gallery-mode .products-grid {
+    gap: 8px !important;
+  }
+  .voice-search-btn { width: 32px; height: 32px; font-size: 15px; }
+  .gallery-mode-btn { font-size: 11px; padding: 7px 10px; min-height: 36px; }
+}
+
 /* ========== Theme Palette System (calm professional colors) ========== */
 .theme-palette-wrap {
   position: relative;
@@ -3292,7 +3430,15 @@ html[data-theme] .product-card:hover {
     href="https://wa.me/201116339905?text=مرحباً، أود الاستفسار عن منتجات متجر My Souq"
     target="_blank"
     class="whatsapp-float"
+    title="واتساب"
+    aria-label="واتساب"
   >💬</a>
+  <a
+    href="tel:01116339905"
+    class="call-float"
+    title="اتصال سريع"
+    aria-label="اتصال سريع بـ 01116339905"
+  >📞</a>
 
   <div class="floating-qr-container" id="floatingQr">
     <button class="close-qr-btn" onclick="toggleQrBox()">✕</button>
@@ -3370,13 +3516,17 @@ html[data-theme] .product-card:hover {
 
     <!-- صف البحث والترتيب منفصل بوضوح -->
     <div class="search-sort-box">
-      <input
-        type="text"
-        id="searchInput"
-        class="search-input"
-        placeholder="🔍 ابحث عن منتج..."
-        oninput="handleSearchAndFilter()"
-      >
+      <div class="search-field-wrap">
+        <input
+          type="text"
+          id="searchInput"
+          class="search-input"
+          placeholder="🔍 ابحث عن منتج..."
+          oninput="handleSearchAndFilter()"
+          autocomplete="off"
+        >
+        <button type="button" class="voice-search-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="بحث بالصوت">🎤</button>
+      </div>
       <div class="sort-wrapper">
         <select id="sizeSelect" onchange="filterSize(this.value)">
           <option value="الكل">📏 كل المقاسات</option>
@@ -3389,6 +3539,7 @@ html[data-theme] .product-card:hover {
           <option value="high-low">السعر: من الأعلى للأقل</option>
         </select>
       </div>
+      <button type="button" class="gallery-mode-btn" id="galleryModeBtn" onclick="toggleGalleryMode()" title="تصفح بالصور فقط">🖼 صور فقط</button>
     </div>
 
   </div>
@@ -4881,6 +5032,204 @@ html[data-theme] .product-card:hover {
         body.insertAdjacentHTML('beforeend', block);
       };
     }
+  })();
+  </script>
+
+
+  <script>
+  /* ===== ميزات إضافية: اتصال · صور فقط · بحث صوت · قائمة أرقام · داكن تلقائي ===== */
+  (function () {
+    var STORE_PHONE = '01116339905';
+    var PHONE_COOLDOWN_MS = 15 * 60 * 1000;
+    var PHONE_LOG_KEY = 'mysouq_phone_orders';
+    var GALLERY_KEY = 'mysouq_gallery_mode';
+    var DARK_PREF_KEY = 'mysouq_dark_pref';
+
+    function applyDarkFromPref() {
+      var pref = 'system';
+      try { pref = localStorage.getItem(DARK_PREF_KEY) || 'system'; } catch (e) {}
+      var systemDark = false;
+      try {
+        systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      } catch (e) {}
+      var shouldDark = (pref === 'dark') || (pref === 'system' && systemDark);
+      document.body.classList.toggle('dark-mode', !!shouldDark);
+      var btn = document.getElementById('themeToggle');
+      if (btn) btn.textContent = shouldDark ? '☀️' : '🌙';
+    }
+
+    function bindDarkToggle() {
+      var btn = document.getElementById('themeToggle');
+      if (!btn || btn._msqDarkBound) return;
+      btn._msqDarkBound = true;
+      btn.addEventListener('click', function () {
+        setTimeout(function () {
+          var isDark = document.body.classList.contains('dark-mode');
+          try { localStorage.setItem(DARK_PREF_KEY, isDark ? 'dark' : 'light'); } catch (err) {}
+          btn.textContent = isDark ? '☀️' : '🌙';
+        }, 0);
+      }, true);
+    }
+
+    function bindDarkLongPress() {
+      var btn = document.getElementById('themeToggle');
+      if (!btn || btn._msqLongBound) return;
+      btn._msqLongBound = true;
+      var timer = null;
+      function start() {
+        timer = setTimeout(function () {
+          try { localStorage.setItem(DARK_PREF_KEY, 'system'); } catch (e) {}
+          applyDarkFromPref();
+          try { alert('تم ضبط الوضع الداكن حسب إعدادات الهاتف'); } catch (e) {}
+        }, 700);
+      }
+      function cancel() { if (timer) { clearTimeout(timer); timer = null; } }
+      btn.addEventListener('mousedown', start);
+      btn.addEventListener('touchstart', start, { passive: true });
+      btn.addEventListener('mouseup', cancel);
+      btn.addEventListener('mouseleave', cancel);
+      btn.addEventListener('touchend', cancel);
+      btn.addEventListener('touchcancel', cancel);
+      btn.title = 'اضغط للتبديل · اضغط مطولًا لاتباع النظام';
+    }
+
+    try {
+      if (window.matchMedia) {
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function () {
+          var pref = 'system';
+          try { pref = localStorage.getItem(DARK_PREF_KEY) || 'system'; } catch (e) {}
+          if (pref === 'system') applyDarkFromPref();
+        });
+      }
+    } catch (e) {}
+
+    applyDarkFromPref();
+    bindDarkToggle();
+    bindDarkLongPress();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function () {
+        applyDarkFromPref();
+        bindDarkToggle();
+        bindDarkLongPress();
+      });
+    }
+
+    window.toggleGalleryMode = function () {
+      var on = !document.body.classList.contains('gallery-mode');
+      document.body.classList.toggle('gallery-mode', on);
+      try { localStorage.setItem(GALLERY_KEY, on ? '1' : '0'); } catch (e) {}
+      var btn = document.getElementById('galleryModeBtn');
+      if (btn) {
+        btn.classList.toggle('active', on);
+        btn.textContent = on ? '📋 عرض عادي' : '🖼 صور فقط';
+      }
+    };
+    try {
+      if (localStorage.getItem(GALLERY_KEY) === '1') {
+        document.body.classList.add('gallery-mode');
+        var gbtn = document.getElementById('galleryModeBtn');
+        if (gbtn) {
+          gbtn.classList.add('active');
+          gbtn.textContent = '📋 عرض عادي';
+        }
+      }
+    } catch (e) {}
+
+    window.startVoiceSearch = function () {
+      var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      var btn = document.getElementById('voiceSearchBtn');
+      var input = document.getElementById('searchInput');
+      if (!SpeechRecognition) {
+        alert('البحث بالصوت غير مدعوم على هذا المتصفح. جرّب Chrome على أندرويد.');
+        return;
+      }
+      if (window.__msqRec && window.__msqRecListening) {
+        try { window.__msqRec.stop(); } catch (e) {}
+        return;
+      }
+      var rec = new SpeechRecognition();
+      window.__msqRec = rec;
+      rec.lang = 'ar-EG';
+      rec.interimResults = false;
+      rec.maxAlternatives = 1;
+      rec.onstart = function () {
+        window.__msqRecListening = true;
+        if (btn) btn.classList.add('listening');
+      };
+      rec.onend = function () {
+        window.__msqRecListening = false;
+        if (btn) btn.classList.remove('listening');
+      };
+      rec.onerror = function () {
+        window.__msqRecListening = false;
+        if (btn) btn.classList.remove('listening');
+      };
+      rec.onresult = function (event) {
+        var transcript = '';
+        try { transcript = event.results[0][0].transcript || ''; } catch (e) {}
+        if (input && transcript) {
+          input.value = transcript;
+          if (typeof handleSearchAndFilter === 'function') handleSearchAndFilter();
+        }
+      };
+      try { rec.start(); } catch (e) {
+        alert('تعذر تشغيل الميكروفون. تأكد من السماح بالوصول.');
+      }
+    };
+
+    function normalizePhoneLocal(p) {
+      var d = String(p || '').replace(/\D/g, '');
+      if (d.indexOf('20') === 0 && d.length >= 12) d = d.slice(2);
+      if (d.length === 10 && d.charAt(0) === '1') d = '0' + d;
+      return d;
+    }
+    function loadPhoneLog() {
+      try { return JSON.parse(localStorage.getItem(PHONE_LOG_KEY) || '{}') || {}; }
+      catch (e) { return {}; }
+    }
+    function savePhoneLog(log) {
+      try { localStorage.setItem(PHONE_LOG_KEY, JSON.stringify(log)); } catch (e) {}
+    }
+    function isPhoneCoolingDown(phone) {
+      var key = normalizePhoneLocal(phone);
+      if (!key || key.length < 10) return false;
+      var log = loadPhoneLog();
+      var last = log[key];
+      if (!last) return false;
+      return (Date.now() - Number(last)) < PHONE_COOLDOWN_MS;
+    }
+    function markPhoneOrdered(phone) {
+      var key = normalizePhoneLocal(phone);
+      if (!key) return;
+      var log = loadPhoneLog();
+      log[key] = Date.now();
+      var day = 24 * 60 * 60 * 1000;
+      Object.keys(log).forEach(function (k) {
+        if (Date.now() - Number(log[k]) > day) delete log[k];
+      });
+      savePhoneLog(log);
+    }
+
+    function hookFinalizePhoneGuard() {
+      if (typeof window.finalizeOrder !== 'function' || window.finalizeOrder._msqPhoneGuard) return;
+      var prev = window.finalizeOrder;
+      window.finalizeOrder = async function () {
+        var phoneEl = document.getElementById('custPhone');
+        var phone = phoneEl ? phoneEl.value.trim() : '';
+        if (phone && isPhoneCoolingDown(phone)) {
+          alert('تم استلام طلب من هذا الرقم مؤخرًا.\nانتظر قليلًا قبل إرسال طلب جديد (حوالي 15 دقيقة) لتقليل الطلبات المتكررة.');
+          return;
+        }
+        var result = await prev.apply(this, arguments);
+        if (phone) markPhoneOrdered(phone);
+        return result;
+      };
+      window.finalizeOrder._msqPhoneGuard = true;
+    }
+
+    hookFinalizePhoneGuard();
+    setTimeout(hookFinalizePhoneGuard, 800);
+    setTimeout(hookFinalizePhoneGuard, 2000);
   })();
   </script>
 
