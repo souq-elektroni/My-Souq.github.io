@@ -3378,6 +3378,48 @@ html[data-theme] .product-card:hover {
 }
 </style>
 
+<style id="mysouq-mobile-desktop-layout-fix">
+/* My Souq — Layout Fix: تنسيق فقط، بدون حذف أو تغيير أي وظيفة */
+.controls-wrapper{flex-direction:column!important;align-items:stretch!important;width:min(1200px,calc(100% - 18px))!important;}
+.search-sort-box{display:grid!important;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr) minmax(0,1fr) minmax(0,.85fr)!important;gap:10px!important;width:100%!important;align-items:stretch!important;}
+.search-field-wrap{grid-column:auto!important;min-width:0!important;}
+.search-field-wrap .search-input{min-width:0!important;width:100%!important;}
+.sort-wrapper,.sort-wrapper select,.gallery-mode-btn{min-width:0!important;width:100%!important;}
+.gallery-mode-btn{overflow:hidden!important;text-overflow:ellipsis!important;}
+@media (min-width:768px){
+ .controls-wrapper{padding:14px 18px!important;gap:12px!important;}
+ .search-sort-box{grid-template-columns:minmax(220px,1.55fr) minmax(160px,1fr) minmax(160px,1fr) minmax(125px,.8fr)!important;gap:10px!important;}
+ .search-input,.sort-wrapper select,.gallery-mode-btn{height:44px!important;min-height:44px!important;}
+ .search-field-wrap .search-input{padding-right:16px!important;padding-left:46px!important;}
+ .voice-search-btn{width:34px!important;height:34px!important;}
+}
+@media (max-width:767px){
+ .controls-wrapper{width:calc(100% - 18px)!important;padding:9px!important;gap:8px!important;}
+ .search-sort-box{grid-template-columns:minmax(0,1.35fr) repeat(2,minmax(0,1fr)) minmax(0,.9fr)!important;gap:6px!important;padding-top:9px!important;align-items:stretch!important;}
+ .search-field-wrap{width:100%!important;min-width:0!important;}
+ .search-field-wrap .search-input,.sort-wrapper select,.gallery-mode-btn{height:40px!important;min-height:40px!important;border-radius:12px!important;font-size:10px!important;padding-top:0!important;padding-bottom:0!important;}
+ .search-field-wrap .search-input{padding-right:8px!important;padding-left:34px!important;}
+ .voice-search-btn{left:5px!important;width:28px!important;height:28px!important;border-radius:8px!important;font-size:13px!important;}
+ .sort-wrapper{width:100%!important;min-width:0!important;}
+ .sort-wrapper select{width:100%!important;min-width:0!important;padding-left:5px!important;padding-right:5px!important;}
+ .gallery-mode-btn{width:100%!important;padding:0 5px!important;white-space:nowrap!important;}
+ .categories-bar{width:100%!important;max-width:100%!important;overflow-x:auto!important;flex-wrap:nowrap!important;-webkit-overflow-scrolling:touch;}
+}
+@media (max-width:380px){
+ .search-sort-box{grid-template-columns:minmax(0,1.3fr) repeat(2,minmax(0,1fr)) minmax(0,.85fr)!important;gap:4px!important;}
+ .search-field-wrap .search-input,.sort-wrapper select,.gallery-mode-btn{font-size:9px!important;border-radius:10px!important;}
+ .search-field-wrap .search-input{padding-left:30px!important;}
+ .voice-search-btn{left:4px!important;width:25px!important;height:25px!important;font-size:12px!important;}
+}
+body:has(#cartModal.active) .call-float,
+body:has(#orderRecaptchaModal.active) .call-float,
+body:has(#termsModal.active) .call-float,
+body:has(#paymentModal.active) .call-float,
+body:has(#confirmationModal.active) .call-float,
+body:has(#successModal.active) .call-float{display:none!important;}
+@media (max-width:767px){.call-float{left:12px!important;bottom:134px!important;width:48px!important;height:48px!important;}}
+</style>
+
 </head>
 
 <body>
