@@ -5306,5 +5306,142 @@ body:has(#successModal.active) .call-float{display:none!important;}
   })();
   </script>
 
+
+
+<style id="mysouq-desktop-product-modal-polish">
+/* ===== Product details modal — desktop professional action bar ===== */
+@media (min-width: 768px){
+  #productModal .modal-content{
+    width:min(960px, calc(100vw - 48px))!important;
+    max-width:960px!important;
+    max-height:90vh!important;
+    overflow:hidden!important;
+    border-radius:28px!important;
+  }
+
+  #productModal .modal-body{
+    grid-template-columns:minmax(0,1.08fr) minmax(360px,.92fr)!important;
+    gap:28px!important;
+    padding:24px 28px 22px!important;
+    align-items:center!important;
+  }
+
+  #productModal .modal-gallery-wrapper{
+    min-width:0!important;
+    gap:9px!important;
+  }
+
+  #productModal .modal-img{
+    height:405px!important;
+    border-radius:20px!important;
+    box-shadow:0 18px 42px rgba(56,32,42,.13)!important;
+  }
+
+  #productModal .thumbnails-bar{
+    gap:7px!important;
+    padding:2px 2px 3px!important;
+    scrollbar-width:none;
+  }
+  #productModal .thumbnails-bar::-webkit-scrollbar{display:none;}
+
+  #productModal .modal-info{
+    gap:13px!important;
+    min-width:0!important;
+  }
+
+  #productModal .modal-title{
+    font-size:28px!important;
+    line-height:1.25!important;
+    letter-spacing:-.2px!important;
+  }
+
+  #productModal .stock-badge{
+    padding:7px 13px!important;
+    border-radius:999px!important;
+    font-size:13px!important;
+    box-shadow:0 6px 16px rgba(46,125,50,.08)!important;
+  }
+
+  #productModal .modal-price{
+    font-size:31px!important;
+    line-height:1!important;
+    margin:2px 0!important;
+  }
+
+  #productModal .dimensions-box{
+    padding:14px 16px!important;
+    border-radius:17px!important;
+    gap:10px 18px!important;
+    box-shadow:0 8px 22px rgba(70,30,44,.05)!important;
+  }
+
+  /* Professional four-button action bar */
+  #productModal .modal-actions-row{
+    display:grid!important;
+    grid-template-columns:1.12fr 1.08fr 1.02fr .88fr!important;
+    gap:9px!important;
+    width:100%!important;
+    margin-top:4px!important;
+    align-items:stretch!important;
+  }
+
+  #productModal .modal-actions-row > *{
+    min-width:0!important;
+    min-height:62px!important;
+    height:62px!important;
+    padding:9px 10px!important;
+    border-radius:17px!important;
+    border:1px solid transparent!important;
+    font-size:13.5px!important;
+    line-height:1.2!important;
+    font-weight:900!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    box-shadow:0 9px 22px rgba(45,29,37,.10)!important;
+    transition:transform .18s ease, box-shadow .18s ease, filter .18s ease!important;
+  }
+
+  #productModal .modal-actions-row > *:hover{
+    transform:translateY(-3px)!important;
+    box-shadow:0 15px 28px rgba(45,29,37,.15)!important;
+    filter:saturate(1.04)!important;
+  }
+
+  #productModal .add-cart-btn{
+    background:linear-gradient(135deg,var(--msq-primary),var(--msq-primary-2))!important;
+    color:#fff!important;
+  }
+
+  #productModal .direct-wa-btn{
+    background:linear-gradient(135deg,#18b957,#25d366)!important;
+    color:#fff!important;
+  }
+
+  #productModal .call-modal-btn{
+    background:linear-gradient(135deg,#267a2d,#43a047)!important;
+    color:#fff!important;
+  }
+
+  #productModal .share-btn{
+    background:rgba(255,255,255,.92)!important;
+    color:var(--msq-primary)!important;
+    border-color:var(--msq-line)!important;
+  }
+
+  body.dark-mode #productModal .share-btn{
+    background:#30232a!important;
+    color:#ffdbe4!important;
+    border-color:rgba(255,255,255,.10)!important;
+  }
+}
+
+@media (min-width:768px) and (max-width:900px){
+  #productModal .modal-body{grid-template-columns:minmax(0,1fr) minmax(320px,.9fr)!important;gap:20px!important;padding:20px!important;}
+  #productModal .modal-img{height:360px!important;}
+  #productModal .modal-actions-row{gap:7px!important;grid-template-columns:1.1fr 1.05fr 1fr .82fr!important;}
+  #productModal .modal-actions-row > *{font-size:12px!important;padding-inline:7px!important;}
+}
+</style>
 </body>
 </html>
