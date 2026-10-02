@@ -2398,8 +2398,9 @@ body.dark-mode .modal-content{
  color:var(--msq-primary)!important;box-shadow:0 8px 22px rgba(0,0,0,.08);
 }
 body.dark-mode .close-btn{background:#2a1e24!important;color:#ffd9e2!important}
+.modal-content{max-height:96vh!important}
 .modal-body{padding:24px!important;gap:26px!important}
-.modal-img{height:390px!important;border-radius:22px!important;border:1px solid var(--msq-line)!important;box-shadow:0 16px 35px rgba(70,30,44,.10)}
+.modal-img{height:420px!important;border-radius:22px!important;border:1px solid var(--msq-line)!important;box-shadow:0 16px 35px rgba(70,30,44,.10)}
 .modal-info{gap:12px!important}
 .modal-title{font-size:27px!important;color:var(--msq-primary)!important}
 .modal-price{font-size:30px!important;color:var(--msq-primary)!important}
@@ -2408,12 +2409,29 @@ body.dark-mode .close-btn{background:#2a1e24!important;color:#ffd9e2!important}
  border-color:var(--msq-line)!important;
 }
 body.dark-mode .dimensions-box{background:#2a1e24!important}
-.add-cart-btn,.direct-wa-btn,.share-btn{
- min-height:48px!important;border-radius:15px!important;border:0!important;font-weight:900!important;
+.modal-actions-row{
+ display:grid!important;
+ grid-template-columns:1.35fr 1.15fr 1fr 1fr;
+ gap:8px!important;
+ width:100%;
+}
+.add-cart-btn,.direct-wa-btn,.call-modal-btn,.share-btn{
+ min-height:50px!important;border-radius:15px!important;border:0!important;font-weight:900!important;
  box-shadow:0 10px 24px rgba(139,63,82,.12);transition:.2s ease!important;
+ display:flex!important;align-items:center;justify-content:center;
+ text-decoration:none!important;cursor:pointer;
 }
 .add-cart-btn{background:linear-gradient(135deg,var(--msq-primary),var(--msq-primary-2))!important}
-.add-cart-btn:hover,.direct-wa-btn:hover,.share-btn:hover{transform:translateY(-2px)}
+.call-modal-btn{background:linear-gradient(135deg,#2e7d32,#43a047)!important;color:#fff!important}
+.direct-wa-btn{background:#25d366!important;color:#fff!important}
+.add-cart-btn:hover,.direct-wa-btn:hover,.call-modal-btn:hover,.share-btn:hover{transform:translateY(-2px)}
+@media(max-width:767px){
+ .modal-content{max-height:96vh!important}
+ .modal-body{padding:14px!important;gap:14px!important}
+ .modal-img{height:300px!important}
+ .modal-actions-row{grid-template-columns:1fr 1fr;gap:7px!important}
+ .add-cart-btn,.direct-wa-btn,.call-modal-btn,.share-btn{min-height:46px!important;font-size:11px!important;padding:8px 6px!important}
+}
 
 /* Cart/forms/payment */
 .cart-modal{max-width:720px!important}
@@ -2528,9 +2546,9 @@ footer{
  .product-title{font-size:12px!important;min-height:37px}
  .price-tag{font-size:15px!important}
  .click-hint{font-size:9px!important;padding:6px!important}
- .modal-content{width:calc(100% - 4px)!important;max-height:94vh!important;border-radius:24px!important}
+ .modal-content{width:calc(100% - 4px)!important;max-height:96vh!important;border-radius:24px!important}
  .modal-body{padding:14px!important;gap:14px!important}
- .modal-img{height:270px!important;border-radius:18px!important}
+ .modal-img{height:300px!important;border-radius:18px!important}
  .modal-title{font-size:20px!important}.modal-price{font-size:23px!important}
  .whatsapp-float{left:12px!important;bottom:76px!important;width:48px!important;height:48px!important}
  .qr-toggle-fab{left:12px!important;bottom:18px!important;width:44px!important;height:44px!important}
@@ -3411,6 +3429,7 @@ html[data-theme] .product-card:hover {
  .search-field-wrap .search-input{padding-left:30px!important;}
  .voice-search-btn{left:4px!important;width:25px!important;height:25px!important;font-size:12px!important;}
 }
+body:has(#productModal.active) .call-float,
 body:has(#cartModal.active) .call-float,
 body:has(#orderRecaptchaModal.active) .call-float,
 body:has(#termsModal.active) .call-float,
@@ -3709,15 +3728,27 @@ body:has(#successModal.active) .call-float{display:none!important;}
               class="direct-wa-btn"
               target="_blank"
               rel="noopener"
+              aria-label="الطلب السريع عبر واتساب"
             >
-              💬 اطلب فوراً
+              ⚡ الطلب السريع
+            </a>
+
+            <a
+              href="tel:01116339905"
+              class="call-modal-btn"
+              id="modalCallBtn"
+              aria-label="الاتصال السريع بالمتجر"
+            >
+              📞 الاتصال السريع
             </a>
 
             <button
+              type="button"
               onclick="shareProduct()"
               class="share-btn"
+              aria-label="مشاركة المنتج"
             >
-              📤
+              📤 مشاركة المنتج
             </button>
 
           </div>
