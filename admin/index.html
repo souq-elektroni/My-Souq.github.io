@@ -28,113 +28,125 @@
     </style>
 
     <style id="my-souq-size-table-style">
+      /* Admin page: no horizontal page scroll */
+      html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      /* ===== Variants: responsive cards (no side slide) ===== */
       .my-souq-size-table-wrap {
         width: 100%;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        border: 1px solid #e3ddd6;
-        border-radius: 12px;
-        background: #fff;
+        max-width: 100%;
+        overflow: visible;
         margin-top: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
       }
 
-      .my-souq-size-table {
+      .mst-row-card {
         width: 100%;
-        min-width: 1250px;
-        border-collapse: collapse;
-        direction: rtl;
-        font-family: Arial, sans-serif;
-      }
-
-      .my-souq-size-table th,
-      .my-souq-size-table td {
-        border-bottom: 1px solid #eee7df;
-        border-left: 1px solid #eee7df;
-        padding: 7px;
-        vertical-align: middle;
-        text-align: center;
-      }
-
-      .my-souq-size-table th {
-        background: #803d48;
-        color: #fff;
-        font-size: 13px;
-        font-weight: 700;
-        white-space: nowrap;
-      }
-
-      .my-souq-size-table td {
+        box-sizing: border-box;
+        border: 1px solid #e3ddd6;
+        border-radius: 14px;
         background: #fff;
+        padding: 12px;
+        box-shadow: 0 4px 14px rgba(72, 35, 45, 0.05);
+        direction: rtl;
       }
 
-      .my-souq-size-table tr:last-child td {
-        border-bottom: 0;
+      .mst-row-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #f0ebe6;
       }
 
-      .my-souq-size-table input,
-      .my-souq-size-table select {
+      .mst-row-title {
+        font-size: 13px;
+        font-weight: 800;
+        color: #803d48;
+      }
+
+      .mst-fields-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px 12px;
+        width: 100%;
+      }
+
+      @media (min-width: 700px) {
+        .mst-fields-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+      }
+
+      @media (min-width: 1100px) {
+        .mst-fields-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+      }
+
+      .mst-field {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        min-width: 0;
+      }
+
+      .mst-field.mst-span-2 {
+        grid-column: span 2;
+      }
+
+      .mst-label {
+        font-size: 11.5px;
+        font-weight: 800;
+        color: #6b5a60;
+        text-align: right;
+      }
+
+      .mst-field input,
+      .mst-field select,
+      .my-souq-size-table-wrap input,
+      .my-souq-size-table-wrap select {
         box-sizing: border-box;
         width: 100%;
-        min-height: 38px;
+        max-width: 100%;
+        min-height: 40px;
         border: 1px solid #d8d0c8;
-        border-radius: 7px;
+        border-radius: 9px;
         background: #fff;
-        padding: 7px 8px;
+        padding: 8px 10px;
         font-size: 13px;
         color: #333;
         outline: none;
       }
 
-      .my-souq-size-table input:focus,
-      .my-souq-size-table select:focus {
+      .mst-field input:focus,
+      .mst-field select:focus {
         border-color: #803d48;
-        box-shadow: 0 0 0 2px rgba(128, 61, 72, 0.10);
+        box-shadow: 0 0 0 2px rgba(128, 61, 72, 0.12);
       }
 
-      .my-souq-size-table .mst-size {
-        min-width: 125px;
-      }
-
-      .my-souq-size-table .mst-color {
-        min-width: 110px;
-      }
-
-      .my-souq-size-table .mst-number {
-        min-width: 105px;
-      }
-
-      .my-souq-size-table .mst-extra {
-        min-width: 180px;
-      }
-
-      .my-souq-size-table .mst-price {
-        min-width: 120px;
-      }
-
-      .my-souq-size-table .mst-quantity {
-        min-width: 105px;
-      }
-
-      .my-souq-size-table .mst-status {
-        min-width: 120px;
-      }
-
-      .my-souq-size-table .mst-actions {
-        min-width: 75px;
-      }
-
-      .my-souq-size-table .mst-delete {
+      .mst-delete {
         border: 0;
-        border-radius: 7px;
-        min-height: 38px;
-        padding: 7px 10px;
+        border-radius: 9px;
+        min-height: 36px;
+        padding: 6px 12px;
         background: #f7e7e7;
         color: #a32626;
         cursor: pointer;
-        font-weight: 700;
+        font-weight: 800;
+        font-size: 12px;
+        white-space: nowrap;
+        flex-shrink: 0;
       }
 
-      .my-souq-size-table .mst-delete:hover {
+      .mst-delete:hover {
         background: #efd3d3;
       }
 
@@ -143,16 +155,18 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        margin-top: 10px;
-        min-height: 42px;
-        padding: 8px 16px;
+        margin-top: 4px;
+        min-height: 44px;
+        padding: 8px 18px;
         border: 0;
-        border-radius: 8px;
+        border-radius: 10px;
         background: #803d48;
         color: #fff;
         cursor: pointer;
         font-size: 14px;
-        font-weight: 700;
+        font-weight: 800;
+        width: 100%;
+        max-width: 280px;
       }
 
       .my-souq-size-table-add:hover {
@@ -160,17 +174,41 @@
       }
 
       .my-souq-size-table-empty {
-        padding: 18px;
+        padding: 20px 14px;
         text-align: center;
         color: #777;
         font-size: 13px;
+        border: 1px dashed #e0d8d0;
+        border-radius: 12px;
+        background: #faf8f6;
       }
 
       .my-souq-size-table-note {
-        margin-top: 7px;
+        margin-top: 8px;
         color: #777;
         font-size: 12px;
         line-height: 1.6;
+      }
+
+      .mst-preview-wrap {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        direction: rtl;
+      }
+
+      .mst-preview-card {
+        border: 1px solid #e3ddd6;
+        border-radius: 10px;
+        padding: 10px 12px;
+        background: #fff;
+        font-size: 12.5px;
+        line-height: 1.55;
+      }
+
+      .mst-preview-card strong {
+        color: #803d48;
       }
     </style>
 
@@ -469,81 +507,70 @@
               );
             },
 
+            renderField: function (label, control, span2) {
+              return h(
+                "div",
+                { className: "mst-field" + (span2 ? " mst-span-2" : "") },
+                h("label", { className: "mst-label" }, label),
+                control
+              );
+            },
+
             render: function () {
               const rows = this.state.rows;
+              const self = this;
 
               return h(
                 "div",
-                { style: { width: "100%" } },
+                { style: { width: "100%", maxWidth: "100%" } },
                 h(
                   "div",
                   { className: "my-souq-size-table-wrap" },
-                  h(
-                    "table",
-                    { className: "my-souq-size-table" },
-                    h(
-                      "thead",
-                      {},
-                      h(
-                        "tr",
-                        {},
-                        h("th", { className: "mst-size" }, "المقاس"),
-                        h("th", { className: "mst-color" }, "اللون"),
-                        h("th", { className: "mst-number" }, "طول البنطلون"),
-                        h("th", { className: "mst-number" }, "طول التيشرت"),
-                        h("th", { className: "mst-number" }, "عرض التيشرت"),
-                        h("th", { className: "mst-extra" }, "طول وعرض القطعة الإضافية"),
-                        h("th", { className: "mst-price" }, "سعر هذا المقاس"),
-                        h("th", { className: "mst-quantity" }, "الكمية المتاحة"),
-                        h("th", { className: "mst-status" }, "حالة هذا المقاس"),
-                        h("th", { className: "mst-actions" }, "حذف")
-                      )
-                    ),
-                    h(
-                      "tbody",
-                      {},
-                      rows.length
-                        ? rows.map(function (row, index) {
-                            return h(
-                              "tr",
-                              { key: "mst-row-" + index },
-                              h("td", {}, this.renderSizeSelect(row, index)),
-                              h("td", {}, this.renderInput(row, index, "color", "text", "mst-color")),
-                              h("td", {}, this.renderInput(row, index, "pants_length", "text", "mst-number")),
-                              h("td", {}, this.renderInput(row, index, "tshirt_length", "text", "mst-number")),
-                              h("td", {}, this.renderInput(row, index, "tshirt_width", "text", "mst-number")),
-                              h("td", {}, this.renderInput(row, index, "extra_piece", "text", "mst-extra")),
-                              h("td", {}, this.renderInput(row, index, "price", "number", "mst-price")),
-                              h("td", {}, this.renderInput(row, index, "quantity", "number", "mst-quantity")),
-                              h("td", {}, this.renderStatusSelect(row, index)),
-                              h(
-                                "td",
-                                {},
-                                h(
-                                  "button",
-                                  {
-                                    type: "button",
-                                    className: "mst-delete",
-                                    onClick: function () {
-                                      this.deleteRow(index);
-                                    }.bind(this)
-                                  },
-                                  "حذف"
-                                )
-                              )
-                            );
-                          }, this)
-                        : h(
-                            "tr",
-                            {},
+                  rows.length
+                    ? rows.map(function (row, index) {
+                        return h(
+                          "div",
+                          { className: "mst-row-card", key: "mst-row-" + index },
+                          h(
+                            "div",
+                            { className: "mst-row-header" },
                             h(
-                              "td",
-                              { colSpan: 10, className: "my-souq-size-table-empty" },
-                              "لا توجد مقاسات بعد — اضغط «＋ إضافة مقاس» لإضافة أول صف."
+                              "div",
+                              { className: "mst-row-title" },
+                              "مقاس #" + (index + 1) + (row.size ? " — " + row.size : "")
+                            ),
+                            h(
+                              "button",
+                              {
+                                type: "button",
+                                className: "mst-delete",
+                                onClick: function () {
+                                  self.deleteRow(index);
+                                }
+                              },
+                              "حذف"
                             )
+                          ),
+                          h(
+                            "div",
+                            { className: "mst-fields-grid" },
+                            self.renderField("المقاس", self.renderSizeSelect(row, index)),
+                            self.renderField("اللون", self.renderInput(row, index, "color", "text", "mst-color")),
+                            self.renderField("طول البنطلون", self.renderInput(row, index, "pants_length", "text", "mst-number")),
+                            self.renderField("طول التيشرت", self.renderInput(row, index, "tshirt_length", "text", "mst-number")),
+                            self.renderField("عرض التيشرت", self.renderInput(row, index, "tshirt_width", "text", "mst-number")),
+                            self.renderField("طول وعرض القطعة الإضافية", self.renderInput(row, index, "extra_piece", "text", "mst-extra"), true),
+                            self.renderField("سعر هذا المقاس", self.renderInput(row, index, "price", "number", "mst-price")),
+                            self.renderField("الكمية المتاحة", self.renderInput(row, index, "quantity", "number", "mst-quantity")),
+                            self.renderField("حالة هذا المقاس", self.renderStatusSelect(row, index))
                           )
-                    )
-                  )
+                        );
+                      })
+                    : h(
+                        "div",
+                        { className: "my-souq-size-table-empty" },
+                        "لا توجد مقاسات بعد — اضغط «＋ إضافة مقاس» لإضافة أول صف."
+                      )
                 ),
                 h(
                   "button",
@@ -566,7 +593,7 @@
                 h(
                   "div",
                   { className: "my-souq-size-table-note" },
-                  "يمكنك تعديل كل صف بشكل مستقل. تغيير أي حقل آخر في المنتج لن يمسح صفوف المقاسات."
+                  "كل الخانات ظاهرة بدون تمرير جانبي على الموبايل والكمبيوتر. يمكنك تعديل كل صف بشكل مستقل."
                 )
               );
             }
@@ -595,93 +622,26 @@
 
               return h(
                 "div",
-                {
-                  style: {
-                    width: "100%",
-                    overflowX: "auto",
-                    direction: "rtl"
-                  }
-                },
-                h(
-                  "table",
-                  {
-                    style: {
-                      width: "100%",
-                      minWidth: "980px",
-                      borderCollapse: "collapse",
-                      fontSize: "12px",
-                      background: "#fff"
-                    }
-                  },
-                  h(
-                    "thead",
-                    {},
-                    h(
-                      "tr",
-                      {},
-                      [
-                        "المقاس",
-                        "اللون",
-                        "طول البنطلون",
-                        "طول التيشرت",
-                        "عرض التيشرت",
-                        "طول وعرض القطعة الإضافية",
-                        "السعر",
-                        "الكمية",
-                        "الحالة"
-                      ].map(function (label) {
-                        return h(
-                          "th",
-                          {
-                            style: {
-                              padding: "7px 6px",
-                              border: "1px solid #ddd",
-                              background: "#803d48",
-                              color: "#fff",
-                              textAlign: "center",
-                              whiteSpace: "nowrap"
-                            }
-                          },
-                          label
-                        );
-                      })
+                { className: "mst-preview-wrap" },
+                rows.map(function (row, index) {
+                  return h(
+                    "div",
+                    { className: "mst-preview-card", key: "preview-row-" + index },
+                    h("div", {}, h("strong", {}, "المقاس: "), cell(row.size),
+                      " · ", h("strong", {}, "اللون: "), cell(row.color)),
+                    h("div", {},
+                      h("strong", {}, "بنطلون: "), cell(row.pants_length),
+                      " · ", h("strong", {}, "تيشرت ط: "), cell(row.tshirt_length),
+                      " · ", h("strong", {}, "تيشرت ع: "), cell(row.tshirt_width)
+                    ),
+                    h("div", {}, h("strong", {}, "إضافي: "), cell(row.extra_piece)),
+                    h("div", {},
+                      h("strong", {}, "السعر: "), cell(row.price),
+                      " · ", h("strong", {}, "الكمية: "), cell(row.quantity),
+                      " · ", h("strong", {}, "الحالة: "), row.status === "out" ? "نفد" : "متوفر"
                     )
-                  ),
-                  h(
-                    "tbody",
-                    {},
-                    rows.map(function (row, index) {
-                      return h(
-                        "tr",
-                        { key: "preview-row-" + index },
-                        [
-                          cell(row.size),
-                          cell(row.color),
-                          cell(row.pants_length),
-                          cell(row.tshirt_length),
-                          cell(row.tshirt_width),
-                          cell(row.extra_piece),
-                          cell(row.price),
-                          cell(row.quantity),
-                          row.status === "out" ? "نفد" : "متوفر"
-                        ].map(function (value) {
-                          return h(
-                            "td",
-                            {
-                              style: {
-                                padding: "7px 6px",
-                                border: "1px solid #ddd",
-                                textAlign: "center",
-                                whiteSpace: "nowrap"
-                              }
-                            },
-                            value
-                          );
-                        })
-                      );
-                    })
-                  )
-                )
+                  );
+                })
               );
             }
           });
