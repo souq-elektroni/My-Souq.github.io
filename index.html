@@ -3647,6 +3647,10 @@ body:has(#successModal.active) .call-float{display:none!important;}
 
         <div class="modal-info">
 
+          <button type="button" class="modal-back-btn" onclick="closeModal()" aria-label="الرجوع إلى المنتجات">
+            <span aria-hidden="true">↩</span> رجوع للمنتجات
+          </button>
+
           <h2
             class="modal-title"
             id="modalTitle"
@@ -3719,7 +3723,7 @@ body:has(#successModal.active) .call-float{display:none!important;}
               id="addCartBtn"
               class="add-cart-btn"
             >
-              إضافة للسلة 🛒
+              <span class="action-icon" aria-hidden="true">🛒</span><span>إضافة للسلة</span>
             </button>
 
             <a
@@ -3730,7 +3734,7 @@ body:has(#successModal.active) .call-float{display:none!important;}
               rel="noopener"
               aria-label="الطلب السريع عبر واتساب"
             >
-              ⚡ الطلب السريع
+              <span class="action-icon" aria-hidden="true">⚡</span><span>الطلب السريع</span>
             </a>
 
             <a
@@ -3739,7 +3743,7 @@ body:has(#successModal.active) .call-float{display:none!important;}
               id="modalCallBtn"
               aria-label="الاتصال السريع بالمتجر"
             >
-              📞 الاتصال السريع
+              <span class="action-icon" aria-hidden="true">📞</span><span>الاتصال السريع</span>
             </a>
 
             <button
@@ -3748,10 +3752,15 @@ body:has(#successModal.active) .call-float{display:none!important;}
               class="share-btn"
               aria-label="مشاركة المنتج"
             >
-              📤 مشاركة المنتج
+              <span class="action-icon" aria-hidden="true">📤</span><span>مشاركة المنتج</span>
             </button>
 
           </div>
+
+          <button type="button" class="add-another-design-btn" onclick="addToCartAndContinue()">
+            ＋ أضف هذا الشكل واختر شكلًا آخر
+          </button>
+          <p class="multi-design-hint">تقدر تجمع أكثر من شكل في السلة، وبعدها تبعتهم كلهم في طلب واتساب واحد مع روابط صور كل شكل.</p>
 
         </div>
 
@@ -5308,6 +5317,22 @@ body:has(#successModal.active) .call-float{display:none!important;}
 
 
 
+<script>
+/* Multi-design ordering: reuse the existing validated addToCart flow, then return to the collection. */
+window.addToCartAndContinue = function () {
+  if (typeof window.addToCart !== 'function') return;
+  window.addToCart();
+  var cartModal = document.getElementById('cartModal');
+  if (cartModal && cartModal.classList.contains('active')) {
+    if (typeof window.closeCartModal === 'function') window.closeCartModal();
+    else cartModal.classList.remove('active');
+  }
+  var productsSection = document.getElementById('products-container');
+  if (productsSection) productsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+</script>
+
+
 <style id="mysouq-desktop-product-modal-polish">
 /* ===== Product details modal — desktop professional action bar ===== */
 @media (min-width: 768px){
@@ -5441,6 +5466,67 @@ body:has(#successModal.active) .call-float{display:none!important;}
   #productModal .modal-img{height:360px!important;}
   #productModal .modal-actions-row{gap:7px!important;grid-template-columns:1.1fr 1.05fr 1fr .82fr!important;}
   #productModal .modal-actions-row > *{font-size:12px!important;padding-inline:7px!important;}
+}
+</style>
+
+<style id="mysouq-product-modal-actions-and-width-v2">
+/* Wider product dialog and a consistent, readable four-action row on all screens. */
+#productModal .modal-content{
+  width:min(1080px,calc(100vw - 28px))!important;
+  max-width:1080px!important;
+}
+#productModal .modal-actions-row{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:8px!important;
+  width:100%!important;
+  align-items:stretch!important;
+}
+#productModal .modal-actions-row > *{
+  min-width:0!important;
+  min-height:58px!important;
+  height:auto!important;
+  padding:8px 5px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:3px!important;
+  text-align:center!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  line-height:1.25!important;
+  font-size:clamp(9px,1.15vw,13px)!important;
+  font-weight:900!important;
+  border-radius:13px!important;
+}
+#productModal .modal-actions-row .action-icon{font-size:17px;line-height:1.1;}
+#productModal .modal-back-btn{
+  align-self:flex-start;display:inline-flex;align-items:center;gap:7px;
+  border:1px solid var(--border-color);border-radius:999px;
+  padding:6px 13px;background:var(--pink-soft);color:var(--burgundy-soft);
+  font:800 12px 'Cairo',sans-serif;cursor:pointer;
+}
+#productModal .modal-back-btn span{font-size:17px;line-height:1;}
+#productModal .add-another-design-btn{
+  width:100%;margin-top:2px;padding:10px 12px;border:1px dashed var(--msq-primary,var(--burgundy-soft));
+  border-radius:12px;background:color-mix(in srgb,var(--msq-primary,var(--burgundy-soft)) 8%,transparent);
+  color:var(--msq-primary,var(--burgundy-soft));font:900 12px 'Cairo',sans-serif;cursor:pointer;
+}
+#productModal .multi-design-hint{font-size:10.5px;line-height:1.55;color:var(--text-muted);text-align:center;margin-top:-5px;}
+@media(min-width:768px){
+  #productModal .modal-content{width:min(1080px,calc(100vw - 48px))!important;max-width:1080px!important;}
+  #productModal .modal-body{grid-template-columns:minmax(0,1.12fr) minmax(380px,.88fr)!important;gap:30px!important;padding:26px 32px!important;}
+  #productModal .modal-actions-row{gap:9px!important;}
+  #productModal .modal-actions-row > *{min-height:64px!important;padding:9px 8px!important;font-size:13px!important;border-radius:15px!important;}
+  #productModal .modal-actions-row .action-icon{font-size:19px;}
+  #productModal .multi-design-hint{font-size:11px;}
+}
+@media(max-width:420px){
+  #productModal .modal-actions-row{gap:5px!important;}
+  #productModal .modal-actions-row > *{min-height:54px!important;padding:6px 2px!important;font-size:8.5px!important;border-radius:10px!important;}
+  #productModal .modal-actions-row .action-icon{font-size:15px;}
 }
 </style>
 </body>
