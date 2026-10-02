@@ -2472,9 +2472,8 @@ footer{
  .brand-badge{top:10px!important;right:10px!important;width:58px!important;height:58px!important;border-radius:18px!important;font-size:9px!important}
  .top-actions{
   top:8px!important;left:8px!important;right:78px!important;width:auto!important;max-width:none!important;
-  overflow-x:auto;flex-wrap:nowrap!important;padding:5px!important;border-radius:17px;scrollbar-width:none;
+  overflow:visible!important;flex-wrap:wrap!important;padding:5px!important;border-radius:17px;
  }
- .top-actions::-webkit-scrollbar{display:none}
  .top-actions>*{flex:0 0 auto}
  .admin-orders-trigger,.track-trigger,.cart-trigger{padding:8px 10px!important;font-size:10px!important}
  header{min-height:315px;padding:118px 16px 40px!important}
@@ -2523,6 +2522,8 @@ footer{
   position: relative;
   display: flex;
   align-items: center;
+  z-index: 1400;
+  flex-shrink: 0;
 }
 .theme-palette-btn {
   width: 40px !important;
@@ -2540,6 +2541,10 @@ footer{
   transition: .22s ease !important;
   box-shadow: none !important;
   padding: 0 !important;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  position: relative;
+  z-index: 1401;
 }
 body.dark-mode .theme-palette-btn {
   background: #251b20 !important;
@@ -2551,28 +2556,29 @@ body.dark-mode .theme-palette-btn {
   box-shadow: 0 8px 20px rgba(139,63,82,.10) !important;
 }
 .theme-palette-panel {
-  position: absolute;
-  top: calc(100% + 10px);
-  left: 0;
-  background: rgba(255,255,255,.96);
+  position: fixed;
+  top: 70px;
+  left: 12px;
+  background: rgba(255,255,255,.98);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(139,63,82,.12);
+  border: 1px solid rgba(139,63,82,.14);
   border-radius: 18px;
-  padding: 12px;
-  box-shadow: 0 18px 45px rgba(72,35,45,.14);
+  padding: 14px;
+  box-shadow: 0 18px 50px rgba(72,35,45,.22);
   display: none;
   flex-direction: column;
   gap: 10px;
-  z-index: 1200;
-  min-width: 180px;
+  z-index: 2500;
+  min-width: 200px;
   direction: rtl;
+  pointer-events: auto;
 }
 body.dark-mode .theme-palette-panel {
-  background: rgba(30,22,26,.96);
-  border-color: rgba(242,164,184,.15);
+  background: rgba(30,22,26,.98);
+  border-color: rgba(242,164,184,.18);
 }
-.theme-palette-panel.open { display: flex; }
+.theme-palette-panel.open { display: flex !important; }
 .theme-palette-title {
   font-size: 12px;
   font-weight: 900;
@@ -2757,8 +2763,199 @@ html[data-theme] .product-card:hover {
 
 @media(max-width:767px){
   .theme-palette-btn { width: 36px !important; height: 36px !important; min-height: 36px !important; font-size: 14px; }
-  .theme-palette-panel { left: auto; right: 0; min-width: 160px; }
-  .theme-swatch { width: 36px; height: 36px; }
+  .theme-palette-panel {
+    top: 58px !important;
+    left: 8px !important;
+    right: auto !important;
+    min-width: 180px;
+    z-index: 3000 !important;
+  }
+  .theme-swatch { width: 40px; height: 40px; min-width: 40px; min-height: 40px; }
+  .top-actions { overflow: visible !important; }
+}
+
+/* ===== Tracking modal – clear on mobile & desktop ===== */
+.track-modal-content {
+  max-width: 560px !important;
+  width: min(560px, calc(100% - 16px)) !important;
+  padding: 18px 16px !important;
+  max-height: 92vh !important;
+  overflow-y: auto !important;
+}
+.track-modal-title {
+  font-size: 17px !important;
+  margin-bottom: 8px !important;
+  color: var(--msq-primary, var(--burgundy-soft)) !important;
+}
+.track-modal-hint {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.track-search-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.track-search-input {
+  flex: 1;
+  min-width: 160px;
+  font-size: 14px !important;
+  padding: 11px 12px !important;
+  border-radius: 12px !important;
+}
+.track-search-btn {
+  padding: 0 16px !important;
+  font-size: 13.5px !important;
+  border-radius: 12px !important;
+  white-space: nowrap;
+  min-height: 44px;
+}
+.tracking-result-box {
+  background: var(--pink-soft);
+  border: 1px solid var(--pink-accent);
+  padding: 12px;
+  border-radius: 14px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.track-meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 10px 0 14px;
+}
+.track-meta-item {
+  background: rgba(255,255,255,.85);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 12.5px;
+}
+.track-meta-item strong {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+  font-weight: 800;
+}
+.track-meta-item span {
+  font-weight: 900;
+  color: var(--text-dark);
+  word-break: break-word;
+}
+.track-products-title {
+  font-weight: 900;
+  color: var(--msq-primary, var(--burgundy-soft));
+  font-size: 13.5px;
+  margin: 4px 0 10px;
+}
+.track-product-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: rgba(255,255,255,.92);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+.track-product-img {
+  width: 78px;
+  height: 78px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+  background: #f5f0f2;
+}
+.track-product-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.track-product-name {
+  font-weight: 900;
+  font-size: 13.5px;
+  color: var(--text-dark);
+  line-height: 1.35;
+}
+.track-product-row {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.track-product-row b {
+  color: var(--msq-primary, var(--burgundy-soft));
+  font-weight: 900;
+}
+.track-dims {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 4px;
+}
+.track-dim-chip {
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--pink-soft);
+  color: var(--msq-primary, var(--burgundy-soft));
+  border: 1px solid var(--pink-accent);
+}
+.track-timeline-box {
+  background: rgba(255,255,255,.92);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 12px;
+  margin-top: 8px;
+}
+.track-status-banner {
+  margin-top: 12px;
+  padding: 11px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: 900;
+  font-size: 14px;
+}
+@media (max-width: 520px) {
+  .track-modal-content {
+    max-width: 100% !important;
+    width: calc(100% - 8px) !important;
+    padding: 14px 12px !important;
+    border-radius: 22px !important;
+  }
+  .track-meta-grid {
+    grid-template-columns: 1fr;
+  }
+  .track-product-img {
+    width: 68px;
+    height: 68px;
+  }
+  .track-search-row {
+    flex-direction: column;
+  }
+  .track-search-btn {
+    width: 100%;
+  }
+}
+@media (min-width: 768px) {
+  .track-modal-content {
+    max-width: 620px !important;
+    padding: 24px !important;
+  }
+  .track-product-img {
+    width: 96px;
+    height: 96px;
+  }
+  .track-product-name {
+    font-size: 15px;
+  }
 }
 </style>
 
@@ -3349,34 +3546,32 @@ html[data-theme] .product-card:hover {
     </div>
   </div>
 
-  <!-- Tracking Modal (New Feature) -->
+  <!-- Tracking Modal -->
   <div class="modal-overlay" id="trackingModal">
-    <div class="modal-content" style="max-width: 500px; padding: 18px;">
+    <div class="modal-content track-modal-content">
       <button class="close-btn" onclick="closeTrackingModal()">✕</button>
-      <div class="terms-header" style="font-size: 17px; margin-bottom: 10px;">
+      <div class="terms-header track-modal-title">
         📦 تتبع حالة طلبك
       </div>
-      <p style="font-size: 12.5px; color: var(--text-muted); margin-bottom: 10px;">
-        أدخل رقم الطلب الخاص بك (مثال: MS-K7P2M9X4) لمعرفة أحدث مستجدات وتجهيزات الطلب:
+      <p class="track-modal-hint">
+        أدخل رقم الطلب الخاص بك (مثال: MS-K7P2M9X4) لمعرفة أحدث مستجدات الطلب والمنتجات:
       </p>
-      <div style="display: flex; gap: 6px; margin-bottom: 12px;">
+      <div class="track-search-row">
         <input
           type="text"
           id="trackInputId"
-          class="promo-input"
+          class="promo-input track-search-input"
           placeholder="أدخل رقم الطلب هنا..."
-          style="font-size: 13.5px; padding: 9px;"
         >
         <button
-          class="promo-btn"
-          style="padding: 0 14px; font-size: 13.5px;"
+          class="promo-btn track-search-btn"
           onclick="searchOrderTracking()"
         >
           بحث 🔍
         </button>
       </div>
       <div id="adminHint" style="display:none; font-size:12px; font-weight:800; color:#2e7d32; margin-bottom:8px;"></div>
-      <div id="trackingResultContainer" style="display: none; background: var(--pink-soft); border: 1px solid var(--pink-accent); padding: 10px; border-radius: 8px; font-size: 13px; line-height: 1.5;">
+      <div id="trackingResultContainer" class="tracking-result-box" style="display:none;">
         <!-- نتيجة التتبع -->
       </div>
     </div>
@@ -3418,6 +3613,17 @@ html[data-theme] .product-card:hover {
       >
       <div id="adminOrdersList" class="orders-list">
         <p style="text-align:center; color:var(--text-muted);">جاري التحميل...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Order Details Modal -->
+  <div class="modal-overlay" id="adminOrderDetailsModal" style="z-index:1400;">
+    <div class="modal-content track-modal-content">
+      <button class="close-btn" onclick="closeAdminOrderDetails()">✕</button>
+      <div class="terms-header track-modal-title">🧾 تفاصيل الطلب</div>
+      <div id="adminOrderDetailsBody" class="tracking-result-box" style="display:block;">
+        <!-- تعبئة ديناميكية -->
       </div>
     </div>
   </div>
@@ -3481,25 +3687,65 @@ html[data-theme] .product-card:hover {
       }
 
       window.setSiteTheme = function(name, btn) {
+        if (btn && btn.stopPropagation) btn.stopPropagation();
         applyTheme(name);
         var panel = document.getElementById('themePalettePanel');
         if (panel) panel.classList.remove('open');
       };
 
       window.toggleThemePalette = function(e) {
-        if (e) e.stopPropagation();
+        if (e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
         var panel = document.getElementById('themePalettePanel');
-        if (panel) panel.classList.toggle('open');
+        if (!panel) return;
+        var willOpen = !panel.classList.contains('open');
+        panel.classList.toggle('open', willOpen);
       };
 
-      // Close panel when clicking outside
-      document.addEventListener('click', function(e) {
+      // Close panel when clicking/touching outside (delayed so button tap works on mobile)
+      function closeThemePanelOutside(e) {
         var wrap = document.querySelector('.theme-palette-wrap');
         var panel = document.getElementById('themePalettePanel');
-        if (panel && wrap && !wrap.contains(e.target)) {
-          panel.classList.remove('open');
+        if (!panel || !panel.classList.contains('open')) return;
+        if (panel.contains(e.target)) return;
+        if (wrap && wrap.contains(e.target)) return;
+        panel.classList.remove('open');
+      }
+      document.addEventListener('click', closeThemePanelOutside, true);
+      document.addEventListener('touchend', function(e) {
+        // slight delay so the palette button touchend can open first
+        setTimeout(function() { closeThemePanelOutside(e); }, 10);
+      }, { passive: true });
+
+      // Ensure button responds on touch devices (script may load after DOM ready)
+      function bindThemeTouch() {
+        var btn = document.getElementById('themePaletteBtn');
+        if (btn && !btn._msqTouchBound) {
+          btn._msqTouchBound = true;
+          btn.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            window.toggleThemePalette(e);
+          }, { passive: false });
         }
-      });
+        document.querySelectorAll('.theme-swatch').forEach(function(sw) {
+          if (sw._msqTouchBound) return;
+          sw._msqTouchBound = true;
+          sw.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var theme = sw.getAttribute('data-theme');
+            if (theme) window.setSiteTheme(theme, e);
+          }, { passive: false });
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', bindThemeTouch);
+      } else {
+        bindThemeTouch();
+      }
 
       // Restore saved theme on load
       var saved = null;
@@ -3510,6 +3756,301 @@ html[data-theme] .product-card:hover {
 
   <script src="script.js"></script>
 
+  <script>
+  /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
+  (function () {
+    // Enrich addToCart so new orders store image + size + dimensions
+    if (typeof addToCart === 'function') {
+      var _origAddToCart = addToCart;
+      window.addToCart = function () {
+        if (!currentSelectedProduct || currentSelectedProduct.stock === 'out' || selectedVariantStatus === 'out') {
+          return _origAddToCart.apply(this, arguments);
+        }
+        var activeVariant = (currentSelectedProduct.variants || []).find(function (v) {
+          return v.size === selectedSize;
+        }) || {};
+        var itemPrice = activeVariant.price ? activeVariant.price : currentSelectedProduct.price;
+        var existingQty = (cart.find(function (item) {
+          return item.id === currentSelectedProduct.id && item.size === selectedSize && (item.color || '') === (selectedColor || '');
+        }) || {}).qty || 0;
+        if (activeVariant && Number.isFinite(Number(activeVariant.quantity)) && Number(activeVariant.quantity) > 0 && existingQty >= Number(activeVariant.quantity)) {
+          alert('الكمية المتاحة لهذا المقاس' + (selectedColor ? ' واللون' : '') + ' هي ' + activeVariant.quantity + ' فقط.');
+          return;
+        }
+        var existing = cart.find(function (item) {
+          return item.id === currentSelectedProduct.id && item.size === selectedSize && (item.color || '') === (selectedColor || '');
+        });
+        if (existing) {
+          existing.qty += 1;
+          // backfill missing fields on older cart lines
+          if (!existing.image) existing.image = activeModalImage || (currentSelectedProduct.images && currentSelectedProduct.images[0]) || '';
+          if (!existing.pants_length && activeVariant.pants_length) existing.pants_length = activeVariant.pants_length;
+          if (!existing.tshirt_length && activeVariant.tshirt_length) existing.tshirt_length = activeVariant.tshirt_length;
+          if (!existing.tshirt_width && activeVariant.tshirt_width) existing.tshirt_width = activeVariant.tshirt_width;
+          if (!existing.extra_piece && activeVariant.extra_piece) existing.extra_piece = activeVariant.extra_piece;
+        } else {
+          cart.push({
+            id: currentSelectedProduct.id,
+            title: currentSelectedProduct.title,
+            price: itemPrice,
+            image: activeModalImage || (currentSelectedProduct.images && currentSelectedProduct.images[0]) || '',
+            size: selectedSize,
+            color: selectedColor || '',
+            qty: 1,
+            pants_length: activeVariant.pants_length || '',
+            tshirt_length: activeVariant.tshirt_length || '',
+            tshirt_width: activeVariant.tshirt_width || '',
+            extra_piece: activeVariant.extra_piece || ''
+          });
+        }
+        localStorage.setItem('souqCart', JSON.stringify(cart));
+        updateCartCount();
+        closeModal();
+        showToast();
+        renderCartItems();
+        document.getElementById('cartModal').classList.add('active');
+      };
+    }
+
+    function escapeHtml(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function buildTrackItemsHtml(items) {
+      if (!items || !items.length) {
+        return '<div class="track-product-row" style="padding:8px 0;color:var(--text-muted);">لا توجد تفاصيل منتجات محفوظة لهذا الطلب.</div>';
+      }
+      return items.map(function (it) {
+        var img = it.image || '';
+        var title = escapeHtml(it.title || 'منتج');
+        var size = escapeHtml(it.size || '-');
+        var color = it.color ? escapeHtml(it.color) : '';
+        var qty = it.qty || 1;
+        var price = it.price != null ? it.price : '';
+        var chips = '';
+        if (it.pants_length) chips += '<span class="track-dim-chip">👖 طول البنطلون: ' + escapeHtml(it.pants_length) + '</span>';
+        if (it.tshirt_length) chips += '<span class="track-dim-chip">👕 طول التيشرت: ' + escapeHtml(it.tshirt_length) + '</span>';
+        if (it.tshirt_width) chips += '<span class="track-dim-chip">📐 عرض التيشرت: ' + escapeHtml(it.tshirt_width) + '</span>';
+        if (it.extra_piece) chips += '<span class="track-dim-chip">🏷️ إضافي: ' + escapeHtml(it.extra_piece) + '</span>';
+        var imgHtml = img
+          ? '<img class="track-product-img" src="' + escapeHtml(img) + '" alt="' + title + '" loading="lazy" onerror="this.style.display=\'none\'">'
+          : '<div class="track-product-img" style="display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-muted);">📦</div>';
+        return (
+          '<div class="track-product-card">' +
+            imgHtml +
+            '<div class="track-product-info">' +
+              '<div class="track-product-name">' + title + '</div>' +
+              '<div class="track-product-row">المقاس: <b>' + size + '</b>' +
+                (color ? ' · اللون: <b>' + color + '</b>' : '') +
+              '</div>' +
+              '<div class="track-product-row">الكمية: <b>' + qty + '</b>' +
+                (price !== '' ? ' · السعر: <b>' + escapeHtml(String(price)) + ' ج.م</b>' : '') +
+              '</div>' +
+              (chips ? '<div class="track-dims">' + chips + '</div>' : '') +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+    }
+
+    window.searchOrderTracking = async function () {
+      var searchInput = document.getElementById('trackInputId');
+      var searchId = searchInput ? searchInput.value.trim() : '';
+      var resultBox = document.getElementById('trackingResultContainer');
+      if (!searchId) {
+        alert('يرجى إدخال رقم الطلب أولاً');
+        return;
+      }
+      if (!resultBox) return;
+
+      resultBox.style.display = 'block';
+      resultBox.innerHTML = '<div style="text-align:center;padding:14px;font-weight:800;color:var(--text-muted);">جاري البحث...</div>';
+
+      var foundOrder = await fetchOrderFromCloud(searchId);
+
+      if (foundOrder) {
+        var currentCode = typeof foundOrder.statusCode === 'number' ? foundOrder.statusCode : 0;
+        var current = ORDER_STATUSES[currentCode] || ORDER_STATUSES[0];
+
+        var timelineHtml = ORDER_STATUSES.map(function (s, idx) {
+          var isDone = idx <= currentCode;
+          var isCurrent = idx === currentCode;
+          return (
+            '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">' +
+              '<div style="width:26px;height:26px;border-radius:50%;background:' + (isDone ? s.color : '#ddd') +
+                ';color:white;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:bold;flex-shrink:0;">' +
+                (isDone ? '✓' : (idx + 1)) +
+              '</div>' +
+              '<div style="flex:1;font-size:13px;font-weight:' + (isCurrent ? '900' : '600') + ';color:' + (isDone ? s.color : '#999') + ';">' +
+                s.label + (isCurrent ? ' ← الحالة الحالية' : '') +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+
+        var adminControls = '';
+        if (typeof isAdminMode !== 'undefined' && isAdminMode) {
+          adminControls =
+            '<div style="margin-top:12px;padding:12px;background:#fff8e1;border:1px solid #ffe082;border-radius:12px;">' +
+              '<div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:8px;font-size:13px;">🔐 تحكم الإدارة — غيّر حالة الطلب:</div>' +
+              '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+                ORDER_STATUSES.map(function (s) {
+                  return (
+                    '<button onclick="updateOrderStatus(\'' + String(foundOrder.orderId).replace(/'/g, "\\'") + '\', ' + s.code + ')" ' +
+                    'style="flex:1;min-width:110px;padding:9px 6px;border-radius:10px;border:2px solid ' + s.color +
+                    ';background:' + (currentCode === s.code ? s.color : 'white') +
+                    ';color:' + (currentCode === s.code ? 'white' : s.color) +
+                    ';font-weight:800;font-size:11.5px;cursor:pointer;">' + s.label + '</button>'
+                  );
+                }).join('') +
+              '</div>' +
+            '</div>';
+        }
+
+        var cloudBadge = (typeof firebaseReady !== 'undefined' && firebaseReady)
+          ? '<span style="font-size:10px;background:#e8f5e9;color:#2e7d32;padding:3px 8px;border-radius:6px;margin-right:4px;font-weight:800;">☁️ سحابي</span>'
+          : '<span style="font-size:10px;background:#fff3e0;color:#e65100;padding:3px 8px;border-radius:6px;margin-right:4px;font-weight:800;">📱 محلي</span>';
+
+        var items = foundOrder.items || [];
+
+        resultBox.innerHTML =
+          '<div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:10px;font-size:14.5px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;">' +
+            '✅ تم العثور على الطلب بنجاح ' + cloudBadge +
+          '</div>' +
+          '<div class="track-meta-grid">' +
+            '<div class="track-meta-item"><strong>🆔 رقم الطلب</strong><span>' + escapeHtml(foundOrder.orderId) + '</span></div>' +
+            '<div class="track-meta-item"><strong>👤 اسم العميل</strong><span>' + escapeHtml(foundOrder.name || '-') + '</span></div>' +
+            '<div class="track-meta-item"><strong>💰 الإجمالي</strong><span>' + escapeHtml(foundOrder.total || '-') + '</span></div>' +
+            '<div class="track-meta-item"><strong>📅 تاريخ الطلب</strong><span>' + escapeHtml(foundOrder.date || '-') + '</span></div>' +
+          '</div>' +
+          '<div class="track-products-title">🛍️ المنتجات المطلوبة (' + items.length + ')</div>' +
+          buildTrackItemsHtml(items) +
+          '<div class="track-timeline-box">' +
+            '<div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:12px;font-size:13.5px;">📍 مسار الطلب</div>' +
+            timelineHtml +
+          '</div>' +
+          '<div class="track-status-banner" style="background:' + current.color + '18;border:1px solid ' + current.color + '40;color:' + current.color + ';">' +
+            'الحالة الحالية: ' + current.label +
+          '</div>' +
+          adminControls;
+
+      } else {
+        resultBox.innerHTML =
+          '<div style="font-weight:900;color:#c62828;font-size:14px;">❌ عذراً، لم يتم العثور على أي طلب بهذا الرقم</div>' +
+          '<div style="font-size:12px;margin-top:6px;color:var(--text-muted);line-height:1.55;">' +
+            'تأكد من كتابة الرقم بشكل صحيح (مثال: MS-K7P2M9X4)<br>' +
+            ((typeof firebaseReady !== 'undefined' && firebaseReady)
+              ? 'الطلب مش موجود على السحابة. تأكد إن العميل خلّص الطلب بنجاح.'
+              : 'Firebase لسه مش متضبط — التتبع شغال محلياً فقط.') +
+          '</div>';
+      }
+    };
+
+    /* ===== Admin: تفاصيل الطلب + زر في قائمة الإدارة ===== */
+    window.closeAdminOrderDetails = function () {
+      var m = document.getElementById('adminOrderDetailsModal');
+      if (m) m.classList.remove('active');
+    };
+
+    window.showAdminOrderDetails = function (orderId) {
+      var o = (typeof adminOrdersCache !== 'undefined' ? adminOrdersCache : []).find(function (x) {
+        return String(x.orderId || '') === String(orderId || '');
+      });
+      if (!o) {
+        alert('الطلب غير موجود');
+        return;
+      }
+      var code = typeof o.statusCode === 'number' ? o.statusCode : 0;
+      var st = (typeof ORDER_STATUSES !== 'undefined' && ORDER_STATUSES[code]) ? ORDER_STATUSES[code] : { label: o.status || '-', color: '#e65100' };
+      var items = o.items || [];
+      var body = document.getElementById('adminOrderDetailsBody');
+      if (!body) return;
+
+      body.innerHTML =
+        '<div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:10px;font-size:14.5px;">📋 بيانات الطلب</div>' +
+        '<div class="track-meta-grid">' +
+          '<div class="track-meta-item"><strong>🆔 رقم الطلب</strong><span>' + escapeHtml(o.orderId || '-') + '</span></div>' +
+          '<div class="track-meta-item"><strong>👤 اسم العميل</strong><span>' + escapeHtml(o.name || '-') + '</span></div>' +
+          '<div class="track-meta-item"><strong>📱 الواتساب</strong><span>' + escapeHtml(o.phone || '-') + '</span></div>' +
+          '<div class="track-meta-item"><strong>💰 الإجمالي</strong><span>' + escapeHtml(o.total || '-') + '</span></div>' +
+          '<div class="track-meta-item"><strong>📅 التاريخ</strong><span>' + escapeHtml(o.date || '-') + '</span></div>' +
+          '<div class="track-meta-item"><strong>💳 الدفع</strong><span>' + escapeHtml(o.payMethod || '-') + '</span></div>' +
+        '</div>' +
+        '<div class="track-meta-item" style="margin-bottom:12px;"><strong>📍 العنوان</strong><span>' + escapeHtml(o.address || '-') + '</span></div>' +
+        '<div class="track-products-title">🛍️ المنتجات (' + items.length + ')</div>' +
+        buildTrackItemsHtml(items) +
+        '<div class="track-status-banner" style="background:' + st.color + '18;border:1px solid ' + st.color + '40;color:' + st.color + ';">' +
+          'الحالة الحالية: ' + escapeHtml(st.label) +
+        '</div>';
+
+      var modal = document.getElementById('adminOrderDetailsModal');
+      if (modal) modal.classList.add('active');
+    };
+
+    window.filterAdminOrders = function () {
+      var box = document.getElementById('adminOrdersList');
+      if (!box) return;
+      var q = (document.getElementById('adminOrderSearch')?.value || '').trim().toLowerCase();
+      var list = typeof adminOrdersCache !== 'undefined' ? adminOrdersCache : [];
+
+      if (q) {
+        list = list.filter(function (o) {
+          var id = (o.orderId || '').toLowerCase();
+          var name = (o.name || '').toLowerCase();
+          var phone = (o.phone || '').toLowerCase().replace(/\s/g, '');
+          var qPhone = q.replace(/\s/g, '');
+          return id.indexOf(q) !== -1 || name.indexOf(q) !== -1 || phone.indexOf(qPhone) !== -1;
+        });
+      }
+
+      if (!list.length) {
+        box.innerHTML = '<p style="text-align:center;color:var(--text-muted);">لا توجد طلبات مطابقة</p>';
+        return;
+      }
+
+      box.innerHTML = list.map(function (o) {
+        var code = typeof o.statusCode === 'number' ? o.statusCode : 0;
+        var st = (ORDER_STATUSES && ORDER_STATUSES[code]) ? ORDER_STATUSES[code] : { label: '-', color: '#999' };
+        var safeId = String(o.orderId || '').replace(/'/g, "\\'");
+        var btns = (ORDER_STATUSES || []).map(function (s) {
+          return (
+            '<button style="border-color:' + s.color + ';background:' + (code === s.code ? s.color : 'white') +
+            ';color:' + (code === s.code ? 'white' : s.color) + ';" ' +
+            'onclick="updateOrderStatusFromAdmin(\'' + safeId + '\', ' + s.code + ')">' + s.label + '</button>'
+          );
+        }).join('');
+
+        var itemsCount = (o.items && o.items.length) ? o.items.length : 0;
+
+        return (
+          '<div class="order-card-admin">' +
+            '<div class="oid">🆔 ' + escapeHtml(o.orderId || '-') + '</div>' +
+            '<div>👤 ' + escapeHtml(o.name || '-') + ' | 📱 ' + escapeHtml(o.phone || '-') + '</div>' +
+            '<div>💰 ' + escapeHtml(o.total || '-') + ' | 📅 ' + escapeHtml(o.date || '-') + '</div>' +
+            '<div style="margin-top:4px;font-weight:800;color:' + st.color + ';">الحالة: ' + escapeHtml(st.label) +
+              (itemsCount ? ' · 🛍️ ' + itemsCount + ' منتج' : '') +
+            '</div>' +
+            '<div class="status-btns-mini">' + btns + '</div>' +
+            '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
+              '<button onclick="showAdminOrderDetails(\'' + safeId + '\')" ' +
+                'style="flex:1;min-width:120px;padding:9px;border-radius:8px;border:1px solid var(--burgundy-soft);background:var(--pink-soft);color:var(--burgundy-soft);font-weight:800;font-size:12px;cursor:pointer;">' +
+                '🧾 تفاصيل الطلب' +
+              '</button>' +
+              '<button onclick="copyShippingMessage(\'' + safeId + '\')" ' +
+                'style="flex:1;min-width:120px;padding:9px;border-radius:8px;border:none;background:#25d366;color:white;font-weight:800;font-size:12px;cursor:pointer;">' +
+                '📋 نسخ رسالة الشحن' +
+              '</button>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
+    };
+  })();
+  </script>
 
 </body>
 </html>
