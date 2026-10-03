@@ -253,12 +253,12 @@
       bottom: 75px;
       left: 12px;
       background: #ffffff;
-      padding: 12px;
-      border-radius: 16px;
+      padding: 16px;
+      border-radius: 18px;
       box-shadow: 0 8px 25px rgba(0,0,0,0.15);
       z-index: 998;
       text-align: center;
-      width: 150px;
+      width: 200px;
       display: none;
       border: 1px solid var(--border-color);
     }
@@ -267,8 +267,8 @@
       .floating-qr-container {
         bottom: 90px;
         left: 25px;
-        padding: 15px;
-        width: 175px;
+        padding: 20px;
+        width: 240px;
       }
     }
 
@@ -289,22 +289,22 @@
     }
 
     .qr-title {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: bold;
       color: var(--burgundy-soft);
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .floating-qr-container img {
-      width: 120px;
-      height: 120px;
-      border-radius: 6px;
+      width: 168px;
+      height: 168px;
+      border-radius: 8px;
     }
 
     @media (min-width: 768px) {
       .floating-qr-container img {
-        width: 140px;
-        height: 140px;
+        width: 200px;
+        height: 200px;
       }
     }
 
@@ -2470,9 +2470,16 @@ body.dark-mode .payment-option{background:#21181d!important}
 .qr-toggle-fab{left:22px!important;bottom:28px!important}
 .back-to-top{right:22px!important;bottom:28px!important}
 .floating-qr-container{
- bottom:88px!important;left:22px!important;width:190px!important;border-radius:22px!important;
+ bottom:88px!important;left:22px!important;width:220px!important;border-radius:22px!important;
  border:1px solid var(--msq-line)!important;box-shadow:0 25px 60px rgba(0,0,0,.18)!important;
- backdrop-filter:blur(18px);
+ backdrop-filter:blur(18px);padding:18px!important;
+}
+.floating-qr-container img{
+ width:180px!important;height:180px!important;
+}
+@media (min-width:768px){
+ .floating-qr-container{width:260px!important;padding:22px!important;}
+ .floating-qr-container img{width:210px!important;height:210px!important;}
 }
 #toastNotification{
  top:24px!important;border:1px solid rgba(255,255,255,.3)!important;
@@ -3440,13 +3447,26 @@ html[data-theme] .product-card:hover {
  .search-field-wrap .search-input{padding-left:30px!important;}
  .voice-search-btn{left:4px!important;width:25px!important;height:25px!important;font-size:12px!important;}
 }
-body:has(#productModal.active) .call-float,
-body:has(#cartModal.active) .call-float,
-body:has(#orderRecaptchaModal.active) .call-float,
-body:has(#termsModal.active) .call-float,
-body:has(#paymentModal.active) .call-float,
-body:has(#confirmationModal.active) .call-float,
-body:has(#successModal.active) .call-float{display:none!important;}
+/* إخفاء زر الاتصال السريع عند فتح أي مودال أو نافذة QR */
+body:has(.modal-overlay.active) .call-float,
+body:has(.zoom-overlay.active) .call-float,
+body:has(#floatingQr.show) .call-float,
+body:has(.floating-qr-container.show) .call-float {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
+/* إخفاء واتساب وزر الـ QR أيضاً أثناء المودالات عشان مفيش تداخل */
+body:has(.modal-overlay.active) .whatsapp-float,
+body:has(.zoom-overlay.active) .whatsapp-float,
+body:has(.modal-overlay.active) .qr-toggle-fab,
+body:has(.zoom-overlay.active) .qr-toggle-fab,
+body:has(.modal-overlay.active) .back-to-top,
+body:has(.zoom-overlay.active) .back-to-top {
+  display: none !important;
+  pointer-events: none !important;
+  visibility: hidden !important;
+}
 @media (max-width:767px){.call-float{left:12px!important;bottom:134px!important;width:48px!important;height:48px!important;}}
 </style>
 
