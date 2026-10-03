@@ -349,7 +349,11 @@
     return false;
   }
 
-  /** تحليل بسيط للصورة: جداول المقاسات غالبًا خلفية بيضاء + أيقونات زرقاء */
+  /**
+   * تحليل بصري للصورة:
+   * - كشف جداول المقاسات
+   * - بصمة لونية (histogram) لتجميع الأشكال المتشابهة
+   */
   function analyzeImageLook(dataUrl) {
     return new Promise(function (resolve) {
       try {
@@ -357,39 +361,80 @@
         im.onload = function () {
           try {
             var c = document.createElement('canvas');
-            var w = 48, h = 48;
+            var w = 64, h = 64;
             c.width = w; c.height = h;
             var ctx = c.getContext('2d');
             ctx.drawImage(im, 0, 0, w, h);
             var data = ctx.getImageData(0, 0, w, h).data;
             var bright = 0, blueish = 0, dark = 0;
             var n = w * h;
+            // 4x4x4 RGB histogram = 64 bins
+            var hist = new Array(64);
+            for (var hi = 0; hi < 64; hi++) hist[hi] = 0;
+            var sumR = 0, sumG = 0, sumB = 0, sample = 0;
             for (var i = 0; i < data.length; i += 4) {
               var r = data[i], g = data[i + 1], b = data[i + 2];
               var lum = 0.299 * r + 0.587 * g + 0.114 * b;
               if (lum > 225) bright++;
               if (lum < 40) dark++;
               if (b > 140 && b > r + 25 && b > g + 15) blueish++;
+              // تجاهل خلفية بيضاء جدًا في البصمة حتى لا تتشابه كل المنتجات على خلفية بيضاء
+              if (lum < 245) {
+                var br = r >> 6, bg = g >> 6, bb = b >> 6;
+                hist[(br << 4) | (bg << 2) | bb]++;
+                sumR += r; sumG += g; sumB += b; sample++;
+              }
             }
             var brightRatio = bright / n;
             var blueRatio = blueish / n;
             var darkRatio = dark / n;
-            // جدول مقاسات: أبيض كتير + أزرق بسيط، أو أبيض جدًا وقليل تفاصيل داكنة
             var isChart = (brightRatio > 0.5 && blueRatio > 0.04) ||
               (brightRatio > 0.62 && darkRatio < 0.08);
-            // لوجو مربع بسيط
-            var isLogo = brightRatio > 0.45 && darkRatio < 0.12 && blueRatio < 0.02 && n > 0;
-            resolve({ isChart: isChart, isLogo: false, brightRatio: brightRatio, blueRatio: blueRatio });
+            // تطبيع الـ histogram
+            var norm = hist.slice();
+            var total = 0;
+            for (var t = 0; t < norm.length; t++) total += norm[t];
+            if (total > 0) {
+              for (var t2 = 0; t2 < norm.length; t2++) norm[t2] = norm[t2] / total;
+            }
+            var avgR = sample ? sumR / sample : 128;
+            var avgG = sample ? sumG / sample : 128;
+            var avgB = sample ? sumB / sample : 128;
+            resolve({
+              isChart: isChart,
+              isLogo: false,
+              brightRatio: brightRatio,
+              blueRatio: blueRatio,
+              hist: norm,
+              avg: [avgR, avgG, avgB]
+            });
           } catch (e) {
-            resolve({ isChart: false, isLogo: false });
+            resolve({ isChart: false, isLogo: false, hist: null, avg: [128, 128, 128] });
           }
         };
-        im.onerror = function () { resolve({ isChart: false, isLogo: false }); };
+        im.onerror = function () { resolve({ isChart: false, isLogo: false, hist: null, avg: [128, 128, 128] }); };
         im.src = dataUrl;
       } catch (e) {
-        resolve({ isChart: false, isLogo: false });
+        resolve({ isChart: false, isLogo: false, hist: null, avg: [128, 128, 128] });
       }
     });
+  }
+
+  function histDistance(a, b) {
+    if (!a || !b || !a.hist || !b.hist) {
+      // fallback: فرق المتوسط اللوني
+      var ar = (a && a.avg) || [128, 128, 128];
+      var br = (b && b.avg) || [128, 128, 128];
+      return (Math.abs(ar[0] - br[0]) + Math.abs(ar[1] - br[1]) + Math.abs(ar[2] - br[2])) / 765;
+    }
+    var d = 0;
+    for (var i = 0; i < a.hist.length; i++) {
+      var diff = a.hist[i] - b.hist[i];
+      d += diff * diff;
+    }
+    // دمج فرق المتوسط اللوني
+    var avgD = (Math.abs(a.avg[0] - b.avg[0]) + Math.abs(a.avg[1] - b.avg[1]) + Math.abs(a.avg[2] - b.avg[2])) / 765;
+    return Math.sqrt(d) * 0.7 + avgD * 0.3;
   }
 
   async function splitProductAndMetaImages(images) {
@@ -402,6 +447,7 @@
         continue;
       }
       var look = await analyzeImageLook(img.dataUrl);
+      img._look = look;
       if (look.isChart) {
         meta.push(img);
         continue;
@@ -410,6 +456,60 @@
     }
     if (!product.length) return { product: images.slice(), meta: [] };
     return { product: product, meta: meta };
+  }
+
+  /** تجميع بالتشابه البصري (لون المنتج) مع الحفاظ على الترتيب الزمني كمرشد */
+  function clusterByAppearance(productImgs) {
+    if (!productImgs.length) return [];
+    var THRESH = 0.28; // أقل = أشد صرامة في التشابه
+    var MAX_PER_SHAPE = 8;
+    var used = {};
+    var clusters = [];
+
+    for (var i = 0; i < productImgs.length; i++) {
+      if (used[productImgs[i].id]) continue;
+      var seed = productImgs[i];
+      var cluster = [seed];
+      used[seed.id] = true;
+
+      // مرشحون قريبون في الترتيب (±10) أولاً ثم الباقي
+      var candidates = [];
+      for (var j = 0; j < productImgs.length; j++) {
+        if (used[productImgs[j].id]) continue;
+        var dist = histDistance(seed._look, productImgs[j]._look);
+        var orderPenalty = Math.min(Math.abs(j - i) / 20, 0.15);
+        candidates.push({ img: productImgs[j], score: dist + orderPenalty, idx: j });
+      }
+      candidates.sort(function (a, b) { return a.score - b.score; });
+
+      for (var c = 0; c < candidates.length && cluster.length < MAX_PER_SHAPE; c++) {
+        if (candidates[c].score <= THRESH) {
+          cluster.push(candidates[c].img);
+          used[candidates[c].img.id] = true;
+        }
+      }
+      clusters.push(cluster);
+    }
+
+    // دمج العناقيد الصغيرة جدًا (1 صورة) مع أقرب عنقود إن كان قريبًا
+    var finals = [];
+    var singles = [];
+    clusters.forEach(function (cl) {
+      if (cl.length === 1) singles.push(cl[0]);
+      else finals.push(cl);
+    });
+    singles.forEach(function (img) {
+      var best = -1, bestD = 999;
+      for (var f = 0; f < finals.length; f++) {
+        if (finals[f].length >= MAX_PER_SHAPE) continue;
+        var d = histDistance(img._look, finals[f][0]._look);
+        if (d < bestD) { bestD = d; best = f; }
+      }
+      if (best >= 0 && bestD < THRESH + 0.08) finals[best].push(img);
+      else finals.push([img]);
+    });
+
+    return finals;
   }
 
   function parseText(raw) {
@@ -521,15 +621,27 @@
   }
 
   /**
-   * تجميع صارم بعد استبعاد الجداول:
-   * كل شكل = مجموعة منفصلة (6 صور بالترتيب) — بدون خلط بين المجموعات
+   * تجميع الأشكال:
+   * 1) استبعاد الجداول
+   * 2) إن وُجد اسم ملف مميز يُستخدم
+   * 3) وإلا تجميع بالتشابه اللوني/البصري (كل شكل متشابه لوحده)
    */
   async function groupIntoShapes(images) {
     var split = await splitProductAndMetaImages(images);
     var productImgs = split.product;
     var metaImgs = split.meta;
     var shapesOut = [];
-    var SHAPE_SIZE = 6;
+
+    function pushShape(label, imgs) {
+      if (!imgs || !imgs.length) return;
+      var selected = pickBestImage(imgs);
+      shapesOut.push({
+        id: shapesOut.length + 1,
+        label: label,
+        images: imgs.slice(),
+        selectedId: selected ? selected.id : imgs[0].id
+      });
+    }
 
     var named = {};
     var namedOrder = [];
@@ -546,29 +658,22 @@
       }
     });
 
-    function pushShape(label, imgs) {
-      if (!imgs || !imgs.length) return;
-      var selected = pickBestImage(imgs);
-      shapesOut.push({
-        id: shapesOut.length + 1,
-        label: label,
-        images: imgs.slice(),
-        selectedId: selected ? selected.id : imgs[0].id
-      });
-    }
-
     if (namedOrder.length >= 2) {
       namedOrder.forEach(function (k, i) {
         pushShape('شكل ' + (i + 1) + ' (' + k + ')', named[k]);
       });
-      for (var u = 0; u < unnamed.length; u += SHAPE_SIZE) {
-        pushShape('شكل ' + (shapesOut.length + 1), unnamed.slice(u, u + SHAPE_SIZE));
+      if (unnamed.length) {
+        var clustersNamed = clusterByAppearance(unnamed);
+        clustersNamed.forEach(function (cl) {
+          pushShape('شكل ' + (shapesOut.length + 1), cl);
+        });
       }
     } else {
-      // ترتيب الرفع: كل 6 متتالية = شكل مستقل تمامًا
-      for (var i = 0; i < productImgs.length; i += SHAPE_SIZE) {
-        pushShape('شكل ' + (shapesOut.length + 1), productImgs.slice(i, i + SHAPE_SIZE));
-      }
+      // التجميع البصري: صور نفس اللون/الخامة أقرب لبعض
+      var clusters = clusterByAppearance(productImgs);
+      clusters.forEach(function (cl, idx) {
+        pushShape('شكل ' + (idx + 1), cl);
+      });
     }
 
     return { shapes: shapesOut, metaImages: metaImgs };
