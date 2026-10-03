@@ -5634,6 +5634,9 @@ window.addToCartAndContinue = function () {
       return enabled;
     }
 
+    // Public reader used by the compatibility layer in script.js.
+    window.readMaintenanceMode = readMaintenanceMode;
+
     window.toggleMaintenanceMode = async function () {
       if (!isAdminNow()) {
         alert('يجب تسجيل الدخول كمسؤول أولاً.');
@@ -5670,6 +5673,47 @@ window.addToCartAndContinue = function () {
       updateMaintenanceAdminUi(next);
       setMaintenanceOverlay(next, payload.message);
       alert(next ? 'تم تشغيل وضع الصيانة ✅' : 'تم إيقاف وضع الصيانة ✅');
+    };
+
+    // ===== Permanent cloud deletion =====
+    // Current orders normally use orderId as the Firestore document ID.
+    // A query fallback is retained for legacy documents.
+    window.deleteOrderFromCloud = async function (orderId) {
+      if (!isAdminNow()) {
+        throw new Error('يجب تسجيل الدخول كمسؤول أولاً.');
+      }
+
+      var id = String(orderId || '').trim();
+      if (!id) throw new Error('رقم الطلب غير صالح.');
+
+      var db = getDb();
+      if (!db) throw new Error('Firebase غير متاح حالياً.');
+
+      // Current schema: /orders/{orderId}
+      var directRef = db.collection('orders').doc(id);
+      var directSnap = await directRef.get();
+
+      if (directSnap.exists) {
+        await directRef.delete();
+        return true;
+      }
+
+      // Legacy compatibility: older documents may have a different document ID.
+      var snap = await db.collection('orders')
+        .where('orderId', '==', id)
+        .get();
+
+      if (snap.empty) {
+        throw new Error('لم يتم العثور على الطلب داخل مجموعة orders.');
+      }
+
+      var batch = db.batch();
+      snap.forEach(function (doc) {
+        batch.delete(doc.ref);
+      });
+      await batch.commit();
+
+      return true;
     };
 
     async function removeOrderLocally(orderId) {
@@ -5738,31 +5782,7 @@ window.addToCartAndContinue = function () {
       });
 
       try {
-        if (typeof window.deleteOrderFromCloud === 'function') {
-          await window.deleteOrderFromCloud(id);
-        } else {
-          var db = getDb();
-          if (!db) throw new Error('Firebase غير متاح حالياً.');
-
-          var snap = await db.collection('orders').where('orderId', '==', id).get();
-          if (snap.empty) {
-            try {
-              var direct = await db.collection('orders').doc(id).get();
-              if (direct.exists) {
-                await direct.ref.delete();
-              } else {
-                throw new Error('لم يتم العثور على الطلب داخل مجموعة orders.');
-              }
-            } catch (directErr) {
-              throw new Error('لم يتم العثور على الطلب داخل مجموعة orders.');
-            }
-          } else {
-            var batch = db.batch();
-            snap.forEach(function (doc) { batch.delete(doc.ref); });
-            await batch.commit();
-          }
-        }
-
+        await window.deleteOrderFromCloud(id);
         await removeOrderLocally(id);
         try { closeAdminOrderDetails(); } catch (e) {}
         alert('تم إلغاء وحذف الطلب ' + id + ' نهائياً من النظام ✅');
@@ -5773,10 +5793,17 @@ window.addToCartAndContinue = function () {
             b.textContent = '🗑️ إلغاء نهائي';
           }
         });
+        var errorText = e && e.message ? e.message : 'خطأ غير معروف';
+        var permissionHint =
+          /permission|insufficient permissions|PERMISSION_DENIED/i.test(errorText)
+            ? '\n\nملاحظة: تسجيل دخول الإدارة نجح، لكن قواعد Firestore لا تسمح بعملية الحذف الحالية. لم يتم حذف أي بيانات محلياً أو سحابياً.'
+            : '';
+
         alert(
           'تعذر إلغاء الطلب نهائياً.\n\n' +
           'لم يتم حذف أي شيء بسبب الخطأ.\n' +
-          (e && e.message ? e.message : 'خطأ غير معروف')
+          errorText +
+          permissionHint
         );
       }
     };
