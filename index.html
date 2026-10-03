@@ -5539,6 +5539,37 @@ window.addToCartAndContinue = function () {
   #productModal .modal-actions-row > *{min-height:54px!important;padding:6px 2px!important;font-size:8.5px!important;border-radius:10px!important;}
   #productModal .modal-actions-row .action-icon{font-size:15px;}
 }
+
+
+/* إصلاح التمرير الأفقي لشريط الأقسام على الهواتف في الاتجاهين */
+@media (max-width: 767px) {
+  .categories-bar {
+    display: flex !important;
+    flex-direction: row-reverse !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-start !important;
+    direction: ltr !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: scroll !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x pan-y;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+  }
+
+  .categories-bar > * {
+    flex-shrink: 0 !important;
+    direction: rtl;
+  }
+
+  .categories-bar::-webkit-scrollbar {
+    display: none !important;
+  }
+}
+
 </style>
 
   <!-- Maintenance Mode Overlay: added without removing existing features -->
