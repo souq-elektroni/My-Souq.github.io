@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>استيراد من المصنع — My Souq</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f7f4f5;
+      --card: #fff;
+      --primary: #6a1b9a;
+      --primary-2: #8e24aa;
+      --ink: #251b20;
+      --muted: #6b5c62;
+      --line: #e8dce0;
+      --ok: #2e7d32;
+      --warn: #e65100;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', system-ui, sans-serif; }
+    body { background: var(--bg); color: var(--ink); min-height: 100vh; padding: 20px; }
+    .wrap { max-width: 960px; margin: 0 auto; }
+    header { margin-bottom: 20px; }
+    header h1 { font-size: 22px; font-weight: 900; color: var(--primary); }
+    header p { font-size: 13px; color: var(--muted); font-weight: 700; margin-top: 6px; line-height: 1.6; }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+      padding: 18px; margin-bottom: 16px; box-shadow: 0 8px 24px rgba(60,30,50,.06);
+    }
+    .card h2 { font-size: 15px; font-weight: 900; color: var(--primary); margin-bottom: 12px; }
+    label { display: block; font-size: 12px; font-weight: 800; color: var(--primary); margin-bottom: 4px; }
+    input[type="text"], input[type="number"], input[type="url"], textarea, select {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
+      font-size: 13px; font-weight: 700; margin-bottom: 10px; background: #fffafb;
+    }
+    textarea { min-height: 100px; resize: vertical; }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 11px 18px; border: none; border-radius: 12px; font-weight: 900; font-size: 13px;
+      cursor: pointer; color: #fff; background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+    .btn.secondary { background: #455a64; }
+    .btn.ok { background: linear-gradient(135deg, #2e7d32, #43a047); }
+    .btn.danger { background: linear-gradient(135deg, #c62828, #e53935); }
+    .btn.ghost { background: transparent; color: var(--primary); border: 1px solid var(--line); }
+    .btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; align-items: center; }
+    .hint { font-size: 11px; color: var(--muted); font-weight: 700; line-height: 1.55; margin-top: 6px; }
+    .status {
+      padding: 10px 12px; border-radius: 10px; font-size: 12px; font-weight: 800; margin-bottom: 12px;
+      background: #f3e5f5; color: var(--primary); display: none;
+    }
+    .status.show { display: block; }
+    .status.err { background: #ffebee; color: #c62828; }
+    .status.ok { background: #e8f5e9; color: #2e7d32; }
+
+    /* Shapes */
+    .shapes { display: flex; flex-direction: column; gap: 14px; }
+    .shape-card {
+      border: 1px solid var(--line); border-radius: 14px; padding: 12px; background: #fffafb;
+    }
+    .shape-card h3 { font-size: 13px; font-weight: 900; margin-bottom: 8px; color: var(--ink); }
+    .shape-imgs {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 6px;
+    }
+    .shape-imgs img {
+      width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; border: 2px solid var(--line);
+      cursor: pointer;
+    }
+    .shape-imgs img.selected { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(106,27,154,.3); }
+    .shape-meta { font-size: 11px; color: var(--muted); margin-top: 6px; font-weight: 700; }
+
+    .dropzone {
+      border: 2px dashed var(--line); border-radius: 14px; padding: 24px; text-align: center;
+      cursor: pointer; background: #faf6f8; transition: .2s;
+    }
+    .dropzone:hover, .dropzone.over { border-color: var(--primary); background: #f3e5f5; }
+    .album-all {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-top: 10px;
+    }
+    .album-all img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
+
+    .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+    .tab {
+      padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: #fff;
+      font-weight: 800; font-size: 12px; cursor: pointer; color: var(--muted);
+    }
+    .tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    footer { text-align: center; margin-top: 24px; font-size: 11px; color: var(--muted); font-weight: 700; }
+    a.link { color: var(--primary); font-weight: 800; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>🏭 استيراد من المصنع</h1>
+      <p>
+        الأداة الأساسية: <b>تيليجرام عبر حسابك</b> (Worker) — استقبال منشورات القناة، تحليل الأشكال،
+        اختيار صورة واضحة لكل شكل، ثم <b>تصدير منتج واحد</b> أو <b>حذف المسودة</b> لو مش عاجباك.
+        الرفع اليدوي موجود فقط كاحتياطي لو الجلب من تيليجرام متوقف مؤقتًا.
+      </p>
+      <p class="hint" style="margin-top:8px;">
+        <a class="link" href="./index.html">← العودة لـ Sveltia</a>
+        &nbsp;|&nbsp;
+        <a class="link" href="../index.html">واجهة المتجر</a>
+      </p>
+    </header>
+
+    <div id="statusBox" class="status"></div>
+
+    <div class="tabs">
+      <button type="button" class="tab active" data-tab="telegram">تيليجرام (الأساسي)</button>
+      <button type="button" class="tab" data-tab="manual">احتياطي: رفع يدوي</button>
+      <button type="button" class="tab" data-tab="settings">إعدادات الربط</button>
+    </div>
+
+    <!-- ===== تيليجرام (أساسي) ===== -->
+    <div id="panel-telegram" class="panel active">
+      <div class="card">
+        <h2>جلب من تيليجرام عبر الـ Worker</h2>
+        <label>رابط القناة أو @username</label>
+        <input type="text" id="tgChannel" placeholder="@factory_channel أو رابط t.me/...">
+        <label>عدد آخر منشورات للتحليل</label>
+        <input type="number" id="tgLimit" value="15" min="1" max="50">
+        <div class="btns">
+          <button type="button" class="btn" id="btnFetchTg" onclick="fetchFromTelegram()">⬇️ جلب المنشورات وتحليلها</button>
+        </div>
+        <p class="hint">
+          هذا المسار الأساسي. بعد ضبط الـ Worker وتسجيل دخول حسابك مرة واحدة، المنشورات والصور تتجاب هنا تلقائيًا ثم تراجع وتصدّر أو تحذف.
+        </p>
+        <div id="tgPostsList" style="margin-top:12px;"></div>
+      </div>
+    </div>
+
+    <!-- ===== يدوي (احتياطي فقط) ===== -->
+    <div id="panel-manual" class="panel">
+      <div class="card">
+        <h2>① رفع يدوي — احتياطي فقط</h2>
+        <p class="hint" style="margin-bottom:10px;">استخدمه فقط لو تيليجرام/الـ Worker مش متاحين مؤقتًا. المسار الأساسي هو تبويب تيليجرام.</p>
+        <div class="dropzone" id="dropzone">
+          <input type="file" id="fileInput" accept="image/*" multiple hidden>
+          <div style="font-size:28px;margin-bottom:6px;">📷</div>
+          <div style="font-weight:800;font-size:13px;">اضغط أو اسحب الصور هنا</div>
+          <div class="hint">حوالي 6 صور لكل شكل — النظام يجمّع ويقترح صورة واضحة لكل شكل</div>
+        </div>
+        <div class="album-all" id="rawAlbum"></div>
+      </div>
+
+      <div class="card">
+        <h2>② نص المنشور (عند الرفع اليدوي)</h2>
+        <textarea id="postText" placeholder="الصق نص المنشور: الوصف، الأسعار، المقاسات..."></textarea>
+        <div class="btns">
+          <button type="button" class="btn" onclick="runAnalyze()">🔍 تحليل وتجميع الأشكال</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== إعدادات ===== -->
+    <div id="panel-settings" class="panel">
+      <div class="card">
+        <h2>ربط Cloudflare Worker</h2>
+        <label>رابط الـ Worker</label>
+        <input type="url" id="workerUrl" placeholder="https://mysouq-factory-import.xxx.workers.dev">
+        <label>مفتاح الإدارة (اختياري — لو فعّلته في الـ Worker)</label>
+        <input type="text" id="workerKey" placeholder="نفس ADMIN_KEY في إعدادات الـ Worker" autocomplete="off">
+        <div class="btns">
+          <button type="button" class="btn secondary" onclick="saveSettings()">💾 حفظ الإعدادات محليًا</button>
+          <button type="button" class="btn ghost" onclick="testWorker()">اختبار الاتصال</button>
+        </div>
+        <p class="hint">
+          الإعدادات تُحفظ في المتصفح (localStorage) فقط على جهازك.
+          خطوات تيليجرام: أنشئ تطبيق على my.telegram.org → ضع API_ID و API_HASH في secrets الـ Worker → اطلب كود الدخول من هنا لاحقًا.
+        </p>
+      </div>
+    </div>
+
+    <!-- ===== نتيجة التحليل ===== -->
+    <div class="card" id="reviewCard" style="display:none;">
+      <h2>③ مراجعة الأشكال والصورة المختارة لكل شكل</h2>
+      <p class="hint" style="margin-bottom:10px;">اضغط صورة بديلة داخل الشكل لو حابب تغيّر الاختيار. كل الأشكال تتجمع في <b>منتج واحد</b>.</p>
+      <div class="shapes" id="shapesBox"></div>
+
+      <div style="margin-top:16px;">
+        <div class="row">
+          <div>
+            <label>اسم المنتج</label>
+            <input type="text" id="outTitle" placeholder="اسم المنتج / الكوليكشن">
+          </div>
+          <div>
+            <label>القسم</label>
+            <select id="outCategory">
+              <option value="ملابس شتوية">ملابس شتوية</option>
+              <option value="ملابس خروج">ملابس خروج</option>
+              <option value="أحذية">أحذية</option>
+              <option value="عروض">عروض</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>السعر (ج.م)</label>
+            <input type="number" id="outPrice" min="0">
+          </div>
+          <div>
+            <label>السعر القديم (اختياري)</label>
+            <input type="number" id="outOldPrice" min="0">
+          </div>
+        </div>
+        <label>الوصف</label>
+        <textarea id="outBody"></textarea>
+
+        <label>المقاسات (سطر لكل مقاس: المقاس | بنطلون | تيشيرت ط | تيشيرت ع | سعر اختياري)</label>
+        <textarea id="outSizes" placeholder="M | 98 | 70 | 56 | 950&#10;L | 100 | 71 | 58 | 950&#10;3XL | 111 | 75 | 64 | 1100"></textarea>
+        <p class="hint">يمكنك لصق جدول تقريبي؛ عدّله قبل التصدير. الحقل يطابق منطق variants في Sveltia.</p>
+
+        <div class="btns">
+          <button type="button" class="btn ok" onclick="exportProductMd()">⬇️ تصدير منتج واحد (.md)</button>
+          <button type="button" class="btn danger" onclick="discardCollection()">🗑️ حذف المسودة</button>
+        </div>
+        <p class="hint" id="exportHint"></p>
+        <p class="hint">عجبك التحليل؟ صدّر. مش عاجبك؟ احذف المسودة وابدأ كوليكشن تاني — مفيش حاجة بتتحذف من Sveltia أو المتجر.</p>
+      </div>
+    </div>
+
+    <footer>My Souq — استيراد المصنع · للإدارة فقط</footer>
+  </div>
+
+  <script>
+(function () {
+  var SETTINGS_KEY = 'mysouq_factory_import_settings';
+  var rawImages = []; // { id, dataUrl, name, groupKey }
+  var shapes = []; // { id, label, images: [...], selectedId }
+  var idSeq = 1;
+
+  function $(id) { return document.getElementById(id); }
+
+  function showStatus(msg, type) {
+    var el = $('statusBox');
+    el.textContent = msg;
+    el.className = 'status show' + (type === 'err' ? ' err' : type === 'ok' ? ' ok' : '');
+  }
+
+  function hideStatus() {
+    $('statusBox').className = 'status';
+  }
+
+  // Tabs
+  document.querySelectorAll('.tab').forEach(function (tab) {
+    tab.addEventListener('click', function () {
+      document.querySelectorAll('.tab').forEach(function (t) { t.classList.remove('active'); });
+      document.querySelectorAll('.panel').forEach(function (p) { p.classList.remove('active'); });
+      tab.classList.add('active');
+      var panel = $('panel-' + tab.getAttribute('data-tab'));
+      if (panel) panel.classList.add('active');
+    });
+  });
+
+  // Settings
+  function loadSettings() {
+    try {
+      var s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+      if (s.workerUrl) $('workerUrl').value = s.workerUrl;
+      if (s.workerKey) $('workerKey').value = s.workerKey;
+    } catch (e) {}
+  }
+  window.saveSettings = function () {
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+      workerUrl: ($('workerUrl').value || '').trim().replace(/\/$/, ''),
+      workerKey: ($('workerKey').value || '').trim()
+    }));
+    showStatus('تم حفظ الإعدادات على هذا المتصفح.', 'ok');
+  };
+  function getSettings() {
+    return {
+      workerUrl: ($('workerUrl').value || '').trim().replace(/\/$/, ''),
+      workerKey: ($('workerKey').value || '').trim()
+    };
+  }
+  window.testWorker = async function () {
+    var s = getSettings();
+    if (!s.workerUrl) { showStatus('أدخل رابط الـ Worker أولًا.', 'err'); return; }
+    try {
+      var r = await fetch(s.workerUrl + '/health', {
+        headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
+      });
+      var j = await r.json().catch(function () { return {}; });
+      if (r.ok) showStatus('الاتصال بالـ Worker ناجح ✅ — ' + (j.version || j.status || 'ok'), 'ok');
+      else showStatus('الـ Worker رد بحالة ' + r.status, 'err');
+    } catch (e) {
+      showStatus('تعذر الاتصال: ' + (e.message || e), 'err');
+    }
+  };
+  loadSettings();
+
+  // Images
+  function renderRawAlbum() {
+    var box = $('rawAlbum');
+    box.innerHTML = rawImages.map(function (img) {
+      return '<img src="' + img.dataUrl + '" title="' + (img.name || '') + '">';
+    }).join('');
+  }
+
+  function addFiles(fileList) {
+    Array.prototype.forEach.call(fileList || [], function (file) {
+      if (!file.type || file.type.indexOf('image/') !== 0) return;
+      var reader = new FileReader();
+      reader.onload = function () {
+        rawImages.push({ id: idSeq++, dataUrl: reader.result, name: file.name || '' });
+        renderRawAlbum();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  var dz = $('dropzone');
+  var fi = $('fileInput');
+  dz.addEventListener('click', function () { fi.click(); });
+  fi.addEventListener('change', function () { addFiles(fi.files); fi.value = ''; });
+  dz.addEventListener('dragover', function (e) { e.preventDefault(); dz.classList.add('over'); });
+  dz.addEventListener('dragleave', function () { dz.classList.remove('over'); });
+  dz.addEventListener('drop', function (e) {
+    e.preventDefault(); dz.classList.remove('over');
+    addFiles(e.dataTransfer.files);
+  });
+
+  function arDigits(str) {
+    return String(str || '')
+      .replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); })
+      .replace(/[۰-۹]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); });
+  }
+
+  function parseText(raw) {
+    var text = arDigits(raw || '');
+    var lines = text.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+    var title = '';
+    for (var i = 0; i < lines.length; i++) {
+      if (/^(السعر|سعر|مقاس|SIZE|M\b)/i.test(lines[i])) continue;
+      if (lines[i].length >= 6) { title = lines[i].replace(/^[\s⭐️✨🔥•\-\*]+/, ''); break; }
+    }
+    var prices = [];
+    var re = /(\d{3,5})\s*(?:جنيه|ج\.م|ج\b)?/g;
+    var m;
+    while ((m = re.exec(text))) {
+      var n = Number(m[1]);
+      if (n >= 80 && n <= 50000) prices.push(n);
+    }
+    var price = prices.length ? Math.min.apply(null, prices) : null;
+    var sizes = [];
+    var sizeRe = /\b(6XL|5XL|4XL|3XL|2XL|XXL|XL|L|M|S)\b/gi;
+    var sm = {};
+    while ((m = sizeRe.exec(text))) {
+      var u = m[1].toUpperCase();
+      if (u === 'XXL') u = '2XL';
+      sm[u] = true;
+    }
+    ['S','M','L','XL','2XL','3XL','4XL','5XL','6XL'].forEach(function (s) {
+      if (sm[s]) sizes.push(s);
+    });
+    return { title: title || 'منتج من المصنع', price: price, prices: prices, sizes: sizes, body: text };
+  }
+
+  /** تجميع الأشكال: من اسم الملف (mint/black/grey) أو مجموعات متساوية */
+  function groupIntoShapes(images) {
+    var groups = {};
+    var order = [];
+    images.forEach(function (img) {
+      var name = (img.name || '').toLowerCase();
+      var key = 'شكل';
+      var hit = name.match(/(mint|black|grey|gray|navy|beige|white|red|blue|green|pink|uni\d+f\d+[-_]?[a-z]+)/i);
+      if (hit) key = hit[1].toLowerCase();
+      else {
+        // fallback: كل 5–6 صور شكل
+        key = 'batch-' + Math.floor(order.length > 0 ? images.indexOf(img) / 6 : 0);
+      }
+      // better sequential batching if no filename hints
+      if (!hit) {
+        var idx = images.indexOf(img);
+        key = 'شكل ' + (Math.floor(idx / 6) + 1);
+      } else {
+        key = hit[1];
+      }
+      if (!groups[key]) {
+        groups[key] = [];
+        order.push(key);
+      }
+      groups[key].push(img);
+    });
+
+    // If only one group and many images, split by 6
+    if (order.length === 1 && images.length > 6) {
+      groups = {};
+      order = [];
+      for (var i = 0; i < images.length; i += 6) {
+        var k = 'شكل ' + (order.length + 1);
+        order.push(k);
+        groups[k] = images.slice(i, i + 6);
+      }
+    }
+
+    return order.map(function (k, i) {
+      var imgs = groups[k];
+      var selected = pickBestImage(imgs);
+      return {
+        id: i + 1,
+        label: /^شكل/.test(k) ? k : ('شكل ' + (i + 1) + ' (' + k + ')'),
+        images: imgs,
+        selectedId: selected ? selected.id : (imgs[0] && imgs[0].id)
+      };
+    });
+  }
+
+  /** اختيار صورة أوضح للمنتج: تفضيل صور مش مقصوصة كبورتريه موديل — heuristic بسيط */
+  function pickBestImage(imgs) {
+    if (!imgs || !imgs.length) return null;
+    // تفضيل أسماء تدل على منتج /flat /product وتجنب model لو في الاسم
+    var scored = imgs.map(function (img) {
+      var n = (img.name || '').toLowerCase();
+      var score = 10;
+      if (/model|man|men|wear|look/.test(n)) score -= 5;
+      if (/flat|product|detail|close|hang|rack/.test(n)) score += 4;
+      // صور الوسط غالبًا أفضل من أول صورة موديل في بعض الكوليكشنات
+      return { img: img, score: score };
+    });
+    scored.sort(function (a, b) { return b.score - a.score; });
+    // لو كلها متساوية: خذ صورة من المنتصف (غالبًا تفاصيل منتج)
+    if (scored.length >= 3 && scored[0].score === scored[scored.length - 1].score) {
+      return imgs[Math.floor(imgs.length / 2)];
+    }
+    return scored[0].img;
+  }
+
+  function renderShapes() {
+    var box = $('shapesBox');
+    box.innerHTML = shapes.map(function (sh) {
+      var imgs = sh.images.map(function (img) {
+        var sel = img.id === sh.selectedId ? ' selected' : '';
+        return '<img class="' + sel + '" src="' + img.dataUrl + '" data-shape="' + sh.id + '" data-img="' + img.id + '" title="اختيار هذه الصورة">';
+      }).join('');
+      return (
+        '<div class="shape-card">' +
+          '<h3>' + sh.label + ' — اختر صورة المنتج الواضحة</h3>' +
+          '<div class="shape-imgs">' + imgs + '</div>' +
+          '<div class="shape-meta">' + sh.images.length + ' صور · المحددة بإطار بنفسجي</div>' +
+        '</div>'
+      );
+    }).join('');
+    box.querySelectorAll('img[data-shape]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        var sid = Number(el.getAttribute('data-shape'));
+        var iid = Number(el.getAttribute('data-img'));
+        shapes.forEach(function (sh) {
+          if (sh.id === sid) sh.selectedId = iid;
+        });
+        renderShapes();
+      });
+    });
+  }
+
+  window.runAnalyze = function () {
+    hideStatus();
+    if (!rawImages.length) {
+      showStatus('ارفع صور الكوليكشن أولًا.', 'err');
+      return;
+    }
+    var parsed = parseText($('postText').value || '');
+    shapes = groupIntoShapes(rawImages);
+    renderShapes();
+    $('outTitle').value = parsed.title;
+    $('outPrice').value = parsed.price != null ? parsed.price : '';
+    $('outOldPrice').value = '';
+    $('outBody').value = parsed.body || '';
+    // sizes textarea
+    var sizeLines = (parsed.sizes || []).map(function (s) {
+      var p = parsed.price;
+      if (parsed.prices && parsed.prices.length >= 2 && /3XL|4XL|5XL|6XL/.test(s)) {
+        p = Math.max.apply(null, parsed.prices);
+      } else if (parsed.prices && parsed.prices.length >= 2) {
+        p = Math.min.apply(null, parsed.prices);
+      }
+      return s + ' |  |  |  | ' + (p != null ? p : '');
+    });
+    $('outSizes').value = sizeLines.join('\n');
+    $('reviewCard').style.display = 'block';
+    showStatus('تم تجميع ' + shapes.length + ' شكل · اختيرت صورة مقترحة لكل شكل. راجع وعدّل ثم صدّر.', 'ok');
+    $('reviewCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  function yamlQuote(val) {
+    if (val == null || val === '') return "''";
+    var s = String(val);
+    if (/[:#\[\]{},&\n\"']/.test(s) || s !== s.trim()) return JSON.stringify(s);
+    return s;
+  }
+
+  function slugify(title) {
+    var s = String(title || 'product').trim().replace(/\s+/g, '-');
+    s = s.replace(/[^\u0600-\u06FFa-zA-Z0-9\-_]/g, '');
+    return (s || ('product-' + Date.now())).substring(0, 80);
+  }
+
+  /** حذف مسودة الكوليكشن الحالي من شاشة الاستيراد فقط — لا يمس Sveltia ولا المتجر */
+  window.discardCollection = function () {
+    if (!rawImages.length && !shapes.length) {
+      showStatus('لا توجد مسودة حالية لحذفها.', 'err');
+      return;
+    }
+    var ok = confirm('حذف مسودة الكوليكشن الحالي من شاشة الاستيراد؟\n(لن يُحذف أي منتج من Sveltia أو المتجر)');
+    if (!ok) return;
+    rawImages = [];
+    shapes = [];
+    idSeq = 1;
+    renderRawAlbum();
+    var sb = $('shapesBox');
+    if (sb) sb.innerHTML = '';
+    $('reviewCard').style.display = 'none';
+    $('outTitle').value = '';
+    $('outPrice').value = '';
+    $('outOldPrice').value = '';
+    $('outBody').value = '';
+    $('outSizes').value = '';
+    $('postText').value = '';
+    $('exportHint').textContent = '';
+    var tgList = $('tgPostsList');
+    if (tgList) tgList.innerHTML = '';
+    showStatus('تم حذف المسودة. جاهز لكوليكشن جديد.', 'ok');
+  };
+
+  window.exportProductMd = function () {
+    var title = ($('outTitle').value || '').trim();
+    if (!title) { showStatus('أدخل اسم المنتج.', 'err'); return; }
+    if (!shapes.length) { showStatus('لا توجد أشكال محللة.', 'err'); return; }
+
+    var category = $('outCategory').value || 'ملابس شتوية';
+    var price = Number($('outPrice').value) || 0;
+    var oldRaw = ($('outOldPrice').value || '').trim();
+    var oldPrice = oldRaw === '' ? null : Number(oldRaw);
+    var body = ($('outBody').value || '').trim();
+    var stamp = Date.now();
+    var slug = slugify(title);
+
+    // One selected image per shape → product images
+    var selected = shapes.map(function (sh, i) {
+      var img = sh.images.find(function (x) { return x.id === sh.selectedId; }) || sh.images[0];
+      return { img: img, path: '/images/products/' + slug + '-' + stamp + '-s' + (i + 1) + '.webp' };
+    }).filter(function (x) { return x.img; });
+
+    // variants from sizes textarea
+    var variants = [];
+    ($('outSizes').value || '').split(/\r?\n/).forEach(function (line) {
+      line = line.trim();
+      if (!line) return;
+      var parts = line.split('|').map(function (p) { return p.trim(); });
+      if (!parts[0]) return;
+      variants.push({
+        size: parts[0],
+        pants_length: parts[1] || '',
+        tshirt_length: parts[2] || '',
+        tshirt_width: parts[3] || '',
+        price: parts[4] ? Number(parts[4]) : null,
+        color: '',
+        extra_piece: '',
+        quantity: null,
+        status: 'available'
+      });
+    });
+    if (!variants.length) {
+      variants.push({
+        size: 'مقاس موحد', color: '', pants_length: '', tshirt_length: '', tshirt_width: '',
+        extra_piece: '', price: null, quantity: null, status: 'available'
+      });
+    }
+
+    var md = '---\n';
+    md += 'title: ' + yamlQuote(title) + '\n';
+    md += 'category: ' + yamlQuote(category) + '\n';
+    md += 'images:\n';
+    selected.forEach(function (s) { md += '  - ' + s.path + '\n'; });
+    md += 'price: ' + price + '\n';
+    if (oldPrice != null && !isNaN(oldPrice)) md += 'oldPrice: ' + oldPrice + '\n';
+    md += 'stock: available\n';
+    md += 'variants:\n';
+    variants.forEach(function (v) {
+      md += '  - size: ' + yamlQuote(v.size) + '\n';
+      md += '    color: ' + yamlQuote(v.color || '') + '\n';
+      md += '    pants_length: ' + yamlQuote(v.pants_length || '') + '\n';
+      md += '    tshirt_length: ' + yamlQuote(v.tshirt_length || '') + '\n';
+      md += '    tshirt_width: ' + yamlQuote(v.tshirt_width || '') + '\n';
+      md += '    extra_piece: ' + yamlQuote(v.extra_piece || '') + '\n';
+      md += '    price: ' + (v.price != null && !isNaN(v.price) ? v.price : 'null') + '\n';
+      md += '    quantity: null\n';
+      md += '    status: available\n';
+    });
+    md += '---\n\n' + body + '\n';
+
+    var blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = slug + '.md';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+
+    selected.forEach(function (s, i) {
+      try {
+        var link = document.createElement('a');
+        link.href = s.img.dataUrl;
+        var ext = 'jpg';
+        if (s.img.name && s.img.name.indexOf('.') !== -1) {
+          ext = s.img.name.split('.').pop().toLowerCase() || 'jpg';
+        }
+        link.download = slug + '-' + stamp + '-s' + (i + 1) + '.' + ext;
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(function () { link.remove(); }, 200 + i * 120);
+      } catch (e) {}
+    });
+
+    $('exportHint').innerHTML =
+      '✅ تم تنزيل <b>' + slug + '.md</b> + صورة واحدة لكل شكل.<br>' +
+      'ارفع الصور في Sveltia إلى <b>images/products</b> ثم راجع المنتج وانشر.';
+    showStatus('تم التصدير — منتج واحد بصور الأشكال المختارة.', 'ok');
+  };
+
+  // Telegram fetch via worker
+  window.fetchFromTelegram = async function () {
+    var s = getSettings();
+    var ch = ($('tgChannel').value || '').trim();
+    if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker من تبويب الإعدادات.', 'err'); return; }
+    if (!ch) { showStatus('أدخل القناة.', 'err'); return; }
+    var limit = Number($('tgLimit').value) || 15;
+    showStatus('جاري الجلب من تيليجرام...', '');
+    $('btnFetchTg').disabled = true;
+    try {
+      var r = await fetch(s.workerUrl + '/fetch', {
+        method: 'POST',
+        headers: Object.assign(
+          { 'Content-Type': 'application/json' },
+          s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
+        ),
+        body: JSON.stringify({ channel: ch, limit: limit })
+      });
+      var data = await r.json().catch(function () { return {}; });
+      if (!r.ok) {
+        showStatus(data.error || ('خطأ ' + r.status + ' — تأكد من تسجيل دخول تيليجرام على الـ Worker'), 'err');
+        return;
+      }
+      // Expect { posts: [ { text, images: [url|base64] } ] }
+      var posts = data.posts || [];
+      if (!posts.length) {
+        showStatus('لم يُرجع الـ Worker منشورات. أكمل إعداد الجلسة على الـ Worker.', 'err');
+        return;
+      }
+      var texts = [];
+      for (var p = 0; p < posts.length; p++) {
+        if (posts[p].text) texts.push(posts[p].text);
+        var imgs = posts[p].images || [];
+        for (var j = 0; j < imgs.length; j++) {
+          var src = imgs[j];
+          if (typeof src === 'string' && src.indexOf('data:') === 0) {
+            rawImages.push({ id: idSeq++, dataUrl: src, name: 'tg-' + p + '-' + j + '.jpg' });
+          } else if (typeof src === 'string') {
+            // try fetch image as blob via worker proxy if needed
+            try {
+              var ir = await fetch(s.workerUrl + '/proxy-image?url=' + encodeURIComponent(src), {
+                headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
+              });
+              if (ir.ok) {
+                var blob = await ir.blob();
+                var dataUrl = await new Promise(function (res, rej) {
+                  var fr = new FileReader();
+                  fr.onload = function () { res(fr.result); };
+                  fr.onerror = rej;
+                  fr.readAsDataURL(blob);
+                });
+                rawImages.push({ id: idSeq++, dataUrl: dataUrl, name: 'tg-' + p + '-' + j + '.jpg' });
+              }
+            } catch (e) {}
+          }
+        }
+      }
+      if (texts.length) {
+        $('postText').value = texts.join('\n\n———\n\n');
+      }
+      renderRawAlbum();
+      if (rawImages.length) {
+        runAnalyze();
+        showStatus('تم جلب ' + posts.length + ' منشور و ' + rawImages.length + ' صورة وتم التحليل. راجع ثم صدّر أو احذف.', 'ok');
+      } else {
+        showStatus('تم جلب المنشورات لكن بدون صور قابلة للتحميل. راجع إعدادات الـ Worker.', 'err');
+      }
+    } catch (e) {
+      showStatus('فشل الجلب: ' + (e.message || e), 'err');
+    } finally {
+      $('btnFetchTg').disabled = false;
+    }
+  };
+})();
+  </script>
+</body>
+</html>
