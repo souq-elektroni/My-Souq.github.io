@@ -566,31 +566,51 @@ function productCardHtml(p) {
     renderProducts(sorted);
   }
 
+  // ===== Maintenance compatibility layer =====
+  // The Firebase-backed maintenance controller in index.html is authoritative.
+  // These legacy names are kept so any older callers do not break, but this
+  // file no longer keeps a second maintenance state in localStorage.
   function applyMaintenanceMode(enabled) {
-    const overlay = document.getElementById('maintenanceOverlay');
-    const btn = document.getElementById('maintenanceToggleBtn');
+    const overlay =
+      document.getElementById('maintenanceModeOverlay') ||
+      document.getElementById('maintenanceOverlay');
+
+    const btn =
+      document.getElementById('maintenanceAdminToggle') ||
+      document.getElementById('maintenanceToggleBtn');
+
     if (overlay) {
-      overlay.style.display = enabled ? 'flex' : 'none';
+      // Do not override the authoritative admin-aware controller when it exists.
+      if (document.getElementById('maintenanceModeOverlay')) {
+        overlay.style.display = enabled ? 'flex' : 'none';
+      } else {
+        overlay.style.display = enabled ? 'flex' : 'none';
+      }
     }
-    if (btn) {
+
+    if (btn && !document.getElementById('maintenanceAdminToggle')) {
       btn.textContent = enabled ? '🔓 إيقاف الصيانة' : '🔧 تفعيل الصيانة';
       btn.style.background = enabled ? '#2e7d32' : '#e65100';
     }
   }
 
   function loadMaintenanceMode() {
-    applyMaintenanceMode(localStorage.getItem('souqMaintenanceMode') === '1');
+    if (typeof window.readMaintenanceMode === 'function') {
+      return window.readMaintenanceMode();
+    }
+    // No localStorage fallback here: maintenance has one source of truth.
+    return Promise.resolve(false);
   }
 
   function toggleMaintenanceMode() {
-    if (!isAdminMode || !currentAdminUser || !currentAdminUser.email) {
-      alert('يجب تسجيل الدخول كمسؤول أولاً.');
-      return;
+    // index.html installs the authoritative Firebase implementation on
+    // window.toggleMaintenanceMode. If this compatibility function is still
+    // the active handler, simply tell the caller that the controller is not
+    // ready instead of creating a second maintenance system.
+    if (window.toggleMaintenanceMode !== toggleMaintenanceMode) {
+      return window.toggleMaintenanceMode();
     }
-    const next = localStorage.getItem('souqMaintenanceMode') !== '1';
-    localStorage.setItem('souqMaintenanceMode', next ? '1' : '0');
-    applyMaintenanceMode(next);
-    alert(next ? 'تم تفعيل وضع الصيانة على هذا المتصفح.' : 'تم إيقاف وضع الصيانة.');
+    alert('وحدة إدارة الصيانة لم تكتمل تهيئتها بعد. حاول مرة أخرى.');
   }
 
   function toggleDarkMode() {
