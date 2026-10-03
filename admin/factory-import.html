@@ -203,20 +203,21 @@
         </div>
         <div class="row">
           <div>
-            <label>السعر (ج.م)</label>
-            <input type="number" id="outPrice" min="0">
+            <label>السعر الأساسي للبطاقة (أقل سعر / المرحلة الأولى)</label>
+            <input type="number" id="outPrice" min="0" placeholder="950">
           </div>
           <div>
             <label>السعر القديم (اختياري)</label>
             <input type="number" id="outOldPrice" min="0">
           </div>
         </div>
-        <label>الوصف</label>
-        <textarea id="outBody"></textarea>
+        <p class="hint">أسعار المقاسات المختلفة (مثلاً 950 و 1100) تُكتب في جدول المقاسات تحت عمود السعر — مش في الوصف.</p>
+        <label>الوصف (بدون أسعار)</label>
+        <textarea id="outBody" placeholder="وصف المنتج فقط — لا تكتب أسعار هنا"></textarea>
 
-        <label>المقاسات (سطر لكل مقاس: المقاس | بنطلون | تيشيرت ط | تيشيرت ع | سعر اختياري)</label>
-        <textarea id="outSizes" placeholder="M | 98 | 70 | 56 | 950&#10;L | 100 | 71 | 58 | 950&#10;3XL | 111 | 75 | 64 | 1100"></textarea>
-        <p class="hint">يمكنك لصق جدول تقريبي؛ عدّله قبل التصدير. الحقل يطابق منطق variants في Sveltia.</p>
+        <label>المقاسات (سطر لكل مقاس: المقاس | بنطلون | تيشيرت ط | تيشيرت ع | السعر حسب المرحلة)</label>
+        <textarea id="outSizes" placeholder="M |  |  |  | 950&#10;L |  |  |  | 950&#10;3XL |  |  |  | 1100"></textarea>
+        <p class="hint">كل مقاس وسعره في سطر — المرحلة الأولى والثانية. عدّل قبل التصدير. يطابق variants في Sveltia.</p>
 
         <div class="btns">
           <button type="button" class="btn ok" onclick="exportProductMd()">⬇️ تصدير منتج واحد (.md)</button>
@@ -334,22 +335,68 @@
       .replace(/[۰-۹]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); });
   }
 
+  /** هل الصورة جدول مقاسات / سعر / لوجو وليست صورة منتج؟ */
+  function isNonProductImage(img) {
+    var n = (img.name || '').toLowerCase();
+    if (/مقاس|size\s*chart|sizechart|chart|table|جدول|سعر|price|pricelist|logo|brand|banner|flyer/.test(n)) return true;
+    if (/uni\d{4}f\d.*chart|measurement/.test(n)) return true;
+    return false;
+  }
+
+  /** فصل صور المنتج عن صور الجداول/الأسعار (آخر صور الكوليكشن غالبًا جداول) */
+  function splitProductAndMetaImages(images) {
+    var product = [];
+    var meta = [];
+    images.forEach(function (img, idx) {
+      if (isNonProductImage(img)) {
+        meta.push(img);
+        return;
+      }
+      // آخر صورتين في ألبوم كبير بدون أسماء مميزة → غالبًا جدول مقاسات
+      if (images.length >= 8 && idx >= images.length - 2 && !/(mint|black|grey|gray|navy|beige|future|italia|live|focus)/i.test(img.name || '')) {
+        meta.push(img);
+        return;
+      }
+      product.push(img);
+    });
+    // لو اتشال كتير بالغلط، رجّع الكل كمنتج
+    if (!product.length) return { product: images.slice(), meta: [] };
+    return { product: product, meta: meta };
+  }
+
   function parseText(raw) {
     var text = arDigits(raw || '');
     var lines = text.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
     var title = '';
     for (var i = 0; i < lines.length; i++) {
-      if (/^(السعر|سعر|مقاس|SIZE|M\b)/i.test(lines[i])) continue;
-      if (lines[i].length >= 6) { title = lines[i].replace(/^[\s⭐️✨🔥•\-\*]+/, ''); break; }
+      if (/^(السعر|سعر|مقاس|SIZE|M\b|L\b|XL|المرحله|المرحلة)/i.test(lines[i])) continue;
+      if (/^\d{2,5}\s*(جنيه|ج\.م|ج)?\s*$/i.test(lines[i])) continue;
+      if (lines[i].length >= 6) {
+        title = lines[i].replace(/^[\s⭐️✨🔥•\-\*]+/, '').trim();
+        break;
+      }
     }
-    var prices = [];
-    var re = /(\d{3,5})\s*(?:جنيه|ج\.م|ج\b)?/g;
+
+    // أسعار المراحل: مرحلة أولى (M-2XL) / ثانية (3XL-6XL)
+    var phase1Price = null;
+    var phase2Price = null;
+    var phaseBlock = text.split(/المرحله\s*الثانيه|المرحلة\s*الثانية|⭐️\s*المرحله\s*الثانيه|⭐️\s*المرحلة\s*الثانية/i);
+    if (phaseBlock.length >= 2) {
+      var p1 = phaseBlock[0].match(/(?:السعر|سعر)\s*:?\s*(\d{2,6})/i) || phaseBlock[0].match(/(\d{3,5})\s*(?:جنيه|ج\.م|ج\b)/i);
+      var p2 = phaseBlock[1].match(/(?:السعر|سعر)\s*:?\s*(\d{2,6})/i) || phaseBlock[1].match(/(\d{3,5})\s*(?:جنيه|ج\.م|ج\b)/i);
+      if (p1) phase1Price = Number(p1[1]);
+      if (p2) phase2Price = Number(p2[1]);
+    }
+    var allPrices = [];
+    var re = /(?:السعر|سعر)?\s*:?\s*(\d{2,6})\s*(?:جنيه|ج\.م|ج\b)?/gi;
     var m;
     while ((m = re.exec(text))) {
       var n = Number(m[1]);
-      if (n >= 80 && n <= 50000) prices.push(n);
+      if (n >= 80 && n <= 50000) allPrices.push(n);
     }
-    var price = prices.length ? Math.min.apply(null, prices) : null;
+    if (phase1Price == null && allPrices.length) phase1Price = Math.min.apply(null, allPrices);
+    if (phase2Price == null && allPrices.length >= 2) phase2Price = Math.max.apply(null, allPrices);
+
     var sizes = [];
     var sizeRe = /\b(6XL|5XL|4XL|3XL|2XL|XXL|XL|L|M|S)\b/gi;
     var sm = {};
@@ -358,79 +405,127 @@
       if (u === 'XXL') u = '2XL';
       sm[u] = true;
     }
+    // لو مذكور مرحلتين شائع في المصنع
+    if (/مرحله|مرحلة/i.test(text) && !Object.keys(sm).length) {
+      ['M','L','XL','2XL','3XL','4XL','5XL','6XL'].forEach(function (s) { sm[s] = true; });
+    }
     ['S','M','L','XL','2XL','3XL','4XL','5XL','6XL'].forEach(function (s) {
       if (sm[s]) sizes.push(s);
     });
-    return { title: title || 'منتج من المصنع', price: price, prices: prices, sizes: sizes, body: text };
-  }
 
-  /** تجميع الأشكال: من اسم الملف (mint/black/grey) أو مجموعات متساوية */
-  function groupIntoShapes(images) {
-    var groups = {};
-    var order = [];
-    images.forEach(function (img) {
-      var name = (img.name || '').toLowerCase();
-      var key = 'شكل';
-      var hit = name.match(/(mint|black|grey|gray|navy|beige|white|red|blue|green|pink|uni\d+f\d+[-_]?[a-z]+)/i);
-      if (hit) key = hit[1].toLowerCase();
-      else {
-        // fallback: كل 5–6 صور شكل
-        key = 'batch-' + Math.floor(order.length > 0 ? images.indexOf(img) / 6 : 0);
-      }
-      // better sequential batching if no filename hints
-      if (!hit) {
-        var idx = images.indexOf(img);
-        key = 'شكل ' + (Math.floor(idx / 6) + 1);
-      } else {
-        key = hit[1];
-      }
-      if (!groups[key]) {
-        groups[key] = [];
-        order.push(key);
-      }
-      groups[key].push(img);
+    // مقاسات + سعر لكل مقاس (مرحلتين)
+    var sizePrices = {};
+    sizes.forEach(function (s) {
+      if (/^(3XL|4XL|5XL|6XL)$/i.test(s) && phase2Price != null) sizePrices[s] = phase2Price;
+      else if (phase1Price != null) sizePrices[s] = phase1Price;
+      else sizePrices[s] = null;
     });
 
-    // If only one group and many images, split by 6
-    if (order.length === 1 && images.length > 6) {
-      groups = {};
-      order = [];
-      for (var i = 0; i < images.length; i += 6) {
-        var k = 'شكل ' + (order.length + 1);
-        order.push(k);
-        groups[k] = images.slice(i, i + 6);
+    // الوصف: بدون أي سعر وبدون أسطر مقاسات فقط
+    var bodyLines = lines.filter(function (l) {
+      if (/(?:السعر|سعر)\s*:?\s*\d/i.test(l)) return false;
+      if (/^\d{2,6}\s*(جنيه|ج\.م|ج)\s*$/i.test(l)) return false;
+      if (/السعر\s*:?\s*$/i.test(l)) return false;
+      if (/^⭐️?\s*المرحله|^⭐️?\s*المرحلة/i.test(l)) return false;
+      if (/^(M|L|XL|2XL|3XL|4XL|5XL|6XL|S)(\s+|$)/i.test(l) && l.length < 12) return false;
+      return true;
+    });
+    var body = bodyLines.join('\n').trim();
+
+    return {
+      title: title || 'منتج من المصنع',
+      basePrice: phase1Price,
+      phase1Price: phase1Price,
+      phase2Price: phase2Price,
+      sizePrices: sizePrices,
+      sizes: sizes,
+      body: body
+    };
+  }
+
+  /**
+   * تجميع صارم: كل شكل لوحده — مجموعات ثابتة (6 صور) بالترتيب الزمني
+   * بعد استبعاد صور الجداول/الأسعار
+   */
+  function groupIntoShapes(images) {
+    var split = splitProductAndMetaImages(images);
+    var productImgs = split.product;
+    var metaImgs = split.meta;
+    var shapesOut = [];
+    var SHAPE_SIZE = 6;
+
+    // تجميع بالاسم المميز إن وُجد (mint / black / future...)
+    var named = {};
+    var namedOrder = [];
+    var unnamed = [];
+    productImgs.forEach(function (img) {
+      var name = (img.name || '').toLowerCase();
+      var hit = name.match(/(mint|black|grey|gray|navy|beige|white|red|blue|green|pink|future|italia|live|focus|uni\d+f\d+[-_]?[a-z0-9]+)/i);
+      if (hit) {
+        var key = hit[1].toLowerCase();
+        if (!named[key]) { named[key] = []; namedOrder.push(key); }
+        named[key].push(img);
+      } else {
+        unnamed.push(img);
+      }
+    });
+
+    if (namedOrder.length >= 2) {
+      namedOrder.forEach(function (k, i) {
+        var imgs = named[k];
+        var selected = pickBestImage(imgs);
+        shapesOut.push({
+          id: i + 1,
+          label: 'شكل ' + (i + 1) + ' (' + k + ')',
+          images: imgs,
+          selectedId: selected ? selected.id : (imgs[0] && imgs[0].id)
+        });
+      });
+      // باقي بدون اسم → أشكال إضافية كل 6
+      for (var u = 0; u < unnamed.length; u += SHAPE_SIZE) {
+        var chunk = unnamed.slice(u, u + SHAPE_SIZE);
+        if (!chunk.length) break;
+        var sel = pickBestImage(chunk);
+        shapesOut.push({
+          id: shapesOut.length + 1,
+          label: 'شكل ' + (shapesOut.length + 1),
+          images: chunk,
+          selectedId: sel ? sel.id : chunk[0].id
+        });
+      }
+    } else {
+      // لا أسماء مميزة: كل 6 صور = شكل مستقل بالترتيب (من غير خلط)
+      var all = productImgs.slice();
+      for (var i = 0; i < all.length; i += SHAPE_SIZE) {
+        var ch = all.slice(i, i + SHAPE_SIZE);
+        if (!ch.length) break;
+        var selected = pickBestImage(ch);
+        shapesOut.push({
+          id: shapesOut.length + 1,
+          label: 'شكل ' + (shapesOut.length + 1),
+          images: ch,
+          selectedId: selected ? selected.id : ch[0].id
+        });
       }
     }
 
-    return order.map(function (k, i) {
-      var imgs = groups[k];
-      var selected = pickBestImage(imgs);
-      return {
-        id: i + 1,
-        label: /^شكل/.test(k) ? k : ('شكل ' + (i + 1) + ' (' + k + ')'),
-        images: imgs,
-        selectedId: selected ? selected.id : (imgs[0] && imgs[0].id)
-      };
-    });
+    return { shapes: shapesOut, metaImages: metaImgs };
   }
 
-  /** اختيار صورة أوضح للمنتج: تفضيل صور مش مقصوصة كبورتريه موديل — heuristic بسيط */
+  /** اختيار صورة منتج واضحة — يتجنب الموديل واللوجو قدر الإمكان */
   function pickBestImage(imgs) {
     if (!imgs || !imgs.length) return null;
-    // تفضيل أسماء تدل على منتج /flat /product وتجنب model لو في الاسم
-    var scored = imgs.map(function (img) {
+    var scored = imgs.map(function (img, idx) {
       var n = (img.name || '').toLowerCase();
       var score = 10;
-      if (/model|man|men|wear|look/.test(n)) score -= 5;
-      if (/flat|product|detail|close|hang|rack/.test(n)) score += 4;
-      // صور الوسط غالبًا أفضل من أول صورة موديل في بعض الكوليكشنات
+      if (/model|man|men|wear|look|boy|girl/.test(n)) score -= 6;
+      if (/flat|product|detail|close|hang|rack|set/.test(n)) score += 5;
+      if (/logo|brand|icon/.test(n)) score -= 8;
+      // تفضيل صورة من وسط المجموعة (غالبًا منتج معلّق/مفروش)
+      if (imgs.length >= 4 && idx >= 1 && idx <= imgs.length - 2) score += 2;
       return { img: img, score: score };
     });
     scored.sort(function (a, b) { return b.score - a.score; });
-    // لو كلها متساوية: خذ صورة من المنتصف (غالبًا تفاصيل منتج)
-    if (scored.length >= 3 && scored[0].score === scored[scored.length - 1].score) {
-      return imgs[Math.floor(imgs.length / 2)];
-    }
     return scored[0].img;
   }
 
@@ -468,25 +563,30 @@
       return;
     }
     var parsed = parseText($('postText').value || '');
-    shapes = groupIntoShapes(rawImages);
+    var grouped = groupIntoShapes(rawImages);
+    shapes = grouped.shapes || [];
     renderShapes();
+
+    // تنبيه لو استُبعدت صور جداول/أسعار
+    var metaNote = '';
+    if (grouped.metaImages && grouped.metaImages.length) {
+      metaNote = ' · تم استبعاد ' + grouped.metaImages.length + ' صورة (جدول مقاسات/سعر/لوجو) من أشكال المنتج';
+    }
+
     $('outTitle').value = parsed.title;
-    $('outPrice').value = parsed.price != null ? parsed.price : '';
+    // السعر الأساسي = أقل مرحلة (للعرض في البطاقة) — التفاصيل في جدول المقاسات
+    $('outPrice').value = parsed.basePrice != null ? parsed.basePrice : '';
     $('outOldPrice').value = '';
+    // الوصف بدون أي سعر
     $('outBody').value = parsed.body || '';
-    // sizes textarea
+
     var sizeLines = (parsed.sizes || []).map(function (s) {
-      var p = parsed.price;
-      if (parsed.prices && parsed.prices.length >= 2 && /3XL|4XL|5XL|6XL/.test(s)) {
-        p = Math.max.apply(null, parsed.prices);
-      } else if (parsed.prices && parsed.prices.length >= 2) {
-        p = Math.min.apply(null, parsed.prices);
-      }
-      return s + ' |  |  |  | ' + (p != null ? p : '');
+      var p = parsed.sizePrices && parsed.sizePrices[s] != null ? parsed.sizePrices[s] : '';
+      return s + ' |  |  |  | ' + p;
     });
     $('outSizes').value = sizeLines.join('\n');
     $('reviewCard').style.display = 'block';
-    showStatus('تم تجميع ' + shapes.length + ' شكل · اختيرت صورة مقترحة لكل شكل. راجع وعدّل ثم صدّر.', 'ok');
+    showStatus('تم فصل ' + shapes.length + ' شكل (كل شكل لوحده) · صورة مقترحة لكل شكل' + metaNote + '. راجع ثم صدّر أو احذف.', 'ok');
     $('reviewCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
