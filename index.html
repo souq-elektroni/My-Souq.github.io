@@ -1735,13 +1735,13 @@
       font-size: 12px;
       cursor: pointer;
       box-shadow: 0 4px 12px rgba(21, 101, 192, 0.25);
-      display: flex;
+      display: none; /* مخفي عن الزوار — يظهر للأدمن فقط بعد تسجيل الدخول */
       align-items: center;
       gap: 5px;
       border: 1px solid #90caf9;
       white-space: nowrap;
     }
-    .admin-orders-trigger.show { display: flex; }
+    .admin-orders-trigger.show { display: flex !important; }
     @media (min-width: 768px) {
       .admin-orders-trigger { padding: 12px 18px; font-size: 14px; }
     }
@@ -5796,6 +5796,13 @@ window.addToCartAndContinue = function () {
         });
       } catch (e) {}
 
+      // الإلغاء النهائي مسموح فقط لحالة «قيد التنفيذ» (statusCode = 0)
+      var orderStatusCode = (order && typeof order.statusCode === 'number') ? order.statusCode : 0;
+      if (orderStatusCode !== 0) {
+        alert('لا يمكن إلغاء الطلب نهائياً إلا وهو في حالة «قيد التنفيذ» فقط.\nالحالات بعد الحجز أو الشحن أو التوريد غير قابلة للإلغاء النهائي.');
+        return;
+      }
+
       var customer = order && order.name ? (' للعميل "' + order.name + '"') : '';
       var ok = confirm(
         '⚠️ تأكيد الإلغاء النهائي\n\n' +
@@ -5863,11 +5870,25 @@ window.addToCartAndContinue = function () {
         var list = (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) ? adminOrdersCache : [];
         cards.forEach(function (card) {
           var existing = card.querySelector('.cancel-order-btn');
-          if (existing) return;
           var oidEl = card.querySelector('.oid');
           var text = oidEl ? oidEl.textContent.replace(/^\s*🆔\s*/, '').trim() : '';
           var match = list.find(function (o) { return String(o.orderId || '') === text; });
-          if (!match) return;
+          if (!match) {
+            if (existing) existing.closest('div') && existing.closest('div').remove();
+            return;
+          }
+          // إظهار زر الإلغاء النهائي فقط إذا كانت الحالة «قيد التنفيذ» (statusCode = 0)
+          var matchStatusCode = (typeof match.statusCode === 'number') ? match.statusCode : 0;
+          if (matchStatusCode !== 0) {
+            // إزالة الزر إن وُجد بعد تغيير الحالة
+            if (existing) {
+              var parentRow = existing.parentElement;
+              if (parentRow && parentRow.children.length === 1) parentRow.remove();
+              else existing.remove();
+            }
+            return;
+          }
+          if (existing) return;
           var row = document.createElement('div');
           row.style.cssText = 'display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;';
           var btn = document.createElement('button');
@@ -5891,6 +5912,15 @@ window.addToCartAndContinue = function () {
         var body = document.getElementById('adminOrderDetailsBody');
         if (!body) return;
         if (body.querySelector('.cancel-order-btn[data-details-cancel="1"]')) return;
+        // إظهار زر الإلغاء النهائي فقط إذا كانت الحالة «قيد التنفيذ» (statusCode = 0)
+        var detailOrder = null;
+        try {
+          detailOrder = (typeof adminOrdersCache !== 'undefined' ? adminOrdersCache : []).find(function (x) {
+            return String(x.orderId || '') === String(orderId || '');
+          });
+        } catch (e) {}
+        var detailStatusCode = (detailOrder && typeof detailOrder.statusCode === 'number') ? detailOrder.statusCode : 0;
+        if (detailStatusCode !== 0) return;
         var row = document.createElement('div');
         row.style.cssText = 'display:flex;gap:6px;margin-top:12px;';
         var btn = document.createElement('button');
@@ -5928,6 +5958,165 @@ window.addToCartAndContinue = function () {
     setInterval(function () {
       readMaintenanceMode();
     }, MAINT_POLL_MS);
+  })();
+  </script>
+
+  <script id="mysouq-admin-only-orders-visibility">
+  /* ===== إظهار زر «الطلبات» ولوحة الإدارة للأدمن فقط =====
+     لا يحذف أي وظيفة موجودة — يضيف طبقة إخفاء/إظهار فقط.
+     دخول الإدارة السري: اضغط مطوّلاً (~1.2 ثانية) على شعار MY SOUQ
+  ===== */
+  (function () {
+    function isAdminNow() {
+      try { return typeof isAdminMode !== 'undefined' && !!isAdminMode; } catch (e) { return false; }
+    }
+
+    function syncAdminOrdersButton() {
+      var btn = document.getElementById('adminOrdersBtn');
+      if (!btn) return;
+      if (isAdminNow()) {
+        btn.classList.add('show');
+      } else {
+        btn.classList.remove('show');
+      }
+    }
+
+    // إغلاق لوحة الطلبات لو خرج الأدمن
+    function closeAdminModalsIfNeeded() {
+      if (isAdminNow()) return;
+      try {
+        var m1 = document.getElementById('adminOrdersModal');
+        if (m1) m1.classList.remove('active');
+        var m2 = document.getElementById('adminOrderDetailsModal');
+        if (m2) m2.classList.remove('active');
+      } catch (e) {}
+    }
+
+    function openAdminLoginModal() {
+      var modal = document.getElementById('adminLoginModal');
+      if (modal) {
+        modal.classList.add('active');
+        return;
+      }
+      // احتياطي: استدعاء الدالة الأصلية إن وُجدت
+      if (typeof window.handleAdminButton === 'function') {
+        try { window.handleAdminButton(); } catch (e) {}
+      }
+    }
+
+    // ربط مع loginAdmin / logoutAdmin إن وُجدتا
+    function hookAuthFunctions() {
+      if (typeof window.loginAdmin === 'function' && !window.loginAdmin._msqVisHooked) {
+        var _login = window.loginAdmin;
+        window.loginAdmin = async function () {
+          var r = await _login.apply(this, arguments);
+          setTimeout(function () {
+            syncAdminOrdersButton();
+          }, 100);
+          setTimeout(syncAdminOrdersButton, 500);
+          setTimeout(syncAdminOrdersButton, 1500);
+          return r;
+        };
+        window.loginAdmin._msqVisHooked = true;
+      }
+      if (typeof window.logoutAdmin === 'function' && !window.logoutAdmin._msqVisHooked) {
+        var _logout = window.logoutAdmin;
+        window.logoutAdmin = function () {
+          var r = _logout.apply(this, arguments);
+          setTimeout(function () {
+            syncAdminOrdersButton();
+            closeAdminModalsIfNeeded();
+          }, 50);
+          return r;
+        };
+        window.logoutAdmin._msqVisHooked = true;
+      }
+      if (typeof window.handleAdminButton === 'function' && !window.handleAdminButton._msqVisHooked) {
+        var _handle = window.handleAdminButton;
+        window.handleAdminButton = function () {
+          var r = _handle.apply(this, arguments);
+          setTimeout(syncAdminOrdersButton, 80);
+          return r;
+        };
+        window.handleAdminButton._msqVisHooked = true;
+      }
+    }
+
+    // تأكيد إضافي: الإلغاء النهائي للأدمن فقط
+    if (typeof window.cancelOrderPermanently === 'function' && !window.cancelOrderPermanently._msqAdminOnly) {
+      var _cancel = window.cancelOrderPermanently;
+      window.cancelOrderPermanently = async function (orderId) {
+        if (!isAdminNow()) {
+          alert('هذه العملية متاحة للإدارة فقط.');
+          return;
+        }
+        return _cancel.apply(this, arguments);
+      };
+      window.cancelOrderPermanently._msqAdminOnly = true;
+    }
+
+    // ===== دخول سري: ضغط مطوّل على شعار المتجر =====
+    function bindSecretAdminEntry() {
+      var badge = document.querySelector('.brand-badge');
+      if (!badge || badge._msqAdminSecretBound) return;
+      badge._msqAdminSecretBound = true;
+      var pressTimer = null;
+      var LONG_MS = 1200;
+
+      function startPress(e) {
+        if (pressTimer) clearTimeout(pressTimer);
+        pressTimer = setTimeout(function () {
+          pressTimer = null;
+          // لو أدمن بالفعل → افتح الطلبات مباشرة، وإلا شاشة الدخول
+          if (isAdminNow()) {
+            if (typeof window.handleAdminButton === 'function') {
+              try { window.handleAdminButton(); } catch (err) {}
+            }
+          } else {
+            openAdminLoginModal();
+          }
+        }, LONG_MS);
+      }
+      function cancelPress() {
+        if (pressTimer) {
+          clearTimeout(pressTimer);
+          pressTimer = null;
+        }
+      }
+
+      badge.addEventListener('mousedown', startPress);
+      badge.addEventListener('touchstart', startPress, { passive: true });
+      badge.addEventListener('mouseup', cancelPress);
+      badge.addEventListener('mouseleave', cancelPress);
+      badge.addEventListener('touchend', cancelPress);
+      badge.addEventListener('touchcancel', cancelPress);
+      badge.title = (badge.title || '') + (badge.title ? ' · ' : '') + 'للإدارة: اضغط مطوّلاً';
+      badge.style.cursor = 'pointer';
+    }
+
+    function boot() {
+      hookAuthFunctions();
+      syncAdminOrdersButton();
+      closeAdminModalsIfNeeded();
+      bindSecretAdminEntry();
+    }
+
+    boot();
+    var tries = 0;
+    var t = setInterval(function () {
+      tries++;
+      boot();
+      if (tries >= 40) clearInterval(t);
+    }, 200);
+
+    setInterval(function () {
+      syncAdminOrdersButton();
+      if (!isAdminNow()) closeAdminModalsIfNeeded();
+    }, 3000);
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot);
+    }
   })();
   </script>
 </body>
