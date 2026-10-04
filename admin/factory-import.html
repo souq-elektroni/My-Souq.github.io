@@ -125,13 +125,14 @@
         <h2>جلب من تيليجرام عبر الـ Worker</h2>
         <label>رابط القناة أو @username</label>
         <input type="text" id="tgChannel" placeholder="@factory_channel أو رابط t.me/...">
-        <label>عدد آخر منشورات للتحليل</label>
-        <input type="number" id="tgLimit" value="15" min="1" max="50">
+        <label>آخر كام ساعة؟ (الجلب بالوقت — مش بعدد المنشورات)</label>
+        <input type="number" id="tgHours" value="6" min="1" max="168" placeholder="مثلاً 6">
+        <p class="hint" style="margin-bottom:8px;">مثال: 6 = منشورات آخر 6 ساعات فقط. الحد الأقصى 168 ساعة (أسبوع).</p>
         <div class="btns">
-          <button type="button" class="btn" id="btnFetchTg" onclick="fetchFromTelegram()">⬇️ جلب المنشورات وتحليلها</button>
+          <button type="button" class="btn" id="btnFetchTg" onclick="fetchFromTelegram()">⬇️ جلب منشورات آخر الفترة وتحليلها</button>
         </div>
         <p class="hint">
-          هذا المسار الأساسي. بعد ضبط الـ Worker وتسجيل دخول حسابك مرة واحدة، المنشورات والصور تتجاب هنا تلقائيًا ثم تراجع وتصدّر أو تحذف.
+          المسار الأساسي عبر حسابك. الاستيكرات تُستبعد تلقائيًا. الترتيب يفضّل أكواد المنتج على الصور عند توفرها.
         </p>
         <div id="tgPostsList" style="margin-top:12px;"></div>
       </div>
@@ -173,8 +174,8 @@
           <button type="button" class="btn ghost" onclick="testWorker()">اختبار الاتصال</button>
         </div>
         <p class="hint">
-          الإعدادات تُحفظ في المتصفح (localStorage) فقط على جهازك.
-          خطوات تيليجرام: أنشئ تطبيق على my.telegram.org → ضع API_ID و API_HASH في secrets الـ Worker → اطلب كود الدخول من هنا لاحقًا.
+          الإعدادات تُحفظ في المتصفح فقط. لل تصدير المباشر لـ Sveltia أضف على الـ Worker Secrets:
+          <b>GITHUB_TOKEN</b> (صلاحية repo) ويفضّل <b>GITHUB_REPO</b>=souq-elektroni/My-Souq.github.io
         </p>
       </div>
     </div>
@@ -227,11 +228,12 @@
         <p class="hint">المقاسات كما في المنشور: حرفي (S–6XL) أو بالسنة (1 سنة…20 سنة) أو بالشهر (3M…24M). يطابق variants في Sveltia.</p>
 
         <div class="btns">
-          <button type="button" class="btn ok" onclick="exportProductMd()">⬇️ تصدير منتج واحد (.md)</button>
+          <button type="button" class="btn ok" onclick="exportToSveltia()">🚀 تصدير إلى إدارة المنتجات (Sveltia)</button>
+          <button type="button" class="btn secondary" onclick="exportProductMd()">⬇️ نسخ احتياطي .md</button>
           <button type="button" class="btn danger" onclick="discardCollection()">🗑️ حذف المسودة</button>
         </div>
         <p class="hint" id="exportHint"></p>
-        <p class="hint">عجبك التحليل؟ صدّر. مش عاجبك؟ احذف المسودة وابدأ كوليكشن تاني — مفيش حاجة بتتحذف من Sveltia أو المتجر.</p>
+        <p class="hint">عند التصدير لـ Sveltia: تُرفع الصور المختارة فقط + ملف المنتج. الصور غير المختارة تُمسح من المسودة ولا تُحفظ. يحتاج GITHUB_TOKEN على الـ Worker.</p>
       </div>
     </div>
 
@@ -846,26 +848,33 @@
     showStatus('تم حذف المسودة. جاهز لكوليكشن جديد.', 'ok');
   };
 
-  window.exportProductMd = function () {
-    var title = ($('outTitle').value || '').trim();
-    if (!title) { showStatus('أدخل اسم المنتج.', 'err'); return; }
-    if (!shapes.length) { showStatus('لا توجد أشكال محللة.', 'err'); return; }
 
+  function buildMarkdownAndSelected() {
+    var title = ($('outTitle').value || '').trim();
+    if (!title) { showStatus('أدخل اسم المنتج.', 'err'); return null; }
+    if (!shapes.length) { showStatus('لا توجد أشكال محللة.', 'err'); return null; }
     var category = $('outCategory').value || 'ملابس شتوية';
     var price = Number($('outPrice').value) || 0;
     var oldRaw = ($('outOldPrice').value || '').trim();
     var oldPrice = oldRaw === '' ? null : Number(oldRaw);
     var body = ($('outBody').value || '').trim();
+    // إزالة أي أسعار متبقية من الوصف
+    body = body.split(/\r?\n/).filter(function (l) {
+      return !/(?:السعر|سعر)\s*:?\s*\d/i.test(l) && !/^\d{2,6}\s*(جنيه|ج)/i.test(l);
+    }).join('\n').trim();
     var stamp = Date.now();
     var slug = slugify(title);
-
-    // One selected image per shape → product images
     var selected = shapes.map(function (sh, i) {
       var img = sh.images.find(function (x) { return x.id === sh.selectedId; }) || sh.images[0];
-      return { img: img, path: '/images/products/' + slug + '-' + stamp + '-s' + (i + 1) + '.webp' };
+      var ext = 'jpg';
+      if (img && img.name && img.name.indexOf('.') !== -1) {
+        var e = img.name.split('.').pop().toLowerCase();
+        if (['jpg','jpeg','png','webp'].indexOf(e) !== -1) ext = e === 'jpeg' ? 'jpg' : e;
+      }
+      var path = 'images/products/' + slug + '-' + stamp + '-s' + (i + 1) + '.' + ext;
+      return { img: img, path: path, pathAbs: '/' + path };
     }).filter(function (x) { return x.img; });
 
-    // variants from sizes textarea
     var variants = [];
     ($('outSizes').value || '').split(/\r?\n/).forEach(function (line) {
       line = line.trim();
@@ -885,17 +894,14 @@
       });
     });
     if (!variants.length) {
-      variants.push({
-        size: 'مقاس موحد', color: '', pants_length: '', tshirt_length: '', tshirt_width: '',
-        extra_piece: '', price: null, quantity: null, status: 'available'
-      });
+      variants.push({ size: 'مقاس موحد', color: '', pants_length: '', tshirt_length: '', tshirt_width: '', extra_piece: '', price: null, quantity: null, status: 'available' });
     }
 
     var md = '---\n';
     md += 'title: ' + yamlQuote(title) + '\n';
     md += 'category: ' + yamlQuote(category) + '\n';
     md += 'images:\n';
-    selected.forEach(function (s) { md += '  - ' + s.path + '\n'; });
+    selected.forEach(function (s) { md += '  - ' + s.pathAbs + '\n'; });
     md += 'price: ' + price + '\n';
     if (oldPrice != null && !isNaN(oldPrice)) md += 'oldPrice: ' + oldPrice + '\n';
     md += 'stock: available\n';
@@ -912,34 +918,92 @@
       md += '    status: available\n';
     });
     md += '---\n\n' + body + '\n';
+    return { title: title, slug: slug, md: md, selected: selected };
+  }
 
-    var blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+  /** بعد التصدير: امسح كل الصور غير المختارة من الذاكرة */
+  function purgeUnselectedImages(selectedIds) {
+    var keep = {};
+    (selectedIds || []).forEach(function (id) { keep[id] = true; });
+    shapes.forEach(function (sh) {
+      sh.images = sh.images.filter(function (im) { return keep[im.id]; });
+    });
+    shapes = shapes.filter(function (sh) { return sh.images.length > 0; });
+    rawImages = rawImages.filter(function (im) { return keep[im.id]; });
+    renderRawAlbum();
+    renderShapes();
+  }
+
+  window.exportToSveltia = async function () {
+    var built = buildMarkdownAndSelected();
+    if (!built) return;
+    var s = getSettings();
+    if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker أولًا.', 'err'); return; }
+    showStatus('جاري الرفع إلى GitHub / Sveltia (الصور المختارة فقط)...', '');
+    var payloadImages = built.selected.map(function (s) {
+      return { path: s.path, base64: s.img.dataUrl };
+    });
+    try {
+      var r = await fetch(s.workerUrl + '/export-product', {
+        method: 'POST',
+        headers: Object.assign(
+          { 'Content-Type': 'application/json' },
+          s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
+        ),
+        body: JSON.stringify({
+          title: built.title,
+          slug: built.slug,
+          markdown: built.md,
+          images: payloadImages
+        })
+      });
+      var data = await r.json().catch(function () { return {}; });
+      if (!r.ok || !data.ok) {
+        showStatus(data.error || ('فشل التصدير: ' + r.status), 'err');
+        return;
+      }
+      var selIds = built.selected.map(function (x) { return x.img.id; });
+      purgeUnselectedImages(selIds);
+      $('exportHint').innerHTML =
+        '✅ تم رفع المنتج إلى Sveltia: <b>' + (data.mdPath || built.slug) + '</b><br>' +
+        'الصور غير المختارة اتمسحت من المسودة.<br>' +
+        '<a class="link" href="' + (data.adminUrl || '../admin/') + '" target="_blank">فتح إدارة المنتجات</a>';
+      showStatus('تم التصدير لـ Sveltia بنجاح.', 'ok');
+      if (data.adminUrl) {
+        try { window.open(data.adminUrl, '_blank'); } catch (e) {}
+      }
+    } catch (e) {
+      showStatus('فشل التصدير: ' + (e.message || e), 'err');
+    }
+  };
+
+  window.exportProductMd = function () {
+    var built = buildMarkdownAndSelected();
+    if (!built) return;
+    var blob = new Blob([built.md], { type: 'text/markdown;charset=utf-8' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = slug + '.md';
+    a.download = built.slug + '.md';
     document.body.appendChild(a);
     a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
-
-    selected.forEach(function (s, i) {
+    built.selected.forEach(function (s, i) {
       try {
         var link = document.createElement('a');
         link.href = s.img.dataUrl;
-        var ext = 'jpg';
-        if (s.img.name && s.img.name.indexOf('.') !== -1) {
-          ext = s.img.name.split('.').pop().toLowerCase() || 'jpg';
-        }
-        link.download = slug + '-' + stamp + '-s' + (i + 1) + '.' + ext;
+        var fname = s.path.split('/').pop();
+        link.download = fname;
         document.body.appendChild(link);
         link.click();
         setTimeout(function () { link.remove(); }, 200 + i * 120);
       } catch (e) {}
     });
-
+    var selIds = built.selected.map(function (x) { return x.img.id; });
+    purgeUnselectedImages(selIds);
     $('exportHint').innerHTML =
-      '✅ تم تنزيل <b>' + slug + '.md</b> + صورة واحدة لكل شكل.<br>' +
-      'ارفع الصور في Sveltia إلى <b>images/products</b> ثم راجع المنتج وانشر.';
-    showStatus('تم التصدير — منتج واحد بصور الأشكال المختارة.', 'ok');
+      '✅ نسخة احتياطية: <b>' + built.slug + '.md</b> + الصور المختارة فقط.<br>' +
+      'الصور غير المختارة اتمسحت من المسودة.';
+    showStatus('تم تنزيل النسخة الاحتياطية ومسح غير المختار.', 'ok');
   };
 
   // Telegram fetch via worker
@@ -948,8 +1012,8 @@
     var ch = ($('tgChannel').value || '').trim();
     if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker من تبويب الإعدادات.', 'err'); return; }
     if (!ch) { showStatus('أدخل القناة.', 'err'); return; }
-    var limit = Number($('tgLimit').value) || 15;
-    showStatus('جاري الجلب من تيليجرام...', '');
+    var hours = Number($('tgHours').value) || 6;
+    showStatus('جاري جلب منشورات آخر ' + hours + ' ساعة (بدون استيكرات)...', '');
     $('btnFetchTg').disabled = true;
     try {
       var r = await fetch(s.workerUrl + '/fetch', {
@@ -958,7 +1022,7 @@
           { 'Content-Type': 'application/json' },
           s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
         ),
-        body: JSON.stringify({ channel: ch, limit: limit })
+        body: JSON.stringify({ channel: ch, hours: hours, limit: 200 })
       });
       var data = await r.json().catch(function () { return {}; });
       if (!r.ok) {
