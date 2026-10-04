@@ -127,7 +127,7 @@
         <input type="text" id="tgChannel" placeholder="@factory_channel أو رابط t.me/...">
         <label>آخر كام ساعة؟ (الجلب بالوقت — مش بعدد المنشورات)</label>
         <input type="number" id="tgHours" value="6" min="1" max="168" placeholder="مثلاً 6">
-        <p class="hint" style="margin-bottom:8px;">مثال: 6 = منشورات آخر 6 ساعات فقط. الحد الأقصى 168 ساعة (أسبوع).</p>
+        <p class="hint" style="margin-bottom:8px;">مثال: 6 = كل منشورات آخر 6 ساعات، سواء 10 أو 100 أو أكثر. الحد الأقصى 168 ساعة (أسبوع).</p>
         <div class="btns">
           <button type="button" class="btn" id="btnFetchTg" onclick="fetchFromTelegram()">⬇️ جلب منشورات آخر الفترة وتحليلها</button>
         </div>
@@ -183,7 +183,7 @@
     <!-- ===== نتيجة التحليل ===== -->
     <div class="card" id="reviewCard" style="display:none;">
       <h2>③ مراجعة الأشكال والصورة المختارة لكل شكل</h2>
-      <p class="hint" style="margin-bottom:10px;">اضغط صورة بديلة داخل الشكل لو حابب تغيّر الاختيار. كل الأشكال تتجمع في <b>منتج واحد</b>.</p>
+      <p class="hint" style="margin-bottom:10px;">اضغط صورة بديلة داخل الشكل لو حابب تغيّر الاختيار. الصور تُجمع حسب كودها عند توفره، وكل الأشكال تتجمع في <b>منتج واحد</b>.</p>
       <div class="shapes" id="shapesBox"></div>
 
       <div style="margin-top:16px;">
@@ -229,7 +229,6 @@
 
         <div class="btns">
           <button type="button" class="btn ok" onclick="exportToSveltia()">🚀 تصدير إلى إدارة المنتجات (Sveltia)</button>
-          <button type="button" class="btn secondary" onclick="exportProductMd()">⬇️ نسخ احتياطي .md</button>
           <button type="button" class="btn danger" onclick="discardCollection()">🗑️ حذف المسودة</button>
         </div>
         <p class="hint" id="exportHint"></p>
@@ -650,7 +649,9 @@
     var unnamed = [];
     productImgs.forEach(function (img) {
       var name = (img.name || '').toLowerCase();
-      var hit = name.match(/(mint|black|grey|gray|navy|beige|white|red|blue|green|pink|future|italia|live|focus|uni\d+f\d+[-_]?[a-z0-9]+)/i);
+      var hit = name.match(/code[-_]([a-z0-9_-]{2,20})/i)
+        || name.match(/([a-z]{1,5}[-_]?\d{2,7}[a-z0-9_-]*|\d{3,7}[a-z]{1,3})/i)
+        || name.match(/(mint|black|grey|gray|navy|beige|white|red|blue|green|pink|future|italia|live|focus|uni\d+f\d+[-_]?[a-z0-9]+)/i);
       if (hit) {
         var key = hit[1].toLowerCase();
         if (!named[key]) { named[key] = []; namedOrder.push(key); }
@@ -1022,7 +1023,7 @@
           { 'Content-Type': 'application/json' },
           s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
         ),
-        body: JSON.stringify({ channel: ch, hours: hours, limit: 200 })
+        body: JSON.stringify({ channel: ch, hours: hours })
       });
       var data = await r.json().catch(function () { return {}; });
       if (!r.ok) {
@@ -1042,7 +1043,7 @@
         for (var j = 0; j < imgs.length; j++) {
           var src = imgs[j];
           if (typeof src === 'string' && src.indexOf('data:') === 0) {
-            rawImages.push({ id: idSeq++, dataUrl: src, name: 'tg-' + p + '-' + j + '.jpg' });
+            rawImages.push({ id: idSeq++, dataUrl: src, name: (posts[p].imageNames && posts[p].imageNames[j]) || ('tg-' + p + '-' + j + '.jpg') });
           } else if (typeof src === 'string') {
             // try fetch image as blob via worker proxy if needed
             try {
@@ -1057,7 +1058,7 @@
                   fr.onerror = rej;
                   fr.readAsDataURL(blob);
                 });
-                rawImages.push({ id: idSeq++, dataUrl: dataUrl, name: 'tg-' + p + '-' + j + '.jpg' });
+                rawImages.push({ id: idSeq++, dataUrl: dataUrl, name: (posts[p].imageNames && posts[p].imageNames[j]) || ('tg-' + p + '-' + j + '.jpg') });
               }
             } catch (e) {}
           }
@@ -1069,7 +1070,7 @@
       renderRawAlbum();
       if (rawImages.length) {
         runAnalyze();
-        showStatus('تم جلب ' + posts.length + ' منشور و ' + rawImages.length + ' صورة وتم التحليل. راجع ثم صدّر أو احذف.', 'ok');
+        showStatus('تم جلب ' + posts.length + ' منشور و ' + rawImages.length + ' صورة داخل الفترة المحددة، بدون حد عددي. راجع ثم صدّر أو احذف.', 'ok');
       } else {
         showStatus('تم جلب المنشورات لكن بدون صور قابلة للتحميل. راجع إعدادات الـ Worker.', 'err');
       }
