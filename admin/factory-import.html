@@ -125,14 +125,48 @@
         <h2>جلب من تيليجرام عبر الـ Worker</h2>
         <label>رابط القناة أو @username</label>
         <input type="text" id="tgChannel" placeholder="@factory_channel أو رابط t.me/...">
-        <label>آخر كام ساعة؟ (الجلب بالوقت — مش بعدد المنشورات)</label>
-        <input type="number" id="tgHours" value="6" min="1" max="168" placeholder="مثلاً 6">
-        <p class="hint" style="margin-bottom:8px;">مثال: 6 = منشورات آخر 6 ساعات فقط. الحد الأقصى 168 ساعة (أسبوع).</p>
+        <label>طريقة السحب</label>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:8px 0 12px;">
+          <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
+            <input type="radio" name="tgFetchMode" id="tgModeLimit" value="limit" checked onchange="toggleTgFetchMode()">
+            <span>📌 عدد المنشورات</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
+            <input type="radio" name="tgFetchMode" id="tgModeHours" value="hours" onchange="toggleTgFetchMode()">
+            <span>⏱️ حسب الساعات</span>
+          </label>
+        </div>
+
+        <div id="tgLimitBox">
+          <label>عدد آخر منشورات للتحليل</label>
+          <select id="tgLimit">
+            <option value="10">آخر 10 منشورات</option>
+            <option value="15" selected>آخر 15 منشور</option>
+            <option value="20">آخر 20 منشور</option>
+            <option value="30">آخر 30 منشور</option>
+            <option value="50">آخر 50 منشور</option>
+          </select>
+        </div>
+
+        <div id="tgHoursBox" style="display:none;">
+          <label>السحب خلال آخر</label>
+          <select id="tgHours">
+            <option value="1">ساعة واحدة</option>
+            <option value="3">3 ساعات</option>
+            <option value="6" selected>6 ساعات</option>
+            <option value="12">12 ساعة</option>
+            <option value="24">24 ساعة</option>
+            <option value="48">48 ساعة</option>
+            <option value="72">72 ساعة</option>
+          </select>
+          <p class="hint" style="margin-top:6px;">سيتم جلب آخر 50 منشورًا ثم الاحتفاظ بالمنشورات الواقعة داخل الفترة الزمنية المحددة.</p>
+        </div>
+
         <div class="btns">
-          <button type="button" class="btn" id="btnFetchTg" onclick="fetchFromTelegram()">⬇️ جلب منشورات آخر الفترة وتحليلها</button>
+          <button type="button" class="btn" id="btnFetchTg" onclick="fetchFromTelegram()">⬇️ جلب المنشورات وتحليلها</button>
         </div>
         <p class="hint">
-          المسار الأساسي عبر حسابك. الاستيكرات تُستبعد تلقائيًا. الترتيب يفضّل أكواد المنتج على الصور عند توفرها.
+          هذا المسار الأساسي. بعد ضبط الـ Worker وتسجيل دخول حسابك مرة واحدة، المنشورات والصور تتجاب هنا تلقائيًا ثم تراجع وتصدّر أو تحذف.
         </p>
         <div id="tgPostsList" style="margin-top:12px;"></div>
       </div>
@@ -172,10 +206,11 @@
         <div class="btns">
           <button type="button" class="btn secondary" onclick="saveSettings()">💾 حفظ الإعدادات محليًا</button>
           <button type="button" class="btn ghost" onclick="testWorker()">اختبار الاتصال</button>
+          <button type="button" class="btn ghost" onclick="testTelegramStatus()">📱 فحص Telegram</button>
         </div>
         <p class="hint">
-          الإعدادات تُحفظ في المتصفح فقط. لل تصدير المباشر لـ Sveltia أضف على الـ Worker Secrets:
-          <b>GITHUB_TOKEN</b> (صلاحية repo) ويفضّل <b>GITHUB_REPO</b>=souq-elektroni/My-Souq.github.io
+          الإعدادات تُحفظ في المتصفح (localStorage) فقط على جهازك.
+          خطوات تيليجرام: ضع رابط الـ Worker وADMIN_KEY ثم استخدم «📱 فحص Telegram» للتأكد أن جلسة Telegram المحفوظة في KV تعمل.
         </p>
       </div>
     </div>
@@ -228,19 +263,17 @@
         <p class="hint">المقاسات كما في المنشور: حرفي (S–6XL) أو بالسنة (1 سنة…20 سنة) أو بالشهر (3M…24M). يطابق variants في Sveltia.</p>
 
         <div class="btns">
-          <button type="button" class="btn ok" onclick="exportToSveltia()">🚀 تصدير إلى إدارة المنتجات (Sveltia)</button>
-          <button type="button" class="btn secondary" onclick="exportProductMd()">⬇️ نسخ احتياطي .md</button>
+          <button type="button" class="btn ok" onclick="exportProductMd()">⬇️ تصدير منتج واحد (.md)</button>
           <button type="button" class="btn danger" onclick="discardCollection()">🗑️ حذف المسودة</button>
         </div>
         <p class="hint" id="exportHint"></p>
-        <p class="hint">عند التصدير لـ Sveltia: تُرفع الصور المختارة فقط + ملف المنتج. الصور غير المختارة تُمسح من المسودة ولا تُحفظ. يحتاج GITHUB_TOKEN على الـ Worker.</p>
+        <p class="hint">عجبك التحليل؟ صدّر. مش عاجبك؟ احذف المسودة وابدأ كوليكشن تاني — مفيش حاجة بتتحذف من Sveltia أو المتجر.</p>
       </div>
     </div>
 
     <footer>My Souq — استيراد المصنع · للإدارة فقط</footer>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script>
 (function () {
   var SETTINGS_KEY = 'mysouq_factory_import_settings';
@@ -304,6 +337,29 @@
       else showStatus('الـ Worker رد بحالة ' + r.status, 'err');
     } catch (e) {
       showStatus('تعذر الاتصال: ' + (e.message || e), 'err');
+    }
+  };
+  // فحص حالة تسجيل Telegram مع إرسال ADMIN_KEY من الصفحة
+  window.testTelegramStatus = async function () {
+    var s = getSettings();
+    if (!s.workerUrl) { showStatus('أدخل رابط الـ Worker أولًا.', 'err'); return; }
+    try {
+      showStatus('جاري فحص حالة Telegram...', '');
+      var r = await fetch(s.workerUrl + '/telegram-status', {
+        method: 'GET',
+        headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
+      });
+      var j = await r.json().catch(function () { return {}; });
+      if (r.ok && j.authorized) {
+        var a = j.account || {};
+        var name = [a.firstName || '', a.lastName || ''].join(' ').trim();
+        var username = a.username ? ' @' + a.username : '';
+        showStatus('Telegram متصل بنجاح ✅' + (name ? ' — ' + name : '') + username, 'ok');
+      } else {
+        showStatus(j.error || ('فشل فحص Telegram — HTTP ' + r.status), 'err');
+      }
+    } catch (e) {
+      showStatus('تعذر فحص Telegram: ' + (e.message || e), 'err');
     }
   };
   loadSettings();
@@ -624,108 +680,10 @@
   }
 
   /**
-   * قراءة كود الشكل المطبوع داخل الصورة باستخدام OCR (Tesseract.js).
-   * عند تعذر القراءة نترك الصورة للتجميع البصري الاحتياطي.
-   */
-  var ocrWorkerPromise = null;
-  async function getOcrWorker() {
-    if (!window.Tesseract) throw new Error('مكتبة قراءة الأكواد OCR لم يتم تحميلها');
-    if (!ocrWorkerPromise) {
-      ocrWorkerPromise = window.Tesseract.createWorker('eng').then(async function (worker) {
-        await worker.setParameters({
-          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_/ ',
-          tessedit_pageseg_mode: window.Tesseract.PSM ? window.Tesseract.PSM.SPARSE_TEXT : '11'
-        });
-        return worker;
-      });
-    }
-    return ocrWorkerPromise;
-  }
-
-  /** استخراج كل الأكواد الكاملة من نص OCR؛ لا نقتطع الكود ولا نحوله إلى جزء. */
-  function findPrintedShapeCodes(text) {
-    var source = String(text || '').replace(/[|]/g, 'I').replace(/[–—]/g, '-');
-    // نمط أكواد المصنع مثل Uni0008f4-black مع الاحتفاظ بالشرطة واللاحقة كاملة.
-    var matches = source.match(/\b[A-Z]{2,10}\d{2,12}[A-Z0-9]*(?:-[A-Z0-9]{2,16})+\b/gi) || [];
-    var out = [], seen = {};
-    matches.forEach(function (raw) {
-      var code = raw.trim();
-      var key = code.toUpperCase();
-      // لا نقبل مقاسات أو كلمات عامة، ولا نقبل شظايا قصيرة.
-      if (code.length < 8 || !/[A-Z]/i.test(code) || !/\d/.test(code) || key.indexOf('-') < 0) return;
-      if (!seen[key]) { seen[key] = true; out.push(code); }
-    });
-    return out;
-  }
-
-  function makeOcrVariants(dataUrl) {
-    return new Promise(function (resolve) {
-      var img = new Image();
-      img.onload = function () {
-        try {
-          var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
-          var full = document.createElement('canvas');
-          full.width = Math.min(w * 2, 2600); full.height = Math.round(h * (full.width / w));
-          var fc = full.getContext('2d');
-          fc.imageSmoothingEnabled = true; fc.imageSmoothingQuality = 'high';
-          fc.drawImage(img, 0, 0, full.width, full.height);
-          var variants = [full.toDataURL('image/png')];
-          // الأكواد في صور المصنع غالبًا أعلى اليمين أو أسفل اليمين؛ نفحص المنطقتين مكبّرتين أيضًا.
-          [[0.48,0,0.52,0.34],[0.48,0.66,0.52,0.34]].forEach(function (r) {
-            var c = document.createElement('canvas');
-            c.width = Math.max(900, Math.round(w * r[2] * 2));
-            c.height = Math.max(220, Math.round(h * r[3] * 2));
-            c.getContext('2d').drawImage(img, Math.round(w*r[0]), Math.round(h*r[1]), Math.round(w*r[2]), Math.round(h*r[3]), 0, 0, c.width, c.height);
-            variants.push(c.toDataURL('image/png'));
-          });
-          resolve(variants);
-        } catch (e) { resolve([dataUrl]); }
-      };
-      img.onerror = function () { resolve([dataUrl]); };
-      img.src = dataUrl;
-    });
-  }
-
-  async function readPrintedCodes(images) {
-    var found = 0;
-    var worker;
-    try { worker = await getOcrWorker(); }
-    catch (e) {
-      showStatus('تعذر تشغيل OCR؛ سيتم التجميع بصريًا كحل احتياطي. ' + (e.message || ''), '');
-      return 0;
-    }
-    for (var i = 0; i < images.length; i++) {
-      var img = images[i];
-      try {
-        showStatus('قراءة جميع أكواد الشكل المطبوعة داخل الصور… ' + (i + 1) + ' من ' + images.length, '');
-        var variants = await makeOcrVariants(img.dataUrl);
-        var allCodes = [], seen = {};
-        for (var v = 0; v < variants.length; v++) {
-          var result = await worker.recognize(variants[v]);
-          var confidence = result && result.data ? Number(result.data.confidence || 0) : 0;
-          if (confidence < 12) continue;
-          findPrintedShapeCodes(result.data.text || '').forEach(function (code) {
-            var key = code.toUpperCase();
-            if (!seen[key]) { seen[key] = true; allCodes.push(code); }
-          });
-        }
-        if (allCodes.length) {
-          img._printedCodes = allCodes;
-          // توافق مع أي أجزاء قديمة تقرأ الخاصية المفردة، دون استخدامها في التقسيم.
-          img._printedCode = allCodes[0];
-          found++;
-        }
-      } catch (e) {
-        // صورة تالفة/صيغة غير مدعومة: لا نوقف بقية الصور.
-      }
-    }
-    return found;
-  }
-
-  /**
-   * كل صورة قد تحمل عدة أكواد. نربط الصور التي تشترك في أي كود داخل
-   * مكوّن واحد، ثم نعرض قائمة الأكواد الكاملة على حقل الشكل نفسه.
-   * الصور غير المقروءة تظل في التجميع البصري الاحتياطي.
+   * تجميع الأشكال:
+   * 1) استبعاد الجداول
+   * 2) إن وُجد اسم ملف مميز يُستخدم
+   * 3) وإلا تجميع بالتشابه اللوني/البصري (كل شكل متشابه لوحده)
    */
   async function groupIntoShapes(images) {
     var split = await splitProductAndMetaImages(images);
@@ -733,56 +691,51 @@
     var metaImgs = split.meta;
     var shapesOut = [];
 
-    function pushShape(label, imgs, codes) {
+    function pushShape(label, imgs) {
       if (!imgs || !imgs.length) return;
       var selected = pickBestImage(imgs);
       shapesOut.push({
         id: shapesOut.length + 1,
         label: label,
         images: imgs.slice(),
-        codes: (codes || []).slice(),
         selectedId: selected ? selected.id : imgs[0].id
       });
     }
 
-    var detectedCodes = await readPrintedCodes(productImgs);
-    var coded = productImgs.filter(function (img) { return img._printedCodes && img._printedCodes.length; });
-    var uncoded = productImgs.filter(function (img) { return !img._printedCodes || !img._printedCodes.length; });
-    var parent = coded.map(function (_, i) { return i; });
-    function root(i) { while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i]; } return i; }
-    function join(a, b) { var ra = root(a), rb = root(b); if (ra !== rb) parent[rb] = ra; }
-    var codeOwner = {};
-    coded.forEach(function (img, i) {
-      img._printedCodes.forEach(function (code) {
-        var key = code.toUpperCase();
-        if (codeOwner[key] !== undefined) join(i, codeOwner[key]);
-        else codeOwner[key] = i;
-      });
-    });
-    var components = {};
-    coded.forEach(function (img, i) {
-      var r = root(i);
-      if (!components[r]) components[r] = { images: [], codes: [], seen: {} };
-      var comp = components[r];
-      comp.images.push(img);
-      img._printedCodes.forEach(function (code) {
-        var key = code.toUpperCase();
-        if (!comp.seen[key]) { comp.seen[key] = true; comp.codes.push(code); }
-      });
-    });
-    Object.keys(components).sort(function (a,b) { return Number(a)-Number(b); }).forEach(function (k) {
-      var comp = components[k];
-      var label = 'شكل ' + (shapesOut.length + 1) + ' — ' + comp.codes.join(' + ');
-      pushShape(label, comp.images, comp.codes);
+    var named = {};
+    var namedOrder = [];
+    var unnamed = [];
+    productImgs.forEach(function (img) {
+      var name = (img.name || '').toLowerCase();
+      var hit = name.match(/(mint|black|grey|gray|navy|beige|white|red|blue|green|pink|future|italia|live|focus|uni\d+f\d+[-_]?[a-z0-9]+)/i);
+      if (hit) {
+        var key = hit[1].toLowerCase();
+        if (!named[key]) { named[key] = []; namedOrder.push(key); }
+        named[key].push(img);
+      } else {
+        unnamed.push(img);
+      }
     });
 
-    if (uncoded.length) {
-      var clusters = clusterByAppearance(uncoded);
-      clusters.forEach(function (cl) {
-        pushShape('شكل ' + (shapesOut.length + 1) + ' (لم يُقرأ الكود)', cl, []);
+    if (namedOrder.length >= 2) {
+      namedOrder.forEach(function (k, i) {
+        pushShape('شكل ' + (i + 1) + ' (' + k + ')', named[k]);
+      });
+      if (unnamed.length) {
+        var clustersNamed = clusterByAppearance(unnamed);
+        clustersNamed.forEach(function (cl) {
+          pushShape('شكل ' + (shapesOut.length + 1), cl);
+        });
+      }
+    } else {
+      // التجميع البصري: صور نفس اللون/الخامة أقرب لبعض
+      var clusters = clusterByAppearance(productImgs);
+      clusters.forEach(function (cl, idx) {
+        pushShape('شكل ' + (idx + 1), cl);
       });
     }
-    return { shapes: shapesOut, metaImages: metaImgs, detectedCodes: detectedCodes || 0, uncodedImages: uncoded.length };
+
+    return { shapes: shapesOut, metaImages: metaImgs };
   }
 
   /** اختيار صورة منتج واضحة — يتجنب الموديل واللوجو قدر الإمكان */
@@ -821,8 +774,7 @@
       }).join('');
       return (
         '<div class="shape-card" style="border:2px solid var(--primary);">' +
-          '<h3>' + sh.label + ' — حقل شكل واحد · اختر صورة المنتج الواضحة</h3>' +
-          (sh.codes && sh.codes.length ? '<div class="shape-meta">الأكواد الكاملة لهذا الشكل: ' + sh.codes.join(' ، ') + '</div>' : '') +
+          '<h3>' + sh.label + ' — مصفوفة مستقلة · اختر صورة المنتج الواضحة</h3>' +
           '<div class="shape-imgs">' + imgs + '</div>' +
           '<div class="shape-meta">' + sh.images.length + ' صور في هذا الشكل فقط · إطار بنفسجي = المختارة · × = استبعاد (جدول/غلط)</div>' +
         '</div>'
@@ -908,7 +860,7 @@
     // لا نفترض M–6XL — لو المنشور ما فيهوش مقاسات، الجدول يفضل فاضي للتعديل اليدوي
     $('outSizes').value = sizeLines.join('\n');
     $('reviewCard').style.display = 'block';
-    showStatus('تم تجميع ' + shapes.length + ' أشكال. أكواد مطبوعة تم التعرف عليها في ' + (grouped.detectedCodes || 0) + ' صورة، وصور بدون كود مقروء: ' + (grouped.uncodedImages || 0) + metaNote + '. راجع الأكواد والتجميع يدويًا قبل التصدير.', 'ok');
+    showStatus('كل شكل في مصفوفة لوحده (' + shapes.length + ' أشكال)' + metaNote + '. راجع · استبعد الغلط بـ × · صدّر أو احذف.', 'ok');
     $('reviewCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -953,33 +905,26 @@
     showStatus('تم حذف المسودة. جاهز لكوليكشن جديد.', 'ok');
   };
 
-
-  function buildMarkdownAndSelected() {
+  window.exportProductMd = function () {
     var title = ($('outTitle').value || '').trim();
-    if (!title) { showStatus('أدخل اسم المنتج.', 'err'); return null; }
-    if (!shapes.length) { showStatus('لا توجد أشكال محللة.', 'err'); return null; }
+    if (!title) { showStatus('أدخل اسم المنتج.', 'err'); return; }
+    if (!shapes.length) { showStatus('لا توجد أشكال محللة.', 'err'); return; }
+
     var category = $('outCategory').value || 'ملابس شتوية';
     var price = Number($('outPrice').value) || 0;
     var oldRaw = ($('outOldPrice').value || '').trim();
     var oldPrice = oldRaw === '' ? null : Number(oldRaw);
     var body = ($('outBody').value || '').trim();
-    // إزالة أي أسعار متبقية من الوصف
-    body = body.split(/\r?\n/).filter(function (l) {
-      return !/(?:السعر|سعر)\s*:?\s*\d/i.test(l) && !/^\d{2,6}\s*(جنيه|ج)/i.test(l);
-    }).join('\n').trim();
     var stamp = Date.now();
     var slug = slugify(title);
+
+    // One selected image per shape → product images
     var selected = shapes.map(function (sh, i) {
       var img = sh.images.find(function (x) { return x.id === sh.selectedId; }) || sh.images[0];
-      var ext = 'jpg';
-      if (img && img.name && img.name.indexOf('.') !== -1) {
-        var e = img.name.split('.').pop().toLowerCase();
-        if (['jpg','jpeg','png','webp'].indexOf(e) !== -1) ext = e === 'jpeg' ? 'jpg' : e;
-      }
-      var path = 'images/products/' + slug + '-' + stamp + '-s' + (i + 1) + '.' + ext;
-      return { img: img, path: path, pathAbs: '/' + path };
+      return { img: img, path: '/images/products/' + slug + '-' + stamp + '-s' + (i + 1) + '.webp' };
     }).filter(function (x) { return x.img; });
 
+    // variants from sizes textarea
     var variants = [];
     ($('outSizes').value || '').split(/\r?\n/).forEach(function (line) {
       line = line.trim();
@@ -999,21 +944,17 @@
       });
     });
     if (!variants.length) {
-      variants.push({ size: 'مقاس موحد', color: '', pants_length: '', tshirt_length: '', tshirt_width: '', extra_piece: '', price: null, quantity: null, status: 'available' });
+      variants.push({
+        size: 'مقاس موحد', color: '', pants_length: '', tshirt_length: '', tshirt_width: '',
+        extra_piece: '', price: null, quantity: null, status: 'available'
+      });
     }
 
     var md = '---\n';
     md += 'title: ' + yamlQuote(title) + '\n';
     md += 'category: ' + yamlQuote(category) + '\n';
     md += 'images:\n';
-    selected.forEach(function (s) { md += '  - ' + s.pathAbs + '\n'; });
-    md += 'shapeCodes:\n';
-    shapes.forEach(function (sh, i) {
-      md += '  - shape: ' + (i + 1) + '\n';
-      md += '    codes:\n';
-      if (sh.codes && sh.codes.length) sh.codes.forEach(function (code) { md += '      - ' + yamlQuote(code) + '\n'; });
-      else md += '      - ' + yamlQuote('غير مقروء') + '\n';
-    });
+    selected.forEach(function (s) { md += '  - ' + s.path + '\n'; });
     md += 'price: ' + price + '\n';
     if (oldPrice != null && !isNaN(oldPrice)) md += 'oldPrice: ' + oldPrice + '\n';
     md += 'stock: available\n';
@@ -1030,92 +971,40 @@
       md += '    status: available\n';
     });
     md += '---\n\n' + body + '\n';
-    return { title: title, slug: slug, md: md, selected: selected };
-  }
 
-  /** بعد التصدير: امسح كل الصور غير المختارة من الذاكرة */
-  function purgeUnselectedImages(selectedIds) {
-    var keep = {};
-    (selectedIds || []).forEach(function (id) { keep[id] = true; });
-    shapes.forEach(function (sh) {
-      sh.images = sh.images.filter(function (im) { return keep[im.id]; });
-    });
-    shapes = shapes.filter(function (sh) { return sh.images.length > 0; });
-    rawImages = rawImages.filter(function (im) { return keep[im.id]; });
-    renderRawAlbum();
-    renderShapes();
-  }
-
-  window.exportToSveltia = async function () {
-    var built = buildMarkdownAndSelected();
-    if (!built) return;
-    var s = getSettings();
-    if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker أولًا.', 'err'); return; }
-    showStatus('جاري الرفع إلى GitHub / Sveltia (الصور المختارة فقط)...', '');
-    var payloadImages = built.selected.map(function (s) {
-      return { path: s.path, base64: s.img.dataUrl };
-    });
-    try {
-      var r = await fetch(s.workerUrl + '/export-product', {
-        method: 'POST',
-        headers: Object.assign(
-          { 'Content-Type': 'application/json' },
-          s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
-        ),
-        body: JSON.stringify({
-          title: built.title,
-          slug: built.slug,
-          markdown: built.md,
-          images: payloadImages
-        })
-      });
-      var data = await r.json().catch(function () { return {}; });
-      if (!r.ok || !data.ok) {
-        showStatus(data.error || ('فشل التصدير: ' + r.status), 'err');
-        return;
-      }
-      var selIds = built.selected.map(function (x) { return x.img.id; });
-      purgeUnselectedImages(selIds);
-      $('exportHint').innerHTML =
-        '✅ تم رفع المنتج إلى Sveltia: <b>' + (data.mdPath || built.slug) + '</b><br>' +
-        'الصور غير المختارة اتمسحت من المسودة.<br>' +
-        '<a class="link" href="' + (data.adminUrl || '../admin/') + '" target="_blank">فتح إدارة المنتجات</a>';
-      showStatus('تم التصدير لـ Sveltia بنجاح.', 'ok');
-      if (data.adminUrl) {
-        try { window.open(data.adminUrl, '_blank'); } catch (e) {}
-      }
-    } catch (e) {
-      showStatus('فشل التصدير: ' + (e.message || e), 'err');
-    }
-  };
-
-  window.exportProductMd = function () {
-    var built = buildMarkdownAndSelected();
-    if (!built) return;
-    var blob = new Blob([built.md], { type: 'text/markdown;charset=utf-8' });
+    var blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = built.slug + '.md';
+    a.download = slug + '.md';
     document.body.appendChild(a);
     a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
-    built.selected.forEach(function (s, i) {
+
+    selected.forEach(function (s, i) {
       try {
         var link = document.createElement('a');
         link.href = s.img.dataUrl;
-        var fname = s.path.split('/').pop();
-        link.download = fname;
+        var ext = 'jpg';
+        if (s.img.name && s.img.name.indexOf('.') !== -1) {
+          ext = s.img.name.split('.').pop().toLowerCase() || 'jpg';
+        }
+        link.download = slug + '-' + stamp + '-s' + (i + 1) + '.' + ext;
         document.body.appendChild(link);
         link.click();
         setTimeout(function () { link.remove(); }, 200 + i * 120);
       } catch (e) {}
     });
-    var selIds = built.selected.map(function (x) { return x.img.id; });
-    purgeUnselectedImages(selIds);
+
     $('exportHint').innerHTML =
-      '✅ نسخة احتياطية: <b>' + built.slug + '.md</b> + الصور المختارة فقط.<br>' +
-      'الصور غير المختارة اتمسحت من المسودة.';
-    showStatus('تم تنزيل النسخة الاحتياطية ومسح غير المختار.', 'ok');
+      '✅ تم تنزيل <b>' + slug + '.md</b> + صورة واحدة لكل شكل.<br>' +
+      'ارفع الصور في Sveltia إلى <b>images/products</b> ثم راجع المنتج وانشر.';
+    showStatus('تم التصدير — منتج واحد بصور الأشكال المختارة.', 'ok');
+  };
+
+  window.toggleTgFetchMode = function () {
+    var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'limit';
+    $('tgLimitBox').style.display = mode === 'limit' ? '' : 'none';
+    $('tgHoursBox').style.display = mode === 'hours' ? '' : 'none';
   };
 
   // Telegram fetch via worker
@@ -1124,8 +1013,10 @@
     var ch = ($('tgChannel').value || '').trim();
     if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker من تبويب الإعدادات.', 'err'); return; }
     if (!ch) { showStatus('أدخل القناة.', 'err'); return; }
-    var hours = Number($('tgHours').value) || 6;
-    showStatus('جاري جلب منشورات آخر ' + hours + ' ساعة (بدون استيكرات)...', '');
+    var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'limit';
+    var limit = mode === 'hours' ? 50 : (Number($('tgLimit').value) || 15);
+    var hours = mode === 'hours' ? (Number($('tgHours').value) || 6) : null;
+    showStatus(mode === 'hours' ? 'جاري جلب المنشورات ثم تصفية آخر ' + hours + ' ساعة...' : 'جاري الجلب من تيليجرام...', '');
     $('btnFetchTg').disabled = true;
     try {
       var r = await fetch(s.workerUrl + '/fetch', {
@@ -1134,64 +1025,119 @@
           { 'Content-Type': 'application/json' },
           s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
         ),
-        body: JSON.stringify({ channel: ch, hours: hours, limit: 200 })
+        body: JSON.stringify({ channel: ch, limit: Math.min(Math.max(limit, 1), 50) })
       });
       var data = await r.json().catch(function () { return {}; });
       if (!r.ok) {
         showStatus(data.error || ('خطأ ' + r.status + ' — تأكد من تسجيل دخول تيليجرام على الـ Worker'), 'err');
         return;
       }
-      // Expect { posts: [ { text, images: [url|base64] } ] }
-      var posts = data.posts || [];
+
+      // Worker يرجع items. نُبقي posts كـ fallback للتوافق.
+      var posts = data.items || data.posts || [];
       if (!posts.length) {
-        showStatus('لم يُرجع الـ Worker منشورات. أكمل إعداد الجلسة على الـ Worker.', 'err');
+        showStatus('لم يُرجع الـ Worker منشورات. تأكد أن حساب Telegram متصل وأن القناة صحيحة.', 'err');
         return;
       }
+
+      if (mode === 'hours') {
+        var cutoff = Date.now() - (hours * 60 * 60 * 1000);
+        posts = posts.filter(function (post) {
+          if (!post || !post.date) return false;
+          var t = new Date(post.date).getTime();
+          return Number.isFinite(t) && t >= cutoff;
+        });
+        if (!posts.length) {
+          showStatus('لم توجد منشورات خلال آخر ' + hours + ' ساعة.', 'err');
+          return;
+        }
+      }
+
       var texts = [];
+      var loadedImages = 0;
+      var failedImages = 0;
+
       for (var p = 0; p < posts.length; p++) {
-        if (posts[p].text) texts.push(posts[p].text);
-        var imgs = posts[p].images || [];
-        for (var j = 0; j < imgs.length; j++) {
-          var src = imgs[j];
-          if (typeof src === 'string' && src.indexOf('data:') === 0) {
-            rawImages.push({ id: idSeq++, dataUrl: src, name: 'tg-' + p + '-' + j + '.jpg' });
-          } else if (typeof src === 'string') {
-            // try fetch image as blob via worker proxy if needed
-            try {
-              var ir = await fetch(s.workerUrl + '/proxy-image?url=' + encodeURIComponent(src), {
-                headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
-              });
-              if (ir.ok) {
-                var blob = await ir.blob();
-                var dataUrl = await new Promise(function (res, rej) {
-                  var fr = new FileReader();
-                  fr.onload = function () { res(fr.result); };
-                  fr.onerror = rej;
-                  fr.readAsDataURL(blob);
-                });
-                rawImages.push({ id: idSeq++, dataUrl: dataUrl, name: 'tg-' + p + '-' + j + '.jpg' });
+        var post = posts[p] || {};
+        if (post.text) texts.push(post.text);
+
+        // النسخة القديمة إن وُجدت images تظل مدعومة.
+        var oldImgs = post.images || [];
+        for (var j = 0; j < oldImgs.length; j++) {
+          var oldSrc = oldImgs[j];
+          if (typeof oldSrc === 'string' && oldSrc.indexOf('data:') === 0) {
+            rawImages.push({
+              id: idSeq++,
+              dataUrl: oldSrc,
+              name: 'tg-' + (post.id || p) + '-' + j + '.jpg',
+              groupKey: post.groupedId || String(post.id || p)
+            });
+            loadedImages++;
+          }
+        }
+
+        // النسخة الجديدة: الـ Worker ينزّل صورة Telegram مباشرة.
+        if (post.hasMedia && post.id != null) {
+          try {
+            var mediaUrl = s.workerUrl + '/telegram-media?channel=' +
+              encodeURIComponent(ch) + '&messageId=' + encodeURIComponent(post.id);
+            var ir = await fetch(mediaUrl, {
+              headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
+            });
+            if (ir.ok) {
+              var blob = await ir.blob();
+              if (blob && blob.type && blob.type.indexOf('image/') !== 0) {
+                throw new Error('الميديا ليست صورة');
               }
-            } catch (e) {}
+              var dataUrl = await new Promise(function (res, rej) {
+                var fr = new FileReader();
+                fr.onload = function () { res(fr.result); };
+                fr.onerror = rej;
+                fr.readAsDataURL(blob);
+              });
+              var ext = (blob.type || 'image/jpeg').split('/')[1] || 'jpeg';
+              if (ext === 'jpeg') ext = 'jpg';
+              rawImages.push({
+                id: idSeq++,
+                dataUrl: dataUrl,
+                name: 'tg-' + post.id + '.' + ext,
+                groupKey: post.groupedId || String(post.id)
+              });
+              loadedImages++;
+            } else {
+              failedImages++;
+            }
+          } catch (e) {
+            failedImages++;
           }
         }
       }
+
       if (texts.length) {
         $('postText').value = texts.join('\n\n———\n\n');
       }
+
       renderRawAlbum();
-      if (rawImages.length) {
+      if (loadedImages) {
         runAnalyze();
-        showStatus('تم جلب ' + posts.length + ' منشور و ' + rawImages.length + ' صورة وتم التحليل. راجع ثم صدّر أو احذف.', 'ok');
+        showStatus(
+          'تم جلب ' + posts.length + ' منشور و ' + loadedImages + ' صورة وتم التحليل.' +
+          (failedImages ? ' تعذر تحميل ' + failedImages + ' ميديا.' : '') +
+          ' راجع ثم صدّر أو احذف.',
+          'ok'
+        );
       } else {
-        showStatus('تم جلب المنشورات لكن بدون صور قابلة للتحميل. راجع إعدادات الـ Worker.', 'err');
+        showStatus(
+          'تم جلب المنشورات لكن لم يتم تحميل صور. تأكد من جلسة Telegram وصلاحية القناة ثم جرّب مرة أخرى.',
+          'err'
+        );
       }
     } catch (e) {
       showStatus('فشل الجلب: ' + (e.message || e), 'err');
     } finally {
       $('btnFetchTg').disabled = false;
     }
-  };
-})();
+  }})();
   </script>
 </body>
 </html>
