@@ -127,7 +127,7 @@
         <input type="text" id="tgChannel" placeholder="@factory_channel أو رابط t.me/...">
         <label>آخر كام ساعة؟ (الجلب بالوقت — مش بعدد المنشورات)</label>
         <input type="number" id="tgHours" value="6" min="1" max="168" placeholder="مثلاً 6">
-        <p class="hint" style="margin-bottom:8px;">مثال: 6 = كل منشورات آخر 6 ساعات، سواء 10 أو 100 أو أكثر. الحد الأقصى 168 ساعة (أسبوع).</p>
+        <p class="hint" style="margin-bottom:8px;">مثال: 6 = منشورات آخر 6 ساعات فقط. الحد الأقصى 168 ساعة (أسبوع).</p>
         <div class="btns">
           <button type="button" class="btn" id="btnFetchTg" onclick="fetchFromTelegram()">⬇️ جلب منشورات آخر الفترة وتحليلها</button>
         </div>
@@ -183,7 +183,7 @@
     <!-- ===== نتيجة التحليل ===== -->
     <div class="card" id="reviewCard" style="display:none;">
       <h2>③ مراجعة الأشكال والصورة المختارة لكل شكل</h2>
-      <p class="hint" style="margin-bottom:10px;">اضغط صورة بديلة داخل الشكل لو حابب تغيّر الاختيار. الصور تُجمع حسب كودها عند توفره، وكل الأشكال تتجمع في <b>منتج واحد</b>.</p>
+      <p class="hint" style="margin-bottom:10px;">اضغط صورة بديلة داخل الشكل لو حابب تغيّر الاختيار. كل الأشكال تتجمع في <b>منتج واحد</b>.</p>
       <div class="shapes" id="shapesBox"></div>
 
       <div style="margin-top:16px;">
@@ -229,6 +229,7 @@
 
         <div class="btns">
           <button type="button" class="btn ok" onclick="exportToSveltia()">🚀 تصدير إلى إدارة المنتجات (Sveltia)</button>
+          <button type="button" class="btn secondary" onclick="exportProductMd()">⬇️ نسخ احتياطي .md</button>
           <button type="button" class="btn danger" onclick="discardCollection()">🗑️ حذف المسودة</button>
         </div>
         <p class="hint" id="exportHint"></p>
@@ -239,6 +240,7 @@
     <footer>My Souq — استيراد المصنع · للإدارة فقط</footer>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script>
 (function () {
   var SETTINGS_KEY = 'mysouq_factory_import_settings';
@@ -622,10 +624,67 @@
   }
 
   /**
-   * تجميع الأشكال:
-   * 1) استبعاد الجداول
-   * 2) إن وُجد اسم ملف مميز يُستخدم
-   * 3) وإلا تجميع بالتشابه اللوني/البصري (كل شكل متشابه لوحده)
+   * قراءة كود الشكل المطبوع داخل الصورة باستخدام OCR (Tesseract.js).
+   * عند تعذر القراءة نترك الصورة للتجميع البصري الاحتياطي.
+   */
+  var ocrWorkerPromise = null;
+  async function getOcrWorker() {
+    if (!window.Tesseract) throw new Error('مكتبة قراءة الأكواد OCR لم يتم تحميلها');
+    if (!ocrWorkerPromise) {
+      ocrWorkerPromise = window.Tesseract.createWorker('eng').then(async function (worker) {
+        await worker.setParameters({
+          tessedit_char_whitelist: 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_/ ',
+          tessedit_pageseg_mode: window.Tesseract.PSM ? window.Tesseract.PSM.SPARSE_TEXT : '11'
+        });
+        return worker;
+      });
+    }
+    return ocrWorkerPromise;
+  }
+
+  function findPrintedShapeCode(text) {
+    var source = String(text || '').toUpperCase().replace(/[|]/g, 'I');
+    var matches = source.match(/[A-Z]{1,8}[-_\/]?\d{2,8}[A-Z0-9]*|\d{2,8}[-_\/]?[A-Z]{1,8}/g) || [];
+    var ignored = /^(?:100|200|300|500|1000|XL|XXL|3XL|4XL|5XL|6XL)$/;
+    for (var i = 0; i < matches.length; i++) {
+      var code = matches[i].replace(/[-_\/]/g, '');
+      if (ignored.test(code)) continue;
+      if (/[A-Z]/.test(code) && /\d/.test(code) && code.length >= 3 && code.length <= 14) return code;
+    }
+    // بعض المصانع تستخدم كودًا رقميًا فقط؛ نلتقطه ثم لا نعتمده إلا إذا تكرر في صورتين أو أكثر.
+    var numeric = source.match(/\b\d{4,8}\b/);
+    return numeric ? numeric[0] : '';
+  }
+
+  async function readPrintedCodes(images) {
+    var found = 0;
+    var worker;
+    try { worker = await getOcrWorker(); }
+    catch (e) {
+      showStatus('تعذر تشغيل OCR؛ سيتم التجميع بصريًا كحل احتياطي. ' + (e.message || ''), '');
+      return;
+    }
+    for (var i = 0; i < images.length; i++) {
+      var img = images[i];
+      try {
+        showStatus('قراءة كود الشكل المطبوع داخل الصور… ' + (i + 1) + ' من ' + images.length, '');
+        var result = await worker.recognize(img.dataUrl);
+        var confidence = result && result.data ? Number(result.data.confidence || 0) : 0;
+        var code = confidence >= 22 ? findPrintedShapeCode(result.data.text) : '';
+        if (code) {
+          img._printedCode = code;
+          found++;
+        }
+      } catch (e) {
+        // صورة تالفة/صيغة غير مدعومة: لا نوقف بقية الصور.
+      }
+    }
+    return found;
+  }
+
+  /**
+   * التجميع حسب الكود المطبوع أولاً؛ الصور التي لم يُقرأ كودها
+   * تُجمع بالتشابه البصري كما كان سابقاً.
    */
   async function groupIntoShapes(images) {
     var split = await splitProductAndMetaImages(images);
@@ -644,42 +703,37 @@
       });
     }
 
-    var named = {};
-    var namedOrder = [];
-    var unnamed = [];
+    var detectedCodes = await readPrintedCodes(productImgs);
+    var codeGroups = {};
+    var codeOrder = [];
+    var uncoded = [];
     productImgs.forEach(function (img) {
-      var name = (img.name || '').toLowerCase();
-      var hit = name.match(/code[-_]([a-z0-9_-]{2,20})/i)
-        || name.match(/([a-z]{1,5}[-_]?\d{2,7}[a-z0-9_-]*|\d{3,7}[a-z]{1,3})/i)
-        || name.match(/(mint|black|grey|gray|navy|beige|white|red|blue|green|pink|future|italia|live|focus|uni\d+f\d+[-_]?[a-z0-9]+)/i);
-      if (hit) {
-        var key = hit[1].toLowerCase();
-        if (!named[key]) { named[key] = []; namedOrder.push(key); }
-        named[key].push(img);
+      var code = img._printedCode || '';
+      if (code) {
+        if (!codeGroups[code]) { codeGroups[code] = []; codeOrder.push(code); }
+        codeGroups[code].push(img);
       } else {
-        unnamed.push(img);
+        uncoded.push(img);
       }
     });
 
-    if (namedOrder.length >= 2) {
-      namedOrder.forEach(function (k, i) {
-        pushShape('شكل ' + (i + 1) + ' (' + k + ')', named[k]);
-      });
-      if (unnamed.length) {
-        var clustersNamed = clusterByAppearance(unnamed);
-        clustersNamed.forEach(function (cl) {
-          pushShape('شكل ' + (shapesOut.length + 1), cl);
-        });
+    codeOrder.forEach(function (code) {
+      var numericOnly = /^\d+$/.test(code);
+      if (numericOnly && codeGroups[code].length < 2) {
+        uncoded = uncoded.concat(codeGroups[code]);
+        return;
       }
-    } else {
-      // التجميع البصري: صور نفس اللون/الخامة أقرب لبعض
-      var clusters = clusterByAppearance(productImgs);
-      clusters.forEach(function (cl, idx) {
-        pushShape('شكل ' + (idx + 1), cl);
+      pushShape('كود ' + code, codeGroups[code]);
+    });
+
+    if (uncoded.length) {
+      var clusters = clusterByAppearance(uncoded);
+      clusters.forEach(function (cl) {
+        pushShape('شكل ' + (shapesOut.length + 1) + ' (لم يُقرأ الكود)', cl);
       });
     }
 
-    return { shapes: shapesOut, metaImages: metaImgs };
+    return { shapes: shapesOut, metaImages: metaImgs, detectedCodes: detectedCodes || 0, uncodedImages: uncoded.length };
   }
 
   /** اختيار صورة منتج واضحة — يتجنب الموديل واللوجو قدر الإمكان */
@@ -804,7 +858,7 @@
     // لا نفترض M–6XL — لو المنشور ما فيهوش مقاسات، الجدول يفضل فاضي للتعديل اليدوي
     $('outSizes').value = sizeLines.join('\n');
     $('reviewCard').style.display = 'block';
-    showStatus('كل شكل في مصفوفة لوحده (' + shapes.length + ' أشكال)' + metaNote + '. راجع · استبعد الغلط بـ × · صدّر أو احذف.', 'ok');
+    showStatus('تم تجميع ' + shapes.length + ' أشكال. أكواد مطبوعة تم التعرف عليها في ' + (grouped.detectedCodes || 0) + ' صورة، وصور بدون كود مقروء: ' + (grouped.uncodedImages || 0) + metaNote + '. راجع الأكواد والتجميع يدويًا قبل التصدير.', 'ok');
     $('reviewCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
@@ -1023,7 +1077,7 @@
           { 'Content-Type': 'application/json' },
           s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
         ),
-        body: JSON.stringify({ channel: ch, hours: hours })
+        body: JSON.stringify({ channel: ch, hours: hours, limit: 200 })
       });
       var data = await r.json().catch(function () { return {}; });
       if (!r.ok) {
@@ -1043,7 +1097,7 @@
         for (var j = 0; j < imgs.length; j++) {
           var src = imgs[j];
           if (typeof src === 'string' && src.indexOf('data:') === 0) {
-            rawImages.push({ id: idSeq++, dataUrl: src, name: (posts[p].imageNames && posts[p].imageNames[j]) || ('tg-' + p + '-' + j + '.jpg') });
+            rawImages.push({ id: idSeq++, dataUrl: src, name: 'tg-' + p + '-' + j + '.jpg' });
           } else if (typeof src === 'string') {
             // try fetch image as blob via worker proxy if needed
             try {
@@ -1058,7 +1112,7 @@
                   fr.onerror = rej;
                   fr.readAsDataURL(blob);
                 });
-                rawImages.push({ id: idSeq++, dataUrl: dataUrl, name: (posts[p].imageNames && posts[p].imageNames[j]) || ('tg-' + p + '-' + j + '.jpg') });
+                rawImages.push({ id: idSeq++, dataUrl: dataUrl, name: 'tg-' + p + '-' + j + '.jpg' });
               }
             } catch (e) {}
           }
@@ -1070,7 +1124,7 @@
       renderRawAlbum();
       if (rawImages.length) {
         runAnalyze();
-        showStatus('تم جلب ' + posts.length + ' منشور و ' + rawImages.length + ' صورة داخل الفترة المحددة، بدون حد عددي. راجع ثم صدّر أو احذف.', 'ok');
+        showStatus('تم جلب ' + posts.length + ' منشور و ' + rawImages.length + ' صورة وتم التحليل. راجع ثم صدّر أو احذف.', 'ok');
       } else {
         showStatus('تم جلب المنشورات لكن بدون صور قابلة للتحميل. راجع إعدادات الـ Worker.', 'err');
       }
