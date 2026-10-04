@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>استيراد من المصنع — My Souq</title>
+  <title>استيراد من المصنع — My Souq v0.5.1</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -100,7 +100,7 @@
     <header>
       <h1>🏭 استيراد من المصنع</h1>
       <p>
-        الأداة الأساسية: <b>تيليجرام عبر حسابك</b> (Worker) — استقبال منشورات القناة، تحليل الأشكال،
+        الأداة الأساسية: <b>تيليجرام عبر حسابك</b> (Worker) — قراءة المنشورات والصور، استبعاد الاستيكرات ومنشورات جرد الكوليكشنات، تحليل الأشكال،
         اختيار صورة واضحة لكل شكل، ثم <b>تصدير منتج واحد</b> أو <b>حذف المسودة</b> لو مش عاجباك.
         الرفع اليدوي موجود فقط كاحتياطي لو الجلب من تيليجرام متوقف مؤقتًا.
       </p>
@@ -159,7 +159,7 @@
             <option value="48">48 ساعة</option>
             <option value="72">72 ساعة</option>
           </select>
-          <p class="hint" style="margin-top:6px;">سيتم جلب آخر 50 منشورًا ثم الاحتفاظ بالمنشورات الواقعة داخل الفترة الزمنية المحددة.</p>
+          <p class="hint" style="margin-top:6px;">سيتم جلب المنشورات من تيليجرام حتى الوصول إلى بداية الفترة المحددة، ثم استبعاد الاستيكرات ومنشورات جرد الكوليكشنات.</p>
         </div>
 
         <div class="btns">
@@ -264,6 +264,7 @@
 
         <div class="btns">
           <button type="button" class="btn ok" onclick="exportProductMd()">⬇️ تصدير منتج واحد (.md)</button>
+          <button type="button" class="btn" onclick="exportToSveltia()">⬆️ تصدير إلى Sveltia CMS</button>
           <button type="button" class="btn danger" onclick="discardCollection()">🗑️ حذف المسودة</button>
         </div>
         <p class="hint" id="exportHint"></p>
@@ -594,15 +595,19 @@
       if (p1) phase1Price = Number(p1[1]);
       if (p2) phase2Price = Number(p2[1]);
     }
-    var allPrices = [];
-    var re = /(?:السعر|سعر)?\s*:?\s*(\d{2,6})\s*(?:جنيه|ج\.م|ج\b)?/gi;
-    var m;
-    while ((m = re.exec(text))) {
-      var n = Number(m[1]);
-      if (n >= 80 && n <= 50000) allPrices.push(n);
-    }
-    if (phase1Price == null && allPrices.length) phase1Price = Math.min.apply(null, allPrices);
-    if (phase2Price == null && allPrices.length >= 2) phase2Price = Math.max.apply(null, allPrices);
+    // لا نعتبر أي رقم عشوائي سعرًا؛ أرقام الأكواد/الموديلات في المنشور لا تدخل الأسعار.
+    // نأخذ فقط رقمًا مرتبطًا بكلمة السعر أو بعملة واضحة.
+    var labeledPrices = [];
+    var priceRe = /(?:السعر|سعر)\s*:?\s*(\d{2,6})(?!\d)/gi;
+    var currencyRe = /(\d{2,6})\s*(?:جنيه|ج\.م|ج\b)/gi;
+    var pm;
+    while ((pm = priceRe.exec(text))) labeledPrices.push(Number(pm[1]));
+    while ((pm = currencyRe.exec(text))) labeledPrices.push(Number(pm[1]));
+    labeledPrices = labeledPrices.filter(function (n) { return n >= 80 && n <= 50000; });
+    var uniquePrices = [];
+    labeledPrices.forEach(function (n) { if (uniquePrices.indexOf(n) === -1) uniquePrices.push(n); });
+    if (phase1Price == null && uniquePrices.length) phase1Price = uniquePrices[0];
+    if (phase2Price == null && uniquePrices.length >= 2) phase2Price = uniquePrices[1];
 
     var sizes = [];
     var sm = {};
@@ -1007,6 +1012,43 @@
     $('tgHoursBox').style.display = mode === 'hours' ? '' : 'none';
   };
 
+  window.exportToSveltia = function () {
+    exportProductMd();
+    setTimeout(function () {
+      try { window.open('./index.html', '_blank', 'noopener'); } catch (e) {}
+    }, 650);
+  };
+
+  function isStickerPost(post) {
+    return !!(post && (post.isSticker || /sticker/i.test(String(post.mediaType || ''))));
+  }
+
+  function isCollectionInventoryPost(post) {
+    var text = String((post && post.text) || '').replace(/\s+/g, ' ').trim();
+    if (!text) return false;
+    // منشورات الجرد/الحصر للكوليكشنات ليست منتجات للبيع، حتى لو احتوت أكوادًا وأرقامًا.
+    return /جرد[^\n]*(?:كوليكشن|كولكشن|كوليكشنات|collection|collections|inventory)|(?:كوليكشن|كولكشن|collection|collections|inventory)[^\n]*جرد/i.test(text);
+  }
+
+  function filterTelegramPosts(posts) {
+    var result = [];
+    var skippedStickers = 0;
+    var skippedInventory = 0;
+    (posts || []).forEach(function (post) {
+      if (isStickerPost(post)) { skippedStickers++; return; }
+      if (isCollectionInventoryPost(post)) { skippedInventory++; return; }
+      result.push(post);
+    });
+    return { posts: result, skippedStickers: skippedStickers, skippedInventory: skippedInventory };
+  }
+
+  function isPostWithinHours(post, hours) {
+    if (!post || !post.date) return false;
+    var t = new Date(post.date).getTime();
+    if (!Number.isFinite(t)) return false;
+    return t >= Date.now() - (hours * 60 * 60 * 1000);
+  }
+
   // Telegram fetch via worker
   window.fetchFromTelegram = async function () {
     var s = getSettings();
@@ -1014,9 +1056,9 @@
     if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker من تبويب الإعدادات.', 'err'); return; }
     if (!ch) { showStatus('أدخل القناة.', 'err'); return; }
     var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'limit';
-    var limit = mode === 'hours' ? 50 : (Number($('tgLimit').value) || 15);
+    var limit = mode === 'hours' ? 100 : (Number($('tgLimit').value) || 15);
     var hours = mode === 'hours' ? (Number($('tgHours').value) || 6) : null;
-    showStatus(mode === 'hours' ? 'جاري جلب المنشورات ثم تصفية آخر ' + hours + ' ساعة...' : 'جاري الجلب من تيليجرام...', '');
+    showStatus(mode === 'hours' ? 'جاري قراءة منشورات تيليجرام حتى بداية آخر ' + hours + ' ساعة...' : 'جاري الجلب من تيليجرام...', '');
     $('btnFetchTg').disabled = true;
     try {
       var r = await fetch(s.workerUrl + '/fetch', {
@@ -1025,7 +1067,7 @@
           { 'Content-Type': 'application/json' },
           s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
         ),
-        body: JSON.stringify({ channel: ch, limit: Math.min(Math.max(limit, 1), 50) })
+        body: JSON.stringify({ channel: ch, limit: Math.min(Math.max(limit, 1), 50), mode: mode, hours: hours })
       });
       var data = await r.json().catch(function () { return {}; });
       if (!r.ok) {
@@ -1040,17 +1082,12 @@
         return;
       }
 
-      if (mode === 'hours') {
-        var cutoff = Date.now() - (hours * 60 * 60 * 1000);
-        posts = posts.filter(function (post) {
-          if (!post || !post.date) return false;
-          var t = new Date(post.date).getTime();
-          return Number.isFinite(t) && t >= cutoff;
-        });
-        if (!posts.length) {
-          showStatus('لم توجد منشورات خلال آخر ' + hours + ' ساعة.', 'err');
-          return;
-        }
+      // فلترة إضافية في الواجهة لضمان عدم ظهور الاستيكرات أو منشورات جرد الكوليكشنات.
+      var filtered = filterTelegramPosts(posts);
+      posts = filtered.posts;
+      if (!posts.length) {
+        showStatus('تم استبعاد المنشورات غير المطلوبة (استيكرات/جرد كوليكشنات)، ولم يتبق منشورات منتجات في الفترة المختارة.', 'err');
+        return;
       }
 
       var texts = [];
@@ -1122,6 +1159,8 @@
         runAnalyze();
         showStatus(
           'تم جلب ' + posts.length + ' منشور و ' + loadedImages + ' صورة وتم التحليل.' +
+          (filtered.skippedStickers ? ' تم استبعاد ' + filtered.skippedStickers + ' استيكر.' : '') +
+          (filtered.skippedInventory ? ' تم استبعاد ' + filtered.skippedInventory + ' منشور جرد كوليكشن.' : '') +
           (failedImages ? ' تعذر تحميل ' + failedImages + ' ميديا.' : '') +
           ' راجع ثم صدّر أو احذف.',
           'ok'
