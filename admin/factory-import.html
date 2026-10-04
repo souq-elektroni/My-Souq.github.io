@@ -642,18 +642,48 @@
     return ocrWorkerPromise;
   }
 
-  function findPrintedShapeCode(text) {
-    var source = String(text || '').toUpperCase().replace(/[|]/g, 'I');
-    var matches = source.match(/[A-Z]{1,8}[-_\/]?\d{2,8}[A-Z0-9]*|\d{2,8}[-_\/]?[A-Z]{1,8}/g) || [];
-    var ignored = /^(?:100|200|300|500|1000|XL|XXL|3XL|4XL|5XL|6XL)$/;
-    for (var i = 0; i < matches.length; i++) {
-      var code = matches[i].replace(/[-_\/]/g, '');
-      if (ignored.test(code)) continue;
-      if (/[A-Z]/.test(code) && /\d/.test(code) && code.length >= 3 && code.length <= 14) return code;
-    }
-    // بعض المصانع تستخدم كودًا رقميًا فقط؛ نلتقطه ثم لا نعتمده إلا إذا تكرر في صورتين أو أكثر.
-    var numeric = source.match(/\b\d{4,8}\b/);
-    return numeric ? numeric[0] : '';
+  /** استخراج كل الأكواد الكاملة من نص OCR؛ لا نقتطع الكود ولا نحوله إلى جزء. */
+  function findPrintedShapeCodes(text) {
+    var source = String(text || '').replace(/[|]/g, 'I').replace(/[–—]/g, '-');
+    // نمط أكواد المصنع مثل Uni0008f4-black مع الاحتفاظ بالشرطة واللاحقة كاملة.
+    var matches = source.match(/\b[A-Z]{2,10}\d{2,12}[A-Z0-9]*(?:-[A-Z0-9]{2,16})+\b/gi) || [];
+    var out = [], seen = {};
+    matches.forEach(function (raw) {
+      var code = raw.trim();
+      var key = code.toUpperCase();
+      // لا نقبل مقاسات أو كلمات عامة، ولا نقبل شظايا قصيرة.
+      if (code.length < 8 || !/[A-Z]/i.test(code) || !/\d/.test(code) || key.indexOf('-') < 0) return;
+      if (!seen[key]) { seen[key] = true; out.push(code); }
+    });
+    return out;
+  }
+
+  function makeOcrVariants(dataUrl) {
+    return new Promise(function (resolve) {
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+          var full = document.createElement('canvas');
+          full.width = Math.min(w * 2, 2600); full.height = Math.round(h * (full.width / w));
+          var fc = full.getContext('2d');
+          fc.imageSmoothingEnabled = true; fc.imageSmoothingQuality = 'high';
+          fc.drawImage(img, 0, 0, full.width, full.height);
+          var variants = [full.toDataURL('image/png')];
+          // الأكواد في صور المصنع غالبًا أعلى اليمين أو أسفل اليمين؛ نفحص المنطقتين مكبّرتين أيضًا.
+          [[0.48,0,0.52,0.34],[0.48,0.66,0.52,0.34]].forEach(function (r) {
+            var c = document.createElement('canvas');
+            c.width = Math.max(900, Math.round(w * r[2] * 2));
+            c.height = Math.max(220, Math.round(h * r[3] * 2));
+            c.getContext('2d').drawImage(img, Math.round(w*r[0]), Math.round(h*r[1]), Math.round(w*r[2]), Math.round(h*r[3]), 0, 0, c.width, c.height);
+            variants.push(c.toDataURL('image/png'));
+          });
+          resolve(variants);
+        } catch (e) { resolve([dataUrl]); }
+      };
+      img.onerror = function () { resolve([dataUrl]); };
+      img.src = dataUrl;
+    });
   }
 
   async function readPrintedCodes(images) {
@@ -662,17 +692,27 @@
     try { worker = await getOcrWorker(); }
     catch (e) {
       showStatus('تعذر تشغيل OCR؛ سيتم التجميع بصريًا كحل احتياطي. ' + (e.message || ''), '');
-      return;
+      return 0;
     }
     for (var i = 0; i < images.length; i++) {
       var img = images[i];
       try {
-        showStatus('قراءة كود الشكل المطبوع داخل الصور… ' + (i + 1) + ' من ' + images.length, '');
-        var result = await worker.recognize(img.dataUrl);
-        var confidence = result && result.data ? Number(result.data.confidence || 0) : 0;
-        var code = confidence >= 22 ? findPrintedShapeCode(result.data.text) : '';
-        if (code) {
-          img._printedCode = code;
+        showStatus('قراءة جميع أكواد الشكل المطبوعة داخل الصور… ' + (i + 1) + ' من ' + images.length, '');
+        var variants = await makeOcrVariants(img.dataUrl);
+        var allCodes = [], seen = {};
+        for (var v = 0; v < variants.length; v++) {
+          var result = await worker.recognize(variants[v]);
+          var confidence = result && result.data ? Number(result.data.confidence || 0) : 0;
+          if (confidence < 12) continue;
+          findPrintedShapeCodes(result.data.text || '').forEach(function (code) {
+            var key = code.toUpperCase();
+            if (!seen[key]) { seen[key] = true; allCodes.push(code); }
+          });
+        }
+        if (allCodes.length) {
+          img._printedCodes = allCodes;
+          // توافق مع أي أجزاء قديمة تقرأ الخاصية المفردة، دون استخدامها في التقسيم.
+          img._printedCode = allCodes[0];
           found++;
         }
       } catch (e) {
@@ -683,8 +723,9 @@
   }
 
   /**
-   * التجميع حسب الكود المطبوع أولاً؛ الصور التي لم يُقرأ كودها
-   * تُجمع بالتشابه البصري كما كان سابقاً.
+   * كل صورة قد تحمل عدة أكواد. نربط الصور التي تشترك في أي كود داخل
+   * مكوّن واحد، ثم نعرض قائمة الأكواد الكاملة على حقل الشكل نفسه.
+   * الصور غير المقروءة تظل في التجميع البصري الاحتياطي.
    */
   async function groupIntoShapes(images) {
     var split = await splitProductAndMetaImages(images);
@@ -692,47 +733,55 @@
     var metaImgs = split.meta;
     var shapesOut = [];
 
-    function pushShape(label, imgs) {
+    function pushShape(label, imgs, codes) {
       if (!imgs || !imgs.length) return;
       var selected = pickBestImage(imgs);
       shapesOut.push({
         id: shapesOut.length + 1,
         label: label,
         images: imgs.slice(),
+        codes: (codes || []).slice(),
         selectedId: selected ? selected.id : imgs[0].id
       });
     }
 
     var detectedCodes = await readPrintedCodes(productImgs);
-    var codeGroups = {};
-    var codeOrder = [];
-    var uncoded = [];
-    productImgs.forEach(function (img) {
-      var code = img._printedCode || '';
-      if (code) {
-        if (!codeGroups[code]) { codeGroups[code] = []; codeOrder.push(code); }
-        codeGroups[code].push(img);
-      } else {
-        uncoded.push(img);
-      }
+    var coded = productImgs.filter(function (img) { return img._printedCodes && img._printedCodes.length; });
+    var uncoded = productImgs.filter(function (img) { return !img._printedCodes || !img._printedCodes.length; });
+    var parent = coded.map(function (_, i) { return i; });
+    function root(i) { while (parent[i] !== i) { parent[i] = parent[parent[i]]; i = parent[i]; } return i; }
+    function join(a, b) { var ra = root(a), rb = root(b); if (ra !== rb) parent[rb] = ra; }
+    var codeOwner = {};
+    coded.forEach(function (img, i) {
+      img._printedCodes.forEach(function (code) {
+        var key = code.toUpperCase();
+        if (codeOwner[key] !== undefined) join(i, codeOwner[key]);
+        else codeOwner[key] = i;
+      });
     });
-
-    codeOrder.forEach(function (code) {
-      var numericOnly = /^\d+$/.test(code);
-      if (numericOnly && codeGroups[code].length < 2) {
-        uncoded = uncoded.concat(codeGroups[code]);
-        return;
-      }
-      pushShape('كود ' + code, codeGroups[code]);
+    var components = {};
+    coded.forEach(function (img, i) {
+      var r = root(i);
+      if (!components[r]) components[r] = { images: [], codes: [], seen: {} };
+      var comp = components[r];
+      comp.images.push(img);
+      img._printedCodes.forEach(function (code) {
+        var key = code.toUpperCase();
+        if (!comp.seen[key]) { comp.seen[key] = true; comp.codes.push(code); }
+      });
+    });
+    Object.keys(components).sort(function (a,b) { return Number(a)-Number(b); }).forEach(function (k) {
+      var comp = components[k];
+      var label = 'شكل ' + (shapesOut.length + 1) + ' — ' + comp.codes.join(' + ');
+      pushShape(label, comp.images, comp.codes);
     });
 
     if (uncoded.length) {
       var clusters = clusterByAppearance(uncoded);
       clusters.forEach(function (cl) {
-        pushShape('شكل ' + (shapesOut.length + 1) + ' (لم يُقرأ الكود)', cl);
+        pushShape('شكل ' + (shapesOut.length + 1) + ' (لم يُقرأ الكود)', cl, []);
       });
     }
-
     return { shapes: shapesOut, metaImages: metaImgs, detectedCodes: detectedCodes || 0, uncodedImages: uncoded.length };
   }
 
@@ -772,7 +821,8 @@
       }).join('');
       return (
         '<div class="shape-card" style="border:2px solid var(--primary);">' +
-          '<h3>' + sh.label + ' — مصفوفة مستقلة · اختر صورة المنتج الواضحة</h3>' +
+          '<h3>' + sh.label + ' — حقل شكل واحد · اختر صورة المنتج الواضحة</h3>' +
+          (sh.codes && sh.codes.length ? '<div class="shape-meta">الأكواد الكاملة لهذا الشكل: ' + sh.codes.join(' ، ') + '</div>' : '') +
           '<div class="shape-imgs">' + imgs + '</div>' +
           '<div class="shape-meta">' + sh.images.length + ' صور في هذا الشكل فقط · إطار بنفسجي = المختارة · × = استبعاد (جدول/غلط)</div>' +
         '</div>'
@@ -957,6 +1007,13 @@
     md += 'category: ' + yamlQuote(category) + '\n';
     md += 'images:\n';
     selected.forEach(function (s) { md += '  - ' + s.pathAbs + '\n'; });
+    md += 'shapeCodes:\n';
+    shapes.forEach(function (sh, i) {
+      md += '  - shape: ' + (i + 1) + '\n';
+      md += '    codes:\n';
+      if (sh.codes && sh.codes.length) sh.codes.forEach(function (code) { md += '      - ' + yamlQuote(code) + '\n'; });
+      else md += '      - ' + yamlQuote('غير مقروء') + '\n';
+    });
     md += 'price: ' + price + '\n';
     if (oldPrice != null && !isNaN(oldPrice)) md += 'oldPrice: ' + oldPrice + '\n';
     md += 'stock: available\n';
