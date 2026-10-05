@@ -1113,12 +1113,20 @@
     return {name:'لون متنوع',order:99};
   }
 
-  function buildColorGroups(images) {
-    // مهم: groupKey القادم من Telegram يمثل الألبوم/اللون، وهو المصدر الأساسي للفصل.
-    // لا نعتمد على المتوسط اللوني وحده لأن الخلفية قد تجعل لونين مختلفين يتداخلان.
+  function buildColorGroups(images, strictAlbumGroups) {
+    // Telegram: groupKey/groupedId هو الحد الفاصل الحقيقي بين الألوان.
+    // في وضع Telegram لا نستخدم التشابه اللوني كبديل حتى لا يدخل لون في لون.
+    // الوضع اليدوي فقط يسمح بالاعتماد على اللون/المظهر عند غياب groupKey.
     var map = {}, order = [];
     (images || []).forEach(function(im, idx){
-      var key = im.groupKey != null ? String(im.groupKey) : ('appearance-' + dominantColorLabel(im).name);
+      var key;
+      if (im.groupKey != null && String(im.groupKey).trim()) {
+        key = String(im.groupKey);
+      } else if (strictAlbumGroups) {
+        key = 'single-image-' + String(im.id);
+      } else {
+        key = 'appearance-' + dominantColorLabel(im).name;
+      }
       if(!map[key]) { map[key] = { key:key, images:[], first:idx }; order.push(key); }
       map[key].images.push(im);
     });
@@ -1308,7 +1316,7 @@
 
     // المطلوب هنا: الوصف = نص المنشور نفسه بعد إزالة الروابط فقط؛ لا نحذف السعر أو الكود.
     var desc = stripExternalLinks(fullText).trim();
-    var colorGroups = buildColorGroups(images);
+    var colorGroups = buildColorGroups(images, images.some(function(im){ return im && im.groupKey != null; }));
     return {
       id: 'c' + (idx + 1),
       code: code || ('غير محدد-' + (idx + 1)),
@@ -1341,8 +1349,8 @@
         col.sizes.forEach(function(sz){if(!dst.sizes.some(function(x){return x.size===sz.size;}))dst.sizes.push(sz);});
         col.images.forEach(function(im){if(!dst.images.some(function(x){return x.id===im.id;}))dst.images.push(im);});
         col.metaImages.forEach(function(im){if(!dst.metaImages.some(function(x){return x.id===im.id;}))dst.metaImages.push(im);});
-        // إعادة بناء مجموعات الألوان بعد تجميع كل منشورات نفس الكود.
-        dst.colorGroups=buildColorGroups(dst.images);
+        // إعادة البناء باستخدام groupedId فقط في بيانات Telegram؛ لا نعيد تجميع الألوان بصريًا.
+        dst.colorGroups=buildColorGroups(dst.images, dst.images.some(function(im){ return im && im.groupKey != null; }));
       }
     });
     importedCollections=order.map(function(k){return map[k];});
@@ -1409,7 +1417,8 @@
     if(!importedCollections.length){box.innerHTML='<p class="hint">لا توجد Collections مستوردة.</p>';return;}
 
     box.innerHTML=importedCollections.map(function(c){
-      var groups=(c.colorGroups||buildColorGroups((c.images||[]).filter(function(im){return !(im._look&& (im._look.isChart||im._look.likelyModel));})));
+      var visibleImages=(c.images||[]).filter(function(im){return !(im._look&& (im._look.isChart||im._look.likelyModel));});
+      var groups=(c.colorGroups||buildColorGroups(visibleImages, visibleImages.some(function(im){ return im && im.groupKey != null; })));
       var priceValue=c.priceMode==='uniform'&&c.price!=null?c.price:'';
       var preview=selectedPreviewImage(c);
       var previewHtml=preview ? '<img src="'+preview.dataUrl+'" alt="'+escapeHtml(c.code)+'" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid #eadcf1;">' : '';
@@ -1895,7 +1904,7 @@
         return;
       }
 
-      showStatus('وُجد ' + codeOrder.length + ' كوليكشن (كود) — جاري تجميع الألوان والصور لكل كود...', '');
+      showStatus('وُجد ' + codeOrder.length + ' كوليكشن (كود) — جاري جلب كل ألبوم Telegram كلون مستقل بدون دمج...', '');
 
       var texts = [];
       tgPostRecords = [];
@@ -1934,7 +1943,7 @@
           var key = String(mid);
           if (imageRefMap[key]) return;
           imageRefMap[key] = true;
-          imageRefs.push({ messageId: mid, groupKey: groupHint || String(productId || code) });
+          imageRefs.push({ messageId: mid, groupKey: groupHint || ('single:' + String(mid)) });
         }
 
         // خريطة موثوقة: كل رسالة تيليجرام تحمل groupedId الخاص بألبوم/لون المنتج.
@@ -1946,10 +1955,26 @@
           }
         }
 
+        // خريطة صريحة من الـWorker: كل messageId تابع لألبوم/لون واحد.
+        // لا نستخدم code كـ fallback لأنه كان سببًا في دمج ألوان متعددة في مجموعة واحدة.
+        var autoGroupByMessageId = {};
+        var workerAlbums = (productData && productData.albumGroups) || [];
+        for (var ag = 0; ag < workerAlbums.length; ag++) {
+          var album = workerAlbums[ag] || {};
+          var albumKey = album.key || (album.groupedId ? ('album:' + album.groupedId) : null);
+          var mids = album.messageIds || [];
+          for (var am = 0; am < mids.length; am++) {
+            autoGroupByMessageId[String(mids[am])] = albumKey || ('single:' + String(mids[am]));
+          }
+        }
+
         var autoImages = (productData && productData.images) || [];
         for (var ai = 0; ai < autoImages.length; ai++) {
           var aMid = autoImages[ai].messageId != null ? autoImages[ai].messageId : autoImages[ai];
-          var autoGroup = postGroupById[String(aMid)] || autoImages[ai].groupedId || String(productId || code);
+          var autoGroup = autoGroupByMessageId[String(aMid)] ||
+            postGroupById[String(aMid)] ||
+            (autoImages[ai].groupedId ? ('album:' + String(autoImages[ai].groupedId)) : null) ||
+            ('single:' + String(aMid));
           addImageRef(aMid, autoGroup);
         }
 
@@ -1983,7 +2008,8 @@
               id: idSeq++,
               dataUrl: dl.dataUrl,
               name: 'tg-' + mid + '.' + dl.ext,
-              groupKey: String(imageRefs[mi].groupKey || productId || code),
+              groupKey: String(imageRefs[mi].groupKey || ('single:' + String(mid))),
+              source: 'telegram',
               selected: true
             };
             rawImages.push(ri);
