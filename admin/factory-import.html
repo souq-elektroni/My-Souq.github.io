@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>استيراد من المصنع — My Souq v0.5.1</title>
   <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root {
       --bg: #f7f4f5;
@@ -93,11 +94,11 @@
     .collection-modal { display:none; position:fixed; inset:0; z-index:950; }
     .collection-modal.open { display:flex; align-items:center; justify-content:center; padding:14px; }
     .collection-modal-backdrop { position:absolute; inset:0; background:rgba(30,15,35,.68); backdrop-filter:blur(2px); }
-    .collection-modal-dialog { position:relative; z-index:1; width:min(1180px,98vw); max-height:94vh; overflow:auto; background:#fff; border:1px solid #e6d8eb; border-radius:18px; box-shadow:0 24px 80px rgba(0,0,0,.35); padding:14px; }
+    .collection-modal-dialog { position:relative; z-index:1; width:min(1380px,99vw); max-height:95vh; overflow:auto; background:#fff; border:1px solid #e6d8eb; border-radius:18px; box-shadow:0 24px 80px rgba(0,0,0,.35); padding:14px; }
     .collection-modal-top { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:2px 4px 12px; border-bottom:1px solid var(--line); }
     .collection-modal-title { color:var(--primary); font-size:18px; font-weight:900; }
     .collection-modal-close { width:36px; height:36px; border:0; border-radius:50%; background:#fff; color:#6a1b9a; font-size:25px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.08); }
-    .collection-modal-grid { display:grid; grid-template-columns:minmax(0,1fr) 260px; gap:12px; margin-top:12px; direction:rtl; }
+    .collection-modal-grid { display:grid; grid-template-columns:minmax(0,1fr) 285px; gap:12px; margin-top:12px; direction:rtl; }
     .collection-main-pane { min-width:0; }
     .collection-side-pane { background:#fbf6fd; border:1px solid #eadcf1; border-radius:14px; padding:12px; }
     .collection-code-box { background:linear-gradient(135deg,#f3e5f5,#fff); border:1px solid #dfc8e8; border-radius:14px; padding:12px; text-align:center; }
@@ -109,6 +110,11 @@
     .collection-source-text textarea { min-height:105px; margin:6px 0 0; background:#fff; }
     .color-groups { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
     .color-group { border:1px solid var(--line); border-radius:14px; background:#fff; padding:10px; }
+    .color-group-body { display:grid; grid-template-columns:180px minmax(0,1fr); gap:12px; align-items:center; direction:rtl; }
+    .color-group-label { background:#fbf6fd; border:1px solid #eadcf1; border-radius:12px; padding:12px; min-height:92px; display:flex; flex-direction:column; justify-content:center; gap:5px; }
+    .color-name-big { font-size:15px; font-weight:900; color:var(--primary); }
+    .color-images { grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); }
+    @media(max-width:900px){ .color-group-body{grid-template-columns:1fr}.color-images{grid-template-columns:repeat(2,minmax(100px,1fr));} }
     .color-group-head { display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:8px; }
     .color-group-title { font-weight:900; color:var(--ink); }
     .color-code-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 9px; border-radius:999px; background:#f3e5f5; color:var(--primary); font-size:10px; font-weight:900; direction:ltr; }
@@ -281,38 +287,18 @@
       <p class="hint" style="margin-bottom:10px;">كل كود يظهر ككوليكشن مستقل. الصور مرتبة حسب اللون/الألبوم، ورقة المقاسات مستبعدة من الصور تلقائيًا. اضغط على الصورة لتكبيرها، واستخدم X لحذف الصور غير المطلوبة، ثم اضغط «اعتماد للتصدير» للكوليكشن المطلوب.</p>
       <div id="collectionsBox"></div>
 
-      <div class="card" style="margin-top:14px;background:#fff;">
-        <h3 style="margin-top:0;">④ الكوليكشن النهائي / التصدير</h3>
-        <div class="row">
-          <div>
-            <label>اسم المنتج <span style="color:#b00020">*</span></label>
-            <input type="text" id="outTitle" placeholder="اتركه فارغًا لو لم تراجع الاسم بعد">
-          </div>
-          <div>
-            <label>القسم</label>
-            <select id="outCategory">
-              <option value="ملابس شتوية">ملابس شتوية</option><option value="ملابس خروج">ملابس خروج</option><option value="أحذية">أحذية</option><option value="عروض">عروض</option>
-            </select>
-          </div>
-        </div>
-        <div class="row">
-          <div><label>كود الكوليكشن</label><input type="text" id="outCollectionCode" readonly placeholder="يظهر للتعريف فقط"></div>
-          <div><label>السعر العام (إن وُجد)</label><input type="number" id="outPrice" min="0" placeholder="يُستخدم فقط إذا كان السعر موحدًا"></div>
-        </div>
-        <div class="row">
-          <div><label>السعر القديم للبطاقة (اختياري)</label><input type="number" id="outOldPrice" min="0"></div><div></div>
-        </div>
-        <label>الوصف — نص المنشور الأصلي للكوليكشن</label>
-        <textarea id="outBody" style="min-height:220px" placeholder="سيظهر هنا نص المنشور بنفس الكود والسعر كما ورد من المصنع"></textarea>
-        <label style="margin-top:12px">المقاسات والأسعار حسب المقاس</label>
-        <div id="outSizesTable" class="size-table-wrap"></div>
-        <textarea id="outSizes" style="display:none"></textarea>
-        <div class="btns" style="margin-top:14px;">
-          <button type="button" class="btn ok" onclick="exportProductMd()">⬇️ تصدير ملف المنتج</button>
-          <button type="button" class="btn" onclick="exportToSveltia()">⬆️ تصدير إلى Sveltia CMS</button>
-          <button type="button" class="btn danger" onclick="discardCollection()">🗑️ حذف استيراد</button>
-        </div>
-        <p class="hint" id="exportHint"></p>
+      <!-- حالة التصدير الداخلية فقط: لا تظهر للمستخدم؛ التصدير يتم من نافذة الكوليكشن نفسها. -->
+      <div id="exportStateFields" hidden aria-hidden="true">
+        <input id="outTitle" type="text">
+        <select id="outCategory"><option value="ملابس شتوية" selected>ملابس شتوية</option></select>
+        <input id="outCollectionCode" type="text">
+        <input id="outPrice" type="number">
+        <input id="outOldPrice" type="number">
+        <input id="outPrice2" type="number">
+        <textarea id="outBody"></textarea>
+        <textarea id="outSizes"></textarea>
+        <div id="outSizesTable"></div>
+        <div id="exportHint"></div>
       </div>
     </div>
 
@@ -489,7 +475,7 @@
             var ctx = c.getContext('2d');
             ctx.drawImage(im, 0, 0, w, h);
             var data = ctx.getImageData(0, 0, w, h).data;
-            var bright = 0, blueish = 0, dark = 0;
+            var bright = 0, blueish = 0, dark = 0, skin = 0, saturated = 0;
             var n = w * h;
             // 4x4x4 RGB histogram = 64 bins
             var hist = new Array(64);
@@ -498,6 +484,11 @@
             for (var i = 0; i < data.length; i += 4) {
               var r = data[i], g = data[i + 1], b = data[i + 2];
               var lum = 0.299 * r + 0.587 * g + 0.114 * b;
+              var mx = Math.max(r,g,b), mn = Math.min(r,g,b);
+              var sat = mx ? (mx-mn)/mx : 0;
+              if (sat > 0.22 && lum < 235) saturated++;
+              // تقريب عملي لاستبعاد صور الموديل/الشخص: وجود مساحة جلد واضحة مع صورة ملونة.
+              if (r > 105 && r > g*1.12 && g > b*1.03 && (r-g) > 12 && lum > 70 && lum < 235) skin++;
               if (lum > 225) bright++;
               if (lum < 40) dark++;
               if (b > 140 && b > r + 25 && b > g + 15) blueish++;
@@ -511,8 +502,11 @@
             var brightRatio = bright / n;
             var blueRatio = blueish / n;
             var darkRatio = dark / n;
+            var skinRatio = skin / n;
+            var saturatedRatio = saturated / n;
             var isChart = (brightRatio > 0.5 && blueRatio > 0.04) ||
               (brightRatio > 0.62 && darkRatio < 0.08);
+            var likelyModel = skinRatio > 0.055 && saturatedRatio > 0.08;
             // تطبيع الـ histogram
             var norm = hist.slice();
             var total = 0;
@@ -528,6 +522,9 @@
               isLogo: false,
               brightRatio: brightRatio,
               blueRatio: blueRatio,
+              skinRatio: skinRatio,
+              saturatedRatio: saturatedRatio,
+              likelyModel: likelyModel,
               hist: norm,
               avg: [avgR, avgG, avgB]
             });
@@ -571,7 +568,7 @@
       }
       var look = await analyzeImageLook(img.dataUrl);
       img._look = look;
-      if (look.isChart) {
+      if (look.isChart || look.likelyModel) {
         meta.push(img);
         continue;
       }
@@ -911,8 +908,10 @@
         var splitRec = await splitProductAndMetaImages(tgPostRecords[ti].images || []);
         removedChartCount += splitRec.meta.length;
         tgPostRecords[ti].images = splitRec.product;
+        tgPostRecords[ti].metaImages = splitRec.meta;
       }
       buildCollectionsFromPosts(tgPostRecords);
+      await applyOcrMeasurementsToCollections();
       $('outTitle').value = '';
       $('outBody').value = '';
       $('outPrice').value = '';
@@ -1096,43 +1095,35 @@
   }
   function getSelectedImageIds(col){ return (col.images||[]).filter(function(im){return im.selected!==false;}).map(function(im){return im.id;}); }
   function escapeHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-  function estimateColorLabel(img) {
+  function dominantColorLabel(img) {
     var a = img && img._look && img._look.avg ? img._look.avg : [128,128,128];
-    var r = Number(a[0]) || 128, g = Number(a[1]) || 128, b = Number(a[2]) || 128;
-    var max = Math.max(r,g,b), min = Math.min(r,g,b), d = max-min;
-    if (max > 235 && d < 28) return 'أبيض';
-    if (max < 55) return 'أسود';
-    if (d < 22 && max < 145) return 'رمادي';
-    if (r > 170 && g > 150 && b < 100 && r-g < 75) return 'أصفر';
-    if (r > 150 && g > 95 && b < 95 && r > g*1.25) return 'أحمر';
-    if (r > 125 && b > 110 && g < 120 && b > g*1.08) return 'بنفسجي';
-    if (b > 135 && b > r*1.12 && b > g*1.05) return 'أزرق';
-    if (g > 115 && g > r*1.05 && g > b*1.05) return 'أخضر';
-    if (r > 145 && g > 90 && b > 90 && Math.abs(r-g) < 70) return 'وردي';
-    if (r > 125 && g > 85 && b < 85) return 'بني';
-    if (r > 150 && g > 120 && b > 85) return 'بيج';
-    return 'لون متنوع';
+    var r=Number(a[0])||128,g=Number(a[1])||128,b=Number(a[2])||128;
+    var max=Math.max(r,g,b), min=Math.min(r,g,b), d=max-min;
+    if(max>220 && d<35) return {name:'أبيض',order:1};
+    if(max<70 && d<45) return {name:'أسود',order:2};
+    if(d<28 && max<165) return {name:'رمادي',order:3};
+    if(r>150 && g>125 && b<105 && r>g*1.12) return {name:'أصفر',order:4};
+    if(r>145 && g>90 && b<105 && r>g*1.28) return {name:'أحمر',order:5};
+    if(r>125 && g<115 && b>105 && b>g*1.08) return {name:'بنفسجي',order:6};
+    if(b>125 && b>r*1.12 && b>g*1.05) return {name:'أزرق',order:7};
+    if(g>105 && g>r*1.08 && g>b*1.04) return {name:'أخضر',order:8};
+    if(r>145 && g>90 && b>105 && Math.abs(r-g)<65) return {name:'وردي',order:9};
+    if(r>125 && g>85 && b<90) return {name:'بني',order:10};
+    if(r>145 && g>115 && b>80) return {name:'بيج',order:11};
+    return {name:'لون متنوع',order:99};
   }
 
   function buildColorGroups(images) {
-    var map = {}, order = [];
-    (images || []).forEach(function (im) {
-      var key = im.groupKey != null && String(im.groupKey) !== '' ? String(im.groupKey) : ('single-' + im.id);
-      if (!map[key]) { map[key] = []; order.push(key); }
-      map[key].push(im);
+    var map={};
+    (images||[]).forEach(function(im){
+      var c=dominantColorLabel(im), key=c.name;
+      if(!map[key]) map[key]={key:key,colorName:c.name,order:c.order,images:[]};
+      map[key].images.push(im);
     });
-    return order.map(function (key, idx) {
-      var imgs = map[key];
-      var selected = pickBestImage(imgs) || imgs[0];
-      return {
-        id: 'g' + idx + '-' + String(key).replace(/[^A-Za-z0-9_-]/g,'').slice(-16),
-        key: key,
-        label: 'اللون ' + (idx + 1),
-        colorName: estimateColorLabel(imgs[0]),
-        images: imgs,
-        selectedId: selected ? selected.id : null
-      };
-    });
+    return Object.keys(map).map(function(k,idx){
+      var g=map[k], selected=pickBestImage(g.images)||g.images[0];
+      return {id:'color-'+idx+'-'+k,key:k,label:g.colorName,colorName:g.colorName,order:g.order,images:g.images,selectedId:selected?selected.id:null};
+    }).sort(function(a,b){return a.order-b.order;});
   }
 
   function getExportImages(col) {
@@ -1148,6 +1139,87 @@
       col.images.forEach(function (im) { if (!seen[im.id]) { seen[im.id]=true; out.push(im); } });
     }
     return out;
+  }
+
+  function normalizeSizeValue(v) {
+    var s = String(v == null ? '' : v).trim();
+    if (/^\d{1,2}$/.test(s)) return String(Number(s));
+    if (/^\d{1,2}\s*سنة$/i.test(s)) return String(Number(s.replace(/\s*سنة$/i,''))) + ' سنة';
+    return s.toUpperCase() === 'XXL' ? '2XL' : s.toUpperCase();
+  }
+
+  function mergeMeasurementRows(baseRows, extraRows) {
+    var map = {};
+    (baseRows || []).forEach(function(r){ if(r && r.size!=null) map[normalizeSizeValue(r.size)]={size:normalizeSizeValue(r.size),pants_length:r.pants_length||'',tshirt_length:r.tshirt_length||'',tshirt_width:r.tshirt_width||''}; });
+    (extraRows || []).forEach(function(r){
+      if(!r || r.size==null) return;
+      var k=normalizeSizeValue(r.size);
+      if(!map[k]) map[k]={size:k,pants_length:'',tshirt_length:'',tshirt_width:''};
+      ['pants_length','tshirt_length','tshirt_width'].forEach(function(f){ if(r[f]!=null && String(r[f]).trim() && !map[k][f]) map[k][f]=String(r[f]).trim(); });
+    });
+    return Object.keys(map).map(function(k){return map[k];}).sort(function(a,b){var na=Number(a.size),nb=Number(b.size);if(isFinite(na)&&isFinite(nb))return na-nb;return String(a.size).localeCompare(String(b.size));});
+  }
+
+  function parseOcrMeasurementText(text) {
+    var t=arDigits(text||'');
+    var lines=t.split(/\r?\n/).map(function(x){return x.trim();}).filter(Boolean), out=[];
+    lines.forEach(function(line){
+      var nums=(line.match(/\d{1,3}(?:[.,]\d+)?/g)||[]).map(function(x){return x.replace(',','.');});
+      if(nums.length<4) return;
+      // OCR أحيانًا يعكس صف الجدول بسبب RTL: 35 45 70 12 بدل 12 70 45 35.
+      var size=Number(nums[0]);
+      if(size<1 || size>20){
+        var last=Number(nums[nums.length-1]);
+        if(last>=1 && last<=20){ nums=nums.slice(0,4).reverse(); size=Number(nums[0]); }
+      }
+      if(size<1 || size>20) return;
+      out.push({size:String(size),pants_length:nums[1]||'',tshirt_length:nums[2]||'',tshirt_width:nums[3]||''});
+    });
+    return out;
+  }
+
+  var sizeOcrBusy=false;
+  async function ocrSizeImages(images) {
+    if(!images || !images.length || !window.Tesseract) return [];
+    var results=[];
+    if(sizeOcrBusy) return results;
+    sizeOcrBusy=true;
+    try {
+      for(var i=0;i<images.length;i++){
+        var img=images[i];
+        try {
+          var r=await Tesseract.recognize(img.dataUrl,'eng',{logger:function(m){
+            if(m && m.status && /recognizing text/i.test(m.status)) showStatus('جاري قراءة ورقة المقاسات تلقائيًا... '+Math.round((m.progress||0)*100)+'%','');
+          }});
+          var rows=parseOcrMeasurementText(r && r.data ? r.data.text : '');
+          if(rows.length) results=mergeMeasurementRows(results,rows);
+        } catch(e) {}
+      }
+    } finally { sizeOcrBusy=false; }
+    return results;
+  }
+
+  async function applyOcrMeasurementsToCollections() {
+    var changed=false;
+    for(var i=0;i<importedCollections.length;i++){
+      var c=importedCollections[i];
+      var meta=c.metaImages||[];
+      if(!meta.length) continue;
+      var rows=await ocrSizeImages(meta);
+      if(!rows.length) continue;
+      var existing=[];
+      (c.sizes||[]).forEach(function(r){ existing.push({size:normalizeSizeValue(r.size),pants_length:(r.values||[])[0]||'',tshirt_length:(r.values||[])[1]||'',tshirt_width:(r.values||[])[2]||''}); });
+      var merged=mergeMeasurementRows(existing,rows);
+      c.sizes=merged.map(function(r){return {size:r.size,price:null,values:[r.pants_length||'',r.tshirt_length||'',r.tshirt_width||'']};});
+      // الحفاظ على الأسعار حسب المقاس إن كانت موجودة.
+      if(c.priceMode==='per_size'){
+        var pm={}; (existing||[]).forEach(function(r){ if(r.size) pm[r.size]=r.price; });
+        c.sizes.forEach(function(r){ if(pm[r.size]!=null) r.price=pm[r.size]; });
+      }
+      changed=true;
+    }
+    if(changed){ renderCollections(); showStatus('تمت قراءة ورقة المقاسات من الصور ووضع القياسات في الأعمدة الصحيحة.','ok'); }
+    return changed;
   }
 
   function collectionFromRecord(rec, idx) {
@@ -1172,17 +1244,18 @@
     measurements.forEach(function (row) { if (row && row.size != null) measMap[String(row.size)] = row; });
 
     var sizes = [];
+    // المصدر الموثوق أولاً: القياسات المنظمة القادمة من Worker ثم حالات المقاسات.
+    measurements.forEach(function (row) { if (row && row.size != null) sizes.push(String(row.size)); });
     if (Array.isArray(rec.sizeStatuses) && rec.sizeStatuses.length) {
       rec.sizeStatuses.forEach(function (ss) { if (ss && ss.size != null) sizes.push(String(ss.size)); });
     }
-    measurements.forEach(function (row) { if (row && row.size != null) sizes.push(String(row.size)); });
+    // لا نأخذ أرقامًا حرة من الكود/الوصف حتى لا يظهر 02 من BN0002/SOLF0002 كمقاس.
     extractRecordSizes(rec, fullText).forEach(function (sz) { sizes.push(sz); });
-    var yr = /\b(\d{1,2})\s*(سنة|سنه|سنوات)\b/gi, m;
+    var yr = /\b(\d{1,2})\s*(سنة|سنه|سنوات|سنين)\b/gi, m;
     while ((m = yr.exec(fullText))) sizes.push(m[1]);
     var mo = /\b(\d{1,2})\s*M\b/gi;
     while ((m = mo.exec(fullText))) sizes.push(m[1] + 'M');
-    var listAll = fullText.match(/(?:⭐️?\s*)?(?:المقاسات|مقاسات)\s*[:：]?\s*((?:\d{1,2}[\s,،]*)+)/i);
-    if (listAll) (listAll[1].match(/\d{1,2}/g) || []).forEach(function (s) { if (Number(s)>=1 && Number(s)<=20) sizes.push(s); });
+    sizes = sizes.map(normalizeSizeValue).filter(Boolean);
     sizes = [...new Set(sizes)];
     sizes.sort(function (a,b) {
       var na=Number(String(a).replace(/\D/g,'')), nb=Number(String(b).replace(/\D/g,''));
@@ -1206,6 +1279,7 @@
         return { size:sz, price:(priceMode==='per_size'&&priceMap[sz]!=null)?priceMap[sz]:null, values:[meas.pants_length||'',meas.tshirt_length||'',meas.tshirt_width||''] };
       }),
       images: images,
+      metaImages: (rec.metaImages||[]),
       colorGroups: colorGroups,
       sourcePostIds: (Array.isArray(rec.sourcePostIds)&&rec.sourcePostIds.length)?rec.sourcePostIds.slice():[rec.id||idx+1],
       selected: true
@@ -1223,6 +1297,7 @@
         if(col.price!=null && dst.price==null) dst.price=col.price;
         col.sizes.forEach(function(sz){if(!dst.sizes.some(function(x){return x.size===sz.size;}))dst.sizes.push(sz);});
         col.images.forEach(function(im){if(!dst.images.some(function(x){return x.id===im.id;}))dst.images.push(im);});
+        col.metaImages.forEach(function(im){if(!dst.metaImages.some(function(x){return x.id===im.id;}))dst.metaImages.push(im);});
         // إعادة بناء مجموعات الألوان بعد تجميع كل منشورات نفس الكود.
         dst.colorGroups=buildColorGroups(dst.images);
       }
@@ -1299,10 +1374,13 @@
       var modalGroups=groups.map(function(g){
         return '<div class="color-group">'+
           '<div class="color-group-head">'+
-            '<span class="color-group-title">'+escapeHtml(g.colorName || ('اللون '+(groups.indexOf(g)+1)))+'</span>'+ 
-            '<span class="color-code-badge">'+escapeHtml(c.code)+' · '+g.images.length+' صور</span>'+ 
-          '</div>'+ 
-          '<div class="color-images">'+(g.images||[]).map(function(im){
+            '<span class="color-group-title">'+escapeHtml(g.colorName || ('اللون '+(groups.indexOf(g)+1)))+'</span>'+
+          '</div>'+
+          '<div class="color-group-body"><div class="color-group-label">'+
+            '<div class="color-name-big">'+escapeHtml(g.colorName || ('اللون '+(groups.indexOf(g)+1)))+'</div>'+
+            '<span class="color-code-badge">'+escapeHtml(c.code)+'</span>'+
+            '<span class="hint">'+g.images.length+' صور للون فقط</span>'+
+          '</div><div class="color-images">'+(g.images||[]).map(function(im){
             var selected=String(g.selectedId)===String(im.id);
             return '<div class="color-image-card '+(selected?'selected':'')+'">'+
               '<button type="button" class="image-delete-btn" title="حذف الصورة" onclick="event.stopPropagation();deleteCollectionImage(\''+c.id+'\',\''+g.id+'\',\''+im.id+'\')">×</button>'+ 
@@ -1311,7 +1389,8 @@
               '<button type="button" class="image-pick-btn" onclick="selectCollectionImage(\''+c.id+'\',\''+g.id+'\',\''+im.id+'\')">'+(selected?'الصورة المعتمدة':'اعتماد هذه الصورة')+'</button>'+ 
             '</div>';
           }).join('')+'</div>'+ 
-          '<div class="color-group-note">هذا صف مستقل لهذا اللون فقط — الضغط على الصورة يفتح التكبير، و X يحذف الصورة من هذا اللون فقط.</div>'+ 
+          '</div></div>'+
+          '<div class="color-group-note">هذا الصف لهذا اللون فقط — لا يتم خلطه مع لون آخر. الضغط على الصورة يفتح التكبير، و X يحذف الصورة من هذا اللون فقط.</div>'+
         '</div>';
       }).join('');
 
@@ -1344,7 +1423,7 @@
               '</div>'+ 
               '<aside class="collection-side-pane">'+
                 '<div class="collection-price-box"><label>السعر الفعلي للكوليكشن</label><input type="number" min="0" value="'+priceValue+'" placeholder="'+(c.priceMode==='per_size'?'حسب المقاس':'السعر')+'" onchange="updateCollectionPrice(\''+c.id+'\',this.value)"><div class="hint">السعر مأخوذ من المنشور/Worker، ولا يتم خلطه مع كوليكشن آخر.</div></div>'+ 
-                '<div class="collection-notes"><b>ملاحظات مهمة:</b><br>• كل كود = نافذة مستقلة.<br>• كل لون = صف مستقل داخل نفس الكوليكشن.<br>• لا يتم دمج ألوان كود آخر هنا.<br>• اضغط أي صورة لرؤيتها مكبرة.<br>• X يحذف الصورة فقط من هذا اللون.<br>• ورقة المقاسات لا تدخل ضمن صور المنتج.<br>• يتم تصدير صورة معتمدة واحدة لكل لون.</div>'+ 
+                '<div class="collection-notes"><b>ملاحظات مهمة:</b><br>• كل كود = نافذة مستقلة.<br>• كل لون = صف مستقل داخل نفس الكوليكشن.<br>• لا يتم دمج ألوان كود آخر هنا.<br>• اضغط أي صورة لرؤيتها مكبرة.<br>• X يحذف الصورة فقط من هذا اللون.<br>• صور الموديل/الأشخاص وورقة المقاسات تُستبعد من صور المنتج.<br>• المقاسات تأتي أولًا من القياسات المنظمة في Worker ولا تُؤخذ أرقام الكود كمقاس.<br>• يتم تصدير صورة معتمدة واحدة لكل لون.<br>• ورقة المقاسات تُقرأ من نص المنشور، ثم تُقرأ بصريًا من صور المقاسات عند الحاجة.</div>'+ 
                 '<div class="collection-notes"><b>إجراءات سريعة</b><div class="btns" style="margin-top:8px;"><button type="button" class="btn ghost" onclick="selectAllCollectionImages(\''+c.id+'\')">تحديد الكل</button><button type="button" class="btn danger" onclick="deleteUnselectedCollectionImages(\''+c.id+'\')">حذف غير المختار</button></div></div>'+ 
               '</aside>'+ 
             '</div>'+ 
@@ -1394,8 +1473,7 @@
     renderSizeTable(exportDraft,'outSizesTable');
     syncOutSizesHidden();
     $('reviewCard').style.display='block';
-    showStatus('تم اعتماد '+c.code+' للتصدير. اختر الصورة النهائية لكل لون ثم راجع السعر والوصف والمقاسات.','ok');
-    $('outTitle').focus();
+    showStatus('تم اعتماد '+c.code+' للتصدير. راجع الصور والمقاسات من نافذة الكوليكشن ثم صدّر مباشرة.','ok');
   };
 
   window.selectCollectionImage=function(cid,gid,imgId){
@@ -1483,16 +1561,17 @@
   };
 
   window.exportProductMd = function () {
-    var title = ($('outTitle').value || '').trim();
-    if (!title) { showStatus('أدخل اسم المنتج.', 'err'); return; }
-    if (!shapes.length && !exportDraft) { showStatus('لا توجد بيانات جاهزة للتصدير.', 'err'); return; }
+    var source = exportDraft || null;
+    var title = (source && (source.title || source.code)) || (($('outTitle') && $('outTitle').value) || '').trim();
+    if (!title) { showStatus('لا يوجد اسم/كود للكوليكشن للتصدير.', 'err'); return; }
+    if (!shapes.length && !source) { showStatus('لا توجد بيانات جاهزة للتصدير.', 'err'); return; }
 
-    var category = $('outCategory').value || 'ملابس شتوية';
-    var price = Number($('outPrice').value) || 0;
-    var collectionCode = ($('outCollectionCode').value || '').trim();
-    var oldRaw = ($('outOldPrice').value || '').trim();
+    var category = ($('outCategory') && $('outCategory').value) || 'ملابس شتوية';
+    var price = source && source.price!=null ? Number(source.price) : (Number($('outPrice').value) || 0);
+    var collectionCode = (source && source.code) || (($('outCollectionCode') && $('outCollectionCode').value) || '').trim();
+    var oldRaw = ($('outOldPrice') && $('outOldPrice').value || '').trim();
     var oldPrice = oldRaw === '' ? null : Number(oldRaw);
-    var body = ($('outBody').value || '').trim();
+    var body = (source && source.description) || (($('outBody') && $('outBody').value) || '').trim();
     var stamp = Date.now();
     var slug = slugify(title);
 
