@@ -94,13 +94,13 @@
     .collection-modal { display:none; position:fixed; inset:0; z-index:950; }
     .collection-modal.open { display:flex; align-items:center; justify-content:center; padding:14px; }
     .collection-modal-backdrop { position:absolute; inset:0; background:rgba(30,15,35,.68); backdrop-filter:blur(2px); }
-    .collection-modal-dialog { position:relative; z-index:1; width:min(1380px,99vw); max-height:95vh; overflow:auto; background:#fff; border:1px solid #e6d8eb; border-radius:18px; box-shadow:0 24px 80px rgba(0,0,0,.35); padding:14px; }
+    .collection-modal-dialog { position:relative; z-index:1; width:min(1540px,99vw); max-height:95vh; overflow:auto; background:#fff; border:1px solid #e6d8eb; border-radius:18px; box-shadow:0 24px 80px rgba(0,0,0,.35); padding:14px; }
     .collection-modal-top { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:2px 4px 12px; border-bottom:1px solid var(--line); }
     .collection-modal-title { color:var(--primary); font-size:18px; font-weight:900; }
     .collection-modal-close { width:36px; height:36px; border:0; border-radius:50%; background:#fff; color:#6a1b9a; font-size:25px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.08); }
-    .collection-modal-grid { display:grid; grid-template-columns:minmax(0,1fr) 285px; gap:12px; margin-top:12px; direction:rtl; }
+    .collection-modal-grid { display:block; margin-top:12px; direction:rtl; }
     .collection-main-pane { min-width:0; }
-    .collection-side-pane { background:#fbf6fd; border:1px solid #eadcf1; border-radius:14px; padding:12px; }
+    .collection-side-pane { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; } 
     .collection-code-box { background:linear-gradient(135deg,#f3e5f5,#fff); border:1px solid #dfc8e8; border-radius:14px; padding:12px; text-align:center; }
     .collection-code-big { display:inline-block; padding:8px 20px; border-radius:999px; background:linear-gradient(135deg,#6a1b9a,#8e24aa); color:#fff; font-size:18px; font-weight:900; direction:ltr; }
     .collection-price-box { background:#fff; border:1px solid #eadcf1; border-radius:14px; padding:12px; margin-top:10px; }
@@ -110,10 +110,10 @@
     .collection-source-text textarea { min-height:105px; margin:6px 0 0; background:#fff; }
     .color-groups { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
     .color-group { border:1px solid var(--line); border-radius:14px; background:#fff; padding:10px; }
-    .color-group-body { display:grid; grid-template-columns:180px minmax(0,1fr); gap:12px; align-items:center; direction:rtl; }
+    .color-group-body { display:grid; grid-template-columns:190px minmax(0,1fr); gap:12px; align-items:center; direction:rtl; }
     .color-group-label { background:#fbf6fd; border:1px solid #eadcf1; border-radius:12px; padding:12px; min-height:92px; display:flex; flex-direction:column; justify-content:center; gap:5px; }
     .color-name-big { font-size:15px; font-weight:900; color:var(--primary); }
-    .color-images { grid-template-columns:repeat(auto-fill,minmax(118px,1fr)); }
+    .color-images { grid-template-columns:repeat(auto-fill,minmax(125px,1fr)); align-items:start; }
     @media(max-width:900px){ .color-group-body{grid-template-columns:1fr}.color-images{grid-template-columns:repeat(2,minmax(100px,1fr));} }
     .color-group-head { display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:8px; }
     .color-group-title { font-weight:900; color:var(--ink); }
@@ -141,7 +141,7 @@
     .image-preview-dialog img { width:100%; max-height:72vh; object-fit:contain; border-radius:12px; background:#f7f4f5; }
     .image-preview-close { position:absolute; left:10px; top:10px; z-index:2; width:34px; height:34px; border:0; border-radius:50%; background:#c62828; color:#fff; font-size:25px; line-height:30px; cursor:pointer; }
     .image-preview-actions { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
-    @media(max-width:820px){ .collection-modal-grid{grid-template-columns:1fr}.collection-side-pane{order:2}.collection-main-pane{order:1} }
+    @media(max-width:820px){ .collection-side-pane{grid-template-columns:1fr}.collection-source-text > div{grid-template-columns:1fr !important}.color-group-body{grid-template-columns:1fr}.color-images{grid-template-columns:repeat(2,minmax(100px,1fr));} }
     @media(max-width:700px){ .collection-card{padding:10px}.collection-summary{grid-template-columns:1fr 1fr}.collection-summary .summary-stat{min-width:0}.size-table{min-width:560px}.color-images{grid-template-columns:repeat(2,minmax(90px,1fr));} }
 
     .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
@@ -506,7 +506,7 @@
             var saturatedRatio = saturated / n;
             var isChart = (brightRatio > 0.5 && blueRatio > 0.04) ||
               (brightRatio > 0.62 && darkRatio < 0.08);
-            var likelyModel = skinRatio > 0.055 && saturatedRatio > 0.08;
+            var likelyModel = skinRatio > 0.018 || (skinRatio > 0.010 && saturatedRatio > 0.14 && blueRatio > 0.01);
             // تطبيع الـ histogram
             var norm = hist.slice();
             var total = 0;
@@ -1114,16 +1114,27 @@
   }
 
   function buildColorGroups(images) {
-    var map={};
-    (images||[]).forEach(function(im){
-      var c=dominantColorLabel(im), key=c.name;
-      if(!map[key]) map[key]={key:key,colorName:c.name,order:c.order,images:[]};
+    // مهم: groupKey القادم من Telegram يمثل الألبوم/اللون، وهو المصدر الأساسي للفصل.
+    // لا نعتمد على المتوسط اللوني وحده لأن الخلفية قد تجعل لونين مختلفين يتداخلان.
+    var map = {}, order = [];
+    (images || []).forEach(function(im, idx){
+      var key = im.groupKey != null ? String(im.groupKey) : ('appearance-' + dominantColorLabel(im).name);
+      if(!map[key]) { map[key] = { key:key, images:[], first:idx }; order.push(key); }
       map[key].images.push(im);
     });
-    return Object.keys(map).map(function(k,idx){
+
+    var groups = order.map(function(k,idx){
       var g=map[k], selected=pickBestImage(g.images)||g.images[0];
-      return {id:'color-'+idx+'-'+k,key:k,label:g.colorName,colorName:g.colorName,order:g.order,images:g.images,selectedId:selected?selected.id:null};
-    }).sort(function(a,b){return a.order-b.order;});
+      var labelObj=dominantColorLabel(selected || g.images[0]);
+      return {id:'color-'+idx+'-'+k,key:k,label:labelObj.name,colorName:labelObj.name,order:idx,images:g.images,selectedId:selected?selected.id:null};
+    });
+
+    // أسماء الألوان المعروفة لها ترتيب ثابت، والباقي يحافظ على ترتيب الألبومات.
+    var fixed={'أبيض':1,'أصفر':2,'أحمر':3,'أخضر':4,'أزرق':5,'أسود':6,'رمادي':7,'وردي':8,'بنفسجي':9,'بني':10,'بيج':11,'لون متنوع':99};
+    groups.forEach(function(g){ g.order = fixed[g.colorName] || (50 + g.order); });
+    groups.sort(function(a,b){ return a.order-b.order; });
+    groups.forEach(function(g,i){ g.id='color-'+i+'-'+g.key; });
+    return groups;
   }
 
   function getExportImages(col) {
@@ -1166,16 +1177,54 @@
     lines.forEach(function(line){
       var nums=(line.match(/\d{1,3}(?:[.,]\d+)?/g)||[]).map(function(x){return x.replace(',','.');});
       if(nums.length<4) return;
-      // OCR أحيانًا يعكس صف الجدول بسبب RTL: 35 45 70 12 بدل 12 70 45 35.
-      var size=Number(nums[0]);
-      if(size<1 || size>20){
-        var last=Number(nums[nums.length-1]);
-        if(last>=1 && last<=20){ nums=nums.slice(0,4).reverse(); size=Number(nums[0]); }
+      // جدول RTL: من اليمين = المقاس، طول البنطلون، طول التيشيرت، عرض التيشيرت.
+      // OCR النصي غالبًا يعيدها من اليسار إلى اليمين، لذلك نعكس الصف.
+      var candidates=nums.slice();
+      var sizeIdx=-1;
+      for(var z=candidates.length-1;z>=0;z--){ var sv=Number(candidates[z]); if(sv>=1&&sv<=20){sizeIdx=z;break;} }
+      if(sizeIdx<0) return;
+      var ordered=[];
+      // نأخذ المقاس ثم آخر 3 قياسات قبله إن وجدت.
+      ordered.push(candidates[sizeIdx]);
+      var before=candidates.slice(0,sizeIdx);
+      if(before.length>=3){ before=before.slice(-3); ordered=ordered.concat(before.reverse()); }
+      else {
+        var after=candidates.slice(sizeIdx+1); ordered=ordered.concat(after.slice(0,3));
+        while(ordered.length<4) ordered.push('');
       }
-      if(size<1 || size>20) return;
-      out.push({size:String(size),pants_length:nums[1]||'',tshirt_length:nums[2]||'',tshirt_width:nums[3]||''});
+      if(ordered.length>=4) out.push({size:String(Number(ordered[0])),pants_length:ordered[1]||'',tshirt_length:ordered[2]||'',tshirt_width:ordered[3]||''});
     });
     return out;
+  }
+
+  async function ocrOneMeasurementImage(img) {
+    if(!window.Tesseract || !img || !img.dataUrl) return [];
+    try {
+      var r=await Tesseract.recognize(img.dataUrl,'eng',{
+        logger:function(m){ if(m&&m.status&&/recognizing text/i.test(m.status)) showStatus('جاري قراءة جدول المقاسات... '+Math.round((m.progress||0)*100)+'%',''); },
+        tessedit_pageseg_mode: 6,
+        tessedit_char_whitelist: '0123456789.-',
+        preserve_interword_spaces: 1
+      });
+      var data=r&&r.data?r.data:null, rows=[];
+      if(data&&Array.isArray(data.words)&&data.words.length){
+        var words=data.words.filter(function(w){return /\d/.test(String(w.text||''));}).map(function(w){return {text:arDigits(String(w.text||'')).replace(/[^0-9.\-]/g,''),x:Number(w.bbox&&w.bbox.x0||0),y:Number(w.bbox&&w.bbox.y0||0),h:Number(w.bbox&&w.bbox.y1||0)-Number(w.bbox&&w.bbox.y0||0)};}).filter(function(w){return w.text;});
+        words.sort(function(a,b){return a.y-b.y || a.x-b.x;});
+        var rowGroups=[];
+        words.forEach(function(w){
+          var row=rowGroups.find(function(rg){return Math.abs(rg.y-w.y)<=Math.max(10,w.h*0.7);});
+          if(!row){row={y:w.y,words:[]};rowGroups.push(row);} row.words.push(w);
+        });
+        rowGroups.sort(function(a,b){return a.y-b.y;});
+        rowGroups.forEach(function(rg){
+          rg.words.sort(function(a,b){return a.x-b.x;});
+          var ns=rg.words.map(function(w){return w.text;}).filter(function(v){return /^\d{1,3}(?:\.\d+)?$/.test(v);});
+          if(ns.length>=4) rows.push(ns.join(' '));
+        });
+      }
+      if(!rows.length && data&&data.text) return parseOcrMeasurementText(data.text);
+      return parseOcrMeasurementText(rows.join('\n'));
+    }catch(e){ return []; }
   }
 
   var sizeOcrBusy=false;
@@ -1186,14 +1235,8 @@
     sizeOcrBusy=true;
     try {
       for(var i=0;i<images.length;i++){
-        var img=images[i];
-        try {
-          var r=await Tesseract.recognize(img.dataUrl,'eng',{logger:function(m){
-            if(m && m.status && /recognizing text/i.test(m.status)) showStatus('جاري قراءة ورقة المقاسات تلقائيًا... '+Math.round((m.progress||0)*100)+'%','');
-          }});
-          var rows=parseOcrMeasurementText(r && r.data ? r.data.text : '');
-          if(rows.length) results=mergeMeasurementRows(results,rows);
-        } catch(e) {}
+        var rows=await ocrOneMeasurementImage(images[i]);
+        if(rows.length) results=mergeMeasurementRows(results,rows);
       }
     } finally { sizeOcrBusy=false; }
     return results;
@@ -1366,7 +1409,7 @@
     if(!importedCollections.length){box.innerHTML='<p class="hint">لا توجد Collections مستوردة.</p>';return;}
 
     box.innerHTML=importedCollections.map(function(c){
-      var groups=c.colorGroups||buildColorGroups(c.images||[]);
+      var groups=(c.colorGroups||buildColorGroups((c.images||[]).filter(function(im){return !(im._look&& (im._look.isChart||im._look.likelyModel));})));
       var priceValue=c.priceMode==='uniform'&&c.price!=null?c.price:'';
       var preview=selectedPreviewImage(c);
       var previewHtml=preview ? '<img src="'+preview.dataUrl+'" alt="'+escapeHtml(c.code)+'" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid #eadcf1;">' : '';
@@ -1412,7 +1455,7 @@
             '<div class="collection-modal-grid">'+
               '<div class="collection-main-pane">'+
                 '<div class="collection-code-box"><div class="hint">كود الكوليكشن</div><div class="collection-code-big">'+escapeHtml(c.code)+'</div></div>'+ 
-                '<div class="collection-source-text" style="margin-top:10px;"><label>نص المنشور (الوصف)</label><textarea onchange="updateCollectionDescription(\''+c.id+'\',this.value)">'+escapeHtml(c.description||'')+'</textarea></div>'+ 
+                '<div class="collection-source-text" style="margin-top:10px;"><div style="display:grid;grid-template-columns:1fr 220px;gap:10px;align-items:start;"><div><label>نص المنشور (الوصف)</label><textarea onchange="updateCollectionDescription(\''+c.id+'\',this.value)">'+escapeHtml(c.description||'')+'</textarea></div><div class="collection-price-box" style="margin-top:0;"><label>السعر الفعلي للكوليكشن</label><input type="number" min="0" value="'+priceValue+'" placeholder="'+(c.priceMode==='per_size'?'حسب المقاس':'السعر')+'" onchange="updateCollectionPrice(\''+c.id+'\',this.value)"><div class="hint">السعر من المنشور/Worker.</div></div></div></div>'+ 
                 '<div class="color-groups">'+modalGroups+'</div>'+ 
                 '<div class="collection-size-section"><h4>المقاسات — ورقة المقاسات مستثناة من الصور وتظهر هنا فقط</h4><div id="modalSizes-'+c.id+'" class="size-table-wrap"></div></div>'+ 
                 '<div class="collection-modal-footer">'+
@@ -1422,7 +1465,7 @@
                 '</div>'+ 
               '</div>'+ 
               '<aside class="collection-side-pane">'+
-                '<div class="collection-price-box"><label>السعر الفعلي للكوليكشن</label><input type="number" min="0" value="'+priceValue+'" placeholder="'+(c.priceMode==='per_size'?'حسب المقاس':'السعر')+'" onchange="updateCollectionPrice(\''+c.id+'\',this.value)"><div class="hint">السعر مأخوذ من المنشور/Worker، ولا يتم خلطه مع كوليكشن آخر.</div></div>'+ 
+                
                 '<div class="collection-notes"><b>ملاحظات مهمة:</b><br>• كل كود = نافذة مستقلة.<br>• كل لون = صف مستقل داخل نفس الكوليكشن.<br>• لا يتم دمج ألوان كود آخر هنا.<br>• اضغط أي صورة لرؤيتها مكبرة.<br>• X يحذف الصورة فقط من هذا اللون.<br>• صور الموديل/الأشخاص وورقة المقاسات تُستبعد من صور المنتج.<br>• المقاسات تأتي أولًا من القياسات المنظمة في Worker ولا تُؤخذ أرقام الكود كمقاس.<br>• يتم تصدير صورة معتمدة واحدة لكل لون.<br>• ورقة المقاسات تُقرأ من نص المنشور، ثم تُقرأ بصريًا من صور المقاسات عند الحاجة.</div>'+ 
                 '<div class="collection-notes"><b>إجراءات سريعة</b><div class="btns" style="margin-top:8px;"><button type="button" class="btn ghost" onclick="selectAllCollectionImages(\''+c.id+'\')">تحديد الكل</button><button type="button" class="btn danger" onclick="deleteUnselectedCollectionImages(\''+c.id+'\')">حذف غير المختار</button></div></div>'+ 
               '</aside>'+ 
@@ -1894,10 +1937,20 @@
           imageRefs.push({ messageId: mid, groupKey: groupHint || String(productId || code) });
         }
 
+        // خريطة موثوقة: كل رسالة تيليجرام تحمل groupedId الخاص بألبوم/لون المنتج.
+        // إذا أعاد product-auto groupedId عامًا للكوليكشن كله، نُفضّل groupedId الخاص بالمنشور.
+        var postGroupById = {};
+        for (var pg = 0; pg < postsForCode.length; pg++) {
+          if (postsForCode[pg] && postsForCode[pg].id != null) {
+            postGroupById[String(postsForCode[pg].id)] = postsForCode[pg].groupedId || String(postsForCode[pg].id);
+          }
+        }
+
         var autoImages = (productData && productData.images) || [];
         for (var ai = 0; ai < autoImages.length; ai++) {
           var aMid = autoImages[ai].messageId != null ? autoImages[ai].messageId : autoImages[ai];
-          addImageRef(aMid, autoImages[ai].groupedId || String(productId || code));
+          var autoGroup = postGroupById[String(aMid)] || autoImages[ai].groupedId || String(productId || code);
+          addImageRef(aMid, autoGroup);
         }
 
         // كل منشور في آخر N ساعات لنفس الكود → صورة/ألبوم اللون
