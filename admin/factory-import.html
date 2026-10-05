@@ -160,11 +160,16 @@
         </div>
 
         <div id="tgLimitBox">
-          <label>نطاق الجلب</label>
-          <p class="hint" style="margin-bottom:8px;">الـ Worker v2 يجلب آخر ~10 منشورات من القناة، ثم يبحث عن كل كود منتج ويجلب صوره تلقائيًا.</p>
-          <select id="tgLimit" style="display:none">
-            <option value="10" selected>آخر 10 منشورات</option>
+          <label>عدد آخر منشورات للتحليل</label>
+          <select id="tgLimit">
+            <option value="10">آخر 10 منشورات</option>
+            <option value="20">آخر 20 منشور</option>
+            <option value="30" selected>آخر 30 منشور</option>
+            <option value="50">آخر 50 منشور</option>
+            <option value="80">آخر 80 منشور</option>
+            <option value="100">آخر 100 منشور</option>
           </select>
+          <p class="hint" style="margin-top:6px;">بعد الجلب يُستخرج كود كل منتج ويُجلب نصه وصوره تلقائيًا عبر الـ Worker.</p>
         </div>
 
         <div id="tgHoursBox" style="display:none;">
@@ -230,7 +235,7 @@
         <p class="hint">
           الإعدادات تُحفظ في المتصفح (localStorage) فقط على جهازك.
           Worker v2: ضع رابط الـ Worker ثم «اختبار الاتصال» و«📱 فحص Telegram» (endpoint: /telegram-test).
-          الجلب يستخدم /telegram-posts ثم /telegram-product-auto لكل كود و /telegram-media-auto للصور.
+          الجلب: /telegram-posts?mode=limit|hours ثم /telegram-product-auto لكل كود و /telegram-media-auto للصور.
         </p>
       </div>
     </div>
@@ -1349,11 +1354,20 @@
     if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker من تبويب الإعدادات.', 'err'); return; }
     var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'limit';
     var hours = mode === 'hours' ? (Number($('tgHours').value) || 6) : null;
-    showStatus('جاري قراءة آخر منشورات تيليجرام من الـ Worker...', '');
+    var limit = mode === 'limit' ? (Number($('tgLimit').value) || 30) : 100;
+    showStatus(
+      mode === 'hours'
+        ? ('جاري سحب منشورات تيليجرام خلال آخر ' + hours + ' ساعة...')
+        : ('جاري جلب آخر ' + limit + ' منشور من تيليجرام...'),
+      ''
+    );
     $('btnFetchTg').disabled = true;
     try {
-      // 1) آخر المنشورات (القناة مثبتة داخل الـ Worker)
-      var r = await fetch(s.workerUrl + '/telegram-posts', {
+      // 1) المنشورات من الـ Worker مع limit أو hours
+      var qs = mode === 'hours'
+        ? ('?mode=hours&hours=' + encodeURIComponent(hours))
+        : ('?mode=limit&limit=' + encodeURIComponent(limit));
+      var r = await fetch(s.workerUrl + '/telegram-posts' + qs, {
         method: 'GET',
         headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
       });
@@ -1364,6 +1378,7 @@
       }
 
       var posts = data.posts || data.items || [];
+      // فلترة إضافية بالساعات على الواجهة كاحتياط (الـ Worker يفلتر أصلًا)
       if (hours != null) {
         posts = posts.filter(function (post) { return isPostWithinHours(post, hours); });
       }
