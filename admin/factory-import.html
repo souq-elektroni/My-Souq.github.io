@@ -82,6 +82,27 @@
     }
     .album-all img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); }
 
+    .collection-card { border:1px solid var(--line); border-radius:16px; background:#fff; padding:14px; margin:12px 0; box-shadow:0 3px 12px rgba(0,0,0,.04); }
+    .collection-head { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    .collection-code { font-weight:900; color:var(--primary); }
+    .source-codes { font-size:11px; color:var(--muted); }
+    .merge-bar { position:sticky; bottom:12px; z-index:20; display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; padding:12px 14px; margin-top:14px; background:rgba(255,255,255,.96); border:1px solid var(--line); border-radius:14px; box-shadow:0 8px 28px rgba(0,0,0,.10); }
+    .merge-check { display:flex; align-items:center; gap:7px; font-weight:800; }
+    .collection-images { display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px; margin-top:10px; }
+    .collection-images label { position:relative; cursor:pointer; }
+    .collection-images img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:10px; border:2px solid transparent; display:block; }
+    .collection-images input:checked + img { border-color:var(--primary); }
+    .size-table-wrap { overflow:auto; margin-top:10px; }
+    .size-table { width:100%; border-collapse:collapse; min-width:620px; }
+    .size-table th,.size-table td { border:1px solid var(--line); padding:7px; text-align:center; font-size:12px; }
+    .size-table th { background:#faf6f8; font-weight:900; }
+    .size-table input { width:100%; min-width:70px; box-sizing:border-box; }
+    .merge-panel { border:2px solid #e7d2dc; background:#fffafb; border-radius:16px; padding:14px; margin-top:14px; }
+    .merge-panel .merge-summary { background:#fff; border:1px solid var(--line); border-radius:12px; padding:10px; margin:10px 0; }
+    .warn { color:#9a5b00; font-weight:800; }
+    .oktext { color:#16734a; font-weight:800; }
+    @media(max-width:700px){ .merge-bar{position:static}.collection-card{padding:10px}.size-table{min-width:560px} }
+
     .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
     .tab {
       padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: #fff;
@@ -217,58 +238,48 @@
 
     <!-- ===== نتيجة التحليل ===== -->
     <div class="card" id="reviewCard" style="display:none;">
-      <h2>③ مراجعة الأشكال والصورة المختارة لكل شكل</h2>
-      <p class="hint" style="margin-bottom:10px;">اضغط صورة بديلة داخل الشكل لو حابب تغيّر الاختيار. كل الأشكال تتجمع في <b>منتج واحد</b>.</p>
-      <div class="shapes" id="shapesBox"></div>
+      <h2>③ مراجعة Collections المستوردة</h2>
+      <p class="hint" style="margin-bottom:10px;">كل كود يظهر أولًا كـ Collection مستقل. راجع الصور والسعر والوصف والمقاسات، ثم يمكنك دمج أكثر من كود في كوليكشن واحد قبل التصدير.</p>
+      <div id="collectionsBox"></div>
+      <div id="mergePanel" class="merge-panel" style="display:none;"></div>
+      <div class="merge-bar">
+        <label class="merge-check"><input type="checkbox" id="selectAllCollections" onchange="toggleAllCollections(this.checked)"> تحديد كل الـ Collections</label>
+        <span id="selectedCollectionsCount" class="hint">0 محدد</span>
+        <button type="button" class="btn" onclick="openMergePanel()">🔗 دمج المحدد في كوليكشن واحد</button>
+      </div>
 
-      <div style="margin-top:16px;">
+      <div class="card" style="margin-top:14px;background:#fff;">
+        <h3 style="margin-top:0;">④ الكوليكشن النهائي / التصدير</h3>
         <div class="row">
           <div>
-            <label>اسم المنتج</label>
-            <input type="text" id="outTitle" placeholder="اسم المنتج / الكوليكشن">
+            <label>اسم المنتج <span style="color:#b00020">*</span></label>
+            <input type="text" id="outTitle" placeholder="اتركه فارغًا لو لم تراجع الاسم بعد">
           </div>
           <div>
             <label>القسم</label>
             <select id="outCategory">
-              <option value="ملابس شتوية">ملابس شتوية</option>
-              <option value="ملابس خروج">ملابس خروج</option>
-              <option value="أحذية">أحذية</option>
-              <option value="عروض">عروض</option>
+              <option value="ملابس شتوية">ملابس شتوية</option><option value="ملابس خروج">ملابس خروج</option><option value="أحذية">أحذية</option><option value="عروض">عروض</option>
             </select>
           </div>
         </div>
         <div class="row">
-          <div>
-            <label>سعر المرحلة الأولى</label>
-            <input type="number" id="outPrice" min="0" placeholder="مثلاً 950" onchange="syncSizePricesFromPhases()">
-          </div>
-          <div>
-            <label>سعر المرحلة الثانية</label>
-            <input type="number" id="outPrice2" min="0" placeholder="مثلاً 1100" onchange="syncSizePricesFromPhases()">
-          </div>
+          <div><label>كود الكوليكشن</label><input type="text" id="outCollectionCode" readonly placeholder="يظهر للتعريف فقط"></div>
+          <div><label>السعر العام (إن وُجد)</label><input type="number" id="outPrice" min="0" placeholder="يُستخدم فقط إذا كان السعر موحدًا"></div>
         </div>
         <div class="row">
-          <div>
-            <label>السعر القديم للبطاقة (اختياري)</label>
-            <input type="number" id="outOldPrice" min="0">
-          </div>
-          <div></div>
+          <div><label>السعر القديم للبطاقة (اختياري)</label><input type="number" id="outOldPrice" min="0"></div><div></div>
         </div>
-        <p class="hint">مرحلتين السعر حسب المنشور (أي مقاسات). المقاسات تتعامل مع الحروف أو السنة أو الشهر — مش مفروضة M–6XL. الوصف بدون سعر.</p>
-        <label>الوصف (بدون أسعار)</label>
-        <textarea id="outBody" placeholder="وصف المنتج فقط — لا تكتب أسعار هنا"></textarea>
-
-        <label>المقاسات (سطر لكل مقاس: المقاس | بنطلون | تيشيرت ط | تيشيرت ع | السعر)</label>
-        <textarea id="outSizes" placeholder="مثال رجالي: M |  |  |  | 950&#10;مثال أطفال: 2 سنة | 44 | 55 | 66 | 550&#10;مثال بيبي: 12M |  |  |  | 400"></textarea>
-        <p class="hint">المقاسات كما في المنشور: حرفي (S–6XL) أو بالسنة (1 سنة…20 سنة) أو بالشهر (3M…24M). يطابق variants في Sveltia.</p>
-
-        <div class="btns">
-          <button type="button" class="btn ok" onclick="exportProductMd()">⬇️ تصدير منتج واحد (.md)</button>
+        <label>الوصف — بدون السعر أو الكود أو المقاسات</label>
+        <textarea id="outBody" style="min-height:220px" placeholder="وصف المنتج فقط"></textarea>
+        <label style="margin-top:12px">المقاسات والأسعار حسب المقاس</label>
+        <div id="outSizesTable" class="size-table-wrap"></div>
+        <textarea id="outSizes" style="display:none"></textarea>
+        <div class="btns" style="margin-top:14px;">
+          <button type="button" class="btn ok" onclick="exportProductMd()">⬇️ تصدير ملف المنتج</button>
           <button type="button" class="btn" onclick="exportToSveltia()">⬆️ تصدير إلى Sveltia CMS</button>
-          <button type="button" class="btn danger" onclick="discardCollection()">🗑️ حذف المسودة</button>
+          <button type="button" class="btn danger" onclick="discardCollection()">🗑️ حذف استيراد</button>
         </div>
         <p class="hint" id="exportHint"></p>
-        <p class="hint">عجبك التحليل؟ صدّر. مش عاجبك؟ احذف المسودة وابدأ كوليكشن تاني — مفيش حاجة بتتحذف من Sveltia أو المتجر.</p>
       </div>
     </div>
 
@@ -279,7 +290,10 @@
 (function () {
   var SETTINGS_KEY = 'mysouq_factory_import_settings';
   var rawImages = []; // { id, dataUrl, name, groupKey }
-  var shapes = []; // { id, label, images: [...], selectedId }
+  var shapes = []; // legacy/manual compatibility
+  var importedCollections = []; // {id, code, title, description, price, sizes, images, sourcePostIds, selectedImageIds, selected}
+  var mergedDraft = null;
+  var tgPostRecords = [];
   var idSeq = 1;
 
   function $(id) { return document.getElementById(id); }
@@ -843,6 +857,16 @@
     }
     showStatus('جاري استبعاد جداول المقاسات وفصل الأشكال...', '');
     var parsed = parseText($('postText').value || '');
+    if (tgPostRecords.length) {
+      buildCollectionsFromPosts(tgPostRecords);
+      $('outTitle').value = '';
+      $('outBody').value = '';
+      $('outPrice').value = '';
+      $('outCollectionCode').value = '';
+      $('reviewCard').style.display = 'block';
+      showStatus('تم فصل المنشورات حسب الكود. راجع كل Collection منفصلًا ثم اختر ما تريد دمجه.', 'ok');
+      return;
+    }
     var grouped = await groupIntoShapes(rawImages);
     shapes = grouped.shapes || [];
     renderShapes();
@@ -869,6 +893,189 @@
     $('reviewCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  function normalizeCode(raw) {
+    var s = String(raw || '').replace(/\u200f|\u200e/g,'').trim();
+    // كود المصنع = حروف + أرقام، مع السماح بفاصل بسيط بين الجزء الحرفي والرقمي.
+    // نوحّد الشكل حتى لا يصبح AVOB-0002 و AVOB0002 كوليكشنين مختلفين.
+    var m = s.match(/(?:^|[^A-Za-z0-9])([A-Za-z]{2,12})[\s_-]*(\d{2,8})(?!\d)/i);
+    if (!m) return '';
+    return (m[1] + m[2]).toUpperCase();
+  }
+
+  function extractCollectionCode(text) {
+    var t = arDigits(text || '');
+    // الأولوية للكود المسبوق بكلمة كود/code حتى لا نلتقط رقمًا آخر من الوصف.
+    var labeled = t.match(/(?:code|كود|كود\s*المنتج|كود\s*الكوليكشن)\s*[:：\-]?\s*([A-Za-z]{2,12}[\s_-]*\d{2,8})(?!\d)/i);
+    if (labeled) return normalizeCode(labeled[1]);
+
+    // ثم نبحث عن صيغة كود مباشرة. لا نقبل رقمًا منفردًا، لتجنب خلط المقاسات مع الكود.
+    var any = t.match(/(?:^|[^A-Za-z0-9])([A-Za-z]{2,12}[\s_-]*\d{2,8})(?!\d)/i);
+    return any ? normalizeCode(any[1]) : '';
+  }
+
+  function extractRecordText(post) {
+    if (!post) return '';
+    var parts = [];
+    ['text','caption','ocrText','ocr','recognizedText','sizeChartText'].forEach(function (k) {
+      if (post[k]) parts.push(String(post[k]));
+    });
+    if (post.data && typeof post.data === 'object') {
+      ['text','caption','ocrText','ocr'].forEach(function (k) {
+        if (post.data[k]) parts.push(String(post.data[k]));
+      });
+    }
+    return parts.join('\n');
+  }
+
+  function extractRecordSizes(post, text) {
+    var out = [];
+    var candidates = [];
+    if (post) {
+      ['sizes','sizeRows','sizeTable','size_chart','sizeChart'].forEach(function (k) {
+        if (Array.isArray(post[k])) candidates = candidates.concat(post[k]);
+      });
+      if (post.data && typeof post.data === 'object') {
+        ['sizes','sizeRows','sizeTable','size_chart','sizeChart'].forEach(function (k) {
+          if (Array.isArray(post.data[k])) candidates = candidates.concat(post.data[k]);
+        });
+      }
+    }
+    candidates.forEach(function (x) {
+      var v = typeof x === 'string' ? x : (x && (x.size || x.name || x.label));
+      if (v != null && String(v).trim()) out.push(String(v).trim());
+    });
+    // نصوص المقاسات المعروفة فقط؛ لا نأخذ أي رقم منفرد حتى لا نخلط المقاس مع الكود.
+    var re = /(?:مقاس|size)\s*[:：-]?\s*(6XL|5XL|4XL|3XL|2XL|XXL|XL|L|M|S|\d{1,2})/gi, m;
+    while ((m = re.exec(text || ''))) out.push(m[1].toUpperCase() === 'XXL' ? '2XL' : m[1].toUpperCase());
+    return [...new Set(out)];
+  }
+  function parsePriceMap(text) {
+    var t=arDigits(text||''), map={};
+    var re=/(?:مقاس|size)\s*[:：]?\s*([A-Za-z0-9]+)\s*(?:-|–|—|:)\s*(\d{2,6})/gi, m;
+    while((m=re.exec(t))) map[m[1]]=Number(m[2]);
+    return map;
+  }
+  function getSelectedImageIds(col){ return (col.images||[]).filter(function(im){return im.selected!==false;}).map(function(im){return im.id;}); }
+  function escapeHtml(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+  function collectionFromRecord(rec, idx) {
+    var text=String(rec.text||'');
+    var fullText=extractRecordText(rec) || text;
+    var code=normalizeCode(rec.code||rec.collectionCode||rec.productCode||extractCollectionCode(fullText));
+    var images=(rec.images||[]).map(function(im){ return typeof im==='string'?{id:idSeq++,dataUrl:im,name:'telegram'}:im; });
+    var priceMap=parsePriceMap(text);
+    var labeled=(text.match(/(?:السعر|سعر)\s*[:：]?\s*(\d{2,6})/i)||[])[1];
+    var currency=(text.match(/(\d{2,6})\s*(?:جنيه|ج\.م|ج\b)/i)||[])[1];
+    var price=labeled?Number(labeled):(currency?Number(currency):null);
+    var mappedPrices=Object.keys(priceMap).map(function(k){return Number(priceMap[k]);}).filter(function(v){return !isNaN(v);});
+    var hasPerSizePrices=mappedPrices.length>0;
+    var mappedUniform=hasPerSizePrices && mappedPrices.every(function(v){return v===mappedPrices[0];});
+    if(mappedUniform) price = mappedPrices[0];
+    var priceMode=(hasPerSizePrices && !mappedUniform) ? 'per_size' : 'uniform';
+    var sizes=[];
+    var extractedSizes=extractRecordSizes(rec, fullText);
+    extractedSizes.forEach(function(sz){ sizes.push(sz); });
+    var yr=/\b(\d{1,2})\s*(سنة|سنه|سنوات)\b/gi; while((m=yr.exec(fullText))) sizes.push(m[1]+' سنة');
+    var mo=/\b(\d{1,2})\s*M\b/gi; while((m=mo.exec(fullText))) sizes.push(m[1]+'M');
+    sizes=[...new Set(sizes)];
+    var desc=stripExternalLinks(fullText).split(/\r?\n/).filter(function(l){l=l.trim(); if(!l)return false; if(/(?:السعر|سعر|كود)\s*[:：-]?\s*[A-Za-z0-9]/i.test(l))return false; if(/^\d{2,6}\s*(?:جنيه|ج\.م|ج)\s*$/i.test(l))return false; return true;}).join('\n').trim();
+    return {id:'c'+(idx+1),code:code||('غير محدد-'+(idx+1)),title:'',description:desc,price:price,priceMode:priceMode,sizes:sizes.map(function(sz){return {size:sz,price:(priceMode==='per_size' && priceMap[sz]!=null)?priceMap[sz]:null,values:['','','']};}),images:images,sourcePostIds:[rec.id||idx+1],selected:true};
+  }
+  function buildCollectionsFromPosts(records) {
+    var map={}, order=[];
+    (records||[]).forEach(function(rec,idx){
+      var col=collectionFromRecord(rec,idx), code=col.code;
+      if(!map[code]){map[code]=col;order.push(code);} else {
+        var dst=map[code];
+        dst.sourcePostIds=dst.sourcePostIds.concat(col.sourcePostIds);
+        if(col.description) dst.description=(dst.description?dst.description+'\n':'')+col.description;
+        if(col.price!=null && dst.price==null) dst.price=col.price;
+        col.sizes.forEach(function(sz){if(!dst.sizes.some(function(x){return x.size===sz.size;}))dst.sizes.push(sz);});
+        col.images.forEach(function(im){if(!dst.images.some(function(x){return x.id===im.id;}))dst.images.push(im);});
+      }
+    });
+    importedCollections=order.map(function(k){return map[k];});
+    renderCollections();
+  }
+  function recalcCollectionPricing(col) {
+    var rows=col.sizes||[], vals=rows.map(function(r){return r.price;});
+    var complete=rows.length>0 && vals.every(function(v){return v!=null && !isNaN(Number(v));});
+    var same=complete && vals.every(function(v){return Number(v)===Number(vals[0]);});
+    if(same){ col.priceMode='uniform'; col.price=Number(vals[0]); rows.forEach(function(r){r.price=null;}); }
+    else { col.priceMode='per_size'; col.price=null; }
+  }
+  function priceSignature(col){
+    var rows=col.sizes||[];
+    if(col.priceMode==='uniform') return 'uniform:'+String(col.price==null?'':col.price);
+    return 'per_size:'+rows.map(function(r){return String(r.size)+'='+String(r.price==null?'':r.price);}).join('|');
+  }
+
+  function renderSizeTable(col, targetId) {
+    var box=$(targetId); if(!box)return;
+    var rows=col.sizes||[];
+    if(!rows.length){box.innerHTML='<p class="hint">لم يتم استخراج مقاسات مؤكدة. يمكنك إضافتها يدويًا.</p>';return;}
+    var showRowPrice=col.priceMode==='per_size';
+    var h='<table class="size-table"><thead><tr><th>المقاس</th><th>بيان 1</th><th>بيان 2</th><th>بيان 3</th>'+(showRowPrice?'<th>السعر</th>':'')+'</tr></thead><tbody>';
+    rows.forEach(function(r,i){h+='<tr><td><input data-size-index="'+i+'" data-field="size" value="'+escapeHtml(r.size)+'"></td><td><input data-size-index="'+i+'" data-field="v0" value="'+escapeHtml((r.values||[])[0]||'')+'"></td><td><input data-size-index="'+i+'" data-field="v1" value="'+escapeHtml((r.values||[])[1]||'')+'"></td><td><input data-size-index="'+i+'" data-field="v2" value="'+escapeHtml((r.values||[])[2]||'')+'"></td>'+(showRowPrice?'<td><input type="number" data-size-index="'+i+'" data-field="price" value="'+(r.price==null?'':r.price)+'"></td>':'')+'</tr>';});
+    h+='</tbody></table>'; box.innerHTML=h;
+    box.querySelectorAll('input').forEach(function(inp){inp.addEventListener('input',function(){var i=Number(inp.dataset.sizeIndex),f=inp.dataset.field,r=rows[i]; if(f==='size')r.size=inp.value; else if(f==='price'){r.price=inp.value===''?null:Number(inp.value); col.priceMode='per_size'; col.price=null; recalcCollectionPricing(col);} else {r.values=r.values||['','',''];r.values[Number(f.slice(1))]=inp.value;} syncOutSizesHidden();});});
+  }
+  function syncOutSizesHidden(){
+    var rows=(mergedDraft&&mergedDraft.sizes)||[]; $('outSizes').value=rows.map(function(r){return [r.size].concat(r.values||['','','']).concat([r.price==null?'':r.price]).join(' | ');}).join('\n');
+  }
+  function renderCollections(){
+    var box=$('collectionsBox'); if(!box)return;
+    if(!importedCollections.length){box.innerHTML='<p class="hint">لا توجد Collections مستوردة.</p>';return;}
+    box.innerHTML=importedCollections.map(function(c,i){
+      var priceLabel=c.priceMode==='per_size'?'السعر: حسب المقاس':'السعر: موحد للكوليكشن';
+      var priceValue=c.priceMode==='uniform'&&c.price!=null?c.price:'';
+      var priceHint=c.priceMode==='per_size'?'⚠️ لكل مقاس سعر مستقل — ويمكن دمج هذا الكوليكشن إذا تطابقت أسعار المقاسات مع الباقي.':'✅ السعر موحد — يُحفظ في خانة السعر ولا يتكرر داخل جدول المقاسات.';
+      return '<div class=\"collection-card\" data-collection-id=\"'+c.id+'\"><div class=\"collection-head\"><label class=\"merge-check\"><input type=\"checkbox\" class=\"collection-select\" data-id=\"'+c.id+'\" '+(c.selected?'checked':'')+'> تحديد للدمج</label><span class=\"collection-code\">كود الكوليكشن: '+escapeHtml(c.code)+'</span><button type=\"button\" class=\"btn danger\" onclick=\"deleteImportedCollection(\''+c.id+'\')\">🗑️ حذف استيراد</button></div><div class=\"source-codes\">منشورات المصدر: '+escapeHtml((c.sourcePostIds||[]).join(', '))+'</div><div class=\"collection-images\">'+(c.images||[]).map(function(im,j){return '<label><input type=\"checkbox\" '+(im.selected!==false?'checked':'')+' onchange=\"toggleCollectionImage(\''+c.id+'\',\''+im.id+'\',this.checked)\" style=\"display:none\"><img src=\"'+im.dataUrl+'\" title=\"الصورة '+(j+1)+'\"></label>';}).join('')+'</div><div class=\"row\"><div><label>'+priceLabel+'</label><input type=\"number\" value=\"'+priceValue+'\" placeholder=\"'+(c.priceMode==='per_size'?'لكل مقاس في الجدول':'مثال: 310')+'\" onchange=\"updateCollectionPrice(\''+c.id+'\',this.value)\"><p class=\"hint\">'+priceHint+'</p></div><div><label>الوصف</label><textarea onchange=\"updateCollectionDescription(\''+c.id+'\',this.value)\">'+escapeHtml(c.description||'')+'</textarea></div></div><div class=\"size-table-wrap\" id=\"size-'+c.id+'\"></div></div>';}).join('');
+    importedCollections.forEach(function(c){renderSizeTable(c,'size-'+c.id);});
+    box.querySelectorAll('.collection-select').forEach(function(cb){cb.addEventListener('change',function(){var c=importedCollections.find(function(x){return x.id===cb.dataset.id;});if(c)c.selected=cb.checked;updateSelectedCount();});});
+    updateSelectedCount();
+  }
+  function updateSelectedCount(){var n=importedCollections.filter(function(c){return c.selected;}).length; $('selectedCollectionsCount').textContent=n+' محدد';}
+  window.toggleAllCollections=function(v){importedCollections.forEach(function(c){c.selected=v;});renderCollections();};
+  window.toggleCollectionImage=function(id,imgId,v){var c=importedCollections.find(function(x){return x.id===id;});if(c){var im=c.images.find(function(x){return String(x.id)===String(imgId);});if(im)im.selected=v;}};
+  window.updateCollectionPrice=function(id,v){var c=importedCollections.find(function(x){return x.id===id;});if(c){if(v===''){c.price=null;c.priceMode='per_size';}else{c.price=Number(v);c.priceMode='uniform';c.sizes.forEach(function(r){r.price=null;});}renderCollections();}};
+  window.updateCollectionDescription=function(id,v){var c=importedCollections.find(function(x){return x.id===id;});if(c)c.description=v;};
+  window.deleteImportedCollection=function(id){importedCollections=importedCollections.filter(function(c){return c.id!==id;});renderCollections();if(!importedCollections.length)$('reviewCard').style.display='none';showStatus('تم حذف الاستيراد من شاشة المراجعة فقط.','ok');};
+  window.openMergePanel=function(){
+    var selected=importedCollections.filter(function(c){return c.selected;}); var p=$('mergePanel');
+    if(selected.length<2){showStatus('اختر Collection أو أكثر للدمج — يلزم اختيار 2 على الأقل.','err');return;}
+    var sizes=selected[0].sizes.map(function(r){return r.size;});
+    var sameSizes=selected.every(function(c){return c.sizes.map(function(r){return r.size;}).join('|')===sizes.join('|');});
+    var signatures=selected.map(priceSignature);
+    var allUniform=selected.every(function(c){return c.priceMode==='uniform' && c.price!=null;});
+    var allPerSize=selected.every(function(c){return c.priceMode==='per_size' && c.sizes.every(function(r){return r.price!=null;});});
+    var mixedCompatible=selected.every(function(c){return c.priceMode==='uniform' || c.priceMode==='per_size';}) && selected.every(function(c){
+      if(c.priceMode==='uniform') return c.price!=null;
+      return c.sizes.every(function(r){return r.price!=null;});
+    });
+    var samePricing=false, mergedPrice=null, mergedMode='uniform';
+    if(allUniform){ samePricing=selected.every(function(c){return Number(c.price)===Number(selected[0].price);}); mergedPrice=samePricing?Number(selected[0].price):null; mergedMode='uniform'; }
+    else if(allPerSize){ samePricing=selected.every(function(c){return c.sizes.map(function(r){return String(r.price);}).join('|')===selected[0].sizes.map(function(r){return String(r.price);}).join('|');}); mergedMode='per_size'; }
+    else if(mixedCompatible){
+      var converted=selected.map(function(c){return c.priceMode==='uniform'?c.sizes.map(function(r){return Number(c.price);}):c.sizes.map(function(r){return Number(r.price);});});
+      samePricing=converted.every(function(arr){return arr.join('|')===converted[0].join('|');});
+      if(samePricing){ var first=converted[0]; var sameAll=first.every(function(v){return v===first[0];}); mergedMode=sameAll?'uniform':'per_size'; mergedPrice=sameAll?first[0]:null; }
+    }
+    var warn=[]; if(!samePricing)warn.push('أسعار المقاسات ليست متطابقة بين الـ Collections المحددة.'); if(!sameSizes)warn.push('جداول المقاسات ليست متطابقة.');
+    var base=selected[0];
+    var mergedSizes=base.sizes.map(function(r,i){
+      var rowPrice=null;
+      if(mergedMode==='per_size'){ rowPrice=base.priceMode==='uniform'?base.price:Number(r.price); }
+      return {size:r.size,price:rowPrice,values:(r.values||[]).slice()};
+    });
+    var merged={id:'merged-'+Date.now(),code:selected.map(function(c){return c.code;}).join(' + '),title:'',description:selected.map(function(c){return c.description||'';}).filter(Boolean).join('\n\n'),price:mergedPrice,priceMode:mergedMode,sizes:mergedSizes,images:[]};
+    selected.forEach(function(c){c.images.filter(function(im){return im.selected!==false;}).forEach(function(im){if(!merged.images.some(function(x){return x.id===im.id;}))merged.images.push(im);});});
+    mergedDraft=merged; $('mergePanel').style.display='block';
+    p.innerHTML='<h3 style="margin-top:0">دمج '+selected.length+' Collections</h3><div class="merge-summary">الأكواد: <b>'+escapeHtml(selected.map(function(c){return c.code;}).join(' · '))+'</b></div>'+(warn.length?'<p class="warn">⚠️ '+warn.join('<br>')+'<br>يمكنك تعديل البيانات يدويًا قبل التصدير.</p>':'<p class="oktext">✅ المقاسات والأسعار متوافقة ويمكن الدمج.</p>')+'<div class="row"><div><label>اسم الكوليكشن النهائي</label><input id="mergeTitle" placeholder="اكتب الاسم النهائي"></div><div><label>كود الكوليكشن (تعريفي)</label><input id="mergeCode" value="'+escapeHtml(merged.code)+'"></div></div><label>الوصف النهائي</label><textarea id="mergeBody" style="min-height:180px">'+escapeHtml(merged.description)+'</textarea><div class="size-table-wrap" id="mergeSizesTable"></div><h4>الصور النهائية</h4><div class="collection-images">'+merged.images.map(function(im){return '<label><input type="checkbox" checked onchange="this.nextElementSibling.style.opacity=this.checked?1:.35; updateMergedImage(\''+im.id+'\',this.checked)" style="display:none"><img src="'+im.dataUrl+'"></label>';}).join('')+'</div><div class="btns" style="margin-top:12px"><button type="button" class="btn" onclick="applyMergeDraft()">✅ اعتماد الدمج للمراجعة</button><button type="button" class="btn ghost" onclick="$(\'mergePanel\').style.display=\'none\'">إلغاء</button></div>';
+    renderSizeTable(merged,'mergeSizesTable'); syncOutSizesHidden();
+  };
+  window.updateMergedImage=function(id,v){if(mergedDraft){var im=mergedDraft.images.find(function(x){return String(x.id)===String(id);});if(im)im.selected=v;}};
+  window.applyMergeDraft=function(){if(!mergedDraft)return; $('outTitle').value=$('mergeTitle').value||''; $('outCollectionCode').value=$('mergeCode').value||mergedDraft.code; $('outPrice').value=mergedDraft.price==null?'':mergedDraft.price; $('outBody').value=$('mergeBody').value||''; renderSizeTable(mergedDraft,'outSizesTable'); syncOutSizesHidden(); $('mergePanel').style.display='none'; showStatus('تم تجهيز الكوليكشن المدمج للمراجعة والتصدير.','ok'); $('reviewCard').scrollIntoView({behavior:'smooth',block:'start'});};
+
   function yamlQuote(val) {
     if (val == null || val === '') return "''";
     var s = String(val);
@@ -892,6 +1099,9 @@
     if (!ok) return;
     rawImages = [];
     shapes = [];
+    importedCollections = [];
+    mergedDraft = null;
+    tgPostRecords = [];
     idSeq = 1;
     renderRawAlbum();
     var sb = $('shapesBox');
@@ -913,23 +1123,22 @@
   window.exportProductMd = function () {
     var title = ($('outTitle').value || '').trim();
     if (!title) { showStatus('أدخل اسم المنتج.', 'err'); return; }
-    if (!shapes.length) { showStatus('لا توجد أشكال محللة.', 'err'); return; }
+    if (!shapes.length && !mergedDraft) { showStatus('لا توجد بيانات جاهزة للتصدير.', 'err'); return; }
 
     var category = $('outCategory').value || 'ملابس شتوية';
     var price = Number($('outPrice').value) || 0;
+    var collectionCode = ($('outCollectionCode').value || '').trim();
     var oldRaw = ($('outOldPrice').value || '').trim();
     var oldPrice = oldRaw === '' ? null : Number(oldRaw);
     var body = ($('outBody').value || '').trim();
     var stamp = Date.now();
     var slug = slugify(title);
 
-    // One selected image per shape → product images
-    var selected = shapes.map(function (sh, i) {
-      var img = sh.images.find(function (x) { return x.id === sh.selectedId; }) || sh.images[0];
-      return { img: img, path: '/images/products/' + slug + '-' + stamp + '-s' + (i + 1) + '.webp' };
-    }).filter(function (x) { return x.img; });
+    // الصور النهائية: من الدمج نستخدم كل الصور التي أبقاها المستخدم، وإلا نحافظ على السلوك القديم.
+    var selected = mergedDraft ? mergedDraft.images.filter(function(im){return im.selected!==false;}).map(function(img,i){return {img:img,path:'/images/products/'+slug+'-'+stamp+'-s'+(i+1)+'.webp'};}) : shapes.map(function (sh, i) { var img = sh.images.find(function (x) { return x.id === sh.selectedId; }) || sh.images[0]; return { img: img, path: '/images/products/' + slug + '-' + stamp + '-s' + (i + 1) + '.webp' }; }).filter(function (x) { return x.img; });
 
     // variants from sizes textarea
+    syncOutSizesHidden();
     var variants = [];
     ($('outSizes').value || '').split(/\r?\n/).forEach(function (line) {
       line = line.trim();
@@ -957,6 +1166,7 @@
 
     var md = '---\n';
     md += 'title: ' + yamlQuote(title) + '\n';
+    if (collectionCode) md += 'collection_code: ' + yamlQuote(collectionCode) + '\n';
     md += 'category: ' + yamlQuote(category) + '\n';
     md += 'images:\n';
     selected.forEach(function (s) { md += '  - ' + s.path + '\n'; });
@@ -1030,16 +1240,54 @@
     return /جرد[^\n]*(?:كوليكشن|كولكشن|كوليكشنات|collection|collections|inventory)|(?:كوليكشن|كولكشن|collection|collections|inventory)[^\n]*جرد/i.test(text);
   }
 
+  // قاعدة الاستيراد الأساسية: لا ندخل أي رسالة/صورة في التحليل إلا إذا كان لها كود منتج حقيقي.
+  // لا نتبع روابط خارجية ولا نعتبر منشورات الإعلانات/التوافر/الطلبات منتجات.
+  function hasProductCode(post) {
+    var text = extractRecordText(post);
+    var direct = normalizeCode((post && (post.code || post.collectionCode || post.productCode)) || '');
+    if (direct) return true;
+    return !!extractCollectionCode(text);
+  }
+
+  function stripExternalLinks(text) {
+    return String(text || '')
+      .replace(/https?:\/\/\S+/gi, ' ')
+      .replace(/www\.\S+/gi, ' ')
+      .replace(/t\.me\/\S+/gi, ' ')
+      .replace(/telegram\.me\/\S+/gi, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
   function filterTelegramPosts(posts) {
     var result = [];
     var skippedStickers = 0;
     var skippedInventory = 0;
+    var skippedNoCode = 0;
+    var skippedPolls = 0;
+    var skippedAnimations = 0;
     (posts || []).forEach(function (post) {
       if (isStickerPost(post)) { skippedStickers++; return; }
+      if (post && (post.isPoll || /poll/i.test(String(post.mediaType || '')))) { skippedPolls++; return; }
+      if (post && (post.isAnimation || /animation|gif/i.test(String(post.mediaType || '')))) { skippedAnimations++; return; }
       if (isCollectionInventoryPost(post)) { skippedInventory++; return; }
+
+      // لا نقرأ أي منشور خارجي/إعلاني بلا كود منتج.
+      if (!hasProductCode(post)) { skippedNoCode++; return; }
+
+      // الروابط لا تُتبع ولا تُستخدم كمصدر بيانات. نحتفظ فقط بنص المنشور بدون الرابط.
+      if (post && typeof post.text === 'string') post.text = stripExternalLinks(post.text);
+      if (post && typeof post.caption === 'string') post.caption = stripExternalLinks(post.caption);
       result.push(post);
     });
-    return { posts: result, skippedStickers: skippedStickers, skippedInventory: skippedInventory };
+    return {
+      posts: result,
+      skippedStickers: skippedStickers,
+      skippedInventory: skippedInventory,
+      skippedNoCode: skippedNoCode,
+      skippedPolls: skippedPolls,
+      skippedAnimations: skippedAnimations
+    };
   }
 
   function isPostWithinHours(post, hours) {
@@ -1077,6 +1325,20 @@
 
       // Worker يرجع items. نُبقي posts كـ fallback للتوافق.
       var posts = data.items || data.posts || [];
+      // لا نكرر نفس رسالة Telegram داخل نفس جلسة الاستيراد إذا ضغط المستخدم جلب مرة أخرى.
+      var seenPostIds = new Set((tgPostRecords || []).map(function (x) { return String(x.id); }));
+      posts = posts.filter(function (post) {
+        if (post && post.id != null) {
+          var key = String(post.id);
+          if (seenPostIds.has(key)) return false;
+          seenPostIds.add(key);
+        }
+        return true;
+      });
+      if (!posts.length) {
+        showStatus('لا توجد منشورات جديدة ضمن الاختيار الحالي — تم تجاهل المنشورات التي سبق استيرادها.', 'ok');
+        return;
+      }
       if (!posts.length) {
         showStatus('لم يُرجع الـ Worker منشورات. تأكد أن حساب Telegram متصل وأن القناة صحيحة.', 'err');
         return;
@@ -1086,11 +1348,21 @@
       var filtered = filterTelegramPosts(posts);
       posts = filtered.posts;
       if (!posts.length) {
-        showStatus('تم استبعاد المنشورات غير المطلوبة (استيكرات/جرد كوليكشنات)، ولم يتبق منشورات منتجات في الفترة المختارة.', 'err');
+        showStatus('تم استبعاد كل المنشورات التي بلا كود منتج أو التي هي استيكر/موشن/استطلاع/جرد، ولم يتبق منشورات منتجات.', 'err');
         return;
       }
+      showStatus(
+        'تم قبول ' + posts.length + ' منشورًا بكود منتج فقط. ' +
+        'تم استبعاد: ' + filtered.skippedNoCode + ' بلا كود، ' +
+        filtered.skippedStickers + ' استيكر، ' +
+        filtered.skippedAnimations + ' موشن، ' +
+        filtered.skippedPolls + ' استطلاع، ' +
+        filtered.skippedInventory + ' جرد. الروابط الخارجية لا يتم فتحها أو قراءتها.',
+        'ok'
+      );
 
       var texts = [];
+      tgPostRecords = [];
       var loadedImages = 0;
       var failedImages = 0;
 
@@ -1098,17 +1370,13 @@
         var post = posts[p] || {};
         if (post.text) texts.push(post.text);
 
+        var rec = { id: post.id, code: post.code || post.collectionCode || post.productCode || extractCollectionCode(post.text || ''), text: post.text || '', images: [] };
         // النسخة القديمة إن وُجدت images تظل مدعومة.
         var oldImgs = post.images || [];
         for (var j = 0; j < oldImgs.length; j++) {
           var oldSrc = oldImgs[j];
           if (typeof oldSrc === 'string' && oldSrc.indexOf('data:') === 0) {
-            rawImages.push({
-              id: idSeq++,
-              dataUrl: oldSrc,
-              name: 'tg-' + (post.id || p) + '-' + j + '.jpg',
-              groupKey: post.groupedId || String(post.id || p)
-            });
+            var ri = {id:idSeq++,dataUrl:oldSrc,name:'tg-'+(post.id||p)+'-'+j+'.jpg',groupKey:post.groupedId||String(post.id||p)}; rawImages.push(ri); rec.images.push(ri);
             loadedImages++;
           }
         }
@@ -1134,12 +1402,7 @@
               });
               var ext = (blob.type || 'image/jpeg').split('/')[1] || 'jpeg';
               if (ext === 'jpeg') ext = 'jpg';
-              rawImages.push({
-                id: idSeq++,
-                dataUrl: dataUrl,
-                name: 'tg-' + post.id + '.' + ext,
-                groupKey: post.groupedId || String(post.id)
-              });
+              var ri2={id:idSeq++,dataUrl:dataUrl,name:'tg-'+post.id+'.'+ext,groupKey:post.groupedId||String(post.id)}; rawImages.push(ri2); rec.images.push(ri2);
               loadedImages++;
             } else {
               failedImages++;
@@ -1148,6 +1411,7 @@
             failedImages++;
           }
         }
+        tgPostRecords.push(rec);
       }
 
       if (texts.length) {
@@ -1158,11 +1422,14 @@
       if (loadedImages) {
         runAnalyze();
         showStatus(
-          'تم جلب ' + posts.length + ' منشور و ' + loadedImages + ' صورة وتم التحليل.' +
-          (filtered.skippedStickers ? ' تم استبعاد ' + filtered.skippedStickers + ' استيكر.' : '') +
-          (filtered.skippedInventory ? ' تم استبعاد ' + filtered.skippedInventory + ' منشور جرد كوليكشن.' : '') +
+          'تم جلب ' + posts.length + ' منشور جديد و ' + loadedImages + ' صورة وتم التحليل.' +
+          (filtered.skippedNoCode ? ' استُبعد ' + filtered.skippedNoCode + ' بلا كود.' : '') +
+          (filtered.skippedStickers ? ' استُبعد ' + filtered.skippedStickers + ' استيكر.' : '') +
+          (filtered.skippedAnimations ? ' استُبعد ' + filtered.skippedAnimations + ' موشن.' : '') +
+          (filtered.skippedPolls ? ' استُبعد ' + filtered.skippedPolls + ' استطلاع.' : '') +
+          (filtered.skippedInventory ? ' استُبعد ' + filtered.skippedInventory + ' جرد.' : '') +
           (failedImages ? ' تعذر تحميل ' + failedImages + ' ميديا.' : '') +
-          ' راجع ثم صدّر أو احذف.',
+          ' الروابط الخارجية لا تُفتح. راجع ثم صدّر أو احذف.',
           'ok'
         );
       } else {
