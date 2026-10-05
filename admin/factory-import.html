@@ -121,8 +121,8 @@
     <header>
       <h1>🏭 استيراد من المصنع</h1>
       <p>
-        الأداة الأساسية: <b>تيليجرام عبر حسابك</b> (Worker) — قراءة المنشورات والصور، استبعاد الاستيكرات ومنشورات جرد الكوليكشنات، تحليل الأشكال،
-        اختيار صورة واضحة لكل شكل، ثم <b>تصدير منتج واحد</b> أو <b>حذف المسودة</b> لو مش عاجباك.
+        الأداة الأساسية: <b>تيليجرام عبر حسابك</b> (Worker v2) — قراءة آخر المنشورات، استخراج أكواد المنتجات، جلب التفاصيل والصور تلقائيًا لكل كود،
+        استبعاد الاستيكرات ومنشورات الجرد، ثم <b>تصدير منتج</b> أو <b>حذف المسودة</b>.
         الرفع اليدوي موجود فقط كاحتياطي لو الجلب من تيليجرام متوقف مؤقتًا.
       </p>
       <p class="hint" style="margin-top:8px;">
@@ -144,8 +144,9 @@
     <div id="panel-telegram" class="panel active">
       <div class="card">
         <h2>جلب من تيليجرام عبر الـ Worker</h2>
-        <label>رابط القناة أو @username</label>
-        <input type="text" id="tgChannel" placeholder="@factory_channel أو رابط t.me/...">
+        <label>القناة (اختياري — مثبتة داخل الـ Worker حاليًا)</label>
+        <input type="text" id="tgChannel" placeholder="BlueBee kids — القناة مضبوطة في الـ Worker" disabled style="opacity:.7">
+        <p class="hint">الـ Worker v2 يقرأ من قناة ثابتة. الجلب يتم عبر آخر المنشورات ثم البحث بالكود لكل منتج.</p>
         <label>طريقة السحب</label>
         <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:8px 0 12px;">
           <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
@@ -159,13 +160,10 @@
         </div>
 
         <div id="tgLimitBox">
-          <label>عدد آخر منشورات للتحليل</label>
-          <select id="tgLimit">
-            <option value="10">آخر 10 منشورات</option>
-            <option value="15" selected>آخر 15 منشور</option>
-            <option value="20">آخر 20 منشور</option>
-            <option value="30">آخر 30 منشور</option>
-            <option value="50">آخر 50 منشور</option>
+          <label>نطاق الجلب</label>
+          <p class="hint" style="margin-bottom:8px;">الـ Worker v2 يجلب آخر ~10 منشورات من القناة، ثم يبحث عن كل كود منتج ويجلب صوره تلقائيًا.</p>
+          <select id="tgLimit" style="display:none">
+            <option value="10" selected>آخر 10 منشورات</option>
           </select>
         </div>
 
@@ -187,7 +185,7 @@
           <button type="button" class="btn" id="btnFetchTg" onclick="fetchFromTelegram()">⬇️ جلب المنشورات وتحليلها</button>
         </div>
         <p class="hint">
-          هذا المسار الأساسي. بعد ضبط الـ Worker وتسجيل دخول حسابك مرة واحدة، المنشورات والصور تتجاب هنا تلقائيًا ثم تراجع وتصدّر أو تحذف.
+          بعد ضبط رابط الـ Worker وفحص Telegram، اضغط الجلب: يقرأ آخر المنشورات، يستخرج الأكواد، ويجلب صور كل منتج عبر الـ Worker ثم يعرضها للمراجعة.
         </p>
         <div id="tgPostsList" style="margin-top:12px;"></div>
       </div>
@@ -231,7 +229,8 @@
         </div>
         <p class="hint">
           الإعدادات تُحفظ في المتصفح (localStorage) فقط على جهازك.
-          خطوات تيليجرام: ضع رابط الـ Worker وADMIN_KEY ثم استخدم «📱 فحص Telegram» للتأكد أن جلسة Telegram المحفوظة في KV تعمل.
+          Worker v2: ضع رابط الـ Worker ثم «اختبار الاتصال» و«📱 فحص Telegram» (endpoint: /telegram-test).
+          الجلب يستخدم /telegram-posts ثم /telegram-product-auto لكل كود و /telegram-media-auto للصور.
         </p>
       </div>
     </div>
@@ -348,30 +347,34 @@
         headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
       });
       var j = await r.json().catch(function () { return {}; });
-      if (r.ok) showStatus('الاتصال بالـ Worker ناجح ✅ — ' + (j.version || j.status || 'ok'), 'ok');
-      else showStatus('الـ Worker رد بحالة ' + r.status, 'err');
+      if (r.ok) {
+        var tg = j.telegramConfigured ? ' · Telegram مضبوط' : ' · Telegram غير مضبوط';
+        showStatus('الاتصال بالـ Worker ناجح ✅ — v' + (j.version || '?') + tg, 'ok');
+      } else {
+        showStatus('الـ Worker رد بحالة ' + r.status, 'err');
+      }
     } catch (e) {
       showStatus('تعذر الاتصال: ' + (e.message || e), 'err');
     }
   };
-  // فحص حالة تسجيل Telegram مع إرسال ADMIN_KEY من الصفحة
+  // فحص حالة تسجيل Telegram — Worker v2: /telegram-test
   window.testTelegramStatus = async function () {
     var s = getSettings();
     if (!s.workerUrl) { showStatus('أدخل رابط الـ Worker أولًا.', 'err'); return; }
     try {
       showStatus('جاري فحص حالة Telegram...', '');
-      var r = await fetch(s.workerUrl + '/telegram-status', {
+      var r = await fetch(s.workerUrl + '/telegram-test', {
         method: 'GET',
         headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
       });
       var j = await r.json().catch(function () { return {}; });
-      if (r.ok && j.authorized) {
-        var a = j.account || {};
+      if (r.ok && (j.telegramConnected || j.status === 'ok')) {
+        var a = j.user || j.account || {};
         var name = [a.firstName || '', a.lastName || ''].join(' ').trim();
         var username = a.username ? ' @' + a.username : '';
         showStatus('Telegram متصل بنجاح ✅' + (name ? ' — ' + name : '') + username, 'ok');
       } else {
-        showStatus(j.error || ('فشل فحص Telegram — HTTP ' + r.status), 'err');
+        showStatus(j.message || j.error || ('فشل فحص Telegram — HTTP ' + r.status), 'err');
       }
     } catch (e) {
       showStatus('تعذر فحص Telegram: ' + (e.message || e), 'err');
@@ -965,13 +968,20 @@
     var priceMap=parsePriceMap(text);
     var labeled=(text.match(/(?:السعر|سعر)\s*[:：]?\s*(\d{2,6})/i)||[])[1];
     var currency=(text.match(/(\d{2,6})\s*(?:جنيه|ج\.م|ج\b)/i)||[])[1];
-    var price=labeled?Number(labeled):(currency?Number(currency):null);
+    // أولوية لسعر الـ Worker إن وُجد
+    var price = (rec.price != null && !isNaN(Number(rec.price))) ? Number(rec.price) : (labeled?Number(labeled):(currency?Number(currency):null));
     var mappedPrices=Object.keys(priceMap).map(function(k){return Number(priceMap[k]);}).filter(function(v){return !isNaN(v);});
     var hasPerSizePrices=mappedPrices.length>0;
     var mappedUniform=hasPerSizePrices && mappedPrices.every(function(v){return v===mappedPrices[0];});
     if(mappedUniform) price = mappedPrices[0];
     var priceMode=(hasPerSizePrices && !mappedUniform) ? 'per_size' : 'uniform';
     var sizes=[];
+    // مقاسات من Worker sizeStatuses إن وُجدت
+    if (Array.isArray(rec.sizeStatuses) && rec.sizeStatuses.length) {
+      rec.sizeStatuses.forEach(function(ss){
+        if (ss && ss.size != null) sizes.push(String(ss.size));
+      });
+    }
     var extractedSizes=extractRecordSizes(rec, fullText);
     extractedSizes.forEach(function(sz){ sizes.push(sz); });
     var yr=/\b(\d{1,2})\s*(سنة|سنه|سنوات)\b/gi; while((m=yr.exec(fullText))) sizes.push(m[1]+' سنة');
@@ -1297,35 +1307,68 @@
     return t >= Date.now() - (hours * 60 * 60 * 1000);
   }
 
-  // Telegram fetch via worker
+  // تحميل صورة واحدة من Worker v2: /telegram-media-auto?messageId=
+  async function downloadTelegramMedia(workerUrl, workerKey, messageId) {
+    var mediaUrl = workerUrl + '/telegram-media-auto?messageId=' + encodeURIComponent(messageId);
+    var ir = await fetch(mediaUrl, {
+      headers: workerKey ? { 'X-Admin-Key': workerKey } : {}
+    });
+    if (!ir.ok) throw new Error('HTTP ' + ir.status);
+    var blob = await ir.blob();
+    if (blob && blob.type && blob.type.indexOf('image/') !== 0 && blob.type !== 'application/octet-stream') {
+      throw new Error('الميديا ليست صورة');
+    }
+    var dataUrl = await new Promise(function (res, rej) {
+      var fr = new FileReader();
+      fr.onload = function () { res(fr.result); };
+      fr.onerror = rej;
+      fr.readAsDataURL(blob);
+    });
+    var ext = ((blob.type || 'image/jpeg').split('/')[1] || 'jpeg');
+    if (ext === 'jpeg') ext = 'jpg';
+    return { dataUrl: dataUrl, ext: ext };
+  }
+
+  // جلب منتج كامل بالكود عبر Worker v2: /telegram-product-auto?code=
+  async function fetchProductByCode(workerUrl, workerKey, code) {
+    var url = workerUrl + '/telegram-product-auto?code=' + encodeURIComponent(code);
+    var r = await fetch(url, {
+      headers: workerKey ? { 'X-Admin-Key': workerKey } : {}
+    });
+    var data = await r.json().catch(function () { return {}; });
+    if (!r.ok || data.status === 'not_found' || data.status === 'error') {
+      return null;
+    }
+    return data;
+  }
+
+  // Telegram fetch عبر Worker v2
+  // المسار: /telegram-posts → فلترة أكواد → /telegram-product-auto لكل كود → /telegram-media-auto للصور
   window.fetchFromTelegram = async function () {
     var s = getSettings();
-    var ch = ($('tgChannel').value || '').trim();
     if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker من تبويب الإعدادات.', 'err'); return; }
-    if (!ch) { showStatus('أدخل القناة.', 'err'); return; }
     var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'limit';
-    var limit = mode === 'hours' ? 100 : (Number($('tgLimit').value) || 15);
     var hours = mode === 'hours' ? (Number($('tgHours').value) || 6) : null;
-    showStatus(mode === 'hours' ? 'جاري قراءة منشورات تيليجرام حتى بداية آخر ' + hours + ' ساعة...' : 'جاري الجلب من تيليجرام...', '');
+    showStatus('جاري قراءة آخر منشورات تيليجرام من الـ Worker...', '');
     $('btnFetchTg').disabled = true;
     try {
-      var r = await fetch(s.workerUrl + '/fetch', {
-        method: 'POST',
-        headers: Object.assign(
-          { 'Content-Type': 'application/json' },
-          s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
-        ),
-        body: JSON.stringify({ channel: ch, limit: Math.min(Math.max(limit, 1), 50), mode: mode, hours: hours })
+      // 1) آخر المنشورات (القناة مثبتة داخل الـ Worker)
+      var r = await fetch(s.workerUrl + '/telegram-posts', {
+        method: 'GET',
+        headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
       });
       var data = await r.json().catch(function () { return {}; });
       if (!r.ok) {
-        showStatus(data.error || ('خطأ ' + r.status + ' — تأكد من تسجيل دخول تيليجرام على الـ Worker'), 'err');
+        showStatus(data.message || data.error || ('خطأ ' + r.status + ' — تأكد من تسجيل دخول تيليجرام على الـ Worker'), 'err');
         return;
       }
 
-      // Worker يرجع items. نُبقي posts كـ fallback للتوافق.
-      var posts = data.items || data.posts || [];
-      // لا نكرر نفس رسالة Telegram داخل نفس جلسة الاستيراد إذا ضغط المستخدم جلب مرة أخرى.
+      var posts = data.posts || data.items || [];
+      if (hours != null) {
+        posts = posts.filter(function (post) { return isPostWithinHours(post, hours); });
+      }
+
+      // لا نكرر نفس رسالة داخل نفس الجلسة
       var seenPostIds = new Set((tgPostRecords || []).map(function (x) { return String(x.id); }));
       posts = posts.filter(function (post) {
         if (post && post.id != null) {
@@ -1335,83 +1378,100 @@
         }
         return true;
       });
+
       if (!posts.length) {
-        showStatus('لا توجد منشورات جديدة ضمن الاختيار الحالي — تم تجاهل المنشورات التي سبق استيرادها.', 'ok');
-        return;
-      }
-      if (!posts.length) {
-        showStatus('لم يُرجع الـ Worker منشورات. تأكد أن حساب Telegram متصل وأن القناة صحيحة.', 'err');
+        showStatus('لا توجد منشورات جديدة ضمن الاختيار الحالي.', 'ok');
         return;
       }
 
-      // فلترة إضافية في الواجهة لضمان عدم ظهور الاستيكرات أو منشورات جرد الكوليكشنات.
+      // فلترة الاستيكرات / الجرد / بدون كود
       var filtered = filterTelegramPosts(posts);
       posts = filtered.posts;
       if (!posts.length) {
-        showStatus('تم استبعاد كل المنشورات التي بلا كود منتج أو التي هي استيكر/موشن/استطلاع/جرد، ولم يتبق منشورات منتجات.', 'err');
+        showStatus('تم استبعاد كل المنشورات (بلا كود / استيكر / موشن / استطلاع / جرد).', 'err');
         return;
       }
-      showStatus(
-        'تم قبول ' + posts.length + ' منشورًا بكود منتج فقط. ' +
-        'تم استبعاد: ' + filtered.skippedNoCode + ' بلا كود، ' +
-        filtered.skippedStickers + ' استيكر، ' +
-        filtered.skippedAnimations + ' موشن، ' +
-        filtered.skippedPolls + ' استطلاع، ' +
-        filtered.skippedInventory + ' جرد. الروابط الخارجية لا يتم فتحها أو قراءتها.',
-        'ok'
-      );
+
+      // استخراج أكواد فريدة للمنتجات
+      var codeMap = {};
+      var codeOrder = [];
+      posts.forEach(function (post) {
+        var code = normalizeCode(post.code || post.collectionCode || post.productCode || extractCollectionCode(post.text || ''));
+        if (!code) return;
+        if (!codeMap[code]) {
+          codeMap[code] = post;
+          codeOrder.push(code);
+        }
+      });
+
+      if (!codeOrder.length) {
+        showStatus('لم يُعثر على أكواد منتجات صالحة في المنشورات.', 'err');
+        return;
+      }
+
+      showStatus('وُجد ' + codeOrder.length + ' كود منتج — جاري جلب التفاصيل والصور لكل كود...', '');
 
       var texts = [];
       tgPostRecords = [];
       var loadedImages = 0;
       var failedImages = 0;
+      var productsFound = 0;
 
-      for (var p = 0; p < posts.length; p++) {
-        var post = posts[p] || {};
-        if (post.text) texts.push(post.text);
+      for (var ci = 0; ci < codeOrder.length; ci++) {
+        var code = codeOrder[ci];
+        var fallbackPost = codeMap[code] || {};
+        showStatus('جاري جلب المنتج ' + (ci + 1) + '/' + codeOrder.length + ': ' + code + '...', '');
 
-        var rec = { id: post.id, code: post.code || post.collectionCode || post.productCode || extractCollectionCode(post.text || ''), text: post.text || '', images: [] };
-        // النسخة القديمة إن وُجدت images تظل مدعومة.
-        var oldImgs = post.images || [];
-        for (var j = 0; j < oldImgs.length; j++) {
-          var oldSrc = oldImgs[j];
-          if (typeof oldSrc === 'string' && oldSrc.indexOf('data:') === 0) {
-            var ri = {id:idSeq++,dataUrl:oldSrc,name:'tg-'+(post.id||p)+'-'+j+'.jpg',groupKey:post.groupedId||String(post.id||p)}; rawImages.push(ri); rec.images.push(ri);
-            loadedImages++;
-          }
+        var productData = null;
+        try {
+          productData = await fetchProductByCode(s.workerUrl, s.workerKey, code);
+        } catch (e) {
+          productData = null;
         }
 
-        // النسخة الجديدة: الـ Worker ينزّل صورة Telegram مباشرة.
-        if (post.hasMedia && post.id != null) {
+        var productText = (productData && productData.product && productData.product.text) || fallbackPost.text || '';
+        var productId = (productData && productData.product && productData.product.messageId) || fallbackPost.id;
+        var imageRefs = (productData && productData.images) || [];
+
+        // إن لم يرجع الـ Worker صورًا عبر product-auto، نحاول صورة المنشور نفسه إن وُجدت ميديا
+        if (!imageRefs.length && fallbackPost.hasMedia && fallbackPost.id != null) {
+          imageRefs = [{ messageId: fallbackPost.id }];
+        }
+
+        if (productText) texts.push(productText);
+
+        var rec = {
+          id: productId,
+          code: code,
+          text: productText,
+          images: [],
+          price: productData && productData.product ? productData.product.price : null,
+          sizeStatuses: productData && productData.product ? productData.product.sizeStatuses : null
+        };
+
+        for (var mi = 0; mi < imageRefs.length; mi++) {
+          var mid = imageRefs[mi].messageId != null ? imageRefs[mi].messageId : imageRefs[mi];
+          if (mid == null) continue;
           try {
-            var mediaUrl = s.workerUrl + '/telegram-media?channel=' +
-              encodeURIComponent(ch) + '&messageId=' + encodeURIComponent(post.id);
-            var ir = await fetch(mediaUrl, {
-              headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
-            });
-            if (ir.ok) {
-              var blob = await ir.blob();
-              if (blob && blob.type && blob.type.indexOf('image/') !== 0) {
-                throw new Error('الميديا ليست صورة');
-              }
-              var dataUrl = await new Promise(function (res, rej) {
-                var fr = new FileReader();
-                fr.onload = function () { res(fr.result); };
-                fr.onerror = rej;
-                fr.readAsDataURL(blob);
-              });
-              var ext = (blob.type || 'image/jpeg').split('/')[1] || 'jpeg';
-              if (ext === 'jpeg') ext = 'jpg';
-              var ri2={id:idSeq++,dataUrl:dataUrl,name:'tg-'+post.id+'.'+ext,groupKey:post.groupedId||String(post.id)}; rawImages.push(ri2); rec.images.push(ri2);
-              loadedImages++;
-            } else {
-              failedImages++;
-            }
+            var dl = await downloadTelegramMedia(s.workerUrl, s.workerKey, mid);
+            var ri = {
+              id: idSeq++,
+              dataUrl: dl.dataUrl,
+              name: 'tg-' + mid + '.' + dl.ext,
+              groupKey: String(productId || code)
+            };
+            rawImages.push(ri);
+            rec.images.push(ri);
+            loadedImages++;
           } catch (e) {
             failedImages++;
           }
         }
-        tgPostRecords.push(rec);
+
+        if (rec.images.length || productText) {
+          tgPostRecords.push(rec);
+          productsFound++;
+        }
       }
 
       if (texts.length) {
@@ -1419,22 +1479,22 @@
       }
 
       renderRawAlbum();
-      if (loadedImages) {
+      if (productsFound) {
         runAnalyze();
         showStatus(
-          'تم جلب ' + posts.length + ' منشور جديد و ' + loadedImages + ' صورة وتم التحليل.' +
+          'تم جلب ' + productsFound + ' منتج و ' + loadedImages + ' صورة وتم التحليل.' +
           (filtered.skippedNoCode ? ' استُبعد ' + filtered.skippedNoCode + ' بلا كود.' : '') +
           (filtered.skippedStickers ? ' استُبعد ' + filtered.skippedStickers + ' استيكر.' : '') +
           (filtered.skippedAnimations ? ' استُبعد ' + filtered.skippedAnimations + ' موشن.' : '') +
           (filtered.skippedPolls ? ' استُبعد ' + filtered.skippedPolls + ' استطلاع.' : '') +
           (filtered.skippedInventory ? ' استُبعد ' + filtered.skippedInventory + ' جرد.' : '') +
           (failedImages ? ' تعذر تحميل ' + failedImages + ' ميديا.' : '') +
-          ' الروابط الخارجية لا تُفتح. راجع ثم صدّر أو احذف.',
+          ' راجع ثم صدّر أو احذف.',
           'ok'
         );
       } else {
         showStatus(
-          'تم جلب المنشورات لكن لم يتم تحميل صور. تأكد من جلسة Telegram وصلاحية القناة ثم جرّب مرة أخرى.',
+          'تم العثور على أكواد لكن لم يُحمَّل أي منتج/صور. تأكد من جلسة Telegram وصلاحية القناة في الـ Worker.',
           'err'
         );
       }
@@ -1443,7 +1503,8 @@
     } finally {
       $('btnFetchTg').disabled = false;
     }
-  }})();
+  }
+})();
   </script>
 </body>
 </html>
