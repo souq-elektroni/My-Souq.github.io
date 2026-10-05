@@ -86,38 +86,57 @@
     .collection-head { display:flex; gap:10px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
     .collection-code { font-weight:900; color:var(--primary); }
     .source-codes { font-size:11px; color:var(--muted); }
-    .collection-images { display:grid; grid-template-columns:repeat(auto-fill,minmax(92px,1fr)); gap:8px; margin-top:10px; }
-    .collection-images label { position:relative; cursor:pointer; }
-    .collection-images img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:10px; border:2px solid transparent; display:block; }
-    .collection-images input:checked + img { border-color:var(--primary); }
+    .collection-summary { display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:center; margin-top:10px; padding:12px; border:1px solid #eadcf1; border-radius:14px; background:linear-gradient(135deg,#fff,#fbf5ff); }
+    .collection-summary strong { color:var(--primary); font-size:15px; }
+    .collection-summary .summary-stat { text-align:center; min-width:92px; }
+    .collection-summary .summary-stat b { display:block; font-size:15px; color:#222; }
+    .collection-modal { display:none; position:fixed; inset:0; z-index:950; }
+    .collection-modal.open { display:flex; align-items:center; justify-content:center; padding:14px; }
+    .collection-modal-backdrop { position:absolute; inset:0; background:rgba(30,15,35,.68); backdrop-filter:blur(2px); }
+    .collection-modal-dialog { position:relative; z-index:1; width:min(1180px,98vw); max-height:94vh; overflow:auto; background:#fff; border:1px solid #e6d8eb; border-radius:18px; box-shadow:0 24px 80px rgba(0,0,0,.35); padding:14px; }
+    .collection-modal-top { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:2px 4px 12px; border-bottom:1px solid var(--line); }
+    .collection-modal-title { color:var(--primary); font-size:18px; font-weight:900; }
+    .collection-modal-close { width:36px; height:36px; border:0; border-radius:50%; background:#fff; color:#6a1b9a; font-size:25px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    .collection-modal-grid { display:grid; grid-template-columns:minmax(0,1fr) 260px; gap:12px; margin-top:12px; direction:rtl; }
+    .collection-main-pane { min-width:0; }
+    .collection-side-pane { background:#fbf6fd; border:1px solid #eadcf1; border-radius:14px; padding:12px; }
+    .collection-code-box { background:linear-gradient(135deg,#f3e5f5,#fff); border:1px solid #dfc8e8; border-radius:14px; padding:12px; text-align:center; }
+    .collection-code-big { display:inline-block; padding:8px 20px; border-radius:999px; background:linear-gradient(135deg,#6a1b9a,#8e24aa); color:#fff; font-size:18px; font-weight:900; direction:ltr; }
+    .collection-price-box { background:#fff; border:1px solid #eadcf1; border-radius:14px; padding:12px; margin-top:10px; }
+    .collection-price-box input { margin-bottom:0; font-size:18px; font-weight:900; color:var(--primary); text-align:center; }
+    .collection-notes { margin-top:10px; padding:12px; border:1px solid #eadcf1; border-radius:14px; background:#fff; font-size:11px; line-height:1.8; color:#5f4b65; font-weight:700; }
+    .collection-source-text { background:#fff; border:1px solid #eadcf1; border-radius:14px; padding:12px; }
+    .collection-source-text textarea { min-height:105px; margin:6px 0 0; background:#fff; }
+    .color-groups { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
+    .color-group { border:1px solid var(--line); border-radius:14px; background:#fff; padding:10px; }
+    .color-group-head { display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:8px; }
+    .color-group-title { font-weight:900; color:var(--ink); }
+    .color-code-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 9px; border-radius:999px; background:#f3e5f5; color:var(--primary); font-size:10px; font-weight:900; direction:ltr; }
+    .color-images { display:grid; grid-template-columns:repeat(4,minmax(88px,1fr)); gap:8px; }
+    .color-image-card { position:relative; min-width:0; }
+    .color-image-card img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:10px; border:3px solid var(--line); display:block; cursor:zoom-in; background:#fff; }
+    .color-image-card.selected img { border-color:var(--ok); box-shadow:0 0 0 2px rgba(46,125,50,.18); }
+    .image-selected-badge { position:absolute; right:5px; bottom:5px; background:var(--ok); color:#fff; border-radius:7px; padding:3px 6px; font-size:10px; font-weight:900; pointer-events:none; }
+    .image-delete-btn { position:absolute; left:4px; top:4px; width:26px; height:26px; border:0; border-radius:50%; background:#e53935; color:#fff; font-size:18px; line-height:24px; cursor:pointer; z-index:2; box-shadow:0 1px 4px rgba(0,0,0,.18); }
+    .image-pick-btn { width:100%; margin-top:5px; padding:6px 7px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--primary); font-weight:900; font-size:10px; cursor:pointer; }
+    .color-group-note { font-size:10px; color:var(--muted); font-weight:700; margin-top:6px; }
+    .collection-size-section { margin-top:12px; border:1px solid #eadcf1; border-radius:14px; padding:10px; background:#fff; }
+    .collection-size-section h4 { color:var(--primary); font-size:13px; margin-bottom:8px; }
     .size-table-wrap { overflow:auto; margin-top:10px; }
     .size-table { width:100%; border-collapse:collapse; min-width:620px; }
     .size-table th,.size-table td { border:1px solid var(--line); padding:7px; text-align:center; font-size:12px; }
     .size-table th { background:#faf6f8; font-weight:900; }
     .size-table input { width:100%; min-width:70px; box-sizing:border-box; }
-    .warn { color:#9a5b00; font-weight:800; }
-    .oktext { color:#16734a; font-weight:800; }
-    .color-groups { display:flex; flex-direction:column; gap:12px; margin-top:12px; }
-    .color-group { border:1px solid var(--line); border-radius:14px; background:#fffafb; padding:10px; }
-    .color-group-head { display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:8px; }
-    .color-group-title { font-weight:900; color:var(--ink); }
-    .color-code-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 8px; border-radius:999px; background:#f3e5f5; color:var(--primary); font-size:11px; font-weight:900; }
-    .color-images { display:grid; grid-template-columns:repeat(4,minmax(80px,1fr)); gap:8px; }
-    .color-image-card { position:relative; min-width:0; }
-    .color-image-card img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:10px; border:3px solid var(--line); display:block; cursor:zoom-in; background:#fff; }
-    .color-image-card.selected img { border-color:var(--ok); box-shadow:0 0 0 2px rgba(46,125,50,.18); }
-    .image-selected-badge { position:absolute; right:5px; bottom:5px; background:var(--ok); color:#fff; border-radius:7px; padding:3px 6px; font-size:10px; font-weight:900; pointer-events:none; }
-    .image-delete-btn { position:absolute; left:4px; top:4px; width:26px; height:26px; border:0; border-radius:7px; background:#c62828; color:#fff; font-size:18px; line-height:24px; cursor:pointer; z-index:2; }
-    .image-pick-btn { width:100%; margin-top:5px; padding:6px 7px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--primary); font-weight:900; font-size:10px; cursor:pointer; }
-    .color-group-note { font-size:10px; color:var(--muted); font-weight:700; margin-top:6px; }
-    .image-preview-modal { display:none; position:fixed; inset:0; z-index:1000; }
+    .collection-modal-footer { display:flex; gap:8px; justify-content:flex-start; flex-wrap:wrap; margin-top:12px; padding-top:10px; border-top:1px solid var(--line); }
+    .image-preview-modal { display:none; position:fixed; inset:0; z-index:1100; }
     .image-preview-modal.open { display:flex; align-items:center; justify-content:center; padding:20px; }
     .image-preview-backdrop { position:absolute; inset:0; background:rgba(20,10,20,.72); }
     .image-preview-dialog { position:relative; z-index:1; width:min(760px,96vw); max-height:92vh; background:#fff; border-radius:16px; padding:14px; box-shadow:0 20px 60px rgba(0,0,0,.35); display:flex; flex-direction:column; gap:10px; }
     .image-preview-dialog img { width:100%; max-height:72vh; object-fit:contain; border-radius:12px; background:#f7f4f5; }
     .image-preview-close { position:absolute; left:10px; top:10px; z-index:2; width:34px; height:34px; border:0; border-radius:50%; background:#c62828; color:#fff; font-size:25px; line-height:30px; cursor:pointer; }
     .image-preview-actions { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
-    @media(max-width:700px){ .collection-card{padding:10px}.size-table{min-width:560px}.color-images{grid-template-columns:repeat(2,minmax(90px,1fr));} }
+    @media(max-width:820px){ .collection-modal-grid{grid-template-columns:1fr}.collection-side-pane{order:2}.collection-main-pane{order:1} }
+    @media(max-width:700px){ .collection-card{padding:10px}.collection-summary{grid-template-columns:1fr 1fr}.collection-summary .summary-stat{min-width:0}.size-table{min-width:560px}.color-images{grid-template-columns:repeat(2,minmax(90px,1fr));} }
 
     .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
     .tab {
@@ -1235,26 +1254,130 @@
   }
   function syncOutSizesHidden(){var rows=(exportDraft&&exportDraft.sizes)||[];$('outSizes').value=rows.map(function(r){return [r.size].concat(r.values||['','','']).concat([r.price==null?'':r.price]).join(' | ');}).join('\n');}
 
+  var activeCollectionModalId = null;
+
+  function selectedPreviewImage(c) {
+    var groups = c.colorGroups || buildColorGroups(c.images || []);
+    for (var i = 0; i < groups.length; i++) {
+      var g = groups[i];
+      var im = (g.images || []).find(function(x){ return String(x.id) === String(g.selectedId); }) || g.images[0];
+      if (im) return im;
+    }
+    return null;
+  }
+
+  window.openCollectionModal=function(id){
+    activeCollectionModalId=String(id);
+    var el=document.getElementById('collectionModal-'+id);
+    if(el){ el.classList.add('open'); el.setAttribute('aria-hidden','false'); }
+  };
+  window.closeCollectionModal=function(id){
+    var el=document.getElementById('collectionModal-'+id);
+    if(el){ el.classList.remove('open'); el.setAttribute('aria-hidden','true'); }
+    if(activeCollectionModalId===String(id)) activeCollectionModalId=null;
+  };
+  window.approveCollectionFromModal=function(id){
+    useCollectionForExport(id);
+    openCollectionModal(id);
+    showStatus('تم اعتماد '+id+' للتصدير. الكوليكشن ما زال مفتوحًا للمراجعة.','ok');
+  };
+  window.exportCollectionToSveltia=function(id){
+    useCollectionForExport(id);
+    setTimeout(function(){ exportToSveltia(); }, 0);
+  };
+
   function renderCollections(){
     var box=$('collectionsBox'); if(!box)return;
     if(!importedCollections.length){box.innerHTML='<p class="hint">لا توجد Collections مستوردة.</p>';return;}
+
     box.innerHTML=importedCollections.map(function(c){
-      var priceLabel=c.priceMode==='per_size'?'السعر الفعلي: حسب المقاس':'السعر الفعلي للكوليكشن';
-      var priceValue=c.priceMode==='uniform'&&c.price!=null?c.price:'';
       var groups=c.colorGroups||buildColorGroups(c.images||[]);
-      return '<div class="collection-card" data-collection-id="'+c.id+'">'+
-        '<div class="collection-head"><span class="collection-code">كود الكوليكشن: '+escapeHtml(c.code)+'</span><div class="btns" style="margin-top:0"><button type="button" class="btn ok" onclick="useCollectionForExport(\''+c.id+'\')">✅ اعتماد للتصدير</button><button type="button" class="btn danger" onclick="deleteImportedCollection(\''+c.id+'\')">🗑️ حذف الاستيراد</button></div></div>'+
-        '<div class="source-codes">منشورات المصدر: '+escapeHtml((c.sourcePostIds||[]).join(', '))+' · '+groups.length+' ألوان/مجموعات صور</div>'+
-        '<div class="color-groups">'+groups.map(function(g,gi){
-          return '<div class="color-group"><div class="color-group-head"><span class="color-group-title">'+escapeHtml(g.label)+' — '+escapeHtml(g.colorName)+'</span><span class="color-code-badge">'+escapeHtml(c.code)+' · '+g.images.length+' صور</span></div><div class="color-images">'+g.images.map(function(im,j){
+      var priceValue=c.priceMode==='uniform'&&c.price!=null?c.price:'';
+      var preview=selectedPreviewImage(c);
+      var previewHtml=preview ? '<img src="'+preview.dataUrl+'" alt="'+escapeHtml(c.code)+'" style="width:72px;height:72px;object-fit:cover;border-radius:10px;border:2px solid #eadcf1;">' : '';
+      var modalId='collectionModal-'+c.id;
+      var modalGroups=groups.map(function(g){
+        return '<div class="color-group">'+
+          '<div class="color-group-head">'+
+            '<span class="color-group-title">'+escapeHtml(g.colorName || ('اللون '+(groups.indexOf(g)+1)))+'</span>'+ 
+            '<span class="color-code-badge">'+escapeHtml(c.code)+' · '+g.images.length+' صور</span>'+ 
+          '</div>'+ 
+          '<div class="color-images">'+(g.images||[]).map(function(im){
             var selected=String(g.selectedId)===String(im.id);
-            return '<div class="color-image-card '+(selected?'selected':'')+'"><button type="button" class="image-delete-btn" title="حذف الصورة" onclick="deleteCollectionImage(\''+c.id+'\',\''+g.id+'\',\''+im.id+'\');event.stopPropagation();">×</button><img src="'+im.dataUrl+'" alt="'+escapeHtml(c.code+' '+g.colorName)+'" onclick="openImagePreview(\''+c.id+'\',\''+g.id+'\',\''+im.id+'\')">'+(selected?'<span class="image-selected-badge">✓ المختارة</span>':'')+'<button type="button" class="image-pick-btn" onclick="selectCollectionImage(\''+c.id+'\',\''+g.id+'\',\''+im.id+'\')">'+(selected?'الصورة المعتمدة':'اعتماد هذه الصورة')+'</button></div>';
-          }).join('')+'</div><div class="color-group-note">اضغط الصورة للتكبير. زر × يحذفها نهائيًا من هذا الاستيراد. سيتم تصدير صورة واحدة معتمدة لكل لون.</div></div>';
-        }).join('')+'</div>'+ 
-        '<div class="row"><div><label>'+priceLabel+'</label><input type="number" value="'+priceValue+'" placeholder="'+(c.priceMode==='per_size'?'راجع السعر في جدول المقاسات':'مثال: 310')+'" onchange="updateCollectionPrice(\''+c.id+'\',this.value)"><p class="hint">السعر مأخوذ من منشور المصنع/Worker، ويمكن تعديله قبل الاعتماد.</p></div><div><label>الوصف — نص المنشور</label><textarea onchange="updateCollectionDescription(\''+c.id+'\',this.value)">'+escapeHtml(c.description||'')+'</textarea></div></div><div class="size-table-wrap" id="size-'+c.id+'"></div></div>';
+            return '<div class="color-image-card '+(selected?'selected':'')+'">'+
+              '<button type="button" class="image-delete-btn" title="حذف الصورة" onclick="event.stopPropagation();deleteCollectionImage(\''+c.id+'\',\''+g.id+'\',\''+im.id+'\')">×</button>'+ 
+              '<img src="'+im.dataUrl+'" alt="'+escapeHtml(c.code+' '+g.colorName)+'" onclick="openImagePreview(\''+c.id+'\',\''+g.id+'\',\''+im.id+'\')">'+
+              (selected?'<span class="image-selected-badge">✓ المختارة</span>':'')+
+              '<button type="button" class="image-pick-btn" onclick="selectCollectionImage(\''+c.id+'\',\''+g.id+'\',\''+im.id+'\')">'+(selected?'الصورة المعتمدة':'اعتماد هذه الصورة')+'</button>'+ 
+            '</div>';
+          }).join('')+'</div>'+ 
+          '<div class="color-group-note">هذا صف مستقل لهذا اللون فقط — الضغط على الصورة يفتح التكبير، و X يحذف الصورة من هذا اللون فقط.</div>'+ 
+        '</div>';
+      }).join('');
+
+      return '<div class="collection-card" data-collection-id="'+c.id+'">'+
+        '<div class="collection-head">'+
+          '<div><span class="collection-code">كوليكشن: '+escapeHtml(c.code)+'</span><div class="source-codes">'+escapeHtml((c.sourcePostIds||[]).join(', '))+'</div></div>'+
+          '<button type="button" class="btn" onclick="openCollectionModal(\''+c.id+'\')">📂 فتح نافذة الكوليكشن</button>'+ 
+        '</div>'+
+        '<div class="collection-summary">'+
+          '<div style="display:flex;gap:10px;align-items:center;min-width:0;">'+previewHtml+'<div><strong>'+escapeHtml(c.code)+'</strong><div class="hint">كل الألوان لهذا الكود فقط — '+groups.length+' ألوان / مجموعات منفصلة</div></div></div>'+
+          '<div class="summary-stat"><span class="hint">السعر الفعلي</span><b>'+ (c.priceMode==='uniform'&&c.price!=null?escapeHtml(c.price)+' جنيه':'حسب المقاس') +'</b></div>'+ 
+          '<div class="summary-stat"><span class="hint">الصور</span><b>'+escapeHtml((c.images||[]).length)+'</b></div>'+ 
+        '</div>'+ 
+        '<div class="btns"><button type="button" class="btn ok" onclick="approveCollectionFromModal(\''+c.id+'\')">✓ اعتماد للتصدير</button><button type="button" class="btn danger" onclick="deleteImportedCollection(\''+c.id+'\')">🗑️ حذف الاستيراد</button></div>'+ 
+        '<div id="collectionModal-'+c.id+'" class="collection-modal" aria-hidden="true">'+
+          '<div class="collection-modal-backdrop" onclick="closeCollectionModal(\''+c.id+'\')"></div>'+ 
+          '<div class="collection-modal-dialog" role="dialog" aria-modal="true" aria-label="تفاصيل '+escapeHtml(c.code)+'">'+
+            '<div class="collection-modal-top"><div><div class="collection-modal-title">تفاصيل الكوليكشن</div><div class="hint">الكود '+escapeHtml(c.code)+' — مراجعة الصور والألوان والمقاسات قبل التصدير</div></div><button type="button" class="collection-modal-close" onclick="closeCollectionModal(\''+c.id+'\')">×</button></div>'+ 
+            '<div class="collection-modal-grid">'+
+              '<div class="collection-main-pane">'+
+                '<div class="collection-code-box"><div class="hint">كود الكوليكشن</div><div class="collection-code-big">'+escapeHtml(c.code)+'</div></div>'+ 
+                '<div class="collection-source-text" style="margin-top:10px;"><label>نص المنشور (الوصف)</label><textarea onchange="updateCollectionDescription(\''+c.id+'\',this.value)">'+escapeHtml(c.description||'')+'</textarea></div>'+ 
+                '<div class="color-groups">'+modalGroups+'</div>'+ 
+                '<div class="collection-size-section"><h4>المقاسات — ورقة المقاسات مستثناة من الصور وتظهر هنا فقط</h4><div id="modalSizes-'+c.id+'" class="size-table-wrap"></div></div>'+ 
+                '<div class="collection-modal-footer">'+
+                  '<button type="button" class="btn ok" onclick="approveCollectionFromModal(\''+c.id+'\')">✓ اعتماد للتصدير</button>'+ 
+                  '<button type="button" class="btn" onclick="exportCollectionToSveltia(\''+c.id+'\')">⬆️ التصدير إلى Sveltia</button>'+ 
+                  '<button type="button" class="btn danger" onclick="deleteImportedCollection(\''+c.id+'\')">🗑️ حذف الكوليكشن</button>'+ 
+                '</div>'+ 
+              '</div>'+ 
+              '<aside class="collection-side-pane">'+
+                '<div class="collection-price-box"><label>السعر الفعلي للكوليكشن</label><input type="number" min="0" value="'+priceValue+'" placeholder="'+(c.priceMode==='per_size'?'حسب المقاس':'السعر')+'" onchange="updateCollectionPrice(\''+c.id+'\',this.value)"><div class="hint">السعر مأخوذ من المنشور/Worker، ولا يتم خلطه مع كوليكشن آخر.</div></div>'+ 
+                '<div class="collection-notes"><b>ملاحظات مهمة:</b><br>• كل كود = نافذة مستقلة.<br>• كل لون = صف مستقل داخل نفس الكوليكشن.<br>• لا يتم دمج ألوان كود آخر هنا.<br>• اضغط أي صورة لرؤيتها مكبرة.<br>• X يحذف الصورة فقط من هذا اللون.<br>• ورقة المقاسات لا تدخل ضمن صور المنتج.<br>• يتم تصدير صورة معتمدة واحدة لكل لون.</div>'+ 
+                '<div class="collection-notes"><b>إجراءات سريعة</b><div class="btns" style="margin-top:8px;"><button type="button" class="btn ghost" onclick="selectAllCollectionImages(\''+c.id+'\')">تحديد الكل</button><button type="button" class="btn danger" onclick="deleteUnselectedCollectionImages(\''+c.id+'\')">حذف غير المختار</button></div></div>'+ 
+              '</aside>'+ 
+            '</div>'+ 
+          '</div>'+ 
+        '</div>'+ 
+      '</div>';
     }).join('');
-    importedCollections.forEach(function(c){renderSizeTable(c,'size-'+c.id);});
+
+    importedCollections.forEach(function(c){
+      renderSizeTable(c,'modalSizes-'+c.id);
+    });
+    if(activeCollectionModalId){
+      var active=document.getElementById('collectionModal-'+activeCollectionModalId);
+      if(active){active.classList.add('open');active.setAttribute('aria-hidden','false');}
+    }
   }
+
+  window.selectAllCollectionImages=function(cid){
+    var c=importedCollections.find(function(x){return x.id===cid;}); if(!c)return;
+    (c.colorGroups||[]).forEach(function(g){if(g.images&&g.images.length)g.selectedId=g.images[0].id;});
+    renderCollections();
+  };
+  window.deleteUnselectedCollectionImages=function(cid){
+    var c=importedCollections.find(function(x){return x.id===cid;}); if(!c)return;
+    (c.colorGroups||[]).forEach(function(g){
+      var keep=g.images.find(function(im){return String(im.id)===String(g.selectedId);});
+      g.images=keep?[keep]:[];
+    });
+    c.images=[];(c.colorGroups||[]).forEach(function(g){c.images=c.images.concat(g.images||[]);});
+    c.colorGroups=(c.colorGroups||[]).filter(function(g){return g.images&&g.images.length;});
+    renderCollections();
+    showStatus('تم الاحتفاظ بصورة واحدة معتمدة لكل لون في '+c.code+'.','ok');
+  };
 
   window.useCollectionForExport=function(id){
     var c=importedCollections.find(function(x){return x.id===id;});
@@ -1280,6 +1403,7 @@
     var g=(c.colorGroups||[]).find(function(x){return String(x.id)===String(gid);}); if(!g)return;
     if(!g.images.some(function(im){return String(im.id)===String(imgId);}))return;
     g.selectedId=imgId; renderCollections();
+    openCollectionModal(c.id);
     if(exportDraft&&exportDraft.id===c.id){exportDraft=c;renderSizeTable(exportDraft,'outSizesTable');syncOutSizesHidden();}
   };
 
@@ -1291,6 +1415,7 @@
     if(String(g.selectedId)===String(imgId)){var next=pickBestImage(g.images);g.selectedId=next?next.id:null;}
     if(!g.images.length)c.colorGroups=c.colorGroups.filter(function(x){return x!==g;});
     renderCollections();
+    openCollectionModal(c.id);
     if(exportDraft&&exportDraft.id===c.id){exportDraft=c;renderSizeTable(exportDraft,'outSizesTable');syncOutSizesHidden();}
     showStatus('تم حذف الصورة من هذا اللون.','ok');
   };
@@ -1307,11 +1432,11 @@
     $('imagePreviewModal').classList.add('open'); $('imagePreviewModal').setAttribute('aria-hidden','false');
   };
   window.closeImagePreview=function(){$('imagePreviewModal').classList.remove('open');$('imagePreviewModal').setAttribute('aria-hidden','true');$('imagePreviewImg').src='';previewState={cid:null,gid:null,imgId:null};};
-  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeImagePreview();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeImagePreview(); if(activeCollectionModalId) closeCollectionModal(activeCollectionModalId);}});
 
   window.updateCollectionPrice=function(id,v){var c=importedCollections.find(function(x){return x.id===id;});if(c){if(v===''){c.price=null;c.priceMode='per_size';}else{c.price=Number(v);c.priceMode='uniform';c.sizes.forEach(function(r){r.price=null;});}renderCollections();if(exportDraft&&exportDraft.id===c.id)useCollectionForExport(c.id);}};
   window.updateCollectionDescription=function(id,v){var c=importedCollections.find(function(x){return x.id===id;});if(c){c.description=v;if(exportDraft&&exportDraft.id===c.id){exportDraft.description=v;$('outBody').value=v;}}};
-  window.deleteImportedCollection=function(id){importedCollections=importedCollections.filter(function(c){return c.id!==id;});if(exportDraft&&exportDraft.id===id){exportDraft=null;$('outTitle').value='';$('outCollectionCode').value='';$('outPrice').value='';$('outBody').value='';$('outSizes').value='';$('outSizesTable').innerHTML='';}renderCollections();if(!importedCollections.length)$('reviewCard').style.display='none';showStatus('تم حذف الاستيراد من شاشة المراجعة فقط.','ok');};
+  window.deleteImportedCollection=function(id){closeCollectionModal(id); importedCollections=importedCollections.filter(function(c){return c.id!==id;});if(exportDraft&&exportDraft.id===id){exportDraft=null;$('outTitle').value='';$('outCollectionCode').value='';$('outPrice').value='';$('outBody').value='';$('outSizes').value='';$('outSizesTable').innerHTML='';}renderCollections();if(!importedCollections.length)$('reviewCard').style.display='none';showStatus('تم حذف الاستيراد من شاشة المراجعة فقط.','ok');};
 
   function yamlQuote(val) {
     if (val == null || val === '') return "''";
