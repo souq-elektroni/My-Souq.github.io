@@ -935,6 +935,90 @@
     return parts.join('\n');
   }
 
+  function parseSizeMeasurements(text) {
+    var t = arDigits(text || '');
+    var lines = t.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+    var bySize = {};
+    function upsert(size, pants, tLen, tWidth) {
+      var key = String(size).trim();
+      if (!key) return;
+      if (!bySize[key]) bySize[key] = { size: key, pants_length: '', tshirt_length: '', tshirt_width: '' };
+      var prev = bySize[key];
+      if (pants != null && pants !== '') prev.pants_length = String(pants);
+      if (tLen != null && tLen !== '') prev.tshirt_length = String(tLen);
+      if (tWidth != null && tWidth !== '') prev.tshirt_width = String(tWidth);
+    }
+    var i, line, parts, nums, sizeNum, vals, m, currentSize = null, only;
+    for (i = 0; i < lines.length; i++) {
+      line = lines[i];
+      if (/طول|عرض|بنطلون|تيشيرت|تيشرت|المقاس|مقاس/i.test(line) && !/\d{1,2}/.test(line)) continue;
+      parts = line.split(/[|\t,،]+/).map(function (p) { return p.trim(); }).filter(Boolean);
+      if (parts.length < 2) parts = line.split(/\s{2,}|\s+-\s+/).map(function (p) { return p.trim(); }).filter(Boolean);
+      nums = (line.match(/\d{1,3}(?:[./]\d+)?/g) || []).map(function (n) { return n.replace('/', '.'); });
+      if (nums.length >= 4 && Number(nums[0]) >= 1 && Number(nums[0]) <= 20) {
+        upsert(nums[0], nums[1], nums[2], nums[3]);
+        continue;
+      }
+      if (parts.length >= 4) {
+        sizeNum = ((parts[0].replace(/سنة|سنه|سنوات|سنين|مقاس/gi, '').trim()).match(/\d{1,2}/) || [])[0];
+        if (sizeNum) {
+          vals = parts.slice(1).map(function (p) {
+            var mm = p.match(/\d{1,3}(?:[./]\d+)?/);
+            return mm ? mm[0].replace('/', '.') : '';
+          });
+          upsert(sizeNum, vals[0] || '', vals[1] || '', vals[2] || '');
+        }
+      }
+    }
+    for (i = 0; i < lines.length; i++) {
+      line = lines[i];
+      m = line.match(/(?:مقاس\s*)?(\d{1,2})\s*(?:سنة|سنه|سنوات|سنين)?\s*$/i);
+      var m2 = line.match(/مقاس\s*[:：-]?\s*(\d{1,2})/i);
+      if (m && Number(m[1]) >= 1 && Number(m[1]) <= 20) { currentSize = m[1]; upsert(currentSize, '', '', ''); continue; }
+      if (m2 && Number(m2[1]) >= 1 && Number(m2[1]) <= 20) { currentSize = m2[1]; upsert(currentSize, '', '', ''); }
+      if (!currentSize) continue;
+      var pants = line.match(/طول\s*(?:ال)?بنطلون\s*[:：-]?\s*(\d{1,3}(?:[./]\d+)?)/i);
+      var tLen = line.match(/طول\s*(?:ال)?(?:تيشيرت|تيشرت|بلوزة|سويت|سويتشرت)\s*[:：-]?\s*(\d{1,3}(?:[./]\d+)?)/i);
+      var tWidth = line.match(/عرض\s*(?:ال)?(?:تيشيرت|تيشرت|بلوزة|سويت|سويتشرت)?\s*[:：-]?\s*(\d{1,3}(?:[./]\d+)?)/i);
+      if (pants) upsert(currentSize, pants[1].replace('/', '.'), null, null);
+      if (tLen) upsert(currentSize, null, tLen[1].replace('/', '.'), null);
+      if (tWidth) upsert(currentSize, null, null, tWidth[1].replace('/', '.'));
+    }
+    for (i = 0; i < lines.length; i++) {
+      line = lines[i];
+      m = line.match(/(?:مقاس\s*)?(\d{1,2})\s*(?:سنة|سنه)?[^\d]{0,12}.*?(\d{2,3}).*?(\d{2,3}).*?(\d{2,3})/i);
+      if (!m || Number(m[1]) < 1 || Number(m[1]) > 20) continue;
+      if (bySize[m[1]] && (bySize[m[1]].pants_length || bySize[m[1]].tshirt_length || bySize[m[1]].tshirt_width)) continue;
+      upsert(m[1], m[2], m[3], m[4]);
+    }
+    var inside = false;
+    for (i = 0; i < lines.length; i++) {
+      line = lines[i];
+      if (/^(?:⭐️?\s*)?(?:المقاسات|مقاسات|المقاس)\s*[:：-]?$/i.test(line)) { inside = true; continue; }
+      if (inside && /^(?:السعر|كود|code)\b/i.test(line)) { inside = false; continue; }
+      if (!inside) continue;
+      only = line.match(/^(\d{1,2})\s*(?:سنة|سنه)?\s*$/);
+      if (only) upsert(only[1], '', '', '');
+      // قائمة في سطر واحد: مقاسات : 12 14 16 18
+      var list = line.match(/(?:مقاسات|مقاس)\s*[:：]?\s*((?:\d{1,2}\s*)+)/i);
+      if (list) {
+        (list[1].match(/\d{1,2}/g) || []).forEach(function (s) { upsert(s, '', '', ''); });
+      }
+    }
+    // قائمة عامة في النص كله
+    var listAll = t.match(/(?:⭐️?\s*)?(?:المقاسات|مقاسات)\s*[:：]?\s*((?:\d{1,2}[\s,،]*)+)/i);
+    if (listAll) {
+      (listAll[1].match(/\d{1,2}/g) || []).forEach(function (s) {
+        if (Number(s) >= 1 && Number(s) <= 20) upsert(s, '', '', '');
+      });
+    }
+    return Object.keys(bySize).map(function (k) { return bySize[k]; }).sort(function (a, b) {
+      var na = Number(a.size), nb = Number(b.size);
+      if (isFinite(na) && isFinite(nb)) return na - nb;
+      return String(a.size).localeCompare(String(b.size));
+    });
+  }
+
   function extractRecordSizes(post, text) {
     var out = [];
     var candidates = [];
@@ -980,20 +1064,84 @@
     var mappedUniform=hasPerSizePrices && mappedPrices.every(function(v){return v===mappedPrices[0];});
     if(mappedUniform) price = mappedPrices[0];
     var priceMode=(hasPerSizePrices && !mappedUniform) ? 'per_size' : 'uniform';
-    var sizes=[];
+    // قياسات المقاسات من الـ Worker أو من النص
+    var measurements = [];
+    if (Array.isArray(rec.sizeMeasurements) && rec.sizeMeasurements.length) {
+      measurements = rec.sizeMeasurements.slice();
+    } else {
+      measurements = parseSizeMeasurements(fullText);
+    }
+    var measMap = {};
+    measurements.forEach(function (row) {
+      if (row && row.size != null) measMap[String(row.size)] = row;
+    });
+
+    var sizes = [];
     // مقاسات من Worker sizeStatuses إن وُجدت
     if (Array.isArray(rec.sizeStatuses) && rec.sizeStatuses.length) {
-      rec.sizeStatuses.forEach(function(ss){
+      rec.sizeStatuses.forEach(function (ss) {
         if (ss && ss.size != null) sizes.push(String(ss.size));
       });
     }
-    var extractedSizes=extractRecordSizes(rec, fullText);
-    extractedSizes.forEach(function(sz){ sizes.push(sz); });
-    var yr=/\b(\d{1,2})\s*(سنة|سنه|سنوات)\b/gi; while((m=yr.exec(fullText))) sizes.push(m[1]+' سنة');
-    var mo=/\b(\d{1,2})\s*M\b/gi; while((m=mo.exec(fullText))) sizes.push(m[1]+'M');
-    sizes=[...new Set(sizes)];
-    var desc=stripExternalLinks(fullText).split(/\r?\n/).filter(function(l){l=l.trim(); if(!l)return false; if(/(?:السعر|سعر|كود)\s*[:：-]?\s*[A-Za-z0-9]/i.test(l))return false; if(/^\d{2,6}\s*(?:جنيه|ج\.م|ج)\s*$/i.test(l))return false; return true;}).join('\n').trim();
-    return {id:'c'+(idx+1),code:code||('غير محدد-'+(idx+1)),title:'',description:desc,price:price,priceMode:priceMode,sizes:sizes.map(function(sz){return {size:sz,price:(priceMode==='per_size' && priceMap[sz]!=null)?priceMap[sz]:null,values:['','','']};}),images:images,sourcePostIds:[rec.id||idx+1],selected:true};
+    measurements.forEach(function (row) {
+      if (row && row.size != null) sizes.push(String(row.size));
+    });
+    var extractedSizes = extractRecordSizes(rec, fullText);
+    extractedSizes.forEach(function (sz) { sizes.push(sz); });
+    var yr = /\b(\d{1,2})\s*(سنة|سنه|سنوات)\b/gi;
+    while ((m = yr.exec(fullText))) sizes.push(m[1]);
+    var mo = /\b(\d{1,2})\s*M\b/gi;
+    while ((m = mo.exec(fullText))) sizes.push(m[1] + 'M');
+    // قائمة مقاسات: 12 14 16 18
+    var listAll = fullText.match(/(?:⭐️?\s*)?(?:المقاسات|مقاسات)\s*[:：]?\s*((?:\d{1,2}[\s,،]*)+)/i);
+    if (listAll) {
+      (listAll[1].match(/\d{1,2}/g) || []).forEach(function (s) {
+        if (Number(s) >= 1 && Number(s) <= 20) sizes.push(s);
+      });
+    }
+    sizes = [...new Set(sizes)];
+    // ترتيب رقمي للمقاسات السنوية
+    sizes.sort(function (a, b) {
+      var na = Number(String(a).replace(/\D/g, ''));
+      var nb = Number(String(b).replace(/\D/g, ''));
+      if (isFinite(na) && isFinite(nb) && String(a).match(/^\d/) && String(b).match(/^\d/)) return na - nb;
+      return String(a).localeCompare(String(b));
+    });
+
+    var desc = stripExternalLinks(fullText).split(/\r?\n/).filter(function (l) {
+      l = l.trim();
+      if (!l) return false;
+      if (/(?:السعر|سعر|كود)\s*[:：-]?\s*[A-Za-z0-9]/i.test(l)) return false;
+      if (/^\d{2,6}\s*(?:جنيه|ج\.م|ج)\s*$/i.test(l)) return false;
+      if (/^(?:⭐️?\s*)?(?:المقاسات|مقاسات)\s*[:：]?/i.test(l) && l.length < 40) return false;
+      if (/^\d{1,2}(\s+\d{1,2})+\s*$/.test(l)) return false;
+      return true;
+    }).join('\n').trim();
+
+    return {
+      id: 'c' + (idx + 1),
+      code: code || ('غير محدد-' + (idx + 1)),
+      title: '',
+      description: desc,
+      price: price,
+      priceMode: priceMode,
+      sizes: sizes.map(function (sz) {
+        var key = String(sz).replace(/\s*سنة.*$/i, '').trim();
+        var meas = measMap[String(sz)] || measMap[key] || {};
+        return {
+          size: sz,
+          price: (priceMode === 'per_size' && priceMap[sz] != null) ? priceMap[sz] : null,
+          values: [
+            meas.pants_length || '',
+            meas.tshirt_length || '',
+            meas.tshirt_width || ''
+          ]
+        };
+      }),
+      images: images,
+      sourcePostIds: (Array.isArray(rec.sourcePostIds) && rec.sourcePostIds.length) ? rec.sourcePostIds.slice() : [rec.id || idx + 1],
+      selected: true
+    };
   }
   function buildCollectionsFromPosts(records) {
     var map={}, order=[];
@@ -1010,6 +1158,10 @@
     });
     importedCollections=order.map(function(k){return map[k];});
     renderCollections();
+    // كوليكشن واحد → اعتمده للتصدير تلقائيًا مع كل صور الألوان
+    if (importedCollections.length === 1) {
+      try { useCollectionForExport(importedCollections[0].id); } catch (e) {}
+    }
   }
   function recalcCollectionPricing(col) {
     var rows=col.sizes||[], vals=rows.map(function(r){return r.price;});
@@ -1029,7 +1181,7 @@
     var rows=col.sizes||[];
     if(!rows.length){box.innerHTML='<p class="hint">لم يتم استخراج مقاسات مؤكدة. يمكنك إضافتها يدويًا.</p>';return;}
     var showRowPrice=col.priceMode==='per_size';
-    var h='<table class="size-table"><thead><tr><th>المقاس</th><th>بيان 1</th><th>بيان 2</th><th>بيان 3</th>'+(showRowPrice?'<th>السعر</th>':'')+'</tr></thead><tbody>';
+    var h='<table class="size-table"><thead><tr><th>المقاس</th><th>طول البنطلون</th><th>طول التيشرت</th><th>عرض التيشرت</th>'+(showRowPrice?'<th>السعر</th>':'')+'</tr></thead><tbody>';
     rows.forEach(function(r,i){h+='<tr><td><input data-size-index="'+i+'" data-field="size" value="'+escapeHtml(r.size)+'"></td><td><input data-size-index="'+i+'" data-field="v0" value="'+escapeHtml((r.values||[])[0]||'')+'"></td><td><input data-size-index="'+i+'" data-field="v1" value="'+escapeHtml((r.values||[])[1]||'')+'"></td><td><input data-size-index="'+i+'" data-field="v2" value="'+escapeHtml((r.values||[])[2]||'')+'"></td>'+(showRowPrice?'<td><input type="number" data-size-index="'+i+'" data-field="price" value="'+(r.price==null?'':r.price)+'"></td>':'')+'</tr>';});
     h+='</tbody></table>'; box.innerHTML=h;
     box.querySelectorAll('input').forEach(function(inp){inp.addEventListener('input',function(){var i=Number(inp.dataset.sizeIndex),f=inp.dataset.field,r=rows[i]; if(f==='size')r.size=inp.value; else if(f==='price'){r.price=inp.value===''?null:Number(inp.value); col.priceMode='per_size'; col.price=null; recalcCollectionPricing(col);} else {r.values=r.values||['','',''];r.values[Number(f.slice(1))]=inp.value;} syncOutSizesHidden();});});
@@ -1044,7 +1196,7 @@
       var priceLabel=c.priceMode==='per_size'?'السعر: حسب المقاس':'السعر: موحد للكوليكشن';
       var priceValue=c.priceMode==='uniform'&&c.price!=null?c.price:'';
       var priceHint=c.priceMode==='per_size'?'⚠️ لكل مقاس سعر مستقل — ويمكن دمج هذا الكوليكشن إذا تطابقت أسعار المقاسات مع الباقي.':'✅ السعر موحد — يُحفظ في خانة السعر ولا يتكرر داخل جدول المقاسات.';
-      return '<div class=\"collection-card\" data-collection-id=\"'+c.id+'\"><div class=\"collection-head\"><label class=\"merge-check\"><input type=\"checkbox\" class=\"collection-select\" data-id=\"'+c.id+'\" '+(c.selected?'checked':'')+'> تحديد للدمج</label><span class=\"collection-code\">كود الكوليكشن: '+escapeHtml(c.code)+'</span><button type=\"button\" class=\"btn danger\" onclick=\"deleteImportedCollection(\''+c.id+'\')\">🗑️ حذف استيراد</button></div><div class=\"source-codes\">منشورات المصدر: '+escapeHtml((c.sourcePostIds||[]).join(', '))+'</div><div class=\"collection-images\">'+(c.images||[]).map(function(im,j){return '<label><input type=\"checkbox\" '+(im.selected!==false?'checked':'')+' onchange=\"toggleCollectionImage(\''+c.id+'\',\''+im.id+'\',this.checked)\" style=\"display:none\"><img src=\"'+im.dataUrl+'\" title=\"الصورة '+(j+1)+'\"></label>';}).join('')+'</div><div class=\"row\"><div><label>'+priceLabel+'</label><input type=\"number\" value=\"'+priceValue+'\" placeholder=\"'+(c.priceMode==='per_size'?'لكل مقاس في الجدول':'مثال: 310')+'\" onchange=\"updateCollectionPrice(\''+c.id+'\',this.value)\"><p class=\"hint\">'+priceHint+'</p></div><div><label>الوصف</label><textarea onchange=\"updateCollectionDescription(\''+c.id+'\',this.value)\">'+escapeHtml(c.description||'')+'</textarea></div></div><div class=\"size-table-wrap\" id=\"size-'+c.id+'\"></div></div>';}).join('');
+      return '<div class=\"collection-card\" data-collection-id=\"'+c.id+'\"><div class=\"collection-head\"><label class=\"merge-check\"><input type=\"checkbox\" class=\"collection-select\" data-id=\"'+c.id+'\" '+(c.selected?'checked':'')+'> تحديد للدمج</label><span class=\"collection-code\">كود الكوليكشن: '+escapeHtml(c.code)+'</span><button type=\"button\" class=\"btn ok\" onclick=\"useCollectionForExport(\''+c.id+'\')\">✅ اعتماد للتصدير</button><button type=\"button\" class=\"btn danger\" onclick=\"deleteImportedCollection(\''+c.id+'\')\">🗑️ حذف استيراد</button></div><div class=\"source-codes\">منشورات المصدر: '+escapeHtml((c.sourcePostIds||[]).join(', '))+'</div><div class=\"collection-images\">'+(c.images||[]).map(function(im,j){return '<label><input type=\"checkbox\" '+(im.selected!==false?'checked':'')+' onchange=\"toggleCollectionImage(\''+c.id+'\',\''+im.id+'\',this.checked)\" style=\"display:none\"><img src=\"'+im.dataUrl+'\" title=\"الصورة '+(j+1)+'\"></label>';}).join('')+'</div><div class=\"row\"><div><label>'+priceLabel+'</label><input type=\"number\" value=\"'+priceValue+'\" placeholder=\"'+(c.priceMode==='per_size'?'لكل مقاس في الجدول':'مثال: 310')+'\" onchange=\"updateCollectionPrice(\''+c.id+'\',this.value)\"><p class=\"hint\">'+priceHint+'</p></div><div><label>الوصف</label><textarea onchange=\"updateCollectionDescription(\''+c.id+'\',this.value)\">'+escapeHtml(c.description||'')+'</textarea></div></div><div class=\"size-table-wrap\" id=\"size-'+c.id+'\"></div></div>';}).join('');
     importedCollections.forEach(function(c){renderSizeTable(c,'size-'+c.id);});
     box.querySelectorAll('.collection-select').forEach(function(cb){cb.addEventListener('change',function(){var c=importedCollections.find(function(x){return x.id===cb.dataset.id;});if(c)c.selected=cb.checked;updateSelectedCount();});});
     updateSelectedCount();
@@ -1407,16 +1559,17 @@
         return;
       }
 
-      // استخراج أكواد فريدة للمنتجات
-      var codeMap = {};
+      // تجميع كل المنشورات تحت نفس الكود (ألوان متعددة = كوليكشن واحد)
+      var codeMap = {}; // code -> [posts]
       var codeOrder = [];
       posts.forEach(function (post) {
         var code = normalizeCode(post.code || post.collectionCode || post.productCode || extractCollectionCode(post.text || ''));
         if (!code) return;
         if (!codeMap[code]) {
-          codeMap[code] = post;
+          codeMap[code] = [];
           codeOrder.push(code);
         }
+        codeMap[code].push(post);
       });
 
       if (!codeOrder.length) {
@@ -1424,7 +1577,7 @@
         return;
       }
 
-      showStatus('وُجد ' + codeOrder.length + ' كود منتج — جاري جلب التفاصيل والصور لكل كود...', '');
+      showStatus('وُجد ' + codeOrder.length + ' كوليكشن (كود) — جاري تجميع الألوان والصور لكل كود...', '');
 
       var texts = [];
       tgPostRecords = [];
@@ -1434,8 +1587,9 @@
 
       for (var ci = 0; ci < codeOrder.length; ci++) {
         var code = codeOrder[ci];
-        var fallbackPost = codeMap[code] || {};
-        showStatus('جاري جلب المنتج ' + (ci + 1) + '/' + codeOrder.length + ': ' + code + '...', '');
+        var postsForCode = codeMap[code] || [];
+        var fallbackPost = postsForCode[0] || {};
+        showStatus('جاري جلب الكوليكشن ' + (ci + 1) + '/' + codeOrder.length + ': ' + code + ' (' + postsForCode.length + ' منشور)...', '');
 
         var productData = null;
         try {
@@ -1444,28 +1598,56 @@
           productData = null;
         }
 
-        var productText = (productData && productData.product && productData.product.text) || fallbackPost.text || '';
+        // أفضل نص: من product-auto أو أطول منشور لنفس الكود
+        var bestText = (productData && productData.product && productData.product.text) || '';
+        if (!bestText) {
+          postsForCode.forEach(function (p) {
+            var t = p.text || '';
+            if (t.length > bestText.length) bestText = t;
+          });
+        }
         var productId = (productData && productData.product && productData.product.messageId) || fallbackPost.id;
-        var imageRefs = (productData && productData.images) || [];
 
-        // إن لم يرجع الـ Worker صورًا عبر product-auto، نحاول صورة المنشور نفسه إن وُجدت ميديا
-        if (!imageRefs.length && fallbackPost.hasMedia && fallbackPost.id != null) {
-          imageRefs = [{ messageId: fallbackPost.id }];
+        // مصادر الصور: product-auto + كل منشور في النافذة الزمنية له ميديا
+        var imageRefMap = {}; // messageId -> true
+        var imageRefs = [];
+        function addImageRef(mid, groupHint) {
+          if (mid == null) return;
+          var key = String(mid);
+          if (imageRefMap[key]) return;
+          imageRefMap[key] = true;
+          imageRefs.push({ messageId: mid, groupKey: groupHint || String(productId || code) });
         }
 
-        if (productText) texts.push(productText);
+        var autoImages = (productData && productData.images) || [];
+        for (var ai = 0; ai < autoImages.length; ai++) {
+          var aMid = autoImages[ai].messageId != null ? autoImages[ai].messageId : autoImages[ai];
+          addImageRef(aMid, autoImages[ai].groupedId || String(productId || code));
+        }
+
+        // كل منشور في آخر N ساعات لنفس الكود → صورة/ألبوم اللون
+        for (var pi = 0; pi < postsForCode.length; pi++) {
+          var p = postsForCode[pi];
+          if (p.hasMedia && p.id != null) {
+            addImageRef(p.id, p.groupedId || String(p.id));
+          }
+        }
+
+        if (bestText) texts.push(bestText);
 
         var rec = {
           id: productId,
           code: code,
-          text: productText,
+          text: bestText,
           images: [],
           price: productData && productData.product ? productData.product.price : null,
-          sizeStatuses: productData && productData.product ? productData.product.sizeStatuses : null
+          sizeStatuses: productData && productData.product ? productData.product.sizeStatuses : null,
+          sizeMeasurements: productData && productData.product ? productData.product.sizeMeasurements : null,
+          sourcePostIds: postsForCode.map(function (p) { return p.id; }).filter(function (x) { return x != null; })
         };
 
         for (var mi = 0; mi < imageRefs.length; mi++) {
-          var mid = imageRefs[mi].messageId != null ? imageRefs[mi].messageId : imageRefs[mi];
+          var mid = imageRefs[mi].messageId;
           if (mid == null) continue;
           try {
             var dl = await downloadTelegramMedia(s.workerUrl, s.workerKey, mid);
@@ -1473,7 +1655,8 @@
               id: idSeq++,
               dataUrl: dl.dataUrl,
               name: 'tg-' + mid + '.' + dl.ext,
-              groupKey: String(productId || code)
+              groupKey: String(imageRefs[mi].groupKey || productId || code),
+              selected: true
             };
             rawImages.push(ri);
             rec.images.push(ri);
@@ -1483,7 +1666,7 @@
           }
         }
 
-        if (rec.images.length || productText) {
+        if (rec.images.length || bestText) {
           tgPostRecords.push(rec);
           productsFound++;
         }
@@ -1497,7 +1680,7 @@
       if (productsFound) {
         runAnalyze();
         showStatus(
-          'تم جلب ' + productsFound + ' منتج و ' + loadedImages + ' صورة وتم التحليل.' +
+          'تم جلب ' + productsFound + ' كوليكشن و ' + loadedImages + ' صورة (ألوان مجمّعة تحت كل كود). راجع واختر صورة لكل لون ثم صدّر.' +
           (filtered.skippedNoCode ? ' استُبعد ' + filtered.skippedNoCode + ' بلا كود.' : '') +
           (filtered.skippedStickers ? ' استُبعد ' + filtered.skippedStickers + ' استيكر.' : '') +
           (filtered.skippedAnimations ? ' استُبعد ' + filtered.skippedAnimations + ' موشن.' : '') +
