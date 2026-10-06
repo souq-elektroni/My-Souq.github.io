@@ -1314,10 +1314,10 @@
         '<div class="collection-list-card">' +
           '<div class="cl-title">' + escapeHtml(title) + '</div>' +
           '<div class="cl-row">' +
-            '<span class="cl-badge">كود: ' + escapeHtml(code) + '</span>' +
+            '<span class="cl-badge" style="background:#f3e8ff;color:#6b21a8;font-weight:900">كود: ' + escapeHtml(code) + '</span>' +
             (productType ? '<span class="cl-badge">' + escapeHtml(productType) + '</span>' : '') +
             '<span class="cl-badge">' + colorCount + ' لون · ' + imageCount + ' صورة</span>' +
-            '<button type="button" class="cl-btn" onclick="openDetailModal(\'' + escapeHtml(c.id) + '\')">تفاصيل المنتج</button>' +
+            '<button type="button" class="cl-btn" onclick="openDetailModal(\'' + escapeHtml(String(c.id).replace(/'/g, '')) + '\')">تفاصيل المنتج</button>' +
           '</div>' +
         '</div>'
       );
@@ -1348,14 +1348,155 @@
   };
   window.selectTelegramCollection = function (id) { openDetailModal(id); };
 
+  /** هل اسم اللون حقيقي؟ نرفض جمل وصفية زي «فقط شكل التطريز عشوائي» */
+  function isRealColorName(name) {
+    var s = String(name || '').trim();
+    if (!s || s === 'غير محدد') return false;
+    if (s.length > 24) return false;
+    if (/تطريز|شكل|فقط|متوفر|عشوا|حسب|الطلب|حجز|السعر|مقاس|كود|صور|اللون فقط/i.test(s)) return false;
+    return true;
+  }
+
+  /**
+   * فصل الألوان المتداخلة: لو كل الصور تحت لون واحد مش حقيقي،
+   * نفصل حسب ألبوم تيليجرام (groupKey) — كل ألبوم = لون صف منفصل.
+   */
+  function reorganizeProductColors(product) {
+    if (!product || !product.colors || !product.colors.length) return product;
+    var allImages = [];
+    product.colors.forEach(function (col) {
+      (col.images || []).forEach(function (im) {
+        allImages.push(im);
+      });
+    });
+    if (!allImages.length) return product;
+
+    var realColors = product.colors.filter(function (c) { return isRealColorName(c.name); });
+    // لو فيه ألوان حقيقية متعددة بالفعل، خلّيها
+    if (realColors.length >= 2) {
+      product.colors = realColors.concat(
+        product.colors.filter(function (c) { return !isRealColorName(c.name) && (c.images || []).length; })
+          .map(function (c, i) {
+            return Object.assign({}, c, { name: 'لون ' + (i + 1) });
+          })
+      );
+      return product;
+    }
+
+    // فصل حسب groupKey (ألبوم)
+    var byGroup = {};
+    var order = [];
+    allImages.forEach(function (im) {
+      var gk = String(im.groupKey || im.messageId || im.id);
+      if (!byGroup[gk]) {
+        byGroup[gk] = [];
+        order.push(gk);
+      }
+      byGroup[gk].push(im);
+    });
+
+    // لو groupKey واحد أو فاضي: نفصل حسب مجموعات messageId المتقاربة (ألبومات متتالية)
+    if (order.length <= 1) {
+      var withIds = allImages
+        .map(function (im) {
+          return { im: im, id: Number(im.messageId) || 0 };
+        })
+        .filter(function (x) { return x.id > 0; })
+        .sort(function (a, b) { return a.id - b.id; });
+      if (withIds.length >= 4) {
+        var clusters = [];
+        var current = [withIds[0]];
+        for (var wi = 1; wi < withIds.length; wi++) {
+          // فجوة أكبر من 5 بين IDs = ألبوم/لون جديد
+          if (withIds[wi].id - withIds[wi - 1].id > 5) {
+            clusters.push(current);
+            current = [withIds[wi]];
+          } else {
+            current.push(withIds[wi]);
+          }
+        }
+        clusters.push(current);
+        if (clusters.length >= 2) {
+          product.colors = clusters.map(function (cl, idx) {
+            return {
+              name: 'لون ' + (idx + 1),
+              images: cl.map(function (x) { return x.im; }),
+              selectedImageId: null,
+              text: product.description || '',
+              date: null,
+              messageIds: cl.map(function (x) { return x.id; })
+            };
+          });
+          return product;
+        }
+      }
+      if (realColors.length === 1) return product;
+    }
+
+    if (order.length >= 2) {
+      product.colors = order.map(function (gk, idx) {
+        var imgs = byGroup[gk];
+        // حاول استخراج لون من النص إن وجد
+        var sampleText = (product.description || '') + ' ' + (imgs[0] && imgs[0].name || '');
+        var guessed = normalizeColorNameClient('', product.code, sampleText);
+        var name = isRealColorName(guessed) ? guessed : ('لون ' + (idx + 1));
+        // لو اسمين متكررين من التخمين، رقّم
+        return {
+          name: name,
+          images: imgs,
+          selectedImageId: null,
+          text: product.description || '',
+          date: null,
+          messageIds: imgs.map(function (x) { return x.messageId; }).filter(Boolean)
+        };
+      });
+      // دمج ألوان بنفس الاسم
+      var merged = {};
+      var mergedOrder = [];
+      product.colors.forEach(function (c) {
+        var key = String(c.name).toLowerCase();
+        if (!merged[key]) {
+          merged[key] = c;
+          mergedOrder.push(key);
+        } else {
+          (c.images || []).forEach(function (im) {
+            if (!merged[key].images.some(function (x) { return x.id === im.id; })) {
+              merged[key].images.push(im);
+            }
+          });
+        }
+      });
+      // لو كلهم اتدمجوا في اسم واحد تاني، رجّع الترقيم حسب الألبوم
+      if (mergedOrder.length === 1 && order.length >= 2) {
+        product.colors = order.map(function (gk, idx) {
+          return {
+            name: 'لون ' + (idx + 1),
+            images: byGroup[gk],
+            selectedImageId: null,
+            text: product.description || '',
+            date: null,
+            messageIds: byGroup[gk].map(function (x) { return x.messageId; }).filter(Boolean)
+          };
+        });
+      } else {
+        product.colors = mergedOrder.map(function (k) { return merged[k]; });
+      }
+    } else if (!isRealColorName((product.colors[0] || {}).name)) {
+      product.colors[0].name = 'لون 1';
+    }
+    return product;
+  }
+
   function normalizeColorNameClient(name, productCode, text) {
     var n = String(name || '').trim();
-    if (n && n !== 'غير محدد') {
+    if (n && isRealColorName(n)) {
       var low = n.toLowerCase();
       if (/white|أبيض|ابيض/.test(low)) return 'أبيض';
       if (/yellow|أصفر|اصفر/.test(low)) return 'أصفر';
       if (/red|أحمر|احمر/.test(low)) return 'أحمر';
       if (/green|أخضر|اخضر/.test(low)) return 'أخضر';
+      if (/baby\s*blue|لبني/.test(low)) return 'لبني';
+      if (/sky\s*blue|سماوي/.test(low)) return 'سماوي';
       if (/blue|أزرق|ازرق/.test(low)) return 'أزرق';
       if (/black|أسود|اسود/.test(low)) return 'أسود';
       if (/pink|وردي/.test(low)) return 'وردي';
@@ -1367,20 +1508,32 @@
       if (/purple|موف|بنفسجي/.test(low)) return 'موف';
       return n;
     }
-    var code = String(productCode || '').toUpperCase();
+    var code = String(productCode || '').toUpperCase().replace(/\s+/g, '');
     var suf = '';
-    var m1 = code.match(/[-_]([A-Z]{1,3})$/);
+    var m1 = code.match(/[-_]([A-Z]{1,20})$/);
     if (m1) suf = m1[1];
     else {
-      var m2 = code.match(/[0-9]([A-Z]{1,3})$/);
+      var m2 = code.match(/[0-9]([A-Z]{1,20})$/);
       if (m2) suf = m2[1];
     }
-    var map = {W:'أبيض',WH:'أبيض',Y:'أصفر',YE:'أصفر',R:'أحمر',RD:'أحمر',G:'أخضر',GN:'أخضر',B:'أزرق',BU:'أزرق',BK:'أسود',K:'أسود',P:'وردي',PK:'وردي',O:'برتقالي',BR:'بني',BE:'بيج',GY:'رمادي',NV:'كحلي',PR:'موف'};
+    var map = {
+      W:'أبيض',WH:'أبيض',WHITE:'أبيض',
+      Y:'أصفر',YE:'أصفر',YELLOW:'أصفر',
+      R:'أحمر',RD:'أحمر',RED:'أحمر',
+      G:'أخضر',GN:'أخضر',GREEN:'أخضر',
+      B:'أزرق',BU:'أزرق',BLUE:'أزرق',BABYBLUE:'لبني',
+      BK:'أسود',K:'أسود',BLACK:'أسود',
+      P:'وردي',PK:'وردي',PINK:'وردي',
+      O:'برتقالي',ORANGE:'برتقالي',BR:'بني',BE:'بيج',GY:'رمادي',NV:'كحلي',PR:'موف'
+    };
     if (suf && map[suf]) return map[suf];
+    if (suf && /YELLOW/.test(suf)) return 'أصفر';
+    if (suf && /WHITE/.test(suf)) return 'أبيض';
+    if (suf && /BLUE/.test(suf)) return 'أزرق';
     var t = String(text || '');
-    var cm = t.match(/(?:اللون|لون|color)\s*[:：\-]?\s*([^\n|,،]{1,30})/i);
-    if (cm) return normalizeColorNameClient(cm[1], '', '');
-    var word = t.match(/(أبيض|ابيض|أصفر|اصفر|أحمر|احمر|أخضر|اخضر|أزرق|ازرق|أسود|اسود|وردي|برتقالي|بني|بيج|رمادي|كحلي|موف)/);
+    var cm = t.match(/(?:اللون|لون|color)\s*[:：\-]?\s*([^\n|,،]{1,20})/i);
+    if (cm && isRealColorName(cm[1])) return normalizeColorNameClient(cm[1], '', '');
+    var word = t.match(/\b(أبيض|ابيض|أصفر|اصفر|أحمر|احمر|أخضر|اخضر|أزرق|ازرق|أسود|اسود|وردي|برتقالي|بني|بيج|رمادي|كحلي|موف|لبني|yellow|white|blue|red|green|black|pink)\b/i);
     if (word) return normalizeColorNameClient(word[1], '', '');
     return 'غير محدد';
   }
@@ -1390,6 +1543,7 @@
     if (/أصفر|اصفر|yellow/.test(n)) return 'color-yellow';
     if (/أحمر|احمر|red/.test(n)) return 'color-red';
     if (/أخضر|اخضر|green/.test(n)) return 'color-green';
+    if (/لبني|سماوي|baby|sky/.test(n)) return 'color-blue';
     if (/أزرق|ازرق|blue|كحلي|navy/.test(n)) return 'color-blue';
     if (/أسود|اسود|black/.test(n)) return 'color-black';
     if (/وردي|pink/.test(n)) return 'color-pink';
@@ -1401,6 +1555,8 @@
     if (/أصفر|اصفر|yellow/.test(n)) return '#facc15';
     if (/أحمر|احمر|red/.test(n)) return '#ef4444';
     if (/أخضر|اخضر|green/.test(n)) return '#22c55e';
+    if (/لبني|baby/.test(n)) return '#7dd3fc';
+    if (/سماوي|sky/.test(n)) return '#38bdf8';
     if (/أزرق|ازرق|blue/.test(n)) return '#3b82f6';
     if (/كحلي|navy/.test(n)) return '#1e3a8a';
     if (/أسود|اسود|black/.test(n)) return '#18181b';
@@ -1420,6 +1576,8 @@
     else if (/أصفر|اصفر|yellow/.test(n)) suf = 'Y';
     else if (/أحمر|احمر|red/.test(n)) suf = 'R';
     else if (/أخضر|اخضر|green/.test(n)) suf = 'G';
+    else if (/لبني|baby/.test(n)) suf = 'BB';
+    else if (/سماوي|sky/.test(n)) suf = 'SB';
     else if (/أزرق|ازرق|blue/.test(n)) suf = 'B';
     else if (/أسود|اسود|black/.test(n)) suf = 'BK';
     else if (/وردي|pink/.test(n)) suf = 'P';
@@ -1429,6 +1587,7 @@
     else if (/رمادي|grey|gray/.test(n)) suf = 'GY';
     else if (/كحلي|navy/.test(n)) suf = 'NV';
     else if (/موف|purple/.test(n)) suf = 'PR';
+    else if (/^لون\s*\d+$/.test(n)) suf = String(colorName).replace(/\D/g, '') || '';
     if (!base) return suf || '—';
     return suf ? (base + '-' + suf) : base;
   }
@@ -1484,8 +1643,10 @@
       html += '<div class="color-block ' + colorCssClass(col.name) + '">';
       html += '<div class="color-head">';
       html += '<div class="color-name"><span class="color-dot" style="background:' + colorDotHex(col.name) + '"></span>';
-      html += 'اللون ' + escapeHtml(col.name || 'غير محدد');
-      html += ' <span class="color-code-badge">كود اللون: ' + escapeHtml(colorCode) + '</span></div>';
+      var displayName = col.name || 'غير محدد';
+      if (!/^لون\s*\d+$/i.test(displayName) && displayName.indexOf('اللون') !== 0) displayName = 'اللون ' + displayName;
+      html += '<span style="font-weight:900">' + escapeHtml(displayName) + '</span>';
+      html += '<span class="color-code-badge" style="margin-inline-start:10px">كود اللون: ' + escapeHtml(colorCode) + '</span></div>';
       html += hasApproved
         ? '<span class="color-status ok">✓ المعتمد</span>'
         : '<span class="color-status wait">اختر صورة معتمدة</span>';
@@ -1505,26 +1666,28 @@
       html += '</div></div>';
     });
 
-    // جدول المقاسات
-    html += '<div style="margin-top:16px;font-size:13px;font-weight:900;color:var(--primary);margin-bottom:8px">المقاسات (من نص المنشور)</div>';
+    // جدول المقاسات — ترتيب مثل الشاشة المطلوبة
+    html += '<div style="margin-top:16px;font-size:13px;font-weight:900;color:var(--primary);margin-bottom:8px">المقاسات (من نص المنشور — قابلة للتعديل)</div>';
     if ((p.sizes || []).length) {
       html += '<div class="size-table-wrap"><table class="size-table"><thead><tr>';
       html += '<th>المقاس</th><th>طول البنطلون</th><th>طول التيشرت</th><th>عرض التيشرت</th>';
       html += '</tr></thead><tbody>';
       p.sizes.forEach(function (row) {
         var vals = row.values || ['', '', ''];
+        var pants = vals[0] || row.pants_length || '';
+        var tLen = vals[1] || row.tshirt_length || '';
+        var tWidth = vals[2] || row.tshirt_width || '';
         html += '<tr>';
         html += '<td><input type="text" value="' + escapeHtml(row.size) + '" onchange="updateSizeCell(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(row.size) + '\',\'size\',this.value)" style="text-align:center;font-weight:900"></td>';
-        html += '<td><input type="text" value="' + escapeHtml(vals[0] || row.pants_length || '') + '" onchange="updateSizeCell(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(row.size) + '\',\'pants\',this.value)" style="text-align:center"></td>';
-        html += '<td><input type="text" value="' + escapeHtml(vals[1] || row.tshirt_length || '') + '" onchange="updateSizeCell(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(row.size) + '\',\'tlen\',this.value)" style="text-align:center"></td>';
-        html += '<td><input type="text" value="' + escapeHtml(vals[2] || row.tshirt_width || '') + '" onchange="updateSizeCell(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(row.size) + '\',\'twid\',this.value)" style="text-align:center"></td>';
+        html += '<td><input type="text" value="' + escapeHtml(pants) + '" placeholder="—" onchange="updateSizeCell(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(row.size) + '\',\'pants\',this.value)" style="text-align:center"></td>';
+        html += '<td><input type="text" value="' + escapeHtml(tLen) + '" placeholder="—" onchange="updateSizeCell(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(row.size) + '\',\'tLen\',this.value)" style="text-align:center"></td>';
+        html += '<td><input type="text" value="' + escapeHtml(tWidth) + '" placeholder="—" onchange="updateSizeCell(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(row.size) + '\',\'tWidth\',this.value)" style="text-align:center"></td>';
         html += '</tr>';
       });
       html += '</tbody></table></div>';
     } else {
-      html += '<p class="hint">لم يُستخرج جدول مقاسات من النص — يمكنك إضافته يدويًا بعد الاعتماد للتصدير.</p>';
+      html += '<p class="hint">لم يُستخرج جدول مقاسات من النص — يمكنك إضافتها يدويًا لاحقًا عند التصدير.</p>';
     }
-
     html += '</div>'; // body
 
     // تذييل الأزرار
@@ -1550,8 +1713,8 @@
     if (!row.values) row.values = ['', '', ''];
     if (field === 'size') row.size = value;
     else if (field === 'pants') { row.values[0] = value; row.pants_length = value; }
-    else if (field === 'tlen') { row.values[1] = value; row.tshirt_length = value; }
-    else if (field === 'twid') { row.values[2] = value; row.tshirt_width = value; }
+    else if (field === 'tLen' || field === 'tlen') { row.values[1] = value; row.tshirt_length = value; }
+    else if (field === 'tWidth' || field === 'twid') { row.values[2] = value; row.tshirt_width = value; }
   };
 
   window.approveTelegramColorImage = function (cid, code, color, imgId) {
@@ -2158,7 +2321,7 @@
               : parsedFirst
               ? parsedFirst.basePrice
               : null;
-          products.push({
+          var productObj = {
             code: sp.code,
             colors: colors,
             images: productImages,
@@ -2169,28 +2332,56 @@
               return {
                 size: z.size,
                 price: null,
+                pants_length: z.pants_length || '',
+                tshirt_length: z.tshirt_length || '',
+                tshirt_width: z.tshirt_width || '',
                 values: [z.pants_length || '', z.tshirt_length || '', z.tshirt_width || '']
               };
             }),
             sourcePostIds: colors.reduce(function (a, c) {
               return a.concat(c.messageIds || []);
             }, [])
+          };
+          // فصل الألوان المتداخلة حسب الألبوم
+          reorganizeProductColors(productObj);
+          // كل كود = بطاقة مستقلة (مش تجميع أكواد تحت اسم واحد)
+          var displayTitle =
+            (sc.name && sc.name !== 'غير محدد' ? sc.name + ' — ' : '') + (productObj.code || '');
+          // لو الاسم فيه الكود خلاص، متكررش
+          if (sc.name && String(sc.name).toUpperCase().indexOf(String(productObj.code || '').toUpperCase()) >= 0) {
+            displayTitle = sc.name;
+          } else if (productObj.title && productObj.title !== productObj.code) {
+            displayTitle = productObj.title;
+          }
+          importedCollections.push({
+            id: 'col-' + productObj.code + '-' + (importedCollections.length + 1),
+            name: displayTitle,
+            title: productObj.title || sc.name || productObj.code,
+            code: productObj.code,
+            products: [productObj],
+            selected: true
           });
-          colors.forEach(function (c) {
+          (productObj.colors || []).forEach(function (c) {
             if (c.text) texts.push(c.text);
           });
         }
-        if (products.length) {
-          importedCollections.push({
-            id: 'col-' + (sci + 1),
-            name: sc.name || products[0].title || 'كوليكشن',
-            title: sc.name || '',
-            code: products[0].code,
-            products: products,
-            selected: true
-          });
-        }
       }
+      // إزالة تكرار نفس الكود (نحتفظ بأغنى واحد بالصور)
+      var byCode = {};
+      importedCollections.forEach(function (c) {
+        var key = String(c.code || '').toUpperCase();
+        if (!key) return;
+        var imgs = (c.products || []).reduce(function (n, p) { return n + (p.images || []).length; }, 0);
+        if (!byCode[key] || imgs > byCode[key]._imgCount) {
+          c._imgCount = imgs;
+          byCode[key] = c;
+        }
+      });
+      importedCollections = Object.keys(byCode).map(function (k) {
+        var c = byCode[k];
+        delete c._imgCount;
+        return c;
+      });
       if (mode === 'new') advanceSyncPoint(data);
       if (texts.length) $('postText').value = texts.join('\n\n———\n\n');
       renderCollectionsWorkspace();
