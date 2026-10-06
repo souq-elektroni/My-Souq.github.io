@@ -2059,26 +2059,69 @@
     }
   }
 
-  // تحميل صورة واحدة من Worker v2: /telegram-media-auto?messageId=
+  // تحميل صورة واحدة من Worker v2 — مع إعادة محاولة واحدة
   async function downloadTelegramMedia(workerUrl, workerKey, messageId) {
     var mediaUrl = workerUrl + '/telegram-media-auto?messageId=' + encodeURIComponent(messageId);
-    var ir = await workerFetch(mediaUrl, {
-      headers: workerKey ? { 'X-Admin-Key': workerKey } : {}
-    }, 45000);
-    if (!ir.ok) throw new Error('HTTP ' + ir.status);
-    var blob = await ir.blob();
-    if (blob && blob.type && blob.type.indexOf('image/') !== 0 && blob.type !== 'application/octet-stream') {
-      throw new Error('الميديا ليست صورة');
+    var lastErr = null;
+    for (var attempt = 0; attempt < 2; attempt++) {
+      try {
+        var ir = await workerFetch(mediaUrl, {
+          headers: workerKey ? { 'X-Admin-Key': workerKey } : {}
+        }, 30000);
+        if (!ir.ok) throw new Error('HTTP ' + ir.status);
+        var blob = await ir.blob();
+        if (blob && blob.type && blob.type.indexOf('image/') !== 0 && blob.type !== 'application/octet-stream') {
+          throw new Error('الميديا ليست صورة');
+        }
+        var dataUrl = await new Promise(function (res, rej) {
+          var fr = new FileReader();
+          fr.onload = function () { res(fr.result); };
+          fr.onerror = rej;
+          fr.readAsDataURL(blob);
+        });
+        var ext = ((blob.type || 'image/jpeg').split('/')[1] || 'jpeg');
+        if (ext === 'jpeg') ext = 'jpg';
+        return { dataUrl: dataUrl, ext: ext };
+      } catch (e) {
+        lastErr = e;
+        if (attempt === 0) await new Promise(function (r) { setTimeout(r, 400); });
+      }
     }
-    var dataUrl = await new Promise(function (res, rej) {
-      var fr = new FileReader();
-      fr.onload = function () { res(fr.result); };
-      fr.onerror = rej;
-      fr.readAsDataURL(blob);
+    throw lastErr || new Error('فشل تحميل الصورة');
+  }
+
+  /** تحميل مجموعة صور بتوازي محدود (3) مع حد أقصى */
+  async function downloadImagesLimited(workerUrl, workerKey, imageRefs, maxTotal) {
+    maxTotal = maxTotal || 40;
+    var refs = [];
+    var seen = {};
+    (imageRefs || []).forEach(function (r) {
+      var mid = Number(r.messageId);
+      if (!Number.isFinite(mid) || mid <= 0 || seen[mid]) return;
+      seen[mid] = true;
+      refs.push(r);
     });
-    var ext = ((blob.type || 'image/jpeg').split('/')[1] || 'jpeg');
-    if (ext === 'jpeg') ext = 'jpg';
-    return { dataUrl: dataUrl, ext: ext };
+    refs = refs.slice(0, maxTotal);
+    var results = [];
+    var failed = 0;
+    var i = 0;
+    var concurrency = 3;
+    async function worker() {
+      while (i < refs.length) {
+        var idx = i++;
+        var remote = refs[idx];
+        try {
+          var dl = await downloadTelegramMedia(workerUrl, workerKey, remote.messageId);
+          results.push({ remote: remote, dl: dl });
+        } catch (e) {
+          failed++;
+        }
+      }
+    }
+    var runners = [];
+    for (var c = 0; c < concurrency; c++) runners.push(worker());
+    await Promise.all(runners);
+    return { results: results, failed: failed };
   }
 
   // جلب منتج كامل بالكود عبر Worker v2: /telegram-product-auto?code=
@@ -2264,50 +2307,90 @@
         });
       }
       importedCollections = [];
+      // تجميع كل المنتجات من السيرفر حسب الكود أولًا (تفادي دمج أكواد)
+      var productsByCode = {};
+      var productCodeOrder = [];
       for (var sci = 0; sci < serverCollections.length; sci++) {
         var sc = serverCollections[sci];
-        var products = [];
         for (var spi = 0; spi < (sc.products || []).length; spi++) {
           var sp = sc.products[spi];
-          var colors = [];
-          var productImages = [];
-          for (var sci2 = 0; sci2 < (sp.colors || []).length; sci2++) {
-            var scol = sp.colors[sci2];
-            var colorImages = [];
-            for (var si = 0; si < (scol.images || []).length; si++) {
-              var remote = scol.images[si];
-              try {
-                var dl = await downloadTelegramMedia(s.workerUrl, s.workerKey, remote.messageId);
-                var img = {
-                  id: idSeq++,
-                  dataUrl: dl.dataUrl,
-                  name: 'tg-' + remote.messageId + '.' + dl.ext,
-                  messageId: remote.messageId,
-                  groupKey: String(remote.groupedId || remote.messageId),
-                  selected: false,
-                  color: scol.name,
-                  productCode: sp.code
-                };
-                colorImages.push(img);
-                productImages.push(img);
-                loadedImages++;
-              } catch (e) {
-                failedImages++;
-              }
-            }
-            if (colorImages.length) {
-              var colorName = normalizeColorNameClient(scol.name, sp.code, scol.text || '');
-              colors.push({
-                name: colorName,
-                images: colorImages,
-                selectedImageId: null,
-                text: scol.text || '',
-                date: scol.date || null,
-                messageIds: scol.messageIds || []
-              });
-            }
+          var pCode = normalizeCode(sp.code || '');
+          if (!pCode) continue;
+          if (!productsByCode[pCode]) {
+            productsByCode[pCode] = { code: pCode, collectionName: sc.name || '', colors: [], texts: [] };
+            productCodeOrder.push(pCode);
           }
-          if (!colors.length) continue;
+          (sp.colors || []).forEach(function (scol) {
+            productsByCode[pCode].colors.push({
+              name: scol.name,
+              text: scol.text || '',
+              date: scol.date || null,
+              messageIds: scol.messageIds || [],
+              images: (scol.images || []).slice(0, 12)
+            });
+            if (scol.text) productsByCode[pCode].texts.push(scol.text);
+          });
+        }
+      }
+
+      for (var pci = 0; pci < productCodeOrder.length; pci++) {
+        var pCode2 = productCodeOrder[pci];
+        var pEntry = productsByCode[pCode2];
+        showStatus('تحميل صور الكود ' + pCode2 + ' (' + (pci + 1) + '/' + productCodeOrder.length + ')...', '');
+
+        // كل refs الصور لهذا الكود (حد أقصى 36 صورة للكود)
+        var allRefs = [];
+        pEntry.colors.forEach(function (col, colIdx) {
+          (col.images || []).forEach(function (remote) {
+            allRefs.push({ messageId: remote.messageId, groupedId: remote.groupedId, colIdx: colIdx });
+          });
+        });
+        var dlPack = await downloadImagesLimited(s.workerUrl, s.workerKey, allRefs, 36);
+        failedImages += dlPack.failed;
+        var byMsgId = {};
+        dlPack.results.forEach(function (item) {
+          byMsgId[Number(item.remote.messageId)] = item;
+        });
+
+        var colors = [];
+        var productImages = [];
+        pEntry.colors.forEach(function (scol, colIdx) {
+          var colorImages = [];
+          (scol.images || []).forEach(function (remote) {
+            var hit = byMsgId[Number(remote.messageId)];
+            if (!hit) return;
+            var img = {
+              id: idSeq++,
+              dataUrl: hit.dl.dataUrl,
+              name: 'tg-' + remote.messageId + '.' + hit.dl.ext,
+              messageId: remote.messageId,
+              groupKey: String(remote.groupedId || remote.messageId),
+              selected: false,
+              color: scol.name,
+              productCode: pCode2
+            };
+            colorImages.push(img);
+            productImages.push(img);
+            loadedImages++;
+          });
+          if (colorImages.length) {
+            var colorName = normalizeColorNameClient(scol.name, pCode2, scol.text || '');
+            if (!isRealColorName(colorName)) {
+              colorName = 'لون ' + (colors.length + 1);
+            }
+            colors.push({
+              name: colorName,
+              images: colorImages,
+              selectedImageId: null,
+              text: scol.text || '',
+              date: scol.date || null,
+              messageIds: scol.messageIds || []
+            });
+          }
+        });
+        if (!colors.length) continue;
+        var sp = { code: pCode2 };
+        var sc = { name: pEntry.collectionName || pCode2 };
           var textParts = [];
           colors.forEach(function (c) {
             if (c.text && textParts.indexOf(c.text) < 0) textParts.push(c.text);
@@ -2364,7 +2447,6 @@
           (productObj.colors || []).forEach(function (c) {
             if (c.text) texts.push(c.text);
           });
-        }
       }
       // إزالة تكرار نفس الكود (نحتفظ بأغنى واحد بالصور)
       var byCode = {};
