@@ -639,7 +639,7 @@
               (brightRatio > 0.55 && edgeRatio > 0.16 && blueRatio > 0.03) ||
               (brightRatio > 0.6 && darkRatio < 0.12 && edgeRatio > 0.12);
             // موديل: بشرة عالية جدًا فقط (صور المنتج الوردية/البنية كانت بتتلقط غلط)
-            var isModel = skinRatio > 0.12 && !isChart;
+            var isModel = skinRatio > 0.09 && !isChart;
             var norm = hist.slice();
             var total = 0;
             for (var t = 0; t < norm.length; t++) total += norm[t];
@@ -706,16 +706,10 @@
       }
       product.push(img);
     }
-    // لو مفيش صور منتج خالص — رجّع الموديل مؤقتًا عشان المستخدم يقدر يختار/يرجع
-    // لكن لو فيه صور منتج، الموديل يفضل مستبعد (بني آدم)
-    if (!product.length && models.length) {
-      product = models.slice();
-      models = [];
-    }
-    if (!product.length && images.length) {
-      product = images.filter(function (im) { return sizeCharts.indexOf(im) < 0; });
-      models = [];
-    }
+    // ممنوع إعادة صور الموديل إلى صور المنتج مهما كان عدد صور المنتج.
+    // إذا لم يبقَ أي منتج صالح، نترك product فارغًا ولا نعيد أي صورة بشرية.
+    // صور جداول المقاسات فقط تبقى في sizeCharts، وصور البشر تبقى مستبعدة.
+
     return { product: product, sizeCharts: sizeCharts, models: models };
   }
 
@@ -740,7 +734,7 @@
     var classified = await classifyProductImages(images);
     var product = classified.product;
     var meta = classified.sizeCharts.concat(classified.models);
-    if (!product.length) return { product: images.slice(), meta: [], sizeCharts: classified.sizeCharts, models: classified.models };
+    if (!product.length) return { product: [], meta: meta, sizeCharts: classified.sizeCharts, models: classified.models };
     return { product: product, meta: meta, sizeCharts: classified.sizeCharts, models: classified.models };
   }
 
@@ -1940,19 +1934,8 @@
       html += '<p class="hint">لا توجد صورة جدول مقاسات مرتبطة بهذا الكود.</p>';
     }
     var modelImgs = p.modelImages || [];
-    if (modelImgs.length) {
-      html += '<div class="detail-section-title"><h3 style="color:#b45309">👤 صور موديل (مستبعدة)</h3><span class="sec-badge">' + modelImgs.length + '</span></div>';
-      html += '<p class="hint" style="margin-bottom:8px">لو صور المنتج الحقيقي اتستبعدت بالغلط، اضغط «أضف للألوان» لإرجاعها.</p>';
-      html += '<div class="tg-images">';
-      modelImgs.forEach(function (im) {
-        html += '<div class="tg-image-card">';
-        html += '<img src="' + im.dataUrl + '" alt="موديل" onclick="openTelegramPreview(\'' + escapeHtml(im.dataUrl) + '\')">';
-        html += '<div class="tg-image-actions"><button type="button" class="approve" onclick="restoreModelImage(\'' + escapeHtml(String(c.id)) + '\',\'' + escapeHtml(String(p.code)) + '\',' + im.id + ')">أضف للألوان</button></div>';
-        html += '</div>';
-      });
-      html += '</div>';
-    } else if (p.excludedModels) {
-      html += '<p class="hint" style="margin-top:8px">تم استبعاد ' + p.excludedModels + ' صورة موديل.</p>';
+    if (p.excludedModels) {
+      html += '<p class="hint" style="margin-top:8px">تم استبعاد ' + p.excludedModels + ' صورة يظهر فيها موديل/شخص، ولن تدخل ضمن صور المنتج.</p>';
     }
 
     html += '</div>'; // body
