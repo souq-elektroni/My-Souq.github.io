@@ -533,11 +533,13 @@
             var skinRatio = skin / n;
             var edgeRatio = edge / ((w - 2) * (h - 2));
             // جدول مقاسات: خلفية فاتحة + أزرق/نص + حواف كثيرة
+            // جداول مقاسات / رسوم قياس: خلفية فاتحة + أزرق رسومي أو حواف نصية كثيرة
             var isChart =
-              (brightRatio > 0.55 && edgeRatio > 0.14 && (blueRatio > 0.04 || darkRatio < 0.08)) ||
-              (brightRatio > 0.62 && edgeRatio > 0.18);
-            // موديل: بشرة واضحة جدًا فقط — عتبة أعلى عشان صور المنتج متتشالش
-            var isModel = skinRatio > 0.14 && !isChart;
+              (brightRatio > 0.45 && blueRatio > 0.08 && edgeRatio > 0.06) ||
+              (brightRatio > 0.55 && edgeRatio > 0.16 && blueRatio > 0.03) ||
+              (brightRatio > 0.6 && darkRatio < 0.12 && edgeRatio > 0.12);
+            // موديل: بشرة عالية جدًا فقط (صور المنتج الوردية/البنية كانت بتتلقط غلط)
+            var isModel = skinRatio > 0.22 && brightRatio < 0.55 && !isChart;
             var norm = hist.slice();
             var total = 0;
             for (var t = 0; t < norm.length; t++) total += norm[t];
@@ -585,35 +587,39 @@
     for (var i = 0; i < images.length; i++) {
       var img = images[i];
       var name = String(img.name || '').toLowerCase();
+      // جداول مقاسات بالاسم
       if (/مقاس|size\s*chart|sizechart|chart|table|جدول|measurement|sizes?/.test(name)) {
         sizeCharts.push(img);
         continue;
       }
-      if (/model|موديل|lookbook|kid\s*model/.test(name)) {
+      var look = await analyzeImageLook(img.dataUrl);
+      img._look = look;
+      // جداول/رسوم مقاسات → حقل المقاسات فقط
+      if (look.isChart) {
+        sizeCharts.push(img);
+        continue;
+      }
+      // صور الموديل الحقيقية فقط (بشرة عالية) — باقي صور المنتج تفضل في الألوان
+      if (look.isModel) {
         models.push(img);
         continue;
       }
-      var look = await analyzeImageLook(img.dataUrl);
-      img._look = look;
-      if (look.isChart) {
-        sizeCharts.push(img);
-      } else if (look.isModel) {
-        models.push(img);
-      } else {
-        product.push(img);
-      }
+      product.push(img);
     }
-    // لو مفيش صور منتج: رجّع الموديل للمنتج عشان المستخدم يشوف ويختار
-    // (أفضل من إخفاء كل الصور)
+    // مهم: لو اتصنّف أغلب الصور موديل بالغلط، رجّعها كلها للمنتج
+    // (ماعدا الجداول)
+    if (models.length && models.length >= product.length) {
+      product = product.concat(models);
+      models = [];
+    }
+    // لو مفيش منتج خالص: رجّع الموديل
     if (!product.length && models.length) {
       product = models.slice();
       models = [];
     }
-    // لو برضو فاضي: أي حاجة مش جدول
     if (!product.length && images.length) {
-      product = images.filter(function (im) {
-        return sizeCharts.indexOf(im) < 0;
-      });
+      product = images.filter(function (im) { return sizeCharts.indexOf(im) < 0; });
+      models = [];
     }
     return { product: product, sizeCharts: sizeCharts, models: models };
   }
