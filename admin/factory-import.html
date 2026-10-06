@@ -233,6 +233,8 @@
 
         <div id="tgNewBox">
           <p class="hint" style="margin-top:6px;">يجلب فقط المنشورات التي ظهرت بعد آخر نقطة سحب محفوظة. اضغط الزر بنفسك — مفيش سحب في الخلفية.</p>
+          <p class="hint" id="tgSyncHint" style="margin-top:4px;"></p>
+          <button type="button" class="btn ghost" style="margin-top:6px;font-size:12px;padding:8px 12px" onclick="resetTgSyncPoint()">🔄 تصفير نقطة السحب (لو مفيش منشورات جديدة)</button>
         </div>
 
         <div id="tgRangeBox" style="display:none;">
@@ -246,7 +248,7 @@
               <input type="datetime-local" id="tgDateTo">
             </div>
           </div>
-          <p class="hint" style="margin-top:6px;">مثال: أمس من 10:00 صباحًا إلى 6:00 مساءً.</p>
+          <p class="hint" style="margin-top:6px;">مثال: أمس من 10:00 صباحًا إلى 6:00 مساءً. تأكد إن الفترة تغطي وقت نشر المنتجات في القناة.</p>
         </div>
 
         <div class="btns">
@@ -1772,7 +1774,30 @@
     var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'new';
     $('tgNewBox').style.display = mode === 'new' ? '' : 'none';
     $('tgRangeBox').style.display = mode === 'range' ? '' : 'none';
+    updateTgSyncHint();
   };
+
+  function updateTgSyncHint() {
+    var el = $('tgSyncHint');
+    if (!el) return;
+    var lastId = Number(localStorage.getItem('mysouq_tg_last_sync_id') || 0);
+    if (Number.isFinite(lastId) && lastId > 0) {
+      el.textContent = 'آخر نقطة سحب محفوظة: #' + lastId + ' — لو ظهرت «لا توجد منشورات جديدة» اضغط تصفير نقطة السحب.';
+      el.style.color = 'var(--warn)';
+    } else {
+      el.textContent = 'مفيش نقطة سحب محفوظة — هيسحب من أحدث المنشورات.';
+      el.style.color = 'var(--muted)';
+    }
+  }
+
+  window.resetTgSyncPoint = function () {
+    localStorage.removeItem('mysouq_tg_last_sync_id');
+    updateTgSyncHint();
+    showStatus('تم تصفير نقطة السحب. اضغط «جلب من تيليجرام» تاني في وضع الجديد فقط.', 'ok');
+  };
+
+  // عرض حالة نقطة السحب عند التحميل
+  try { updateTgSyncHint(); } catch (e) {}
 
   window.exportToSveltia = function () {
     exportProductMd();
@@ -1878,24 +1903,53 @@
     return data;
   }
 
+  /** تحويل datetime-local إلى ISO بشكل آمن */
+  function localInputToIso(val, endOfMinute) {
+    if (!val) return '';
+    var s = String(val).trim();
+    // 2026-10-05T10:00 → نكمّل الثواني
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(s)) {
+      s += endOfMinute ? ':59' : ':00';
+    }
+    var d = new Date(s);
+    if (isNaN(d.getTime())) return '';
+    return d.toISOString();
+  }
+
+  function advanceSyncPoint(data) {
+    var candidate = Number(data && (data.channelLatestId || data.maxId) || 0);
+    if (!Number.isFinite(candidate) || candidate <= 0) return;
+    var prev = Number(localStorage.getItem('mysouq_tg_last_sync_id') || 0);
+    if (candidate > prev) {
+      localStorage.setItem('mysouq_tg_last_sync_id', String(candidate));
+      try { updateTgSyncHint(); } catch (e) {}
+    }
+  }
+
   // Telegram fetch عبر Worker v2 — أوضاع السحب: الجديد فقط / تاريخ ووقت فقط
   window.fetchFromTelegram = async function () {
     var s = getSettings();
     if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker من تبويب الإعدادات.', 'err'); return; }
     var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'new';
     if (mode !== 'new' && mode !== 'range') mode = 'new';
-    var from = mode === 'range' ? $('tgDateFrom').value : '';
-    var to = mode === 'range' ? $('tgDateTo').value : '';
+    var from = mode === 'range' ? ($('tgDateFrom').value || '') : '';
+    var to = mode === 'range' ? ($('tgDateTo').value || '') : '';
 
     if (mode === 'range') {
       if (!from || !to) { showStatus('حدد تاريخ ووقت البداية والنهاية أولًا.', 'err'); return; }
-      if (new Date(from).getTime() > new Date(to).getTime()) { showStatus('تاريخ ووقت البداية يجب أن يكون قبل النهاية.', 'err'); return; }
+      var fromIso = localInputToIso(from, false);
+      var toIso = localInputToIso(to, true);
+      if (!fromIso || !toIso) { showStatus('صيغة التاريخ غير صحيحة.', 'err'); return; }
+      if (new Date(fromIso).getTime() > new Date(toIso).getTime()) {
+        showStatus('تاريخ ووقت البداية يجب أن يكون قبل النهاية.', 'err');
+        return;
+      }
     }
 
     showStatus(
       mode === 'new'
-        ? 'جاري سحب المنشورات الجديدة فقط منذ آخر نقطة سحب محفوظة...'
-        : ('جاري سحب منشورات تيليجرام من ' + from.replace('T',' ') + ' إلى ' + to.replace('T',' ') + '...'),
+        ? 'جاري سحب المنشورات الجديدة من تيليجرام...'
+        : ('جاري سحب منشورات تيليجرام من ' + from.replace('T', ' ') + ' إلى ' + to.replace('T', ' ') + '...'),
       ''
     );
     $('btnFetchTg').disabled = true;
@@ -1906,8 +1960,8 @@
         var lastId = Number(localStorage.getItem('mysouq_tg_last_sync_id') || 0);
         if (Number.isFinite(lastId) && lastId > 0) qs.push('afterId=' + encodeURIComponent(lastId));
       } else {
-        qs.push('from=' + encodeURIComponent(new Date(from).toISOString()));
-        qs.push('to=' + encodeURIComponent(new Date(to).toISOString()));
+        qs.push('from=' + encodeURIComponent(localInputToIso(from, false)));
+        qs.push('to=' + encodeURIComponent(localInputToIso(to, true)));
       }
 
       var r = await fetch(s.workerUrl + '/telegram-posts?' + qs.join('&'), {
@@ -1921,27 +1975,35 @@
       }
 
       var posts = data.posts || data.items || [];
-      var seenPostIds = new Set((tgPostRecords || []).map(function (x) { return String(x.id); }));
-      posts = posts.filter(function (post) {
-        if (post && post.id != null) {
-          var key = String(post.id);
-          if (seenPostIds.has(key)) return false;
-          seenPostIds.add(key);
-        }
-        return true;
-      });
-
+      // لا نفلتر بالـ tgPostRecords القديمة هنا عشان إعادة السحب بعد التصفير تشتغل
       if (!posts.length) {
-        showStatus(mode === 'new' ? 'لا توجد منشورات جديدة منذ آخر نقطة سحب محفوظة.' : 'لا توجد منشورات ضمن الاختيار الحالي.', 'ok');
+        if (mode === 'new') {
+          var lastSync = Number(localStorage.getItem('mysouq_tg_last_sync_id') || 0);
+          showStatus(
+            lastSync > 0
+              ? 'لا توجد منشورات أحدث من نقطة السحب #' + lastSync + '. اضغط «تصفير نقطة السحب» ثم أعد الجلب، أو استخدم تاريخ ووقت.'
+              : 'تيليجرام لم يُرجع منشورات. افحص الاتصال من تبويب الإعدادات (📱 فحص Telegram).',
+            'err'
+          );
+        } else {
+          var hint = '';
+          if (data.from || data.to) hint = ' (الفترة على السيرفر: ' + (data.from || '?') + ' → ' + (data.to || '?') + ')';
+          showStatus(
+            'لا توجد منشورات ضمن التاريخ والوقت المختار' + hint + '. وسّع الفترة (يوم كامل أو يومين) وأعد المحاولة.',
+            'err'
+          );
+        }
         return;
       }
 
       var filtered = filterTelegramPosts(posts);
       posts = filtered.posts;
       if (!posts.length) {
-        // في وضع الجديد نعتبر الرسائل التي تمت قراءتها نقطة سحب جديدة حتى لا يعاد فحصها كل مرة.
-        if (mode === 'new' && data.maxId) localStorage.setItem('mysouq_tg_last_sync_id', String(data.maxId));
-        showStatus('تم استبعاد كل المنشورات (بلا كود / استيكر / موشن / استطلاع / جرد).', 'ok');
+        if (mode === 'new') advanceSyncPoint(data);
+        showStatus(
+          'اتسحب ' + (data.count || 0) + ' منشور لكن اتستبعدوا كلهم (بلا كود / استيكر / جرد / موشن).',
+          'ok'
+        );
         return;
       }
 
@@ -1955,86 +2017,144 @@
       });
 
       if (!codeOrder.length) {
-        if (mode === 'new' && data.maxId) localStorage.setItem('mysouq_tg_last_sync_id', String(data.maxId));
-        showStatus('لم يُعثر على أكواد منتجات صالحة في المنشورات.', 'err');
+        if (mode === 'new') advanceSyncPoint(data);
+        showStatus('لم يُعثر على أكواد منتجات صالحة في المنشورات المسحوبة.', 'err');
         return;
       }
 
-      showStatus('وُجد ' + codeOrder.length + ' كوليكشن (كود) — جاري تجميع الألوان والصور لكل كود...', '');
+      showStatus('وُجد ' + codeOrder.length + ' كود منتج — جاري تجميع كل الألوان والصور لكل كود...', '');
 
       var texts = [];
-      tgPostRecords = [];
+      tgPostRecords = posts.slice();
       var loadedImages = 0;
       var failedImages = 0;
-      var sourceIds = posts.map(function(p){ return Number(p.id); }).filter(function(x){ return Number.isFinite(x); });
-      var dataQs = ['codes=' + encodeURIComponent(codeOrder.join(',')), 'sourceIds=' + encodeURIComponent(sourceIds.join(','))];
-      if (mode === 'new') {
-        var syncId = Number(localStorage.getItem('mysouq_tg_last_sync_id') || 0);
-        if (syncId > 0) dataQs.push('afterId=' + encodeURIComponent(syncId));
-      } else if (mode === 'range') {
-        dataQs.push('from=' + encodeURIComponent(new Date(from).toISOString()));
-        dataQs.push('to=' + encodeURIComponent(new Date(to).toISOString()));
-      }
-      showStatus('تم العثور على ' + codeOrder.length + ' كود. جاري بناء الكوليكشنات حسب الكود + اللون + الصور...', '');
+      // نبحث بالأكواد فقط (من غير afterId/sourceIds) عشان نجيب كل ألوان المنتج كاملة
+      var dataQs = ['codes=' + encodeURIComponent(codeOrder.join(','))];
+      showStatus('جاري بناء الكوليكشنات: ' + codeOrder.length + ' كود — جلب الألوان والصور...', '');
       var cr = await fetch(s.workerUrl + '/telegram-collection-data?' + dataQs.join('&'), {
         headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
       });
-      var collectionData = await cr.json().catch(function(){return {};});
+      var collectionData = await cr.json().catch(function () { return {}; });
       if (!cr.ok || collectionData.status === 'error') {
         showStatus(collectionData.message || ('تعذر بناء الكوليكشنات — HTTP ' + cr.status), 'err');
         return;
       }
       var serverCollections = collectionData.collections || [];
       importedCollections = [];
-      for (var sci=0; sci<serverCollections.length; sci++) {
+      for (var sci = 0; sci < serverCollections.length; sci++) {
         var sc = serverCollections[sci];
         var products = [];
-        for (var spi=0; spi<(sc.products||[]).length; spi++) {
+        for (var spi = 0; spi < (sc.products || []).length; spi++) {
           var sp = sc.products[spi];
           var colors = [];
           var productImages = [];
-          for (var sci2=0; sci2<(sp.colors||[]).length; sci2++) {
+          for (var sci2 = 0; sci2 < (sp.colors || []).length; sci2++) {
             var scol = sp.colors[sci2];
             var colorImages = [];
-            for (var si=0; si<(scol.images||[]).length; si++) {
+            for (var si = 0; si < (scol.images || []).length; si++) {
               var remote = scol.images[si];
               try {
                 var dl = await downloadTelegramMedia(s.workerUrl, s.workerKey, remote.messageId);
-                var img = {id:idSeq++, dataUrl:dl.dataUrl, name:'tg-'+remote.messageId+'.'+dl.ext, messageId:remote.messageId, groupKey:String(remote.groupedId||remote.messageId), selected:false, color:scol.name, productCode:sp.code};
-                colorImages.push(img); productImages.push(img); loadedImages++;
-              } catch(e) { failedImages++; }
+                var img = {
+                  id: idSeq++,
+                  dataUrl: dl.dataUrl,
+                  name: 'tg-' + remote.messageId + '.' + dl.ext,
+                  messageId: remote.messageId,
+                  groupKey: String(remote.groupedId || remote.messageId),
+                  selected: false,
+                  color: scol.name,
+                  productCode: sp.code
+                };
+                colorImages.push(img);
+                productImages.push(img);
+                loadedImages++;
+              } catch (e) {
+                failedImages++;
+              }
             }
             if (colorImages.length) {
-              // بدون اعتماد تلقائي — كل صور اللون تظهر والمستخدم يختار بنفسه
               var colorName = normalizeColorNameClient(scol.name, sp.code, scol.text || '');
-              colors.push({name: colorName, images:colorImages, selectedImageId:null, text:scol.text||'', date:scol.date||null, messageIds:scol.messageIds||[]});
+              colors.push({
+                name: colorName,
+                images: colorImages,
+                selectedImageId: null,
+                text: scol.text || '',
+                date: scol.date || null,
+                messageIds: scol.messageIds || []
+              });
             }
           }
           if (!colors.length) continue;
-          var textParts=[];
-          colors.forEach(function(c){ if(c.text && textParts.indexOf(c.text)<0) textParts.push(c.text); });
-          var parsedFirst = parseText(textParts.join('\n\n'));
-          var sizes = parseSizeMeasurements(textParts.join('\n'));
-          var price = parsedFirst && parsedFirst.phase1Price != null ? parsedFirst.phase1Price : (parsedFirst ? parsedFirst.basePrice : null);
-          products.push({code:sp.code, colors:colors, images:productImages, title:sc.name || sp.code, description:textParts.join('\n\n'), price:price, sizes:sizes.map(function(z){return {size:z.size,price:null,values:[z.pants_length||'',z.tshirt_length||'',z.tshirt_width||'']};}), sourcePostIds:colors.reduce(function(a,c){return a.concat(c.messageIds||[]);},[])});
-          colors.forEach(function(c){ if(c.text) texts.push(c.text); });
+          var textParts = [];
+          colors.forEach(function (c) {
+            if (c.text && textParts.indexOf(c.text) < 0) textParts.push(c.text);
+          });
+          var joinedText = textParts.join('\n\n');
+          var parsedFirst = parseText(joinedText);
+          var sizes = parseSizeMeasurements(joinedText);
+          var price =
+            parsedFirst && parsedFirst.phase1Price != null
+              ? parsedFirst.phase1Price
+              : parsedFirst
+              ? parsedFirst.basePrice
+              : null;
+          products.push({
+            code: sp.code,
+            colors: colors,
+            images: productImages,
+            title: sc.name || sp.code,
+            description: joinedText,
+            price: price,
+            sizes: sizes.map(function (z) {
+              return {
+                size: z.size,
+                price: null,
+                values: [z.pants_length || '', z.tshirt_length || '', z.tshirt_width || '']
+              };
+            }),
+            sourcePostIds: colors.reduce(function (a, c) {
+              return a.concat(c.messageIds || []);
+            }, [])
+          });
+          colors.forEach(function (c) {
+            if (c.text) texts.push(c.text);
+          });
         }
         if (products.length) {
-          importedCollections.push({id:'col-'+(sci+1), name:sc.name || 'كوليكشن غير محدد', title:sc.name || '', code:products[0].code, products:products, selected:true});
+          importedCollections.push({
+            id: 'col-' + (sci + 1),
+            name: sc.name || products[0].title || 'كوليكشن',
+            title: sc.name || '',
+            code: products[0].code,
+            products: products,
+            selected: true
+          });
         }
       }
-      if (mode === 'new' && data.maxId) localStorage.setItem('mysouq_tg_last_sync_id', String(data.maxId));
+      if (mode === 'new') advanceSyncPoint(data);
       if (texts.length) $('postText').value = texts.join('\n\n———\n\n');
       renderCollectionsWorkspace();
       $('reviewCard').style.display = importedCollections.length ? 'block' : 'none';
       if (!importedCollections.length) {
-        showStatus('تم العثور على أكواد، لكن لم يوجد أي كوليكشن به صور منتجات فعلية؛ لذلك تم استبعادها.', 'ok');
+        showStatus('تم العثور على أكواد، لكن مفيش صور منتجات فعلية — تم الاستبعاد.', 'ok');
       } else {
-        showStatus('تم سحب ' + importedCollections.length + ' كوليكشن فعلي بصور، و' + loadedImages + ' صورة. الكوليكشنات بدون صور تم استبعادها.' + (failedImages ? ' تعذر تحميل ' + failedImages + ' صورة.' : ''), 'ok');
+        showStatus(
+          'تم سحب ' +
+            importedCollections.length +
+            ' كوليكشن بصور (' +
+            loadedImages +
+            ' صورة).' +
+            (failedImages ? ' تعذر تحميل ' + failedImages + ' صورة.' : '') +
+            ' اضغط «تفاصيل المنتج» للمراجعة.',
+          'ok'
+        );
       }
-    } catch (e) { showStatus('فشل الجلب: ' + (e.message || e), 'err'); }
-    finally { $('btnFetchTg').disabled = false; }
-  }
+    } catch (e) {
+      showStatus('فشل الجلب: ' + (e.message || e), 'err');
+    } finally {
+      $('btnFetchTg').disabled = false;
+    }
+  };
 })();
   </script>
 </body>
