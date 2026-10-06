@@ -151,6 +151,28 @@
     .preview-modal.show{display:flex;}
     .preview-modal img{max-width:92vw;max-height:88vh;object-fit:contain;border-radius:12px;}
     .preview-close{position:absolute;top:18px;right:22px;border:0;background:#fff;color:#222;border-radius:999px;width:42px;height:42px;font-size:24px;font-weight:900;cursor:pointer;}
+    /* مودال تفاصيل الكوليكشن — شكل احترافي */
+    .detail-modal-overlay{position:fixed;inset:0;background:rgba(30,10,40,.55);z-index:900;display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow-y:auto;}
+    .detail-modal-overlay.show{display:flex;}
+    .detail-modal{background:#fff;border-radius:18px;width:min(920px,100%);box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden;}
+    .detail-modal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
+    .detail-modal-top .code-pill{background:var(--primary);color:#fff;font-weight:900;font-size:14px;padding:8px 14px;border-radius:12px;display:inline-flex;align-items:center;gap:6px;}
+    .detail-modal-top .del-col{background:#fff;border:1px solid #f5c2c7;color:#c62828;font-weight:800;font-size:12px;padding:7px 12px;border-radius:10px;cursor:pointer;}
+    .detail-modal-body{padding:16px 18px;}
+    .detail-modal-meta{display:grid;grid-template-columns:180px 1fr;gap:12px;margin-bottom:14px;}
+    @media(max-width:640px){.detail-modal-meta{grid-template-columns:1fr;}}
+    .detail-price-box{background:#f3e8ff;border-radius:14px;padding:14px;text-align:center;}
+    .detail-price-box .lbl{font-size:12px;font-weight:800;color:var(--primary);margin-bottom:6px;}
+    .detail-price-box .val{font-size:22px;font-weight:900;color:var(--ink);}
+    .detail-desc-box{background:#faf6f8;border:1px solid var(--line);border-radius:14px;padding:12px;font-size:12px;font-weight:700;color:var(--muted);white-space:pre-wrap;max-height:120px;overflow:auto;line-height:1.55;}
+    .detail-modal-footer{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;padding:14px 18px;border-top:1px solid var(--line);background:#faf6f8;}
+    .detail-modal-footer .left,.detail-modal-footer .right{display:flex;flex-wrap:wrap;gap:8px;}
+    .collection-list-card{border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;background:#fff;cursor:pointer;transition:.15s;}
+    .collection-list-card:hover{border-color:var(--primary);background:#faf2fb;}
+    .collection-list-card .cl-title{font-weight:900;font-size:15px;color:var(--ink);margin-bottom:6px;}
+    .collection-list-card .cl-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;}
+    .collection-list-card .cl-badge{font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;background:#f3e8ff;color:var(--primary);}
+    .collection-list-card .cl-btn{margin-right:auto;background:var(--primary);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:900;font-size:12px;cursor:pointer;}
     @media(max-width:900px){.collection-workspace{grid-template-columns:1fr}.collection-list{position:static;max-height:none}}
 
     .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
@@ -198,7 +220,7 @@
         <input type="text" id="tgChannel" placeholder="BlueBee kids — القناة مضبوطة في الـ Worker" disabled style="opacity:.7">
         <p class="hint">الـ Worker v2 يقرأ من قناة ثابتة. الجلب يتم عبر آخر المنشورات ثم البحث بالكود لكل منتج.</p>
         <label>طريقة السحب</label>
-        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:8px 0 12px;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 12px;">
           <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
             <input type="radio" name="tgFetchMode" id="tgModeNew" value="new" checked onchange="toggleTgFetchMode()">
             <span>🆕 الجديد فقط</span>
@@ -207,14 +229,10 @@
             <input type="radio" name="tgFetchMode" id="tgModeRange" value="range" onchange="toggleTgFetchMode()">
             <span>📅 تاريخ ووقت</span>
           </label>
-          <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
-            <input type="radio" name="tgFetchMode" id="tgModeLimit" value="limit" onchange="toggleTgFetchMode()">
-            <span>📌 عدد المنشورات</span>
-          </label>
         </div>
 
         <div id="tgNewBox">
-          <p class="hint" style="margin-top:6px;">الوضع الافتراضي: أنت تضغط زر السحب بنفسك، والنظام يجلب فقط المنشورات التي ظهرت بعد آخر نقطة سحب محفوظة. لا يوجد سحب في الخلفية.</p>
+          <p class="hint" style="margin-top:6px;">يجلب فقط المنشورات التي ظهرت بعد آخر نقطة سحب محفوظة. اضغط الزر بنفسك — مفيش سحب في الخلفية.</p>
         </div>
 
         <div id="tgRangeBox" style="display:none;">
@@ -228,24 +246,11 @@
               <input type="datetime-local" id="tgDateTo">
             </div>
           </div>
-          <p class="hint" style="margin-top:6px;">يمكنك اختيار فترة قديمة أو حديثة، مثل أمس من 10:00 صباحًا إلى 6:00 مساءً.</p>
-        </div>
-
-        <div id="tgLimitBox" style="display:none;">
-          <label>عدد المنشورات المطلوب سحبها</label>
-          <select id="tgLimit">
-            <option value="10">10 منشورات</option>
-            <option value="20" selected>20 منشور</option>
-            <option value="30">30 منشور</option>
-            <option value="50">50 منشور</option>
-            <option value="80">80 منشور</option>
-            <option value="100">100 منشور</option>
-          </select>
-          <p class="hint" style="margin-top:6px;">يسحب العدد المطلوب من تيليجرام، سواء كانت المنشورات جديدة أو قديمة.</p>
+          <p class="hint" style="margin-top:6px;">مثال: أمس من 10:00 صباحًا إلى 6:00 مساءً.</p>
         </div>
 
         <div class="btns">
-          <button type="button" class="btn" id="btnFetchTg" onclick="fetchFromTelegram()">⬇️ جلب المنشورات وتحليلها</button>
+          <button type="button" class="btn" id="btnFetchTg" onclick="fetchFromTelegram()">⬇️ جلب من تيليجرام</button>
         </div>
         <p class="hint">
           بعد ضبط رابط الـ Worker وفحص Telegram، اضغط الجلب: يقرأ آخر المنشورات، يستخرج الأكواد، ويجلب صور كل منتج عبر الـ Worker ثم يعرضها للمراجعة.
@@ -293,7 +298,7 @@
         <p class="hint">
           الإعدادات تُحفظ في المتصفح (localStorage) فقط على جهازك.
           Worker v2: ضع رابط الـ Worker ثم «اختبار الاتصال» و«📱 فحص Telegram» (endpoint: /telegram-test).
-          الجلب: /telegram-posts?mode=limit|hours ثم /telegram-product-auto لكل كود و /telegram-media-auto للصور.
+          الجلب: /telegram-posts?mode=new|range ثم بناء الكوليكشنات والصور عبر الـ Worker.
         </p>
       </div>
     </div>
@@ -301,34 +306,27 @@
     <!-- ===== نتيجة التحليل ===== -->
     <div class="card" id="reviewCard" style="display:none;">
       <h2>③ الكوليكشنات المسحوبة</h2>
-      <p class="hint" style="margin-bottom:12px;">اليسار: الكوليكشنات التي تم العثور عليها. اليمين: تفاصيل الكوليكشن، ثم الكود واللون وصور كل لون بدون خلط.</p>
-      <div class="collection-workspace">
-        <div class="collection-list" id="collectionListBox"></div>
-        <div class="collection-detail" id="collectionDetailBox"><p class="hint">اختر كوليكشن من القائمة.</p></div>
-      </div>
-      <div class="card" style="margin-top:14px;background:#fff;">
-        <h3 style="margin-top:0;">④ تصدير المنتج المحدد</h3>
-        <div class="row">
-          <div><label>اسم المنتج <span style="color:#b00020">*</span></label><input type="text" id="outTitle" placeholder="اسم المنتج"></div>
-          <div><label>القسم</label><select id="outCategory"><option value="ملابس شتوية">ملابس شتوية</option><option value="ملابس خروج">ملابس خروج</option><option value="أحذية">أحذية</option><option value="عروض">عروض</option></select></div>
-        </div>
-        <div class="row">
-          <div><label>كود المنتج</label><input type="text" id="outCollectionCode" readonly></div>
-          <div><label>السعر العام</label><input type="number" id="outPrice" min="0"></div>
-        </div>
-        <div class="row"><div><label>السعر القديم</label><input type="number" id="outOldPrice" min="0"></div><div></div></div>
-        <label>الوصف</label><textarea id="outBody" style="min-height:180px"></textarea>
-        <label style="margin-top:12px">المقاسات والأسعار حسب المقاس</label>
-        <div id="outSizesTable" class="size-table-wrap"></div>
-        <textarea id="outSizes" style="display:none"></textarea>
-        <div class="btns" style="margin-top:14px;">
-          <button type="button" class="btn ok" onclick="exportProductMd()">⬇️ تصدير ملف المنتج</button>
-          <button type="button" class="btn" onclick="exportToSveltia()">⬆️ تصدير إلى Sveltia CMS</button>
-          <button type="button" class="btn danger" onclick="discardCollection()">🗑️ حذف المسودة</button>
-        </div>
-        <p class="hint" id="exportHint"></p>
+      <p class="hint" style="margin-bottom:12px;">اضغط «تفاصيل المنتج» لفتح نافذة المراجعة الكاملة (ألوان · صور · مقاسات · تصدير).</p>
+      <div id="collectionListBox"></div>
+      <!-- حقول تصدير مخفية تُملأ من المودال -->
+      <div style="display:none">
+        <input type="text" id="outTitle">
+        <select id="outCategory"><option value="ملابس شتوية">ملابس شتوية</option><option value="ملابس خروج">ملابس خروج</option><option value="أحذية">أحذية</option><option value="عروض">عروض</option></select>
+        <input type="text" id="outCollectionCode">
+        <input type="number" id="outPrice" min="0">
+        <input type="number" id="outOldPrice" min="0">
+        <textarea id="outBody"></textarea>
+        <div id="outSizesTable"></div>
+        <textarea id="outSizes"></textarea>
+        <p id="exportHint"></p>
       </div>
     </div>
+
+    <!-- مودال تفاصيل الكوليكشن -->
+    <div class="detail-modal-overlay" id="detailModalOverlay" onclick="if(event.target===this)closeDetailModal()">
+      <div class="detail-modal" id="detailModal" role="dialog" aria-modal="true"></div>
+    </div>
+
     <div class="preview-modal" id="tgPreviewModal" onclick="closeTelegramPreview(event)">
       <button type="button" class="preview-close" onclick="closeTelegramPreview(event)">×</button>
       <img id="tgPreviewImage" src="" alt="معاينة الصورة">
@@ -986,24 +984,37 @@
     var lines = t.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
     var bySize = {};
     function upsert(size, pants, tLen, tWidth) {
-      var key = String(size).trim();
+      var key = String(size).trim().replace(/^0+(\d)/, '$1'); // 01 → 1
       if (!key) return;
+      var n = Number(key);
+      // مقاسات أطفال/سنين منطقية فقط 1–20 — نرفض أرقام عشوائية
+      if (!Number.isFinite(n) || n < 1 || n > 20) return;
       if (!bySize[key]) bySize[key] = { size: key, pants_length: '', tshirt_length: '', tshirt_width: '' };
       var prev = bySize[key];
       if (pants != null && pants !== '') prev.pants_length = String(pants);
       if (tLen != null && tLen !== '') prev.tshirt_length = String(tLen);
       if (tWidth != null && tWidth !== '') prev.tshirt_width = String(tWidth);
     }
-    var i, line, parts, nums, sizeNum, vals, m, currentSize = null, only;
+    var i, line, parts, nums, sizeNum, vals, m, currentSize = null;
+
+    // 1) صفوف جدول كاملة: 12 | 70 | 45 | 35  (مقاس + 3 قياسات)
     for (i = 0; i < lines.length; i++) {
       line = lines[i];
-      if (/طول|عرض|بنطلون|تيشيرت|تيشرت|المقاس|مقاس/i.test(line) && !/\d{1,2}/.test(line)) continue;
+      // تجاهل عناوين الأعمدة بدون أرقام مقاس
+      if (/طول|عرض|بنطلون|تيشيرت|تيشرت/i.test(line) && !/\d{1,2}/.test(line)) continue;
+      // تجاهل أسطر السعر/الكود
+      if (/^(?:السعر|كود|code|متوفر|متاح)\b/i.test(line)) continue;
       parts = line.split(/[|\t,،]+/).map(function (p) { return p.trim(); }).filter(Boolean);
       if (parts.length < 2) parts = line.split(/\s{2,}|\s+-\s+/).map(function (p) { return p.trim(); }).filter(Boolean);
       nums = (line.match(/\d{1,3}(?:[./]\d+)?/g) || []).map(function (n) { return n.replace('/', '.'); });
+      // صف قياسات كامل: مقاس + 3 أرقام (طول بنطلون/تيشرت/عرض)
       if (nums.length >= 4 && Number(nums[0]) >= 1 && Number(nums[0]) <= 20) {
-        upsert(nums[0], nums[1], nums[2], nums[3]);
-        continue;
+        var pLen = Number(nums[1]), tL = Number(nums[2]), tW = Number(nums[3]);
+        // القياسات بالسم عادة 20–120 — نرفض أرقام صغيرة زي 01,4 من نص غلط
+        if (pLen >= 15 && pLen <= 150 && tL >= 15 && tL <= 150) {
+          upsert(nums[0], nums[1], nums[2], nums[3]);
+          continue;
+        }
       }
       if (parts.length >= 4) {
         sizeNum = ((parts[0].replace(/سنة|سنه|سنوات|سنين|مقاس/gi, '').trim()).match(/\d{1,2}/) || [])[0];
@@ -1012,53 +1023,82 @@
             var mm = p.match(/\d{1,3}(?:[./]\d+)?/);
             return mm ? mm[0].replace('/', '.') : '';
           });
-          upsert(sizeNum, vals[0] || '', vals[1] || '', vals[2] || '');
+          if (vals[0] && Number(vals[0]) >= 15) {
+            upsert(sizeNum, vals[0] || '', vals[1] || '', vals[2] || '');
+          }
         }
       }
     }
+
+    // 2) مقاس ثم قياسات في أسطر لاحقة
     for (i = 0; i < lines.length; i++) {
       line = lines[i];
-      m = line.match(/(?:مقاس\s*)?(\d{1,2})\s*(?:سنة|سنه|سنوات|سنين)?\s*$/i);
-      var m2 = line.match(/مقاس\s*[:：-]?\s*(\d{1,2})/i);
-      if (m && Number(m[1]) >= 1 && Number(m[1]) <= 20) { currentSize = m[1]; upsert(currentSize, '', '', ''); continue; }
-      if (m2 && Number(m2[1]) >= 1 && Number(m2[1]) <= 20) { currentSize = m2[1]; upsert(currentSize, '', '', ''); }
+      m = line.match(/^(?:مقاس\s*)?(\d{1,2})\s*(?:سنة|سنه|سنوات|سنين)?\s*$/i);
+      var m2 = line.match(/^مقاس\s*[:：-]?\s*(\d{1,2})\s*$/i);
+      if (m && Number(m[1]) >= 1 && Number(m[1]) <= 20) { currentSize = m[1]; continue; }
+      if (m2 && Number(m2[1]) >= 1 && Number(m2[1]) <= 20) { currentSize = m2[1]; continue; }
       if (!currentSize) continue;
       var pants = line.match(/طول\s*(?:ال)?بنطلون\s*[:：-]?\s*(\d{1,3}(?:[./]\d+)?)/i);
       var tLen = line.match(/طول\s*(?:ال)?(?:تيشيرت|تيشرت|بلوزة|سويت|سويتشرت)\s*[:：-]?\s*(\d{1,3}(?:[./]\d+)?)/i);
       var tWidth = line.match(/عرض\s*(?:ال)?(?:تيشيرت|تيشرت|بلوزة|سويت|سويتشرت)?\s*[:：-]?\s*(\d{1,3}(?:[./]\d+)?)/i);
-      if (pants) upsert(currentSize, pants[1].replace('/', '.'), null, null);
-      if (tLen) upsert(currentSize, null, tLen[1].replace('/', '.'), null);
-      if (tWidth) upsert(currentSize, null, null, tWidth[1].replace('/', '.'));
+      if (pants && Number(pants[1]) >= 15) upsert(currentSize, pants[1].replace('/', '.'), null, null);
+      if (tLen && Number(tLen[1]) >= 15) upsert(currentSize, null, tLen[1].replace('/', '.'), null);
+      if (tWidth && Number(tWidth[1]) >= 10) upsert(currentSize, null, null, tWidth[1].replace('/', '.'));
     }
-    for (i = 0; i < lines.length; i++) {
-      line = lines[i];
-      m = line.match(/(?:مقاس\s*)?(\d{1,2})\s*(?:سنة|سنه)?[^\d]{0,12}.*?(\d{2,3}).*?(\d{2,3}).*?(\d{2,3})/i);
-      if (!m || Number(m[1]) < 1 || Number(m[1]) > 20) continue;
-      if (bySize[m[1]] && (bySize[m[1]].pants_length || bySize[m[1]].tshirt_length || bySize[m[1]].tshirt_width)) continue;
-      upsert(m[1], m[2], m[3], m[4]);
-    }
+
+    // 3) قائمة مقاسات صريحة فقط (داخل قسم المقاسات أو بعد كلمة مقاسات)
     var inside = false;
     for (i = 0; i < lines.length; i++) {
       line = lines[i];
       if (/^(?:⭐️?\s*)?(?:المقاسات|مقاسات|المقاس)\s*[:：-]?$/i.test(line)) { inside = true; continue; }
-      if (inside && /^(?:السعر|كود|code)\b/i.test(line)) { inside = false; continue; }
+      if (inside && /^(?:السعر|كود|code|متوفر)\b/i.test(line)) { inside = false; continue; }
+      // سطر: المقاسات : 12 14 16 18   أو  من 12 إلى 18
+      var listLine = line.match(/(?:المقاسات|مقاسات|المقاس)\s*[:：]?\s*(.+)$/i);
+      if (listLine) {
+        var chunk = listLine[1];
+        // نطاق: من 12 إلى 18 / 12-18 / 12:18
+        var range = chunk.match(/(?:من\s*)?(\d{1,2})\s*(?:إلى|الى|-|:|–|—)\s*(\d{1,2})/);
+        if (range) {
+          var a = Number(range[1]), b = Number(range[2]);
+          if (a >= 1 && b <= 20 && a <= b && (b - a) <= 12) {
+            for (var s = a; s <= b; s += 2) upsert(String(s), '', '', '');
+            // لو الفرق فردي نضيف النهاية
+            if ((b - a) % 2 !== 0) upsert(String(b), '', '', '');
+          }
+        } else {
+          (chunk.match(/\d{1,2}/g) || []).forEach(function (s) {
+            if (Number(s) >= 1 && Number(s) <= 20) upsert(s, '', '', '');
+          });
+        }
+        continue;
+      }
       if (!inside) continue;
-      only = line.match(/^(\d{1,2})\s*(?:سنة|سنه)?\s*$/);
+      var only = line.match(/^(\d{1,2})\s*(?:سنة|سنه)?\s*$/);
       if (only) upsert(only[1], '', '', '');
-      // قائمة في سطر واحد: مقاسات : 12 14 16 18
-      var list = line.match(/(?:مقاسات|مقاس)\s*[:：]?\s*((?:\d{1,2}\s*)+)/i);
-      if (list) {
-        (list[1].match(/\d{1,2}/g) || []).forEach(function (s) { upsert(s, '', '', ''); });
+      // 12 / 14 / 16 أو 12،14،16
+      if (/^[\d\s,،\/\-]+$/.test(line)) {
+        (line.match(/\d{1,2}/g) || []).forEach(function (s) {
+          if (Number(s) >= 1 && Number(s) <= 20) upsert(s, '', '', '');
+        });
       }
     }
-    // قائمة عامة في النص كله
-    var listAll = t.match(/(?:⭐️?\s*)?(?:المقاسات|مقاسات)\s*[:：]?\s*((?:\d{1,2}[\s,،]*)+)/i);
-    if (listAll) {
-      (listAll[1].match(/\d{1,2}/g) || []).forEach(function (s) {
-        if (Number(s) >= 1 && Number(s) <= 20) upsert(s, '', '', '');
-      });
+
+    // لو مفيش أي صف فيه قياسات حقيقية، نفضّل القائمة الفاضية على أرقام عشوائية من النص
+    var withMeasures = Object.keys(bySize).filter(function (k) {
+      var r = bySize[k];
+      return r.pants_length || r.tshirt_length || r.tshirt_width;
+    });
+    // لو عندنا قياسات حقيقية نرجعها؛ وإلا نرجع القائمة لو ≥ 2 مقاس (قائمة واضحة)
+    var keys = Object.keys(bySize);
+    if (withMeasures.length) {
+      // نحتفظ بكل المقاسات اللي ليها قياسات + أي مقاسات تانية من نفس القائمة
+      // (مش هنمسح القائمة لو جزء منها متقاس)
+    } else if (keys.length < 2) {
+      // رقم واحد يتيم غالبًا غلط (زي 4 أو 01 من نص تاني)
+      return [];
     }
-    return Object.keys(bySize).map(function (k) { return bySize[k]; }).sort(function (a, b) {
+
+    return keys.map(function (k) { return bySize[k]; }).sort(function (a, b) {
       var na = Number(a.size), nb = Number(b.size);
       if (isFinite(na) && isFinite(nb)) return na - nb;
       return String(a.size).localeCompare(String(b.size));
@@ -1254,23 +1294,57 @@
   }
 
   function renderCollectionsWorkspace() {
-    var list = $('collectionListBox'), detail = $('collectionDetailBox');
-    if (!list || !detail) return;
+    var list = $('collectionListBox');
+    if (!list) return;
     if (!importedCollections.length) {
-      list.innerHTML = '<div class="collection-list-head">لا توجد كوليكشنات</div>';
-      detail.innerHTML = '<p class="hint">لم يتم العثور على كوليكشنات بها صور منتجات فعلية.</p>';
+      list.innerHTML = '<p class="hint">لا توجد كوليكشنات مسحوبة.</p>';
       return;
     }
-    if (!activeCollectionId || !importedCollections.some(function(c){return String(c.id)===String(activeCollectionId);})) activeCollectionId = importedCollections[0].id;
-    list.innerHTML = '<div class="collection-list-head">📦 الكوليكشنات المسحوبة ('+importedCollections.length+')</div>' + importedCollections.map(function(c){
-      var productCount=(c.products||[]).length;
-      var imageCount=(c.products||[]).reduce(function(n,p){return n+(p.images||[]).length;},0);
-      return '<div class="collection-item '+(String(c.id)===String(activeCollectionId)?'active':'')+'" onclick="selectTelegramCollection(\''+escapeHtml(c.id)+'\')"><div class="name">'+escapeHtml(c.name||'كوليكشن غير محدد')+'</div><div class="meta">'+productCount+' كود · '+imageCount+' صورة</div><div class="hint">اضغط للاطلاع على التفاصيل ←</div></div>';
+    list.innerHTML = importedCollections.map(function (c) {
+      var products = c.products || [];
+      var first = products[0] || {};
+      var imageCount = products.reduce(function (n, p) { return n + (p.images || []).length; }, 0);
+      var colorCount = products.reduce(function (n, p) { return n + (p.colors || []).length; }, 0);
+      var code = first.code || c.code || '—';
+      var title = c.name || first.title || code;
+      var productType = guessProductType(title, first.description || '');
+      return (
+        '<div class="collection-list-card">' +
+          '<div class="cl-title">' + escapeHtml(title) + '</div>' +
+          '<div class="cl-row">' +
+            '<span class="cl-badge">كود: ' + escapeHtml(code) + '</span>' +
+            (productType ? '<span class="cl-badge">' + escapeHtml(productType) + '</span>' : '') +
+            '<span class="cl-badge">' + colorCount + ' لون · ' + imageCount + ' صورة</span>' +
+            '<button type="button" class="cl-btn" onclick="openDetailModal(\'' + escapeHtml(c.id) + '\')">تفاصيل المنتج</button>' +
+          '</div>' +
+        '</div>'
+      );
     }).join('');
-    renderCollectionDetail();
   }
 
-  window.selectTelegramCollection = function(id){ activeCollectionId=id; renderCollectionsWorkspace(); };
+  function guessProductType(title, desc) {
+    var t = String(title || '') + ' ' + String(desc || '');
+    if (/سويت\s*شيرت|سويتشرت|hoodie|هودى|هودي/i.test(t)) return 'سويت شيرت';
+    if (/ترينج|ترنج|tracksuit|طقم/i.test(t)) return 'ترينج';
+    if (/تيشيرت|تيشرت|t-?shirt/i.test(t)) return 'تيشيرت';
+    if (/بنطلون|pants|trousers/i.test(t)) return 'بنطلون';
+    if (/جاكت|jacket|جاكت/i.test(t)) return 'جاكت';
+    if (/فستان|dress/i.test(t)) return 'فستان';
+    if (/بلوزة|blouse/i.test(t)) return 'بلوزة';
+    return '';
+  }
+
+  window.openDetailModal = function (id) {
+    activeCollectionId = id;
+    renderCollectionDetail();
+    var ov = $('detailModalOverlay');
+    if (ov) ov.classList.add('show');
+  };
+  window.closeDetailModal = function () {
+    var ov = $('detailModalOverlay');
+    if (ov) ov.classList.remove('show');
+  };
+  window.selectTelegramCollection = function (id) { openDetailModal(id); };
 
   function normalizeColorNameClient(name, productCode, text) {
     var n = String(name || '').trim();
@@ -1358,90 +1432,125 @@
   }
 
   function renderCollectionDetail() {
-    var c = selectedCollection(), box = $('collectionDetailBox');
+    var c = selectedCollection();
+    var box = $('detailModal');
     if (!c || !box) return;
-    var totalImages = (c.products || []).reduce(function (n, p) { return n + (p.images || []).length; }, 0);
-    var html = '';
-    html += '<div class="collection-detail-head">';
-    html += '<div><div class="collection-detail-title">📦 ' + escapeHtml(c.name || 'كوليكشن غير محدد') + '</div>';
-    html += '<div class="hint" style="margin-top:4px">' + (c.products || []).length + ' أكواد · ' + totalImages + ' صورة · راجع صور كل لون واختر بنفسك صورة واحدة معتمدة</div></div>';
-    html += '</div>';
 
-    if (!(c.products || []).length) {
-      html += '<p class="hint" style="padding:16px">لا توجد منتجات بصور.</p>';
-      box.innerHTML = html;
+    var p = (c.products || [])[0];
+    if (!p) {
+      box.innerHTML = '<div class="detail-modal-body"><p class="hint">لا توجد منتجات بصور.</p><button type="button" class="btn ghost" onclick="closeDetailModal()">إغلاق</button></div>';
       return;
     }
 
-    c.products.forEach(function (p) {
-      var approvedCount = (p.colors || []).filter(function (col) {
-        return (col.images || []).some(function (im) { return im.selected; });
-      }).length;
-      var colorTotal = (p.colors || []).length;
+    var title = c.name || p.title || p.code;
+    var productType = guessProductType(title, p.description || '');
+    var approvedCount = (p.colors || []).filter(function (col) {
+      return (col.images || []).some(function (im) { return im.selected; });
+    }).length;
+    var colorTotal = (p.colors || []).length;
+    var descText = (p.description || '').trim();
 
-      html += '<div class="product-block">';
-      html += '<div class="product-head">';
-      html += '<div><div class="product-code">كود المنتج: <span style="color:var(--primary)">' + escapeHtml(p.code) + '</span></div>';
-      html += '<div class="hint" style="margin-top:4px">ألوان اخترت لها صورة: ' + approvedCount + ' / ' + colorTotal + '</div></div>';
-      html += '<button type="button" class="btn ok" onclick="useProductFromCollection(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\')">✅ اعتماد للتصدير</button>';
+    var html = '';
+    // رأس المودال
+    html += '<div class="detail-modal-top">';
+    html += '<div>';
+    html += '<div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:4px">تفاصيل الكوليكشن</div>';
+    html += '<div style="font-size:17px;font-weight:900;color:var(--ink)">' + escapeHtml(title) + '</div>';
+    if (productType) html += '<div class="hint" style="margin-top:4px">نوع المنتج: ' + escapeHtml(productType) + '</div>';
+    html += '</div>';
+    html += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">';
+    html += '<span class="code-pill">' + escapeHtml(p.code) + '</span>';
+    html += '<button type="button" class="del-col" onclick="deleteImportedCollection(\'' + escapeHtml(c.id) + '\');closeDetailModal();">حذف الكوليكشن</button>';
+    html += '<button type="button" class="btn ghost" style="padding:6px 12px;font-size:12px" onclick="closeDetailModal()">× إغلاق</button>';
+    html += '</div></div>';
+
+    html += '<div class="detail-modal-body">';
+    // سعر + نص المنشور
+    html += '<div class="detail-modal-meta">';
+    html += '<div class="detail-price-box"><div class="lbl">السعر الفعلي للكوليكشن</div>';
+    html += '<div class="val">' + (p.price != null ? (p.price + ' جنيه') : '—') + '</div></div>';
+    html += '<div><div class="lbl" style="font-size:12px;font-weight:800;color:var(--primary);margin-bottom:6px">نص المنشور (الوصف)</div>';
+    html += '<div class="detail-desc-box">' + (descText ? escapeHtml(descText) : 'لا يوجد نص') + '</div></div>';
+    html += '</div>';
+
+    html += '<div class="hint" style="margin-bottom:10px">ألوان اخترت لها صورة: <b>' + approvedCount + ' / ' + colorTotal + '</b> — اضغط اعتماد على صورة واحدة لكل لون</div>';
+
+    // صفوف الألوان
+    (p.colors || []).forEach(function (col) {
+      var hasApproved = (col.images || []).some(function (im) { return im.selected; });
+      var colorCode = buildColorCode(p.code, col.name);
+      html += '<div class="color-block ' + colorCssClass(col.name) + '">';
+      html += '<div class="color-head">';
+      html += '<div class="color-name"><span class="color-dot" style="background:' + colorDotHex(col.name) + '"></span>';
+      html += 'اللون ' + escapeHtml(col.name || 'غير محدد');
+      html += ' <span class="color-code-badge">كود اللون: ' + escapeHtml(colorCode) + '</span></div>';
+      html += hasApproved
+        ? '<span class="color-status ok">✓ المعتمد</span>'
+        : '<span class="color-status wait">اختر صورة معتمدة</span>';
       html += '</div>';
-
-      html += '<div class="detail-meta-grid">';
-      html += '<div class="detail-meta-card"><div class="lbl">السعر</div><div class="val">' + (p.price != null ? (p.price + ' جنيه') : '—') + '</div></div>';
-      html += '<div class="detail-meta-card"><div class="lbl">المقاسات</div><div class="val">' + ((p.sizes || []).length ? (p.sizes.map(function (s) { return s.size; }).join(' · ')) : '—') + '</div></div>';
-      html += '</div>';
-
-      if (p.description) {
-        html += '<details style="margin-bottom:12px"><summary class="hint" style="cursor:pointer;font-weight:800">نص المنشور / الوصف</summary>';
-        html += '<div class="hint" style="white-space:pre-wrap;background:#fff;padding:10px;border-radius:10px;margin-top:6px;border:1px solid var(--line)">' + escapeHtml(p.description) + '</div></details>';
-      }
-
-      (p.colors || []).forEach(function (col) {
-        var hasApproved = (col.images || []).some(function (im) { return im.selected; });
-        var colorCode = buildColorCode(p.code, col.name);
-        html += '<div class="color-block ' + colorCssClass(col.name) + '">';
-        html += '<div class="color-head">';
-        html += '<div class="color-name"><span class="color-dot" style="background:' + colorDotHex(col.name) + '"></span>اللون ' + escapeHtml(col.name || 'غير محدد');
-        html += ' <span class="color-code-badge">كود اللون: ' + escapeHtml(colorCode) + '</span>';
-        html += ' <span class="hint">(' + (col.images || []).length + ' صور)</span></div>';
-        html += hasApproved
-          ? '<span class="color-status ok">✓ اخترت صورة</span>'
-          : '<span class="color-status wait">اختر صورة من اللي قدامك</span>';
-        html += '</div>';
-        html += '<div class="tg-images">';
-        (col.images || []).forEach(function (im) {
-          var cls = im.selected ? 'selected' : (im.rejected ? 'rejected' : '');
-          html += '<div class="tg-image-card ' + cls + '">';
-          if (im.selected) html += '<div class="tg-image-badge ok">✓</div>';
-          else if (im.rejected) html += '<div class="tg-image-badge no">×</div>';
-          html += '<img src="' + im.dataUrl + '" alt="' + escapeHtml(col.name) + '" onclick="openTelegramPreview(\'' + escapeHtml(im.dataUrl) + '\')">';
-          html += '<div class="tg-image-actions">';
-          html += '<button type="button" class="tg-approve" onclick="approveTelegramColorImage(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(col.name) + '\',\'' + escapeHtml(im.id) + '\')">' + (im.selected ? '✓' : 'اعتماد') + '</button>';
-          html += '<button type="button" class="tg-delete" onclick="rejectTelegramColorImage(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(col.name) + '\',\'' + escapeHtml(im.id) + '\')">×</button>';
-          html += '</div></div>';
-        });
+      html += '<div class="tg-images">';
+      (col.images || []).forEach(function (im) {
+        var cls = im.selected ? 'selected' : (im.rejected ? 'rejected' : '');
+        html += '<div class="tg-image-card ' + cls + '">';
+        if (im.selected) html += '<div class="tg-image-badge ok">✓</div>';
+        else if (im.rejected) html += '<div class="tg-image-badge no">×</div>';
+        html += '<img src="' + im.dataUrl + '" alt="' + escapeHtml(col.name) + '" onclick="openTelegramPreview(\'' + escapeHtml(im.dataUrl) + '\')">';
+        html += '<div class="tg-image-actions">';
+        html += '<button type="button" class="tg-approve" onclick="approveTelegramColorImage(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(col.name) + '\',\'' + escapeHtml(im.id) + '\')">' + (im.selected ? '✓' : 'اعتماد') + '</button>';
+        html += '<button type="button" class="tg-delete" onclick="rejectTelegramColorImage(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(col.name) + '\',\'' + escapeHtml(im.id) + '\')">×</button>';
         html += '</div></div>';
       });
-
-      if ((p.sizes || []).length) {
-        html += '<div class="size-table-wrap" style="margin-top:14px"><table class="size-table"><thead><tr>';
-        html += '<th>المقاس</th><th>طول البنطلون</th><th>طول التيشرت</th><th>عرض التيشرت</th>';
-        html += '</tr></thead><tbody>';
-        p.sizes.forEach(function (row) {
-          var vals = row.values || ['', '', ''];
-          html += '<tr><td>' + escapeHtml(row.size) + '</td>';
-          html += '<td>' + escapeHtml(vals[0] || row.pants_length || '') + '</td>';
-          html += '<td>' + escapeHtml(vals[1] || row.tshirt_length || '') + '</td>';
-          html += '<td>' + escapeHtml(vals[2] || row.tshirt_width || '') + '</td></tr>';
-        });
-        html += '</tbody></table></div>';
-      }
-
-      html += '</div>';
+      html += '</div></div>';
     });
+
+    // جدول المقاسات
+    html += '<div style="margin-top:16px;font-size:13px;font-weight:900;color:var(--primary);margin-bottom:8px">المقاسات (من نص المنشور)</div>';
+    if ((p.sizes || []).length) {
+      html += '<div class="size-table-wrap"><table class="size-table"><thead><tr>';
+      html += '<th>المقاس</th><th>طول البنطلون</th><th>طول التيشرت</th><th>عرض التيشرت</th>';
+      html += '</tr></thead><tbody>';
+      p.sizes.forEach(function (row) {
+        var vals = row.values || ['', '', ''];
+        html += '<tr>';
+        html += '<td><input type="text" value="' + escapeHtml(row.size) + '" onchange="updateSizeCell(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(row.size) + '\',\'size\',this.value)" style="text-align:center;font-weight:900"></td>';
+        html += '<td><input type="text" value="' + escapeHtml(vals[0] || row.pants_length || '') + '" onchange="updateSizeCell(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(row.size) + '\',\'pants\',this.value)" style="text-align:center"></td>';
+        html += '<td><input type="text" value="' + escapeHtml(vals[1] || row.tshirt_length || '') + '" onchange="updateSizeCell(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(row.size) + '\',\'tlen\',this.value)" style="text-align:center"></td>';
+        html += '<td><input type="text" value="' + escapeHtml(vals[2] || row.tshirt_width || '') + '" onchange="updateSizeCell(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(row.size) + '\',\'twid\',this.value)" style="text-align:center"></td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+    } else {
+      html += '<p class="hint">لم يُستخرج جدول مقاسات من النص — يمكنك إضافته يدويًا بعد الاعتماد للتصدير.</p>';
+    }
+
+    html += '</div>'; // body
+
+    // تذييل الأزرار
+    html += '<div class="detail-modal-footer">';
+    html += '<div class="right">';
+    html += '<button type="button" class="btn danger" onclick="deleteImportedCollection(\'' + escapeHtml(c.id) + '\');closeDetailModal();">حذف الكوليكشن نهائيًا</button>';
+    html += '</div>';
+    html += '<div class="left">';
+    html += '<button type="button" class="btn ok" onclick="useProductFromCollection(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\')">✓ اعتماد للتصدير</button>';
+    html += '<button type="button" class="btn" onclick="useProductFromCollection(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\');setTimeout(function(){exportToSveltia();},300);">التصدير إلى Sveltia</button>';
+    html += '</div></div>';
 
     box.innerHTML = html;
   }
+
+  window.updateSizeCell = function (cid, code, sizeKey, field, value) {
+    var c = importedCollections.find(function (x) { return String(x.id) === String(cid); });
+    if (!c) return;
+    var p = (c.products || []).find(function (x) { return String(x.code) === String(code); });
+    if (!p || !p.sizes) return;
+    var row = p.sizes.find(function (r) { return String(r.size) === String(sizeKey); });
+    if (!row) return;
+    if (!row.values) row.values = ['', '', ''];
+    if (field === 'size') row.size = value;
+    else if (field === 'pants') { row.values[0] = value; row.pants_length = value; }
+    else if (field === 'tlen') { row.values[1] = value; row.tshirt_length = value; }
+    else if (field === 'twid') { row.values[2] = value; row.tshirt_width = value; }
+  };
 
   window.approveTelegramColorImage = function (cid, code, color, imgId) {
     var c = importedCollections.find(function (x) { return String(x.id) === String(cid); });
@@ -1500,19 +1609,22 @@
     var missing=(p.colors||[]).filter(function(col){return !(col.images||[]).some(function(im){return im.selected;});});
     if(missing.length){showStatus('اختر صورة معتمدة لكل لون أولًا: '+missing.map(function(col){return col.name||'غير محدد';}).join('، '),'err');return;}
     if(!selectedImages.length){showStatus('اختر صورة واحدة لكل لون أولًا.','err');return;}
-    mergedDraft={id:p.code,code:p.code,title:p.title||c.name||p.code,description:p.description||'',price:p.price,priceMode:'uniform',sizes:(p.sizes||[]).map(function(r){return {size:r.size,price:r.price,values:(r.values||[]).slice()};}),images:selectedImages.slice()};
+    var sizesForExport=(p.sizes||[]).map(function(r){
+      return {size:r.size,price:r.price,values:(r.values&&r.values.length)?r.values.slice():[r.pants_length||'',r.tshirt_length||'',r.tshirt_width||'']};
+    });
+    mergedDraft={id:p.code,code:p.code,title:p.title||c.name||p.code,description:p.description||'',price:p.price,priceMode:'uniform',sizes:sizesForExport,images:selectedImages.slice()};
     $('outTitle').value=p.title||c.name||p.code;
     $('outCollectionCode').value=p.code||'';
     $('outPrice').value=p.price==null?'':p.price;
     $('outBody').value=p.description||'';
     renderSizeTable(mergedDraft,'outSizesTable'); syncOutSizesHidden();
-    $('reviewCard').scrollIntoView({behavior:'smooth',block:'start'});
-    showStatus('تم اعتماد الكود '+p.code+' للتصدير مع صورة واحدة معتمدة لكل لون.','ok');
+    closeDetailModal();
+    showStatus('تم اعتماد الكود '+p.code+' للتصدير مع صورة واحدة معتمدة لكل لون. جاهز للتصدير.','ok');
   };
 
-  window.updateCollectionPrice=function(id,v){var c=importedCollections.find(function(x){return x.id===id;});if(c){if(v===''){c.price=null;c.priceMode='per_size';}else{c.price=Number(v);c.priceMode='uniform';c.sizes.forEach(function(r){r.price=null;});}renderCollections();}};
+  window.updateCollectionPrice=function(id,v){var c=importedCollections.find(function(x){return x.id===id;});if(c){if(v===''){c.price=null;c.priceMode='per_size';}else{c.price=Number(v);c.priceMode='uniform';c.sizes.forEach(function(r){r.price=null;});}renderCollectionsWorkspace();}};
   window.updateCollectionDescription=function(id,v){var c=importedCollections.find(function(x){return x.id===id;});if(c)c.description=v;};
-  window.deleteImportedCollection=function(id){importedCollections=importedCollections.filter(function(c){return c.id!==id;});renderCollections();if(!importedCollections.length)$('reviewCard').style.display='none';showStatus('تم حذف الاستيراد من شاشة المراجعة فقط.','ok');};
+  window.deleteImportedCollection=function(id){importedCollections=importedCollections.filter(function(c){return c.id!==id;});renderCollectionsWorkspace();if(!importedCollections.length)$('reviewCard').style.display='none';showStatus('تم حذف الاستيراد من شاشة المراجعة فقط.','ok');};
   window.useCollectionForExport=function(id){var c=importedCollections.find(function(x){return String(x.id)===String(id);});if(!c){showStatus('الكوليكشن المطلوب غير موجود.','err');return;}mergedDraft={id:c.id,code:c.code,title:c.title||'',description:c.description||'',price:c.price,priceMode:c.priceMode||'uniform',sizes:(c.sizes||[]).map(function(r){return {size:r.size,price:r.price,values:(r.values||[]).slice()};}),images:(c.images||[]).slice()};$('outTitle').value=c.title||'';$('outCollectionCode').value=c.code||'';$('outPrice').value=c.price==null?'':c.price;$('outBody').value=c.description||'';renderSizeTable(mergedDraft,'outSizesTable');syncOutSizesHidden();$('reviewCard').scrollIntoView({behavior:'smooth',block:'start'});showStatus('تم اعتماد الكوليكشن '+c.code+' للتصدير.','ok');};
   function syncOutSizesHidden(){var rows=(mergedDraft&&mergedDraft.sizes)||[];$('outSizes').value=rows.map(function(r){return [r.size].concat(r.values||['','','']).concat([r.price==null?'':r.price]).join(' | ');}).join('\n');}
 
@@ -1660,7 +1772,6 @@
     var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'new';
     $('tgNewBox').style.display = mode === 'new' ? '' : 'none';
     $('tgRangeBox').style.display = mode === 'range' ? '' : 'none';
-    $('tgLimitBox').style.display = mode === 'limit' ? '' : 'none';
   };
 
   window.exportToSveltia = function () {
@@ -1767,13 +1878,12 @@
     return data;
   }
 
-  // Telegram fetch عبر Worker v2
-  // أوضاع السحب اليدوي: الجديد فقط / فترة تاريخ ووقت / عدد منشورات.
+  // Telegram fetch عبر Worker v2 — أوضاع السحب: الجديد فقط / تاريخ ووقت فقط
   window.fetchFromTelegram = async function () {
     var s = getSettings();
     if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker من تبويب الإعدادات.', 'err'); return; }
     var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'new';
-    var limit = mode === 'limit' ? (Number($('tgLimit').value) || 20) : null;
+    if (mode !== 'new' && mode !== 'range') mode = 'new';
     var from = mode === 'range' ? $('tgDateFrom').value : '';
     var to = mode === 'range' ? $('tgDateTo').value : '';
 
@@ -1783,9 +1893,9 @@
     }
 
     showStatus(
-      mode === 'new' ? 'جاري سحب المنشورات الجديدة فقط منذ آخر نقطة سحب محفوظة...' :
-      mode === 'range' ? ('جاري سحب منشورات تيليجرام من ' + from.replace('T',' ') + ' إلى ' + to.replace('T',' ') + '...') :
-      ('جاري سحب آخر ' + limit + ' منشور حسب العدد المحدد...'),
+      mode === 'new'
+        ? 'جاري سحب المنشورات الجديدة فقط منذ آخر نقطة سحب محفوظة...'
+        : ('جاري سحب منشورات تيليجرام من ' + from.replace('T',' ') + ' إلى ' + to.replace('T',' ') + '...'),
       ''
     );
     $('btnFetchTg').disabled = true;
@@ -1795,11 +1905,9 @@
       if (mode === 'new') {
         var lastId = Number(localStorage.getItem('mysouq_tg_last_sync_id') || 0);
         if (Number.isFinite(lastId) && lastId > 0) qs.push('afterId=' + encodeURIComponent(lastId));
-      } else if (mode === 'range') {
+      } else {
         qs.push('from=' + encodeURIComponent(new Date(from).toISOString()));
         qs.push('to=' + encodeURIComponent(new Date(to).toISOString()));
-      } else {
-        qs.push('limit=' + encodeURIComponent(limit));
       }
 
       var r = await fetch(s.workerUrl + '/telegram-posts?' + qs.join('&'), {
