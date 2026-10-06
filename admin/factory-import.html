@@ -212,52 +212,51 @@
       <button type="button" class="tab" data-tab="settings">إعدادات الربط</button>
     </div>
 
-    <!-- ===== تيليجرام (أساسي) ===== -->
+    <!-- ===== تيليجرام (أساسي) — مرحلتان: بحث أكواد ثم استيراد ===== -->
     <div id="panel-telegram" class="panel active">
       <div class="card">
-        <h2>جلب من تيليجرام عبر الـ Worker</h2>
-        <label>القناة (اختياري — مثبتة داخل الـ Worker حاليًا)</label>
-        <input type="text" id="tgChannel" placeholder="BlueBee kids — القناة مضبوطة في الـ Worker" disabled style="opacity:.7">
-        <p class="hint">الـ Worker v2 يقرأ من قناة ثابتة. الجلب يتم عبر آخر المنشورات ثم البحث بالكود لكل منتج.</p>
-        <label>طريقة السحب</label>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 12px;">
-          <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
-            <input type="radio" name="tgFetchMode" id="tgModeNew" value="new" checked onchange="toggleTgFetchMode()">
-            <span>🆕 الجديد فقط</span>
-          </label>
-          <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
-            <input type="radio" name="tgFetchMode" id="tgModeRange" value="range" onchange="toggleTgFetchMode()">
-            <span>📅 تاريخ ووقت</span>
-          </label>
-        </div>
-
-        <div id="tgNewBox">
-          <p class="hint" style="margin-top:6px;">يجلب فقط المنشورات التي ظهرت بعد آخر نقطة سحب محفوظة. اضغط الزر بنفسك — مفيش سحب في الخلفية.</p>
-          <p class="hint" id="tgSyncHint" style="margin-top:4px;"></p>
-          <button type="button" class="btn ghost" style="margin-top:6px;font-size:12px;padding:8px 12px" onclick="resetTgSyncPoint()">🔄 تصفير نقطة السحب (لو مفيش منشورات جديدة)</button>
-        </div>
-
-        <div id="tgRangeBox" style="display:none;">
-          <div class="row">
-            <div>
-              <label>من تاريخ ووقت</label>
-              <input type="datetime-local" id="tgDateFrom">
-            </div>
-            <div>
-              <label>إلى تاريخ ووقت</label>
-              <input type="datetime-local" id="tgDateTo">
-            </div>
+        <h2>① بحث الأكواد حسب التاريخ</h2>
+        <p class="hint" style="margin-bottom:10px;">حدد الفترة → ابحث عن الأكواد فقط (من غير تحميل صور). تظهر لك قائمة مرتبة تختار منها ما تريد استيراده.</p>
+        <div class="row">
+          <div>
+            <label>من تاريخ ووقت</label>
+            <input type="datetime-local" id="tgDateFrom">
           </div>
-          <p class="hint" style="margin-top:6px;">مثال: أمس من 10:00 صباحًا إلى 6:00 مساءً. تأكد إن الفترة تغطي وقت نشر المنتجات في القناة.</p>
+          <div>
+            <label>إلى تاريخ ووقت</label>
+            <input type="datetime-local" id="tgDateTo">
+          </div>
         </div>
+        <div class="btns" style="margin-top:8px;flex-wrap:wrap;gap:8px;">
+          <button type="button" class="btn ghost" onclick="setTgRangeToday()">📅 اليوم</button>
+          <button type="button" class="btn ghost" onclick="setTgRangeYesterday()">📅 أمس</button>
+          <button type="button" class="btn" id="btnSearchCodes" onclick="searchCodesOnly()">🔍 بحث عن الأكواد فقط</button>
+        </div>
+      </div>
 
-        <div class="btns">
-          <button type="button" class="btn" id="btnFetchTg" onclick="fetchFromTelegram()">⬇️ جلب من تيليجرام</button>
+      <div class="card" id="codesResultCard" style="display:none;">
+        <h2>② الأكواد المكتشفة — اختر ثم استورد</h2>
+        <p class="hint" id="codesResultHint" style="margin-bottom:10px;"></p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+          <button type="button" class="btn ghost" onclick="toggleAllCodes(true)">✓ تحديد الكل</button>
+          <button type="button" class="btn ghost" onclick="toggleAllCodes(false)">✗ إلغاء التحديد</button>
+          <button type="button" class="btn" id="btnImportSelected" onclick="importSelectedCodes()">⬇️ استيراد المحدد (صور + تفاصيل)</button>
         </div>
-        <p class="hint">
-          بعد ضبط رابط الـ Worker وفحص Telegram، اضغط الجلب: يقرأ آخر المنشورات، يستخرج الأكواد، ويجلب صور كل منتج عبر الـ Worker ثم يعرضها للمراجعة.
-        </p>
-        <div id="tgPostsList" style="margin-top:12px;"></div>
+        <div class="size-table-wrap" style="max-height:420px;overflow:auto;">
+          <table class="size-table" id="codesTable">
+            <thead>
+              <tr>
+                <th style="width:44px">اختيار</th>
+                <th>الكود</th>
+                <th>عدد المنشورات</th>
+                <th>عيّنة من النص</th>
+                <th style="width:110px">استيراد</th>
+              </tr>
+            </thead>
+            <tbody id="codesTableBody"></tbody>
+          </table>
+        </div>
+        <p class="hint" style="margin-top:8px;">الحد الأقصى للصور لكل منشور: <b>46</b>. تقدر تستورد كود واحد أو مجموعة أكواد مع بعض.</p>
       </div>
     </div>
 
@@ -345,6 +344,9 @@
   var mergedDraft = null;
   var tgPostRecords = [];
   var idSeq = 1;
+  /** أكواد مكتشفة من البحث بالتاريخ — قبل الاستيراد */
+  var discoveredCodes = []; // [{code, postIds, posts, sampleText, postCount}]
+  var MAX_PHOTOS_PER_POST = 46;
 
   function $(id) { return document.getElementById(id); }
 
@@ -1568,28 +1570,34 @@
     if (/موف|purple/.test(n)) return '#a855f7';
     return '#c4b5c7';
   }
-  function buildColorCode(baseCode, colorName) {
-    var base = String(baseCode || '').replace(/[-_\s]/g, '').toUpperCase();
-    var n = String(colorName || '').toLowerCase();
-    var suf = '';
-    if (/أبيض|ابيض|white/.test(n)) suf = 'W';
-    else if (/أصفر|اصفر|yellow/.test(n)) suf = 'Y';
-    else if (/أحمر|احمر|red/.test(n)) suf = 'R';
-    else if (/أخضر|اخضر|green/.test(n)) suf = 'G';
-    else if (/لبني|baby/.test(n)) suf = 'BB';
-    else if (/سماوي|sky/.test(n)) suf = 'SB';
-    else if (/أزرق|ازرق|blue/.test(n)) suf = 'B';
-    else if (/أسود|اسود|black/.test(n)) suf = 'BK';
-    else if (/وردي|pink/.test(n)) suf = 'P';
-    else if (/برتقالي|orange/.test(n)) suf = 'O';
-    else if (/بني|brown/.test(n)) suf = 'BR';
-    else if (/بيج|beige/.test(n)) suf = 'BE';
-    else if (/رمادي|grey|gray/.test(n)) suf = 'GY';
-    else if (/كحلي|navy/.test(n)) suf = 'NV';
-    else if (/موف|purple/.test(n)) suf = 'PR';
-    else if (/^لون\s*\d+$/.test(n)) suf = String(colorName).replace(/\D/g, '') || '';
-    if (!base) return suf || '—';
-    return suf ? (base + '-' + suf) : base;
+  /**
+   * مفيش «كود لون» منفصل — الكود واحد (fl0005) واللون مكتوب جنبه على الصورة (fl0005-yellow)
+   * الدالة دي للعرض فقط.
+   */
+  function formatCodeWithColor(baseCode, colorName) {
+    var base = String(baseCode || '').replace(/\s+/g, '').toUpperCase();
+    var n = String(colorName || '').trim();
+    if (!base) return n || '—';
+    if (!n || /^لون\s*\d+$/i.test(n) || n === 'غير محدد') return base;
+    var eng = '';
+    var low = n.toLowerCase();
+    if (/أبيض|ابيض|white/.test(low)) eng = 'white';
+    else if (/أصفر|اصفر|yellow/.test(low)) eng = 'yellow';
+    else if (/أحمر|احمر|red/.test(low)) eng = 'red';
+    else if (/أخضر|اخضر|green/.test(low)) eng = 'green';
+    else if (/لبني|baby/.test(low)) eng = 'baby blue';
+    else if (/سماوي|sky/.test(low)) eng = 'sky blue';
+    else if (/أزرق|ازرق|blue/.test(low)) eng = 'blue';
+    else if (/أسود|اسود|black/.test(low)) eng = 'black';
+    else if (/وردي|pink/.test(low)) eng = 'pink';
+    else if (/برتقالي|orange/.test(low)) eng = 'orange';
+    else if (/بني|brown/.test(low)) eng = 'brown';
+    else if (/بيج|beige/.test(low)) eng = 'beige';
+    else if (/رمادي|grey|gray/.test(low)) eng = 'grey';
+    else if (/كحلي|navy/.test(low)) eng = 'navy';
+    else if (/موف|purple/.test(low)) eng = 'purple';
+    else eng = n;
+    return base + '-' + eng;
   }
 
   function renderCollectionDetail() {
@@ -1634,19 +1642,25 @@
     html += '<div class="detail-desc-box">' + (descText ? escapeHtml(descText) : 'لا يوجد نص') + '</div></div>';
     html += '</div>';
 
-    html += '<div class="hint" style="margin-bottom:10px">ألوان اخترت لها صورة: <b>' + approvedCount + ' / ' + colorTotal + '</b> — اضغط اعتماد على صورة واحدة لكل لون</div>';
+    html += '<div class="hint" style="margin-bottom:10px">الكود واحد (<b>' + escapeHtml(p.code) + '</b>) — الفصل بين الألوان من الكتابة على الصورة جنب الكود (مثال: ' + escapeHtml(String(p.code||'').toLowerCase()) + '-yellow). معتمد: <b>' + approvedCount + ' / ' + colorTotal + '</b> — اضغط اعتماد لصورة واحدة لكل لون</div>';
 
     // صفوف الألوان
     (p.colors || []).forEach(function (col) {
       var hasApproved = (col.images || []).some(function (im) { return im.selected; });
-      var colorCode = buildColorCode(p.code, col.name);
+      var onFabric = formatCodeWithColor(p.code, col.name);
       html += '<div class="color-block ' + colorCssClass(col.name) + '">';
       html += '<div class="color-head">';
       html += '<div class="color-name"><span class="color-dot" style="background:' + colorDotHex(col.name) + '"></span>';
       var displayName = col.name || 'غير محدد';
-      if (!/^لون\s*\d+$/i.test(displayName) && displayName.indexOf('اللون') !== 0) displayName = 'اللون ' + displayName;
+      if (!/^لون\s*\d+$/i.test(displayName) && displayName.indexOf('اللون') !== 0 && displayName !== 'غير محدد') {
+        displayName = 'اللون ' + displayName;
+      } else if (/^لون\s*\d+$/i.test(displayName)) {
+        displayName = displayName + ' (افصل بالصور — اللون مكتوب على القماش جنب الكود)';
+      }
       html += '<span style="font-weight:900">' + escapeHtml(displayName) + '</span>';
-      html += '<span class="color-code-badge" style="margin-inline-start:10px">كود اللون: ' + escapeHtml(colorCode) + '</span></div>';
+      html += '<span class="color-code-badge" style="margin-inline-start:10px" title="الكود الأساسي واحد — اللون بيتحدد من الكتابة على الصورة">' +
+        escapeHtml(onFabric) +
+        '</span></div>';
       html += hasApproved
         ? '<span class="color-status ok">✓ المعتمد</span>'
         : '<span class="color-status wait">اختر صورة معتمدة</span>';
@@ -1933,34 +1947,161 @@
     showStatus('تم التصدير — منتج واحد بصور الأشكال المختارة.', 'ok');
   };
 
-  window.toggleTgFetchMode = function () {
-    var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'new';
-    $('tgNewBox').style.display = mode === 'new' ? '' : 'none';
-    $('tgRangeBox').style.display = mode === 'range' ? '' : 'none';
-    updateTgSyncHint();
-  };
+  function pad2(n) { return n < 10 ? '0' + n : String(n); }
+  function toLocalInputValue(d) {
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) +
+      'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+  function setRangeDay(dayOffset) {
+    var start = new Date();
+    start.setHours(0, 0, 0, 0);
+    start.setDate(start.getDate() + (dayOffset || 0));
+    var end = new Date(start);
+    end.setHours(23, 59, 0, 0);
+    if ($('tgDateFrom')) $('tgDateFrom').value = toLocalInputValue(start);
+    if ($('tgDateTo')) $('tgDateTo').value = toLocalInputValue(end);
+  }
+  window.setTgRangeToday = function () { setRangeDay(0); };
+  window.setTgRangeYesterday = function () { setRangeDay(-1); };
+  try { setRangeDay(0); } catch (e) {}
 
-  function updateTgSyncHint() {
-    var el = $('tgSyncHint');
-    if (!el) return;
-    var lastId = Number(localStorage.getItem('mysouq_tg_last_sync_id') || 0);
-    if (Number.isFinite(lastId) && lastId > 0) {
-      el.textContent = 'آخر نقطة سحب محفوظة: #' + lastId + ' — لو ظهرت «لا توجد منشورات جديدة» اضغط تصفير نقطة السحب.';
-      el.style.color = 'var(--warn)';
-    } else {
-      el.textContent = 'مفيش نقطة سحب محفوظة — هيسحب من أحدث المنشورات.';
-      el.style.color = 'var(--muted)';
+  function renderCodesTable() {
+    var card = $('codesResultCard');
+    var body = $('codesTableBody');
+    var hint = $('codesResultHint');
+    if (!card || !body) return;
+    if (!discoveredCodes.length) {
+      card.style.display = 'none';
+      body.innerHTML = '';
+      return;
     }
+    card.style.display = 'block';
+    if (hint) {
+      hint.textContent = 'وُجد ' + discoveredCodes.length + ' كود فريد. حدّد ما تريد ثم اضغط «استيراد المحدد».';
+    }
+    body.innerHTML = discoveredCodes.map(function (row, idx) {
+      var sample = (row.sampleText || '').replace(/\s+/g, ' ').slice(0, 80);
+      return (
+        '<tr>' +
+          '<td style="text-align:center"><input type="checkbox" class="code-check" data-idx="' + idx + '" checked></td>' +
+          '<td style="font-weight:900;letter-spacing:.02em">' + escapeHtml(row.code) + '</td>' +
+          '<td style="text-align:center">' + row.postCount + '</td>' +
+          '<td class="hint" style="text-align:right;font-size:12px">' + escapeHtml(sample) + (row.sampleText && row.sampleText.length > 80 ? '…' : '') + '</td>' +
+          '<td style="text-align:center"><button type="button" class="cl-btn" onclick="importOneCode(' + idx + ')">استيراد</button></td>' +
+        '</tr>'
+      );
+    }).join('');
   }
 
-  window.resetTgSyncPoint = function () {
-    localStorage.removeItem('mysouq_tg_last_sync_id');
-    updateTgSyncHint();
-    showStatus('تم تصفير نقطة السحب. اضغط «جلب من تيليجرام» تاني في وضع الجديد فقط.', 'ok');
+  window.toggleAllCodes = function (on) {
+    document.querySelectorAll('.code-check').forEach(function (cb) { cb.checked = !!on; });
   };
 
-  // عرض حالة نقطة السحب عند التحميل
-  try { updateTgSyncHint(); } catch (e) {}
+  window.searchCodesOnly = async function () {
+    var s = getSettings();
+    if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker من تبويب الإعدادات.', 'err'); return; }
+    var from = $('tgDateFrom') && $('tgDateFrom').value;
+    var to = $('tgDateTo') && $('tgDateTo').value;
+    if (!from || !to) { showStatus('حدد تاريخ البداية والنهاية أولًا (أو اضغط «اليوم»).', 'err'); return; }
+    var fromIso = localInputToIso(from, false);
+    var toIso = localInputToIso(to, true);
+    if (!fromIso || !toIso) { showStatus('صيغة التاريخ غير صحيحة.', 'err'); return; }
+    if (new Date(fromIso).getTime() > new Date(toIso).getTime()) {
+      showStatus('تاريخ البداية يجب أن يكون قبل النهاية.', 'err');
+      return;
+    }
+
+    showStatus('جاري البحث عن الأكواد في الفترة المحددة (بدون تحميل صور)...', '');
+    var btn = $('btnSearchCodes');
+    if (btn) btn.disabled = true;
+    try {
+      var qs = [
+        'mode=range',
+        'from=' + encodeURIComponent(fromIso),
+        'to=' + encodeURIComponent(toIso)
+      ];
+      var r = await workerFetch(s.workerUrl + '/telegram-posts?' + qs.join('&'), {
+        method: 'GET',
+        headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
+      }, 120000);
+      var data = await r.json().catch(function () { return {}; });
+      if (!r.ok) {
+        showStatus(data.message || data.error || ('خطأ ' + r.status), 'err');
+        return;
+      }
+      var posts = data.posts || [];
+      var filtered = filterTelegramPosts(posts);
+      posts = filtered.posts;
+      if (!posts.length) {
+        discoveredCodes = [];
+        renderCodesTable();
+        showStatus('مفيش منشورات بكود منتج في الفترة دي (بعد استبعاد الاستيكر/الجرد/…).', 'ok');
+        return;
+      }
+
+      var map = {};
+      var order = [];
+      posts.forEach(function (post) {
+        var code = normalizeCode(post.code || post.collectionCode || post.productCode || extractCollectionCode(post.text || ''));
+        if (!code) return;
+        if (!map[code]) {
+          map[code] = { code: code, postIds: [], posts: [], sampleText: '', postCount: 0 };
+          order.push(code);
+        }
+        var id = Number(post.id);
+        if (Number.isFinite(id)) map[code].postIds.push(id);
+        map[code].posts.push(post);
+        map[code].postCount++;
+        if (!map[code].sampleText && post.text) map[code].sampleText = String(post.text).trim();
+      });
+
+      discoveredCodes = order.map(function (c) { return map[c]; });
+      tgPostRecords = posts.slice();
+      renderCodesTable();
+      showStatus('تم العثور على ' + discoveredCodes.length + ' كود من ' + posts.length + ' منشور. اختر واستورد.', 'ok');
+    } catch (e) {
+      showStatus('فشل البحث: ' + (e && e.message ? e.message : e), 'err');
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  };
+
+  window.importOneCode = function (idx) {
+    document.querySelectorAll('.code-check').forEach(function (cb) {
+      cb.checked = Number(cb.getAttribute('data-idx')) === Number(idx);
+    });
+    importSelectedCodes();
+  };
+
+  window.importSelectedCodes = async function () {
+    var s = getSettings();
+    if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker من تبويب الإعدادات.', 'err'); return; }
+    var selected = [];
+    document.querySelectorAll('.code-check:checked').forEach(function (cb) {
+      var idx = Number(cb.getAttribute('data-idx'));
+      if (discoveredCodes[idx]) selected.push(discoveredCodes[idx]);
+    });
+    if (!selected.length) { showStatus('حدّد كود واحد على الأقل.', 'err'); return; }
+
+    var codeOrder = selected.map(function (x) { return x.code; });
+    var allSourceIds = [];
+    selected.forEach(function (row) {
+      (row.postIds || []).forEach(function (id) {
+        if (allSourceIds.indexOf(id) < 0) allSourceIds.push(id);
+      });
+    });
+
+    showStatus('جاري استيراد ' + codeOrder.length + ' كود (' + allSourceIds.length + ' منشور)...', '');
+    var btn = $('btnImportSelected');
+    if (btn) btn.disabled = true;
+    try {
+      await buildCollectionsFromCodes(s, codeOrder, allSourceIds);
+    } catch (e) {
+      showStatus('فشل الاستيراد: ' + (e && e.message ? e.message : e), 'err');
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  };
 
   window.exportToSveltia = function () {
     exportProductMd();
@@ -2156,355 +2297,212 @@
     var prev = Number(localStorage.getItem('mysouq_tg_last_sync_id') || 0);
     if (candidate > prev) {
       localStorage.setItem('mysouq_tg_last_sync_id', String(candidate));
-      try { updateTgSyncHint(); } catch (e) {}
     }
   }
 
-  // Telegram fetch عبر Worker v2 — أوضاع السحب: الجديد فقط / تاريخ ووقت فقط
-  window.fetchFromTelegram = async function () {
-    var s = getSettings();
-    if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker من تبويب الإعدادات.', 'err'); return; }
-    var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'new';
-    if (mode !== 'new' && mode !== 'range') mode = 'new';
-    var from = mode === 'range' ? ($('tgDateFrom').value || '') : '';
-    var to = mode === 'range' ? ($('tgDateTo').value || '') : '';
+  /**
+   * بناء كوليكشنات من أكواد محددة + sourceIds
+   * كل كود = بطاقة مستقلة · حد الصور لكل منشور = MAX_PHOTOS_PER_POST
+   */
+  async function buildCollectionsFromCodes(s, codeOrder, sourceIds) {
+    var loadedImages = 0;
+    var failedImages = 0;
+    var texts = [];
+    var serverCollections = [];
+    var collectionData = { debugCodes: [] };
+    var chunkSize = 4;
+    var allSourceIds = (sourceIds || []).filter(function (n) { return Number.isFinite(n) && n > 0; });
 
-    if (mode === 'range') {
-      if (!from || !to) { showStatus('حدد تاريخ ووقت البداية والنهاية أولًا.', 'err'); return; }
-      var fromIso = localInputToIso(from, false);
-      var toIso = localInputToIso(to, true);
-      if (!fromIso || !toIso) { showStatus('صيغة التاريخ غير صحيحة.', 'err'); return; }
-      if (new Date(fromIso).getTime() > new Date(toIso).getTime()) {
-        showStatus('تاريخ ووقت البداية يجب أن يكون قبل النهاية.', 'err');
-        return;
+    for (var ci = 0; ci < codeOrder.length; ci += chunkSize) {
+      var chunk = codeOrder.slice(ci, ci + chunkSize);
+      showStatus(
+        'جلب تفاصيل الأكواد... (' + Math.min(ci + chunk.length, codeOrder.length) + '/' + codeOrder.length + ')',
+        ''
+      );
+      var dataQs = [
+        'codes=' + encodeURIComponent(chunk.join(',')),
+        'sourceIds=' + encodeURIComponent(allSourceIds.join(','))
+      ];
+      var cr = await workerFetch(
+        s.workerUrl + '/telegram-collection-data?' + dataQs.join('&'),
+        { headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {} },
+        120000
+      );
+      var part = await cr.json().catch(function () { return {}; });
+      if (!cr.ok || part.status === 'error') {
+        throw new Error(part.message || ('تعذر بناء الكوليكشنات — HTTP ' + cr.status));
+      }
+      if (part.debugCodes) collectionData.debugCodes = collectionData.debugCodes.concat(part.debugCodes);
+      (part.collections || []).forEach(function (col) { serverCollections.push(col); });
+    }
+
+    var productsByCode = {};
+    var productCodeOrder = [];
+    for (var sci = 0; sci < serverCollections.length; sci++) {
+      var sc = serverCollections[sci];
+      for (var spi = 0; spi < (sc.products || []).length; spi++) {
+        var sp = sc.products[spi];
+        var pCode = normalizeCode(sp.code || '');
+        if (!pCode) continue;
+        if (!productsByCode[pCode]) {
+          productsByCode[pCode] = { code: pCode, collectionName: sc.name || '', colors: [] };
+          productCodeOrder.push(pCode);
+        }
+        (sp.colors || []).forEach(function (scol) {
+          productsByCode[pCode].colors.push({
+            name: scol.name,
+            text: scol.text || '',
+            date: scol.date || null,
+            messageIds: scol.messageIds || [],
+            images: (scol.images || []).slice(0, MAX_PHOTOS_PER_POST)
+          });
+        });
       }
     }
 
-    showStatus(
-      mode === 'new'
-        ? 'جاري سحب المنشورات الجديدة من تيليجرام...'
-        : ('جاري سحب منشورات تيليجرام من ' + from.replace('T', ' ') + ' إلى ' + to.replace('T', ' ') + '...'),
-      ''
-    );
-    $('btnFetchTg').disabled = true;
-    try {
-      var qs = [];
-      qs.push('mode=' + encodeURIComponent(mode));
-      if (mode === 'new') {
-        var lastId = Number(localStorage.getItem('mysouq_tg_last_sync_id') || 0);
-        if (Number.isFinite(lastId) && lastId > 0) qs.push('afterId=' + encodeURIComponent(lastId));
-      } else {
-        qs.push('from=' + encodeURIComponent(localInputToIso(from, false)));
-        qs.push('to=' + encodeURIComponent(localInputToIso(to, true)));
+    // إضافة أكواد مختارة مفيش لها نتيجة سيرفر — كرت فاضي للتنبيه
+    codeOrder.forEach(function (c) {
+      var nc = normalizeCode(c);
+      if (nc && !productsByCode[nc]) {
+        productsByCode[nc] = { code: nc, collectionName: '', colors: [] };
+        productCodeOrder.push(nc);
       }
+    });
 
-      var r = await workerFetch(s.workerUrl + '/telegram-posts?' + qs.join('&'), {
-        method: 'GET',
-        headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
-      }, 120000);
-      var data = await r.json().catch(function () { return {}; });
-      if (!r.ok) {
-        showStatus(data.message || data.error || ('خطأ ' + r.status + ' — تأكد من تسجيل دخول تيليجرام على الـ Worker'), 'err');
-        return;
-      }
+    var newCollections = [];
+    for (var pci = 0; pci < productCodeOrder.length; pci++) {
+      var pCode2 = productCodeOrder[pci];
+      var pEntry = productsByCode[pCode2];
+      showStatus('تحميل صور «' + pCode2 + '» (' + (pci + 1) + '/' + productCodeOrder.length + ')...', '');
 
-      var posts = data.posts || data.items || [];
-      // لا نفلتر بالـ tgPostRecords القديمة هنا عشان إعادة السحب بعد التصفير تشتغل
-      if (!posts.length) {
-        if (mode === 'new') {
-          var lastSync = Number(localStorage.getItem('mysouq_tg_last_sync_id') || 0);
-          showStatus(
-            lastSync > 0
-              ? 'لا توجد منشورات أحدث من نقطة السحب #' + lastSync + '. اضغط «تصفير نقطة السحب» ثم أعد الجلب، أو استخدم تاريخ ووقت.'
-              : 'تيليجرام لم يُرجع منشورات. افحص الاتصال من تبويب الإعدادات (📱 فحص Telegram).',
-            'err'
-          );
-        } else {
-          var hint = '';
-          if (data.from || data.to) hint = ' (الفترة على السيرفر: ' + (data.from || '?') + ' → ' + (data.to || '?') + ')';
-          showStatus(
-            'لا توجد منشورات ضمن التاريخ والوقت المختار' + hint + '. وسّع الفترة (يوم كامل أو يومين) وأعد المحاولة.',
-            'err'
-          );
-        }
-        return;
-      }
-
-      var filtered = filterTelegramPosts(posts);
-      posts = filtered.posts;
-      if (!posts.length) {
-        if (mode === 'new') advanceSyncPoint(data);
-        showStatus(
-          'اتسحب ' + (data.count || 0) + ' منشور لكن اتستبعدوا كلهم (بلا كود / استيكر / جرد / موشن).',
-          'ok'
-        );
-        return;
-      }
-
-      var codeMap = {};
-      var codeOrder = [];
-      posts.forEach(function (post) {
-        var code = normalizeCode(post.code || post.collectionCode || post.productCode || extractCollectionCode(post.text || ''));
-        if (!code) return;
-        if (!codeMap[code]) { codeMap[code] = []; codeOrder.push(code); }
-        codeMap[code].push(post);
+      var allRefs = [];
+      pEntry.colors.forEach(function (col, colIdx) {
+        (col.images || []).forEach(function (remote) {
+          allRefs.push({ messageId: remote.messageId, groupedId: remote.groupedId, colIdx: colIdx });
+        });
+      });
+      // حد أقصى: 46 × عدد الألوان (بس سقف 120 للكود)
+      var maxForCode = Math.min(MAX_PHOTOS_PER_POST * Math.max(pEntry.colors.length, 1), 120);
+      var dlPack = await downloadImagesLimited(s.workerUrl, s.workerKey, allRefs, maxForCode);
+      failedImages += dlPack.failed;
+      var byMsgId = {};
+      dlPack.results.forEach(function (item) {
+        byMsgId[Number(item.remote.messageId)] = item;
       });
 
-      if (!codeOrder.length) {
-        if (mode === 'new') advanceSyncPoint(data);
-        showStatus('لم يُعثر على أكواد منتجات صالحة في المنشورات المسحوبة.', 'err');
-        return;
-      }
-
-      showStatus('وُجد ' + codeOrder.length + ' كود منتج — جاري تجميع كل الألوان والصور لكل كود...', '');
-
-      var texts = [];
-      tgPostRecords = posts.slice();
-      var loadedImages = 0;
-      var failedImages = 0;
-      // بناء الكوليكشنات على دفعات — نمرّر sourceIds (منشورات السحب) مش بحث جديد
-      showStatus('جاري بناء الكوليكشنات: ' + codeOrder.length + ' كود — جلب الصور من المنشورات...', '');
-      var serverCollections = [];
-      var collectionData = { debugCodes: [] };
-      var allSourceIds = posts
-        .map(function (p) { return Number(p.id); })
-        .filter(function (n) { return Number.isFinite(n) && n > 0; });
-      var chunkSize = 5;
-      for (var ci = 0; ci < codeOrder.length; ci += chunkSize) {
-        var chunk = codeOrder.slice(ci, ci + chunkSize);
-        // معرفات المنشورات المرتبطة بأكواد هذه الدفعة
-        var chunkIds = [];
-        chunk.forEach(function (code) {
-          (codeMap[code] || []).forEach(function (p) {
-            var id = Number(p.id);
-            if (Number.isFinite(id) && id > 0 && chunkIds.indexOf(id) < 0) chunkIds.push(id);
-          });
-        });
-        // لو مفيش ids للكود، نستخدم عينة من كل المنشورات
-        if (!chunkIds.length) chunkIds = allSourceIds.slice(0, 30);
-
-        showStatus(
-          'بناء الكوليكشنات... (' + Math.min(ci + chunk.length, codeOrder.length) + '/' + codeOrder.length + ' كود · ' + chunkIds.length + ' منشور)',
-          ''
-        );
-        var dataQs = [
-          'codes=' + encodeURIComponent(chunk.join(',')),
-          'sourceIds=' + encodeURIComponent(chunkIds.join(','))
-        ];
-        var cr = await workerFetch(
-          s.workerUrl + '/telegram-collection-data?' + dataQs.join('&'),
-          { headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {} },
-          120000
-        );
-        var part = await cr.json().catch(function () { return {}; });
-        if (!cr.ok || part.status === 'error') {
-          showStatus(part.message || ('تعذر بناء الكوليكشنات — HTTP ' + cr.status), 'err');
-          return;
-        }
-        if (part.debugCodes) collectionData.debugCodes = collectionData.debugCodes.concat(part.debugCodes);
-        (part.collections || []).forEach(function (col) {
-          serverCollections.push(col);
-        });
-      }
-      importedCollections = [];
-      // تجميع كل المنتجات من السيرفر حسب الكود أولًا (تفادي دمج أكواد)
-      var productsByCode = {};
-      var productCodeOrder = [];
-      for (var sci = 0; sci < serverCollections.length; sci++) {
-        var sc = serverCollections[sci];
-        for (var spi = 0; spi < (sc.products || []).length; spi++) {
-          var sp = sc.products[spi];
-          var pCode = normalizeCode(sp.code || '');
-          if (!pCode) continue;
-          if (!productsByCode[pCode]) {
-            productsByCode[pCode] = { code: pCode, collectionName: sc.name || '', colors: [], texts: [] };
-            productCodeOrder.push(pCode);
-          }
-          (sp.colors || []).forEach(function (scol) {
-            productsByCode[pCode].colors.push({
-              name: scol.name,
-              text: scol.text || '',
-              date: scol.date || null,
-              messageIds: scol.messageIds || [],
-              images: (scol.images || []).slice(0, 12)
-            });
-            if (scol.text) productsByCode[pCode].texts.push(scol.text);
-          });
-        }
-      }
-
-      for (var pci = 0; pci < productCodeOrder.length; pci++) {
-        var pCode2 = productCodeOrder[pci];
-        var pEntry = productsByCode[pCode2];
-        showStatus('تحميل صور الكود ' + pCode2 + ' (' + (pci + 1) + '/' + productCodeOrder.length + ')...', '');
-
-        // كل refs الصور لهذا الكود (حد أقصى 36 صورة للكود)
-        var allRefs = [];
-        pEntry.colors.forEach(function (col, colIdx) {
-          (col.images || []).forEach(function (remote) {
-            allRefs.push({ messageId: remote.messageId, groupedId: remote.groupedId, colIdx: colIdx });
-          });
-        });
-        var dlPack = await downloadImagesLimited(s.workerUrl, s.workerKey, allRefs, 36);
-        failedImages += dlPack.failed;
-        var byMsgId = {};
-        dlPack.results.forEach(function (item) {
-          byMsgId[Number(item.remote.messageId)] = item;
-        });
-
-        var colors = [];
-        var productImages = [];
-        pEntry.colors.forEach(function (scol, colIdx) {
-          var colorImages = [];
-          (scol.images || []).forEach(function (remote) {
-            var hit = byMsgId[Number(remote.messageId)];
-            if (!hit) return;
-            var img = {
-              id: idSeq++,
-              dataUrl: hit.dl.dataUrl,
-              name: 'tg-' + remote.messageId + '.' + hit.dl.ext,
-              messageId: remote.messageId,
-              groupKey: String(remote.groupedId || remote.messageId),
-              selected: false,
-              color: scol.name,
-              productCode: pCode2
-            };
-            colorImages.push(img);
-            productImages.push(img);
-            loadedImages++;
-          });
-          if (colorImages.length) {
-            var colorName = normalizeColorNameClient(scol.name, pCode2, scol.text || '');
-            if (!isRealColorName(colorName)) {
-              colorName = 'لون ' + (colors.length + 1);
-            }
-            colors.push({
-              name: colorName,
-              images: colorImages,
-              selectedImageId: null,
-              text: scol.text || '',
-              date: scol.date || null,
-              messageIds: scol.messageIds || []
-            });
-          }
-        });
-        if (!colors.length) continue;
-        var sp = { code: pCode2 };
-        var sc = { name: pEntry.collectionName || pCode2 };
-          var textParts = [];
-          colors.forEach(function (c) {
-            if (c.text && textParts.indexOf(c.text) < 0) textParts.push(c.text);
-          });
-          var joinedText = textParts.join('\n\n');
-          var parsedFirst = parseText(joinedText);
-          var sizes = parseSizeMeasurements(joinedText);
-          var price =
-            parsedFirst && parsedFirst.phase1Price != null
-              ? parsedFirst.phase1Price
-              : parsedFirst
-              ? parsedFirst.basePrice
-              : null;
-          var productObj = {
-            code: sp.code,
-            colors: colors,
-            images: productImages,
-            title: sc.name || sp.code,
-            description: joinedText,
-            price: price,
-            sizes: sizes.map(function (z) {
-              return {
-                size: z.size,
-                price: null,
-                pants_length: z.pants_length || '',
-                tshirt_length: z.tshirt_length || '',
-                tshirt_width: z.tshirt_width || '',
-                values: [z.pants_length || '', z.tshirt_length || '', z.tshirt_width || '']
-              };
-            }),
-            sourcePostIds: colors.reduce(function (a, c) {
-              return a.concat(c.messageIds || []);
-            }, [])
+      var colors = [];
+      var productImages = [];
+      pEntry.colors.forEach(function (scol) {
+        var colorImages = [];
+        (scol.images || []).forEach(function (remote) {
+          var hit = byMsgId[Number(remote.messageId)];
+          if (!hit) return;
+          var img = {
+            id: idSeq++,
+            dataUrl: hit.dl.dataUrl,
+            name: 'tg-' + remote.messageId + '.' + hit.dl.ext,
+            messageId: remote.messageId,
+            groupKey: String(remote.groupedId || remote.messageId),
+            selected: false,
+            color: scol.name,
+            productCode: pCode2
           };
-          // فصل الألوان المتداخلة حسب الألبوم
-          reorganizeProductColors(productObj);
-          // كل كود = بطاقة مستقلة (مش تجميع أكواد تحت اسم واحد)
-          var displayTitle =
-            (sc.name && sc.name !== 'غير محدد' ? sc.name + ' — ' : '') + (productObj.code || '');
-          // لو الاسم فيه الكود خلاص، متكررش
-          if (sc.name && String(sc.name).toUpperCase().indexOf(String(productObj.code || '').toUpperCase()) >= 0) {
-            displayTitle = sc.name;
-          } else if (productObj.title && productObj.title !== productObj.code) {
-            displayTitle = productObj.title;
-          }
-          importedCollections.push({
-            id: 'col-' + productObj.code + '-' + (importedCollections.length + 1),
-            name: displayTitle,
-            title: productObj.title || sc.name || productObj.code,
-            code: productObj.code,
-            products: [productObj],
-            selected: true
+          colorImages.push(img);
+          productImages.push(img);
+          loadedImages++;
+        });
+        if (colorImages.length) {
+          var colorName = normalizeColorNameClient(scol.name, pCode2, scol.text || '');
+          if (!isRealColorName(colorName)) colorName = 'لون ' + (colors.length + 1);
+          colors.push({
+            name: colorName,
+            images: colorImages,
+            selectedImageId: null,
+            text: scol.text || '',
+            date: scol.date || null,
+            messageIds: scol.messageIds || []
           });
-          (productObj.colors || []).forEach(function (c) {
-            if (c.text) texts.push(c.text);
-          });
-      }
-      // إزالة تكرار نفس الكود (نحتفظ بأغنى واحد بالصور)
-      var byCode = {};
-      importedCollections.forEach(function (c) {
-        var key = String(c.code || '').toUpperCase();
-        if (!key) return;
-        var imgs = (c.products || []).reduce(function (n, p) { return n + (p.images || []).length; }, 0);
-        if (!byCode[key] || imgs > byCode[key]._imgCount) {
-          c._imgCount = imgs;
-          byCode[key] = c;
         }
       });
-      importedCollections = Object.keys(byCode).map(function (k) {
-        var c = byCode[k];
-        delete c._imgCount;
-        return c;
+      if (!colors.length) continue;
+
+      var textParts = [];
+      colors.forEach(function (c) {
+        if (c.text && textParts.indexOf(c.text) < 0) textParts.push(c.text);
       });
-      if (mode === 'new') advanceSyncPoint(data);
-      if (texts.length) $('postText').value = texts.join('\n\n———\n\n');
-      renderCollectionsWorkspace();
-      $('reviewCard').style.display = importedCollections.length ? 'block' : 'none';
-      if (!importedCollections.length) {
-        var dbg = '';
-        if (collectionData.debugCodes && collectionData.debugCodes.length) {
-          dbg =
-            ' | ' +
-            collectionData.debugCodes
-              .map(function (d) {
-                return d.code + '(مطابقات:' + d.matchesScanned + '/صور:' + d.photosFound + ')';
-              })
-              .join('، ');
-        }
-        showStatus(
-          'اتلاقى أكواد (' +
-            codeOrder.join(', ') +
-            ') لكن مفيش صور مرتبطة أو فشل تجميعها.' +
-            dbg +
-            ' ارفع Worker الجديد وجرب تاني.',
-          'err'
-        );
-      } else {
-        showStatus(
-          'تم سحب ' +
-            importedCollections.length +
-            ' كوليكشن بصور (' +
-            loadedImages +
-            ' صورة).' +
-            (failedImages ? ' تعذر تحميل ' + failedImages + ' صورة.' : '') +
-            ' اضغط «تفاصيل المنتج» للمراجعة.',
-          'ok'
-        );
-      }
-    } catch (e) {
-      showStatus('فشل الجلب: ' + (e && e.message ? e.message : e), 'err');
-    } finally {
-      $('btnFetchTg').disabled = false;
+      var joinedText = textParts.join('\n\n');
+      var parsedFirst = parseText(joinedText);
+      var sizes = parseSizeMeasurements(joinedText);
+      var price =
+        parsedFirst && parsedFirst.phase1Price != null
+          ? parsedFirst.phase1Price
+          : parsedFirst
+          ? parsedFirst.basePrice
+          : null;
+      var productObj = {
+        code: pCode2,
+        colors: colors,
+        images: productImages,
+        title: pEntry.collectionName || pCode2,
+        description: joinedText,
+        price: price,
+        sizes: sizes.map(function (z) {
+          return {
+            size: z.size,
+            price: null,
+            pants_length: z.pants_length || '',
+            tshirt_length: z.tshirt_length || '',
+            tshirt_width: z.tshirt_width || '',
+            values: [z.pants_length || '', z.tshirt_length || '', z.tshirt_width || '']
+          };
+        }),
+        sourcePostIds: colors.reduce(function (a, c) { return a.concat(c.messageIds || []); }, [])
+      };
+      reorganizeProductColors(productObj);
+      newCollections.push({
+        id: 'col-' + pCode2 + '-' + (newCollections.length + 1),
+        name: productObj.title || pCode2,
+        title: productObj.title || pCode2,
+        code: pCode2,
+        products: [productObj],
+        selected: true
+      });
+      colors.forEach(function (c) { if (c.text) texts.push(c.text); });
     }
+
+    // دمج مع الموجود (تحديث نفس الكود)
+    var byCode = {};
+    importedCollections.forEach(function (c) {
+      var key = String(c.code || '').toUpperCase();
+      if (key) byCode[key] = c;
+    });
+    newCollections.forEach(function (c) {
+      byCode[String(c.code || '').toUpperCase()] = c;
+    });
+    importedCollections = Object.keys(byCode).map(function (k) { return byCode[k]; });
+
+    if (texts.length) $('postText').value = texts.join('\n\n———\n\n');
+    renderCollectionsWorkspace();
+    $('reviewCard').style.display = importedCollections.length ? 'block' : 'none';
+
+    if (!newCollections.length) {
+      showStatus('لم يُستورد أي كود بصور. تأكد إن المنشورات فيها صور قريبة من نص الكود.', 'err');
+    } else {
+      showStatus(
+        'تم استيراد ' + newCollections.length + ' كود (' + loadedImages + ' صورة)' +
+          (failedImages ? ' — تعذر تحميل ' + failedImages : '') +
+          '. اضغط «تفاصيل المنتج» للمراجعة.',
+        'ok'
+      );
+    }
+  }
+
+  // توافق قديم — يوجّه لسير العمل الجديد
+  window.fetchFromTelegram = async function () {
+    showStatus('استخدم «بحث عن الأكواد فقط» ثم اختر الأكواد واستوردها.', 'ok');
+    if ($('btnSearchCodes')) $('btnSearchCodes').focus();
   };
+
 })();
   </script>
 </body>
