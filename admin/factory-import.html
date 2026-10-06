@@ -639,7 +639,7 @@
               (brightRatio > 0.55 && edgeRatio > 0.16 && blueRatio > 0.03) ||
               (brightRatio > 0.6 && darkRatio < 0.12 && edgeRatio > 0.12);
             // موديل: بشرة عالية جدًا فقط (صور المنتج الوردية/البنية كانت بتتلقط غلط)
-            var isModel = skinRatio > 0.22 && brightRatio < 0.55 && !isChart;
+            var isModel = skinRatio > 0.12 && !isChart;
             var norm = hist.slice();
             var total = 0;
             for (var t = 0; t < norm.length; t++) total += norm[t];
@@ -706,13 +706,8 @@
       }
       product.push(img);
     }
-    // مهم: لو اتصنّف أغلب الصور موديل بالغلط، رجّعها كلها للمنتج
-    // (ماعدا الجداول)
-    if (models.length && models.length >= product.length) {
-      product = product.concat(models);
-      models = [];
-    }
-    // لو مفيش منتج خالص: رجّع الموديل
+    // لو مفيش صور منتج خالص — رجّع الموديل مؤقتًا عشان المستخدم يقدر يختار/يرجع
+    // لكن لو فيه صور منتج، الموديل يفضل مستبعد (بني آدم)
     if (!product.length && models.length) {
       product = models.slice();
       models = [];
@@ -1129,6 +1124,40 @@
     var any = t.match(/(?:^|[^A-Za-z0-9])([A-Za-z]{2,12}[\s_-]*\d{2,8})(?!\d)/i);
     return any ? normalizeCode(any[1]) : '';
   }
+
+  /** كل أكواد المنتج في النص (مرحلة أولى + ثانية + أكواد متعددة) */
+  function extractAllProductCodes(text) {
+    var t = arDigits(text || '');
+    var found = [];
+    var seen = {};
+    function add(raw) {
+      var c = normalizeCode(raw);
+      if (!c || seen[c]) return;
+      // رفض أرقام مقاسات صافية
+      if (/^\d{1,2}$/.test(c)) return;
+      seen[c] = true;
+      found.push(c);
+    }
+    var labeled = t.matchAll(/(?:code|كود|كود\s*المنتج|كود\s*الكوليكشن)\s*[:：\-]?\s*([A-Za-z]{2,12}[\s_-]*\d{2,8})(?!\d)/gi);
+    try {
+      for (var m of labeled) add(m[1]);
+    } catch (e) {
+      // fallback بدون matchAll
+      var re1 = /(?:code|كود|كود\s*المنتج|كود\s*الكوليكشن)\s*[:：\-]?\s*([A-Za-z]{2,12}[\s_-]*\d{2,8})(?!\d)/gi;
+      var mm;
+      while ((mm = re1.exec(t))) add(mm[1]);
+    }
+    var re2 = /(?:^|[^A-Za-z0-9])([A-Za-z]{2,12}[\s_-]*\d{2,8})(?!\d)/gi;
+    var m2;
+    while ((m2 = re2.exec(t))) add(m2[1]);
+    // لو مفيش حاجة، جرب الواحد
+    if (!found.length) {
+      var one = extractCollectionCode(t);
+      if (one) found.push(one);
+    }
+    return found;
+  }
+
 
   function extractRecordText(post) {
     if (!post) return '';
@@ -2261,16 +2290,17 @@
       var allPosts = (data.posts || []).slice().sort(function (a, b) {
         return Number(a.id || 0) - Number(b.id || 0);
       });
-      // تتبع البند من الإعلان/الاستيكر السابق (جرد أو جديد)
+      // ===== قاعدة المصنع =====
+      // استيكر/إعلان «جرد» → كل المنشورات بعده = جرد
+      // استيكر/إعلان «جديد» → كل المنشورات بعده = جديد
+      // الاستيكر نفسه لا يُستورد أبدًا (يتصفّى لاحقًا)
       var currentBand = 'جديد';
       var bandByPostId = {};
       allPosts.forEach(function (post) {
+        var isSticker = isStickerPost(post);
         var headerBand = detectPostBand(post);
-        // استيكر أو إعلان بند → يغيّر السياق حتى الإعلان التالي
-        if (headerBand && (isBandHeaderPost(post) || isStickerPost(post) || !hasProductCode(post))) {
-          currentBand = headerBand;
-        } else if (headerBand) {
-          // منشور منتج فيه كلمة جرد/جديد
+        // غيّر البند فقط عند استيكر أو إعلان فاصل (مش منشور منتج)
+        if (headerBand && (isSticker || isBandHeaderPost(post) || !hasProductCode(post))) {
           currentBand = headerBand;
         }
         bandByPostId[String(post.id)] = currentBand;
@@ -2288,21 +2318,25 @@
       var map = {};
       var order = [];
       posts.forEach(function (post) {
-        var code = normalizeCode(post.code || post.collectionCode || post.productCode || extractCollectionCode(post.text || ''));
-        if (!code) return;
-        if (!map[code]) {
-          map[code] = { code: code, postIds: [], posts: [], sampleText: '', postCount: 0, bandVotes: { 'جديد': 0, 'جرد': 0 } };
-          order.push(code);
-        }
-        var id = Number(post.id);
-        if (Number.isFinite(id)) map[code].postIds.push(id);
-        map[code].posts.push(post);
-        map[code].postCount++;
-        // البند من سياق الإعلان السابق، مع ترجيح نص المنشور نفسه
+        var text = extractRecordText(post) || post.text || '';
+        var codes = extractAllProductCodes(text);
+        var single = normalizeCode(post.code || post.collectionCode || post.productCode || '');
+        if (single && codes.indexOf(single) < 0) codes.unshift(single);
+        if (!codes.length) return;
         var band = bandByPostId[String(post.id)] || detectPostBand(post) || 'جديد';
-        if (map[code].bandVotes[band] != null) map[code].bandVotes[band]++;
-        else map[code].bandVotes[band] = 1;
-        if (!map[code].sampleText && post.text) map[code].sampleText = String(post.text).trim();
+        var id = Number(post.id);
+        codes.forEach(function (code) {
+          if (!map[code]) {
+            map[code] = { code: code, postIds: [], posts: [], sampleText: '', postCount: 0, bandVotes: { 'جديد': 0, 'جرد': 0 } };
+            order.push(code);
+          }
+          if (Number.isFinite(id) && map[code].postIds.indexOf(id) < 0) map[code].postIds.push(id);
+          map[code].posts.push(post);
+          map[code].postCount++;
+          if (map[code].bandVotes[band] != null) map[code].bandVotes[band]++;
+          else map[code].bandVotes[band] = 1;
+          if (!map[code].sampleText && text) map[code].sampleText = String(text).trim();
+        });
       });
 
       discoveredCodes = order.map(function (c) {
@@ -2447,13 +2481,16 @@
 
   /** تحت بند: جديد | جرد — من نص المنشور */
   function detectPostBand(post) {
-    var text = String((post && (post.text || post.caption || post.message)) || '');
-    // إعلانات/استيكر الجرد
-    if (/جرد\s*بالمتاح|جرد\s*المتاح|بالمتاح\b|جرد\s*الكوليكشن|جرد\s*كوليكشن|inventory|stock\s*list/i.test(text)) return 'جرد';
-    if (/^\s*جرد\s*$/i.test(text.trim())) return 'جرد';
-    // إعلانات الكوليكشن الجديد
-    if (/كوليكشن\s*جديد|كود\s*جديد|منتجات?\s*جديد|new\s*collection|new\s*drop|وصول\s*جديد|نزل\s*جديد/i.test(text)) return 'جديد';
-    if (/\bجديد\b/i.test(text) && /كوليكشن|كود|منتج|توريد/i.test(text)) return 'جديد';
+    var text = String((post && (post.text || post.caption || post.message || post.stickerEmoji || post.stickerName || post.stickerTitle)) || '');
+    var alt = String((post && (post.fileName || post.mediaType || post.alt || post.emoji)) || '');
+    var all = (text + ' ' + alt).replace(/\s+/g, ' ').trim();
+    if (!all) return '';
+    // 1) جرد بالمتاح / جرد (استيكر أو منشور إعلان)
+    if (/جرد\s*بالمتاح|جرد\s*المتاح|جرد\s*الكوليكشن|جرد\s*كوليكشن|\bجرد\b|inventory|stock\s*list/i.test(all)) return 'جرد';
+    if (/بالمتاح/i.test(all) && !/جديد/i.test(all)) return 'جرد';
+    // 2) الجديد / انتظروا الجديد / كوليكشن جديد
+    if (/انتظروا\s*الجديد|كوليكشن\s*جديد|كود\s*جديد|منتجات?\s*جديد|وصول\s*جديد|نزل\s*جديد|new\s*collection|new\s*drop/i.test(all)) return 'جديد';
+    if (/\bالجديد\b|\bجديد\b/i.test(all) && !/جرد/i.test(all)) return 'جديد';
     return '';
   }
 
