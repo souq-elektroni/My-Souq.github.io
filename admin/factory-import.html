@@ -257,6 +257,23 @@
     .collection-list-card .cl-btn{margin-right:auto;background:var(--primary);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:900;font-size:12px;cursor:pointer;}
     @media(max-width:900px){.collection-workspace{grid-template-columns:1fr}.collection-list{position:static;max-height:none}.detail-modal{width:100%;border-radius:16px}}
 
+
+    .color-row-ref{
+      display:grid;grid-template-columns:minmax(140px,180px) 1fr minmax(120px,150px);
+      gap:12px;align-items:center;padding:12px 14px;margin-top:10px;
+      border-radius:16px;border:1px solid var(--line);
+    }
+    .color-row-ref .color-side-label{display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+    .color-row-ref .color-side-label .name-line{display:flex;align-items:center;gap:8px;font-weight:900;font-size:14px;color:var(--ink);}
+    .color-row-ref .color-side-actions{display:flex;flex-direction:column;align-items:stretch;gap:8px;}
+    .color-row-ref .color-side-actions .btn-preview{
+      background:#fff;border:1px solid #e9d5ff;color:var(--primary);
+      border-radius:10px;padding:8px 10px;font-weight:800;font-size:11px;cursor:pointer;
+    }
+    @media(max-width:800px){
+      .color-row-ref{grid-template-columns:1fr;}
+    }
+
     .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
     .tab {
       padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: #fff;
@@ -1815,26 +1832,21 @@
 
     // صفوف الألوان
     // صفوف الألوان
-    (p.colors || []).forEach(function (col) {
+    (p.colors || []).forEach(function (col, colIdx) {
       var hasApproved = (col.images || []).some(function (im) { return im.selected; });
       var onFabric = formatCodeWithColor(p.code, col.name);
-      html += '<div class="color-block ' + colorCssClass(col.name) + '">';
-      html += '<div class="color-head">';
-      html += '<div class="color-name"><span class="color-dot" style="background:' + colorDotHex(col.name) + '"></span>';
       var displayName = col.name || 'غير محدد';
       if (!/^لون\s*\d+$/i.test(displayName) && displayName.indexOf('اللون') !== 0 && displayName !== 'غير محدد') {
         displayName = 'اللون ' + displayName;
-      } else if (/^لون\s*\d+$/i.test(displayName)) {
-        displayName = displayName + ' (افصل بالصور — اللون مكتوب على القماش جنب الكود)';
       }
-      html += '<span style="font-weight:900">' + escapeHtml(displayName) + '</span>';
-      html += '<span class="color-code-badge" style="margin-inline-start:10px" title="الكود الأساسي واحد — اللون بيتحدد من الكتابة على الصورة">' +
-        escapeHtml(onFabric) +
-        '</span></div>';
-      html += hasApproved
-        ? '<span class="color-status ok">✓ المعتمد</span>'
-        : '<span class="color-status wait">اختر صورة معتمدة</span>';
+      var cssCls = colorCssClass(col.name) || '';
+      html += '<div class="color-row-ref ' + cssCls + '">';
+      // يمين: اسم اللون (RTL)
+      html += '<div class="color-side-label">';
+      html += '<div class="name-line"><span class="color-dot" style="background:' + colorDotHex(col.name) + '"></span><span>' + escapeHtml(displayName) + '</span></div>';
+      html += '<span class="color-code-badge">' + escapeHtml(onFabric) + '</span>';
       html += '</div>';
+      // وسط: الصور
       html += '<div class="tg-images">';
       (col.images || []).forEach(function (im) {
         var cls = im.selected ? 'selected' : (im.rejected ? 'rejected' : '');
@@ -1843,10 +1855,20 @@
         else if (im.rejected) html += '<div class="tg-image-badge no">×</div>';
         html += '<img src="' + im.dataUrl + '" alt="' + escapeHtml(col.name) + '" onclick="openTelegramPreview(\'' + escapeHtml(im.dataUrl) + '\')">';
         html += '<div class="tg-image-actions">';
-        html += '<button type="button" class="tg-approve" onclick="approveTelegramColorImage(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(col.name) + '\',\'' + escapeHtml(im.id) + '\')">' + (im.selected ? '✓' : 'اعتماد') + '</button>';
-        html += '<button type="button" class="tg-delete" onclick="rejectTelegramColorImage(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(col.name) + '\',\'' + escapeHtml(im.id) + '\')">×</button>';
+        html += '<button type="button" class="tg-approve" onclick="approveTelegramColorImage(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(col.name) + '\',\'' + escapeHtml(String(im.id)) + '\')">' + (im.selected ? '✓' : 'اعتماد') + '</button>';
+        html += '<button type="button" class="tg-delete" onclick="rejectTelegramColorImage(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\',\'' + escapeHtml(col.name) + '\',\'' + escapeHtml(String(im.id)) + '\')">×</button>';
         html += '</div></div>';
       });
+      html += '</div>';
+      // شمال: حالة + معاينة
+      html += '<div class="color-side-actions">';
+      html += hasApproved
+        ? '<span class="color-status ok" style="text-align:center">✓ المعتمد</span>'
+        : '<span class="color-status wait" style="text-align:center">اختر صورة معتمدة</span>';
+      var firstImg = (col.images || []).find(function (im) { return !im.rejected; });
+      if (firstImg) {
+        html += '<button type="button" class="btn-preview" onclick="openTelegramPreview(\'' + escapeHtml(firstImg.dataUrl) + '\')">معاينة اللون</button>';
+      }
       html += '</div></div>';
     });
 
@@ -2236,13 +2258,30 @@
         showStatus(data.message || data.error || ('خطأ ' + r.status), 'err');
         return;
       }
-      var posts = data.posts || [];
-      var filtered = filterTelegramPosts(posts);
-      posts = filtered.posts;
+      var allPosts = (data.posts || []).slice().sort(function (a, b) {
+        return Number(a.id || 0) - Number(b.id || 0);
+      });
+      // تتبع البند من الإعلان/الاستيكر السابق (جرد أو جديد)
+      var currentBand = 'جديد';
+      var bandByPostId = {};
+      allPosts.forEach(function (post) {
+        var headerBand = detectPostBand(post);
+        // استيكر أو إعلان بند → يغيّر السياق حتى الإعلان التالي
+        if (headerBand && (isBandHeaderPost(post) || isStickerPost(post) || !hasProductCode(post))) {
+          currentBand = headerBand;
+        } else if (headerBand) {
+          // منشور منتج فيه كلمة جرد/جديد
+          currentBand = headerBand;
+        }
+        bandByPostId[String(post.id)] = currentBand;
+      });
+
+      var filtered = filterTelegramPosts(allPosts);
+      var posts = filtered.posts;
       if (!posts.length) {
         discoveredCodes = [];
         renderCodesTable();
-        showStatus('مفيش منشورات بكود منتج في الفترة دي (بعد استبعاد الاستيكر/الجرد/…).', 'ok');
+        showStatus('مفيش منشورات بكود منتج في الفترة دي (بعد الاستبعاد).', 'ok');
         return;
       }
 
@@ -2259,7 +2298,8 @@
         if (Number.isFinite(id)) map[code].postIds.push(id);
         map[code].posts.push(post);
         map[code].postCount++;
-        var band = detectPostBand(post);
+        // البند من سياق الإعلان السابق، مع ترجيح نص المنشور نفسه
+        var band = bandByPostId[String(post.id)] || detectPostBand(post) || 'جديد';
         if (map[code].bandVotes[band] != null) map[code].bandVotes[band]++;
         else map[code].bandVotes[band] = 1;
         if (!map[code].sampleText && post.text) map[code].sampleText = String(post.text).trim();
@@ -2407,10 +2447,26 @@
 
   /** تحت بند: جديد | جرد — من نص المنشور */
   function detectPostBand(post) {
-    var text = String((post && (post.text || post.caption)) || '');
-    if (/جرد\s*بالمتاح|جرد\s*المتاح|بالمتاح|جرد\b|inventory/i.test(text)) return 'جرد';
-    if (/كوليكشن\s*جديد|كود\s*جديد|منتج\s*جديد|new\s*collection|\bجديد\b/i.test(text)) return 'جديد';
-    return 'جديد';
+    var text = String((post && (post.text || post.caption || post.message)) || '');
+    // إعلانات/استيكر الجرد
+    if (/جرد\s*بالمتاح|جرد\s*المتاح|بالمتاح\b|جرد\s*الكوليكشن|جرد\s*كوليكشن|inventory|stock\s*list/i.test(text)) return 'جرد';
+    if (/^\s*جرد\s*$/i.test(text.trim())) return 'جرد';
+    // إعلانات الكوليكشن الجديد
+    if (/كوليكشن\s*جديد|كود\s*جديد|منتجات?\s*جديد|new\s*collection|new\s*drop|وصول\s*جديد|نزل\s*جديد/i.test(text)) return 'جديد';
+    if (/\bجديد\b/i.test(text) && /كوليكشن|كود|منتج|توريد/i.test(text)) return 'جديد';
+    return '';
+  }
+
+  function isBandHeaderPost(post) {
+    // استيكر أو إعلان بدون كود منتج = فاصل بند
+    var band = detectPostBand(post);
+    if (!band) return false;
+    var hasCode = hasProductCode(post);
+    // لو فيه كود منتج ومش مجرد إعلان، مش header صافي
+    if (hasCode && !/جرد\s*بالمتاح|كوليكشن\s*جديد|بالمتاح/i.test(String((post && post.text) || ''))) {
+      return false;
+    }
+    return true;
   }
 
   function filterTelegramPosts(posts) {
