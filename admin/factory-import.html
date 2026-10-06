@@ -92,48 +92,51 @@
     .collection-summary .summary-stat { text-align:center; min-width:92px; }
     .collection-summary .summary-stat b { display:block; font-size:15px; color:#222; }
     .collection-modal { display:none; position:fixed; inset:0; z-index:950; }
-    .collection-modal.open { display:flex; align-items:center; justify-content:center; padding:14px; }
-    .collection-modal-backdrop { position:absolute; inset:0; background:rgba(30,15,35,.68); backdrop-filter:blur(2px); }
-    .collection-modal-dialog { position:relative; z-index:1; width:min(1660px,99vw); max-height:95vh; overflow:auto; background:#fff; border:1px solid #e6d8eb; border-radius:18px; box-shadow:0 24px 80px rgba(0,0,0,.35); padding:14px; }
-    .collection-modal-top { display:flex; gap:12px; align-items:center; justify-content:space-between; padding:2px 4px 12px; border-bottom:1px solid var(--line); }
+    .collection-modal.open { display:flex; align-items:center; justify-content:center; padding:8px; }
+    .collection-modal-backdrop { position:absolute; inset:0; background:rgba(25,12,30,.72); backdrop-filter:blur(2px); }
+    .collection-modal-dialog { position:relative; z-index:1; width:min(1280px,98vw); max-height:96vh; overflow:auto; background:#fff; border:1px solid #e2d4e8; border-radius:14px; box-shadow:0 24px 80px rgba(0,0,0,.38); padding:10px; direction:rtl; }
+    .collection-modal-top { display:flex; gap:10px; align-items:center; justify-content:space-between; padding:0 4px 8px; border-bottom:1px solid var(--line); }
     .collection-modal-title { color:var(--primary); font-size:18px; font-weight:900; }
-    .collection-modal-close { width:36px; height:36px; border:0; border-radius:50%; background:#fff; color:#6a1b9a; font-size:25px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.08); }
-    .collection-modal-grid { display:block; margin-top:12px; direction:rtl; }
-    .collection-main-pane { min-width:0; }
-    .collection-side-pane { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; } 
-    .collection-code-box { background:linear-gradient(135deg,#f3e5f5,#fff); border:1px solid #dfc8e8; border-radius:14px; padding:12px; text-align:center; }
-    .collection-code-big { display:inline-block; padding:8px 20px; border-radius:999px; background:linear-gradient(135deg,#6a1b9a,#8e24aa); color:#fff; font-size:18px; font-weight:900; direction:ltr; }
-    .collection-price-box { background:#fff; border:1px solid #eadcf1; border-radius:14px; padding:12px; margin-top:10px; }
-    .collection-price-box input { margin-bottom:0; font-size:18px; font-weight:900; color:var(--primary); text-align:center; }
-    .collection-notes { margin-top:10px; padding:12px; border:1px solid #eadcf1; border-radius:14px; background:#fff; font-size:11px; line-height:1.8; color:#5f4b65; font-weight:700; }
-    .collection-source-text { background:#fff; border:1px solid #eadcf1; border-radius:14px; padding:12px; }
-    .collection-source-text textarea { min-height:105px; margin:6px 0 0; background:#fff; }
-    .color-groups { display:flex; flex-direction:column; gap:10px; margin-top:10px; }
-    .color-group { border:1px solid var(--line); border-radius:14px; background:#fff; padding:10px; }
-    .color-group-body { display:grid; grid-template-columns:230px minmax(0,1fr); gap:12px; align-items:center; direction:rtl; }
-    .color-group-label { background:#fbf6fd; border:1px solid #eadcf1; border-radius:12px; padding:12px; min-height:92px; display:flex; flex-direction:column; justify-content:center; gap:5px; }
-    .color-name-big { font-size:15px; font-weight:900; color:var(--primary); }
-    .color-images { grid-template-columns:repeat(4,minmax(135px,1fr)); align-items:start; }
-    @media(max-width:900px){ .color-group-body{grid-template-columns:1fr}.color-images{grid-template-columns:repeat(2,minmax(100px,1fr));} }
-    .color-group-head { display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap; margin-bottom:8px; }
-    .color-group-title { font-weight:900; color:var(--ink); }
-    .color-code-badge { display:inline-flex; align-items:center; gap:5px; padding:4px 9px; border-radius:999px; background:#f3e5f5; color:var(--primary); font-size:10px; font-weight:900; direction:ltr; }
-    .color-images { display:grid; grid-template-columns:repeat(4,minmax(88px,1fr)); gap:8px; }
+    .collection-modal-close { width:34px; height:34px; border:0; border-radius:50%; background:#fff; color:#6a1b9a; font-size:24px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.08); }
+    .collection-modal-grid { display:grid; grid-template-columns:210px minmax(0,1fr); gap:10px; margin-top:10px; direction:ltr; align-items:start; }
+    .collection-main-pane { min-width:0; direction:rtl; }
+    .collection-side-pane { display:flex; flex-direction:column; gap:8px; direction:rtl; }
+    .collection-code-box { background:linear-gradient(135deg,#f3e5f5,#fff); border:1px solid #dfc8e8; border-radius:10px; padding:9px; text-align:center; }
+    .collection-code-big { display:inline-block; padding:7px 20px; border-radius:999px; background:linear-gradient(135deg,#6a1b9a,#8e24aa); color:#fff; font-size:17px; font-weight:900; direction:ltr; }
+    .collection-price-box { background:#fff; border:1px solid #eadcf1; border-radius:10px; padding:9px; }
+    .collection-price-box input { margin-bottom:0; font-size:17px; font-weight:900; color:var(--primary); text-align:center; }
+    .collection-notes { margin:0; padding:9px; border:1px solid #eadcf1; border-radius:10px; background:#fff; font-size:10px; line-height:1.8; color:#5f4b65; font-weight:700; }
+    .collection-preview-box { border:1px solid #eadcf1; border-radius:10px; background:#fff; padding:7px; text-align:center; }
+    .collection-preview-box img { width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:9px; border:3px solid #3f4148; background:#f6f3f6; cursor:zoom-in; }
+    .collection-preview-box .btn { width:100%; margin-top:6px; }
+    .collection-source-text { background:#fff; border:1px solid #eadcf1; border-radius:10px; padding:9px; }
+    .collection-source-text textarea { min-height:82px; margin:5px 0 0; background:#fff; }
+    .color-groups { display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+    .color-group { border:1px solid var(--line); border-radius:10px; background:#fff; padding:8px; }
+    .color-group-body { display:grid; grid-template-columns:165px minmax(0,1fr); gap:9px; align-items:center; direction:ltr; }
+    .color-group-label { background:#fbf6fd; border:1px solid #eadcf1; border-radius:9px; padding:8px; min-height:82px; display:flex; flex-direction:column; justify-content:center; gap:4px; direction:rtl; text-align:right; }
+    .color-name-big { font-size:14px; font-weight:900; color:var(--primary); }
+    .color-images { display:grid; grid-template-columns:repeat(4,minmax(90px,1fr)); gap:7px; align-items:start; direction:ltr; }
+    .color-group-head { display:none; }
+    .color-code-badge { display:inline-flex; align-items:center; justify-content:center; gap:5px; padding:4px 7px; border-radius:999px; background:#f3e5f5; color:var(--primary); font-size:9px; font-weight:900; direction:ltr; }
     .color-image-card { position:relative; min-width:0; }
-    .color-image-card img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:10px; border:3px solid var(--line); display:block; cursor:zoom-in; background:#fff; }
+    .color-image-card img { width:100%; aspect-ratio:1; object-fit:cover; border-radius:9px; border:2px solid var(--line); display:block; cursor:zoom-in; background:#fff; }
     .color-image-card.selected img { border-color:var(--ok); box-shadow:0 0 0 2px rgba(46,125,50,.18); }
-    .image-selected-badge { position:absolute; right:5px; bottom:5px; background:var(--ok); color:#fff; border-radius:7px; padding:3px 6px; font-size:10px; font-weight:900; pointer-events:none; }
-    .image-delete-btn { position:absolute; left:4px; top:4px; width:26px; height:26px; border:0; border-radius:50%; background:#e53935; color:#fff; font-size:18px; line-height:24px; cursor:pointer; z-index:2; box-shadow:0 1px 4px rgba(0,0,0,.18); }
-    .image-pick-btn { width:100%; margin-top:5px; padding:6px 7px; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--primary); font-weight:900; font-size:10px; cursor:pointer; }
-    .color-group-note { font-size:10px; color:var(--muted); font-weight:700; margin-top:6px; }
-    .collection-size-section { margin-top:12px; border:1px solid #eadcf1; border-radius:14px; padding:10px; background:#fff; }
-    .collection-size-section h4 { color:var(--primary); font-size:13px; margin-bottom:8px; }
-    .size-table-wrap { overflow:auto; margin-top:10px; }
-    .size-table { width:100%; border-collapse:collapse; min-width:620px; }
-    .size-table th,.size-table td { border:1px solid var(--line); padding:7px; text-align:center; font-size:12px; }
+    .image-selected-badge { position:absolute; right:4px; bottom:4px; background:var(--ok); color:#fff; border-radius:6px; padding:2px 5px; font-size:9px; font-weight:900; pointer-events:none; }
+    .image-delete-btn { position:absolute; left:3px; top:3px; width:23px; height:23px; border:0; border-radius:50%; background:#e53935; color:#fff; font-size:16px; line-height:21px; cursor:pointer; z-index:2; box-shadow:0 1px 4px rgba(0,0,0,.18); }
+    .image-pick-btn { width:100%; margin-top:4px; padding:5px 5px; border:1px solid var(--line); border-radius:7px; background:#fff; color:var(--primary); font-weight:900; font-size:9px; cursor:pointer; }
+    .color-group-note { font-size:9px; color:var(--muted); font-weight:700; margin-top:5px; text-align:right; }
+    .collection-size-section { margin-top:9px; border:1px solid #eadcf1; border-radius:10px; padding:8px; background:#fff; }
+    .collection-size-section h4 { color:var(--primary); font-size:12px; margin-bottom:6px; }
+    .size-table-wrap { overflow:auto; margin-top:7px; }
+    .size-table { width:100%; border-collapse:collapse; min-width:600px; }
+    .size-table th,.size-table td { border:1px solid var(--line); padding:5px; text-align:center; font-size:11px; }
     .size-table th { background:#faf6f8; font-weight:900; }
-    .size-table input { width:100%; min-width:70px; box-sizing:border-box; }
-    .collection-modal-footer { display:flex; gap:8px; justify-content:flex-start; flex-wrap:wrap; margin-top:12px; padding-top:10px; border-top:1px solid var(--line); }
+    .size-table input { width:100%; min-width:55px; box-sizing:border-box; padding:4px; }
+    .collection-modal-footer { display:flex; gap:7px; justify-content:flex-start; flex-wrap:wrap; margin-top:9px; padding-top:8px; border-top:1px solid var(--line); }
+    .collection-modal-footer .btn { min-width:150px; }
+    @media(max-width:1000px){ .collection-modal-grid{grid-template-columns:180px minmax(0,1fr)}.color-group-body{grid-template-columns:145px minmax(0,1fr)}.color-images{grid-template-columns:repeat(3,minmax(85px,1fr));} }
+    @media(max-width:780px){ .collection-modal-grid{grid-template-columns:1fr}.collection-side-pane{order:2}.collection-main-pane{order:1}.color-group-body{grid-template-columns:1fr}.color-images{grid-template-columns:repeat(2,minmax(90px,1fr));} }
     .image-preview-modal { display:none; position:fixed; inset:0; z-index:1100; }
     .image-preview-modal.open { display:flex; align-items:center; justify-content:center; padding:20px; }
     .image-preview-backdrop { position:absolute; inset:0; background:rgba(20,10,20,.72); }
@@ -191,8 +194,13 @@
         <label>طريقة السحب</label>
         <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:8px 0 12px;">
           <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
-            <input type="radio" name="tgFetchMode" id="tgModeLimit" value="limit" checked onchange="toggleTgFetchMode()">
+            <input type="radio" name="tgFetchMode" id="tgModeLimit" value="limit" onchange="toggleTgFetchMode()">
             <span>📌 عدد المنشورات</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
+            <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
+            <input type="radio" name="tgFetchMode" id="tgModeCollections" value="collections" checked onchange="toggleTgFetchMode()">
+            <span>📦 كوليكشنات كاملة حسب التاريخ</span>
           </label>
           <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
             <input type="radio" name="tgFetchMode" id="tgModeHours" value="hours" onchange="toggleTgFetchMode()">
@@ -211,6 +219,21 @@
             <option value="100">آخر 100 منشور</option>
           </select>
           <p class="hint" style="margin-top:6px;">بعد الجلب يُستخرج كود كل منتج ويُجلب نصه وصوره تلقائيًا عبر الـ Worker.</p>
+        </div>
+
+        <div id="tgCollectionsBox" style="display:none;">
+          <label>الفترة التي نبحث داخلها عن الكوليكشنات</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div><label style="font-size:11px;">من تاريخ</label><input type="date" id="tgFromDate"></div>
+            <div><label style="font-size:11px;">إلى تاريخ</label><input type="date" id="tgToDate"></div>
+          </div>
+          <label style="margin-top:8px;">أقصى عدد كوليكشنات كاملة</label>
+          <select id="tgMaxCollections">
+            <option value="10">10 كوليكشنات</option>
+            <option value="20" selected>20 كوليكشن</option>
+            <option value="30">30 كوليكشن</option>
+          </select>
+          <p class="hint" style="margin-top:6px;">الـWorker يمسح الفترة كاملة، يحدد أكواد الكوليكشن، ثم يجمع كل ألبومات الألوان المرتبطة بالكود. الكوليكشن غير المكتمل لا يُعرض.</p>
         </div>
 
         <div id="tgHoursBox" style="display:none;">
@@ -1195,79 +1218,75 @@
     return out;
   }
 
-  async function ocrOneMeasurementImage(img) {
+  async function ocrOneMeasurementImage(img, expectedSizes) {
     if(!window.Tesseract || !img || !img.dataUrl) return [];
     try {
-      // تكبير + تحويل لتباين رمادي يساعد OCR على أرقام الجدول الصغيرة.
       var src=new Image();
       await new Promise(function(resolve,reject){src.onload=resolve;src.onerror=reject;src.src=img.dataUrl;});
-      var scale=2.5;
+      var scale=3;
       var canvas=document.createElement('canvas');
-      canvas.width=Math.max(800,Math.round(src.naturalWidth*scale));
-      canvas.height=Math.max(600,Math.round(src.naturalHeight*scale));
-      var ctx=canvas.getContext('2d');
-      ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
-      ctx.drawImage(src,0,0,canvas.width,canvas.height);
+      canvas.width=Math.max(1200,Math.round(src.naturalWidth*scale));
+      canvas.height=Math.max(900,Math.round(src.naturalHeight*scale));
+      var ctx=canvas.getContext('2d'); ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(src,0,0,canvas.width,canvas.height);
       var imageData=ctx.getImageData(0,0,canvas.width,canvas.height), d=imageData.data;
-      for(var p=0;p<d.length;p+=4){
-        var lum=Math.round(0.299*d[p]+0.587*d[p+1]+0.114*d[p+2]);
-        // threshold خفيف: نحافظ على الأرقام والخطوط ولا نحول الصورة إلى أسود بالكامل.
-        var v=lum<180?0:255; d[p]=d[p+1]=d[p+2]=v;
-      }
+      for(var p=0;p<d.length;p+=4){var lum=Math.round(.299*d[p]+.587*d[p+1]+.114*d[p+2]);var v=lum<165?0:255;d[p]=d[p+1]=d[p+2]=v;}
       ctx.putImageData(imageData,0,0);
-      var r=await Tesseract.recognize(canvas.toDataURL('image/png'),'eng',{
-        logger:function(m){ if(m&&m.status&&/recognizing text/i.test(m.status)) showStatus('جاري قراءة جدول المقاسات... '+Math.round((m.progress||0)*100)+'%',''); },
-        tessedit_pageseg_mode:6,
-        tessedit_char_whitelist:'0123456789.-',
-        preserve_interword_spaces:1
+      var passes=[];
+      for(var pi=0;pi<2;pi++){
+        var psm=pi===0?6:11;
+        try{passes.push(await Tesseract.recognize(canvas.toDataURL('image/png'),'eng',{logger:function(m){if(m&&m.status&&/recognizing text/i.test(m.status))showStatus('جاري قراءة ورقة المقاسات... '+Math.round((m.progress||0)*100)+'%','');},tessedit_pageseg_mode:psm,tessedit_char_whitelist:'0123456789.-',preserve_interword_spaces:1}));}catch(e){}
+      }
+      var words=[];
+      passes.forEach(function(r){var ww=r&&r.data&&Array.isArray(r.data.words)?r.data.words:[];ww.forEach(function(w){var txt=arDigits(String(w.text||'')).replace(/[^0-9.\-]/g,'');if(!/^\d{1,3}(?:\.\d+)?$/.test(txt))return;var conf=Number(w.confidence==null?0:w.confidence);if(conf<15)return;var x=Number(w.bbox&&w.bbox.x0||0),y=Number(w.bbox&&w.bbox.y0||0),x1=Number(w.bbox&&w.bbox.x1||0),y1=Number(w.bbox&&w.bbox.y1||0);words.push({text:txt,x:x,y:y,x1:x1,y1:y1,cy:(y+y1)/2,conf:conf});});});
+      // إزالة التكرار بين تمريرتي OCR.
+      words=words.sort(function(a,b){return b.conf-a.conf;}).filter(function(w,i){return !words.slice(0,i).some(function(q){return q.text===w.text&&Math.abs(q.x-w.x)<12&&Math.abs(q.y-w.y)<12;});}).sort(function(a,b){return a.cy-b.cy||a.x-b.x;});
+      var expected=(expectedSizes||[]).map(normalizeSizeValue).filter(function(v){return /^\d{1,2}$/.test(v);});
+      var result=[];
+      if(!expected.length) expected=['12','14','16','18'];
+      // نحدد صف كل مقاس من رقم المقاس نفسه، ثم نأخذ أقرب 3 أرقام إلى يساره في نفس الصف.
+      expected.forEach(function(sz){
+        var cand=words.filter(function(w){return String(Number(w.text))===String(Number(sz)) && Number(sz)>=1&&Number(sz)<=20 && w.x>canvas.width*.55;});
+        if(!cand.length) cand=words.filter(function(w){return String(Number(w.text))===String(Number(sz)) && Number(sz)>=1&&Number(sz)<=20;});
+        cand.sort(function(a,b){return b.conf-a.conf;});
+        if(!cand.length)return;
+        var sw=cand[0], tol=Math.max(24,(sw.y1-sw.y)*1.8);
+        var row=words.filter(function(w){return Math.abs(w.cy-sw.cy)<=tol && w.x<sw.x-4;});
+        // لو رقم مثل 70 اتقسم إلى 7 و0، نعيد تركيب المتجاورين.
+        row.sort(function(a,b){return a.x-b.x;});
+        var merged=[];
+        row.forEach(function(w){var last=merged[merged.length-1];if(last && w.x-last.x1<18 && /^\d+$/.test(last.text)&&/^\d+$/.test(w.text)){last.text+=w.text;last.x1=w.x1;}else merged.push({text:w.text,x:w.x,x1:w.x1,cy:w.cy,conf:w.conf});});
+        row=merged.filter(function(w){var n=Number(w.text);return Number.isFinite(n)&&n>=20&&n<=150;}).sort(function(a,b){return a.x-b.x;});
+        // LTR: width | tshirt length | pants length | size. لذا الثلاثة المطلوبة هي آخر 3 قبل المقاس.
+        if(row.length>=3){var vals=row.slice(-3).map(function(w){return w.text;});var width=Number(vals[0]),tlen=Number(vals[1]),pants=Number(vals[2]);if(width>=20&&width<=90&&tlen>=30&&tlen<=110&&pants>=40&&pants<=140){result.push({size:String(Number(sz)),pants_length:String(pants),tshirt_length:String(tlen),tshirt_width:String(width)});}}
       });
-      var data=r&&r.data?r.data:null;
-      if(!data) return [];
-      var words=(Array.isArray(data.words)?data.words:[]).filter(function(w){
-        return Number(w.confidence==null?100:w.confidence)>=20 && /\d/.test(String(w.text||''));
-      }).map(function(w){
-        var txt=arDigits(String(w.text||'')).replace(/[^0-9.\-]/g,'');
-        return {text:txt,x:Number(w.bbox&&w.bbox.x0||0),y:Number(w.bbox&&w.bbox.y0||0),x1:Number(w.bbox&&w.bbox.x1||0),h:Math.max(1,Number(w.bbox&&w.bbox.y1||0)-Number(w.bbox&&w.bbox.y0||0))};
-      }).filter(function(w){return /^\d{1,3}(?:\.\d+)?$/.test(w.text);});
-      words.sort(function(a,b){return a.y-b.y || a.x-b.x;});
-
-      // تجميع الكلمات في صفوف بحسب مركز Y.
-      var rows=[];
-      words.forEach(function(w){
-        var cy=w.y+w.h/2, row=null;
-        for(var i=0;i<rows.length;i++){
-          if(Math.abs(rows[i].cy-cy)<=Math.max(12,w.h*0.65)){row=rows[i];break;}
-        }
-        if(!row){row={cy:cy,words:[]};rows.push(row);} row.words.push(w);
-      });
+      if(result.length>=Math.min(2,expected.length)) return result;
+      // fallback محافظ: قراءة صفوف أربعة أرقام فقط مع نفس التحقق المنطقي.
+      var rows=[];words.forEach(function(w){var r=rows.find(function(x){return Math.abs(x.cy-w.cy)<24;});if(!r){r={cy:w.cy,ws:[]};rows.push(r);}r.ws.push(w);});
       rows.sort(function(a,b){return a.cy-b.cy;});
-
-      var out=[];
-      rows.forEach(function(row){
-        row.words.sort(function(a,b){return a.x-b.x;});
-        // جدولنا المطلوب أربعة أعمدة. إذا OCR التقط أكثر من 4 أرقام، نختار 4 موزعة أفقيًا.
-        var ws=row.words.slice();
-        if(ws.length>4){
-          var chosen=[];
-          // نحتفظ بأرقام بعيدة أفقيًا، ثم نأخذ آخر أربعة بحسب التوزيع.
-          ws.forEach(function(w){
-            if(!chosen.length){chosen.push(w);return;}
-            var last=chosen[chosen.length-1];
-            if(Math.abs(w.x-last.x)>18) chosen.push(w);
-          });
-          ws=chosen.slice(-4);
-        }
-        if(ws.length!==4) return;
-        var n=ws.map(function(w){return w.text;});
-        // LTR pixel order: width, tshirt length, pants length, size.
-        var size=n[3];
-        if(Number(size)>=1 && Number(size)<=20){
-          out.push({size:String(Number(size)),pants_length:n[2],tshirt_length:n[1],tshirt_width:n[0]});
-        }
-      });
-      if(out.length) return out;
-      return parseOcrMeasurementText(data.text||'');
+      var fb=[];rows.forEach(function(r){r.ws.sort(function(a,b){return a.x-b.x;});var nums=r.ws.filter(function(w){var n=Number(w.text);return Number.isFinite(n)&&n>=1&&n<=150;});if(nums.length<4)return;var q=nums.slice(-4),sz=Number(q[3].text),width=Number(q[0].text),tl=Number(q[1].text),pl=Number(q[2].text);if(sz>=1&&sz<=20&&width>=20&&width<=90&&tl>=30&&tl<=110&&pl>=40&&pl<=140)fb.push({size:String(sz),pants_length:String(pl),tshirt_length:String(tl),tshirt_width:String(width)});});
+      return fb;
     }catch(e){return []}
+  }
+
+  var sizeOcrBusy=false;
+  async function ocrSizeImages(images, expectedSizes) {
+    if(!images || !images.length || !window.Tesseract) return [];
+    var results=[]; if(sizeOcrBusy)return results; sizeOcrBusy=true;
+    try{for(var i=0;i<images.length;i++){var rows=await ocrOneMeasurementImage(images[i],expectedSizes);if(rows.length)results=mergeMeasurementRows(results,rows);}}finally{sizeOcrBusy=false;} return results;
+  }
+
+  async function applyOcrMeasurementsToCollections() {
+    var changed=false;
+    for(var i=0;i<importedCollections.length;i++){
+      var c=importedCollections[i],meta=c.metaImages||[];if(!meta.length)continue;
+      var expected=(c.sizes||[]).map(function(r){return r.size;});
+      var rows=await ocrSizeImages(meta,expected);if(!rows.length)continue;
+      var merged=mergeMeasurementRows([],rows);
+      // لا نستبدل مقاسات مؤكدة من Worker إلا إذا OCR أعطى نفس المقاس بقيم منطقية.
+      var old=c.sizes||[];old.forEach(function(r){var m=merged.find(function(x){return normalizeSizeValue(x.size)===normalizeSizeValue(r.size);});if(!m)return;var vals=r.values||['','',''];if(m.pants_length)vals[0]=m.pants_length;if(m.tshirt_length)vals[1]=m.tshirt_length;if(m.tshirt_width)vals[2]=m.tshirt_width;r.values=vals;});
+      changed=true;
+    }
+    if(changed){renderCollections();showStatus('تمت إعادة قراءة ورقة المقاسات بطريقة صفّية مرتبطة برقم المقاس، مع تجاهل أرقام الكود والمنشور.','ok');}return changed;
   }
 
   var sizeOcrBusy=false;
@@ -1465,7 +1484,7 @@
           '</div>'+
           '<div class="color-group-body"><div class="color-group-label">'+
             '<div class="hint">كود المنتج</div>'+
-            '<div class="color-code-badge" style="font-size:12px;justify-content:center;">'+escapeHtml(c.code)+'</div>'+
+            '<div class="color-code-badge" style="font-size:10px;justify-content:center;">'+escapeHtml(c.code+'-'+({'أبيض':'W','أصفر':'Y','أحمر':'R','أخضر':'G','أزرق':'B','أسود':'K','رمادي':'GR','وردي':'P','بنفسجي':'V','بني':'BR','بيج':'BE'}[g.colorName]||('C'+(groups.indexOf(g)+1))))+'</div>'+
             '<div class="color-name-big">'+escapeHtml(g.colorName || ('اللون '+(groups.indexOf(g)+1)))+'</div>'+
             '<span class="hint">'+g.images.length+' صور لهذا اللون فقط</span>'+
           '</div><div class="color-images">'+(g.images||[]).map(function(im){
@@ -1496,24 +1515,25 @@
         '<div id="collectionModal-'+c.id+'" class="collection-modal" aria-hidden="true">'+
           '<div class="collection-modal-backdrop" onclick="closeCollectionModal(\''+c.id+'\')"></div>'+ 
           '<div class="collection-modal-dialog" role="dialog" aria-modal="true" aria-label="تفاصيل '+escapeHtml(c.code)+'">'+
-            '<div class="collection-modal-top"><div><div class="collection-modal-title">تفاصيل الكوليكشن</div><div class="hint">الكود '+escapeHtml(c.code)+' — مراجعة الصور والألوان والمقاسات قبل التصدير</div></div><button type="button" class="collection-modal-close" onclick="closeCollectionModal(\''+c.id+'\')">×</button></div>'+ 
+            '<div class="collection-modal-top"><div><div class="collection-modal-title">تفاصيل الكوليكشن</div><div class="hint">تم استخراج بيانات الكوليكشن من المنشور — يمكنك مراجعة الكود والألوان والصور والمقاسات قبل التصدير</div></div><button type="button" class="collection-modal-close" onclick="closeCollectionModal(\''+c.id+'\')">×</button></div>'+ 
             '<div class="collection-modal-grid">'+
+              '<aside class="collection-side-pane">'+
+                '<div class="collection-price-box"><label>السعر الفعلي للكوليكشن</label><input type="number" min="0" value="'+priceValue+'" placeholder="'+(c.priceMode==='per_size'?'حسب المقاس':'السعر')+'" onchange="updateCollectionPrice(\''+c.id+'\',this.value)"><div class="hint">السعر من المنشور / Worker.</div></div>'+ 
+                '<div class="collection-notes"><b>ملاحظات مهمة:</b><br>• كل كود = نافذة مستقلة.<br>• كل لون = صف مستقل ولا يتم دمج الألوان.<br>• كود المنتج يظهر مع اسم اللون داخل كل صف.<br>• اضغط الصورة للتكبير، و X لحذفها من هذا اللون فقط.<br>• صور الموديل وورقة المقاسات لا تدخل ضمن صور المنتج.<br>• يتم تصدير صورة معتمدة واحدة لكل لون.</div>'+ 
+                '<div class="collection-notes"><b>إجراءات سريعة:</b><div class="btns" style="margin-top:7px;"><button type="button" class="btn ghost" onclick="selectAllCollectionImages(\''+c.id+'\')">✓ تحديد كل الصور</button><button type="button" class="btn danger" onclick="deleteUnselectedCollectionImages(\''+c.id+'\')">🗑 حذف الصور غير المختارة</button></div></div>'+ 
+                (preview ? '<div class="collection-preview-box"><img src="'+preview.dataUrl+'" alt="صورة الكوليكشن" onclick="openImagePreview(\''+c.id+'\',null,\''+preview.id+'\')"><button type="button" class="btn" onclick="openImagePreview(\''+c.id+'\',null,\''+preview.id+'\')">🔍 صورة مكبرة</button></div>' : '')+
+              '</aside>'+ 
               '<div class="collection-main-pane">'+
                 '<div class="collection-code-box"><div class="hint">كود الكوليكشن</div><div class="collection-code-big">'+escapeHtml(c.code)+'</div></div>'+ 
-                '<div class="collection-source-text" style="margin-top:10px;"><div style="display:grid;grid-template-columns:1fr 220px;gap:10px;align-items:start;"><div><label>نص المنشور (الوصف)</label><textarea onchange="updateCollectionDescription(\''+c.id+'\',this.value)">'+escapeHtml(c.description||'')+'</textarea></div><div class="collection-price-box" style="margin-top:0;"><label>السعر الفعلي للكوليكشن</label><input type="number" min="0" value="'+priceValue+'" placeholder="'+(c.priceMode==='per_size'?'حسب المقاس':'السعر')+'" onchange="updateCollectionPrice(\''+c.id+'\',this.value)"><div class="hint">السعر من المنشور/Worker.</div></div></div></div>'+ 
+                '<div class="collection-source-text" style="margin-top:8px;"><label>نص المنشور (الوصف)</label><textarea onchange="updateCollectionDescription(\''+c.id+'\',this.value)">'+escapeHtml(c.description||'')+'</textarea></div>'+ 
                 '<div class="color-groups">'+modalGroups+'</div>'+ 
-                '<div class="collection-size-section"><h4>المقاسات — ورقة المقاسات مستثناة من الصور وتظهر هنا فقط</h4><div id="modalSizes-'+c.id+'" class="size-table-wrap"></div></div>'+ 
+                '<div class="collection-size-section"><h4>المقاسات — مستثناة من الصور وتظهر هنا فقط</h4><div id="modalSizes-'+c.id+'" class="size-table-wrap"></div></div>'+ 
                 '<div class="collection-modal-footer">'+
                   '<button type="button" class="btn ok" onclick="approveCollectionFromModal(\''+c.id+'\')">✓ اعتماد للتصدير</button>'+ 
                   '<button type="button" class="btn" onclick="exportCollectionToSveltia(\''+c.id+'\')">⬆️ التصدير إلى Sveltia</button>'+ 
-                  '<button type="button" class="btn danger" onclick="deleteImportedCollection(\''+c.id+'\')">🗑️ حذف الكوليكشن</button>'+ 
+                  '<button type="button" class="btn danger" onclick="deleteImportedCollection(\''+c.id+'\')">🗑 حذف الكوليكشن</button>'+ 
                 '</div>'+ 
               '</div>'+ 
-              '<aside class="collection-side-pane">'+
-                
-                '<div class="collection-notes"><b>ملاحظات مهمة:</b><br>• كل كود = نافذة مستقلة.<br>• كل لون = صف مستقل داخل نفس الكوليكشن.<br>• لا يتم دمج ألوان كود آخر هنا.<br>• اضغط أي صورة لرؤيتها مكبرة.<br>• X يحذف الصورة فقط من هذا اللون.<br>• صور الموديل/الأشخاص وورقة المقاسات تُستبعد من صور المنتج.<br>• المقاسات تأتي أولًا من القياسات المنظمة في Worker ولا تُؤخذ أرقام الكود كمقاس.<br>• يتم تصدير صورة معتمدة واحدة لكل لون.<br>• ورقة المقاسات تُقرأ من نص المنشور، ثم تُقرأ بصريًا من صور المقاسات عند الحاجة.</div>'+ 
-                '<div class="collection-notes"><b>إجراءات سريعة</b><div class="btns" style="margin-top:8px;"><button type="button" class="btn ghost" onclick="selectAllCollectionImages(\''+c.id+'\')">تحديد الكل</button><button type="button" class="btn danger" onclick="deleteUnselectedCollectionImages(\''+c.id+'\')">حذف غير المختار</button></div></div>'+ 
-              '</aside>'+ 
             '</div>'+ 
           '</div>'+ 
         '</div>'+ 
@@ -1746,11 +1766,24 @@
     showStatus('تم التصدير — منتج واحد بصور الأشكال المختارة.', 'ok');
   };
 
+  function initCollectionDateInputs(){
+    var to=$('tgToDate'), from=$('tgFromDate');
+    if(!to||!from) return;
+    var now=new Date();
+    var pad=function(n){return String(n).padStart(2,'0');};
+    var iso=function(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());};
+    to.value=iso(now);
+    var f=new Date(now.getTime()-3*24*60*60*1000);
+    from.value=iso(f);
+  }
   window.toggleTgFetchMode = function () {
-    var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'limit';
+    var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'collections';
     $('tgLimitBox').style.display = mode === 'limit' ? '' : 'none';
     $('tgHoursBox').style.display = mode === 'hours' ? '' : 'none';
+    $('tgCollectionsBox').style.display = mode === 'collections' ? '' : 'none';
   };
+  initCollectionDateInputs();
+  toggleTgFetchMode();
 
   window.exportToSveltia = function () {
     exportProductMd();
@@ -1871,14 +1904,48 @@
     var hours = mode === 'hours' ? (Number($('tgHours').value) || 6) : null;
     var limit = mode === 'limit' ? (Number($('tgLimit').value) || 30) : 100;
     showStatus(
-      mode === 'hours'
-        ? ('جاري سحب منشورات تيليجرام خلال آخر ' + hours + ' ساعة...')
-        : ('جاري جلب آخر ' + limit + ' منشور من تيليجرام...'),
+      mode === 'collections' ? 'جاري سحب الكوليكشنات الكاملة حسب التاريخ...' : (mode === 'hours' ? ('جاري سحب منشورات تيليجرام خلال آخر ' + hours + ' ساعة...') : ('جاري جلب آخر ' + limit + ' منشور من تيليجرام...')),
       ''
     );
     $('btnFetchTg').disabled = true;
     try {
-      // 1) المنشورات من الـ Worker مع limit أو hours
+      // المسار الجديد: سحب كوليكشنات كاملة حسب التاريخ من Worker في طلب واحد.
+      if(mode === 'collections'){
+        var from=$('tgFromDate').value, to=$('tgToDate').value, maxC=Number($('tgMaxCollections').value)||20;
+        if(!from||!to){ showStatus('حدد تاريخ البداية والنهاية أولًا.','err'); return; }
+        var cr=await fetch(s.workerUrl+'/telegram-collections?from='+encodeURIComponent(from)+'&to='+encodeURIComponent(to)+'&maxCodes='+encodeURIComponent(maxC),{headers:s.workerKey?{'X-Admin-Key':s.workerKey}:{}});
+        var cj=await cr.json().catch(function(){return {};});
+        if(!cr.ok||cj.status==='error'){ showStatus(cj.message||('خطأ '+cr.status+' أثناء سحب الكوليكشنات'),'err'); return; }
+        var cols=(cj.collections||[]).filter(function(c){return c&&c.complete&&c.code;});
+        if(!cols.length){ showStatus('لم يتم العثور على كوليكشنات كاملة داخل الفترة المحددة. وسّع الفترة أو جرّب تاريخًا آخر.','err'); return; }
+        rawImages=[]; tgPostRecords=[]; importedCollections=[]; shapes=[];
+        var loaded=0, failed=0;
+        for(var ci2=0;ci2<cols.length;ci2++){
+          var cc=cols[ci2];
+          showStatus('جاري تنزيل الكوليكشن '+(ci2+1)+'/'+cols.length+': '+cc.code+' — '+(cc.albumGroups||[]).length+' ألوان...','');
+          var rec={id:cc.productMessageId||('c-'+ci2),code:cc.code,text:cc.text||'',images:[],metaImages:[],price:cc.price==null?null:cc.price,sizeStatuses:cc.sizeStatuses||[],sizeMeasurements:cc.sizeMeasurements||[],sourcePostIds:cc.sourcePostIds||[],albumGroups:cc.albumGroups||[]};
+          var seen={};
+          for(var gi=0;gi<(cc.albumGroups||[]).length;gi++){
+            var g=cc.albumGroups[gi]||{}, mids=g.messageIds||[];
+            for(var gj=0;gj<mids.length;gj++){
+              var mid=mids[gj]; if(mid==null||seen[String(mid)]) continue; seen[String(mid)]=1;
+              try{
+                var dl2=await downloadTelegramMedia(s.workerUrl,s.workerKey,mid);
+                var ri2={id:idSeq++,dataUrl:dl2.dataUrl,name:'tg-'+mid+'.'+dl2.ext,groupKey:g.key||('album:'+g.groupedId)||('single:'+mid),source:'telegram',selected:true};
+                rawImages.push(ri2); rec.images.push(ri2); loaded++;
+              }catch(e){failed++;}
+            }
+          }
+          if(rec.images.length||rec.text) tgPostRecords.push(rec);
+        }
+        var texts2=tgPostRecords.map(function(r){return r.text;}).filter(Boolean);
+        if(texts2.length) $('postText').value=texts2.join('\n\n———\n\n');
+        renderRawAlbum();
+        if(tgPostRecords.length){ runAnalyze(); showStatus('تم سحب '+tgPostRecords.length+' كوليكشن كامل من الفترة المحددة، مع '+loaded+' صورة.'+(failed?' تعذر تحميل '+failed+' صورة.':'')+' راجع نافذة كل كوليكشن.','ok'); }
+        return;
+      }
+
+      // 1) المسارات القديمة limit / hours محفوظة كما هي.
       var qs = mode === 'hours'
         ? ('?mode=hours&hours=' + encodeURIComponent(hours))
         : ('?mode=limit&limit=' + encodeURIComponent(limit));
