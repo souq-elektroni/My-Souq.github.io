@@ -2136,7 +2136,24 @@
       renderCollectionsWorkspace();
       $('reviewCard').style.display = importedCollections.length ? 'block' : 'none';
       if (!importedCollections.length) {
-        showStatus('تم العثور على أكواد، لكن مفيش صور منتجات فعلية — تم الاستبعاد.', 'ok');
+        var dbg = '';
+        if (collectionData.debugCodes && collectionData.debugCodes.length) {
+          dbg =
+            ' | ' +
+            collectionData.debugCodes
+              .map(function (d) {
+                return d.code + '(مطابقات:' + d.matchesScanned + '/صور:' + d.photosFound + ')';
+              })
+              .join('، ');
+        }
+        showStatus(
+          'اتلاقى أكواد (' +
+            codeOrder.join(', ') +
+            ') لكن مفيش صور مرتبطة أو فشل تجميعها.' +
+            dbg +
+            ' ارفع Worker الجديد وجرب تاني.',
+          'err'
+        );
       } else {
         showStatus(
           'تم سحب ' +
