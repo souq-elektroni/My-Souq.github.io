@@ -2881,7 +2881,8 @@
       colors = colors.filter(function (c) { return (c.images || []).length > 0; });
       productImages = dedupeImages(productOnly);
       sizeChartImages = dedupeImages(sizeChartImages);
-      if (!colors.length && !sizeChartImages.length) continue;
+      // لا ننشئ كوليكشن من صورة مقاسات أو صور موديلات فقط.
+      if (!colors.length) continue;
 
       var textParts = [];
       colors.forEach(function (c) {
