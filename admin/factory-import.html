@@ -330,6 +330,7 @@
               <tr>
                 <th style="width:44px">اختيار</th>
                 <th>الكود</th>
+                <th style="width:90px">تحت بند</th>
                 <th>عدد المنشورات</th>
                 <th>عيّنة من النص</th>
                 <th style="width:110px">استيراد</th>
@@ -1790,10 +1791,17 @@
 
     html += '<div class="detail-modal-body">';
     html += '<div class="detail-modal-meta">';
-    html += '<div class="detail-price-box"><div class="lbl">السعر الفعلي</div>';
-    html += '<div class="val">' + (p.price != null ? (p.price + ' <span style="font-size:14px">جنيه</span>') : '—') + '</div></div>';
-    html += '<div><div class="lbl" style="font-size:12px;font-weight:800;color:var(--primary);margin-bottom:6px">نص المنشور (الوصف)</div>';
-    html += '<div class="detail-desc-box">' + (descText ? escapeHtml(descText) : 'لا يوجد نص') + '</div></div>';
+    html += '<div class="detail-price-box"><div class="lbl">السعر الفعلي للكوليكشن</div>';
+    html += '<div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:4px">';
+    html += '<input type="number" id="detailPriceInput" value="' + (p.price != null ? p.price : '') + '" placeholder="—" style="width:110px;text-align:center;font-size:22px;font-weight:900;border:1px solid #e9d5ff;border-radius:10px;padding:6px 8px;background:#fff">';
+    html += '<span style="font-size:14px;font-weight:800;color:var(--primary)">جنيه</span>';
+    html += '</div>';
+    html += '<button type="button" class="btn ghost" style="margin-top:8px;font-size:11px;padding:5px 10px" onclick="saveDetailPrice(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\')">💾 حفظ السعر</button>';
+    html += '</div>';
+    html += '<div><div class="lbl" style="font-size:12px;font-weight:800;color:var(--primary);margin-bottom:6px">نص المنشور (الوصف) — قابل للتعديل</div>';
+    html += '<textarea id="detailDescInput" rows="5" style="width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:14px;padding:12px;font-size:13px;font-weight:700;color:var(--ink);line-height:1.55;resize:vertical;min-height:110px;font-family:inherit">' + escapeHtml(descText) + '</textarea>';
+    html += '<button type="button" class="btn ghost" style="margin-top:8px;font-size:11px;padding:5px 10px" onclick="saveDetailDescription(\'' + escapeHtml(c.id) + '\',\'' + escapeHtml(p.code) + '\')">💾 حفظ الوصف</button>';
+    html += '</div>';
     html += '</div>';
 
     html += '<div class="detail-progress">';
@@ -2175,10 +2183,15 @@
     }
     body.innerHTML = discoveredCodes.map(function (row, idx) {
       var sample = (row.sampleText || '').replace(/\s+/g, ' ').slice(0, 80);
+      var band = row.band || 'جديد';
+      var bandStyle = band === 'جرد'
+        ? 'background:#fff7ed;color:#c2410c;border:1px solid #fed7aa'
+        : 'background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0';
       return (
         '<tr>' +
           '<td style="text-align:center"><input type="checkbox" class="code-check" data-idx="' + idx + '" checked></td>' +
           '<td style="font-weight:900;letter-spacing:.02em">' + escapeHtml(row.code) + '</td>' +
+          '<td style="text-align:center"><span style="display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:900;' + bandStyle + '">' + escapeHtml(band) + '</span></td>' +
           '<td style="text-align:center">' + row.postCount + '</td>' +
           '<td class="hint" style="text-align:right;font-size:12px">' + escapeHtml(sample) + (row.sampleText && row.sampleText.length > 80 ? '…' : '') + '</td>' +
           '<td style="text-align:center"><button type="button" class="cl-btn" onclick="importOneCode(' + idx + ')">استيراد</button></td>' +
@@ -2239,17 +2252,25 @@
         var code = normalizeCode(post.code || post.collectionCode || post.productCode || extractCollectionCode(post.text || ''));
         if (!code) return;
         if (!map[code]) {
-          map[code] = { code: code, postIds: [], posts: [], sampleText: '', postCount: 0 };
+          map[code] = { code: code, postIds: [], posts: [], sampleText: '', postCount: 0, bandVotes: { 'جديد': 0, 'جرد': 0 } };
           order.push(code);
         }
         var id = Number(post.id);
         if (Number.isFinite(id)) map[code].postIds.push(id);
         map[code].posts.push(post);
         map[code].postCount++;
+        var band = detectPostBand(post);
+        if (map[code].bandVotes[band] != null) map[code].bandVotes[band]++;
+        else map[code].bandVotes[band] = 1;
         if (!map[code].sampleText && post.text) map[code].sampleText = String(post.text).trim();
       });
 
-      discoveredCodes = order.map(function (c) { return map[c]; });
+      discoveredCodes = order.map(function (c) {
+        var row = map[c];
+        var votes = row.bandVotes || {};
+        row.band = (votes['جرد'] || 0) > (votes['جديد'] || 0) ? 'جرد' : 'جديد';
+        return row;
+      });
       tgPostRecords = posts.slice();
       renderCodesTable();
       showStatus('تم العثور على ' + discoveredCodes.length + ' كود من ' + posts.length + ' منشور. اختر واستورد.', 'ok');
@@ -2267,6 +2288,32 @@
     importSelectedCodes();
   };
 
+
+
+  window.saveDetailPrice = function (colId, code) {
+    var c = importedCollections.find(function (x) { return String(x.id) === String(colId); });
+    if (!c) return;
+    var p = (c.products || []).find(function (x) { return String(x.code) === String(code); }) || (c.products || [])[0];
+    if (!p) return;
+    var el = $('detailPriceInput');
+    if (!el) return;
+    var v = el.value === '' ? null : Number(el.value);
+    p.price = (v != null && !isNaN(v)) ? v : null;
+    c.price = p.price;
+    showStatus('تم حفظ السعر: ' + (p.price != null ? p.price + ' جنيه' : '—'), 'ok');
+  };
+
+  window.saveDetailDescription = function (colId, code) {
+    var c = importedCollections.find(function (x) { return String(x.id) === String(colId); });
+    if (!c) return;
+    var p = (c.products || []).find(function (x) { return String(x.code) === String(code); }) || (c.products || [])[0];
+    if (!p) return;
+    var el = $('detailDescInput');
+    if (!el) return;
+    p.description = el.value || '';
+    c.description = p.description;
+    showStatus('تم حفظ الوصف.', 'ok');
+  };
 
   window.restoreModelImage = function (colId, code, imgId) {
     var c = importedCollections.find(function (x) { return String(x.id) === String(colId); });
@@ -2355,6 +2402,15 @@
       .replace(/telegram\.me\/\S+/gi, ' ')
       .replace(/\s{2,}/g, ' ')
       .trim();
+  }
+
+
+  /** تحت بند: جديد | جرد — من نص المنشور */
+  function detectPostBand(post) {
+    var text = String((post && (post.text || post.caption)) || '');
+    if (/جرد\s*بالمتاح|جرد\s*المتاح|بالمتاح|جرد\b|inventory/i.test(text)) return 'جرد';
+    if (/كوليكشن\s*جديد|كود\s*جديد|منتج\s*جديد|new\s*collection|\bجديد\b/i.test(text)) return 'جديد';
+    return 'جديد';
   }
 
   function filterTelegramPosts(posts) {
