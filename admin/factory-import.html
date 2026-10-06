@@ -2056,18 +2056,35 @@
       tgPostRecords = posts.slice();
       var loadedImages = 0;
       var failedImages = 0;
-      // بناء الكوليكشنات على دفعات (5 أكواد) لتفادي timeout
-      showStatus('جاري بناء الكوليكشنات: ' + codeOrder.length + ' كود — جلب الألوان والصور...', '');
+      // بناء الكوليكشنات على دفعات — نمرّر sourceIds (منشورات السحب) مش بحث جديد
+      showStatus('جاري بناء الكوليكشنات: ' + codeOrder.length + ' كود — جلب الصور من المنشورات...', '');
       var serverCollections = [];
       var collectionData = { debugCodes: [] };
+      var allSourceIds = posts
+        .map(function (p) { return Number(p.id); })
+        .filter(function (n) { return Number.isFinite(n) && n > 0; });
       var chunkSize = 5;
       for (var ci = 0; ci < codeOrder.length; ci += chunkSize) {
         var chunk = codeOrder.slice(ci, ci + chunkSize);
+        // معرفات المنشورات المرتبطة بأكواد هذه الدفعة
+        var chunkIds = [];
+        chunk.forEach(function (code) {
+          (codeMap[code] || []).forEach(function (p) {
+            var id = Number(p.id);
+            if (Number.isFinite(id) && id > 0 && chunkIds.indexOf(id) < 0) chunkIds.push(id);
+          });
+        });
+        // لو مفيش ids للكود، نستخدم عينة من كل المنشورات
+        if (!chunkIds.length) chunkIds = allSourceIds.slice(0, 30);
+
         showStatus(
-          'بناء الكوليكشنات... (' + Math.min(ci + chunk.length, codeOrder.length) + '/' + codeOrder.length + ' كود)',
+          'بناء الكوليكشنات... (' + Math.min(ci + chunk.length, codeOrder.length) + '/' + codeOrder.length + ' كود · ' + chunkIds.length + ' منشور)',
           ''
         );
-        var dataQs = ['codes=' + encodeURIComponent(chunk.join(','))];
+        var dataQs = [
+          'codes=' + encodeURIComponent(chunk.join(',')),
+          'sourceIds=' + encodeURIComponent(chunkIds.join(','))
+        ];
         var cr = await workerFetch(
           s.workerUrl + '/telegram-collection-data?' + dataQs.join('&'),
           { headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {} },
