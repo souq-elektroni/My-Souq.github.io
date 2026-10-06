@@ -1548,6 +1548,7 @@
       if (/yellow|أصفر|اصفر/.test(low)) return 'أصفر';
       if (/red|أحمر|احمر/.test(low)) return 'أحمر';
       if (/green|أخضر|اخضر/.test(low)) return 'أخضر';
+      if (/mint|نعناع/.test(low)) return 'نعناعي';
       if (/baby\s*blue|لبني/.test(low)) return 'لبني';
       if (/sky\s*blue|سماوي/.test(low)) return 'سماوي';
       if (/blue|أزرق|ازرق/.test(low)) return 'أزرق';
@@ -1595,7 +1596,7 @@
     if (/أبيض|ابيض|white/.test(n)) return 'color-white';
     if (/أصفر|اصفر|yellow/.test(n)) return 'color-yellow';
     if (/أحمر|احمر|red/.test(n)) return 'color-red';
-    if (/أخضر|اخضر|green/.test(n)) return 'color-green';
+    if (/أخضر|اخضر|green|نعناع|mint/.test(n)) return 'color-green';
     if (/لبني|سماوي|baby|sky/.test(n)) return 'color-blue';
     if (/أزرق|ازرق|blue|كحلي|navy/.test(n)) return 'color-blue';
     if (/أسود|اسود|black/.test(n)) return 'color-black';
@@ -1608,6 +1609,7 @@
     if (/أصفر|اصفر|yellow/.test(n)) return '#facc15';
     if (/أحمر|احمر|red/.test(n)) return '#ef4444';
     if (/أخضر|اخضر|green/.test(n)) return '#22c55e';
+    if (/نعناع|mint/.test(n)) return '#6ee7b7';
     if (/لبني|baby/.test(n)) return '#7dd3fc';
     if (/سماوي|sky/.test(n)) return '#38bdf8';
     if (/أزرق|ازرق|blue/.test(n)) return '#3b82f6';
@@ -1636,6 +1638,7 @@
     else if (/أصفر|اصفر|yellow/.test(low)) eng = 'yellow';
     else if (/أحمر|احمر|red/.test(low)) eng = 'red';
     else if (/أخضر|اخضر|green/.test(low)) eng = 'green';
+    else if (/نعناع|mint/.test(low)) eng = 'mint';
     else if (/لبني|baby/.test(low)) eng = 'baby blue';
     else if (/سماوي|sky/.test(low)) eng = 'sky blue';
     else if (/أزرق|ازرق|blue/.test(low)) eng = 'blue';
@@ -2390,9 +2393,21 @@
         'جلب تفاصيل الأكواد... (' + Math.min(ci + chunk.length, codeOrder.length) + '/' + codeOrder.length + ')',
         ''
       );
+      // sourceIds للكودات في الدفعة فقط (منع خلط صور كود تاني)
+      var chunkIds = [];
+      chunk.forEach(function (code) {
+        var nc = normalizeCode(code);
+        (discoveredCodes || []).forEach(function (row) {
+          if (normalizeCode(row.code) !== nc) return;
+          (row.postIds || []).forEach(function (id) {
+            if (chunkIds.indexOf(id) < 0) chunkIds.push(id);
+          });
+        });
+      });
+      if (!chunkIds.length) chunkIds = allSourceIds.slice();
       var dataQs = [
         'codes=' + encodeURIComponent(chunk.join(',')),
-        'sourceIds=' + encodeURIComponent(allSourceIds.join(','))
+        'sourceIds=' + encodeURIComponent(chunkIds.join(','))
       ];
       var cr = await workerFetch(
         s.workerUrl + '/telegram-collection-data?' + dataQs.join('&'),
