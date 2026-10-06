@@ -482,7 +482,8 @@
   /**
    * تحليل بصري للصورة:
    * - كشف جداول المقاسات
-   * - بصمة لونية (histogram) لتجميع الأشكال المتشابهة
+   * - كشف صور الموديل (بشرة / شخص)
+   * - بصمة لونية لتجميع الألوان
    */
   function analyzeImageLook(dataUrl) {
     return new Promise(function (resolve) {
@@ -496,9 +497,8 @@
             var ctx = c.getContext('2d');
             ctx.drawImage(im, 0, 0, w, h);
             var data = ctx.getImageData(0, 0, w, h).data;
-            var bright = 0, blueish = 0, dark = 0;
+            var bright = 0, blueish = 0, dark = 0, skin = 0, edge = 0;
             var n = w * h;
-            // 4x4x4 RGB histogram = 64 bins
             var hist = new Array(64);
             for (var hi = 0; hi < 64; hi++) hist[hi] = 0;
             var sumR = 0, sumG = 0, sumB = 0, sample = 0;
@@ -508,19 +508,37 @@
               if (lum > 225) bright++;
               if (lum < 40) dark++;
               if (b > 140 && b > r + 25 && b > g + 15) blueish++;
-              // تجاهل خلفية بيضاء جدًا في البصمة حتى لا تتشابه كل المنتجات على خلفية بيضاء
+              // بشرة تقريبية (موديل)
+              if (r > 95 && g > 40 && b > 20 && r > g && r > b && Math.abs(r - g) > 15 && r - b > 15 && lum > 50 && lum < 230) {
+                skin++;
+              }
               if (lum < 245) {
                 var br = r >> 6, bg = g >> 6, bb = b >> 6;
                 hist[(br << 4) | (bg << 2) | bb]++;
                 sumR += r; sumG += g; sumB += b; sample++;
               }
             }
+            // حواف تقريبية (جداول نصية فيها خطوط)
+            for (var y = 1; y < h - 1; y++) {
+              for (var x = 1; x < w - 1; x++) {
+                var idx = (y * w + x) * 4;
+                var l0 = 0.299 * data[idx] + 0.587 * data[idx + 1] + 0.114 * data[idx + 2];
+                var lx = 0.299 * data[idx + 4] + 0.587 * data[idx + 5] + 0.114 * data[idx + 6];
+                if (Math.abs(l0 - lx) > 40) edge++;
+              }
+            }
             var brightRatio = bright / n;
             var blueRatio = blueish / n;
             var darkRatio = dark / n;
-            var isChart = (brightRatio > 0.5 && blueRatio > 0.04) ||
-              (brightRatio > 0.62 && darkRatio < 0.08);
-            // تطبيع الـ histogram
+            var skinRatio = skin / n;
+            var edgeRatio = edge / ((w - 2) * (h - 2));
+            // جدول مقاسات: خلفية فاتحة + أزرق/نص + حواف كثيرة
+            var isChart =
+              (brightRatio > 0.48 && (blueRatio > 0.03 || edgeRatio > 0.12)) ||
+              (brightRatio > 0.58 && darkRatio < 0.1 && edgeRatio > 0.08) ||
+              (brightRatio > 0.55 && edgeRatio > 0.15);
+            // موديل: نسبة بشرة واضحة في منتصف/عموم الصورة
+            var isModel = skinRatio > 0.06 && !isChart;
             var norm = hist.slice();
             var total = 0;
             for (var t = 0; t < norm.length; t++) total += norm[t];
@@ -532,22 +550,68 @@
             var avgB = sample ? sumB / sample : 128;
             resolve({
               isChart: isChart,
+              isModel: isModel,
               isLogo: false,
               brightRatio: brightRatio,
               blueRatio: blueRatio,
+              skinRatio: skinRatio,
+              edgeRatio: edgeRatio,
               hist: norm,
               avg: [avgR, avgG, avgB]
             });
           } catch (e) {
-            resolve({ isChart: false, isLogo: false, hist: null, avg: [128, 128, 128] });
+            resolve({ isChart: false, isModel: false, isLogo: false, hist: null, avg: [128, 128, 128] });
           }
         };
-        im.onerror = function () { resolve({ isChart: false, isLogo: false, hist: null, avg: [128, 128, 128] }); };
+        im.onerror = function () {
+          resolve({ isChart: false, isModel: false, isLogo: false, hist: null, avg: [128, 128, 128] });
+        };
         im.src = dataUrl;
       } catch (e) {
-        resolve({ isChart: false, isLogo: false, hist: null, avg: [128, 128, 128] });
+        resolve({ isChart: false, isModel: false, isLogo: false, hist: null, avg: [128, 128, 128] });
       }
     });
+  }
+
+  /**
+   * تصنيف صور المنتج:
+   * - product: صور المنتج للألوان
+   * - sizeCharts: جداول المقاسات (حقل منفصل)
+   * - models: صور موديل مستبعدة
+   */
+  async function classifyProductImages(images) {
+    var product = [];
+    var sizeCharts = [];
+    var models = [];
+    for (var i = 0; i < images.length; i++) {
+      var img = images[i];
+      var name = String(img.name || '').toLowerCase();
+      if (/مقاس|size\s*chart|sizechart|chart|table|جدول|measurement|sizes?/.test(name)) {
+        sizeCharts.push(img);
+        continue;
+      }
+      if (/model|موديل|man|men|wear|lookbook|boy|girl|kid\s*model/.test(name)) {
+        models.push(img);
+        continue;
+      }
+      var look = await analyzeImageLook(img.dataUrl);
+      img._look = look;
+      if (look.isChart) {
+        sizeCharts.push(img);
+      } else if (look.isModel) {
+        models.push(img);
+      } else {
+        product.push(img);
+      }
+    }
+    // لو اتصنف كله موديل/جدول بالغلط، نرجّع المنتج
+    if (!product.length && images.length) {
+      product = images.filter(function (im) {
+        return sizeCharts.indexOf(im) < 0;
+      });
+      models = [];
+    }
+    return { product: product, sizeCharts: sizeCharts, models: models };
   }
 
   function histDistance(a, b) {
@@ -568,24 +632,11 @@
   }
 
   async function splitProductAndMetaImages(images) {
-    var product = [];
-    var meta = [];
-    for (var i = 0; i < images.length; i++) {
-      var img = images[i];
-      if (isNonProductByName(img)) {
-        meta.push(img);
-        continue;
-      }
-      var look = await analyzeImageLook(img.dataUrl);
-      img._look = look;
-      if (look.isChart) {
-        meta.push(img);
-        continue;
-      }
-      product.push(img);
-    }
-    if (!product.length) return { product: images.slice(), meta: [] };
-    return { product: product, meta: meta };
+    var classified = await classifyProductImages(images);
+    var product = classified.product;
+    var meta = classified.sizeCharts.concat(classified.models);
+    if (!product.length) return { product: images.slice(), meta: [], sizeCharts: classified.sizeCharts, models: classified.models };
+    return { product: product, meta: meta, sizeCharts: classified.sizeCharts, models: classified.models };
   }
 
   /** تجميع بالتشابه البصري (لون المنتج) مع الحفاظ على الترتيب الزمني كمرشد */
@@ -1700,8 +1751,28 @@
       });
       html += '</tbody></table></div>';
     } else {
-      html += '<p class="hint">لم يُستخرج جدول مقاسات من النص — يمكنك إضافتها يدويًا لاحقًا عند التصدير.</p>';
+      html += '<p class="hint">لم يُستخرج جدول مقاسات من النص — اكتبها يدويًا في الجدول أو من صورة المقاسات بالأسفل.</p>';
     }
+
+    // صور جداول المقاسات (منفصلة عن صور الألوان)
+    var charts = p.sizeChartImages || [];
+    html += '<div style="margin-top:18px;font-size:13px;font-weight:900;color:var(--primary);margin-bottom:8px">صور جداول المقاسات (منفصلة — للكود ' + escapeHtml(p.code) + ')</div>';
+    if (charts.length) {
+      html += '<p class="hint" style="margin-bottom:8px">الصور دي اتصنّفت كجداول مقاسات واتشالت من حقول الألوان. لو الجدول فوق فاضي، اقرأ من الصورة وأدخل المقاسات يدويًا.</p>';
+      html += '<div class="tg-images">';
+      charts.forEach(function (im) {
+        html += '<div class="tg-image-card">';
+        html += '<img src="' + im.dataUrl + '" alt="جدول مقاسات" onclick="openTelegramPreview(\'' + escapeHtml(im.dataUrl) + '\')">';
+        html += '</div>';
+      });
+      html += '</div>';
+    } else {
+      html += '<p class="hint">لا توجد صورة جدول مقاسات مرتبطة بهذا الكود.</p>';
+    }
+    if (p.excludedModels) {
+      html += '<p class="hint" style="margin-top:8px">تم استبعاد ' + p.excludedModels + ' صورة موديل من حقول الألوان.</p>';
+    }
+
     html += '</div>'; // body
 
     // تذييل الأزرار
@@ -2426,6 +2497,74 @@
       });
       if (!colors.length) continue;
 
+      // تصنيف: منتج / جدول مقاسات / موديل — واستبعاد الموديل من حقول الألوان
+      var allFlat = [];
+      colors.forEach(function (c) {
+        (c.images || []).forEach(function (im) { allFlat.push(im); });
+      });
+      showStatus('تصنيف صور «' + pCode2 + '» (منتج / مقاسات / موديل)...', '');
+      var classified = await classifyProductImages(allFlat);
+      var sizeChartImages = classified.sizeCharts || [];
+      var modelExcluded = (classified.models || []).length;
+
+      // إعادة بناء صفوف الألوان من صور المنتج فقط (مطابقة نفس الكود)
+      var productOnly = classified.product || [];
+      var byGroup = {};
+      var groupOrder = [];
+      productOnly.forEach(function (im) {
+        var gk = String(im.groupKey || im.messageId || im.id);
+        if (!byGroup[gk]) {
+          byGroup[gk] = [];
+          groupOrder.push(gk);
+        }
+        byGroup[gk].push(im);
+      });
+      var cleanColors = [];
+      if (groupOrder.length >= 2) {
+        groupOrder.forEach(function (gk, idx) {
+          var imgs = byGroup[gk];
+          var guessed = normalizeColorNameClient('', pCode2, (colors[0] && colors[0].text) || '');
+          var cname = isRealColorName(guessed) ? guessed : ('لون ' + (idx + 1));
+          cleanColors.push({
+            name: cname,
+            images: imgs,
+            selectedImageId: null,
+            text: (colors[idx] && colors[idx].text) || (colors[0] && colors[0].text) || '',
+            date: null,
+            messageIds: imgs.map(function (x) { return x.messageId; }).filter(Boolean)
+          });
+        });
+      } else {
+        // حافظ على صفوف الألوان الأصلية لكن بصور المنتج فقط
+        colors.forEach(function (c) {
+          var keep = (c.images || []).filter(function (im) {
+            return productOnly.indexOf(im) >= 0;
+          });
+          if (!keep.length) return;
+          cleanColors.push({
+            name: c.name,
+            images: keep,
+            selectedImageId: null,
+            text: c.text || '',
+            date: c.date || null,
+            messageIds: c.messageIds || []
+          });
+        });
+        if (!cleanColors.length && productOnly.length) {
+          cleanColors.push({
+            name: 'لون 1',
+            images: productOnly,
+            selectedImageId: null,
+            text: (colors[0] && colors[0].text) || '',
+            date: null,
+            messageIds: productOnly.map(function (x) { return x.messageId; }).filter(Boolean)
+          });
+        }
+      }
+      colors = cleanColors;
+      productImages = productOnly;
+      if (!colors.length && !sizeChartImages.length) continue;
+
       var textParts = [];
       colors.forEach(function (c) {
         if (c.text && textParts.indexOf(c.text) < 0) textParts.push(c.text);
@@ -2443,6 +2582,7 @@
         code: pCode2,
         colors: colors,
         images: productImages,
+        sizeChartImages: sizeChartImages,
         title: pEntry.collectionName || pCode2,
         description: joinedText,
         price: price,
@@ -2456,7 +2596,8 @@
             values: [z.pants_length || '', z.tshirt_length || '', z.tshirt_width || '']
           };
         }),
-        sourcePostIds: colors.reduce(function (a, c) { return a.concat(c.messageIds || []); }, [])
+        sourcePostIds: colors.reduce(function (a, c) { return a.concat(c.messageIds || []); }, []),
+        excludedModels: modelExcluded
       };
       reorganizeProductColors(productObj);
       newCollections.push({
