@@ -115,19 +115,6 @@
     footer { text-align: center; margin-top: 24px; font-size: 11px; color: var(--muted); font-weight: 700; }
     a.link { color: var(--primary); font-weight: 800; }
   </style>
-
-<style>
-.tg-color-list{display:flex;flex-direction:column;gap:10px;margin:14px 0}
-.tg-color-row{display:flex;gap:14px;align-items:flex-start;border:1px solid #e1e5ee;border-radius:14px;padding:10px;background:#fff}
-.tg-color-label{width:190px;min-width:190px;display:flex;flex-direction:column;gap:4px;padding:8px 4px;font-size:13px}
-.tg-color-label b{font-size:14px;direction:ltr;text-align:right}
-.tg-color-label small{color:#777}
-.tg-color-images{display:flex;flex-wrap:wrap;gap:8px;align-items:center;flex:1}
-.tg-color-image{position:relative;width:112px;height:132px;border:1px solid #ddd;border-radius:10px;overflow:hidden;background:#f7f7f7}
-.tg-color-image img{width:100%;height:100%;object-fit:cover;cursor:zoom-in}
-.tg-color-image button{position:absolute;z-index:2;top:4px;right:4px;width:25px;height:25px;border:0;border-radius:50%;background:#c62828;color:#fff;font-weight:900;cursor:pointer;line-height:25px;padding:0}
-@media(max-width:700px){.tg-color-row{flex-direction:column}.tg-color-label{width:auto;min-width:0}.tg-color-images{width:100%}}
-</style>
 </head>
 <body>
   <div class="wrap">
@@ -160,9 +147,51 @@
         <label>القناة (اختياري — مثبتة داخل الـ Worker حاليًا)</label>
         <input type="text" id="tgChannel" placeholder="BlueBee kids — القناة مضبوطة في الـ Worker" disabled style="opacity:.7">
         <p class="hint">الـ Worker v2 يقرأ من قناة ثابتة. الجلب يتم عبر آخر المنشورات ثم البحث بالكود لكل منتج.</p>
-        <div style="padding:12px 14px;border:1px solid #d9e2ff;border-radius:12px;background:#f7f9ff;">
-          <b>🆕 السحب التلقائي: المنشورات الجديدة فقط</b>
-          <div class="hint" style="margin-top:6px;">كل ضغطة تسحب ما نُشر بعد آخر منشور تم تسجيله. لا يتم البحث عن المتاح أو النافذ ولا إعادة قراءة المنشورات القديمة.</div>
+        <label>طريقة السحب</label>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:8px 0 12px;">
+          <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
+            <input type="radio" name="tgFetchMode" id="tgModeNew" value="new" checked onchange="toggleTgFetchMode()">
+            <span>🆕 الجديد فقط</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
+            <input type="radio" name="tgFetchMode" id="tgModeRange" value="range" onchange="toggleTgFetchMode()">
+            <span>📅 تاريخ ووقت</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;border:1px solid #ddd;border-radius:12px;cursor:pointer;background:#fff;">
+            <input type="radio" name="tgFetchMode" id="tgModeLimit" value="limit" onchange="toggleTgFetchMode()">
+            <span>📌 عدد المنشورات</span>
+          </label>
+        </div>
+
+        <div id="tgNewBox">
+          <p class="hint" style="margin-top:6px;">الوضع الافتراضي: أنت تضغط زر السحب بنفسك، والنظام يجلب فقط المنشورات التي ظهرت بعد آخر نقطة سحب محفوظة. لا يوجد سحب في الخلفية.</p>
+        </div>
+
+        <div id="tgRangeBox" style="display:none;">
+          <div class="row">
+            <div>
+              <label>من تاريخ ووقت</label>
+              <input type="datetime-local" id="tgDateFrom">
+            </div>
+            <div>
+              <label>إلى تاريخ ووقت</label>
+              <input type="datetime-local" id="tgDateTo">
+            </div>
+          </div>
+          <p class="hint" style="margin-top:6px;">يمكنك اختيار فترة قديمة أو حديثة، مثل أمس من 10:00 صباحًا إلى 6:00 مساءً.</p>
+        </div>
+
+        <div id="tgLimitBox" style="display:none;">
+          <label>عدد المنشورات المطلوب سحبها</label>
+          <select id="tgLimit">
+            <option value="10">10 منشورات</option>
+            <option value="20" selected>20 منشور</option>
+            <option value="30">30 منشور</option>
+            <option value="50">50 منشور</option>
+            <option value="80">80 منشور</option>
+            <option value="100">100 منشور</option>
+          </select>
+          <p class="hint" style="margin-top:6px;">يسحب العدد المطلوب من تيليجرام، سواء كانت المنشورات جديدة أو قديمة.</p>
         </div>
 
         <div class="btns">
@@ -222,15 +251,8 @@
     <!-- ===== نتيجة التحليل ===== -->
     <div class="card" id="reviewCard" style="display:none;">
       <h2>③ مراجعة Collections المستوردة</h2>
-      <p class="hint" style="margin-bottom:10px;">كل كود يظهر أولًا كـ Collection مستقل. راجع الصور والسعر والوصف والمقاسات، ثم يمكنك دمج أكثر من كود في كوليكشن واحد قبل التصدير.</p>
+      <p class="hint" style="margin-bottom:10px;">كل كود يظهر كـ Collection مستقل. راجع الصور والسعر والوصف والمقاسات، ثم صدّر الكوليكشن المطلوب بدون دمج أكواد مختلفة.</p>
       <div id="collectionsBox"></div>
-      <div id="mergePanel" class="merge-panel" style="display:none;"></div>
-      <div class="merge-bar">
-        <label class="merge-check"><input type="checkbox" id="selectAllCollections" onchange="toggleAllCollections(this.checked)"> تحديد كل الـ Collections</label>
-        <span id="selectedCollectionsCount" class="hint">0 محدد</span>
-        <button type="button" class="btn" onclick="openMergePanel()">🔗 دمج المحدد في كوليكشن واحد</button>
-      </div>
-
       <div class="card" style="margin-top:14px;background:#fff;">
         <h3 style="margin-top:0;">④ الكوليكشن النهائي / التصدير</h3>
         <div class="row">
@@ -851,7 +873,7 @@
       $('outPrice').value = '';
       $('outCollectionCode').value = '';
       $('reviewCard').style.display = 'block';
-      showStatus('تم فصل المنشورات الجديدة حسب الكوليكشن واللون. راجع كل لون في صفه ثم صدّر.', 'ok');
+      showStatus('تم فصل المنشورات حسب الكود. راجع كل Collection منفصلًا ثم اختر ما تريد دمجه.', 'ok');
       return;
     }
     var grouped = await groupIntoShapes(rawImages);
@@ -887,32 +909,6 @@
     var m = s.match(/(?:^|[^A-Za-z0-9])([A-Za-z]{2,12})[\s_-]*(\d{2,8})(?!\d)/i);
     if (!m) return '';
     return (m[1] + m[2]).toUpperCase();
-  }
-
-  function normalizeProductVariantCode(raw) {
-    var s = String(raw || '').replace(/\u200f|\u200e/g,'').trim();
-    s = s.replace(/[–—]/g, '-').replace(/\s+/g, ' ');
-    var m = s.match(/(?:^|[^A-Za-z0-9])([A-Za-z]{2,12}\s*[-_]?\s*\d{2,8})(?:\s*[-_\s]+([A-Za-z][A-Za-z0-9-]*|[\u0600-\u06FF][\u0600-\u06FF0-9-]*))?(?![A-Za-z0-9])/i);
-    if (!m) return '';
-    var base = normalizeCode(m[1]);
-    if (!base) return '';
-    var color = (m[2] || '').trim().replace(/^[-_\s]+|[-_\s]+$/g,'');
-    return color ? base + '-' + color.toLowerCase() : base;
-  }
-
-  function splitProductVariantCode(full) {
-    var code = normalizeProductVariantCode(full) || normalizeCode(full);
-    var m = String(code || '').match(/^([A-Z]{2,12}\d{2,8})(?:-([A-Za-z][A-Za-z0-9-]*|[\u0600-\u06FF][\u0600-\u06FF0-9-]*))?$/i);
-    if (!m) return { baseCode: normalizeCode(code), variantCode: normalizeCode(code), color: '' };
-    return { baseCode: String(m[1]).toUpperCase(), variantCode: String(code), color: m[2] || 'غير محدد' };
-  }
-
-  function extractProductVariantCode(text) {
-    var t = arDigits(text || '');
-    var labeled = t.match(/(?:code|كود|كود\s*المنتج|كود\s*الكوليكشن)\s*[:：\-]?\s*([A-Za-z]{2,12}\s*[-_]?\s*\d{2,8}(?:\s*[-_\s]+[A-Za-z][A-Za-z0-9-]*|\s*[-_\s]+[\u0600-\u06FF][\u0600-\u06FF0-9-]*)?)/i);
-    if (labeled) return normalizeProductVariantCode(labeled[1]);
-    var any = t.match(/(?:^|[^A-Za-z0-9])([A-Za-z]{2,12}\s*[-_]?\s*\d{2,8}(?:\s*[-_\s]+[A-Za-z][A-Za-z0-9-]*|\s*[-_\s]+[\u0600-\u06FF][\u0600-\u06FF0-9-]*)?)(?![A-Za-z0-9])/i);
-    return any ? normalizeProductVariantCode(any[1]) : '';
   }
 
   function extractCollectionCode(text) {
@@ -1057,9 +1053,7 @@
   function collectionFromRecord(rec, idx) {
     var text=String(rec.text||'');
     var fullText=extractRecordText(rec) || text;
-    var variantCode=normalizeProductVariantCode(rec.variantCode||rec.code||rec.collectionCode||rec.productCode||extractProductVariantCode(fullText));
-    var partsCode=splitProductVariantCode(variantCode);
-    var code=partsCode.baseCode;
+    var code=normalizeCode(rec.code||rec.collectionCode||rec.productCode||extractCollectionCode(fullText));
     var images=(rec.images||[]).map(function(im){ return typeof im==='string'?{id:idSeq++,dataUrl:im,name:'telegram'}:im; });
     var priceMap=parsePriceMap(text);
     var labeled=(text.match(/(?:السعر|سعر)\s*[:：]?\s*(\d{2,6})/i)||[])[1];
@@ -1147,47 +1141,29 @@
       }),
       images: images,
       sourcePostIds: (Array.isArray(rec.sourcePostIds) && rec.sourcePostIds.length) ? rec.sourcePostIds.slice() : [rec.id || idx + 1],
-      selected: true,
-      variantCode: partsCode.variantCode,
-      color: partsCode.color,
-      variants: [{ variantCode: partsCode.variantCode, color: partsCode.color, images: images.slice(), sourcePostIds: (Array.isArray(rec.sourcePostIds) && rec.sourcePostIds.length) ? rec.sourcePostIds.slice() : [rec.id || idx + 1] }]
+      selected: true
     };
   }
   function buildCollectionsFromPosts(records) {
     var map={}, order=[];
     (records||[]).forEach(function(rec,idx){
       var col=collectionFromRecord(rec,idx), code=col.code;
-      if(!code) return;
-      if(!map[code]){
-        map[code]=col;
-        map[code].variants=[];
-        order.push(code);
+      if(!map[code]){map[code]=col;order.push(code);} else {
+        var dst=map[code];
+        dst.sourcePostIds=dst.sourcePostIds.concat(col.sourcePostIds);
+        if(col.description) dst.description=(dst.description?dst.description+'\n':'')+col.description;
+        if(col.price!=null && dst.price==null) dst.price=col.price;
+        col.sizes.forEach(function(sz){if(!dst.sizes.some(function(x){return x.size===sz.size;}))dst.sizes.push(sz);});
+        col.images.forEach(function(im){if(!dst.images.some(function(x){return x.id===im.id;}))dst.images.push(im);});
       }
-      var dst=map[code];
-      dst.sourcePostIds=(dst.sourcePostIds||[]).concat(col.sourcePostIds||[]);
-      if(col.description) dst.description=(dst.description?dst.description+'\n':'')+col.description;
-      if(col.price!=null && dst.price==null) dst.price=col.price;
-      (col.sizes||[]).forEach(function(sz){if(!dst.sizes.some(function(x){return x.size===sz.size;}))dst.sizes.push(sz);});
-
-      var vcode=col.variantCode || col.code;
-      var variant=dst.variants.find(function(v){return String(v.variantCode).toLowerCase()===String(vcode).toLowerCase();});
-      if(!variant){
-        variant={variantCode:vcode,color:col.color||'غير محدد',images:[],sourcePostIds:[]};
-        dst.variants.push(variant);
-      }
-      (col.sourcePostIds||[]).forEach(function(pid){if(variant.sourcePostIds.indexOf(pid)<0)variant.sourcePostIds.push(pid);});
-      (col.images||[]).forEach(function(im){
-        if(!variant.images.some(function(x){return String(x.id)===String(im.id);})) variant.images.push(im);
-        if(!dst.images.some(function(x){return String(x.id)===String(im.id);})) dst.images.push(im);
-      });
     });
     importedCollections=order.map(function(k){return map[k];});
     renderCollections();
+    // كوليكشن واحد → اعتمده للتصدير تلقائيًا مع كل صور الألوان
     if (importedCollections.length === 1) {
       try { useCollectionForExport(importedCollections[0].id); } catch (e) {}
     }
   }
-
   function recalcCollectionPricing(col) {
     var rows=col.sizes||[], vals=rows.map(function(r){return r.price;});
     var complete=rows.length>0 && vals.every(function(v){return v!=null && !isNaN(Number(v));});
@@ -1216,73 +1192,20 @@
   }
   function renderCollections(){
     var box=$('collectionsBox'); if(!box)return;
-    if(!importedCollections.length){box.innerHTML='<p class="hint">لا توجد Collections جديدة مستوردة.</p>';return;}
+    if(!importedCollections.length){box.innerHTML='<p class="hint">لا توجد Collections مستوردة.</p>';return;}
     box.innerHTML=importedCollections.map(function(c,i){
       var priceLabel=c.priceMode==='per_size'?'السعر: حسب المقاس':'السعر: موحد للكوليكشن';
       var priceValue=c.priceMode==='uniform'&&c.price!=null?c.price:'';
-      var rows=(c.variants||[]).map(function(v){
-        var imgs=(v.images||[]).map(function(im,j){
-          return '<div class="tg-color-image"><button type="button" class="tg-delete-img" data-cid="'+escapeHtml(c.id)+'" data-vcode="'+escapeHtml(v.variantCode)+'" data-img="'+escapeHtml(im.id)+'" title="حذف الصورة">×</button><img src="'+im.dataUrl+'" title="'+escapeHtml(v.color)+'"></div>';
-        }).join('');
-        return '<div class="tg-color-row"><div class="tg-color-label"><b>'+escapeHtml(v.variantCode)+'</b><span>اللون: '+escapeHtml(v.color)+'</span><small>'+v.images.length+' صور</small></div><div class="tg-color-images">'+(imgs||'<span class="hint">لا توجد صور</span>')+'</div></div>';
-      }).join('');
-      return '<div class="collection-card" data-collection-id="'+c.id+'"><div class="collection-head"><label class="merge-check"><input type="checkbox" class="collection-select" data-id="'+c.id+'" '+(c.selected?'checked':'')+'> تحديد</label><span class="collection-code">كود الكوليكشن: '+escapeHtml(c.code)+'</span><button type="button" class="btn ok" onclick="useCollectionForExport(\''+c.id+'\')">✅ اعتماد للتصدير</button><button type="button" class="btn danger" onclick="deleteImportedCollection(\''+c.id+'\')">🗑️ حذف</button></div><div class="source-codes">منشورات المصدر: '+escapeHtml((c.sourcePostIds||[]).join(', '))+'</div><div class="tg-color-list">'+rows+'</div><div class="row"><div><label>'+priceLabel+'</label><input type="number" value="'+priceValue+'" placeholder="'+(c.priceMode==='per_size'?'لكل مقاس في الجدول':'مثال: 310')+'" onchange="updateCollectionPrice(\''+c.id+'\',this.value)"><p class="hint">السعر يؤخذ من نص المنشور/الـWorker ويمكن تعديله يدويًا.</p></div><div><label>الوصف</label><textarea onchange="updateCollectionDescription(\''+c.id+'\',this.value)">'+escapeHtml(c.description||'')+'</textarea></div></div><div class="size-table-wrap" id="size-'+c.id+'"></div></div>';
-    }).join('');
+      var priceHint=c.priceMode==='per_size'?'⚠️ لكل مقاس سعر مستقل — ويمكن دمج هذا الكوليكشن إذا تطابقت أسعار المقاسات مع الباقي.':'✅ السعر موحد — يُحفظ في خانة السعر ولا يتكرر داخل جدول المقاسات.';
+      return '<div class=\"collection-card\" data-collection-id=\"'+c.id+'\"><div class=\"collection-head\"><span class=\"collection-code\">كود الكوليكشن: '+escapeHtml(c.code)+'</span><button type=\"button\" class=\"btn ok\" onclick=\"useCollectionForExport(\''+c.id+'\')\">✅ اعتماد للتصدير</button><button type=\"button\" class=\"btn danger\" onclick=\"deleteImportedCollection(\''+c.id+'\')\">🗑️ حذف استيراد</button></div><div class=\"source-codes\">منشورات المصدر: '+escapeHtml((c.sourcePostIds||[]).join(', '))+'</div><div class=\"collection-images\">'+(c.images||[]).map(function(im,j){return '<label><input type=\"checkbox\" '+(im.selected!==false?'checked':'')+' onchange=\"toggleCollectionImage(\''+c.id+'\',\''+im.id+'\',this.checked)\" style=\"display:none\"><img src=\"'+im.dataUrl+'\" title=\"الصورة '+(j+1)+'\"></label>';}).join('')+'</div><div class=\"row\"><div><label>'+priceLabel+'</label><input type=\"number\" value=\"'+priceValue+'\" placeholder=\"'+(c.priceMode==='per_size'?'لكل مقاس في الجدول':'مثال: 310')+'\" onchange=\"updateCollectionPrice(\''+c.id+'\',this.value)\"><p class=\"hint\">'+priceHint+'</p></div><div><label>الوصف</label><textarea onchange=\"updateCollectionDescription(\''+c.id+'\',this.value)\">'+escapeHtml(c.description||'')+'</textarea></div></div><div class=\"size-table-wrap\" id=\"size-'+c.id+'\"></div></div>';}).join('');
     importedCollections.forEach(function(c){renderSizeTable(c,'size-'+c.id);});
-    box.querySelectorAll('.collection-select').forEach(function(cb){cb.addEventListener('change',function(){var c=importedCollections.find(function(x){return x.id===cb.dataset.id;});if(c)c.selected=cb.checked;updateSelectedCount();});});
-    box.querySelectorAll('.tg-color-image img').forEach(function(img){img.addEventListener('click',function(){var w=window.open('','_blank');if(w){w.document.write('<img src="'+img.src+'" style="max-width:100%;max-height:100%;display:block;margin:auto">');}});});
-    box.querySelectorAll('.tg-delete-img').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();deleteCollectionVariantImage(btn.dataset.cid,btn.dataset.vcode,btn.dataset.img);});});
-    updateSelectedCount();
   }
-  window.deleteCollectionVariantImage=function(cid,vcode,imgId){
-    var c=importedCollections.find(function(x){return x.id===cid;}); if(!c)return;
-    var v=(c.variants||[]).find(function(x){return String(x.variantCode)===String(vcode);}); if(!v)return;
-    v.images=v.images.filter(function(im){return String(im.id)!==String(imgId);});
-    c.images=(c.images||[]).filter(function(im){return String(im.id)!==String(imgId);});
-    renderCollections();
-  };
-
-  function updateSelectedCount(){var n=importedCollections.filter(function(c){return c.selected;}).length; $('selectedCollectionsCount').textContent=n+' محدد';}
-  window.toggleAllCollections=function(v){importedCollections.forEach(function(c){c.selected=v;});renderCollections();};
   window.toggleCollectionImage=function(id,imgId,v){var c=importedCollections.find(function(x){return x.id===id;});if(c){var im=c.images.find(function(x){return String(x.id)===String(imgId);});if(im)im.selected=v;}};
   window.updateCollectionPrice=function(id,v){var c=importedCollections.find(function(x){return x.id===id;});if(c){if(v===''){c.price=null;c.priceMode='per_size';}else{c.price=Number(v);c.priceMode='uniform';c.sizes.forEach(function(r){r.price=null;});}renderCollections();}};
   window.updateCollectionDescription=function(id,v){var c=importedCollections.find(function(x){return x.id===id;});if(c)c.description=v;};
   window.deleteImportedCollection=function(id){importedCollections=importedCollections.filter(function(c){return c.id!==id;});renderCollections();if(!importedCollections.length)$('reviewCard').style.display='none';showStatus('تم حذف الاستيراد من شاشة المراجعة فقط.','ok');};
-  window.openMergePanel=function(){
-    var selected=importedCollections.filter(function(c){return c.selected;}); var p=$('mergePanel');
-    if(selected.length<2){showStatus('اختر Collection أو أكثر للدمج — يلزم اختيار 2 على الأقل.','err');return;}
-    var sizes=selected[0].sizes.map(function(r){return r.size;});
-    var sameSizes=selected.every(function(c){return c.sizes.map(function(r){return r.size;}).join('|')===sizes.join('|');});
-    var signatures=selected.map(priceSignature);
-    var allUniform=selected.every(function(c){return c.priceMode==='uniform' && c.price!=null;});
-    var allPerSize=selected.every(function(c){return c.priceMode==='per_size' && c.sizes.every(function(r){return r.price!=null;});});
-    var mixedCompatible=selected.every(function(c){return c.priceMode==='uniform' || c.priceMode==='per_size';}) && selected.every(function(c){
-      if(c.priceMode==='uniform') return c.price!=null;
-      return c.sizes.every(function(r){return r.price!=null;});
-    });
-    var samePricing=false, mergedPrice=null, mergedMode='uniform';
-    if(allUniform){ samePricing=selected.every(function(c){return Number(c.price)===Number(selected[0].price);}); mergedPrice=samePricing?Number(selected[0].price):null; mergedMode='uniform'; }
-    else if(allPerSize){ samePricing=selected.every(function(c){return c.sizes.map(function(r){return String(r.price);}).join('|')===selected[0].sizes.map(function(r){return String(r.price);}).join('|');}); mergedMode='per_size'; }
-    else if(mixedCompatible){
-      var converted=selected.map(function(c){return c.priceMode==='uniform'?c.sizes.map(function(r){return Number(c.price);}):c.sizes.map(function(r){return Number(r.price);});});
-      samePricing=converted.every(function(arr){return arr.join('|')===converted[0].join('|');});
-      if(samePricing){ var first=converted[0]; var sameAll=first.every(function(v){return v===first[0];}); mergedMode=sameAll?'uniform':'per_size'; mergedPrice=sameAll?first[0]:null; }
-    }
-    var warn=[]; if(!samePricing)warn.push('أسعار المقاسات ليست متطابقة بين الـ Collections المحددة.'); if(!sameSizes)warn.push('جداول المقاسات ليست متطابقة.');
-    var base=selected[0];
-    var mergedSizes=base.sizes.map(function(r,i){
-      var rowPrice=null;
-      if(mergedMode==='per_size'){ rowPrice=base.priceMode==='uniform'?base.price:Number(r.price); }
-      return {size:r.size,price:rowPrice,values:(r.values||[]).slice()};
-    });
-    var merged={id:'merged-'+Date.now(),code:selected.map(function(c){return c.code;}).join(' + '),title:'',description:selected.map(function(c){return c.description||'';}).filter(Boolean).join('\n\n'),price:mergedPrice,priceMode:mergedMode,sizes:mergedSizes,images:[]};
-    selected.forEach(function(c){c.images.filter(function(im){return im.selected!==false;}).forEach(function(im){if(!merged.images.some(function(x){return x.id===im.id;}))merged.images.push(im);});});
-    mergedDraft=merged; $('mergePanel').style.display='block';
-    p.innerHTML='<h3 style="margin-top:0">دمج '+selected.length+' Collections</h3><div class="merge-summary">الأكواد: <b>'+escapeHtml(selected.map(function(c){return c.code;}).join(' · '))+'</b></div>'+(warn.length?'<p class="warn">⚠️ '+warn.join('<br>')+'<br>يمكنك تعديل البيانات يدويًا قبل التصدير.</p>':'<p class="oktext">✅ المقاسات والأسعار متوافقة ويمكن الدمج.</p>')+'<div class="row"><div><label>اسم الكوليكشن النهائي</label><input id="mergeTitle" placeholder="اكتب الاسم النهائي"></div><div><label>كود الكوليكشن (تعريفي)</label><input id="mergeCode" value="'+escapeHtml(merged.code)+'"></div></div><label>الوصف النهائي</label><textarea id="mergeBody" style="min-height:180px">'+escapeHtml(merged.description)+'</textarea><div class="size-table-wrap" id="mergeSizesTable"></div><h4>الصور النهائية</h4><div class="collection-images">'+merged.images.map(function(im){return '<label><input type="checkbox" checked onchange="this.nextElementSibling.style.opacity=this.checked?1:.35; updateMergedImage(\''+im.id+'\',this.checked)" style="display:none"><img src="'+im.dataUrl+'"></label>';}).join('')+'</div><div class="btns" style="margin-top:12px"><button type="button" class="btn" onclick="applyMergeDraft()">✅ اعتماد الدمج للمراجعة</button><button type="button" class="btn ghost" onclick="$(\'mergePanel\').style.display=\'none\'">إلغاء</button></div>';
-    renderSizeTable(merged,'mergeSizesTable'); syncOutSizesHidden();
-  };
-  window.updateMergedImage=function(id,v){if(mergedDraft){var im=mergedDraft.images.find(function(x){return String(x.id)===String(id);});if(im)im.selected=v;}};
-  window.applyMergeDraft=function(){if(!mergedDraft)return; $('outTitle').value=$('mergeTitle').value||''; $('outCollectionCode').value=$('mergeCode').value||mergedDraft.code; $('outPrice').value=mergedDraft.price==null?'':mergedDraft.price; $('outBody').value=$('mergeBody').value||''; renderSizeTable(mergedDraft,'outSizesTable'); syncOutSizesHidden(); $('mergePanel').style.display='none'; showStatus('تم تجهيز الكوليكشن المدمج للمراجعة والتصدير.','ok'); $('reviewCard').scrollIntoView({behavior:'smooth',block:'start'});};
+  window.useCollectionForExport=function(id){var c=importedCollections.find(function(x){return String(x.id)===String(id);});if(!c){showStatus('الكوليكشن المطلوب غير موجود.','err');return;}mergedDraft={id:c.id,code:c.code,title:c.title||'',description:c.description||'',price:c.price,priceMode:c.priceMode||'uniform',sizes:(c.sizes||[]).map(function(r){return {size:r.size,price:r.price,values:(r.values||[]).slice()};}),images:(c.images||[]).slice()};$('outTitle').value=c.title||'';$('outCollectionCode').value=c.code||'';$('outPrice').value=c.price==null?'':c.price;$('outBody').value=c.description||'';renderSizeTable(mergedDraft,'outSizesTable');syncOutSizesHidden();$('reviewCard').scrollIntoView({behavior:'smooth',block:'start'});showStatus('تم اعتماد الكوليكشن '+c.code+' للتصدير.','ok');};
+  function syncOutSizesHidden(){var rows=(mergedDraft&&mergedDraft.sizes)||[];$('outSizes').value=rows.map(function(r){return [r.size].concat(r.values||['','','']).concat([r.price==null?'':r.price]).join(' | ');}).join('\n');}
 
   function yamlQuote(val) {
     if (val == null || val === '') return "''";
@@ -1425,9 +1348,10 @@
   };
 
   window.toggleTgFetchMode = function () {
-    var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'limit';
+    var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'new';
+    $('tgNewBox').style.display = mode === 'new' ? '' : 'none';
+    $('tgRangeBox').style.display = mode === 'range' ? '' : 'none';
     $('tgLimitBox').style.display = mode === 'limit' ? '' : 'none';
-    $('tgHoursBox').style.display = mode === 'hours' ? '' : 'none';
   };
 
   window.exportToSveltia = function () {
@@ -1470,45 +1394,34 @@
   function filterTelegramPosts(posts) {
     var result = [];
     var skippedStickers = 0;
+    var skippedInventory = 0;
     var skippedNoCode = 0;
     var skippedPolls = 0;
     var skippedAnimations = 0;
-    var codedGroups = new Set();
-    var codedIds = new Set();
-
-    // أولًا نحدد منشورات المنتجات الجديدة وألبوماتها.
-    (posts || []).forEach(function(post){
-      if(!post) return;
-      if(isStickerPost(post) || post.isPoll || post.isAnimation) return;
-      var vc=normalizeProductVariantCode(post.code||post.collectionCode||post.productCode||extractProductVariantCode(post.text||''));
-      if(vc){
-        codedIds.add(String(post.id));
-        if(post.groupedId!=null) codedGroups.add(String(post.groupedId));
-      }
-    });
-
     (posts || []).forEach(function (post) {
       if (isStickerPost(post)) { skippedStickers++; return; }
       if (post && (post.isPoll || /poll/i.test(String(post.mediaType || '')))) { skippedPolls++; return; }
       if (post && (post.isAnimation || /animation|gif/i.test(String(post.mediaType || '')))) { skippedAnimations++; return; }
+      if (isCollectionInventoryPost(post)) { skippedInventory++; return; }
 
-      var hasCode=hasProductCode(post);
-      var albumContinuation=post && post.hasMedia && post.groupedId!=null && codedGroups.has(String(post.groupedId));
-      if (!hasCode && !albumContinuation) { skippedNoCode++; return; }
+      // لا نقرأ أي منشور خارجي/إعلاني بلا كود منتج.
+      if (!hasProductCode(post)) { skippedNoCode++; return; }
 
+      // الروابط لا تُتبع ولا تُستخدم كمصدر بيانات. نحتفظ فقط بنص المنشور بدون الرابط.
       if (post && typeof post.text === 'string') post.text = stripExternalLinks(post.text);
       if (post && typeof post.caption === 'string') post.caption = stripExternalLinks(post.caption);
       result.push(post);
     });
-    return {posts:result,skippedStickers:skippedStickers,skippedNoCode:skippedNoCode,skippedPolls:skippedPolls,skippedAnimations:skippedAnimations};
+    return {
+      posts: result,
+      skippedStickers: skippedStickers,
+      skippedInventory: skippedInventory,
+      skippedNoCode: skippedNoCode,
+      skippedPolls: skippedPolls,
+      skippedAnimations: skippedAnimations
+    };
   }
 
-  function isPostWithinHours(post, hours) {
-    if (!post || !post.date) return false;
-    var t = new Date(post.date).getTime();
-    if (!Number.isFinite(t)) return false;
-    return t >= Date.now() - (hours * 60 * 60 * 1000);
-  }
 
   // تحميل صورة واحدة من Worker v2: /telegram-media-auto?messageId=
   async function downloadTelegramMedia(workerUrl, workerKey, messageId) {
@@ -1546,24 +1459,41 @@
   }
 
   // Telegram fetch عبر Worker v2
-  // المسار: /telegram-posts → فلترة أكواد → /telegram-product-auto لكل كود → /telegram-media-auto للصور
+  // أوضاع السحب اليدوي: الجديد فقط / فترة تاريخ ووقت / عدد منشورات.
   window.fetchFromTelegram = async function () {
     var s = getSettings();
     if (!s.workerUrl) { showStatus('اضبط رابط الـ Worker من تبويب الإعدادات.', 'err'); return; }
-    var mode = 'new';
-    var cursorKey = 'mysouq_factory_last_telegram_message_id';
-    var savedCursor = localStorage.getItem(cursorKey);
-    var lastId = Number(savedCursor || 0);
-    if (!savedCursor) {
-      showStatus('أول تشغيل: جاري تهيئة نقطة البداية من آخر منشور فقط، ولن يتم سحب أي منشورات قديمة.', '');
-    } else {
-      showStatus('جاري سحب المنشورات الجديدة فقط بعد الرسالة رقم ' + lastId + '...', '');
+    var mode = document.querySelector('input[name="tgFetchMode"]:checked')?.value || 'new';
+    var limit = mode === 'limit' ? (Number($('tgLimit').value) || 20) : null;
+    var from = mode === 'range' ? $('tgDateFrom').value : '';
+    var to = mode === 'range' ? $('tgDateTo').value : '';
+
+    if (mode === 'range') {
+      if (!from || !to) { showStatus('حدد تاريخ ووقت البداية والنهاية أولًا.', 'err'); return; }
+      if (new Date(from).getTime() > new Date(to).getTime()) { showStatus('تاريخ ووقت البداية يجب أن يكون قبل النهاية.', 'err'); return; }
     }
+
+    showStatus(
+      mode === 'new' ? 'جاري سحب المنشورات الجديدة فقط منذ آخر نقطة سحب محفوظة...' :
+      mode === 'range' ? ('جاري سحب منشورات تيليجرام من ' + from.replace('T',' ') + ' إلى ' + to.replace('T',' ') + '...') :
+      ('جاري سحب آخر ' + limit + ' منشور حسب العدد المحدد...'),
+      ''
+    );
     $('btnFetchTg').disabled = true;
     try {
-      // 1) المنشورات من الـ Worker مع limit أو hours
-      var qs = savedCursor ? ('?mode=new&afterId=' + encodeURIComponent(lastId)) : '?mode=new&initialize=1';
-      var r = await fetch(s.workerUrl + '/telegram-posts' + qs, {
+      var qs = [];
+      qs.push('mode=' + encodeURIComponent(mode));
+      if (mode === 'new') {
+        var lastId = Number(localStorage.getItem('mysouq_tg_last_sync_id') || 0);
+        if (Number.isFinite(lastId) && lastId > 0) qs.push('afterId=' + encodeURIComponent(lastId));
+      } else if (mode === 'range') {
+        qs.push('from=' + encodeURIComponent(new Date(from).toISOString()));
+        qs.push('to=' + encodeURIComponent(new Date(to).toISOString()));
+      } else {
+        qs.push('limit=' + encodeURIComponent(limit));
+      }
+
+      var r = await fetch(s.workerUrl + '/telegram-posts?' + qs.join('&'), {
         method: 'GET',
         headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
       });
@@ -1574,13 +1504,6 @@
       }
 
       var posts = data.posts || data.items || [];
-      if (!savedCursor) {
-        var initialMax = posts.reduce(function(mx,p){var n=Number(p&&p.id);return Number.isFinite(n)?Math.max(mx,n):mx;},0);
-        if (initialMax) localStorage.setItem(cursorKey,String(initialMax));
-        showStatus('تمت تهيئة نقطة البداية عند آخر منشور. من الآن زر الجلب سيسحب الجديد فقط ولن يعيد قراءة القديم.', 'ok');
-        return;
-      }
-      // لا نكرر نفس رسالة داخل نفس الجلسة
       var seenPostIds = new Set((tgPostRecords || []).map(function (x) { return String(x.id); }));
       posts = posts.filter(function (post) {
         if (post && post.id != null) {
@@ -1592,45 +1515,30 @@
       });
 
       if (!posts.length) {
-        showStatus('لا توجد منشورات جديدة ضمن الاختيار الحالي.', 'ok');
+        showStatus(mode === 'new' ? 'لا توجد منشورات جديدة منذ آخر نقطة سحب محفوظة.' : 'لا توجد منشورات ضمن الاختيار الحالي.', 'ok');
         return;
       }
 
-      // فلترة الاستيكرات / الجرد / بدون كود
       var filtered = filterTelegramPosts(posts);
       posts = filtered.posts;
       if (!posts.length) {
-        showStatus('تم استبعاد كل المنشورات (بلا كود / استيكر / موشن / استطلاع / جرد).', 'err');
+        // في وضع الجديد نعتبر الرسائل التي تمت قراءتها نقطة سحب جديدة حتى لا يعاد فحصها كل مرة.
+        if (mode === 'new' && data.maxId) localStorage.setItem('mysouq_tg_last_sync_id', String(data.maxId));
+        showStatus('تم استبعاد كل المنشورات (بلا كود / استيكر / موشن / استطلاع / جرد).', 'ok');
         return;
       }
 
-      // تجميع كل المنشورات تحت نفس الكود (ألوان متعددة = كوليكشن واحد)
-      var codeMap = {}; // base code -> new posts grouped by exact product/color code
+      var codeMap = {};
       var codeOrder = [];
-      var groupVariantMap = {};
-      // أول مرور: الأكواد الصريحة، وربط الـAlbum بالكود واللون.
       posts.forEach(function (post) {
-        var variantCode = normalizeProductVariantCode(post.code || post.collectionCode || post.productCode || extractProductVariantCode(post.text || ''));
-        if (!variantCode) return;
-        var baseCode = splitProductVariantCode(variantCode).baseCode;
-        post.variantCode = variantCode; post.baseCode = baseCode;
-        if (post.groupedId != null) groupVariantMap[String(post.groupedId)] = variantCode;
-        if (!codeMap[baseCode]) { codeMap[baseCode] = []; codeOrder.push(baseCode); }
-        codeMap[baseCode].push(post);
-      });
-      // ثاني مرور: بقية صور الـAlbum الجديد تأخذ نفس كود/لون الرسالة التي تنتمي إليها.
-      posts.forEach(function(post){
-        if(post.variantCode) return;
-        if(post.groupedId==null) return;
-        var vc=groupVariantMap[String(post.groupedId)];
-        if(!vc) return;
-        var bc=splitProductVariantCode(vc).baseCode;
-        post.variantCode=vc; post.baseCode=bc;
-        if(!codeMap[bc]){codeMap[bc]=[];codeOrder.push(bc);}
-        if(!codeMap[bc].some(function(x){return String(x.id)===String(post.id);})) codeMap[bc].push(post);
+        var code = normalizeCode(post.code || post.collectionCode || post.productCode || extractCollectionCode(post.text || ''));
+        if (!code) return;
+        if (!codeMap[code]) { codeMap[code] = []; codeOrder.push(code); }
+        codeMap[code].push(post);
       });
 
       if (!codeOrder.length) {
+        if (mode === 'new' && data.maxId) localStorage.setItem('mysouq_tg_last_sync_id', String(data.maxId));
         showStatus('لم يُعثر على أكواد منتجات صالحة في المنشورات.', 'err');
         return;
       }
@@ -1644,75 +1552,61 @@
       var productsFound = 0;
 
       for (var ci = 0; ci < codeOrder.length; ci++) {
-        var baseCode = codeOrder[ci];
-        var postsForCollection = codeMap[baseCode] || [];
-        var variantMap = {};
-        postsForCollection.forEach(function(p){
-          var vc = p.variantCode || normalizeProductVariantCode(p.code || p.text || '');
-          if(!vc) return;
-          if(!variantMap[vc]) variantMap[vc]=[];
-          variantMap[vc].push(p);
-        });
-        var variantCodes = Object.keys(variantMap);
-        showStatus('جاري جلب الكوليكشن ' + (ci + 1) + '/' + codeOrder.length + ': ' + baseCode + ' (' + variantCodes.length + ' لون)...', '');
+        var code = codeOrder[ci];
+        var postsForCode = codeMap[code] || [];
+        var fallbackPost = postsForCode[0] || {};
+        showStatus('جاري جلب الكوليكشن ' + (ci + 1) + '/' + codeOrder.length + ': ' + code + ' (' + postsForCode.length + ' منشور)...', '');
 
-        for (var vi=0; vi<variantCodes.length; vi++) {
-          var variantCode=variantCodes[vi];
-          var postsForCode=variantMap[variantCode]||[];
-          var fallbackPost=postsForCode[0]||{};
-          var bestText='';
-          postsForCode.forEach(function(p){if((p.text||'').length>bestText.length)bestText=p.text||'';});
-          var productId=fallbackPost.id;
-          var imageRefMap={}; var imageRefs=[];
-          function addImageRef(mid,groupHint){if(mid==null)return;var k=String(mid);if(imageRefMap[k])return;imageRefMap[k]=true;imageRefs.push({messageId:mid,groupKey:groupHint||variantCode});}
-          // كل الصور هنا من قائمة المنشورات الجديدة نفسها فقط. لا يوجد بحث تاريخي.
-          postsForCode.forEach(function(p){if(p.hasMedia&&p.id!=null)addImageRef(p.id,p.groupedId||variantCode);});
-          if(bestText)texts.push(bestText);
-          var rec={id:productId,code:baseCode,variantCode:variantCode,text:bestText,images:[],price:null,sizeStatuses:null,sizeMeasurements:null,sourcePostIds:postsForCode.map(function(p){return p.id;}).filter(function(x){return x!=null;})};
-          for(var mi=0;mi<imageRefs.length;mi++){
-            var mid=imageRefs[mi].messageId; if(mid==null)continue;
-            try{
-              var dl=await downloadTelegramMedia(s.workerUrl,s.workerKey,mid);
-              var ri={id:idSeq++,dataUrl:dl.dataUrl,name:'tg-'+mid+'.'+dl.ext,groupKey:String(variantCode),selected:true};
-              rawImages.push(ri);rec.images.push(ri);loadedImages++;
-            }catch(e){failedImages++;}
-          }
-          if(rec.images.length||bestText){tgPostRecords.push(rec);productsFound++;}
+        var productData = null;
+        try { productData = await fetchProductByCode(s.workerUrl, s.workerKey, code); } catch (e) { productData = null; }
+
+        var bestText = (productData && productData.product && productData.product.text) || '';
+        if (!bestText) postsForCode.forEach(function (p) { var t = p.text || ''; if (t.length > bestText.length) bestText = t; });
+        var productId = (productData && productData.product && productData.product.messageId) || fallbackPost.id;
+
+        var imageRefMap = {};
+        var imageRefs = [];
+        function addImageRef(mid, groupHint) {
+          if (mid == null) return;
+          var key = String(mid);
+          if (imageRefMap[key]) return;
+          imageRefMap[key] = true;
+          imageRefs.push({ messageId: mid, groupKey: groupHint || String(productId || code) });
         }
+        var autoImages = (productData && productData.images) || [];
+        for (var ai = 0; ai < autoImages.length; ai++) {
+          var aMid = autoImages[ai].messageId != null ? autoImages[ai].messageId : autoImages[ai];
+          addImageRef(aMid, autoImages[ai].groupedId || String(productId || code));
+        }
+        for (var pi = 0; pi < postsForCode.length; pi++) {
+          var p = postsForCode[pi];
+          if (p.hasMedia && p.id != null) addImageRef(p.id, p.groupedId || String(p.id));
+        }
+
+        if (bestText) texts.push(bestText);
+        var rec = { id: productId, code: code, text: bestText, images: [], price: productData && productData.product ? productData.product.price : null, sizeStatuses: productData && productData.product ? productData.product.sizeStatuses : null, sizeMeasurements: productData && productData.product ? productData.product.sizeMeasurements : null, sourcePostIds: postsForCode.map(function (p) { return p.id; }).filter(function (x) { return x != null; }) };
+        for (var mi = 0; mi < imageRefs.length; mi++) {
+          var mid = imageRefs[mi].messageId;
+          try {
+            var dl = await downloadTelegramMedia(s.workerUrl, s.workerKey, mid);
+            var ri = { id: idSeq++, dataUrl: dl.dataUrl, name: 'tg-' + mid + '.' + dl.ext, groupKey: String(imageRefs[mi].groupKey || productId || code), selected: true };
+            rawImages.push(ri); rec.images.push(ri); loadedImages++;
+          } catch (e) { failedImages++; }
+        }
+        if (rec.images.length || bestText) { tgPostRecords.push(rec); productsFound++; }
       }
 
-      // نجاح الجلب = تثبيت آخر Message ID حتى لا نعيد قراءة نفس المنشورات في المرة القادمة.
-      var maxFetchedId=posts.reduce(function(mx,p){var n=Number(p&&p.id);return Number.isFinite(n)?Math.max(mx,n):mx;},lastId||0);
-      if(maxFetchedId>lastId) localStorage.setItem(cursorKey,String(maxFetchedId));
-
-      if (texts.length) {
-        $('postText').value = texts.join('\n\n———\n\n');
-      }
-
+      if (mode === 'new' && data.maxId) localStorage.setItem('mysouq_tg_last_sync_id', String(data.maxId));
+      if (texts.length) $('postText').value = texts.join('\n\n———\n\n');
       renderRawAlbum();
       if (productsFound) {
         runAnalyze();
-        showStatus(
-          'تم جلب ' + productsFound + ' كوليكشن و ' + loadedImages + ' صورة (ألوان مجمّعة تحت كل كود). راجع واختر صورة لكل لون ثم صدّر.' +
-          (filtered.skippedNoCode ? ' استُبعد ' + filtered.skippedNoCode + ' بلا كود.' : '') +
-          (filtered.skippedStickers ? ' استُبعد ' + filtered.skippedStickers + ' استيكر.' : '') +
-          (filtered.skippedAnimations ? ' استُبعد ' + filtered.skippedAnimations + ' موشن.' : '') +
-          (filtered.skippedPolls ? ' استُبعد ' + filtered.skippedPolls + ' استطلاع.' : '') +
-          (failedImages ? ' تعذر تحميل ' + failedImages + ' ميديا.' : '') +
-          ' راجع ثم صدّر أو احذف.',
-          'ok'
-        );
+        showStatus('تم جلب ' + productsFound + ' كوليكشن و ' + loadedImages + ' صورة. راجع ثم صدّر أو احذف.' + (failedImages ? ' تعذر تحميل ' + failedImages + ' ميديا.' : ''), 'ok');
       } else {
-        showStatus(
-          'تم العثور على أكواد لكن لم يُحمَّل أي منتج/صور. تأكد من جلسة Telegram وصلاحية القناة في الـ Worker.',
-          'err'
-        );
+        showStatus('تم العثور على أكواد لكن لم يُحمَّل أي منتج/صور. تأكد من جلسة Telegram وصلاحية القناة في الـ Worker.', 'err');
       }
-    } catch (e) {
-      showStatus('فشل الجلب: ' + (e.message || e), 'err');
-    } finally {
-      $('btnFetchTg').disabled = false;
-    }
+    } catch (e) { showStatus('فشل الجلب: ' + (e.message || e), 'err'); }
+    finally { $('btnFetchTg').disabled = false; }
   }
 })();
   </script>
