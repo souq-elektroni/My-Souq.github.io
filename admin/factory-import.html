@@ -102,6 +102,35 @@
     .warn { color:#9a5b00; font-weight:800; }
     .oktext { color:#16734a; font-weight:800; }
     @media(max-width:700px){ .merge-bar{position:static}.collection-card{padding:10px}.size-table{min-width:560px} }
+    .collection-workspace{display:grid;grid-template-columns:340px 1fr;gap:14px;align-items:start;}
+    .collection-list{border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden;position:sticky;top:12px;}
+    .collection-list-head{padding:14px;border-bottom:1px solid var(--line);font-weight:900;color:var(--primary);}
+    .collection-item{padding:13px 14px;border-bottom:1px solid var(--line);cursor:pointer;background:#fff;transition:.15s;}
+    .collection-item:hover,.collection-item.active{background:#faf2fb;}
+    .collection-item .name{font-weight:900;font-size:14px;}
+    .collection-item .meta{font-size:11px;color:var(--muted);margin-top:4px;}
+    .collection-detail{border:1px solid var(--line);border-radius:16px;background:#fff;padding:16px;min-width:0;}
+    .collection-detail-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:12px;}
+    .collection-detail-title{font-size:19px;font-weight:900;color:var(--primary);}
+    .product-block{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px;background:#fffafb;}
+    .product-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+    .product-code{font-size:15px;font-weight:900;}
+    .color-block{border-top:1px dashed var(--line);padding-top:10px;margin-top:10px;}
+    .color-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;}
+    .color-name{font-weight:900;color:var(--primary);}
+    .tg-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;margin-top:9px;}
+    .tg-image-card{position:relative;border:2px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;}
+    .tg-image-card.selected{border-color:var(--ok);box-shadow:0 0 0 2px rgba(46,125,50,.12);}
+    .tg-image-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;cursor:pointer;}
+    .tg-image-actions{display:flex;gap:4px;padding:5px;background:#fff;}
+    .tg-image-actions button{border:0;border-radius:7px;padding:5px 7px;cursor:pointer;font-weight:900;font-size:10px;}
+    .tg-delete{background:#ffebee;color:#c62828;}
+    .tg-approve{background:#e8f5e9;color:#2e7d32;}
+    .preview-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
+    .preview-modal.show{display:flex;}
+    .preview-modal img{max-width:92vw;max-height:88vh;object-fit:contain;border-radius:12px;}
+    .preview-close{position:absolute;top:18px;right:22px;border:0;background:#fff;color:#222;border-radius:999px;width:42px;height:42px;font-size:24px;font-weight:900;cursor:pointer;}
+    @media(max-width:900px){.collection-workspace{grid-template-columns:1fr}.collection-list{position:static}}
 
     .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
     .tab {
@@ -250,44 +279,39 @@
 
     <!-- ===== نتيجة التحليل ===== -->
     <div class="card" id="reviewCard" style="display:none;">
-      <h2>③ مراجعة Collections المستوردة</h2>
-      <p class="hint" style="margin-bottom:10px;">كل كود يظهر كـ Collection مستقل. راجع الصور والسعر والوصف والمقاسات، ثم صدّر الكوليكشن المطلوب بدون دمج أكواد مختلفة.</p>
-      <div id="collectionsBox"></div>
+      <h2>③ الكوليكشنات المسحوبة</h2>
+      <p class="hint" style="margin-bottom:12px;">اليسار: الكوليكشنات التي تم العثور عليها. اليمين: تفاصيل الكوليكشن، ثم الكود واللون وصور كل لون بدون خلط.</p>
+      <div class="collection-workspace">
+        <div class="collection-list" id="collectionListBox"></div>
+        <div class="collection-detail" id="collectionDetailBox"><p class="hint">اختر كوليكشن من القائمة.</p></div>
+      </div>
       <div class="card" style="margin-top:14px;background:#fff;">
-        <h3 style="margin-top:0;">④ الكوليكشن النهائي / التصدير</h3>
+        <h3 style="margin-top:0;">④ تصدير المنتج المحدد</h3>
         <div class="row">
-          <div>
-            <label>اسم المنتج <span style="color:#b00020">*</span></label>
-            <input type="text" id="outTitle" placeholder="اتركه فارغًا لو لم تراجع الاسم بعد">
-          </div>
-          <div>
-            <label>القسم</label>
-            <select id="outCategory">
-              <option value="ملابس شتوية">ملابس شتوية</option><option value="ملابس خروج">ملابس خروج</option><option value="أحذية">أحذية</option><option value="عروض">عروض</option>
-            </select>
-          </div>
+          <div><label>اسم المنتج <span style="color:#b00020">*</span></label><input type="text" id="outTitle" placeholder="اسم المنتج"></div>
+          <div><label>القسم</label><select id="outCategory"><option value="ملابس شتوية">ملابس شتوية</option><option value="ملابس خروج">ملابس خروج</option><option value="أحذية">أحذية</option><option value="عروض">عروض</option></select></div>
         </div>
         <div class="row">
-          <div><label>كود الكوليكشن</label><input type="text" id="outCollectionCode" readonly placeholder="يظهر للتعريف فقط"></div>
-          <div><label>السعر العام (إن وُجد)</label><input type="number" id="outPrice" min="0" placeholder="يُستخدم فقط إذا كان السعر موحدًا"></div>
+          <div><label>كود المنتج</label><input type="text" id="outCollectionCode" readonly></div>
+          <div><label>السعر العام</label><input type="number" id="outPrice" min="0"></div>
         </div>
-        <div class="row">
-          <div><label>السعر القديم للبطاقة (اختياري)</label><input type="number" id="outOldPrice" min="0"></div><div></div>
-        </div>
-        <label>الوصف — بدون السعر أو الكود أو المقاسات</label>
-        <textarea id="outBody" style="min-height:220px" placeholder="وصف المنتج فقط"></textarea>
+        <div class="row"><div><label>السعر القديم</label><input type="number" id="outOldPrice" min="0"></div><div></div></div>
+        <label>الوصف</label><textarea id="outBody" style="min-height:180px"></textarea>
         <label style="margin-top:12px">المقاسات والأسعار حسب المقاس</label>
         <div id="outSizesTable" class="size-table-wrap"></div>
         <textarea id="outSizes" style="display:none"></textarea>
         <div class="btns" style="margin-top:14px;">
           <button type="button" class="btn ok" onclick="exportProductMd()">⬇️ تصدير ملف المنتج</button>
           <button type="button" class="btn" onclick="exportToSveltia()">⬆️ تصدير إلى Sveltia CMS</button>
-          <button type="button" class="btn danger" onclick="discardCollection()">🗑️ حذف استيراد</button>
+          <button type="button" class="btn danger" onclick="discardCollection()">🗑️ حذف المسودة</button>
         </div>
         <p class="hint" id="exportHint"></p>
       </div>
     </div>
-
+    <div class="preview-modal" id="tgPreviewModal" onclick="closeTelegramPreview(event)">
+      <button type="button" class="preview-close" onclick="closeTelegramPreview(event)">×</button>
+      <img id="tgPreviewImage" src="" alt="معاينة الصورة">
+    </div>
     <footer>My Souq — استيراد المصنع · للإدارة فقط</footer>
   </div>
 
@@ -1201,6 +1225,94 @@
     importedCollections.forEach(function(c){renderSizeTable(c,'size-'+c.id);});
   }
   window.toggleCollectionImage=function(id,imgId,v){var c=importedCollections.find(function(x){return x.id===id;});if(c){var im=c.images.find(function(x){return String(x.id)===String(imgId);});if(im)im.selected=v;}};
+
+  var activeCollectionId = null;
+
+  function selectedCollection() {
+    return importedCollections.find(function(c){ return String(c.id) === String(activeCollectionId); }) || importedCollections[0] || null;
+  }
+
+  function renderCollectionsWorkspace() {
+    var list = $('collectionListBox'), detail = $('collectionDetailBox');
+    if (!list || !detail) return;
+    if (!importedCollections.length) {
+      list.innerHTML = '<div class="collection-list-head">لا توجد كوليكشنات</div>';
+      detail.innerHTML = '<p class="hint">لم يتم العثور على كوليكشنات بها صور منتجات فعلية.</p>';
+      return;
+    }
+    if (!activeCollectionId || !importedCollections.some(function(c){return String(c.id)===String(activeCollectionId);})) activeCollectionId = importedCollections[0].id;
+    list.innerHTML = '<div class="collection-list-head">📦 الكوليكشنات المسحوبة ('+importedCollections.length+')</div>' + importedCollections.map(function(c){
+      var productCount=(c.products||[]).length;
+      var imageCount=(c.products||[]).reduce(function(n,p){return n+(p.images||[]).length;},0);
+      return '<div class="collection-item '+(String(c.id)===String(activeCollectionId)?'active':'')+'" onclick="selectTelegramCollection(\''+escapeHtml(c.id)+'\')"><div class="name">'+escapeHtml(c.name||'كوليكشن غير محدد')+'</div><div class="meta">'+productCount+' كود · '+imageCount+' صورة</div><div class="hint">اضغط للاطلاع على التفاصيل ←</div></div>';
+    }).join('');
+    renderCollectionDetail();
+  }
+
+  window.selectTelegramCollection = function(id){ activeCollectionId=id; renderCollectionsWorkspace(); };
+
+  function renderCollectionDetail() {
+    var c=selectedCollection(), box=$('collectionDetailBox'); if(!c||!box)return;
+    var totalImages=(c.products||[]).reduce(function(n,p){return n+(p.images||[]).length;},0);
+    var html='<div class="collection-detail-head"><div><div class="collection-detail-title">'+escapeHtml(c.name||'كوليكشن غير محدد')+'</div><div class="hint">'+(c.products||[]).length+' أكواد · '+totalImages+' صورة فعلية</div></div></div>';
+    if(!(c.products||[]).length){html+='<p class="hint">لا توجد منتجات بصور.</p>';box.innerHTML=html;return;}
+    c.products.forEach(function(p){
+      html+='<div class="product-block"><div class="product-head"><div class="product-code">🔹 كود المنتج: '+escapeHtml(p.code)+'</div><button type="button" class="btn ok" onclick="useProductFromCollection(\''+escapeHtml(c.id)+'\',\''+escapeHtml(p.code)+'\')">اعتماد هذا الكود للتصدير</button></div>';
+      (p.colors||[]).forEach(function(col){
+        html+='<div class="color-block"><div class="color-head"><div class="color-name">🎨 اللون: '+escapeHtml(col.name||'غير محدد')+' <span class="hint">('+col.images.length+' صور)</span></div><div class="hint">اختر صورة واحدة معتمدة للون</div></div><div class="tg-images">';
+        col.images.forEach(function(im){
+          html+='<div class="tg-image-card '+(im.selected?'selected':'')+'"><img src="'+im.dataUrl+'" alt="'+escapeHtml(col.name)+'" onclick="openTelegramPreview(\''+escapeHtml(im.dataUrl)+'\')"><div class="tg-image-actions"><button type="button" class="tg-approve" onclick="approveTelegramColorImage(\''+escapeHtml(c.id)+'\',\''+escapeHtml(p.code)+'\',\''+escapeHtml(col.name)+'\',\''+escapeHtml(im.id)+'\')">'+(im.selected?'✓ معتمدة':'اعتماد')+'</button><button type="button" class="tg-delete" onclick="deleteTelegramColorImage(\''+escapeHtml(c.id)+'\',\''+escapeHtml(p.code)+'\',\''+escapeHtml(col.name)+'\',\''+escapeHtml(im.id)+'\')">حذف</button></div></div>';
+        });
+        html+='</div>';
+        if(col.text) html+='<details style="margin-top:8px"><summary class="hint" style="cursor:pointer">نص منشور اللون</summary><div class="hint" style="white-space:pre-wrap;background:#fff;padding:8px;border-radius:8px;margin-top:6px">'+escapeHtml(col.text)+'</div></details>';
+        html+='</div>';
+      });
+      html+='</div>';
+    });
+    box.innerHTML=html;
+  }
+
+  window.approveTelegramColorImage=function(cid,code,color,imgId){
+    var c=importedCollections.find(function(x){return String(x.id)===String(cid);}); if(!c)return;
+    var p=c.products.find(function(x){return String(x.code)===String(code);}); if(!p)return;
+    var col=p.colors.find(function(x){return String(x.name)===String(color);}); if(!col)return;
+    col.images.forEach(function(im){im.selected=String(im.id)===String(imgId);});
+    renderCollectionDetail();
+  };
+  window.deleteTelegramColorImage=function(cid,code,color,imgId){
+    var c=importedCollections.find(function(x){return String(x.id)===String(cid);}); if(!c)return;
+    var p=c.products.find(function(x){return String(x.code)===String(code);}); if(!p)return;
+    var col=p.colors.find(function(x){return String(x.name)===String(color);}); if(!col)return;
+    col.images=col.images.filter(function(im){return String(im.id)!==String(imgId);});
+    p.images=[]; p.colors.forEach(function(cc){p.images=p.images.concat(cc.images);});
+    if(!col.images.length) p.colors=p.colors.filter(function(cc){return cc!==col;});
+    renderCollectionsWorkspace();
+  };
+  window.openTelegramPreview=function(src){ $('tgPreviewImage').src=src; $('tgPreviewModal').classList.add('show'); };
+  window.closeTelegramPreview=function(e){ if(e && e.target && e.target.id==='tgPreviewImage')return; $('tgPreviewModal').classList.remove('show'); };
+
+  window.useProductFromCollection=function(cid,code){
+    var c=importedCollections.find(function(x){return String(x.id)===String(cid);});
+    var p=c && c.products.find(function(x){return String(x.code)===String(code);});
+    if(!p){showStatus('الكود المطلوب غير موجود.','err');return;}
+    var selectedImages=[];
+    (p.colors||[]).forEach(function(col){
+      var chosen=col.images.find(function(im){return im.selected;});
+      if(chosen){selectedImages.push(chosen);}
+    });
+    var missing=(p.colors||[]).filter(function(col){return !(col.images||[]).some(function(im){return im.selected;});});
+    if(missing.length){showStatus('اختر صورة معتمدة لكل لون أولًا: '+missing.map(function(col){return col.name||'غير محدد';}).join('، '),'err');return;}
+    if(!selectedImages.length){showStatus('اختر صورة واحدة لكل لون أولًا.','err');return;}
+    mergedDraft={id:p.code,code:p.code,title:p.title||c.name||p.code,description:p.description||'',price:p.price,priceMode:'uniform',sizes:(p.sizes||[]).map(function(r){return {size:r.size,price:r.price,values:(r.values||[]).slice()};}),images:selectedImages.slice()};
+    $('outTitle').value=p.title||c.name||p.code;
+    $('outCollectionCode').value=p.code||'';
+    $('outPrice').value=p.price==null?'':p.price;
+    $('outBody').value=p.description||'';
+    renderSizeTable(mergedDraft,'outSizesTable'); syncOutSizesHidden();
+    $('reviewCard').scrollIntoView({behavior:'smooth',block:'start'});
+    showStatus('تم اعتماد الكود '+p.code+' للتصدير مع صورة واحدة معتمدة لكل لون.','ok');
+  };
+
   window.updateCollectionPrice=function(id,v){var c=importedCollections.find(function(x){return x.id===id;});if(c){if(v===''){c.price=null;c.priceMode='per_size';}else{c.price=Number(v);c.priceMode='uniform';c.sizes.forEach(function(r){r.price=null;});}renderCollections();}};
   window.updateCollectionDescription=function(id,v){var c=importedCollections.find(function(x){return x.id===id;});if(c)c.description=v;};
   window.deleteImportedCollection=function(id){importedCollections=importedCollections.filter(function(c){return c.id!==id;});renderCollections();if(!importedCollections.length)$('reviewCard').style.display='none';showStatus('تم حذف الاستيراد من شاشة المراجعة فقط.','ok');};
@@ -1549,61 +1661,69 @@
       tgPostRecords = [];
       var loadedImages = 0;
       var failedImages = 0;
-      var productsFound = 0;
-
-      for (var ci = 0; ci < codeOrder.length; ci++) {
-        var code = codeOrder[ci];
-        var postsForCode = codeMap[code] || [];
-        var fallbackPost = postsForCode[0] || {};
-        showStatus('جاري جلب الكوليكشن ' + (ci + 1) + '/' + codeOrder.length + ': ' + code + ' (' + postsForCode.length + ' منشور)...', '');
-
-        var productData = null;
-        try { productData = await fetchProductByCode(s.workerUrl, s.workerKey, code); } catch (e) { productData = null; }
-
-        var bestText = (productData && productData.product && productData.product.text) || '';
-        if (!bestText) postsForCode.forEach(function (p) { var t = p.text || ''; if (t.length > bestText.length) bestText = t; });
-        var productId = (productData && productData.product && productData.product.messageId) || fallbackPost.id;
-
-        var imageRefMap = {};
-        var imageRefs = [];
-        function addImageRef(mid, groupHint) {
-          if (mid == null) return;
-          var key = String(mid);
-          if (imageRefMap[key]) return;
-          imageRefMap[key] = true;
-          imageRefs.push({ messageId: mid, groupKey: groupHint || String(productId || code) });
-        }
-        var autoImages = (productData && productData.images) || [];
-        for (var ai = 0; ai < autoImages.length; ai++) {
-          var aMid = autoImages[ai].messageId != null ? autoImages[ai].messageId : autoImages[ai];
-          addImageRef(aMid, autoImages[ai].groupedId || String(productId || code));
-        }
-        for (var pi = 0; pi < postsForCode.length; pi++) {
-          var p = postsForCode[pi];
-          if (p.hasMedia && p.id != null) addImageRef(p.id, p.groupedId || String(p.id));
-        }
-
-        if (bestText) texts.push(bestText);
-        var rec = { id: productId, code: code, text: bestText, images: [], price: productData && productData.product ? productData.product.price : null, sizeStatuses: productData && productData.product ? productData.product.sizeStatuses : null, sizeMeasurements: productData && productData.product ? productData.product.sizeMeasurements : null, sourcePostIds: postsForCode.map(function (p) { return p.id; }).filter(function (x) { return x != null; }) };
-        for (var mi = 0; mi < imageRefs.length; mi++) {
-          var mid = imageRefs[mi].messageId;
-          try {
-            var dl = await downloadTelegramMedia(s.workerUrl, s.workerKey, mid);
-            var ri = { id: idSeq++, dataUrl: dl.dataUrl, name: 'tg-' + mid + '.' + dl.ext, groupKey: String(imageRefs[mi].groupKey || productId || code), selected: true };
-            rawImages.push(ri); rec.images.push(ri); loadedImages++;
-          } catch (e) { failedImages++; }
-        }
-        if (rec.images.length || bestText) { tgPostRecords.push(rec); productsFound++; }
+      var sourceIds = posts.map(function(p){ return Number(p.id); }).filter(function(x){ return Number.isFinite(x); });
+      var dataQs = ['codes=' + encodeURIComponent(codeOrder.join(',')), 'sourceIds=' + encodeURIComponent(sourceIds.join(','))];
+      if (mode === 'new') {
+        var syncId = Number(localStorage.getItem('mysouq_tg_last_sync_id') || 0);
+        if (syncId > 0) dataQs.push('afterId=' + encodeURIComponent(syncId));
+      } else if (mode === 'range') {
+        dataQs.push('from=' + encodeURIComponent(new Date(from).toISOString()));
+        dataQs.push('to=' + encodeURIComponent(new Date(to).toISOString()));
       }
-
+      showStatus('تم العثور على ' + codeOrder.length + ' كود. جاري بناء الكوليكشنات حسب الكود + اللون + الصور...', '');
+      var cr = await fetch(s.workerUrl + '/telegram-collection-data?' + dataQs.join('&'), {
+        headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
+      });
+      var collectionData = await cr.json().catch(function(){return {};});
+      if (!cr.ok || collectionData.status === 'error') {
+        showStatus(collectionData.message || ('تعذر بناء الكوليكشنات — HTTP ' + cr.status), 'err');
+        return;
+      }
+      var serverCollections = collectionData.collections || [];
+      importedCollections = [];
+      for (var sci=0; sci<serverCollections.length; sci++) {
+        var sc = serverCollections[sci];
+        var products = [];
+        for (var spi=0; spi<(sc.products||[]).length; spi++) {
+          var sp = sc.products[spi];
+          var colors = [];
+          var productImages = [];
+          for (var sci2=0; sci2<(sp.colors||[]).length; sci2++) {
+            var scol = sp.colors[sci2];
+            var colorImages = [];
+            for (var si=0; si<(scol.images||[]).length; si++) {
+              var remote = scol.images[si];
+              try {
+                var dl = await downloadTelegramMedia(s.workerUrl, s.workerKey, remote.messageId);
+                var img = {id:idSeq++, dataUrl:dl.dataUrl, name:'tg-'+remote.messageId+'.'+dl.ext, messageId:remote.messageId, groupKey:String(remote.groupedId||remote.messageId), selected:false, color:scol.name, productCode:sp.code};
+                colorImages.push(img); productImages.push(img); loadedImages++;
+              } catch(e) { failedImages++; }
+            }
+            if (colorImages.length) {
+              colors.push({name:scol.name || 'غير محدد', images:colorImages, selectedImageId:null, text:scol.text||'', date:scol.date||null, messageIds:scol.messageIds||[]});
+            }
+          }
+          if (!colors.length) continue;
+          var textParts=[];
+          colors.forEach(function(c){ if(c.text && textParts.indexOf(c.text)<0) textParts.push(c.text); });
+          var parsedFirst = parseText(textParts.join('\n\n'));
+          var sizes = parseSizeMeasurements(textParts.join('\n'));
+          var price = parsedFirst && parsedFirst.phase1Price != null ? parsedFirst.phase1Price : (parsedFirst ? parsedFirst.basePrice : null);
+          products.push({code:sp.code, colors:colors, images:productImages, title:sc.name || sp.code, description:textParts.join('\n\n'), price:price, sizes:sizes.map(function(z){return {size:z.size,price:null,values:[z.pants_length||'',z.tshirt_length||'',z.tshirt_width||'']};}), sourcePostIds:colors.reduce(function(a,c){return a.concat(c.messageIds||[]);},[])});
+          colors.forEach(function(c){ if(c.text) texts.push(c.text); });
+        }
+        if (products.length) {
+          importedCollections.push({id:'col-'+(sci+1), name:sc.name || 'كوليكشن غير محدد', title:sc.name || '', code:products[0].code, products:products, selected:true});
+        }
+      }
       if (mode === 'new' && data.maxId) localStorage.setItem('mysouq_tg_last_sync_id', String(data.maxId));
       if (texts.length) $('postText').value = texts.join('\n\n———\n\n');
-      renderRawAlbum();
-      if (productsFound) {
-        runAnalyze();
-        showStatus('تم جلب ' + productsFound + ' كوليكشن و ' + loadedImages + ' صورة. راجع ثم صدّر أو احذف.' + (failedImages ? ' تعذر تحميل ' + failedImages + ' ميديا.' : ''), 'ok');
+      renderCollectionsWorkspace();
+      $('reviewCard').style.display = importedCollections.length ? 'block' : 'none';
+      if (!importedCollections.length) {
+        showStatus('تم العثور على أكواد، لكن لم يوجد أي كوليكشن به صور منتجات فعلية؛ لذلك تم استبعادها.', 'ok');
       } else {
-        showStatus('تم العثور على أكواد لكن لم يُحمَّل أي منتج/صور. تأكد من جلسة Telegram وصلاحية القناة في الـ Worker.', 'err');
+        showStatus('تم سحب ' + importedCollections.length + ' كوليكشن فعلي بصور، و' + loadedImages + ' صورة. الكوليكشنات بدون صور تم استبعادها.' + (failedImages ? ' تعذر تحميل ' + failedImages + ' صورة.' : ''), 'ok');
       }
     } catch (e) { showStatus('فشل الجلب: ' + (e.message || e), 'err'); }
     finally { $('btnFetchTg').disabled = false; }
