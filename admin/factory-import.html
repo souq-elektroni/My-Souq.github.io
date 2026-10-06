@@ -151,29 +151,111 @@
     .preview-modal.show{display:flex;}
     .preview-modal img{max-width:92vw;max-height:88vh;object-fit:contain;border-radius:12px;}
     .preview-close{position:absolute;top:18px;right:22px;border:0;background:#fff;color:#222;border-radius:999px;width:42px;height:42px;font-size:24px;font-weight:900;cursor:pointer;}
-    /* مودال تفاصيل الكوليكشن — شكل احترافي */
-    .detail-modal-overlay{position:fixed;inset:0;background:rgba(30,10,40,.55);z-index:900;display:none;align-items:flex-start;justify-content:center;padding:24px 12px;overflow-y:auto;}
+    /* مودال تفاصيل الكوليكشن — واسع ومرتب */
+    .detail-modal-overlay{
+      position:fixed;inset:0;background:rgba(20,8,30,.62);backdrop-filter:blur(6px);
+      z-index:900;display:none;align-items:flex-start;justify-content:center;
+      padding:16px 12px 32px;overflow-y:auto;
+    }
     .detail-modal-overlay.show{display:flex;}
-    .detail-modal{background:#fff;border-radius:18px;width:min(920px,100%);box-shadow:0 20px 60px rgba(0,0,0,.25);margin:auto;overflow:hidden;}
-    .detail-modal-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap;}
-    .detail-modal-top .code-pill{background:var(--primary);color:#fff;font-weight:900;font-size:14px;padding:8px 14px;border-radius:12px;display:inline-flex;align-items:center;gap:6px;}
-    .detail-modal-top .del-col{background:#fff;border:1px solid #f5c2c7;color:#c62828;font-weight:800;font-size:12px;padding:7px 12px;border-radius:10px;cursor:pointer;}
-    .detail-modal-body{padding:16px 18px;}
-    .detail-modal-meta{display:grid;grid-template-columns:180px 1fr;gap:12px;margin-bottom:14px;}
-    @media(max-width:640px){.detail-modal-meta{grid-template-columns:1fr;}}
-    .detail-price-box{background:#f3e8ff;border-radius:14px;padding:14px;text-align:center;}
-    .detail-price-box .lbl{font-size:12px;font-weight:800;color:var(--primary);margin-bottom:6px;}
-    .detail-price-box .val{font-size:22px;font-weight:900;color:var(--ink);}
-    .detail-desc-box{background:#faf6f8;border:1px solid var(--line);border-radius:14px;padding:12px;font-size:12px;font-weight:700;color:var(--muted);white-space:pre-wrap;max-height:120px;overflow:auto;line-height:1.55;}
-    .detail-modal-footer{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;padding:14px 18px;border-top:1px solid var(--line);background:#faf6f8;}
+    .detail-modal{
+      background:#fff;border-radius:22px;width:min(1180px,100%);
+      box-shadow:0 28px 80px rgba(0,0,0,.32);margin:12px auto 24px;overflow:hidden;
+      border:1px solid rgba(255,255,255,.4);
+    }
+    .detail-modal-top{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
+      padding:18px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap;
+      background:linear-gradient(135deg,#faf2fb 0%,#fff 55%,#f5f0ff 100%);
+    }
+    .detail-modal-top .code-pill{
+      background:var(--primary);color:#fff;font-weight:900;font-size:15px;
+      padding:10px 16px;border-radius:14px;display:inline-flex;align-items:center;gap:6px;
+      letter-spacing:.03em;box-shadow:0 4px 14px rgba(123,31,162,.28);
+    }
+    .detail-modal-top .del-col{
+      background:#fff;border:1px solid #f5c2c7;color:#c62828;font-weight:800;
+      font-size:12px;padding:8px 14px;border-radius:12px;cursor:pointer;
+    }
+    .detail-modal-top .del-col:hover{background:#fff5f5;}
+    .detail-modal-body{padding:18px 22px 22px;}
+    .detail-modal-meta{display:grid;grid-template-columns:200px 1fr;gap:14px;margin-bottom:16px;}
+    @media(max-width:720px){.detail-modal-meta{grid-template-columns:1fr;}}
+    .detail-price-box{
+      background:linear-gradient(160deg,#f3e8ff,#ede9fe);border-radius:16px;padding:16px;
+      text-align:center;border:1px solid #e9d5ff;
+    }
+    .detail-price-box .lbl{font-size:12px;font-weight:800;color:var(--primary);margin-bottom:8px;}
+    .detail-price-box .val{font-size:26px;font-weight:900;color:var(--ink);}
+    .detail-desc-box{
+      background:#faf6f8;border:1px solid var(--line);border-radius:16px;padding:14px;
+      font-size:13px;font-weight:700;color:var(--muted);white-space:pre-wrap;
+      max-height:140px;overflow:auto;line-height:1.6;
+    }
+    .detail-section-title{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+      margin:18px 0 10px;padding-bottom:8px;border-bottom:2px solid #f3e8ff;
+    }
+    .detail-section-title h3{
+      margin:0;font-size:14px;font-weight:900;color:var(--primary);
+      display:flex;align-items:center;gap:8px;
+    }
+    .detail-section-title .sec-badge{
+      font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;
+      background:#f3e8ff;color:var(--primary);
+    }
+    .detail-progress{
+      display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+      background:#faf6f8;border:1px solid var(--line);border-radius:14px;
+      padding:10px 14px;margin-bottom:14px;
+    }
+    .detail-progress-bar{
+      flex:1;min-width:120px;height:8px;background:#eee;border-radius:999px;overflow:hidden;
+    }
+    .detail-progress-bar > span{
+      display:block;height:100%;background:linear-gradient(90deg,var(--primary),#a855f7);
+      border-radius:999px;transition:width .25s;
+    }
+    .detail-modal-footer{
+      display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;
+      padding:16px 22px;border-top:1px solid var(--line);
+      background:linear-gradient(180deg,#faf6f8,#f5f0f7);
+      position:sticky;bottom:0;
+    }
     .detail-modal-footer .left,.detail-modal-footer .right{display:flex;flex-wrap:wrap;gap:8px;}
+    .color-block{
+      border:1px solid var(--line);border-radius:16px;padding:14px 14px 12px;
+      margin-top:12px;background:#fffafb;box-shadow:0 1px 3px rgba(0,0,0,.03);
+    }
+    .color-block.color-white{background:#f8f9fb;border-color:#e3e8ef;}
+    .color-block.color-yellow{background:#fffbeb;border-color:#fde68a;}
+    .color-block.color-red{background:#fff5f5;border-color:#fecaca;}
+    .color-block.color-green{background:#f0fdf4;border-color:#bbf7d0;}
+    .color-block.color-blue{background:#eff6ff;border-color:#bfdbfe;}
+    .color-block.color-black{background:#f4f4f5;border-color:#d4d4d8;}
+    .color-block.color-pink{background:#fdf2f8;border-color:#fbcfe8;}
+    .color-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+    .tg-images{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:6px;}
+    .tg-image-card{position:relative;border:2px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;transition:.15s;}
+    .tg-image-card:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(0,0,0,.08);}
+    .tg-image-card.selected{border-color:var(--ok);box-shadow:0 0 0 2px rgba(46,125,50,.2);}
+    .tg-image-card.rejected{opacity:.4;border-color:#ef9a9a;}
+    .tg-image-card img{width:100%;aspect-ratio:1;object-fit:cover;display:block;cursor:pointer;}
+    .tg-image-actions{display:flex;gap:4px;padding:6px;background:#fff;}
+    .tg-image-actions button{border:0;border-radius:8px;padding:6px 8px;cursor:pointer;font-weight:900;font-size:11px;flex:1;}
+    .size-table-wrap{overflow:auto;margin-top:8px;border-radius:12px;border:1px solid var(--line);}
+    .size-table{width:100%;border-collapse:collapse;min-width:560px;}
+    .size-table th,.size-table td{border:1px solid var(--line);padding:8px;text-align:center;font-size:12px;}
+    .size-table th{background:#faf2fb;font-weight:900;color:var(--primary);}
+    .size-table input{width:100%;min-width:64px;box-sizing:border-box;border:1px solid transparent;border-radius:6px;padding:6px;text-align:center;font-weight:700;}
+    .size-table input:focus{border-color:var(--primary);outline:0;background:#faf2fb;}
     .collection-list-card{border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;background:#fff;cursor:pointer;transition:.15s;}
     .collection-list-card:hover{border-color:var(--primary);background:#faf2fb;}
     .collection-list-card .cl-title{font-weight:900;font-size:15px;color:var(--ink);margin-bottom:6px;}
     .collection-list-card .cl-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;}
     .collection-list-card .cl-badge{font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;background:#f3e8ff;color:var(--primary);}
     .collection-list-card .cl-btn{margin-right:auto;background:var(--primary);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:900;font-size:12px;cursor:pointer;}
-    @media(max-width:900px){.collection-workspace{grid-template-columns:1fr}.collection-list{position:static;max-height:none}}
+    @media(max-width:900px){.collection-workspace{grid-template-columns:1fr}.collection-list{position:static;max-height:none}.detail-modal{width:100%;border-radius:16px}}
 
     .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
     .tab {
@@ -256,7 +338,7 @@
             <tbody id="codesTableBody"></tbody>
           </table>
         </div>
-        <p class="hint" style="margin-top:8px;">الحد الأقصى للصور لكل منشور: <b>46</b>. تقدر تستورد كود واحد أو مجموعة أكواد مع بعض.</p>
+        <p class="hint" style="margin-top:8px;">الحد الأقصى للصور لكل كود: <b>120</b> (مع تصفية التكرار). تقدر تستورد كود واحد أو مجموعة أكواد مع بعض.</p>
       </div>
     </div>
 
@@ -346,7 +428,7 @@
   var idSeq = 1;
   /** أكواد مكتشفة من البحث بالتاريخ — قبل الاستيراد */
   var discoveredCodes = []; // [{code, postIds, posts, sampleText, postCount}]
-  var MAX_PHOTOS_PER_POST = 46;
+  var MAX_PHOTOS_PER_POST = 120;
 
   function $(id) { return document.getElementById(id); }
 
@@ -1683,31 +1765,47 @@
     var colorTotal = (p.colors || []).length;
     var descText = (p.description || '').trim();
 
+    var imgTotal = (p.colors || []).reduce(function (n, col) {
+      return n + ((col.images || []).filter(function (im) { return !im.rejected; }).length);
+    }, 0);
+    var progressPct = colorTotal ? Math.round((approvedCount / colorTotal) * 100) : 0;
+
     var html = '';
     // رأس المودال
     html += '<div class="detail-modal-top">';
-    html += '<div>';
-    html += '<div style="font-size:13px;font-weight:800;color:var(--muted);margin-bottom:4px">تفاصيل الكوليكشن</div>';
-    html += '<div style="font-size:17px;font-weight:900;color:var(--ink)">' + escapeHtml(title) + '</div>';
-    if (productType) html += '<div class="hint" style="margin-top:4px">نوع المنتج: ' + escapeHtml(productType) + '</div>';
-    html += '</div>';
+    html += '<div style="min-width:0;flex:1">';
+    html += '<div style="font-size:12px;font-weight:800;color:var(--muted);margin-bottom:4px">تفاصيل الكوليكشن</div>';
+    html += '<div style="font-size:20px;font-weight:900;color:var(--ink);line-height:1.35">' + escapeHtml(title) + '</div>';
+    html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">';
+    if (productType) html += '<span class="cl-badge">' + escapeHtml(productType) + '</span>';
+    html += '<span class="cl-badge">' + colorTotal + ' لون</span>';
+    html += '<span class="cl-badge">' + imgTotal + ' صورة</span>';
+    html += '</div></div>';
     html += '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">';
     html += '<span class="code-pill">' + escapeHtml(p.code) + '</span>';
-    html += '<button type="button" class="del-col" onclick="deleteImportedCollection(\'' + escapeHtml(c.id) + '\');closeDetailModal();">حذف الكوليكشن</button>';
-    html += '<button type="button" class="btn ghost" style="padding:6px 12px;font-size:12px" onclick="closeDetailModal()">× إغلاق</button>';
-    html += '</div></div>';
+    html += '<div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end">';
+    html += '<button type="button" class="del-col" onclick="deleteImportedCollection(\'' + escapeHtml(c.id) + '\');closeDetailModal();">حذف</button>';
+    html += '<button type="button" class="btn ghost" style="padding:8px 14px;font-size:12px" onclick="closeDetailModal()">× إغلاق</button>';
+    html += '</div></div></div>';
 
     html += '<div class="detail-modal-body">';
-    // سعر + نص المنشور
     html += '<div class="detail-modal-meta">';
-    html += '<div class="detail-price-box"><div class="lbl">السعر الفعلي للكوليكشن</div>';
-    html += '<div class="val">' + (p.price != null ? (p.price + ' جنيه') : '—') + '</div></div>';
+    html += '<div class="detail-price-box"><div class="lbl">السعر الفعلي</div>';
+    html += '<div class="val">' + (p.price != null ? (p.price + ' <span style="font-size:14px">جنيه</span>') : '—') + '</div></div>';
     html += '<div><div class="lbl" style="font-size:12px;font-weight:800;color:var(--primary);margin-bottom:6px">نص المنشور (الوصف)</div>';
     html += '<div class="detail-desc-box">' + (descText ? escapeHtml(descText) : 'لا يوجد نص') + '</div></div>';
     html += '</div>';
 
-    html += '<div class="hint" style="margin-bottom:10px">الكود واحد (<b>' + escapeHtml(p.code) + '</b>) — الفصل بين الألوان من الكتابة على الصورة جنب الكود (مثال: ' + escapeHtml(String(p.code||'').toLowerCase()) + '-yellow). معتمد: <b>' + approvedCount + ' / ' + colorTotal + '</b> — اضغط اعتماد لصورة واحدة لكل لون</div>';
+    html += '<div class="detail-progress">';
+    html += '<span style="font-size:12px;font-weight:900;color:var(--ink)">اعتماد الألوان: <b>' + approvedCount + ' / ' + colorTotal + '</b></span>';
+    html += '<div class="detail-progress-bar"><span style="width:' + progressPct + '%"></span></div>';
+    html += '<span style="font-size:11px;font-weight:800;color:var(--muted)">' + progressPct + '%</span>';
+    html += '</div>';
+    html += '<p class="hint" style="margin-bottom:4px">الكود واحد (<b>' + escapeHtml(p.code) + '</b>) — اللون من الكتابة على القماش جنب الكود. اضغط <b>اعتماد</b> لصورة واحدة لكل لون.</p>';
 
+    html += '<div class="detail-section-title"><h3>🎨 الألوان والصور</h3><span class="sec-badge">' + colorTotal + ' صف</span></div>';
+
+    // صفوف الألوان
     // صفوف الألوان
     (p.colors || []).forEach(function (col) {
       var hasApproved = (col.images || []).some(function (im) { return im.selected; });
@@ -1745,7 +1843,7 @@
     });
 
     // جدول المقاسات — ترتيب مثل الشاشة المطلوبة
-    html += '<div style="margin-top:16px;font-size:13px;font-weight:900;color:var(--primary);margin-bottom:8px">المقاسات (من نص المنشور — قابلة للتعديل)</div>';
+    html += '<div class="detail-section-title"><h3>📏 المقاسات</h3><span class="sec-badge">قابلة للتعديل</span></div>';
     if ((p.sizes || []).length) {
       html += '<div class="size-table-wrap"><table class="size-table"><thead><tr>';
       html += '<th>المقاس</th><th>طول البنطلون</th><th>طول التيشرت</th><th>عرض التيشرت</th>';
@@ -1769,7 +1867,7 @@
 
     // صور جداول المقاسات (منفصلة عن صور الألوان)
     var charts = p.sizeChartImages || [];
-    html += '<div style="margin-top:18px;font-size:13px;font-weight:900;color:var(--primary);margin-bottom:8px">صور جداول المقاسات (منفصلة — للكود ' + escapeHtml(p.code) + ')</div>';
+    html += '<div class="detail-section-title"><h3>📐 صور جداول المقاسات</h3><span class="sec-badge">كود ' + escapeHtml(p.code) + '</span></div>';
     if (charts.length) {
       html += '<p class="hint" style="margin-bottom:8px">الصور دي اتصنّفت كجداول مقاسات واتشالت من حقول الألوان. لو الجدول فوق فاضي، اقرأ من الصورة وأدخل المقاسات يدويًا.</p>';
       html += '<div class="tg-images">';
@@ -1784,7 +1882,7 @@
     }
     var modelImgs = p.modelImages || [];
     if (modelImgs.length) {
-      html += '<div style="margin-top:18px;font-size:13px;font-weight:900;color:#b45309;margin-bottom:8px">صور موديل (مستبعدة من الألوان — ' + modelImgs.length + ')</div>';
+      html += '<div class="detail-section-title"><h3 style="color:#b45309">👤 صور موديل (مستبعدة)</h3><span class="sec-badge">' + modelImgs.length + '</span></div>';
       html += '<p class="hint" style="margin-bottom:8px">لو صور المنتج الحقيقي اتستبعدت بالغلط، اضغط «أضف للألوان» لإرجاعها.</p>';
       html += '<div class="tg-images">';
       modelImgs.forEach(function (im) {
@@ -2351,6 +2449,28 @@
   }
 
   /** تحميل مجموعة صور بتوازي محدود (3) مع حد أقصى */
+
+  /** تصفية التكرار: بنفس messageId أو بنفس بصمة مختصرة للـ dataUrl */
+  function dedupeImages(images) {
+    var out = [];
+    var seenId = {};
+    var seenFp = {};
+    (images || []).forEach(function (im) {
+      var mid = Number(im.messageId);
+      if (Number.isFinite(mid) && mid > 0) {
+        if (seenId[mid]) return;
+        seenId[mid] = true;
+      }
+      var src = String(im.dataUrl || '');
+      // بصمة: طول + مقاطع من البداية والوسط والنهاية
+      var fp = src.length + ':' + src.slice(22, 60) + ':' + src.slice(Math.floor(src.length / 2), Math.floor(src.length / 2) + 40) + ':' + src.slice(-40);
+      if (seenFp[fp]) return;
+      seenFp[fp] = true;
+      out.push(im);
+    });
+    return out;
+  }
+
   async function downloadImagesLimited(workerUrl, workerKey, imageRefs, maxTotal) {
     maxTotal = maxTotal || 40;
     var refs = [];
@@ -2512,8 +2632,8 @@
           allRefs.push({ messageId: remote.messageId, groupedId: remote.groupedId, colIdx: colIdx });
         });
       });
-      // حد أقصى: 46 × عدد الألوان (بس سقف 120 للكود)
-      var maxForCode = Math.min(MAX_PHOTOS_PER_POST * Math.max(pEntry.colors.length, 1), 120);
+      // حد أقصى 120 صورة للكود مع تصفية التكرار
+      var maxForCode = MAX_PHOTOS_PER_POST;
       var dlPack = await downloadImagesLimited(s.workerUrl, s.workerKey, allRefs, maxForCode);
       failedImages += dlPack.failed;
       var byMsgId = {};
@@ -2622,7 +2742,13 @@
         }
       }
       colors = cleanColors;
-      productImages = productOnly;
+      // تصفية تكرار داخل كل لون + على مستوى المنتج
+      colors.forEach(function (c) {
+        c.images = dedupeImages(c.images || []);
+      });
+      colors = colors.filter(function (c) { return (c.images || []).length > 0; });
+      productImages = dedupeImages(productOnly);
+      sizeChartImages = dedupeImages(sizeChartImages);
       if (!colors.length && !sizeChartImages.length) continue;
 
       var textParts = [];
