@@ -1868,12 +1868,40 @@
   }
 
 
+  /** fetch مع timeout ورسالة خطأ مفهومة */
+  async function workerFetch(url, options, timeoutMs) {
+    timeoutMs = timeoutMs || 90000;
+    var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timer = null;
+    if (ctrl) {
+      timer = setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, timeoutMs);
+      options = Object.assign({}, options || {}, { signal: ctrl.signal });
+    }
+    try {
+      var r = await fetch(url, options);
+      return r;
+    } catch (e) {
+      var msg = String(e && e.message ? e.message : e);
+      if (e && e.name === 'AbortError') {
+        throw new Error('انتهى وقت الانتظار (' + Math.round(timeoutMs / 1000) + 'ث) — الـ Worker أخذ وقت طويل أو الشبكة بطيئة.');
+      }
+      if (/Failed to fetch|NetworkError|Load failed|network/i.test(msg)) {
+        throw new Error(
+          'تعذر الاتصال بالـ Worker (Failed to fetch). تأكد من: 1) رابط الـ Worker صحيح في الإعدادات 2) رفع آخر نسخة Worker 3) الصفحة والـ Worker بنفس البروتوكول https 4) جرّب «اختبار الاتصال».'
+        );
+      }
+      throw e;
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+
   // تحميل صورة واحدة من Worker v2: /telegram-media-auto?messageId=
   async function downloadTelegramMedia(workerUrl, workerKey, messageId) {
     var mediaUrl = workerUrl + '/telegram-media-auto?messageId=' + encodeURIComponent(messageId);
-    var ir = await fetch(mediaUrl, {
+    var ir = await workerFetch(mediaUrl, {
       headers: workerKey ? { 'X-Admin-Key': workerKey } : {}
-    });
+    }, 45000);
     if (!ir.ok) throw new Error('HTTP ' + ir.status);
     var blob = await ir.blob();
     if (blob && blob.type && blob.type.indexOf('image/') !== 0 && blob.type !== 'application/octet-stream') {
@@ -1964,10 +1992,10 @@
         qs.push('to=' + encodeURIComponent(localInputToIso(to, true)));
       }
 
-      var r = await fetch(s.workerUrl + '/telegram-posts?' + qs.join('&'), {
+      var r = await workerFetch(s.workerUrl + '/telegram-posts?' + qs.join('&'), {
         method: 'GET',
         headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
-      });
+      }, 120000);
       var data = await r.json().catch(function () { return {}; });
       if (!r.ok) {
         showStatus(data.message || data.error || ('خطأ ' + r.status + ' — تأكد من تسجيل دخول تيليجرام على الـ Worker'), 'err');
@@ -2028,18 +2056,33 @@
       tgPostRecords = posts.slice();
       var loadedImages = 0;
       var failedImages = 0;
-      // نبحث بالأكواد فقط (من غير afterId/sourceIds) عشان نجيب كل ألوان المنتج كاملة
-      var dataQs = ['codes=' + encodeURIComponent(codeOrder.join(','))];
+      // بناء الكوليكشنات على دفعات (5 أكواد) لتفادي timeout
       showStatus('جاري بناء الكوليكشنات: ' + codeOrder.length + ' كود — جلب الألوان والصور...', '');
-      var cr = await fetch(s.workerUrl + '/telegram-collection-data?' + dataQs.join('&'), {
-        headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {}
-      });
-      var collectionData = await cr.json().catch(function () { return {}; });
-      if (!cr.ok || collectionData.status === 'error') {
-        showStatus(collectionData.message || ('تعذر بناء الكوليكشنات — HTTP ' + cr.status), 'err');
-        return;
+      var serverCollections = [];
+      var collectionData = { debugCodes: [] };
+      var chunkSize = 5;
+      for (var ci = 0; ci < codeOrder.length; ci += chunkSize) {
+        var chunk = codeOrder.slice(ci, ci + chunkSize);
+        showStatus(
+          'بناء الكوليكشنات... (' + Math.min(ci + chunk.length, codeOrder.length) + '/' + codeOrder.length + ' كود)',
+          ''
+        );
+        var dataQs = ['codes=' + encodeURIComponent(chunk.join(','))];
+        var cr = await workerFetch(
+          s.workerUrl + '/telegram-collection-data?' + dataQs.join('&'),
+          { headers: s.workerKey ? { 'X-Admin-Key': s.workerKey } : {} },
+          120000
+        );
+        var part = await cr.json().catch(function () { return {}; });
+        if (!cr.ok || part.status === 'error') {
+          showStatus(part.message || ('تعذر بناء الكوليكشنات — HTTP ' + cr.status), 'err');
+          return;
+        }
+        if (part.debugCodes) collectionData.debugCodes = collectionData.debugCodes.concat(part.debugCodes);
+        (part.collections || []).forEach(function (col) {
+          serverCollections.push(col);
+        });
       }
-      var serverCollections = collectionData.collections || [];
       importedCollections = [];
       for (var sci = 0; sci < serverCollections.length; sci++) {
         var sc = serverCollections[sci];
@@ -2167,7 +2210,7 @@
         );
       }
     } catch (e) {
-      showStatus('فشل الجلب: ' + (e.message || e), 'err');
+      showStatus('فشل الجلب: ' + (e && e.message ? e.message : e), 'err');
     } finally {
       $('btnFetchTg').disabled = false;
     }
