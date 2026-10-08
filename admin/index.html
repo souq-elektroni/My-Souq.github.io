@@ -246,6 +246,55 @@
     </style>
 
 
+  
+<style id="my-souq-admin-tools-style">
+  #my-souq-admin-tools {
+    position: fixed;
+    top: 14px;
+    right: 14px;
+    z-index: 2147483000;
+    display: flex;
+    gap: 8px;
+    direction: rtl;
+    font-family: Arial, sans-serif;
+  }
+  #my-souq-admin-tools button {
+    border: 0;
+    border-radius: 10px;
+    min-height: 40px;
+    padding: 8px 13px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 13px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.12);
+    transition: transform .12s ease, filter .12s ease;
+  }
+  #my-souq-admin-tools button:hover {
+    transform: translateY(-1px);
+    filter: brightness(.97);
+  }
+  #my-souq-telegram-btn {
+    background: #229ED9;
+    color: #fff;
+  }
+  #my-souq-logout-btn {
+    background: #803d48;
+    color: #fff;
+  }
+  @media (max-width: 700px) {
+    #my-souq-admin-tools {
+      top: 8px;
+      right: 8px;
+      gap: 6px;
+    }
+    #my-souq-admin-tools button {
+      min-height: 36px;
+      padding: 7px 9px;
+      font-size: 11px;
+    }
+  }
+</style>
+
   </head>
 
   <body>
@@ -698,5 +747,149 @@
         window.CMS.init();
       })();
     </script>
+
+<script id="my-souq-admin-tools-script">
+(function () {
+  "use strict";
+
+  var TELEGRAM_WEB_URL = "https://web.telegram.org/";
+
+  function createAdminTools() {
+    if (document.getElementById("my-souq-admin-tools")) return;
+
+    var wrap = document.createElement("div");
+    wrap.id = "my-souq-admin-tools";
+    wrap.setAttribute("role", "toolbar");
+    wrap.setAttribute("aria-label", "أدوات لوحة الإدارة");
+
+    var telegram = document.createElement("button");
+    telegram.id = "my-souq-telegram-btn";
+    telegram.type = "button";
+    telegram.textContent = "✈️ Telegram Web";
+    telegram.title = "فتح Telegram Web الأصلي";
+    telegram.addEventListener("click", function () {
+      window.open(TELEGRAM_WEB_URL, "_blank", "noopener,noreferrer");
+    });
+
+    var logout = document.createElement("button");
+    logout.id = "my-souq-logout-btn";
+    logout.type = "button";
+    logout.textContent = "🚪 تسجيل الخروج";
+    logout.title = "تسجيل الخروج من لوحة الإدارة";
+    logout.addEventListener("click", function () {
+      var ok = window.confirm("هل تريد تسجيل الخروج من لوحة الإدارة؟");
+      if (!ok) return;
+
+      /*
+       * لا نمسح localStorage/sessionStorage عشوائياً حتى لا نحذف
+       * إعدادات أو مسودات Sveltia. بدلاً من ذلك نبحث عن أمر الخروج
+       * الأصلي الذي تعرضه Sveltia ونضغطه، إن كان موجوداً.
+       */
+      var labels = [
+        "تسجيل الخروج",
+        "خروج",
+        "Log out",
+        "Logout",
+        "Sign out",
+        "Sign Out"
+      ];
+
+      function normalize(s) {
+        return String(s || "")
+          .replace(/\s+/g, " ")
+          .trim()
+          .toLowerCase();
+      }
+
+      function findNativeLogout() {
+        var candidates = document.querySelectorAll(
+          "button, a, [role='button'], [role='menuitem']"
+        );
+
+        for (var i = 0; i < candidates.length; i++) {
+          var el = candidates[i];
+          var text = normalize(el.innerText || el.textContent || el.getAttribute("aria-label"));
+          if (!text) continue;
+
+          for (var j = 0; j < labels.length; j++) {
+            if (text === normalize(labels[j]) || text.indexOf(normalize(labels[j])) !== -1) {
+              return el;
+            }
+          }
+        }
+        return null;
+      }
+
+      var nativeLogout = findNativeLogout();
+
+      if (nativeLogout) {
+        nativeLogout.click();
+        return;
+      }
+
+      /*
+       * Sveltia may render the account menu only after it is opened.
+       * Try the likely account/profile controls once, then search again.
+       */
+      var profileCandidates = document.querySelectorAll(
+        "button, [role='button'], a"
+      );
+      var openedMenu = false;
+
+      for (var k = 0; k < profileCandidates.length; k++) {
+        var p = profileCandidates[k];
+        var aria = normalize(p.getAttribute("aria-label"));
+        var title = normalize(p.getAttribute("title"));
+        var txt = normalize(p.innerText || p.textContent);
+
+        if (
+          aria.indexOf("account") !== -1 ||
+          aria.indexOf("profile") !== -1 ||
+          aria.indexOf("user") !== -1 ||
+          title.indexOf("account") !== -1 ||
+          title.indexOf("profile") !== -1 ||
+          txt === "admin"
+        ) {
+          p.click();
+          openedMenu = true;
+          break;
+        }
+      }
+
+      if (openedMenu) {
+        setTimeout(function () {
+          var retry = findNativeLogout();
+          if (retry) {
+            retry.click();
+          } else {
+            alert("لم أجد أمر تسجيل الخروج الأصلي في Sveltia. استخدم قائمة الحساب داخل Sveltia لتسجيل الخروج، ولم يتم حذف أي بيانات.");
+          }
+        }, 250);
+      } else {
+        alert("لم أجد أمر تسجيل الخروج الأصلي في Sveltia. استخدم قائمة الحساب داخل Sveltia لتسجيل الخروج، ولم يتم حذف أي بيانات.");
+      }
+    });
+
+    wrap.appendChild(telegram);
+    wrap.appendChild(logout);
+    document.body.appendChild(wrap);
+  }
+
+  function start() {
+    createAdminTools();
+    var observer = new MutationObserver(function () {
+      createAdminTools();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", start);
+  } else {
+    start();
+  }
+})();
+</script>
+
 </body>
 </html>
