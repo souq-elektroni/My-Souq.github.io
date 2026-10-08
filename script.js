@@ -447,7 +447,52 @@ let products = [];
   }
 }
 
-function productCardHtml(p) {
+/* ===== أسعار ذكية: السعر الأساسي + أسعار المقاسات معاً =====
+   - لو السعر الأساسي > 0 → يظهر كما هو (مع السعر القديم إن وُجد)
+   - لو السعر الأساسي = 0 وفي المقاسات أسعار → يظهر «من أقل سعر» أو السعر الموحد
+   - نافذة التفاصيل تظل تتحدث حسب المقاس المختار (كما كانت)
+   لا يتم حذف أو تعطيل أي سلوك سابق */
+  function getVariantPrices(p) {
+    return (p.variants || [])
+      .map(function (v) { return Number(v && v.price); })
+      .filter(function (n) { return Number.isFinite(n) && n > 0; });
+  }
+
+  function getEffectivePrice(p) {
+    var base = Number(p.price) || 0;
+    if (base > 0) return base;
+    var prices = getVariantPrices(p);
+    if (prices.length === 0) return 0;
+    return Math.min.apply(null, prices);
+  }
+
+  function getCardPriceHtml(p) {
+    var base = Number(p.price) || 0;
+    var oldPrice = Number(p.oldPrice) || 0;
+    var prices = getVariantPrices(p);
+    var main = 0;
+    var prefix = '';
+
+    if (base > 0) {
+      main = base;
+    } else if (prices.length > 0) {
+      var minP = Math.min.apply(null, prices);
+      var maxP = Math.max.apply(null, prices);
+      main = minP;
+      if (minP !== maxP) prefix = 'من ';
+    }
+
+    var html = prefix + main + ' ج.م';
+    if (oldPrice > 0) {
+      html +=
+        '<span style="font-size:11px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;">' +
+        oldPrice +
+        ' ج.م</span>';
+    }
+    return html;
+  }
+
+  function productCardHtml(p) {
     return `
         <div class="product-card" onclick="openProductModal(${p.id})">
           <div class="image-container">
@@ -459,8 +504,7 @@ function productCardHtml(p) {
           <div class="product-details">
             <h3 class="product-title">${p.title}</h3>
             <div class="price-tag">
-              ${p.price} ج.م
-              ${p.oldPrice > 0 ? `<span style="font-size:11px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;">${p.oldPrice} ج.م</span>` : ''}
+              ${getCardPriceHtml(p)}
             </div>
             <div class="click-hint">عرض التفاصيل 👈</div>
           </div>
@@ -561,8 +605,8 @@ function productCardHtml(p) {
       ? document.getElementById('sortSelect').value
       : '';
     let sorted = [...products];
-    if (sortVal === 'low-high') sorted.sort((a, b) => a.price - b.price);
-    else if (sortVal === 'high-low') sorted.sort((a, b) => b.price - a.price);
+    if (sortVal === 'low-high') sorted.sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));
+    else if (sortVal === 'high-low') sorted.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
     renderProducts(sorted);
   }
 
