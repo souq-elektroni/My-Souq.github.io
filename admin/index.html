@@ -250,8 +250,10 @@
 <style id="my-souq-admin-tools-style">
   #my-souq-admin-tools {
     position: fixed;
-    top: 14px;
-    right: 14px;
+    top: 10px;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
     z-index: 2147483000;
     display: flex;
     gap: 8px;
@@ -284,8 +286,11 @@
   @media (max-width: 700px) {
     #my-souq-admin-tools {
       top: 8px;
-      right: 8px;
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
       gap: 6px;
+      max-width: calc(100vw - 16px);
     }
     #my-souq-admin-tools button {
       min-height: 36px;
