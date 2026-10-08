@@ -470,26 +470,157 @@ let products = [];
     var base = Number(p.price) || 0;
     var oldPrice = Number(p.oldPrice) || 0;
     var prices = getVariantPrices(p);
-    var main = 0;
-    var prefix = '';
 
+    // لو السعر الأساسي مكتوب → يظهر عادي على الكرت
     if (base > 0) {
-      main = base;
-    } else if (prices.length > 0) {
-      var minP = Math.min.apply(null, prices);
-      var maxP = Math.max.apply(null, prices);
-      main = minP;
-      if (minP !== maxP) prefix = 'من ';
+      var html = base + ' ج.م';
+      if (oldPrice > 0) {
+        html +=
+          '<span style="font-size:11px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;">' +
+          oldPrice +
+          ' ج.م</span>';
+      }
+      return html;
     }
 
-    var html = prefix + main + ' ج.م';
+    // لو مفيش سعر أساسي والمقاسات بأسعار مختلفة → «حسب المقاس»
+    if (prices.length > 0) {
+      var minP = Math.min.apply(null, prices);
+      var maxP = Math.max.apply(null, prices);
+      if (minP !== maxP) {
+        return 'السعر 💸 : حسب المقاس';
+      }
+      // كل المقاسات نفس السعر → اعرضه مرة واحدة
+      var html2 = minP + ' ج.م';
+      if (oldPrice > 0) {
+        html2 +=
+          '<span style="font-size:11px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;">' +
+          oldPrice +
+          ' ج.م</span>';
+      }
+      return html2;
+    }
+
+    // مفيش أي سعر
+    return '0 ج.م';
+  }
+
+  /* تجميع المقاسات حسب السعر لعرض شفاف في نافذة التفاصيل */
+  function extractSizeNumber(sizeLabel) {
+    var m = String(sizeLabel || '').match(/(\d+(?:\.\d+)?)/);
+    return m ? Number(m[1]) : null;
+  }
+
+  function formatSizeRangeLabel(sizeLabels) {
+    if (!sizeLabels || !sizeLabels.length) return '';
+    if (sizeLabels.length === 1) return sizeLabels[0];
+
+    var nums = sizeLabels.map(extractSizeNumber);
+    var allNumeric = nums.every(function (n) { return n !== null; });
+    if (!allNumeric) return sizeLabels.join('، ');
+
+    var sortedIdx = sizeLabels
+      .map(function (label, i) { return { label: label, n: nums[i] }; })
+      .sort(function (a, b) { return a.n - b.n; });
+
+    var first = sortedIdx[0];
+    var last = sortedIdx[sortedIdx.length - 1];
+    var suffixMatch = String(first.label).match(/\d+(?:\.\d+)?\s*(.*)$/);
+    var suffix = suffixMatch && suffixMatch[1] ? (' ' + suffixMatch[1].trim()) : '';
+    if (suffix && !/سنة|سن|شهر|م|سم|y|Y/i.test(suffix) && sortedIdx.length > 2) {
+      // احتفظ بالنص كما هو لو مش وحدة عمر/مقاس واضحة
+      return first.label + ' – ' + last.label;
+    }
+    return first.n + ' – ' + last.n + suffix;
+  }
+
+  function getPriceTiers(p) {
+    var map = {};
+    (p.variants || []).forEach(function (v) {
+      var pr = Number(v && v.price);
+      if (!Number.isFinite(pr) || pr <= 0) {
+        pr = Number(p.price) || 0;
+      }
+      if (!Number.isFinite(pr) || pr <= 0) return;
+      var key = String(pr);
+      if (!map[key]) map[key] = { price: pr, sizes: [] };
+      if (v.size && map[key].sizes.indexOf(v.size) === -1) {
+        map[key].sizes.push(v.size);
+      }
+    });
+    return Object.keys(map)
+      .map(function (k) { return map[k]; })
+      .sort(function (a, b) { return a.price - b.price; });
+  }
+
+  /* هل المستخدم اختار مقاس يدويًا في النافذة الحالية؟ */
+  var modalPriceSizeChosen = false;
+
+  function buildModalPriceHtml(product, activeVariant) {
+    var base = Number(product.price) || 0;
+    var oldPrice = Number(product.oldPrice) || 0;
+    var tiers = getPriceTiers(product);
+    var hasMultipleTiers = tiers.length > 1;
+    var variantPrice =
+      activeVariant && Number(activeVariant.price) > 0
+        ? Number(activeVariant.price)
+        : null;
+
+    // ——— 1) فيه سعر أساسي → اعرضه عادي (مع إمكانية تجاوزه بسعر المقاس) ———
+    if (base > 0) {
+      var displayPrice = variantPrice || base;
+      var html =
+        '<div class="modal-price-main" style="font-weight:900;line-height:1.2;">' +
+        displayPrice +
+        ' ج.م';
+      if (oldPrice > 0) {
+        html +=
+          ' <span style="font-size:12px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;">' +
+          oldPrice +
+          ' ج.م</span>';
+      }
+      html += '</div>';
+      return html;
+    }
+
+    // ——— 2) أسعار مقاسات مختلفة (بدون سعر أساسي) ———
+    // قبل اختيار المقاس: عبارة «حسب المقاس» فقط — بدون رقم مضلّل
+    // بعد اختيار المقاس: يظهر سعر المقاس المختار
+    if (hasMultipleTiers) {
+      if (modalPriceSizeChosen && variantPrice) {
+        return (
+          '<div class="modal-price-main" style="font-weight:900;line-height:1.2;">' +
+          variantPrice +
+          ' ج.م</div>'
+        );
+      }
+      return (
+        '<div class="modal-price-main" style="font-weight:900;line-height:1.35;color:var(--burgundy-soft,#8b3f52);">' +
+        'السعر 💸 : حسب المقاس' +
+        '</div>' +
+        '<div style="margin-top:4px;font-size:11.5px;font-weight:700;color:var(--text-muted,#615053);">' +
+        'اختر المقاس لمعرفة السعر' +
+        '</div>'
+      );
+    }
+
+    // ——— 3) سعر موحد من المقاسات أو صفر ———
+    var single =
+      variantPrice ||
+      (tiers[0] && tiers[0].price) ||
+      0;
+    var html2 =
+      '<div class="modal-price-main" style="font-weight:900;line-height:1.2;">' +
+      single +
+      ' ج.م';
     if (oldPrice > 0) {
-      html +=
-        '<span style="font-size:11px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;">' +
+      html2 +=
+        ' <span style="font-size:12px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;">' +
         oldPrice +
         ' ج.م</span>';
     }
-    return html;
+    html2 += '</div>';
+    return html2;
   }
 
   function productCardHtml(p) {
@@ -752,14 +883,14 @@ let products = [];
     }
 
 
-    const priceEl =
-      document.getElementById('modalPrice');
-
-
-    const currentPrice =
-      priceEl
-      ? priceEl.innerText
-      : `${currentSelectedProduct.price} ج.م`;
+    const activeVar = (currentSelectedProduct.variants || []).find(
+      function (v) { return v.size === selectedSize; }
+    );
+    const cleanPriceNum =
+      (activeVar && Number(activeVar.price) > 0)
+        ? Number(activeVar.price)
+        : (Number(currentSelectedProduct.price) || 0);
+    const currentPrice = cleanPriceNum + ' ج.م';
 
 
     const selectedImage =
@@ -824,6 +955,8 @@ ${selectedImage}
     const firstVariant =
       currentSelectedProduct.variants[0];
 
+    // إعادة تعيين: لسه المستخدم ما اختارش مقاس يدويًا في هالنافذة
+    modalPriceSizeChosen = false;
 
     selectedSize =
       firstVariant
@@ -968,29 +1101,10 @@ ${selectedImage}
 
 
     if (priceEl) {
-
-      let priceHtml =
-        (
-          firstVariant?.price ||
-          currentSelectedProduct.price
-        ) + ' ج.م';
-
-
-      if (
-        currentSelectedProduct.oldPrice > 0
-      ) {
-
-        priceHtml +=
-          ` <span style="font-size:12px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;">
-            ${currentSelectedProduct.oldPrice} ج.م
-          </span>`;
-
-      }
-
-
-      priceEl.innerHTML =
-        priceHtml;
-
+      priceEl.innerHTML = buildModalPriceHtml(
+        currentSelectedProduct,
+        firstVariant
+      );
     }
 
 
@@ -1201,31 +1315,14 @@ ${selectedImage}
               v.status ||
               'available';
 
+            // المستخدم اختار مقاس → أظهر سعر هذا المقاس
+            modalPriceSizeChosen = true;
 
             if (priceEl) {
-
-              let priceHtml =
-                (
-                  v.price ||
-                  currentSelectedProduct.price
-                ) + ' ج.م';
-
-
-              if (
-                currentSelectedProduct.oldPrice > 0
-              ) {
-
-                priceHtml +=
-                  ` <span style="font-size:12px;color:#999;text-decoration:line-through;margin-right:4px;font-weight:600;">
-                    ${currentSelectedProduct.oldPrice} ج.م
-                  </span>`;
-
-              }
-
-
-              priceEl.innerHTML =
-                priceHtml;
-
+              priceEl.innerHTML = buildModalPriceHtml(
+                currentSelectedProduct,
+                v
+              );
             }
 
 
@@ -2429,7 +2526,14 @@ function continueAfterOrderRecaptcha() {
   function shareProduct() {
     if (!currentSelectedProduct) return;
     const url = location.origin + location.pathname + '?product=' + currentSelectedProduct.id;
-    const text = currentSelectedProduct.title + ' — ' + (document.getElementById('modalPrice')?.innerText || '') + '\n' + url;
+    const shareVar = (currentSelectedProduct.variants || []).find(function (v) {
+      return v.size === selectedSize;
+    });
+    const sharePrice =
+      (shareVar && Number(shareVar.price) > 0)
+        ? Number(shareVar.price)
+        : (Number(currentSelectedProduct.price) || getEffectivePrice(currentSelectedProduct) || 0);
+    const text = currentSelectedProduct.title + ' — ' + sharePrice + ' ج.م\n' + url;
     if (navigator.share) {
       navigator.share({ title: currentSelectedProduct.title, text: text, url: url }).catch(() => {});
     } else if (navigator.clipboard) {
