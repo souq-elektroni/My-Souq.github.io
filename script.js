@@ -2663,26 +2663,37 @@ function continueAfterOrderRecaptcha() {
       document.head.appendChild(style);
     }
     style.textContent = [
-      /* نافذة أطول/أوسع + الصورة كاملة على الموبايل والكمبيوتر */
+      /* الصورة تملى عرض المربع + تظهر كاملة بدون قص */
       '#productModal .modal-content{max-width:min(1100px,calc(100vw - 6px))!important;width:100%!important;max-height:98vh!important;}',
       '#productModal .modal-body{padding:8px 6px 12px!important;gap:10px!important;}',
-      '#productModal .modal-img{height:min(48vh,380px)!important;min-height:220px!important;object-fit:contain!important;object-position:center!important;background:var(--pink-soft,#f8ecee)!important;width:100%!important;border-radius:12px!important;}',
-      '#productModal .modal-gallery-wrapper{gap:6px!important;min-width:0!important;}',
-      /* موبايل: ترتيب عمودي — صورة أكبر فوق */
+      '#productModal .modal-gallery-wrapper{gap:6px!important;min-width:0!important;width:100%!important;}',
+      '#productModal .modal-img{',
+      '  width:100%!important;',
+      '  height:auto!important;',
+      '  max-height:min(52vh,440px)!important;',
+      '  min-height:0!important;',
+      '  object-fit:contain!important;',
+      '  object-position:center center!important;',
+      '  background:transparent!important;',
+      '  border-radius:12px!important;',
+      '  display:block!important;',
+      '}',
+      /* موبايل */
       '@media (max-width:649px){',
       '  #productModal .modal-content{border-radius:16px!important;max-height:98vh!important;}',
       '  #productModal .modal-body{display:flex!important;flex-direction:column!important;padding:8px 8px 14px!important;}',
-      '  #productModal .modal-gallery-wrapper{order:0!important;}',
+      '  #productModal .modal-gallery-wrapper{order:0!important;width:100%!important;}',
       '  #productModal .modal-info{order:1!important;}',
-      '  #productModal .modal-img{height:min(46vh,360px)!important;min-height:240px!important;object-fit:contain!important;}',
+      '  #productModal .modal-img{width:100%!important;height:auto!important;max-height:min(50vh,420px)!important;object-fit:contain!important;background:transparent!important;}',
       '}',
+      /* تابلت / ديسكتوب */
       '@media (min-width:650px){',
       '  #productModal .modal-body{grid-template-columns:1.3fr 1fr!important;align-items:start!important;gap:18px!important;padding:18px 20px!important;}',
-      '  #productModal .modal-img{height:min(72vh,560px)!important;min-height:360px!important;object-fit:contain!important;}',
+      '  #productModal .modal-img{width:100%!important;height:auto!important;max-height:min(75vh,620px)!important;object-fit:contain!important;}',
       '}',
       '@media (min-width:900px){',
       '  #productModal .modal-content{max-width:min(1200px,calc(100vw - 28px))!important;}',
-      '  #productModal .modal-img{height:min(76vh,620px)!important;}',
+      '  #productModal .modal-img{max-height:min(80vh,680px)!important;}',
       '}'
     ].join('\n');
   }
