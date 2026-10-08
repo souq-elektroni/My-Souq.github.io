@@ -5028,9 +5028,51 @@ body:has(.zoom-overlay.active) .back-to-top {
     }
 
     // Enhance product WhatsApp message: name + size + price + link (emojis via unicode)
+    // + منع الطلب السريع بدون اختيار مقاس
     window.updateDirectWhatsAppButton = function () {
       var waBtn = document.getElementById('directWaBtn');
       if (!waBtn || !currentSelectedProduct) return;
+
+      // حماية الضغط: مفيش تحويل لواتساب بدون مقاس
+      if (!waBtn._msqSizeGuardBound) {
+        waBtn._msqSizeGuardBound = true;
+        waBtn.addEventListener('click', function (e) {
+          if (!selectedSize) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof showToast === 'function') {
+              showToast('❌ خطأ >>> أختر المقاس أولا لإتمام الطلب ✨', true);
+            } else if (typeof requireSelectedSize === 'function') {
+              requireSelectedSize('الطلب السريع');
+            } else {
+              alert('من فضلك اختر المقاس أولاً');
+            }
+            try {
+              var box = document.getElementById('sizesContainer');
+              if (box) {
+                box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                box.style.outline = '2px solid var(--burgundy-soft, #8b3f52)';
+                box.style.outlineOffset = '4px';
+                box.style.borderRadius = '10px';
+                setTimeout(function () {
+                  box.style.outline = '';
+                  box.style.outlineOffset = '';
+                }, 1600);
+              }
+            } catch (err) {}
+            return false;
+          }
+        }, true);
+      }
+
+      if (!selectedSize) {
+        waBtn.href = '#';
+        waBtn.setAttribute('aria-disabled', 'true');
+        waBtn.style.opacity = '0.7';
+        return;
+      }
+      waBtn.removeAttribute('aria-disabled');
+      waBtn.style.opacity = '';
 
       var priceEl = document.getElementById('modalPrice');
       var currentPrice = priceEl ? priceEl.innerText.replace(/\s+/g, ' ').trim() : ((currentSelectedProduct.price || '') + ' ج.م');
