@@ -2656,25 +2656,35 @@ function continueAfterOrderRecaptcha() {
   }
 
   function injectModalPolishStyles() {
-    if (document.getElementById('msq-modal-polish-css')) return;
-    var style = document.createElement('style');
-    style.id = 'msq-modal-polish-css';
+    var style = document.getElementById('msq-modal-polish-css');
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'msq-modal-polish-css';
+      document.head.appendChild(style);
+    }
     style.textContent = [
-      /* نافذة أوسع + الصورة تملأ الحقل */
-      '#productModal .modal-content{max-width:min(1100px,calc(100vw - 8px))!important;width:100%!important;max-height:97vh!important;}',
-      '#productModal .modal-body{padding:10px 8px 14px!important;}',
-      '#productModal .modal-img{height:min(58vh,480px)!important;object-fit:cover!important;object-position:center!important;background:var(--pink-soft,#f8ecee)!important;width:100%!important;border-radius:14px!important;}',
-      '#productModal .modal-gallery-wrapper{gap:8px!important;min-width:0!important;}',
+      /* نافذة أطول/أوسع + الصورة كاملة على الموبايل والكمبيوتر */
+      '#productModal .modal-content{max-width:min(1100px,calc(100vw - 6px))!important;width:100%!important;max-height:98vh!important;}',
+      '#productModal .modal-body{padding:8px 6px 12px!important;gap:10px!important;}',
+      '#productModal .modal-img{height:min(48vh,380px)!important;min-height:220px!important;object-fit:contain!important;object-position:center!important;background:var(--pink-soft,#f8ecee)!important;width:100%!important;border-radius:12px!important;}',
+      '#productModal .modal-gallery-wrapper{gap:6px!important;min-width:0!important;}',
+      /* موبايل: ترتيب عمودي — صورة أكبر فوق */
+      '@media (max-width:649px){',
+      '  #productModal .modal-content{border-radius:16px!important;max-height:98vh!important;}',
+      '  #productModal .modal-body{display:flex!important;flex-direction:column!important;padding:8px 8px 14px!important;}',
+      '  #productModal .modal-gallery-wrapper{order:0!important;}',
+      '  #productModal .modal-info{order:1!important;}',
+      '  #productModal .modal-img{height:min(46vh,360px)!important;min-height:240px!important;object-fit:contain!important;}',
+      '}',
       '@media (min-width:650px){',
-      '  #productModal .modal-body{grid-template-columns:1.25fr 1fr!important;align-items:start!important;gap:20px!important;padding:20px 22px!important;}',
-      '  #productModal .modal-img{height:min(74vh,580px)!important;}',
+      '  #productModal .modal-body{grid-template-columns:1.3fr 1fr!important;align-items:start!important;gap:18px!important;padding:18px 20px!important;}',
+      '  #productModal .modal-img{height:min(72vh,560px)!important;min-height:360px!important;object-fit:contain!important;}',
       '}',
       '@media (min-width:900px){',
-      '  #productModal .modal-content{max-width:min(1180px,calc(100vw - 32px))!important;}',
-      '  #productModal .modal-img{height:min(78vh,640px)!important;}',
+      '  #productModal .modal-content{max-width:min(1200px,calc(100vw - 28px))!important;}',
+      '  #productModal .modal-img{height:min(76vh,620px)!important;}',
       '}'
     ].join('\n');
-    document.head.appendChild(style);
   }
 
   function openZoom() {
