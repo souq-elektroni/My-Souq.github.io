@@ -836,42 +836,97 @@
        * Sveltia may render the account menu only after it is opened.
        * Try the likely account/profile controls once, then search again.
        */
+      /*
+       * Sveltia does not expose a public logout API for an external button.
+       * Its account control can also be icon-only, so searching only by
+       * visible text is not reliable. We therefore:
+       * 1) look for an already-open native logout item;
+       * 2) otherwise open the most likely account/menu control;
+       * 3) retry several times while Sveltia finishes rendering the menu.
+       *
+       * We NEVER clear localStorage/sessionStorage here, so Sveltia
+       * preferences/drafts and the separate Telegram Web session remain
+       * untouched.
+       */
       var profileCandidates = document.querySelectorAll(
         "button, [role='button'], a"
       );
-      var openedMenu = false;
+      var ranked = [];
 
       for (var k = 0; k < profileCandidates.length; k++) {
         var p = profileCandidates[k];
         var aria = normalize(p.getAttribute("aria-label"));
         var title = normalize(p.getAttribute("title"));
         var txt = normalize(p.innerText || p.textContent);
+        var hasPopup = normalize(p.getAttribute("aria-haspopup"));
+        var rect = p.getBoundingClientRect();
+
+        if (rect.width <= 0 || rect.height <= 0) continue;
+
+        var score = 0;
 
         if (
           aria.indexOf("account") !== -1 ||
           aria.indexOf("profile") !== -1 ||
           aria.indexOf("user") !== -1 ||
+          aria.indexOf("الحساب") !== -1 ||
+          aria.indexOf("الملف") !== -1
+        ) score += 100;
+
+        if (
           title.indexOf("account") !== -1 ||
           title.indexOf("profile") !== -1 ||
-          txt === "admin"
-        ) {
-          p.click();
-          openedMenu = true;
-          break;
+          title.indexOf("user") !== -1 ||
+          title.indexOf("الحساب") !== -1
+        ) score += 80;
+
+        if (txt === "admin" || txt === "administrator") score += 70;
+        if (hasPopup === "menu" || hasPopup === "true") score += 50;
+
+        /*
+         * Account controls are normally in the top header. Prefer controls
+         * near the top-right without assuming a fragile Sveltia CSS class.
+         */
+        if (rect.top < 100) score += 20;
+        if (rect.right > window.innerWidth * 0.65) score += 20;
+
+        if (score > 0) ranked.push({ el: p, score: score });
+      }
+
+      ranked.sort(function (a, b) {
+        return b.score - a.score;
+      });
+
+      var openedMenu = false;
+
+      if (ranked.length) {
+        ranked[0].el.click();
+        openedMenu = true;
+      }
+
+      function retryNativeLogout(attempt) {
+        var retry = findNativeLogout();
+        if (retry) {
+          retry.click();
+          return;
         }
+
+        if (attempt < 5) {
+          setTimeout(function () {
+            retryNativeLogout(attempt + 1);
+          }, 200);
+          return;
+        }
+
+        alert("تعذر العثور على أمر تسجيل الخروج الأصلي في Sveltia. لم يتم حذف أي إعدادات أو مسودات.");
       }
 
       if (openedMenu) {
         setTimeout(function () {
-          var retry = findNativeLogout();
-          if (retry) {
-            retry.click();
-          } else {
-            alert("لم أجد أمر تسجيل الخروج الأصلي في Sveltia. استخدم قائمة الحساب داخل Sveltia لتسجيل الخروج، ولم يتم حذف أي بيانات.");
-          }
-        }, 250);
+          retryNativeLogout(0);
+        }, 150);
       } else {
-        alert("لم أجد أمر تسجيل الخروج الأصلي في Sveltia. استخدم قائمة الحساب داخل Sveltia لتسجيل الخروج، ولم يتم حذف أي بيانات.");
+        alert("تعذر العثور على قائمة حساب Sveltia. لم يتم حذف أي إعدادات أو مسودات.");
       }
     });
 
