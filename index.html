@@ -2414,7 +2414,7 @@ body.dark-mode .close-btn{background:#2a1e24!important;color:#ffd9e2!important}
 body.dark-mode .dimensions-box{background:#2a1e24!important}
 .modal-actions-row{
  display:grid!important;
- grid-template-columns:1.35fr 1.15fr 1fr 1fr;
+ grid-template-columns:1fr 1fr!important;
  gap:8px!important;
  width:100%;
 }
@@ -5511,7 +5511,7 @@ window.addToCartAndContinue = function () {
   /* Professional four-button action bar */
   #productModal .modal-actions-row{
     display:grid!important;
-    grid-template-columns:1.12fr 1.08fr 1.02fr .88fr!important;
+    grid-template-columns:1fr 1fr!important;
     gap:9px!important;
     width:100%!important;
     margin-top:4px!important;
@@ -5572,7 +5572,7 @@ window.addToCartAndContinue = function () {
 @media (min-width:768px) and (max-width:900px){
   #productModal .modal-body{grid-template-columns:minmax(0,1fr) minmax(320px,.9fr)!important;gap:20px!important;padding:20px!important;}
   #productModal .modal-img{height:min(70vh,620px)!important;object-fit:contain!important;}
-  #productModal .modal-actions-row{gap:7px!important;grid-template-columns:1.1fr 1.05fr 1fr .82fr!important;}
+  #productModal .modal-actions-row{gap:7px!important;grid-template-columns:1fr 1fr!important;}
   #productModal .modal-actions-row > *{font-size:12px!important;padding-inline:7px!important;}
 }
 </style>
@@ -6216,5 +6216,25 @@ window.addToCartAndContinue = function () {
     }
   })();
   </script>
+
+<style id="msq-actions-2x2-fix">
+/* صف 1: إضافة للسلة | الطلب السريع — صف 2: الاتصال | المشاركة */
+html body #productModal .modal-actions-row{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:10px!important;
+  width:100%!important;
+}
+html body #productModal .modal-actions-row > *{
+  min-width:0!important;
+  width:100%!important;
+  grid-column:auto!important;
+}
+html body #productModal .add-cart-btn{order:1!important;}
+html body #productModal .direct-wa-btn{order:2!important;}
+html body #productModal .call-modal-btn{order:3!important;}
+html body #productModal .share-btn{order:4!important;}
+</style>
+
 </body>
 </html>
