@@ -882,6 +882,28 @@ let products = [];
       return;
     }
 
+    // منع الطلب السريع بدون اختيار مقاس
+    if (!waBtn._msqSizeGuardBound) {
+      waBtn._msqSizeGuardBound = true;
+      waBtn.addEventListener('click', function (e) {
+        if (!selectedSize) {
+          e.preventDefault();
+          e.stopPropagation();
+          requireSelectedSize('الطلب السريع');
+          return false;
+        }
+        // حدّث الرابط قبل الفتح عشان السعر والمقاس صح
+        updateDirectWhatsAppButton();
+      }, true);
+    }
+
+    // لو مفيش مقاس — عطّل الرابط مؤقتًا
+    if (!selectedSize) {
+      waBtn.href = '#';
+      waBtn.setAttribute('aria-disabled', 'true');
+      return;
+    }
+    waBtn.removeAttribute('aria-disabled');
 
     const activeVar = (currentSelectedProduct.variants || []).find(
       function (v) { return v.size === selectedSize; }
@@ -1381,6 +1403,8 @@ ${selectedImage}
     }
 
     updateDirectWhatsAppButton();
+    injectModalPolishStyles();
+    bindModalImageSwipe();
 
     document
       .getElementById('productModal')
@@ -1389,14 +1413,48 @@ ${selectedImage}
   }
 
 
+  function clearProductQueryFromUrl() {
+    try {
+      if (!location.search || location.search.indexOf('product=') === -1) return;
+      var params = new URLSearchParams(location.search);
+      params.delete('product');
+      var qs = params.toString();
+      var clean = location.pathname + (qs ? ('?' + qs) : '') + (location.hash || '');
+      history.replaceState(null, '', clean);
+    } catch (e) {}
+  }
+
   function closeModal() {
 
     document
       .getElementById('productModal')
       .classList.remove('active');
 
+    // امسح ?product= من الرابط عشان الصفحة متتفتحش لوحدها بعد الريفرش
+    clearProductQueryFromUrl();
+
   }
 
+
+  function requireSelectedSize(actionLabel) {
+    if (selectedSize) return true;
+    alert('من فضلك اختر المقاس أولاً' + (actionLabel ? ' قبل ' + actionLabel : ''));
+    // تمرير لطيف لزرار المقاسات
+    try {
+      var box = document.getElementById('sizesContainer');
+      if (box) {
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        box.style.outline = '2px solid var(--burgundy-soft, #8b3f52)';
+        box.style.outlineOffset = '4px';
+        box.style.borderRadius = '10px';
+        setTimeout(function () {
+          box.style.outline = '';
+          box.style.outlineOffset = '';
+        }, 1600);
+      }
+    } catch (e) {}
+    return false;
+  }
 
   function addToCart() {
 
@@ -1405,8 +1463,7 @@ ${selectedImage}
     }
 
     // لازم يختار مقاس قبل الإضافة للسلة
-    if (!selectedSize) {
-      alert('من فضلك اختر المقاس أولاً');
+    if (!requireSelectedSize('الإضافة للسلة')) {
       return;
     }
 
@@ -1431,10 +1488,14 @@ ${selectedImage}
 
 
     const itemPrice =
-      activeVariant &&
-      activeVariant.price
-      ? activeVariant.price
-      : currentSelectedProduct.price;
+      (activeVariant && Number(activeVariant.price) > 0)
+        ? Number(activeVariant.price)
+        : (Number(currentSelectedProduct.price) || 0);
+
+    if (!itemPrice || itemPrice <= 0) {
+      alert('لا يمكن إضافة المنتج: السعر غير محدد لهذا المقاس.');
+      return;
+    }
 
       const existingQty = cart.find(item => item.id === currentSelectedProduct.id && item.size === selectedSize && (item.color || '') === (selectedColor || ''))?.qty || 0;
       if (activeVariant && Number.isFinite(Number(activeVariant.quantity)) && Number(activeVariant.quantity) > 0 && existingQty >= Number(activeVariant.quantity)) {
@@ -1563,6 +1624,24 @@ ${selectedImage}
 
 
   function renderCartItems() {
+
+    // تنظيف عناصر السلة التالفة (مقاس فاضي أو سعر صفر)
+    var cleaned = false;
+    for (var ci = cart.length - 1; ci >= 0; ci--) {
+      var it = cart[ci];
+      var badSize = !it || !it.size || it.size === 'null' || it.size === 'undefined';
+      var badPrice = !(Number(it && it.price) > 0);
+      if (badSize || badPrice) {
+        cart.splice(ci, 1);
+        cleaned = true;
+      }
+    }
+    if (cleaned) {
+      try {
+        localStorage.setItem('souqCart', JSON.stringify(cart));
+      } catch (e) {}
+      try { updateCartCount(); } catch (e) {}
+    }
 
     const container =
       document.getElementById(
@@ -2515,6 +2594,68 @@ function continueAfterOrderRecaptcha() {
   function galleryPrev() { setGalleryImage(galleryIndex - 1); }
   function galleryNext() { setGalleryImage(galleryIndex + 1); }
 
+  /* ===== سحب الصور باللمس (Swipe) في نافذة التفاصيل ===== */
+  function bindModalImageSwipe() {
+    var img = document.getElementById('modalImage');
+    var wrap = img && img.closest ? img.closest('.modal-gallery-wrapper') : null;
+    var target = wrap || img;
+    if (!target || target._msqSwipeBound) return;
+    target._msqSwipeBound = true;
+
+    var startX = 0;
+    var startY = 0;
+    var tracking = false;
+
+    target.addEventListener('touchstart', function (e) {
+      if (!e.touches || e.touches.length !== 1) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      tracking = true;
+    }, { passive: true });
+
+    target.addEventListener('touchend', function (e) {
+      if (!tracking) return;
+      tracking = false;
+      var t = e.changedTouches && e.changedTouches[0];
+      if (!t) return;
+      var dx = t.clientX - startX;
+      var dy = t.clientY - startY;
+      // سحب أفقي أوضح من الرأسي
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+      // RTL: سحب لليسار = التالي، لليمين = السابق
+      if (dx < 0) galleryNext();
+      else galleryPrev();
+    }, { passive: true });
+
+    // مؤشر بسيط إن فيه أكثر من صورة
+    if (img) {
+      img.style.touchAction = 'pan-y';
+      img.style.userSelect = 'none';
+      img.style.webkitUserDrag = 'none';
+    }
+  }
+
+  function injectModalPolishStyles() {
+    if (document.getElementById('msq-modal-polish-css')) return;
+    var style = document.createElement('style');
+    style.id = 'msq-modal-polish-css';
+    style.textContent = [
+      /* تكبير نافذة التفاصيل والصورة عشان تظهر كاملة */
+      '#productModal .modal-content{max-width:min(980px,calc(100vw - 12px))!important;width:100%!important;max-height:96vh!important;}',
+      '#productModal .modal-body{padding:12px 10px 16px!important;}',
+      '#productModal .modal-img{height:min(52vh,420px)!important;object-fit:contain!important;background:var(--pink-soft,#f8ecee)!important;width:100%!important;}',
+      '#productModal .modal-gallery-wrapper{gap:8px!important;}',
+      '@media (min-width:650px){',
+      '  #productModal .modal-body{grid-template-columns:1.15fr 1fr!important;align-items:start!important;gap:22px!important;padding:22px 24px!important;}',
+      '  #productModal .modal-img{height:min(70vh,520px)!important;}',
+      '}',
+      '@media (min-width:900px){',
+      '  #productModal .modal-img{height:min(72vh,560px)!important;}',
+      '}'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
   function openZoom() {
     const src = activeModalImage || (currentSelectedProduct && currentSelectedProduct.images[0]);
     if (!src) return;
@@ -2549,12 +2690,10 @@ function continueAfterOrderRecaptcha() {
   }
 
   function handleDeepLink() {
-    const params = new URLSearchParams(location.search);
-    const pid = params.get('product');
-    if (pid) {
-      const id = parseInt(pid, 10);
-      if (!isNaN(id)) setTimeout(() => openProductModal(id), 400);
-    }
+    // مفيش فتح تلقائي لنافذة التفاصيل عند دخول/تحديث المتجر.
+    // لو في ?product= من زيارة قديمة → يتنظف الرابط بس من غير ما تفتح النافذة.
+    // روابط المشاركة لسه بتتنسخ فيها ?product= للاستخدام اليدوي.
+    clearProductQueryFromUrl();
   }
 
   function openAdminOrdersModal() {
@@ -2709,6 +2848,8 @@ ${itemsText || '-'}
 
     window.onload = function() {
       initFirebase();
+      try { injectModalPolishStyles(); } catch (e) {}
+      try { bindModalImageSwipe(); } catch (e) {}
 
       const custPhoneInput = document.getElementById('custPhone');
       if (custPhoneInput) {
