@@ -1438,7 +1438,7 @@ ${selectedImage}
 
   function requireSelectedSize(actionLabel) {
     if (selectedSize) return true;
-    alert('من فضلك اختر المقاس أولاً' + (actionLabel ? ' قبل ' + actionLabel : ''));
+    showToast('❌ خطأ >>> أختر المقاس أولا لإتمام الطلب ✨', true);
     // تمرير لطيف لزرار المقاسات
     try {
       var box = document.getElementById('sizesContainer');
@@ -1565,19 +1565,39 @@ ${selectedImage}
   }
 
 
-  function showToast() {
+  function showToast(message, isError) {
 
     const toast =
       document.getElementById(
         'toastNotification'
       );
 
+    if (!toast) return;
+
+    var defaultOk = '✓ تم إضافة المنتج إلى السلة بنجاح';
+    var text = (message != null && String(message).trim() !== '')
+      ? String(message)
+      : defaultOk;
+
+    toast.textContent = text;
+
+    if (isError) {
+      toast.style.background = '#c62828';
+      toast.style.borderColor = '#ef9a9a';
+      toast.style.color = '#fff';
+    } else {
+      toast.style.background = '';
+      toast.style.borderColor = '';
+      toast.style.color = '';
+    }
+
     toast.classList.add('show');
 
     setTimeout(
-      () =>
-        toast.classList.remove('show'),
-      3000
+      function () {
+        toast.classList.remove('show');
+      },
+      isError ? 3500 : 3000
     );
 
   }
@@ -2640,17 +2660,18 @@ function continueAfterOrderRecaptcha() {
     var style = document.createElement('style');
     style.id = 'msq-modal-polish-css';
     style.textContent = [
-      /* تكبير نافذة التفاصيل والصورة عشان تظهر كاملة */
-      '#productModal .modal-content{max-width:min(980px,calc(100vw - 12px))!important;width:100%!important;max-height:96vh!important;}',
-      '#productModal .modal-body{padding:12px 10px 16px!important;}',
-      '#productModal .modal-img{height:min(52vh,420px)!important;object-fit:contain!important;background:var(--pink-soft,#f8ecee)!important;width:100%!important;}',
-      '#productModal .modal-gallery-wrapper{gap:8px!important;}',
+      /* نافذة أوسع + الصورة تملأ الحقل */
+      '#productModal .modal-content{max-width:min(1100px,calc(100vw - 8px))!important;width:100%!important;max-height:97vh!important;}',
+      '#productModal .modal-body{padding:10px 8px 14px!important;}',
+      '#productModal .modal-img{height:min(58vh,480px)!important;object-fit:cover!important;object-position:center!important;background:var(--pink-soft,#f8ecee)!important;width:100%!important;border-radius:14px!important;}',
+      '#productModal .modal-gallery-wrapper{gap:8px!important;min-width:0!important;}',
       '@media (min-width:650px){',
-      '  #productModal .modal-body{grid-template-columns:1.15fr 1fr!important;align-items:start!important;gap:22px!important;padding:22px 24px!important;}',
-      '  #productModal .modal-img{height:min(70vh,520px)!important;}',
+      '  #productModal .modal-body{grid-template-columns:1.25fr 1fr!important;align-items:start!important;gap:20px!important;padding:20px 22px!important;}',
+      '  #productModal .modal-img{height:min(74vh,580px)!important;}',
       '}',
       '@media (min-width:900px){',
-      '  #productModal .modal-img{height:min(72vh,560px)!important;}',
+      '  #productModal .modal-content{max-width:min(1180px,calc(100vw - 32px))!important;}',
+      '  #productModal .modal-img{height:min(78vh,640px)!important;}',
       '}'
     ].join('\n');
     document.head.appendChild(style);
