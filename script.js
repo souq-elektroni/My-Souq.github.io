@@ -955,29 +955,16 @@ ${selectedImage}
     const firstVariant =
       currentSelectedProduct.variants[0];
 
-    // إعادة تعيين: لسه المستخدم ما اختارش مقاس يدويًا في هالنافذة
+    // إعادة تعيين: مفيش مقاس متحدد عند فتح التفاصيل
     modalPriceSizeChosen = false;
-
-    selectedSize =
-      firstVariant
-      ? firstVariant.size
-      : 'مقاس موحد';
-
-
-    selectedVariantStatus =
-      firstVariant
-      ? (
-          firstVariant.status ||
-          'available'
-        )
-      : 'available';
-
+    selectedSize = null;
+    selectedColor = '';
+    selectedVariantStatus = 'available';
 
     const isProductOut =
       currentSelectedProduct.stock === 'out';
 
-    const isSizeOut =
-      selectedVariantStatus === 'out';
+    const isSizeOut = false;
 
     const isOut =
       isProductOut || isSizeOut;
@@ -1101,9 +1088,10 @@ ${selectedImage}
 
 
     if (priceEl) {
+      // بدون مقاس متحدد — السعر حسب القواعد (حسب المقاس / أساسي / موحد)
       priceEl.innerHTML = buildModalPriceHtml(
         currentSelectedProduct,
-        firstVariant
+        null
       );
     }
 
@@ -1114,6 +1102,11 @@ ${selectedImage}
         return;
       }
 
+      // لو مفيش مقاس متحدد → اخفِ جدول الأبعاد
+      if (!variant) {
+        dimensionsContainer.style.display = 'none';
+        return;
+      }
 
       const pants =
         variant.pants_length || '-';
@@ -1170,7 +1163,8 @@ ${selectedImage}
     }
 
 
-    updateDimensionsDisplay(firstVariant);
+    // مفيش مقاس متحدد عند الفتح → اخفِ الأبعاد لحد ما يختار
+    updateDimensionsDisplay(null);
 
     updateActionButtons(isOut);
 
@@ -1406,8 +1400,17 @@ ${selectedImage}
 
   function addToCart() {
 
+    if (!currentSelectedProduct) {
+      return;
+    }
+
+    // لازم يختار مقاس قبل الإضافة للسلة
+    if (!selectedSize) {
+      alert('من فضلك اختر المقاس أولاً');
+      return;
+    }
+
     if (
-      !currentSelectedProduct ||
       currentSelectedProduct.stock === 'out' ||
       selectedVariantStatus === 'out'
     ) {
