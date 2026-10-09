@@ -3473,6 +3473,19 @@ body:has(.zoom-overlay.active) .back-to-top {
 @media (max-width:767px){.call-float{left:12px!important;bottom:134px!important;width:48px!important;height:48px!important;}}
 </style>
 
+<style id="mysouq-category-albums-polish">
+.msq-category-nav{display:flex!important;align-items:center;justify-content:center;gap:7px!important;flex-wrap:wrap!important}
+.msq-category-group{display:flex;align-items:center;gap:4px;padding:3px 5px;border:1px solid var(--msq-line,rgba(139,63,82,.16));background:rgba(255,255,255,.58);border-radius:15px;min-width:0}
+.msq-category-group .cat-btn{padding:7px 9px!important;font-size:12px!important;white-space:nowrap}
+.msq-subcategory{max-width:142px;min-width:108px;height:32px;padding:4px 20px 4px 7px;border:1px solid var(--msq-line,rgba(139,63,82,.2));border-radius:10px;background:#fffaf7;color:var(--msq-ink,#251b20);font:800 11px 'Cairo',sans-serif;cursor:pointer;outline:none}
+.msq-subcategory:focus{border-color:var(--msq-primary,#8b3f52);box-shadow:0 0 0 2px rgba(139,63,82,.12)}
+.msq-album-badge{position:absolute;bottom:9px;left:9px;z-index:2;background:rgba(37,27,32,.76);color:#fff;padding:4px 8px;border-radius:20px;font-size:10px;font-weight:900;backdrop-filter:blur(5px);pointer-events:none}
+.product-card .image-container{position:relative;overflow:hidden}
+.product-card .product-image{transition:opacity .32s ease,transform .55s ease}
+.product-card .product-image.msq-swapping{opacity:.35;transform:scale(1.025)}
+@media(max-width:700px){.msq-category-nav{gap:5px!important;justify-content:stretch!important}.msq-category-group{flex:1 1 calc(50% - 8px);justify-content:space-between;padding:3px}.msq-category-group .cat-btn{padding:6px 7px!important;font-size:11px!important}.msq-subcategory{flex:1;min-width:0;max-width:none;width:100px;font-size:10px;height:30px}.msq-category-nav>[data-main-category="الكل"],.msq-category-nav>.offer-tab{flex:0 0 auto;padding:7px 12px!important}.msq-category-nav .cat-divider{display:none}}
+</style>
+
 </head>
 
 <body>
@@ -3598,13 +3611,22 @@ body:has(.zoom-overlay.active) .back-to-top {
   <div class="controls-wrapper">
 
     <!-- صف الفئات: أقسام ثم عروض ثم المخزون -->
-    <div class="categories-bar categories-main">
-      <button class="cat-btn active" onclick="filterCategory('الكل', this)">الكل</button>
-      <button class="cat-btn" onclick="filterCategory('ملابس شتوية', this)">ملابس شتوية</button>
-      <button class="cat-btn" onclick="filterCategory('ملابس خروج', this)">ملابس خروج</button>
-      <button class="cat-btn" onclick="filterCategory('أحذية', this)">أحذية</button>
+    <div class="categories-bar categories-main msq-category-nav" aria-label="أقسام المتجر">
+      <button class="cat-btn active" data-main-category="الكل" onclick="filterCategory('الكل', this)">الكل</button>
+      <div class="msq-category-group">
+        <button class="cat-btn msq-main-cat" data-main-category="Kids" onclick="filterCategory('Kids', this)">👧🏻 Kids 🧑🏻</button>
+        <select class="msq-subcategory" aria-label="تصنيف Kids" onchange="filterSubcategory('Kids', this.value, this)"><option value="">كل ملابس Kids</option><option value="ملابس للمنزل">ملابس للمنزل</option><option value="ملابس للخروج">ملابس للخروج</option></select>
+      </div>
+      <div class="msq-category-group">
+        <button class="cat-btn msq-main-cat" data-main-category="Baby" onclick="filterCategory('Baby', this)">Baby 👶🏻</button>
+        <select class="msq-subcategory" aria-label="تصنيف Baby" onchange="filterSubcategory('Baby', this.value, this)"><option value="">كل ملابس Baby</option><option value="ملابس للمنزل">ملابس للمنزل</option><option value="ملابس للخروج">ملابس للخروج</option></select>
+      </div>
+      <div class="msq-category-group">
+        <button class="cat-btn msq-main-cat" data-main-category="Mr & Mrs" onclick="filterCategory('Mr & Mrs', this)">👨🏻 Mr &amp; Mrs 👩🏻</button>
+        <select class="msq-subcategory" aria-label="تصنيف Mr and Mrs" onchange="filterSubcategory('Mr & Mrs', this.value, this)"><option value="">كل ملابس Mr &amp; Mrs</option><option value="ملابس للمنزل">ملابس للمنزل</option><option value="ملابس للخروج">ملابس للخروج</option></select>
+      </div>
+      <button class="cat-btn offer-tab" data-main-category="عروض" onclick="filterCategory('عروض', this)">💥 العروض 🔥</button>
       <span class="cat-divider" aria-hidden="true"></span>
-      <button class="cat-btn offer-tab" onclick="filterCategory('عروض', this)">🔥 عروض</button>
       <button class="cat-btn stock-avail" onclick="filterStock('available', this)">🟢 متوفرة</button>
       <button class="cat-btn stock-out" onclick="filterStock('out', this)">🔴 نفذت</button>
     </div>
