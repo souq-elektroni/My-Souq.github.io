@@ -890,12 +890,20 @@
     workspaceContent.appendChild(previewHelp);
     var fallbackNote = document.createElement("div");
     fallbackNote.id = "my-souq-workspace-fallback";
-    fallbackNote.textContent = "إذا ظهرت صفحة فارغة أو رسالة منع، فهذا بسبب قيود التضمين أو ملفات تعريف الارتباط في Telegram. استخدم «فتح Telegram في نافذة مستقلة»؛ سيظل تسجيل الدخول منفصلاً عن Sveltia.";
+    fallbackNote.textContent = "تيليجرام يمنع العرض داخل إطار مضمّن؛ لذلك يفتح زر Telegram Web الموقع الأصلي في تبويب متصفح عادي لتجنب شاشة «رفض الاتصال».";
     workspace.appendChild(workspaceHead);
     workspace.appendChild(workspaceContent);
     workspace.appendChild(fallbackNote);
 
     var activeMode = null;
+    var telegramTab = null;
+
+    function syncTelegramTabState() {
+      if (telegramTab && telegramTab.closed) {
+        telegramTab = null;
+        if (activeMode === "telegram") setButtonStates(null);
+      }
+    }
     function setButtonStates(mode) {
       activeMode = mode;
       telegram.classList.toggle("is-active", mode === "telegram");
@@ -913,20 +921,49 @@
     }
 
     function showTelegram() {
-      if (activeMode === "telegram" && workspace.classList.contains("is-open")) {
-        closeWorkspace();
+      syncTelegramTabState();
+      if (telegramTab && !telegramTab.closed) {
+        try { telegramTab.close(); } catch (e) {}
+        telegramTab = null;
+        setButtonStates(null);
         return;
       }
-      if (activeMode === "preview" && !workspace.classList.contains("is-open")) {
-        toggleNativePreview(false);
+
+      /*
+       * Telegram blocks iframe embedding. Open the official site in a separate
+       * browser window and attempt to place it on the right half of the screen.
+       * Some browsers restrict moving/resizing existing windows; no site data,
+       * Telegram session, Sveltia settings, or drafts are cleared.
+       */
+      var screenW = (window.screen && window.screen.availWidth) || 1366;
+      var screenH = (window.screen && window.screen.availHeight) || 768;
+      var halfW = Math.max(520, Math.floor(screenW / 2));
+      var winH = Math.max(600, screenH - 40);
+      var rightX = Math.max(0, screenW - halfW);
+      var features = [
+        "popup=yes", "resizable=yes", "scrollbars=yes",
+        "width=" + halfW, "height=" + winH,
+        "left=" + rightX, "top=0"
+      ].join(",");
+
+      telegramTab = window.open(TELEGRAM_WEB_URL, "MySouqTelegramWeb", features);
+      if (telegramTab) {
+        setButtonStates("telegram");
+        try {
+          telegramTab.resizeTo(halfW, winH);
+          telegramTab.moveTo(rightX, 0);
+          telegramTab.focus();
+        } catch (e) {}
+        try {
+          if (window.outerWidth > halfW + 80 && typeof window.resizeTo === "function") {
+            window.resizeTo(halfW, winH);
+            window.moveTo(0, 0);
+          }
+        } catch (e) {}
+      } else {
+        setButtonStates(null);
+        alert("المتصفح منع فتح نافذة تيليجرام. اسمح بالنوافذ المنبثقة لهذا الموقع، أو افتح Telegram Web يدويًا ثم رتّب النافذتين جنبًا إلى جنب باستخدام Win + ← وWin + →.");
       }
-      previewHelp.style.display = "none";
-      telegramFrame.style.display = "block";
-      fallbackNote.style.display = "";
-      workspaceTitle.textContent = "Telegram Web";
-      workspace.classList.add("is-open");
-      setButtonStates("telegram");
-      if (telegramFrame.src === "about:blank") telegramFrame.src = TELEGRAM_WEB_URL;
     }
 
     function toggleNativePreview(turnOff) {
