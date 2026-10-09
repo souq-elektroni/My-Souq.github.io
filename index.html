@@ -4172,7 +4172,7 @@ body:has(.zoom-overlay.active) .back-to-top {
         <div class="payment-details">
 
           <label class="payment-title">
-            💵 الدفع عند الاستلام (كاش لمندوب الشحن)
+            💵 الدفع عند استلام المنتج كاش
           </label>
 
         </div>
@@ -4195,7 +4195,7 @@ body:has(.zoom-overlay.active) .back-to-top {
         <div class="payment-details">
 
           <label class="payment-title">
-            📱 الدفع عن طريق InstaPay
+            📱 الدفع InstaPay بعد الاستلام
           </label>
 
           <div class="instapay-box">
@@ -4255,7 +4255,7 @@ body:has(.zoom-overlay.active) .back-to-top {
         class="send-final-btn"
         onclick="finalizeOrder()"
       >
-        تأكيد الإرسال عبر الواتساب 🚀
+        تأكيد الطلب ✅
       </button>
       <button
         class="btn-decline"
@@ -4364,10 +4364,12 @@ body:has(.zoom-overlay.active) .back-to-top {
       </div>
 
       <div class="success-title">
-        تم إرسال طلبك بنجاح!
+        تم استلام طلبك بنجاح!
       </div>
       
-      <p id="successOrderIdDisplay" style="font-weight:bold; color:var(--burgundy-soft); margin-bottom:8px; font-size:13px;"></p>
+      <p style="margin:0 0 8px;color:var(--text-muted);font-size:13px;line-height:1.8;">طلبك الآن في مرحلة <strong>قيد التنفيذ</strong>. احتفظ برقم الطلب لمتابعته من خانة «تتبع طلبك 🔍».</p>
+      <p id="successOrderIdDisplay" style="font-weight:bold; color:var(--burgundy-soft); margin-bottom:8px; font-size:13px;user-select:text;direction:ltr;"></p>
+      <button type="button" class="success-btn" onclick="copyConfirmedOrderId()" style="margin-bottom:8px;">📋 نسخ رقم الطلب</button>
 
       <button
         class="success-btn"
@@ -5307,12 +5309,12 @@ body:has(.zoom-overlay.active) .back-to-top {
         }
 
         var _origOpen = window.open;
+        // لا نحوّل العميل إلى واتساب بعد تأكيد الطلب؛ حفظ الطلب يظل عبر finalizeOrder الأصلي.
+        // إرسال إشعار واتساب تلقائي لصاحب المتجر يحتاج ربطاً آمناً بواجهة WhatsApp Business API على الخادم.
         window.open = function (url, target) {
-          if (url && String(url).indexOf('wa.me') !== -1) {
-            try {
-              var clean = buildCleanOrderWaMessage();
-              url = 'https://wa.me/201116339905?text=' + encodeURIComponent(clean);
-            } catch (e) {}
+          if (url && /(?:wa\.me|api\.whatsapp\.com)/i.test(String(url))) {
+            window.__msqPendingWhatsAppOrderMessage = buildCleanOrderWaMessage();
+            return null;
           }
           return _origOpen.call(window, url, target);
         };
@@ -5326,6 +5328,24 @@ body:has(.zoom-overlay.active) .back-to-top {
         }
       };
     }
+
+    // نسخ رقم الطلب من شاشة نجاح الطلب
+    window.copyConfirmedOrderId = async function () {
+      var el = document.getElementById('successOrderIdDisplay');
+      var raw = el ? (el.innerText || el.textContent || '') : '';
+      var match = raw.match(/[A-Z]{2,}[- ]?[A-Z0-9-]{4,}/i) || raw.match(/(?:رقم الطلب|طلبك)\s*[:：]?\s*([A-Z0-9-]+)/i);
+      var orderId = match ? (match[1] || match[0]).replace(/^رقم الطلب\s*[:：]?\s*/i, '').trim() : raw.replace(/.*?:/, '').trim();
+      if (!orderId) { alert('رقم الطلب غير ظاهر حالياً.'); return; }
+      try {
+        await navigator.clipboard.writeText(orderId);
+        if (typeof showToast === 'function') showToast('تم نسخ رقم الطلب 📋');
+        else alert('تم نسخ رقم الطلب: ' + orderId);
+      } catch (e) {
+        var ta = document.createElement('textarea'); ta.value = orderId; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+        var ok = false; try { ok = document.execCommand('copy'); } catch (_) {}
+        ta.remove(); alert(ok ? 'تم نسخ رقم الطلب: ' + orderId : 'رقم الطلب: ' + orderId);
+      }
+    };
 
     // Show receipt in admin order details
     var _origShowDetails = window.showAdminOrderDetails;
