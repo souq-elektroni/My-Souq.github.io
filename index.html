@@ -5309,15 +5309,8 @@ body:has(.zoom-overlay.active) .back-to-top {
         }
 
         var _origOpen = window.open;
-        // لا نحوّل العميل إلى واتساب بعد تأكيد الطلب؛ حفظ الطلب يظل عبر finalizeOrder الأصلي.
-        // إرسال إشعار واتساب تلقائي لصاحب المتجر يحتاج ربطاً آمناً بواجهة WhatsApp Business API على الخادم.
-        window.open = function (url, target) {
-          if (url && /(?:wa\.me|api\.whatsapp\.com)/i.test(String(url))) {
-            window.__msqPendingWhatsAppOrderMessage = buildCleanOrderWaMessage();
-            return null;
-          }
-          return _origOpen.call(window, url, target);
-        };
+        // استعادة السلوك القديم: اسمح بفتح رابط تأكيد الطلب على واتساب بعد حفظ الطلب.
+        // لا نحذف أو نغيّر بقية وظائف الطلب أو الدفع أو إيصال InstaPay.
 
         try {
           await _origFinalize.apply(this, arguments);
