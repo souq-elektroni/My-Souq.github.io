@@ -279,6 +279,67 @@
     background: #229ED9;
     color: #fff;
   }
+  #my-souq-preview-btn {
+    background: #5b6472;
+    color: #fff;
+  }
+  #my-souq-admin-tools button.is-active {
+    background: #16803d !important;
+    color: #fff !important;
+    box-shadow: 0 0 0 2px rgba(22,128,61,.18), 0 5px 16px rgba(0,0,0,.16);
+  }
+  #my-souq-admin-workspace {
+    position: fixed;
+    z-index: 2147482990;
+    inset: 62px 2.5vw 2.5vh;
+    display: none;
+    background: #fff;
+    border: 1px solid #e4e7eb;
+    border-radius: 16px;
+    box-shadow: 0 18px 60px rgba(18, 24, 40, .28);
+    overflow: hidden;
+    direction: rtl;
+    font-family: Arial, sans-serif;
+  }
+  #my-souq-admin-workspace.is-open { display: flex; flex-direction: column; }
+  #my-souq-workspace-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    min-height: 44px;
+    box-sizing: border-box;
+    color: #202833;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  #my-souq-workspace-title { font-size: 14px; font-weight: 800; }
+  #my-souq-workspace-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  #my-souq-workspace-actions a, #my-souq-workspace-actions button {
+    border: 1px solid #d5dae1; border-radius: 8px; background:#fff; color:#26313d;
+    padding: 7px 10px; font-size:12px; font-weight:700; text-decoration:none; cursor:pointer;
+  }
+  #my-souq-workspace-content { position:relative; flex:1; min-height:0; background:#fff; }
+  #my-souq-telegram-frame { width:100%; height:100%; border:0; display:block; background:#fff; }
+  #my-souq-preview-help {
+    display:none; padding:24px; line-height:1.8; color:#344054; text-align:center;
+  }
+  #my-souq-preview-help strong { color:#16803d; }
+  #my-souq-workspace-fallback {
+    padding: 8px 12px; background:#fff8e6; color:#725316; border-top:1px solid #f1dfac;
+    font-size:12px; line-height:1.6;
+  }
+  #my-souq-workspace-close {
+    width:34px; height:34px; padding:0 !important; border-radius:50% !important;
+    font-size:18px !important; line-height:1; 
+  }
+  @media (max-width: 700px) {
+    #my-souq-admin-workspace { inset: 54px 8px 8px; border-radius:12px; }
+    #my-souq-workspace-head { padding:8px; }
+    #my-souq-workspace-title { font-size:12px; }
+    #my-souq-workspace-actions a, #my-souq-workspace-actions button { padding:6px 7px; font-size:11px; }
+  }
   #my-souq-logout-btn {
     background: #803d48;
     color: #fff;
@@ -772,8 +833,182 @@
     telegram.type = "button";
     telegram.textContent = "✈️ Telegram Web";
     telegram.title = "فتح Telegram Web الأصلي";
-    telegram.addEventListener("click", function () {
-      window.open(TELEGRAM_WEB_URL, "_blank", "noopener,noreferrer");
+    telegram.setAttribute("aria-pressed", "false");
+
+    var preview = document.createElement("button");
+    preview.id = "my-souq-preview-btn";
+    preview.type = "button";
+    preview.textContent = "👀 عرض المعاينة";
+    preview.title = "عرض معاينة المنتج في مساحة العمل المشتركة";
+    preview.setAttribute("aria-pressed", "false");
+
+    var workspace = document.createElement("section");
+    workspace.id = "my-souq-admin-workspace";
+    workspace.setAttribute("aria-label", "مساحة العمل المشتركة");
+
+    var workspaceHead = document.createElement("div");
+    workspaceHead.id = "my-souq-workspace-head";
+    var workspaceTitle = document.createElement("div");
+    workspaceTitle.id = "my-souq-workspace-title";
+    workspaceTitle.textContent = "مساحة العمل المشتركة";
+    var workspaceActions = document.createElement("div");
+    workspaceActions.id = "my-souq-workspace-actions";
+
+    var telegramFallback = document.createElement("a");
+    telegramFallback.href = TELEGRAM_WEB_URL;
+    telegramFallback.target = "_blank";
+    telegramFallback.rel = "noopener noreferrer";
+    telegramFallback.textContent = "فتح Telegram في نافذة مستقلة ↗";
+    telegramFallback.title = "بديل آمن إذا منع المتصفح عرض تيليجرام داخل اللوحة";
+
+    var workspaceClose = document.createElement("button");
+    workspaceClose.id = "my-souq-workspace-close";
+    workspaceClose.type = "button";
+    workspaceClose.textContent = "×";
+    workspaceClose.title = "إغلاق مساحة العمل";
+    workspaceClose.setAttribute("aria-label", "إغلاق مساحة العمل");
+
+    workspaceActions.appendChild(telegramFallback);
+    workspaceActions.appendChild(workspaceClose);
+    workspaceHead.appendChild(workspaceTitle);
+    workspaceHead.appendChild(workspaceActions);
+
+    var workspaceContent = document.createElement("div");
+    workspaceContent.id = "my-souq-workspace-content";
+    var telegramFrame = document.createElement("iframe");
+    telegramFrame.id = "my-souq-telegram-frame";
+    telegramFrame.title = "Telegram Web";
+    telegramFrame.setAttribute("allow", "clipboard-read; clipboard-write; fullscreen");
+    telegramFrame.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
+    telegramFrame.src = "about:blank";
+
+    var previewHelp = document.createElement("div");
+    previewHelp.id = "my-souq-preview-help";
+    previewHelp.innerHTML = "<strong>وضع المعاينة</strong><p>المعاينة الأصلية تظل داخل محرر Sveltia حتى نحافظ على تفاعلاته وتحديثاته. أغلق مساحة العمل لعرضها كما هي، أو استخدم زر المعاينة الأصلي داخل المحرر.</p><button type='button' id='my-souq-preview-return'>الرجوع إلى لوحة Sveltia</button>";
+
+    workspaceContent.appendChild(telegramFrame);
+    workspaceContent.appendChild(previewHelp);
+    var fallbackNote = document.createElement("div");
+    fallbackNote.id = "my-souq-workspace-fallback";
+    fallbackNote.textContent = "إذا ظهرت صفحة فارغة أو رسالة منع، فهذا بسبب قيود التضمين أو ملفات تعريف الارتباط في Telegram. استخدم «فتح Telegram في نافذة مستقلة»؛ سيظل تسجيل الدخول منفصلاً عن Sveltia.";
+    workspace.appendChild(workspaceHead);
+    workspace.appendChild(workspaceContent);
+    workspace.appendChild(fallbackNote);
+
+    var activeMode = null;
+    function setButtonStates(mode) {
+      activeMode = mode;
+      telegram.classList.toggle("is-active", mode === "telegram");
+      preview.classList.toggle("is-active", mode === "preview");
+      telegram.setAttribute("aria-pressed", mode === "telegram" ? "true" : "false");
+      preview.setAttribute("aria-pressed", mode === "preview" ? "true" : "false");
+    }
+
+    function closeWorkspace() {
+      workspace.classList.remove("is-open");
+      fallbackNote.style.display = "";
+      telegramFrame.style.display = "block";
+      previewHelp.style.display = "none";
+      setButtonStates(null);
+    }
+
+    function showTelegram() {
+      if (activeMode === "telegram" && workspace.classList.contains("is-open")) {
+        closeWorkspace();
+        return;
+      }
+      if (activeMode === "preview" && !workspace.classList.contains("is-open")) {
+        toggleNativePreview(false);
+      }
+      previewHelp.style.display = "none";
+      telegramFrame.style.display = "block";
+      fallbackNote.style.display = "";
+      workspaceTitle.textContent = "Telegram Web";
+      workspace.classList.add("is-open");
+      setButtonStates("telegram");
+      if (telegramFrame.src === "about:blank") telegramFrame.src = TELEGRAM_WEB_URL;
+    }
+
+    function toggleNativePreview(turnOff) {
+      var nodes = document.querySelectorAll("button, a, [role='button'], [role='tab']");
+      for (var j = 0; j < nodes.length; j++) {
+        var node = nodes[j];
+        if (node.closest("#my-souq-admin-tools") || node.closest("#my-souq-admin-workspace")) continue;
+        var text = (node.innerText || node.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
+        var aria = (node.getAttribute("aria-label") || "").trim().toLowerCase();
+        var title = (node.getAttribute("title") || "").trim().toLowerCase();
+        if (text === "معاينة" || text === "preview" || aria === "معاينة" || aria === "preview" || title === "معاينة" || title === "preview") {
+          var r = node.getBoundingClientRect();
+          if (r.width > 0 && r.height > 0) { node.click(); return true; }
+        }
+      }
+      return false;
+    }
+
+    function showPreview() {
+      if (activeMode === "preview" && !workspace.classList.contains("is-open")) {
+        toggleNativePreview(true);
+        setButtonStates(null);
+        preview.title = "عرض معاينة المنتج";
+        return;
+      }
+      if (activeMode === "preview" && workspace.classList.contains("is-open")) {
+        closeWorkspace();
+        return;
+      }
+
+      /*
+       * Sveltia owns the live preview component. Moving it into an external
+       * overlay can break the CMS renderer and unsaved editor state, so first
+       * switch to Sveltia's own preview control where one is available.
+       */
+      var nodes = document.querySelectorAll("button, a, [role='button'], [role='tab']");
+      var nativePreview = null;
+      for (var i = 0; i < nodes.length; i++) {
+        var node = nodes[i];
+        if (node.closest("#my-souq-admin-tools") || node.closest("#my-souq-admin-workspace")) continue;
+        var label = [
+          node.innerText || node.textContent || "",
+          node.getAttribute("aria-label") || "",
+          node.getAttribute("title") || ""
+        ].join(" ").replace(/\\s+/g, " ").trim().toLowerCase();
+        var rect = node.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) continue;
+        if (/^(معاينة|preview|preview changes|عرض المعاينة)$/.test(label) ||
+            /^(معاينة|preview)$/.test((node.getAttribute("aria-label") || "").trim().toLowerCase()) ||
+            /^(معاينة|preview)$/.test((node.getAttribute("title") || "").trim().toLowerCase())) {
+          nativePreview = node;
+          break;
+        }
+      }
+
+      if (nativePreview) {
+        closeWorkspace();
+        nativePreview.click();
+        setButtonStates("preview");
+        preview.title = "المعاينة الأصلية مفعّلة؛ اضغط للعودة أو إغلاقها";
+        return;
+      }
+
+      /*
+       * Safe fallback: don't fabricate a preview or move live CMS nodes.
+       * Explain where the original preview remains and preserve all editor data.
+       */
+      telegramFrame.style.display = "none";
+      previewHelp.style.display = "block";
+      fallbackNote.style.display = "none";
+      workspaceTitle.textContent = "عرض المعاينة";
+      workspace.classList.add("is-open");
+      setButtonStates("preview");
+      preview.title = "عرض المعاينة";
+    }
+
+    telegram.addEventListener("click", showTelegram);
+    preview.addEventListener("click", showPreview);
+    workspaceClose.addEventListener("click", closeWorkspace);
+    previewHelp.querySelector("#my-souq-preview-return").addEventListener("click", closeWorkspace);
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && workspace.classList.contains("is-open")) closeWorkspace();
     });
 
     var logout = document.createElement("button");
@@ -931,7 +1166,9 @@
     });
 
     wrap.appendChild(telegram);
+    wrap.appendChild(preview);
     wrap.appendChild(logout);
+    document.body.appendChild(workspace);
     document.body.appendChild(wrap);
   }
 
