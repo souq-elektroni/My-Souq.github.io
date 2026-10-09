@@ -3486,6 +3486,107 @@ body:has(.zoom-overlay.active) .back-to-top {
 @media(max-width:700px){.msq-category-nav{gap:5px!important;justify-content:stretch!important}.msq-category-group{flex:1 1 calc(50% - 8px);justify-content:space-between;padding:3px}.msq-category-group .cat-btn{padding:6px 7px!important;font-size:11px!important}.msq-subcategory{flex:1;min-width:0;max-width:none;width:100px;font-size:10px;height:30px}.msq-category-nav>[data-main-category="الكل"],.msq-category-nav>.offer-tab{flex:0 0 auto;padding:7px 12px!important}.msq-category-nav .cat-divider{display:none}}
 </style>
 
+
+<style id="mysouq-category-dropdown-polish">
+/* Elegant stacked category chips: category title above its sub-filter */
+.msq-category-nav{
+  align-items:stretch!important;
+  justify-content:center!important;
+  gap:9px!important;
+}
+.msq-category-group{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:flex-start!important;
+  gap:5px!important;
+  padding:7px!important;
+  min-width:132px;
+  border:1px solid rgba(139,63,82,.13)!important;
+  border-radius:17px!important;
+  background:linear-gradient(160deg,rgba(255,255,255,.88),rgba(250,239,240,.72))!important;
+  box-shadow:0 4px 13px rgba(87,45,54,.045),inset 0 1px 0 rgba(255,255,255,.9)!important;
+  transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+}
+.msq-category-group:hover{
+  transform:translateY(-2px);
+  border-color:rgba(139,63,82,.28)!important;
+  box-shadow:0 8px 19px rgba(87,45,54,.09),inset 0 1px 0 rgba(255,255,255,.95)!important;
+}
+.msq-category-group .msq-main-cat{
+  width:100%!important;
+  min-height:35px!important;
+  padding:6px 10px!important;
+  border-radius:11px!important;
+  text-align:center!important;
+  font-size:12px!important;
+  line-height:1.3!important;
+  white-space:nowrap!important;
+}
+.msq-subcategory{
+  display:block!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  height:32px!important;
+  padding:4px 10px!important;
+  border:1px solid rgba(139,63,82,.17)!important;
+  border-radius:10px!important;
+  background:rgba(255,255,255,.84)!important;
+  color:var(--msq-muted,#76666c)!important;
+  font:800 10.5px 'Cairo',sans-serif!important;
+  text-align:center!important;
+  box-shadow:inset 0 1px 2px rgba(54,28,35,.025)!important;
+  transition:border-color .2s ease,box-shadow .2s ease,background .2s ease;
+}
+.msq-subcategory:hover,.msq-subcategory:focus{
+  border-color:var(--msq-primary,#8b3f52)!important;
+  background:#fff!important;
+  box-shadow:0 0 0 3px rgba(139,63,82,.08)!important;
+  outline:none!important;
+}
+.msq-category-nav>[data-main-category="الكل"],
+.msq-category-nav>.offer-tab{
+  align-self:center!important;
+  min-height:39px!important;
+  padding:9px 15px!important;
+}
+.msq-category-nav .cat-divider{align-self:center!important;opacity:.65}
+@media(max-width:767px){
+  .msq-category-nav{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:7px!important;
+    overflow:visible!important;
+    direction:rtl!important;
+    padding:2px!important;
+  }
+  .msq-category-group{
+    min-width:0!important;
+    width:100%!important;
+    padding:5px!important;
+    border-radius:13px!important;
+  }
+  .msq-category-group .msq-main-cat{
+    min-height:34px!important;
+    padding:5px 3px!important;
+    font-size:10.5px!important;
+    white-space:normal!important;
+  }
+  .msq-subcategory{height:31px!important;font-size:10px!important;padding:3px 2px!important}
+  .msq-category-nav>[data-main-category="الكل"]{grid-column:auto;min-width:0!important;padding:8px 10px!important}
+  .msq-category-nav>.offer-tab{grid-column:auto;min-width:0!important;padding:8px 7px!important;font-size:10.5px!important;white-space:nowrap!important}
+  .msq-category-nav .cat-divider{display:none!important}
+  .msq-category-nav>.stock-avail,.msq-category-nav>.stock-out{min-width:0!important;padding:8px 5px!important;font-size:10px!important}
+}
+@media(max-width:380px){
+  .msq-category-nav{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .msq-category-nav>[data-main-category="الكل"]{grid-column:span 1}
+  .msq-category-nav>.offer-tab{grid-column:span 1}
+}
+@media(prefers-reduced-motion:reduce){.msq-category-group,.msq-subcategory{transition:none!important}.msq-category-group:hover{transform:none!important}}
+</style>
+
 </head>
 
 <body>
@@ -3614,18 +3715,18 @@ body:has(.zoom-overlay.active) .back-to-top {
     <div class="categories-bar categories-main msq-category-nav" aria-label="أقسام المتجر">
       <button class="cat-btn active" data-main-category="الكل" onclick="filterCategory('الكل', this)">الكل</button>
       <div class="msq-category-group">
-        <button class="cat-btn msq-main-cat" data-main-category="Kids" onclick="filterCategory('Kids', this)">👧🏻 Kids 🧑🏻</button>
+        <button class="cat-btn msq-main-cat" data-main-category="Kids" onclick="filterCategory('Kids', this)">🧒🏻 Kids</button>
         <select class="msq-subcategory" aria-label="تصنيف Kids" onchange="filterSubcategory('Kids', this.value, this)"><option value="">كل ملابس Kids</option><option value="ملابس للمنزل">ملابس للمنزل</option><option value="ملابس للخروج">ملابس للخروج</option></select>
       </div>
       <div class="msq-category-group">
-        <button class="cat-btn msq-main-cat" data-main-category="Baby" onclick="filterCategory('Baby', this)">Baby 👶🏻</button>
+        <button class="cat-btn msq-main-cat" data-main-category="Baby" onclick="filterCategory('Baby', this)">👶🏻 Baby</button>
         <select class="msq-subcategory" aria-label="تصنيف Baby" onchange="filterSubcategory('Baby', this.value, this)"><option value="">كل ملابس Baby</option><option value="ملابس للمنزل">ملابس للمنزل</option><option value="ملابس للخروج">ملابس للخروج</option></select>
       </div>
       <div class="msq-category-group">
-        <button class="cat-btn msq-main-cat" data-main-category="Mr & Mrs" onclick="filterCategory('Mr & Mrs', this)">👨🏻 Mr &amp; Mrs 👩🏻</button>
+        <button class="cat-btn msq-main-cat" data-main-category="Mr & Mrs" onclick="filterCategory('Mr & Mrs', this)">👨🏻‍🤝‍👩🏻 Mr &amp; Mrs</button>
         <select class="msq-subcategory" aria-label="تصنيف Mr and Mrs" onchange="filterSubcategory('Mr & Mrs', this.value, this)"><option value="">كل ملابس Mr &amp; Mrs</option><option value="ملابس للمنزل">ملابس للمنزل</option><option value="ملابس للخروج">ملابس للخروج</option></select>
       </div>
-      <button class="cat-btn offer-tab" data-main-category="عروض" onclick="filterCategory('عروض', this)">💥 العروض 🔥</button>
+      <button class="cat-btn offer-tab" data-main-category="عروض" onclick="filterCategory('عروض', this)">🔥 العروض 💥</button>
       <span class="cat-divider" aria-hidden="true"></span>
       <button class="cat-btn stock-avail" onclick="filterStock('available', this)">🟢 متوفرة</button>
       <button class="cat-btn stock-out" onclick="filterStock('out', this)">🔴 نفذت</button>
