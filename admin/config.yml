@@ -81,15 +81,29 @@ collections:
         name: "title"
         widget: "string"
 
-      - label: "القسم"
+      - label: "القسم الرئيسي"
         name: "category"
         widget: "select"
         options:
-          - "ملابس شتوية"
-          - "ملابس خروج"
-          - "أحذية"
-          - "عروض"
-        default: "ملابس شتوية"
+          - label: "👧🏻 Kids 🧑🏻"
+            value: "Kids"
+          - label: "Baby 👶🏻"
+            value: "Baby"
+          - label: "👨🏻 Mr & Mrs 👩🏻"
+            value: "Mr & Mrs"
+          - label: "💥 العروض 🔥"
+            value: "عروض"
+        default: "Kids"
+
+      - label: "نوع الملابس"
+        name: "subcategory"
+        widget: "select"
+        options:
+          - label: "ملابس للمنزل"
+            value: "ملابس للمنزل"
+          - label: "ملابس للخروج"
+            value: "ملابس للخروج"
+        required: false
 
       - label: "صور الكوليكشن"
         name: "images"
