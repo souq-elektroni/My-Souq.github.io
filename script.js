@@ -143,6 +143,7 @@ let products = [];
   }
 
   let currentCategory = "الكل";
+  let currentSubcategory = "";
   let currentStockFilter = "all";
   let currentSizeFilter = "الكل";
   let galleryIndex = 0;
@@ -299,6 +300,7 @@ let products = [];
     const price = Number(topLevel.price) || 0;
     const oldPrice = Number(topLevel.oldPrice) || 0;
     const category = String(topLevel.category ?? 'ملابس شتوية');
+    const subcategory = String(topLevel.subcategory ?? topLevel.subCategory ?? '');
     const stockStatus = String(topLevel.stock ?? 'available').toLowerCase() || 'available';
 
     const fixImagePath = (rawPath) => {
@@ -433,6 +435,7 @@ let products = [];
       id,
       title,
       category,
+      subcategory,
       price,
       oldPrice,
       stock: stockStatus,
@@ -624,20 +627,24 @@ let products = [];
   }
 
   function productCardHtml(p) {
+    const albumCount = Array.isArray(p.images) ? p.images.length : 0;
+    const firstImage = (p.images && p.images[0]) || p.image || 'https://via.placeholder.com/300?text=My+Souq';
+    const albumBadge = albumCount > 1 ? `<span class="msq-album-badge">▧ ألبوم · ${albumCount} صور</span>` : '';
     return `
-        <div class="product-card" onclick="openProductModal(${p.id})">
+        <div class="product-card" data-product-card-id="${p.id}" onclick="openProductModal(${p.id})">
           <div class="image-container">
-            <img class="product-image" src="${p.images[0]}" alt="${p.title}"
+            <img class="product-image" data-album-index="0" src="${firstImage}" alt="${p.title}"
               loading="lazy" decoding="async" fetchpriority="low"
               width="300" height="300"
               onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">
+            ${albumBadge}
           </div>
           <div class="product-details">
             <h3 class="product-title">${p.title}</h3>
             <div class="price-tag">
               ${getCardPriceHtml(p)}
             </div>
-            <div class="click-hint">عرض التفاصيل 👈</div>
+            <div class="click-hint">${albumCount > 1 ? '↔ صور الكوليكشن · عرض التفاصيل 👈' : 'عرض التفاصيل 👈'}</div>
           </div>
         </div>`;
   }
@@ -649,6 +656,29 @@ let products = [];
       return;
     }
     productsGrid.innerHTML = list.map(productCardHtml).join('');
+  }
+
+  // تبديل تلقائي ناعم بين صور الألبوم على الكارت، مع إبقاء فتح التفاصيل كما هو.
+  if (!window.__MSQ_ALBUM_ROTATOR__) {
+    window.__MSQ_ALBUM_ROTATOR__ = true;
+    window.setInterval(function () {
+      document.querySelectorAll('#products-container [data-product-card-id]').forEach(function (card) {
+        const productId = Number(card.getAttribute('data-product-card-id'));
+        const product = products.find(function (item) { return Number(item.id) === productId; });
+        if (!product || !Array.isArray(product.images) || product.images.length < 2) return;
+        const img = card.querySelector('.product-image');
+        if (!img || !card.isConnected) return;
+        const next = ((Number(img.dataset.albumIndex) || 0) + 1) % product.images.length;
+        img.classList.add('msq-swapping');
+        window.setTimeout(function () {
+          if (!img.isConnected) return;
+          img.src = product.images[next];
+          img.dataset.albumIndex = String(next);
+          img.onload = function () { img.classList.remove('msq-swapping'); };
+          window.setTimeout(function () { img.classList.remove('msq-swapping'); }, 450);
+        }, 170);
+      });
+    }, 3600);
   }
 
   function buildSizeFilterButtons() {
@@ -682,9 +712,24 @@ let products = [];
 
   function filterCategory(cat, btn) {
     currentCategory = cat;
+    currentSubcategory = "";
     currentStockFilter = "all";
     document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.msq-subcategory').forEach(sel => sel.value = "");
     if (btn) btn.classList.add('active');
+    handleSearchAndFilter();
+  }
+
+  function filterSubcategory(cat, subcategory, selectEl) {
+    currentCategory = cat;
+    currentSubcategory = subcategory || "";
+    currentStockFilter = "all";
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+    const mainButton = document.querySelector('.msq-main-cat[data-main-category="' + cat.replace(/"/g, '\\"') + '"]');
+    if (mainButton) mainButton.classList.add('active');
+    document.querySelectorAll('.msq-subcategory').forEach(sel => {
+      if (sel !== selectEl && sel.closest('.msq-category-group')?.querySelector('.msq-main-cat')?.dataset.mainCategory !== cat) sel.value = "";
+    });
     handleSearchAndFilter();
   }
 
@@ -703,8 +748,9 @@ let products = [];
     let filtered = products.filter(p => {
       let matchesCat =
         currentCategory === 'الكل' ||
-        p.category === currentCategory ||
-        (currentCategory === 'عروض' && p.oldPrice > 0);
+        (currentCategory === 'عروض' && (p.category === 'عروض' || Number(p.oldPrice) > 0)) ||
+        (p.category === currentCategory &&
+          (!currentSubcategory || String(p.subcategory || '') === currentSubcategory));
 
       if (currentCategory === 'جديد') {
         const newestIds = [...products].slice().reverse().slice(0, 8).map(x => x.id);
