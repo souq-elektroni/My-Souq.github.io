@@ -1,3 +1,4 @@
+
 backend:
   name: github
   repo: souq-elektroni/My-Souq.github.io
@@ -5,13 +6,14 @@ backend:
   auth_methods: [oauth]
   base_url: https://sveltia-cms-auth.ahmedaly1g.workers.dev
 
-publish_mode: editorial_workflow
+# نشر مباشر بدون نظام المسودات والمراجعات
+publish_mode: simple
 
 media_folder: "images/products"
 public_folder: "/images/products"
 
-# تحويل الصور إلى WebP عند الرفع (في المتصفح قبل الحفظ على GitHub)
-# حسب توثيق Sveltia: المفتاح all هو الأساس + default.config للتوافق
+# تحويل الصور إلى WebP قبل رفعها إلى GitHub
+# جودة 75% وأبعاد قصوى 1400 × 1400 لتقليل حجم الملفات
 media_libraries:
   all:
     max_file_size: 15728640
@@ -19,26 +21,27 @@ media_libraries:
     transformations:
       raster_image:
         format: webp
-        quality: 82
-        width: 1600
-        height: 1600
+        quality: 75
+        width: 1400
+        height: 1400
       jpeg:
         format: webp
-        quality: 82
-        width: 1600
-        height: 1600
+        quality: 75
+        width: 1400
+        height: 1400
       png:
         format: webp
-        quality: 82
-        width: 1600
-        height: 1600
+        quality: 75
+        width: 1400
+        height: 1400
       heic:
         format: webp
-        quality: 80
-        width: 1600
-        height: 1600
+        quality: 75
+        width: 1400
+        height: 1400
       svg:
         optimize: true
+
   default:
     config:
       max_file_size: 15728640
@@ -46,24 +49,24 @@ media_libraries:
       transformations:
         raster_image:
           format: webp
-          quality: 82
-          width: 1600
-          height: 1600
+          quality: 75
+          width: 1400
+          height: 1400
         jpeg:
           format: webp
-          quality: 82
-          width: 1600
-          height: 1600
+          quality: 75
+          width: 1400
+          height: 1400
         png:
           format: webp
-          quality: 82
-          width: 1600
-          height: 1600
+          quality: 75
+          width: 1400
+          height: 1400
         heic:
           format: webp
-          quality: 80
-          width: 1600
-          height: 1600
+          quality: 75
+          width: 1400
+          height: 1400
         svg:
           optimize: true
 
@@ -111,44 +114,44 @@ collections:
         multiple: true
         required: true
         min: 1
-        max: 15
+        max: 30
         media_libraries:
           all:
             transformations:
               raster_image:
                 format: webp
-                quality: 82
-                width: 1600
-                height: 1600
+                quality: 75
+                width: 1400
+                height: 1400
               jpeg:
                 format: webp
-                quality: 82
-                width: 1600
-                height: 1600
+                quality: 75
+                width: 1400
+                height: 1400
               png:
                 format: webp
-                quality: 82
-                width: 1600
-                height: 1600
+                quality: 75
+                width: 1400
+                height: 1400
           default:
             config:
               multiple: true
               transformations:
                 raster_image:
                   format: webp
-                  quality: 82
-                  width: 1600
-                  height: 1600
+                  quality: 75
+                  width: 1400
+                  height: 1400
                 jpeg:
                   format: webp
-                  quality: 82
-                  width: 1600
-                  height: 1600
+                  quality: 75
+                  width: 1400
+                  height: 1400
                 png:
                   format: webp
-                  quality: 82
-                  width: 1600
-                  height: 1600
+                  quality: 75
+                  width: 1400
+                  height: 1400
 
       - label: "السعر الأساسي (ج.م)"
         name: "price"
