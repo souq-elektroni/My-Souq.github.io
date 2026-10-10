@@ -630,10 +630,23 @@ let products = [];
     const albumCount = Array.isArray(p.images) ? p.images.length : 0;
     const firstImage = (p.images && p.images[0]) || p.image || 'https://via.placeholder.com/300?text=My+Souq';
     const albumBadge = albumCount > 1 ? `<span class="msq-album-badge">▧ ألبوم · ${albumCount} صور</span>` : '';
+    // مهم لفلتر «نوع الملابس» في index.html (sharedSubcategorySelect)
+    const escAttr = (v) => String(v ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    const catAttr = escAttr(p.category || '');
+    const subAttr = escAttr(p.subcategory || '');
+    const titleAttr = escAttr(p.title || '');
     return `
-        <div class="product-card" data-product-card-id="${p.id}" onclick="openProductModal(${p.id})">
+        <div class="product-card" data-product-card-id="${p.id}"
+          data-category="${catAttr}"
+          data-subcategory="${subAttr}"
+          data-title="${titleAttr}"
+          onclick="openProductModal(${p.id})">
           <div class="image-container">
-            <img class="product-image" data-album-index="0" src="${firstImage}" alt="${p.title}"
+            <img class="product-image" data-album-index="0" src="${firstImage}" alt="${titleAttr}"
               loading="lazy" decoding="async" fetchpriority="low"
               width="300" height="300"
               onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">
@@ -745,6 +758,10 @@ let products = [];
       ? document.getElementById('searchInput').value.toLowerCase()
       : '';
 
+    // فلتر «نوع الملابس» المشترك من القائمة المنسدلة في الصفحة
+    const sharedSubEl = document.getElementById('sharedSubcategorySelect');
+    const sharedSub = sharedSubEl ? String(sharedSubEl.value || '').trim() : '';
+
     let filtered = products.filter(p => {
       let matchesCat =
         currentCategory === 'الكل' ||
@@ -761,6 +778,14 @@ let products = [];
         matchesCat = bestIds.includes(p.id);
       }
 
+      // تطابق نوع الملابس (ملابس للمنزل / ملابس للخروج)
+      const pSub = String(p.subcategory || '').trim();
+      const matchesSharedSub =
+        !sharedSub ||
+        pSub === sharedSub ||
+        (sharedSub === 'ملابس للمنزل' && /ملابس\s*للمنزل|للمنزل|home\s*wear|بيت/i.test(pSub)) ||
+        (sharedSub === 'ملابس للخروج' && /ملابس\s*للخروج|للخروج|خروج|out\s*wear/i.test(pSub));
+
       const matchesStock =
         currentStockFilter === 'all' ||
         p.stock === currentStockFilter;
@@ -771,7 +796,7 @@ let products = [];
         currentSizeFilter === 'الكل' ||
         (p.variants || []).some(v => v.size === currentSizeFilter);
 
-      return matchesCat && matchesStock && matchesSearch && matchesSize;
+      return matchesCat && matchesSharedSub && matchesStock && matchesSearch && matchesSize;
     });
 
     renderProducts(filtered);
@@ -2986,6 +3011,152 @@ function continueAfterOrderRecaptcha() {
     ].join('\n');
   }
 
+
+  function injectMobileLayoutPolish() {
+    var style = document.getElementById('msq-mobile-layout-polish-css');
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'msq-mobile-layout-polish-css';
+      document.head.appendChild(style);
+    }
+    style.textContent = [
+      '/* ===== موبايل: شريط فلاتر مرتب + كروت نظيفة بدون تغطية ===== */',
+      '@media (max-width:767px){',
+      '  body{padding:8px 8px 96px!important;}',
+      '  header{padding:52px 4px 8px!important;}',
+      '  header h1{font-size:22px!important;margin-bottom:6px!important;}',
+      '  header p{font-size:11.5px!important;padding:8px 10px!important;line-height:1.35!important;}',
+      '',
+      '  /* شريط التحكم */',
+      '  .controls-wrapper{',
+      '    width:100%!important;max-width:100%!important;',
+      '    margin:0 0 12px!important;padding:10px!important;gap:10px!important;',
+      '    border-radius:16px!important;box-sizing:border-box!important;',
+      '  }',
+      '',
+      '  /* الأقسام: سكرول أفقي ناعم بدل شبكة مزدحمة */',
+      '  .msq-category-nav,.categories-bar{',
+      '    display:flex!important;flex-wrap:nowrap!important;',
+      '    overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;',
+      '    gap:6px!important;padding:0 0 8px!important;border-bottom:1px solid rgba(139,63,82,.1)!important;',
+      '    scrollbar-width:none!important;justify-content:flex-start!important;',
+      '  }',
+      '  .msq-category-nav::-webkit-scrollbar,.categories-bar::-webkit-scrollbar{display:none!important;}',
+      '  .msq-category-nav .cat-btn,',
+      '  .msq-category-nav>[data-main-category="الكل"],',
+      '  .msq-category-nav>.offer-tab,',
+      '  .msq-category-nav>.stock-avail,',
+      '  .msq-category-nav>.stock-out{',
+      '    flex:0 0 auto!important;width:auto!important;min-width:auto!important;',
+      '    min-height:36px!important;height:auto!important;',
+      '    padding:7px 12px!important;font-size:12px!important;',
+      '    white-space:nowrap!important;border-radius:999px!important;',
+      '  }',
+      '',
+      '  /* صف البحث + الفلاتر: بحث بعرض كامل ثم شبكة 2×2 */',
+      '  .search-sort-box{',
+      '    display:grid!important;',
+      '    grid-template-columns:1fr 1fr!important;',
+      '    gap:8px!important;width:100%!important;',
+      '    padding-top:0!important;align-items:stretch!important;',
+      '  }',
+      '  .search-field-wrap{grid-column:1/-1!important;width:100%!important;min-width:0!important;}',
+      '  .search-field-wrap .search-input,',
+      '  .sort-wrapper select,',
+      '  .gallery-mode-btn{',
+      '    width:100%!important;min-width:0!important;',
+      '    height:42px!important;min-height:42px!important;',
+      '    font-size:12px!important;border-radius:12px!important;',
+      '    box-sizing:border-box!important;',
+      '  }',
+      '  .search-field-wrap .search-input{',
+      '    padding:0 12px 0 40px!important;font-size:13px!important;',
+      '  }',
+      '  .sort-wrapper{width:100%!important;min-width:0!important;margin:0!important;}',
+      '  .gallery-mode-btn{',
+      '    padding:0 6px!important;white-space:nowrap!important;',
+      '    overflow:hidden!important;text-overflow:ellipsis!important;',
+      '    display:flex!important;align-items:center!important;justify-content:center!important;',
+      '  }',
+      '  .voice-search-btn{width:30px!important;height:30px!important;font-size:13px!important;left:6px!important;}',
+      '',
+      '  /* شبكة المنتجات */',
+      '  .products-grid,#products-container{',
+      '    gap:10px!important;padding:0 2px!important;',
+      '  }',
+      '  .product-card{',
+      '    border-radius:14px!important;overflow:hidden!important;',
+      '    box-shadow:0 4px 14px rgba(40,20,28,.08)!important;',
+      '  }',
+      '  .product-card .image-container{',
+      '    position:relative!important;overflow:hidden!important;',
+      '    height:auto!important;aspect-ratio:1/1.05!important;',
+      '    background:#f6eef1!important;',
+      '  }',
+      '  .product-card .product-image{',
+      '    width:100%!important;height:100%!important;',
+      '    object-fit:cover!important;object-position:center top!important;',
+      '    display:block!important;',
+      '  }',
+      '  .product-details{padding:8px 9px 10px!important;}',
+      '  .product-title{',
+      '    font-size:12.5px!important;line-height:1.3!important;',
+      '    margin:0 0 4px!important;',
+      '    display:-webkit-box!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important;',
+      '    overflow:hidden!important;',
+      '  }',
+      '  .price-tag{font-size:13.5px!important;font-weight:900!important;}',
+      '  .click-hint{font-size:10px!important;margin-top:3px!important;opacity:.75!important;}',
+      '',
+      '  /* شارة الألبوم: صغيرة وما تغطيش وسط الصورة */',
+      '  .msq-album-badge{',
+      '    position:absolute!important;',
+      '    top:8px!important;bottom:auto!important;',
+      '    left:8px!important;right:auto!important;',
+      '    z-index:3!important;',
+      '    padding:3px 7px!important;',
+      '    font-size:9px!important;font-weight:800!important;',
+      '    border-radius:999px!important;',
+      '    background:rgba(30,22,26,.72)!important;color:#fff!important;',
+      '    backdrop-filter:blur(4px)!important;',
+      '    max-width:70%!important;',
+      '    white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;',
+      '    pointer-events:none!important;',
+      '    box-shadow:0 2px 8px rgba(0,0,0,.15)!important;',
+      '  }',
+      '',
+      '  /* أزرار عائمة: بعيدة عن المنتجات */',
+      '  .whatsapp-float{bottom:88px!important;left:10px!important;width:44px!important;height:44px!important;z-index:80!important;}',
+      '  .call-float{bottom:140px!important;left:10px!important;width:44px!important;height:44px!important;z-index:80!important;}',
+      '  .qr-toggle-fab{bottom:12px!important;left:10px!important;width:44px!important;height:44px!important;z-index:80!important;}',
+      '  .back-to-top{bottom:12px!important;right:10px!important;width:44px!important;height:44px!important;z-index:80!important;}',
+      '  .brand-badge{width:42px!important;height:42px!important;font-size:8px!important;top:8px!important;right:8px!important;}',
+      '  .top-actions{',
+      '    top:6px!important;left:6px!important;right:54px!important;',
+      '    gap:4px!important;max-width:calc(100% - 60px)!important;',
+      '    flex-wrap:nowrap!important;overflow-x:auto!important;',
+      '    scrollbar-width:none!important;',
+      '  }',
+      '  .top-actions::-webkit-scrollbar{display:none!important;}',
+      '  .top-actions > *{',
+      '    flex:0 0 auto!important;min-height:32px!important;',
+      '    padding:5px 8px!important;font-size:10px!important;',
+      '  }',
+      '}',
+      '',
+      '@media (max-width:380px){',
+      '  .search-sort-box{gap:6px!important;}',
+      '  .search-field-wrap .search-input,.sort-wrapper select,.gallery-mode-btn{',
+      '    height:40px!important;min-height:40px!important;font-size:11px!important;',
+      '  }',
+      '  .msq-category-nav .cat-btn{padding:6px 10px!important;font-size:11px!important;min-height:34px!important;}',
+      '  .product-title{font-size:11.5px!important;}',
+      '  .price-tag{font-size:12.5px!important;}',
+      '}',
+    ].join('\n');
+  }
+
+
   function openZoom() {
     const src = activeModalImage || (currentSelectedProduct && currentSelectedProduct.images[0]);
     if (!src) return;
@@ -3179,6 +3350,7 @@ ${itemsText || '-'}
     window.onload = function() {
       initFirebase();
       try { injectModalPolishStyles(); } catch (e) {}
+      try { injectMobileLayoutPolish(); } catch (e) {}
       try { bindModalImageSwipe(); } catch (e) {}
 
       const custPhoneInput = document.getElementById('custPhone');
