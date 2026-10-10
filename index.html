@@ -3758,6 +3758,60 @@ body:has(.zoom-overlay.active) .back-to-top {
     }
   </style>
 
+
+  <style id="mysouq-shared-subcategory-v3">
+    .msq-category-nav{
+      display:flex!important;align-items:center!important;justify-content:center!important;
+      flex-wrap:wrap!important;gap:10px!important;overflow:visible!important;
+      padding:2px 0 13px!important;border-bottom:1px solid rgba(139,63,82,.14)!important;
+    }
+    .msq-category-nav>.cat-btn{
+      min-height:46px!important;padding:10px 17px!important;border-radius:14px!important;
+      font-size:15px!important;font-weight:900!important;display:inline-flex!important;
+      align-items:center!important;justify-content:center!important;gap:7px!important;
+      box-shadow:0 3px 10px rgba(70,35,45,.06)!important;white-space:nowrap!important;
+    }
+    .msq-category-nav .msq-main-cat{letter-spacing:.1px!important}
+    .search-sort-box{
+      display:grid!important;
+      grid-template-columns:minmax(220px,1.5fr) repeat(3,minmax(155px,1fr)) minmax(135px,.85fr)!important;
+      gap:10px!important;align-items:center!important;width:100%!important;padding-top:0!important;
+    }
+    .search-field-wrap,.sort-wrapper{width:100%!important;min-width:0!important}
+    .search-field-wrap .search-input,.sort-wrapper select,.gallery-mode-btn{
+      width:100%!important;min-width:0!important;height:49px!important;min-height:49px!important;
+      border-radius:13px!important;font-size:14px!important;font-weight:800!important;
+      border:1px solid rgba(139,63,82,.2)!important;
+      box-shadow:0 3px 10px rgba(60,30,40,.045)!important;
+    }
+    .sort-wrapper select{padding:8px 12px!important;background-color:var(--bg-cream,#fff)!important}
+    .search-field-wrap .search-input{padding:8px 15px 8px 48px!important}
+    .voice-search-btn{width:35px!important;height:35px!important;border-radius:10px!important}
+    .gallery-mode-btn{padding:8px 10px!important;white-space:nowrap!important}
+    .controls-wrapper{
+      padding:16px!important;border-radius:21px!important;
+      background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(250,241,243,.94))!important;
+      border:1px solid rgba(139,63,82,.17)!important;
+      box-shadow:0 10px 28px rgba(70,35,45,.075)!important;gap:13px!important;
+    }
+    body.dark-mode .controls-wrapper{background:linear-gradient(145deg,#231d21,#191518)!important}
+    body.dark-mode .sort-wrapper select{background:#211b1f!important;color:var(--text-dark)!important}
+    @media(max-width:900px){
+      .search-sort-box{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
+      .search-field-wrap{grid-column:1/-1!important}
+      .search-field-wrap .search-input,.sort-wrapper select,.gallery-mode-btn{height:47px!important;min-height:47px!important;font-size:13px!important}
+      .msq-category-nav{gap:8px!important}
+      .msq-category-nav>.cat-btn{min-height:43px!important;padding:9px 13px!important;font-size:14px!important}
+    }
+    @media(max-width:390px){
+      .controls-wrapper{padding:10px!important}
+      .msq-category-nav{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+      .msq-category-nav>.cat-btn{width:100%!important;min-width:0!important;padding:8px 5px!important;font-size:12.5px!important;white-space:normal!important}
+      .search-sort-box{gap:7px!important}
+      .search-field-wrap .search-input,.sort-wrapper select,.gallery-mode-btn{font-size:12px!important;padding-right:8px!important;padding-left:8px!important}
+    }
+  </style>
+
 </head>
 
 <body>
@@ -3885,18 +3939,9 @@ body:has(.zoom-overlay.active) .back-to-top {
     <!-- صف الفئات: أقسام ثم عروض ثم المخزون -->
     <div class="categories-bar categories-main msq-category-nav" aria-label="أقسام المتجر">
       <button class="cat-btn active" data-main-category="الكل" onclick="filterCategory('الكل', this)">الكل</button>
-      <div class="msq-category-group">
-        <button class="cat-btn msq-main-cat" data-main-category="Kids" onclick="filterCategory('Kids', this)">🧒🏻 Kids</button>
-        <select class="msq-subcategory" aria-label="تصنيف Kids" onchange="filterSubcategory('Kids', this.value, this)"><option value="">كل ملابس Kids</option><option value="ملابس للمنزل">ملابس للمنزل</option><option value="ملابس للخروج">ملابس للخروج</option></select>
-      </div>
-      <div class="msq-category-group">
-        <button class="cat-btn msq-main-cat" data-main-category="Baby" onclick="filterCategory('Baby', this)">👶🏻 Baby</button>
-        <select class="msq-subcategory" aria-label="تصنيف Baby" onchange="filterSubcategory('Baby', this.value, this)"><option value="">كل ملابس Baby</option><option value="ملابس للمنزل">ملابس للمنزل</option><option value="ملابس للخروج">ملابس للخروج</option></select>
-      </div>
-      <div class="msq-category-group">
-        <button class="cat-btn msq-main-cat" data-main-category="Mr & Mrs" onclick="filterCategory('Mr & Mrs', this)">👨🏻‍🤝‍👩🏻 Mr &amp; Mrs</button>
-        <select class="msq-subcategory" aria-label="تصنيف Mr and Mrs" onchange="filterSubcategory('Mr & Mrs', this.value, this)"><option value="">كل ملابس Mr &amp; Mrs</option><option value="ملابس للمنزل">ملابس للمنزل</option><option value="ملابس للخروج">ملابس للخروج</option></select>
-      </div>
+      <button class="cat-btn msq-main-cat" data-main-category="Kids" onclick="filterCategory('Kids', this)">🧒🏻 Kids</button>
+      <button class="cat-btn msq-main-cat" data-main-category="Baby" onclick="filterCategory('Baby', this)">👶🏻 Baby</button>
+      <button class="cat-btn msq-main-cat" data-main-category="Mr & Mrs" onclick="filterCategory('Mr & Mrs', this)">👨🏻‍🤝‍👩🏻 Mr &amp; Mrs</button>
       <button class="cat-btn offer-tab" data-main-category="عروض" onclick="filterCategory('عروض', this)">🔥 العروض 💥</button>
       <span class="cat-divider" aria-hidden="true"></span>
       <button class="cat-btn stock-avail" onclick="filterStock('available', this)">🟢 متوفرة</button>
@@ -3922,13 +3967,20 @@ body:has(.zoom-overlay.active) .back-to-top {
         </select>
       </div>
       <div class="sort-wrapper">
-        <select id="sortSelect" onchange="applySorting()">
-          <option value="default">الترتيب الافتراضي</option>
-          <option value="low-high">السعر: من الأقل للأعلى</option>
-          <option value="high-low">السعر: من الأعلى للأقل</option>
+        <select id="sortSelect" aria-label="ترتيب المنتجات" onchange="applySorting()">
+          <option value="default">↕️ الترتيب الافتراضي</option>
+          <option value="low-high">💰 السعر: من الأقل للأعلى</option>
+          <option value="high-low">💎 السعر: من الأعلى للأقل</option>
         </select>
       </div>
-      <button type="button" class="gallery-mode-btn" id="galleryModeBtn" onclick="toggleGalleryMode()" title="تصفح بالصور فقط">🖼 صور فقط</button>
+      <div class="sort-wrapper shared-subcategory-wrap">
+        <select id="sharedSubcategorySelect" aria-label="فلترة نوع الملابس" onchange="applySharedSubcategoryFilter(this.value)">
+          <option value="">🗂️ كل أنواع الملابس</option>
+          <option value="ملابس للمنزل">🏠 ملابس للمنزل</option>
+          <option value="ملابس للخروج">✨ ملابس للخروج</option>
+        </select>
+      </div>
+      <button type="button" class="gallery-mode-btn" id="galleryModeBtn" onclick="toggleGalleryMode()" title="تصفح بالصور فقط">🖼️ صور فقط</button>
     </div>
 
   </div>
@@ -6542,6 +6594,52 @@ html body #productModal .direct-wa-btn{order:2!important;}
 html body #productModal .call-modal-btn{order:3!important;}
 html body #productModal .share-btn{order:4!important;}
 </style>
+
+
+<script id="mysouq-shared-subcategory-filter">
+(function(){
+  let sharedSubcategoryValue = '';
+  window.applySharedSubcategoryFilter = function(value){
+    sharedSubcategoryValue = value || '';
+    const grid = document.getElementById('products-container');
+    if(!grid) return;
+    const cards = Array.from(grid.querySelectorAll('.product-card'));
+    cards.forEach(function(card){
+      if(!sharedSubcategoryValue){ card.style.display = ''; return; }
+      const dataText = [
+        card.innerText || '',
+        card.getAttribute('data-category') || '',
+        card.getAttribute('data-subcategory') || '',
+        card.getAttribute('data-title') || ''
+      ].join(' ').toLowerCase();
+      const isHome = /ملابس\s*للمنزل|للمنزل|homewear|home wear|بيت/.test(dataText);
+      const isGoingOut = /ملابس\s*للخروج|للخروج|خروج|outwear|outfit/.test(dataText);
+      card.style.display = (sharedSubcategoryValue === 'ملابس للمنزل' ? isHome : isGoingOut) ? '' : 'none';
+    });
+    let empty = grid.querySelector('.shared-filter-empty');
+    const visible = cards.some(card => card.style.display !== 'none');
+    if(!visible && cards.length){
+      if(!empty){
+        empty = document.createElement('p');
+        empty.className = 'shared-filter-empty';
+        empty.style.cssText = 'grid-column:1/-1;text-align:center;padding:24px 12px;font-weight:800;color:var(--text-muted)';
+        grid.appendChild(empty);
+      }
+      empty.textContent = 'لا توجد منتجات ضمن هذا التصنيف في النتائج الحالية.';
+      empty.style.display = '';
+    } else if(empty){ empty.style.display = 'none'; }
+  };
+  // Keep the selected shared filter active when other controls rerender the product grid.
+  const grid = document.getElementById('products-container');
+  if(grid && window.MutationObserver){
+    new MutationObserver(function(){
+      if(!sharedSubcategoryValue) return;
+      const select = document.getElementById('sharedSubcategorySelect');
+      if(select && select.value) window.applySharedSubcategoryFilter(select.value);
+    }).observe(grid,{childList:true});
+  }
+})();
+</script>
 
 </body>
 </html>
