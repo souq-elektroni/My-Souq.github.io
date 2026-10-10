@@ -169,7 +169,7 @@ let products = [];
   ================================================================ */
   const STORE_WHATSAPP_NOTIFY = {
     phone: '201116339905',          // رقم المتجر دولي بدون +
-    callMeBotApiKey: '8982146',            // ← حط الـ apikey هنا بعد التفعيل
+    callMeBotApiKey: '8982146',            // مفتاح CallMeBot
     webhookUrl: ''                  // ← اختياري
   };
 
@@ -2458,14 +2458,35 @@ function continueAfterOrderRecaptcha() {
 
 
   /** إرسال إشعار الطلب لصاحب المتجر بدون فتح واتساب عند العميل */
-  async function notifyOwnerNewOrder(message) {
+  async function notifyOwnerNewOrder(message, orderMeta) {
     var cfg = STORE_WHATSAPP_NOTIFY || {};
     var phone = String(cfg.phone || '201116339905').replace(/\D/g, '');
     var key = String(cfg.callMeBotApiKey || '').trim();
     var webhook = String(cfg.webhookUrl || '').trim();
     var sent = false;
 
-    function beaconGet(url) {
+    // رسالة مركّزة + روابط الصور (الأهم لصاحب المتجر)
+    var meta = orderMeta || {};
+    var shortMsg =
+      '🛒 طلب جديد My Souq\n' +
+      '🆔 ' + (meta.orderId || '-') + '\n' +
+      '👤 ' + (meta.name || '-') + '\n' +
+      '📱 ' + (meta.phone || '-') + '\n' +
+      '📍 ' + String(meta.address || '-').slice(0, 100) + '\n' +
+      '💳 ' + (meta.payMethod || '-') + '\n' +
+      '💰 ' + (meta.total || '-') + '\n' +
+      '📦 المنتجات + روابط الصور:\n' +
+      (meta.itemsSummary || '-') + '\n' +
+      '⏰ ' + new Date().toLocaleString('ar-EG');
+
+    // نفضّل الرسالة القصيرة اللي فيها روابط الصور
+    var textToSend = shortMsg;
+    // لو الرسالة الأصلية فيها صور وأقصر من الحد، يمكن استخدامها
+    if (message && String(message).length > 0 && String(message).length < 1200 && /https?:\/\//i.test(String(message))) {
+      textToSend = String(message);
+    }
+
+    function sendViaImage(url) {
       return new Promise(function (resolve) {
         try {
           var img = new Image();
@@ -2478,39 +2499,57 @@ function continueAfterOrderRecaptcha() {
           img.onload = finish;
           img.onerror = finish;
           img.src = url;
-          setTimeout(finish, 3000);
+          setTimeout(finish, 4000);
         } catch (e) {
           resolve(false);
         }
       });
     }
 
-    // 1) CallMeBot — رسالة واتساب مباشرة لرقم المتجر
-    if (key && phone) {
-      try {
+    async function sendCallMeBot(text) {
+      if (!key || !phone) return false;
+      var phones = [phone, '+' + phone];
+      for (var i = 0; i < phones.length; i++) {
         var cmUrl =
           'https://api.callmebot.com/whatsapp.php?phone=' +
-          encodeURIComponent(phone) +
+          encodeURIComponent(phones[i]) +
           '&text=' +
-          encodeURIComponent(message) +
+          encodeURIComponent(text) +
           '&apikey=' +
           encodeURIComponent(key);
-        await beaconGet(cmUrl);
+        // تجنب الروابط الأطول من حد المتصفح
+        if (cmUrl.length > 2000) {
+          // حافظ على أول منتج + رابطه قدر الإمكان
+          text = text.slice(0, 900);
+          cmUrl =
+            'https://api.callmebot.com/whatsapp.php?phone=' +
+            encodeURIComponent(phones[i]) +
+            '&text=' +
+            encodeURIComponent(text) +
+            '&apikey=' +
+            encodeURIComponent(key);
+        }
+        try {
+          await sendViaImage(cmUrl);
+        } catch (e0) {}
         try {
           await fetch(cmUrl, { method: 'GET', mode: 'no-cors', cache: 'no-store' });
         } catch (e1) {}
-        sent = true;
-        console.log('تم إرسال إشعار واتساب عبر CallMeBot');
+      }
+      return true;
+    }
+
+    if (key && phone) {
+      try {
+        sent = await sendCallMeBot(textToSend);
+        console.log('CallMeBot notify attempted', { phone: phone, len: textToSend.length, sent: sent });
       } catch (e) {
         console.warn('CallMeBot failed:', e);
       }
     } else {
-      console.warn(
-        'إشعار واتساب غير مفعّل: ضع callMeBotApiKey داخل STORE_WHATSAPP_NOTIFY بعد تفعيل CallMeBot.'
-      );
+      console.warn('إشعار واتساب غير مفعّل: callMeBotApiKey فاضي');
     }
 
-    // 2) Webhook اختياري (Make / n8n / Apps Script)
     if (webhook) {
       try {
         await fetch(webhook, {
@@ -2520,13 +2559,14 @@ function continueAfterOrderRecaptcha() {
           body: JSON.stringify({
             source: 'MySouq',
             type: 'new_order',
-            message: message,
+            message: textToSend,
+            fullMessage: message || '',
+            meta: meta,
             phone: phone,
             at: Date.now()
           })
         });
         sent = true;
-        console.log('تم إرسال إشعار عبر Webhook');
       } catch (e2) {
         console.warn('Webhook failed:', e2);
       }
@@ -2534,7 +2574,6 @@ function continueAfterOrderRecaptcha() {
 
     return sent;
   }
-
 
     async function finalizeOrder() {
       const nameEl = document.getElementById('custName');
@@ -2618,7 +2657,23 @@ function continueAfterOrderRecaptcha() {
         msg += `إقرار العميل: أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
 
         try {
-          await notifyOwnerNewOrder(msg);
+          const itemsSummary = cart.map(function (i, idx) {
+            var line = (idx + 1) + ') ' + (i.title || '') +
+              ' | مقاس: ' + (i.size || '-') +
+              ' ×' + (i.qty || 1) +
+              ' | ' + (i.price || '') + ' ج.م';
+            if (i.image) line += '\n🖼️ ' + i.image;
+            return line;
+          }).join('\n');
+          await notifyOwnerNewOrder(msg, {
+            orderId: generatedOrderId,
+            name: name,
+            phone: phone,
+            address: address,
+            payMethod: payMethod,
+            total: totalText,
+            itemsSummary: itemsSummary
+          });
         } catch (notifyErr) {
           console.warn('تعذر إرسال إشعار واتساب (الطلب محفوظ):', notifyErr);
         }
