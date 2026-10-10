@@ -3587,6 +3587,177 @@ body:has(.zoom-overlay.active) .back-to-top {
 @media(prefers-reduced-motion:reduce){.msq-category-group,.msq-subcategory{transition:none!important}.msq-category-group:hover{transform:none!important}}
 </style>
 
+
+  <style id="mysouq-professional-filterbar-v2">
+    /* شريط فلاتر احترافي — تحسين بصري فقط مع الحفاظ على الوظائف الحالية */
+    .controls-wrapper{
+      width:min(100%,1320px)!important;
+      margin:0 auto 22px!important;
+      padding:16px!important;
+      gap:14px!important;
+      border:1px solid rgba(139,63,82,.17)!important;
+      border-radius:22px!important;
+      background:linear-gradient(145deg,rgba(255,255,255,.97),rgba(250,241,243,.94))!important;
+      box-shadow:0 10px 28px rgba(70,35,45,.075),inset 0 1px 0 rgba(255,255,255,.9)!important;
+    }
+    .msq-category-nav{
+      display:flex!important;
+      flex-wrap:wrap!important;
+      align-items:center!important;
+      justify-content:center!important;
+      gap:10px!important;
+      overflow:visible!important;
+      padding:2px 0 10px!important;
+      border-bottom:1px solid rgba(139,63,82,.13);
+    }
+    .msq-category-nav .cat-btn,
+    .msq-category-nav>[data-main-category="الكل"],
+    .msq-category-nav>.offer-tab,
+    .msq-category-nav>.stock-avail,
+    .msq-category-nav>.stock-out{
+      min-height:44px!important;
+      padding:9px 16px!important;
+      border-radius:14px!important;
+      font-size:15px!important;
+      font-weight:900!important;
+      line-height:1.35!important;
+      letter-spacing:0!important;
+      box-shadow:0 2px 7px rgba(60,30,40,.045);
+      transition:transform .18s ease,box-shadow .18s ease,background .18s ease!important;
+    }
+    .msq-category-nav .cat-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 5px 12px rgba(70,35,45,.10);
+    }
+    .msq-category-group{
+      flex:0 1 170px!important;
+      width:170px!important;
+      min-width:150px!important;
+      padding:9px!important;
+      gap:7px!important;
+      border-radius:17px!important;
+      background:rgba(255,255,255,.82)!important;
+      border:1px solid rgba(139,63,82,.16)!important;
+      box-shadow:0 4px 13px rgba(70,35,45,.045)!important;
+    }
+    .msq-category-group .msq-main-cat{
+      min-height:38px!important;
+      padding:7px 9px!important;
+      font-size:14px!important;
+      border-radius:11px!important;
+    }
+    .msq-subcategory{
+      width:100%!important;
+      max-width:none!important;
+      min-width:0!important;
+      height:38px!important;
+      padding:5px 10px!important;
+      border-radius:10px!important;
+      font-size:12.5px!important;
+      font-weight:800!important;
+      background:#fff!important;
+    }
+    .search-sort-box{
+      display:grid!important;
+      grid-template-columns:minmax(230px,1.6fr) minmax(170px,1fr) minmax(170px,1fr) minmax(140px,.8fr)!important;
+      gap:10px!important;
+      align-items:center!important;
+      width:100%!important;
+      padding-top:0!important;
+      border-top:0!important;
+    }
+    .search-field-wrap,.sort-wrapper{width:100%!important;min-width:0!important}
+    .search-field-wrap .search-input,
+    .sort-wrapper select,
+    .gallery-mode-btn{
+      width:100%!important;
+      min-width:0!important;
+      height:48px!important;
+      min-height:48px!important;
+      border-radius:13px!important;
+      font-size:14px!important;
+      font-weight:800!important;
+      border:1px solid rgba(139,63,82,.18)!important;
+      background:rgba(255,255,255,.95)!important;
+      box-shadow:0 2px 7px rgba(60,30,40,.035)!important;
+    }
+    .search-field-wrap .search-input{padding:8px 15px 8px 50px!important}
+    .voice-search-btn{width:35px!important;height:35px!important;border-radius:10px!important}
+    .gallery-mode-btn{padding:8px 12px!important;white-space:nowrap!important}
+    body.dark-mode .controls-wrapper{
+      background:linear-gradient(145deg,rgba(35,28,32,.98),rgba(26,21,24,.98))!important;
+      border-color:rgba(240,168,180,.2)!important;
+      box-shadow:0 10px 28px rgba(0,0,0,.2)!important;
+    }
+    body.dark-mode .msq-category-group,
+    body.dark-mode .search-field-wrap .search-input,
+    body.dark-mode .sort-wrapper select,
+    body.dark-mode .gallery-mode-btn,
+    body.dark-mode .msq-subcategory{background:#211b1f!important;color:var(--text-dark)!important}
+    @media(max-width:767px){
+      .controls-wrapper{
+        width:100%!important;
+        padding:12px!important;
+        margin-bottom:17px!important;
+        gap:12px!important;
+        border-radius:19px!important;
+      }
+      .msq-category-nav{
+        display:grid!important;
+        grid-template-columns:repeat(2,minmax(0,1fr))!important;
+        gap:9px!important;
+        overflow:visible!important;
+        padding:0 0 12px!important;
+      }
+      .msq-category-group{
+        width:100%!important;
+        min-width:0!important;
+        flex:initial!important;
+        padding:8px!important;
+      }
+      .msq-category-nav .cat-btn,
+      .msq-category-nav>[data-main-category="الكل"],
+      .msq-category-nav>.offer-tab,
+      .msq-category-nav>.stock-avail,
+      .msq-category-nav>.stock-out{
+        width:100%!important;
+        min-width:0!important;
+        min-height:44px!important;
+        padding:9px 6px!important;
+        font-size:14px!important;
+        white-space:normal!important;
+      }
+      .msq-category-group .msq-main-cat{font-size:14px!important;min-height:40px!important}
+      .msq-subcategory{height:39px!important;font-size:12px!important;padding:4px 7px!important}
+      .search-sort-box{
+        grid-template-columns:repeat(2,minmax(0,1fr))!important;
+        gap:9px!important;
+      }
+      .search-field-wrap{grid-column:1/-1!important}
+      .search-field-wrap .search-input,
+      .sort-wrapper select,
+      .gallery-mode-btn{
+        height:46px!important;
+        min-height:46px!important;
+        font-size:13px!important;
+      }
+      .search-field-wrap .search-input{padding-right:12px!important;padding-left:43px!important}
+      .voice-search-btn{left:6px!important;width:31px!important;height:31px!important;font-size:14px!important}
+      .gallery-mode-btn{padding:6px!important}
+    }
+    @media(max-width:360px){
+      .controls-wrapper{padding:9px!important}
+      .msq-category-nav{gap:7px!important}
+      .msq-category-nav .cat-btn,
+      .msq-category-nav>[data-main-category="الكل"],
+      .msq-category-nav>.offer-tab,
+      .msq-category-nav>.stock-avail,
+      .msq-category-nav>.stock-out{font-size:12.5px!important}
+      .msq-subcategory{font-size:11px!important}
+      .search-sort-box{gap:7px!important}
+    }
+  </style>
+
 </head>
 
 <body>
