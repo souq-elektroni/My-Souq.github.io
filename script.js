@@ -158,7 +158,23 @@ let products = [];
   let discountRate = 0;
   let generatedOrderId = '';
 
+  /* ========== إشعار واتساب لصاحب المتجر (بدون تحويل العميل) ==========
+     العميل يضغط «تأكيد الطلب» فقط — الطلب يُحفظ + رسالة توصلك على واتساب مباشرة.
+     طريقة التفعيل مرة واحدة (مجاني عبر CallMeBot):
+     1) من رقم واتساب المتجر (01116339905) ابعت رسالة للرقم: +34 644 66 64 35
+        النص: I allow callmebot to send me messages
+     2) البوت هيرجّع لك apikey
+     3) حط المفتاح تحت في callMeBotApiKey
+     بديل اختياري: webhookUrl (Make.com / n8n / Google Apps Script)
+  ================================================================ */
+  const STORE_WHATSAPP_NOTIFY = {
+    phone: '201116339905',          // رقم المتجر دولي بدون +
+    callMeBotApiKey: '',            // ← حط الـ apikey هنا بعد التفعيل
+    webhookUrl: ''                  // ← اختياري
+  };
+
   const GITHUB_USER = 'souq-elektroni';
+
   const GITHUB_REPO = 'My-Souq.github.io';
   const GITHUB_BRANCH = 'main';
 
@@ -2368,6 +2384,86 @@ function continueAfterOrderRecaptcha() {
   }
 
 
+
+  /** إرسال إشعار الطلب لصاحب المتجر بدون فتح واتساب عند العميل */
+  async function notifyOwnerNewOrder(message) {
+    var cfg = STORE_WHATSAPP_NOTIFY || {};
+    var phone = String(cfg.phone || '201116339905').replace(/\D/g, '');
+    var key = String(cfg.callMeBotApiKey || '').trim();
+    var webhook = String(cfg.webhookUrl || '').trim();
+    var sent = false;
+
+    function beaconGet(url) {
+      return new Promise(function (resolve) {
+        try {
+          var img = new Image();
+          var done = false;
+          var finish = function () {
+            if (done) return;
+            done = true;
+            resolve(true);
+          };
+          img.onload = finish;
+          img.onerror = finish;
+          img.src = url;
+          setTimeout(finish, 3000);
+        } catch (e) {
+          resolve(false);
+        }
+      });
+    }
+
+    // 1) CallMeBot — رسالة واتساب مباشرة لرقم المتجر
+    if (key && phone) {
+      try {
+        var cmUrl =
+          'https://api.callmebot.com/whatsapp.php?phone=' +
+          encodeURIComponent(phone) +
+          '&text=' +
+          encodeURIComponent(message) +
+          '&apikey=' +
+          encodeURIComponent(key);
+        await beaconGet(cmUrl);
+        try {
+          await fetch(cmUrl, { method: 'GET', mode: 'no-cors', cache: 'no-store' });
+        } catch (e1) {}
+        sent = true;
+        console.log('تم إرسال إشعار واتساب عبر CallMeBot');
+      } catch (e) {
+        console.warn('CallMeBot failed:', e);
+      }
+    } else {
+      console.warn(
+        'إشعار واتساب غير مفعّل: ضع callMeBotApiKey داخل STORE_WHATSAPP_NOTIFY بعد تفعيل CallMeBot.'
+      );
+    }
+
+    // 2) Webhook اختياري (Make / n8n / Apps Script)
+    if (webhook) {
+      try {
+        await fetch(webhook, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({
+            source: 'MySouq',
+            type: 'new_order',
+            message: message,
+            phone: phone,
+            at: Date.now()
+          })
+        });
+        sent = true;
+        console.log('تم إرسال إشعار عبر Webhook');
+      } catch (e2) {
+        console.warn('Webhook failed:', e2);
+      }
+    }
+
+    return sent;
+  }
+
+
     async function finalizeOrder() {
       const nameEl = document.getElementById('custName');
       const phoneEl = document.getElementById('custPhone');
@@ -2449,7 +2545,11 @@ function continueAfterOrderRecaptcha() {
         msg += `الإجمالي الكلي: ${totalText}\n\n`;
         msg += `إقرار العميل: أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
 
-        window.open(`https://wa.me/201116339905?text=${encodeURIComponent(msg)}`, '_blank');
+        try {
+          await notifyOwnerNewOrder(msg);
+        } catch (notifyErr) {
+          console.warn('تعذر إرسال إشعار واتساب (الطلب محفوظ):', notifyErr);
+        }
 
         const confirmationModal = document.getElementById('confirmationModal');
         const paymentModal = document.getElementById('paymentModal');
@@ -3020,35 +3120,36 @@ function continueAfterOrderRecaptcha() {
       document.head.appendChild(style);
     }
     style.textContent = [
-      '/* ===== فلاتر: صف أفقي واحد قابل للتمرير ===== */',
+      '/* ===== فلاتر: صف أفقي قابل للتمرير (موبايل + ديسكتوب) ===== */',
       '.search-sort-box{',
       '  display:flex!important;',
       '  flex-direction:row!important;',
       '  flex-wrap:nowrap!important;',
       '  align-items:center!important;',
-      '  gap:8px!important;',
+      '  gap:10px!important;',
       '  width:100%!important;',
       '  overflow-x:auto!important;',
       '  overflow-y:hidden!important;',
       '  -webkit-overflow-scrolling:touch!important;',
       '  scrollbar-width:thin!important;',
-      '  padding:2px 2px 6px!important;',
+      '  padding:4px 2px 8px!important;',
       '  scroll-snap-type:x proximity!important;',
       '}',
-      '.search-sort-box::-webkit-scrollbar{height:4px!important;}',
+      '.search-sort-box::-webkit-scrollbar{height:5px!important;}',
       '.search-sort-box::-webkit-scrollbar-thumb{background:rgba(139,63,82,.35)!important;border-radius:4px!important;}',
       '.search-field-wrap{',
       '  grid-column:auto!important;',
       '  flex:0 0 auto!important;',
-      '  width:min(220px,58vw)!important;',
-      '  min-width:160px!important;',
-      '  max-width:260px!important;',
+      '  width:min(240px,58vw)!important;',
+      '  min-width:170px!important;',
+      '  max-width:280px!important;',
       '}',
       '.search-field-wrap .search-input{',
       '  width:100%!important;min-width:0!important;',
-      '  height:40px!important;min-height:40px!important;',
-      '  font-size:12.5px!important;border-radius:12px!important;',
-      '  padding:0 12px 0 38px!important;',
+      '  height:42px!important;min-height:42px!important;',
+      '  font-size:13.5px!important;font-weight:700!important;',
+      '  border-radius:12px!important;',
+      '  padding:0 14px 0 40px!important;',
       '  box-sizing:border-box!important;',
       '}',
       '.sort-wrapper{',
@@ -3057,30 +3158,32 @@ function continueAfterOrderRecaptcha() {
       '  margin:0!important;',
       '}',
       '.sort-wrapper select{',
-      '  width:auto!important;min-width:120px!important;',
-      '  max-width:170px!important;',
-      '  height:40px!important;min-height:40px!important;',
-      '  font-size:12px!important;border-radius:12px!important;',
-      '  padding:0 8px!important;',
+      '  width:auto!important;min-width:130px!important;',
+      '  max-width:190px!important;',
+      '  height:42px!important;min-height:42px!important;',
+      '  font-size:13px!important;font-weight:800!important;',
+      '  border-radius:12px!important;',
+      '  padding:0 10px!important;',
       '  box-sizing:border-box!important;',
       '  white-space:nowrap!important;',
       '}',
       '.gallery-mode-btn{',
       '  flex:0 0 auto!important;',
-      '  width:auto!important;min-width:88px!important;',
-      '  height:40px!important;min-height:40px!important;',
-      '  padding:0 12px!important;',
-      '  font-size:12px!important;border-radius:12px!important;',
+      '  width:auto!important;min-width:100px!important;',
+      '  height:42px!important;min-height:42px!important;',
+      '  padding:0 14px!important;',
+      '  font-size:13px!important;font-weight:800!important;',
+      '  border-radius:12px!important;',
       '  white-space:nowrap!important;',
       '  display:inline-flex!important;align-items:center!important;justify-content:center!important;',
       '}',
-      '.voice-search-btn{width:28px!important;height:28px!important;font-size:12px!important;left:6px!important;}',
+      '.voice-search-btn{width:30px!important;height:30px!important;font-size:13px!important;left:6px!important;}',
       '',
       '/* أقسام: سكرول أفقي */',
       '.msq-category-nav,.categories-bar{',
       '  display:flex!important;flex-wrap:nowrap!important;',
       '  overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;',
-      '  gap:6px!important;padding:0 0 8px!important;',
+      '  gap:8px!important;padding:0 0 10px!important;',
       '  scrollbar-width:none!important;justify-content:flex-start!important;',
       '}',
       '.msq-category-nav::-webkit-scrollbar,.categories-bar::-webkit-scrollbar{display:none!important;}',
@@ -3090,8 +3193,9 @@ function continueAfterOrderRecaptcha() {
       '.msq-category-nav>.stock-avail,',
       '.msq-category-nav>.stock-out{',
       '  flex:0 0 auto!important;width:auto!important;min-width:auto!important;',
-      '  min-height:36px!important;padding:7px 12px!important;',
-      '  font-size:12px!important;white-space:nowrap!important;border-radius:999px!important;',
+      '  min-height:40px!important;padding:8px 14px!important;',
+      '  font-size:13.5px!important;font-weight:800!important;',
+      '  white-space:nowrap!important;border-radius:999px!important;',
       '}',
       '',
       '/* شارة ألبوم صغيرة */',
@@ -3149,17 +3253,103 @@ function continueAfterOrderRecaptcha() {
       '}',
       '.back-to-top{bottom:14px!important;right:12px!important;z-index:900!important;}',
       '',
+      '/* ========== ديسكتوب: خط أوضح وأكبر لشريط الفلاتر ========== */',
       '@media (min-width:768px){',
-      '  .search-field-wrap{width:min(280px,30vw)!important;max-width:320px!important;min-width:200px!important;}',
-      '  .search-field-wrap .search-input,.sort-wrapper select,.gallery-mode-btn{height:44px!important;min-height:44px!important;font-size:14px!important;}',
-      '  .sort-wrapper select{min-width:140px!important;max-width:200px!important;}',
+      '  .controls-wrapper{',
+      '    padding:16px 20px!important;',
+      '    gap:14px!important;',
+      '    border-radius:20px!important;',
+      '    margin-left:auto!important;',
+      '    margin-right:auto!important;',
+      '  }',
+      '  .msq-category-nav,.categories-bar{',
+      '    gap:10px!important;',
+      '    padding:0 0 12px!important;',
+      '    justify-content:center!important;',
+      '    align-items:center!important;',
+      '    width:100%!important;',
+      '  }',
+      '  .msq-category-nav .cat-btn,',
+      '  .msq-category-nav>[data-main-category="الكل"],',
+      '  .msq-category-nav>.offer-tab,',
+      '  .msq-category-nav>.stock-avail,',
+      '  .msq-category-nav>.stock-out{',
+      '    min-height:46px!important;',
+      '    padding:10px 18px!important;',
+      '    font-size:16px!important;',
+      '    font-weight:900!important;',
+      '    letter-spacing:0!important;',
+      '    border-radius:14px!important;',
+      '  }',
+      '  .search-sort-box{',
+      '    gap:12px!important;',
+      '    padding:4px 0 2px!important;',
+      '    justify-content:center!important;',
+      '    align-items:center!important;',
+      '    width:100%!important;',
+      '    margin-left:auto!important;',
+      '    margin-right:auto!important;',
+      '  }',
+      '  .search-field-wrap{',
+      '    width:min(320px,28vw)!important;',
+      '    min-width:220px!important;',
+      '    max-width:360px!important;',
+      '  }',
+      '  .search-field-wrap .search-input{',
+      '    height:48px!important;min-height:48px!important;',
+      '    font-size:15.5px!important;font-weight:700!important;',
+      '    padding:0 16px 0 46px!important;',
+      '    border-radius:14px!important;',
+      '  }',
+      '  .sort-wrapper select{',
+      '    min-width:155px!important;',
+      '    max-width:210px!important;',
+      '    height:48px!important;min-height:48px!important;',
+      '    font-size:15px!important;font-weight:800!important;',
+      '    padding:0 12px!important;',
+      '    border-radius:14px!important;',
+      '  }',
+      '  .gallery-mode-btn{',
+      '    min-width:120px!important;',
+      '    height:48px!important;min-height:48px!important;',
+      '    font-size:15px!important;font-weight:800!important;',
+      '    padding:0 16px!important;',
+      '    border-radius:14px!important;',
+      '  }',
+      '  .voice-search-btn{width:34px!important;height:34px!important;font-size:15px!important;left:8px!important;}',
       '}',
+      '',
+      '@media (min-width:1100px){',
+      '  .msq-category-nav .cat-btn,',
+      '  .msq-category-nav>[data-main-category="الكل"],',
+      '  .msq-category-nav>.offer-tab,',
+      '  .msq-category-nav>.stock-avail,',
+      '  .msq-category-nav>.stock-out{',
+      '    font-size:17px!important;',
+      '    padding:11px 20px!important;',
+      '    min-height:48px!important;',
+      '  }',
+      '  .search-field-wrap .search-input{font-size:16px!important;}',
+      '  .sort-wrapper select,.gallery-mode-btn{font-size:15.5px!important;}',
+      '}',
+      '',
       '@media (max-width:767px){',
       '  body{padding:8px 8px 90px!important;}',
       '  header{padding:52px 4px 8px!important;}',
       '  header h1{font-size:22px!important;margin-bottom:6px!important;}',
       '  header p{font-size:11.5px!important;padding:8px 10px!important;}',
       '  .controls-wrapper{width:100%!important;margin:0 0 12px!important;padding:10px!important;gap:10px!important;border-radius:16px!important;}',
+      '  .search-field-wrap{width:min(220px,58vw)!important;min-width:150px!important;}',
+      '  .search-field-wrap .search-input{height:40px!important;min-height:40px!important;font-size:12.5px!important;}',
+      '  .sort-wrapper select{height:40px!important;min-height:40px!important;font-size:12px!important;min-width:115px!important;}',
+      '  .gallery-mode-btn{height:40px!important;min-height:40px!important;font-size:12px!important;min-width:88px!important;}',
+      '  .msq-category-nav .cat-btn,',
+      '  .msq-category-nav>[data-main-category="الكل"],',
+      '  .msq-category-nav>.offer-tab,',
+      '  .msq-category-nav>.stock-avail,',
+      '  .msq-category-nav>.stock-out{',
+      '    min-height:36px!important;padding:7px 12px!important;font-size:12px!important;',
+      '  }',
       '  .products-grid,#products-container{gap:10px!important;}',
       '  .product-card{border-radius:14px!important;overflow:hidden!important;}',
       '  .product-card .image-container{position:relative!important;overflow:hidden!important;height:auto!important;aspect-ratio:1/1.05!important;}',
@@ -3190,7 +3380,6 @@ function continueAfterOrderRecaptcha() {
         panel.className = 'msq-fab-panel';
         panel.id = 'msqFabPanel';
 
-        // ترتيب من فوق لتحت: اتصال → واتساب → QR
         [call, wa, qr].forEach(function (el) {
           if (!el) return;
           el.classList.add('msq-in-dock');
@@ -3217,7 +3406,6 @@ function continueAfterOrderRecaptcha() {
         dock.appendChild(toggle);
         document.body.appendChild(dock);
 
-        // إغلاق عند الضغط خارج اللوحة
         document.addEventListener('click', function (ev) {
           if (!dock.classList.contains('open')) return;
           if (dock.contains(ev.target)) return;
