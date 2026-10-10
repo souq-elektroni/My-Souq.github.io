@@ -12,61 +12,60 @@ publish_mode: simple
 media_folder: "images/products"
 public_folder: "/images/products"
 
-# تحويل الصور إلى WebP قبل رفعها إلى GitHub
-# جودة 75% وأبعاد قصوى 1400 × 1400 لتقليل حجم الملفات
+# إعدادات الصور: حد 50 ميجابايت وضغط WebP
 media_libraries:
   all:
-    max_file_size: 15728640
+    max_file_size: 52428800
     slugify_filename: true
     transformations:
       raster_image:
         format: webp
-        quality: 75
-        width: 1400
-        height: 1400
+        quality: 65
+        width: 1200
+        height: 1200
       jpeg:
         format: webp
-        quality: 75
-        width: 1400
-        height: 1400
+        quality: 65
+        width: 1200
+        height: 1200
       png:
         format: webp
-        quality: 75
-        width: 1400
-        height: 1400
+        quality: 65
+        width: 1200
+        height: 1200
       heic:
         format: webp
-        quality: 75
-        width: 1400
-        height: 1400
+        quality: 65
+        width: 1200
+        height: 1200
       svg:
         optimize: true
 
   default:
     config:
-      max_file_size: 15728640
+      max_file_size: 52428800
       slugify_filename: true
       transformations:
         raster_image:
           format: webp
-          quality: 75
-          width: 1400
-          height: 1400
+          quality: 65
+          width: 1200
+          height: 1200
         jpeg:
           format: webp
-          quality: 75
-          width: 1400
-          height: 1400
+          quality: 65
+          width: 1200
+          height: 1200
         png:
           format: webp
-          quality: 75
-          width: 1400
-          height: 1400
+          quality: 65
+          width: 1200
+          height: 1200
         heic:
           format: webp
-          quality: 75
-          width: 1400
-          height: 1400
+          quality: 65
+          width: 1200
+          height: 1200
         svg:
           optimize: true
 
@@ -114,44 +113,56 @@ collections:
         multiple: true
         required: true
         min: 1
-        max: 30
+        max: 50
         media_libraries:
           all:
+            max_file_size: 52428800
             transformations:
               raster_image:
                 format: webp
-                quality: 75
-                width: 1400
-                height: 1400
+                quality: 65
+                width: 1200
+                height: 1200
               jpeg:
                 format: webp
-                quality: 75
-                width: 1400
-                height: 1400
+                quality: 65
+                width: 1200
+                height: 1200
               png:
                 format: webp
-                quality: 75
-                width: 1400
-                height: 1400
+                quality: 65
+                width: 1200
+                height: 1200
+              heic:
+                format: webp
+                quality: 65
+                width: 1200
+                height: 1200
           default:
             config:
               multiple: true
+              max_file_size: 52428800
               transformations:
                 raster_image:
                   format: webp
-                  quality: 75
-                  width: 1400
-                  height: 1400
+                  quality: 65
+                  width: 1200
+                  height: 1200
                 jpeg:
                   format: webp
-                  quality: 75
-                  width: 1400
-                  height: 1400
+                  quality: 65
+                  width: 1200
+                  height: 1200
                 png:
                   format: webp
-                  quality: 75
-                  width: 1400
-                  height: 1400
+                  quality: 65
+                  width: 1200
+                  height: 1200
+                heic:
+                  format: webp
+                  quality: 65
+                  width: 1200
+                  height: 1200
 
       - label: "السعر الأساسي (ج.م)"
         name: "price"
