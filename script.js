@@ -169,7 +169,7 @@ let products = [];
   ================================================================ */
   const STORE_WHATSAPP_NOTIFY = {
     phone: '201116339905',          // رقم المتجر دولي بدون +
-    callMeBotApiKey: '',            /8982146/ ← حط الـ apikey هنا بعد التفعيل
+    callMeBotApiKey: '',            // ← حط الـ apikey هنا بعد التفعيل
     webhookUrl: ''                  // ← اختياري
   };
 
@@ -204,61 +204,101 @@ let products = [];
   }
 
 
-  async function loadRealProducts() {
-
+  async function listProductMarkdownFiles() {
+    // 1) jsDelivr (مستقر ومش بيتأثر بحد GitHub API)
     try {
-
-      const apiUrl =
-        `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/products`;
-
-      const response = await fetch(apiUrl);
-
-      if (!response.ok) {
-        throw new Error(`حالة الاستجابة: ${response.status}`);
-      }
-
-      const files = await response.json();
-
-      const mdFiles = files.filter(
-        f => f.name.endsWith('.md') || f.name.endsWith('.markdown')
+      const jd = await fetch(
+        `https://data.jsdelivr.com/v1/packages/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}`,
+        { cache: 'no-store' }
       );
+      if (jd.ok) {
+        const data = await jd.json();
+        const names = [];
+        function walk(nodes, prefix) {
+          (nodes || []).forEach(function (n) {
+            const p = prefix ? prefix + '/' + n.name : n.name;
+            if (n.type === 'directory' && n.files) walk(n.files, p);
+            else if (n.type === 'file' && /\.(md|markdown)$/i.test(n.name) && p.startsWith('products/')) {
+              names.push(p.slice('products/'.length));
+            }
+          });
+        }
+        walk(data.files || [], '');
+        if (names.length) return names;
+      }
+    } catch (e) {
+      console.warn('jsDelivr list failed', e);
+    }
 
-      if (mdFiles.length === 0) {
+    // 2) GitHub Contents API
+    try {
+      const res = await fetch(
+        `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/products`,
+        { cache: 'no-store' }
+      );
+      if (res.ok) {
+        const files = await res.json();
+        if (Array.isArray(files)) {
+          return files
+            .filter(function (f) { return f && f.name && /\.(md|markdown)$/i.test(f.name); })
+            .map(function (f) { return f.name; });
+        }
+      } else {
+        console.warn('GitHub contents status', res.status);
+      }
+    } catch (e2) {
+      console.warn('GitHub list failed', e2);
+    }
 
+    // 3) كاش محلي من آخر تحميل ناجح
+    try {
+      const cached = JSON.parse(localStorage.getItem('souqProductFileNames') || '[]');
+      if (Array.isArray(cached) && cached.length) return cached;
+    } catch (e3) {}
+
+    return [];
+  }
+
+  async function fetchProductMarkdown(fileName) {
+    const encoded = fileName.split('/').map(encodeURIComponent).join('/');
+    const urls = [
+      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}`,
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}`
+    ];
+    for (let i = 0; i < urls.length; i++) {
+      try {
+        const r = await fetch(urls[i], { cache: 'no-store' });
+        if (r.ok) return await r.text();
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  async function loadRealProducts() {
+    try {
+      const mdFiles = await listProductMarkdownFiles();
+
+      if (!mdFiles.length) {
         productsGrid.innerHTML =
-          '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">لا توجد منتجات منشورة حالياً.</p>';
-
+          '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">لا توجد منتجات منشورة حالياً أو تعذر الاتصال بالمصدر.</p>';
         return;
       }
 
+      try {
+        localStorage.setItem('souqProductFileNames', JSON.stringify(mdFiles));
+      } catch (e) {}
+
       products = [];
-
       for (let i = 0; i < mdFiles.length; i++) {
-
-        const file = mdFiles[i];
-
-        const rawUrl =
-          `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encodeURIComponent(file.name)}`;
-
-        const fileRes = await fetch(rawUrl);
-
-        if (!fileRes.ok) continue;
-
-        const text = await fileRes.text();
-
+        const text = await fetchProductMarkdown(mdFiles[i]);
+        if (!text) continue;
         const productData = parseMarkdown(text, i + 1);
-
-        if (productData) {
-          products.push(productData);
-        }
-
+        if (productData) products.push(productData);
       }
 
       if (products.length === 0) {
-
         productsGrid.innerHTML =
           '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">تعذر قراءة ملفات المنتجات.</p>';
-
         return;
       }
 
@@ -267,16 +307,12 @@ let products = [];
       renderFeatured();
       updateCartCount();
       handleDeepLink();
-
+      try { bindAlbumHoverRotate(); } catch (e) {}
     } catch (error) {
-
       console.error('خطأ:', error);
-
       productsGrid.innerHTML =
-        `<p style="grid-column:1/-1;text-align:center;color:var(--burgundy-soft);font-size:13.5px;font-weight:bold;">تأكد أن المستودع عام ويحتوي على ملفات منتجات.</p>`;
-
+        '<p style="grid-column:1/-1;text-align:center;color:var(--burgundy-soft);font-size:13.5px;font-weight:bold;">تأكد أن المستودع عام ويحتوي على ملفات منتجات.</p>';
     }
-
   }
 
 
@@ -687,28 +723,64 @@ let products = [];
     productsGrid.innerHTML = list.map(productCardHtml).join('');
   }
 
-  // تبديل تلقائي ناعم بين صور الألبوم على الكارت، مع إبقاء فتح التفاصيل كما هو.
-  if (!window.__MSQ_ALBUM_ROTATOR__) {
-    window.__MSQ_ALBUM_ROTATOR__ = true;
-    window.setInterval(function () {
-      document.querySelectorAll('#products-container [data-product-card-id]').forEach(function (card) {
-        const productId = Number(card.getAttribute('data-product-card-id'));
-        const product = products.find(function (item) { return Number(item.id) === productId; });
-        if (!product || !Array.isArray(product.images) || product.images.length < 2) return;
-        const img = card.querySelector('.product-image');
-        if (!img || !card.isConnected) return;
+  // تدوير صور الألبوم على الكارت فقط عند الوقوف (hover) أو اللمس — مش تلقائي
+  function bindAlbumHoverRotate() {
+    if (window.__MSQ_ALBUM_HOVER_BOUND__) return;
+    window.__MSQ_ALBUM_HOVER_BOUND__ = true;
+
+    function rotateCard(card) {
+      const productId = Number(card.getAttribute('data-product-card-id'));
+      const product = products.find(function (item) { return Number(item.id) === productId; });
+      if (!product || !Array.isArray(product.images) || product.images.length < 2) return;
+      const img = card.querySelector('.product-image');
+      if (!img || !card.isConnected) return;
+      if (card._msqRotating) return;
+      card._msqRotating = true;
+
+      function step() {
+        if (!card.isConnected || !card._msqRotating) return;
         const next = ((Number(img.dataset.albumIndex) || 0) + 1) % product.images.length;
         img.classList.add('msq-swapping');
         window.setTimeout(function () {
-          if (!img.isConnected) return;
+          if (!img.isConnected || !card._msqRotating) return;
           img.src = product.images[next];
           img.dataset.albumIndex = String(next);
           img.onload = function () { img.classList.remove('msq-swapping'); };
-          window.setTimeout(function () { img.classList.remove('msq-swapping'); }, 450);
-        }, 170);
-      });
-    }, 3600);
+          window.setTimeout(function () { img.classList.remove('msq-swapping'); }, 400);
+        }, 120);
+        card._msqRotateTimer = window.setTimeout(step, 1600);
+      }
+      step();
+    }
+
+    function stopCard(card) {
+      card._msqRotating = false;
+      if (card._msqRotateTimer) {
+        clearTimeout(card._msqRotateTimer);
+        card._msqRotateTimer = null;
+      }
+    }
+
+    document.addEventListener('mouseover', function (e) {
+      const card = e.target && e.target.closest && e.target.closest('#products-container [data-product-card-id]');
+      if (card) rotateCard(card);
+    }, true);
+    document.addEventListener('mouseout', function (e) {
+      const card = e.target && e.target.closest && e.target.closest('#products-container [data-product-card-id]');
+      if (!card) return;
+      const to = e.relatedTarget;
+      if (to && card.contains(to)) return;
+      stopCard(card);
+    }, true);
+    document.addEventListener('touchstart', function (e) {
+      const card = e.target && e.target.closest && e.target.closest('#products-container [data-product-card-id]');
+      if (!card) return;
+      // لمس الكارت يبدأ التدوير بلطف
+      rotateCard(card);
+      window.setTimeout(function () { stopCard(card); }, 5000);
+    }, { passive: true, capture: true });
   }
+  try { bindAlbumHoverRotate(); } catch (e) {}
 
   function buildSizeFilterButtons() {
     const sel = document.getElementById('sizeSelect');
@@ -3242,13 +3314,18 @@ function continueAfterOrderRecaptcha() {
       '  background:var(--burgundy-hover,#6f3242)!important;',
       '}',
       '/* docked fabs */',
+      'body.msq-fab-ready .whatsapp-float:not(.msq-in-dock),',
+      'body.msq-fab-ready .call-float:not(.msq-in-dock),',
+      'body.msq-fab-ready .qr-toggle-fab:not(.msq-in-dock){',
+      '  display:none!important;visibility:hidden!important;pointer-events:none!important;',
+      '}',
       '.whatsapp-float.msq-in-dock,',
       '.call-float.msq-in-dock,',
       '.qr-toggle-fab.msq-in-dock{',
       '  position:static!important;',
       '  left:auto!important;right:auto!important;bottom:auto!important;top:auto!important;',
       '  width:46px!important;height:46px!important;',
-      '  margin:0!important;',
+      '  margin:0!important;display:flex!important;visibility:visible!important;',
       '  box-shadow:0 4px 12px rgba(0,0,0,.18)!important;',
       '}',
       '.back-to-top{bottom:14px!important;right:12px!important;z-index:900!important;}',
@@ -3339,17 +3416,36 @@ function continueAfterOrderRecaptcha() {
       '  header h1{font-size:22px!important;margin-bottom:6px!important;}',
       '  header p{font-size:11.5px!important;padding:8px 10px!important;}',
       '  .controls-wrapper{width:100%!important;margin:0 0 12px!important;padding:10px!important;gap:10px!important;border-radius:16px!important;}',
-      '  .search-field-wrap{width:min(220px,58vw)!important;min-width:150px!important;}',
-      '  .search-field-wrap .search-input{height:40px!important;min-height:40px!important;font-size:12.5px!important;}',
-      '  .sort-wrapper select{height:40px!important;min-height:40px!important;font-size:12px!important;min-width:115px!important;}',
-      '  .gallery-mode-btn{height:40px!important;min-height:40px!important;font-size:12px!important;min-width:88px!important;}',
+      '  .msq-category-nav,.categories-bar{',
+      '    display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;',
+      '    overflow-x:auto!important;overflow-y:hidden!important;',
+      '    -webkit-overflow-scrolling:touch!important;',
+      '    gap:6px!important;width:100%!important;',
+      '    justify-content:flex-start!important;',
+      '    grid-template-columns:none!important;',
+      '  }',
       '  .msq-category-nav .cat-btn,',
       '  .msq-category-nav>[data-main-category="الكل"],',
       '  .msq-category-nav>.offer-tab,',
       '  .msq-category-nav>.stock-avail,',
-      '  .msq-category-nav>.stock-out{',
-      '    min-height:36px!important;padding:7px 12px!important;font-size:12px!important;',
+      '  .msq-category-nav>.stock-out,',
+      '  .categories-bar .cat-btn{',
+      '    flex:0 0 auto!important;width:auto!important;max-width:none!important;',
+      '    min-width:auto!important;min-height:36px!important;',
+      '    padding:7px 12px!important;font-size:12px!important;',
+      '    white-space:nowrap!important;display:inline-flex!important;',
+      '    align-items:center!important;justify-content:center!important;',
       '  }',
+      '  .search-sort-box{',
+      '    display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;',
+      '    overflow-x:auto!important;gap:8px!important;width:100%!important;',
+      '    grid-template-columns:none!important;',
+      '  }',
+      '  .search-field-wrap{width:min(200px,55vw)!important;min-width:140px!important;flex:0 0 auto!important;grid-column:auto!important;}',
+      '  .search-field-wrap .search-input{height:40px!important;min-height:40px!important;font-size:12.5px!important;}',
+      '  .sort-wrapper{flex:0 0 auto!important;width:auto!important;}',
+      '  .sort-wrapper select{height:40px!important;min-height:40px!important;font-size:12px!important;min-width:110px!important;width:auto!important;}',
+      '  .gallery-mode-btn{height:40px!important;min-height:40px!important;font-size:12px!important;min-width:88px!important;width:auto!important;flex:0 0 auto!important;}',
       '  .products-grid,#products-container{gap:10px!important;}',
       '  .product-card{border-radius:14px!important;overflow:hidden!important;}',
       '  .product-card .image-container{position:relative!important;overflow:hidden!important;height:auto!important;aspect-ratio:1/1.05!important;}',
@@ -3405,6 +3501,7 @@ function continueAfterOrderRecaptcha() {
         dock.appendChild(panel);
         dock.appendChild(toggle);
         document.body.appendChild(dock);
+        document.body.classList.add('msq-fab-ready');
 
         document.addEventListener('click', function (ev) {
           if (!dock.classList.contains('open')) return;
