@@ -169,7 +169,7 @@ let products = [];
   ================================================================ */
   const STORE_WHATSAPP_NOTIFY = {
     phone: '201116339905',          // رقم المتجر دولي بدون +
-    callMeBotApiKey: '',            /8982146/ ← حط الـ apikey هنا بعد التفعيل
+    callMeBotApiKey: '8982146',            // ← حط الـ apikey هنا بعد التفعيل
     webhookUrl: ''                  // ← اختياري
   };
 
