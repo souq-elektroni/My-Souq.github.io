@@ -5577,6 +5577,12 @@ body:has(.zoom-overlay.active) .back-to-top {
           var name = nameEl ? nameEl.value.trim() : '';
           var phone = phoneEl ? phoneEl.value.trim() : '';
           var address = 'المحافظة: ' + (governorateEl ? governorateEl.value.trim() : '') + '، المدينة: ' + (cityEl ? cityEl.value.trim() : '') + '، العنوان التفصيلي: ' + (detailEl ? detailEl.value.trim() : '');
+          try {
+            var _c = (typeof window.mysouqGetDeliveryCoords === 'function') ? window.mysouqGetDeliveryCoords() : null;
+            if (_c && address.indexOf('maps.google.com') === -1) {
+              address += '\n[موقع التوصيل GPS: ' + _c.lat + ', ' + _c.lon + ']\n🔗 الخريطة: ' + _c.mapsUrl;
+            }
+          } catch (e) {}
           var payMethod = isInstapay ? 'InstaPay' : 'الدفع عند الاستلام';
           var totalEl = document.getElementById('cartTotalPrice');
           var totalText = totalEl ? totalEl.innerText : '0 ج.م';
@@ -7043,9 +7049,23 @@ html body #productModal .share-btn{order:4!important;}
   if(form){form.addEventListener('submit',function(){appendCoordinates();},true);}
   function appendCoordinates(){
     var lat=latInput.value,lon=lonInput.value,detail=document.getElementById('custDetailedAddress');if(!detail||!lat||!lon)return;
-    var base=detail.value.replace(/\n?\n?\[موقع التوصيل GPS:.*?\]/g,'').trim();
-    var line='[موقع التوصيل GPS: '+lat+', '+lon+']';if(base.indexOf(line)===-1)detail.value=(base?base+'\n':'')+line;
+    // Strip any previous GPS block (coordinates and/or map link)
+    var base=detail.value
+      .replace(/\n?\n?\[موقع التوصيل GPS:[^\]]*\]/g,'')
+      .replace(/\n?🔗\s*الخريطة:\s*https?:\/\/\S+/g,'')
+      .replace(/\n?https?:\/\/(?:www\.)?(?:google\.[^\/]+\/maps|maps\.google\.[^\/]+|maps\.app\.goo\.gl)\S*/gi,'')
+      .trim();
+    var mapsUrl='https://maps.google.com/?q='+encodeURIComponent(lat+','+lon);
+    var line='[موقع التوصيل GPS: '+lat+', '+lon+']\n🔗 الخريطة: '+mapsUrl;
+    if(base.indexOf(lat)===-1 || base.indexOf('maps.google.com')===-1){
+      detail.value=(base?base+'\n\n':'')+line;
+    }
   }
+  window.mysouqGetDeliveryCoords=function(){
+    var lat=latInput&&latInput.value, lon=lonInput&&lonInput.value;
+    if(!lat||!lon)return null;
+    return {lat:lat, lon:lon, mapsUrl:'https://maps.google.com/?q='+encodeURIComponent(lat+','+lon)};
+  };
   // Existing checkout may call finalizeOrder directly rather than submit the form.
   if(typeof window.finalizeOrder==='function'){var originalFinalize=window.finalizeOrder;window.finalizeOrder=async function(){appendCoordinates();return originalFinalize.apply(this,arguments);};}
   function refreshDeliveryMap(){
@@ -7808,3 +7828,192 @@ body.dark-mode #cartModal #mysouqMapStatus{
   }
 }
 </style>
+
+<script id="mysouq-gps-confirmation-telegram-v1">
+(function(){
+  function esc(s){
+    return String(s==null?'':s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function getCoords(){
+    if(typeof window.mysouqGetDeliveryCoords==='function'){
+      try{ return window.mysouqGetDeliveryCoords(); }catch(e){}
+    }
+    var latEl=document.getElementById('mysouqLatitude');
+    var lonEl=document.getElementById('mysouqLongitude');
+    var lat=latEl&&latEl.value, lon=lonEl&&lonEl.value;
+    if(!lat||!lon)return null;
+    return {lat:lat, lon:lon, mapsUrl:'https://maps.google.com/?q='+encodeURIComponent(lat+','+lon)};
+  }
+  function mapsLinkHtml(c){
+    if(!c)return '';
+    return (
+      '<div class="mysouq-gps-review" style="margin-top:12px;padding:12px 14px;border-radius:14px;border:1px solid rgba(139,63,82,.16);background:linear-gradient(145deg,#fff,#faf2f5);">' +
+        '<div style="font-weight:950;color:var(--burgundy-soft,#8b3f52);margin-bottom:6px;font-size:13px;">📍 موقع التوصيل (GPS)</div>' +
+        '<div style="font-size:12.5px;line-height:1.8;color:#4a3a40;direction:ltr;text-align:right;">' +
+          '<span style="font-weight:800;">' + esc(c.lat) + ', ' + esc(c.lon) + '</span>' +
+        '</div>' +
+        '<a href="' + esc(c.mapsUrl) + '" target="_blank" rel="noopener noreferrer" ' +
+          'style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:10px 14px;border-radius:12px;' +
+          'background:linear-gradient(135deg,var(--msq-primary,#8b3f52),var(--msq-primary-2,#b75b72));color:#fff;' +
+          'font-weight:900;font-size:13px;text-decoration:none;box-shadow:0 8px 18px rgba(139,63,82,.2);">' +
+          '🗺️ فتح الموقع على الخريطة' +
+        '</a>' +
+      '</div>'
+    );
+  }
+  function injectGpsIntoConfirmation(){
+    var box=document.getElementById('confirmationSummaryContent');
+    if(!box)return;
+    var existing=box.querySelector('.mysouq-gps-review');
+    var c=getCoords();
+    if(!c){
+      if(existing)existing.remove();
+      return;
+    }
+    var html=mapsLinkHtml(c);
+    if(existing){
+      existing.outerHTML=html;
+    } else {
+      box.insertAdjacentHTML('beforeend', html);
+    }
+  }
+  // Watch confirmation summary fill (built by script.js)
+  var confBox=document.getElementById('confirmationSummaryContent');
+  if(confBox && window.MutationObserver){
+    new MutationObserver(function(){
+      // Avoid infinite loop: only inject if coords exist and block missing or outdated
+      var c=getCoords();
+      if(!c)return;
+      var block=confBox.querySelector('.mysouq-gps-review');
+      if(!block || block.getAttribute('data-coords')!==(c.lat+','+c.lon)){
+        // remove old then inject
+        if(block)block.remove();
+        var wrap=document.createElement('div');
+        wrap.innerHTML=mapsLinkHtml(c);
+        var node=wrap.firstElementChild;
+        if(node){
+          node.setAttribute('data-coords', c.lat+','+c.lon);
+          confBox.appendChild(node);
+        }
+      }
+    }).observe(confBox,{childList:true,subtree:true,characterData:true});
+  }
+  var confModal=document.getElementById('confirmationModal');
+  if(confModal && window.MutationObserver){
+    new MutationObserver(function(){
+      if(confModal.classList.contains('active')){
+        setTimeout(injectGpsIntoConfirmation, 60);
+        setTimeout(injectGpsIntoConfirmation, 250);
+      }
+    }).observe(confModal,{attributes:true,attributeFilter:['class']});
+  }
+
+  // Ensure order payload carries lat/lng + maps URL for cloud/telegram pipelines
+  function enhanceSaveOrder(){
+    if(typeof window.saveOrderToCloud!=='function' || window.saveOrderToCloud._mysouqGps)return;
+    var prev=window.saveOrderToCloud;
+    window.saveOrderToCloud=async function(orderRecord){
+      try{
+        var c=getCoords();
+        if(c && orderRecord && typeof orderRecord==='object'){
+          orderRecord.latitude=c.lat;
+          orderRecord.longitude=c.lon;
+          orderRecord.mapsUrl=c.mapsUrl;
+          // Keep address text self-contained with a tappable maps URL (Telegram auto-linkifies https://)
+          if(orderRecord.address && String(orderRecord.address).indexOf('maps.google.com')===-1){
+            orderRecord.address=String(orderRecord.address).replace(/\n?\[موقع التوصيل GPS:[^\]]*\]/g,'').trim();
+            orderRecord.address=orderRecord.address+
+              '\n[موقع التوصيل GPS: '+c.lat+', '+c.lon+']'+
+              '\n🔗 الخريطة: '+c.mapsUrl;
+          }
+        }
+      }catch(e){}
+      return prev.apply(this,arguments);
+    };
+    window.saveOrderToCloud._mysouqGps=true;
+  }
+  enhanceSaveOrder();
+  setTimeout(enhanceSaveOrder, 500);
+  setTimeout(enhanceSaveOrder, 2000);
+
+  // Also enrich any WhatsApp/Telegram-style message builders that read the address field:
+  // coordinates are already appended into #custDetailedAddress before finalize.
+})();
+</script>
+
+<style id="mysouq-cart-no-hscroll-v1">
+/* Kill horizontal swipe/scroll inside cart on phones */
+#cartModal.modal-overlay{
+  overflow-x: hidden !important;
+  max-width: 100vw !important;
+}
+#cartModal .modal-content.cart-modal{
+  overflow-x: hidden !important;
+  max-width: 100% !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+#cartModal .cart-items,
+#cartModal .promo-box,
+#cartModal .customer-form,
+#cartModal .cart-footer,
+#cartModal .cart-item,
+#cartModal .form-group,
+#cartModal #mysouqMapAddressBox{
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+#cartModal .customer-form,
+#cartModal .cart-items,
+#cartModal .promo-box{
+  min-width: 0 !important;
+}
+#cartModal input,
+#cartModal select,
+#cartModal textarea,
+#cartModal button{
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+#cartModal #mysouqDeliveryMap,
+#cartModal #mysouqDeliveryMap .leaflet-container{
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+/* Leaflet attribution/controls must not force page width */
+#cartModal .leaflet-control-container{
+  max-width: 100%;
+}
+@media (max-width: 767px){
+  #cartModal.modal-overlay{
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+  #cartModal .modal-content.cart-modal{
+    width: 100% !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+    border-radius: 22px 22px 0 0 !important;
+  }
+  #cartModal .cart-title,
+  #cartModal .cart-items,
+  #cartModal .promo-box,
+  #cartModal .customer-form,
+  #cartModal .cart-footer{
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+  #cartModal .promo-box,
+  #cartModal .customer-form{
+    margin-left: 12px !important;
+    margin-right: 12px !important;
+  }
+}
+</style>
+
