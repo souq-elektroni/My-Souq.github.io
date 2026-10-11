@@ -1643,17 +1643,28 @@
     }
 
     .success-modal {
-      max-width: 450px;
-      padding: 18px 12px;
+      width: min(700px, calc(100vw - 24px));
+      max-width: 700px;
+      max-height: min(88vh, 760px);
+      overflow-y: auto;
+      padding: 26px 22px;
       text-align: center;
       z-index: 1300;
+      border-radius: 22px;
+      box-sizing: border-box;
     }
 
     @media (min-width: 768px) {
       .success-modal {
-        padding: 35px 25px;
+        width: min(740px, calc(100vw - 40px));
+        max-width: 740px;
+        padding: 38px 34px;
       }
     }
+
+    .success-modal .success-title { font-size: clamp(20px, 3vw, 27px); line-height: 1.7; }
+    .success-modal .success-message { font-size: 15px; line-height: 2; color: var(--text-muted); margin: 12px 0; text-align: right; }
+    .success-modal .success-policy { background: var(--pink-soft, #fff4f6); border: 1px solid var(--burgundy-soft, #8b3f52); border-radius: 14px; padding: 13px 15px; margin: 14px 0; text-align: right; line-height: 1.9; font-size: 14px; }
 
     .success-icon {
       font-size: 40px;
@@ -4577,32 +4588,18 @@ body:has(.zoom-overlay.active) .back-to-top {
   </div>
 
   <!-- Success Modal -->
-
   <div class="modal-overlay" id="successModal">
-
     <div class="modal-content success-modal">
-
-      <div class="success-icon">
-        🎉
-      </div>
-
-      <div class="success-title">
-        تم استلام طلبك بنجاح!
-      </div>
-      
-      <p style="margin:0 0 8px;color:var(--text-muted);font-size:13px;line-height:1.8;">طلبك الآن في مرحلة <strong>قيد التنفيذ</strong>. احتفظ برقم الطلب لمتابعته من خانة «تتبع طلبك 🔍».</p>
-      <p id="successOrderIdDisplay" style="font-weight:bold; color:var(--burgundy-soft); margin-bottom:8px; font-size:13px;user-select:text;direction:ltr;"></p>
-      <button type="button" class="success-btn" onclick="copyConfirmedOrderId()" style="margin-bottom:8px;">📋 نسخ رقم الطلب</button>
-
-      <button
-        class="success-btn"
-        onclick="closeSuccessModal()"
-      >
-        إغلاق
-      </button>
-
+      <div class="success-icon">🎉</div>
+      <div class="success-title">تم إرسال طلبكم بنجاح ❤️</div>
+      <p class="success-message">تم إرسال الطلب الخاص بكم بنجاح. رقم الطلب الخاص بكم موضح أدناه، ويمكنكم نسخه والاحتفاظ به لمتابعة الطلب.</p>
+      <p id="successOrderIdDisplay" style="font-weight:900;color:var(--burgundy-soft);background:var(--pink-soft, #fff4f6);border:1px dashed var(--burgundy-soft, #8b3f52);border-radius:12px;padding:13px 10px;margin:10px 0;font-size:17px;user-select:text;direction:ltr;overflow-wrap:anywhere;"></p>
+      <button type="button" class="success-btn" onclick="copyConfirmedOrderId()" style="margin-bottom:10px;">📋 نسخ رقم الطلب</button>
+      <p class="success-message">يمكنكم الاطلاع على مراحل الطلب من خانة <strong>تتبع الطلبات 🔍</strong>.</p>
+      <div class="success-policy"><strong>ملحوظة مهمة:</strong><br>الطلب الخاص بكم في مرحلة <strong>قيد التنفيذ</strong> حاليًا، ويحق لكم الإلغاء في هذه المرحلة بعد الإبلاغ عن الإلغاء. ولا يحق الإلغاء في المراحل التالية لهذه المرحلة.</div>
+      <p class="success-message" style="text-align:center;margin-top:16px;">إدارة My Souq تتمنى لكم تجربة رائعة <span aria-label="قلب">❤️</span></p>
+      <button type="button" class="success-btn" onclick="closeSuccessModal()">إغلاق</button>
     </div>
-
   </div>
 
   <footer>
@@ -5450,7 +5447,8 @@ body:has(.zoom-overlay.active) .back-to-top {
       waBtn.href = 'https://wa.me/201116339905?text=' + encodeURIComponent(waText);
     };
 
-    // Hook finalizeOrder: receipt + رسالة واتساب بإيموجي ظاهرة بشكل صحيح
+    // Hook finalizeOrder: preserve receipt and saving behavior, but do not send/redirect order submission to WhatsApp.
+    // Standalone WhatsApp buttons elsewhere on the store remain unchanged.
     if (typeof finalizeOrder === 'function') {
       var _origFinalize = finalizeOrder;
       window.finalizeOrder = async function () {
@@ -5532,8 +5530,15 @@ body:has(.zoom-overlay.active) .back-to-top {
         }
 
         var _origOpen = window.open;
-        // استعادة السلوك القديم: اسمح بفتح رابط تأكيد الطلب على واتساب بعد حفظ الطلب.
-        // لا نحذف أو نغيّر بقية وظائف الطلب أو الدفع أو إيصال InstaPay.
+        // Block only WhatsApp windows opened during order submission.
+        // The store's floating WhatsApp button, product WhatsApp button, and admin notification tools remain intact.
+        window.open = function (url) {
+          var target = String(url || '');
+          if (/^(https?:\/\/)?(wa\.me|api\.whatsapp\.com|web\.whatsapp\.com)\b/i.test(target) || /whatsapp/i.test(target)) {
+            return null;
+          }
+          return _origOpen.apply(this, arguments);
+        };
 
         try {
           await _origFinalize.apply(this, arguments);
