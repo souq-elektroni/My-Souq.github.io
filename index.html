@@ -4292,12 +4292,12 @@ body:has(.zoom-overlay.active) .back-to-top {
 
         <div class="form-group">
           <label for="custGovernorate">المحافظة * <span style="font-size:11px;font-weight:700;color:#b42332;margin-right:6px;">— يجب ملء الحقول الموضحة</span></label>
-          <input type="text" id="custGovernorate" placeholder="مثال: القاهرة" autocomplete="off" oninput="checkFormCompletion()">
+          <select id="custGovernorate" autocomplete="address-level1" required onchange="mysouqGovernorateChanged(); if(typeof checkFormCompletion==='function')checkFormCompletion()"><option value="">اختر المحافظة</option></select>
         </div>
 
         <div class="form-group">
           <label for="custCity">المدينة / المركز * <span style="font-size:11px;font-weight:700;color:#b42332;margin-right:6px;">— يجب ملء الحقول الموضحة</span></label>
-          <input type="text" id="custCity" placeholder="مثال: مدينة نصر" autocomplete="off" oninput="checkFormCompletion()">
+          <select id="custCity" autocomplete="address-level2" required disabled onchange="if(typeof checkFormCompletion==='function')checkFormCompletion()"><option value="">اختر المحافظة أولًا</option></select>
         </div>
 
         <div class="form-group">
@@ -6943,6 +6943,53 @@ html body #productModal .share-btn{order:4!important;}
 @media(max-width:520px){#trackingResultContainer .cancel-request-panel{padding:12px}#trackingResultContainer .cancel-request-title{font-size:14px}#trackingResultContainer .cancel-request-btn{font-size:14px;min-height:48px}}
 </style>
 
+
+<script id="mysouq-dependent-egypt-address-v1">
+(function(){
+  // Main cities/centres by governorate. The city list is deliberately controlled,
+  // so a city cannot be submitted under a different governorate.
+  var data={
+    "القاهرة":["القاهرة","مدينة نصر","مصر الجديدة","المعادي","حلوان","شبرا","عين شمس","المطرية","المرج","التجمع الأول","التجمع الخامس","الشروق","بدر","العبور","السلام","الزيتون","الوايلي","وسط البلد"],
+    "الجيزة":["الجيزة","الدقي","العجوزة","الهرم","فيصل","العمرانية","بولاق الدكرور","إمبابة","الوراق","6 أكتوبر","الشيخ زايد","حدائق أكتوبر","أوسيم","كرداسة","أبو النمرس","البدرشين","العياط","الصف","أطفيح","منشأة القناطر"],
+    "القليوبية":["بنها","شبرا الخيمة","قليوب","القناطر الخيرية","الخانكة","كفر شكر","طوخ","قها","العبور","الخصوص","شبين القناطر","الحيّز/مركز بنها"],
+    "الإسكندرية":["الإسكندرية","برج العرب","برج العرب الجديدة","العجمي","العامرية","المنتزه","شرق الإسكندرية","وسط الإسكندرية","الجمرك","العطارين"],
+    "البحيرة":["دمنهور","كفر الدوار","رشيد","إدكو","أبو حمص","أبو المطامير","الدلنجات","المحمودية","الرحمانية","إيتاي البارود","حوش عيسى","شبراخيت","كوم حمادة","بدر","وادي النطرون","النوبارية الجديدة"],
+    "مطروح":["مرسى مطروح","الحمام","العلمين","الضبعة","النجيلة","سيدي براني","السلوم","سيوة"],
+    "دمياط":["دمياط","دمياط الجديدة","رأس البر","فارسكور","الزرقا","كفر سعد","كفر البطيخ","عزبة البرج"],
+    "الدقهلية":["المنصورة","طلخا","ميت غمر","دكرنس","أجا","السنبلاوين","منية النصر","بلقاس","شربين","الجمالية","المطرية","تمي الأمديد","نبروه","بني عبيد","ميت سلسيل","الكردي","جمصة"],
+    "كفر الشيخ":["كفر الشيخ","دسوق","فوه","مطوبس","بلطيم","الحامول","بيلا","سيدي سالم","قلين","الرياض","برج البرلس"],
+    "الغربية":["طنطا","المحلة الكبرى","كفر الزيات","زفتى","السنطة","قطور","بسيون","سمنود"],
+    "المنوفية":["شبين الكوم","منوف","أشمون","الباجور","قويسنا","بركة السبع","تلا","الشهداء","سرس الليان","السادات"],
+    "الشرقية":["الزقازيق","العاشر من رمضان","بلبيس","منيا القمح","فاقوس","أبو كبير","ههيا","ديرب نجم","الإبراهيمية","أولاد صقر","الحسينية","كفر صقر","مشتول السوق","أبو حماد","القرين","صان الحجر"],
+    "الإسماعيلية":["الإسماعيلية","فايد","القنطرة شرق","القنطرة غرب","التل الكبير","أبو صوير","القصاصين الجديدة"],
+    "بورسعيد":["بورسعيد","بورفؤاد"],
+    "السويس":["السويس","عتاقة","الأربعين","الجناين","فيصل"],
+    "شمال سيناء":["العريش","بئر العبد","رفح","الشيخ زويد","الحسنة","نخل"],
+    "جنوب سيناء":["الطور","شرم الشيخ","دهب","نويبع","طابا","سانت كاترين","أبو رديس","أبو زنيمة","رأس سدر"],
+    "بني سويف":["بني سويف","الواسطى","ناصر","إهناسيا","ببا","سمسطا","الفشن"],
+    "الفيوم":["الفيوم","سنورس","إطسا","طامية","أبشواي","يوسف الصديق"],
+    "المنيا":["المنيا","مغاغة","بني مزار","مطاي","سمالوط","أبو قرقاص","ملوي","دير مواس","العدوة"],
+    "أسيوط":["أسيوط","ديروط","القوصية","منفلوط","أبنوب","الفتح","أبو تيج","الغنايم","ساحل سليم","البداري","صدفا"],
+    "سوهاج":["سوهاج","أخميم","البلينا","المراغة","طهطا","طما","جرجا","المنشأة","دار السلام","جهينة","ساقلتة"],
+    "قنا":["قنا","نجع حمادي","دشنا","أبو تشت","فرشوط","قفط","قوص","نقادة","الوقف"],
+    "الأقصر":["الأقصر","القرنة","إسنا","أرمنت","البياضية","الزينية","الطود"],
+    "أسوان":["أسوان","كوم أمبو","إدفو","دراو","نصر النوبة","أبو سمبل"],
+    "البحر الأحمر":["الغردقة","رأس غارب","سفاجا","القصير","مرسى علم","الشلاتين","حلايب"],
+    "الوادي الجديد":["الخارجة","الداخلة","الفرافرة","باريس","بلاط"]
+  };
+  var gov=document.getElementById('custGovernorate'), city=document.getElementById('custCity');
+  if(!gov||!city)return;
+  function fill(select,items,placeholder){select.innerHTML='';var first=document.createElement('option');first.value='';first.textContent=placeholder;select.appendChild(first);items.forEach(function(item){var o=document.createElement('option');o.value=item;o.textContent=item;select.appendChild(o);});}
+  fill(gov,Object.keys(data),'اختر المحافظة');
+  window.mysouqGovernorateChanged=function(){var list=data[gov.value]||[];fill(city,list,list.length?'اختر المدينة / المركز':'اختر المحافظة أولًا');city.disabled=!list.length;city.value='';city.setCustomValidity('');};
+  window.mysouqAddressIsValid=function(){return !!(gov.value&&data[gov.value]&&city.value&&data[gov.value].indexOf(city.value)!==-1);};
+  // Keep the existing checkout flow intact, but stop it before terms/order creation
+  // if the selected city does not belong to the selected governorate.
+  var oldValidate=window.validateAndOpenTerms;
+  if(typeof oldValidate==='function'){window.validateAndOpenTerms=function(){if(!window.mysouqAddressIsValid()){alert('من فضلك اختر المحافظة ثم المدينة أو المركز التابع لها من القوائم.');if(!gov.value)gov.focus();else city.focus();return;}return oldValidate.apply(this,arguments);};}
+  gov.addEventListener('change',function(){if(typeof window.checkFormCompletion==='function')window.checkFormCompletion();});
+})();
+</script>
 </body>
 </html>
 
@@ -6958,7 +7005,7 @@ html body #productModal .share-btn{order:4!important;}
 </style>
 
 <style id="mysouq-shipping-fields-v3">
-#customerFormBox .form-group{margin-bottom:12px!important}#customerFormBox input,#customerFormBox textarea{width:100%;box-sizing:border-box;min-height:46px;padding:12px 13px;border:1px solid #d9bdca;border-radius:12px;font-size:16px;line-height:1.6;background:#fff;color:#392b32}#customerFormBox textarea{min-height:82px;resize:vertical}#customerFormBox label{display:block;margin-bottom:6px;font-weight:800;font-size:14px}
+#customerFormBox .form-group{margin-bottom:12px!important}#customerFormBox input,#customerFormBox select,#customerFormBox textarea{width:100%;box-sizing:border-box;min-height:46px;padding:12px 13px;border:1px solid #d9bdca;border-radius:12px;font-size:16px;line-height:1.6;background:#fff;color:#392b32}#customerFormBox textarea{min-height:82px;resize:vertical}#customerFormBox label{display:block;margin-bottom:6px;font-weight:800;font-size:14px}
 </style>
 
 <style id="mysouq-liquid-glass-cancellation-v2">
