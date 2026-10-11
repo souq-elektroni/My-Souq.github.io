@@ -8211,3 +8211,368 @@ html body #productModal .size-selector{
 })();
 </script>
 
+<style id="mysouq-admin-panel-polish-v1">
+/* =========================================================
+   Admin panel — comfort + precision + professional look
+   CSS only: no feature/function removed or renamed.
+   ========================================================= */
+
+#adminOrdersModal.modal-overlay{
+  padding: clamp(8px, 2vw, 24px) !important;
+  background: rgba(18, 12, 16, .58) !important;
+  backdrop-filter: blur(12px) saturate(1.15) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(1.15) !important;
+}
+#adminOrdersModal .modal-content{
+  width: min(920px, calc(100vw - 24px)) !important;
+  max-width: 920px !important;
+  max-height: min(92vh, 960px) !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  padding: 18px 18px 22px !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255,255,255,.72) !important;
+  background:
+    linear-gradient(165deg, rgba(255,255,255,.96) 0%, rgba(252,246,248,.94) 100%) !important;
+  box-shadow: 0 28px 80px rgba(30,12,22,.28), inset 0 1px 0 rgba(255,255,255,.9) !important;
+  box-sizing: border-box !important;
+}
+body.dark-mode #adminOrdersModal .modal-content{
+  background: linear-gradient(165deg, rgba(28,20,24,.97), rgba(20,15,18,.98)) !important;
+  border-color: rgba(255,255,255,.08) !important;
+}
+
+/* Header */
+#adminOrdersModal .terms-header{
+  font-size: clamp(17px, 2vw, 22px) !important;
+  font-weight: 950 !important;
+  color: var(--msq-primary, #8b3f52) !important;
+  margin: 0 0 14px !important;
+  padding-bottom: 12px !important;
+  border-bottom: 1px solid var(--msq-line, rgba(139,63,82,.12)) !important;
+  letter-spacing: -.2px;
+}
+
+/* Close */
+#adminOrdersModal .close-btn{
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+  top: 12px !important;
+  left: 12px !important;
+  z-index: 5 !important;
+}
+
+/* Logout */
+#adminOrdersModal #adminLogoutBtn{
+  width: 100% !important;
+  min-height: 46px !important;
+  margin: 0 0 10px !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #c62828, #8e1520) !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  font-size: 14px !important;
+  box-shadow: 0 8px 20px rgba(198,40,40,.2) !important;
+  cursor: pointer !important;
+}
+
+/* Back to list */
+#adminOrdersModal #adminBackToOrdersListBtn{
+  width: 100% !important;
+  min-height: 46px !important;
+  margin: 0 0 12px !important;
+  border-radius: 12px !important;
+  font-size: 13.5px !important;
+  font-weight: 900 !important;
+  box-shadow: 0 8px 18px rgba(46,125,50,.16) !important;
+}
+
+/* Hint under search */
+#adminOrdersModal .modal-content > p{
+  font-size: 12.5px !important;
+  line-height: 1.7 !important;
+  color: var(--msq-muted, #615053) !important;
+  margin: 0 0 10px !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  background: color-mix(in srgb, var(--msq-primary, #8b3f52) 5%, #fff) !important;
+  border: 1px solid var(--msq-line, rgba(139,63,82,.1)) !important;
+}
+
+/* Search */
+#adminOrdersModal #adminOrderSearch{
+  width: 100% !important;
+  min-height: 48px !important;
+  margin: 0 0 14px !important;
+  padding: 12px 14px !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--msq-line, rgba(139,63,82,.16)) !important;
+  background: #fff !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  transition: border-color .2s, box-shadow .2s !important;
+}
+#adminOrdersModal #adminOrderSearch:focus{
+  border-color: var(--msq-primary, #8b3f52) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--msq-primary, #8b3f52) 14%, transparent) !important;
+}
+body.dark-mode #adminOrdersModal #adminOrderSearch{
+  background: #21181d !important;
+  color: #f5eef0 !important;
+}
+
+/* Orders list */
+#adminOrdersModal .orders-list,
+#adminOrdersModal #adminOrdersList{
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+/* Order cards */
+#adminOrdersModal .order-card-admin{
+  padding: 14px 14px 12px !important;
+  border-radius: 16px !important;
+  border: 1px solid var(--msq-line, rgba(139,63,82,.14)) !important;
+  background: rgba(255,255,255,.88) !important;
+  box-shadow: 0 8px 24px rgba(70,30,44,.06) !important;
+  font-size: 13px !important;
+  line-height: 1.75 !important;
+  transition: border-color .2s, box-shadow .2s !important;
+}
+#adminOrdersModal .order-card-admin:hover{
+  border-color: color-mix(in srgb, var(--msq-primary, #8b3f52) 30%, transparent) !important;
+  box-shadow: 0 12px 28px rgba(70,30,44,.1) !important;
+}
+body.dark-mode #adminOrdersModal .order-card-admin{
+  background: rgba(36,26,32,.9) !important;
+  border-color: rgba(255,255,255,.08) !important;
+}
+#adminOrdersModal .order-card-admin .oid{
+  font-size: 14px !important;
+  font-weight: 950 !important;
+  color: var(--msq-primary, #8b3f52) !important;
+  margin-bottom: 4px !important;
+  letter-spacing: .2px;
+  overflow-wrap: anywhere;
+}
+
+/* Status mini buttons row */
+#adminOrdersModal .status-btns-mini{
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  margin-top: 10px !important;
+}
+#adminOrdersModal .status-btns-mini button{
+  font-size: 11.5px !important;
+  padding: 7px 11px !important;
+  border-radius: 999px !important;
+  font-weight: 900 !important;
+  min-height: 34px !important;
+  cursor: pointer !important;
+  transition: transform .15s ease, filter .15s ease !important;
+}
+#adminOrdersModal .status-btns-mini button:hover{
+  transform: translateY(-1px);
+  filter: saturate(1.05);
+}
+
+/* Action row under each order (details / wa / shipping) */
+#adminOrdersModal .order-card-admin > div[style*="display:flex"]{
+  gap: 8px !important;
+  margin-top: 10px !important;
+}
+#adminOrdersModal .order-card-admin > div[style*="display:flex"] > button{
+  flex: 1 1 140px !important;
+  min-height: 42px !important;
+  border-radius: 11px !important;
+  font-size: 12.5px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(40,20,30,.06) !important;
+}
+
+/* Permanent cancel button injected later */
+#adminOrdersModal .cancel-order-btn{
+  width: 100% !important;
+  min-height: 42px !important;
+  margin-top: 4px !important;
+  border: 0 !important;
+  border-radius: 11px !important;
+  background: linear-gradient(135deg, #8e1520, #c62828) !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  box-shadow: 0 6px 16px rgba(198,40,40,.18) !important;
+}
+
+/* Maintenance box */
+#adminOrdersModal #maintenanceAdminBox,
+#adminOrdersModal .maintenance-admin-box{
+  margin: 0 0 12px !important;
+  padding: 14px 14px 12px !important;
+  border-radius: 16px !important;
+  border: 1px solid #f0d9a0 !important;
+  background: linear-gradient(145deg, #fffdf5, #fff8e6) !important;
+  box-shadow: 0 6px 18px rgba(180,140,40,.08) !important;
+}
+#adminOrdersModal .maintenance-admin-row{
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+}
+#adminOrdersModal .maintenance-toggle-btn{
+  min-height: 40px !important;
+  padding: 8px 16px !important;
+  border: 0 !important;
+  border-radius: 11px !important;
+  font-weight: 900 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  color: #fff !important;
+}
+#adminOrdersModal .maintenance-toggle-btn.off{
+  background: linear-gradient(135deg, #2e7d32, #1b5e20) !important;
+}
+#adminOrdersModal .maintenance-toggle-btn.on{
+  background: linear-gradient(135deg, #c62828, #8e1520) !important;
+}
+
+/* Cancellation requests panel */
+#adminOrdersModal #cancelRequestsAdminPanel{
+  margin: 0 0 14px !important;
+  padding: 16px !important;
+  border-radius: 18px !important;
+  border: 1px solid #f0b9b2 !important;
+  background: linear-gradient(145deg, rgba(255,250,249,.95), rgba(255,240,238,.9)) !important;
+  box-shadow: 0 8px 24px rgba(150,40,50,.07) !important;
+}
+#adminOrdersModal #cancelRequestsAdminPanel .cancel-admin-heading{
+  font-size: 15px !important;
+  font-weight: 950 !important;
+  color: #a3202b !important;
+  margin-bottom: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+#adminOrdersModal .cancel-request-admin-card{
+  padding: 14px !important;
+  border-radius: 14px !important;
+  border: 1px solid #f0d1cd !important;
+  background: #fff !important;
+  margin: 10px 0 !important;
+  font-size: 12.5px !important;
+  line-height: 1.85 !important;
+  box-shadow: 0 4px 14px rgba(80,30,40,.05) !important;
+  overflow-wrap: anywhere;
+}
+#adminOrdersModal .cancel-admin-actions{
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+}
+#adminOrdersModal .cancel-admin-actions button,
+#adminOrdersModal .cancel-request-admin-card button{
+  min-height: 40px !important;
+  padding: 8px 12px !important;
+  border: 0 !important;
+  border-radius: 10px !important;
+  font-weight: 900 !important;
+  font-size: 12.5px !important;
+  cursor: pointer !important;
+  color: #fff !important;
+}
+#adminOrdersModal #refreshCancelRequests{
+  width: 100% !important;
+  min-height: 42px !important;
+  margin-top: 10px !important;
+  border-radius: 11px !important;
+  background: linear-gradient(135deg, #a3202b, #c62828) !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  border: 0 !important;
+  cursor: pointer !important;
+}
+#adminOrdersModal .cancel-admin-actions [data-final-cancel]{
+  background: linear-gradient(135deg, #c62828, #8e1520) !important;
+}
+#adminOrdersModal .cancel-admin-actions [data-review-cancel]{
+  background: linear-gradient(135deg, #6a4a5a, #8b3f52) !important;
+}
+#adminOrdersModal .cancel-admin-actions [data-find-order]{
+  background: linear-gradient(135deg, #1565c0, #0d47a1) !important;
+}
+
+/* Admin order details modal */
+#adminOrderDetailsModal .modal-content{
+  width: min(720px, calc(100vw - 24px)) !important;
+  max-width: 720px !important;
+  border-radius: 22px !important;
+  padding: 18px !important;
+}
+#adminOrderDetailsModal #adminOrderDetailsBody{
+  font-size: 13.5px !important;
+  line-height: 1.85 !important;
+}
+
+/* Mobile comfort */
+@media (max-width: 640px){
+  #adminOrdersModal.modal-overlay{
+    padding: 0 !important;
+    align-items: flex-end !important;
+  }
+  #adminOrdersModal .modal-content{
+    width: 100% !important;
+    max-width: 100vw !important;
+    max-height: 96dvh !important;
+    margin: 0 !important;
+    border-radius: 20px 20px 0 0 !important;
+    padding: 14px 12px 18px !important;
+  }
+  #adminOrdersModal .order-card-admin{
+    padding: 12px !important;
+  }
+  #adminOrdersModal .order-card-admin > div[style*="display:flex"] > button{
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+  }
+  #adminOrdersModal .status-btns-mini button{
+    flex: 1 1 calc(50% - 6px) !important;
+    text-align: center;
+  }
+  #adminOrdersModal .cancel-admin-actions{
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+  }
+  #adminOrdersModal .cancel-admin-actions button{
+    width: 100% !important;
+  }
+  #adminOrderDetailsModal .modal-content{
+    width: 100% !important;
+    max-width: 100vw !important;
+    border-radius: 18px 18px 0 0 !important;
+  }
+}
+
+@media (min-width: 900px){
+  #adminOrdersModal .modal-content{
+    width: min(980px, calc(100vw - 48px)) !important;
+    max-width: 980px !important;
+    padding: 22px 24px 26px !important;
+  }
+}
+</style>
+
