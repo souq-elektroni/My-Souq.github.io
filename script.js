@@ -944,23 +944,28 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     if (btn) btn.textContent = isDark ? '☀️' : '🌙';
   }
 
+    // بيانات العميل لا تُحفظ في localStorage ولا تُستعاد بين الزيارات.
     function loadCustomerData() {
-      try {
-        const data = JSON.parse(localStorage.getItem('souqCustomerData') || '{}');
-        if (data.name) document.getElementById('custName').value = data.name;
-        if (data.phone) document.getElementById('custPhone').value = normalizeEgyptianPhone(data.phone);
-        if (data.address) document.getElementById('custAddress').value = data.address;
-      } catch (e) {}
+      // Clear any legacy persisted customer form data, but preserve values while this page session is active.
+      try { localStorage.removeItem('souqCustomerData'); } catch (e) {}
     }
 
     function saveCustomerData() {
-    const data = {
-      name: document.getElementById('custName').value.trim(),
-      phone: document.getElementById('custPhone').value.trim(),
-      address: document.getElementById('custAddress').value.trim()
-    };
-    localStorage.setItem('souqCustomerData', JSON.stringify(data));
-  }
+      // متروكة كدالة توافقية فقط؛ لا نخزّن بيانات العميل في المتصفح.
+      try { localStorage.removeItem('souqCustomerData'); } catch (e) {}
+    }
+
+    function getShippingAddress() {
+      const governorate = (document.getElementById('custGovernorate')?.value || '').trim();
+      const city = (document.getElementById('custCity')?.value || '').trim();
+      const detailed = (document.getElementById('custDetailedAddress')?.value || '').trim();
+      return { governorate, city, detailed, full: 'المحافظة: ' + governorate + '، المدينة: ' + city + '، العنوان التفصيلي: ' + detailed };
+    }
+
+    function hasFourPartName(value) {
+      return String(value || '').trim().split(/\s+/).filter(Boolean).length >= 4;
+    }
+
 
 
   function updateActionButtons(isOut) {
@@ -2214,33 +2219,37 @@ function continueAfterOrderRecaptcha() {
     function checkFormCompletion() {
       const nameEl = document.getElementById('custName');
       const phoneEl = document.getElementById('custPhone');
-      const addressEl = document.getElementById('custAddress');
+      const ship = getShippingAddress();
       const proceedBtn = document.getElementById('proceedBtn');
-      if (!nameEl || !phoneEl || !addressEl || !proceedBtn) return;
-
-      const name = nameEl.value.trim();
-      const phone = normalizeEgyptianPhone(phoneEl.value);
-      const address = addressEl.value.trim();
-
-      proceedBtn.style.display = (
-        name && isValidEgyptianMobile(phone) && address && cart.length > 0
-      ) ? 'block' : 'none';
+      if (!nameEl || !phoneEl || !proceedBtn) return;
+      const valid = hasFourPartName(nameEl.value) && isValidEgyptianMobile(normalizeEgyptianPhone(phoneEl.value)) && ship.governorate && ship.city && ship.detailed && cart.length > 0;
+      proceedBtn.style.display = valid ? 'block' : 'none';
     }
 
     function validateAndOpenTerms() {
       const nameEl = document.getElementById('custName');
       const phoneEl = document.getElementById('custPhone');
-      const addressEl = document.getElementById('custAddress');
-
       const name = nameEl ? nameEl.value.trim() : '';
       const phone = phoneEl ? normalizeEgyptianPhone(phoneEl.value) : '';
-      const address = addressEl ? addressEl.value.trim() : '';
+      const ship = getShippingAddress();
 
-      if (!name || !address || !isValidEgyptianMobile(phone) || cart.length === 0) {
-        alert('يرجى استكمال بيانات الشحن وإدخال رقم موبايل مصري صحيح.');
+      if (!ship.governorate || !ship.city || !ship.detailed || !name || !phone) {
+        alert('❌ رجاء إستكمال الحقول المطلوبه');
+        const firstMissing = !name ? nameEl : !phone ? phoneEl : !ship.governorate ? document.getElementById('custGovernorate') : !ship.city ? document.getElementById('custCity') : document.getElementById('custDetailedAddress');
+        if (firstMissing) firstMissing.focus();
         return;
       }
-
+      if (!hasFourPartName(name)) {
+        alert('❌ ارجو إدخال الاسم رباعى');
+        if (nameEl) nameEl.focus();
+        return;
+      }
+      if (!isValidEgyptianMobile(phone)) {
+        alert('❌ رجاء إدخال رقم موبايل مصري صحيح.');
+        if (phoneEl) phoneEl.focus();
+        return;
+      }
+      if (cart.length === 0) { alert('السلة فارغة.'); return; }
       closeCartModal();
       openOrderRecaptchaModal();
     }
@@ -2385,7 +2394,8 @@ function continueAfterOrderRecaptcha() {
 
     const name = document.getElementById('custName').value.trim();
     const phone = document.getElementById('custPhone').value.trim();
-    const address = document.getElementById('custAddress').value.trim();
+    const shipping = getShippingAddress();
+    const address = shipping.full;
     const totalText = document.getElementById('cartTotalPrice').innerText;
     
     const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
@@ -2413,7 +2423,9 @@ function continueAfterOrderRecaptcha() {
         <div><strong>الاسم:</strong> ${name}</div>
         <div><strong>رقم التليفون:</strong> ${phone}</div>
       </div>
-      <div style="font-size:12.5px;"><strong>العنوان:</strong> ${address}</div>
+      <div style="font-size:12.5px;"><strong>المحافظة:</strong> ${shipping.governorate}</div>
+      <div style="font-size:12.5px;"><strong>المدينة:</strong> ${shipping.city}</div>
+      <div style="font-size:12.5px;"><strong>العنوان التفصيلي:</strong> ${shipping.detailed}</div>
       <div style="font-size:12.5px;"><strong>طريقة الدفع:</strong> ${payMethod}</div>
       <div style="margin-top:2px; font-weight:bold; color:var(--burgundy-soft); font-size:12.5px;">المنتجات المختارة:</div>
       ${productsHtml}
@@ -2473,15 +2485,19 @@ function continueAfterOrderRecaptcha() {
     async function finalizeOrder() {
       const nameEl = document.getElementById('custName');
       const phoneEl = document.getElementById('custPhone');
-      const addressEl = document.getElementById('custAddress');
-
       const name = nameEl ? nameEl.value.trim() : '';
       const rawPhone = phoneEl ? phoneEl.value.trim() : '';
-      const address = addressEl ? addressEl.value.trim() : '';
       const phone = normalizeEgyptianPhone(rawPhone);
+      const shipping = getShippingAddress();
+      const address = shipping.full;
 
-      if (!name || !phone || !address) {
-        alert('يرجى استكمال كافة بيانات الشحن المطلوبة');
+      if (!name || !rawPhone || !shipping.governorate || !shipping.city || !shipping.detailed) {
+        alert('❌ رجاء إستكمال الحقول المطلوبه');
+        return;
+      }
+      if (!hasFourPartName(name)) {
+        alert('❌ ارجو إدخال الاسم رباعى');
+        if (nameEl) nameEl.focus();
         return;
       }
 
@@ -2531,13 +2547,17 @@ function continueAfterOrderRecaptcha() {
         payMethod,
         total: totalText,
         items: [...cart],
+        governorate: shipping.governorate,
+        city: shipping.city,
+        detailedAddress: shipping.detailed,
         statusCode: 0,
         status: 'تحت التنفيذ 📦',
         date: new Date().toLocaleDateString('ar-EG'),
         createdAt: Date.now()
       };
 
-      saveCustomerData();
+      // لا تحفظ بيانات النموذج في المتصفح؛ تُحفظ تفاصيل الطلب نفسه في Firestore فقط.
+      try { localStorage.removeItem('souqCustomerData'); } catch (_) {}
 
       cart.forEach(item => {
         productSales[item.id] = (productSales[item.id] || 0) + item.qty;
