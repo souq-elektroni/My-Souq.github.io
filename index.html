@@ -7028,6 +7028,8 @@ html body #productModal .share-btn{order:4!important;}
     if(marker){marker.setLatLng([lat,lon]);}else{marker=L.marker([lat,lon],{draggable:true}).addTo(map);marker.on('dragend',function(){var p=marker.getLatLng();setLocation(p.lat,p.lng,'تم تعديل الموقع يدويًا');});}
     map.setView([lat,lon],16);status.textContent=source+': '+lat.toFixed(6)+', '+lon.toFixed(6)+' — سيتم إرفاق الإحداثيات بالعنوان عند إرسال الطلب.';
     var detail=document.getElementById('custDetailedAddress');if(detail && typeof window.checkFormCompletion==='function')window.checkFormCompletion();
+    setTimeout(function(){ try{ map.invalidateSize({animate:false}); }catch(e){} }, 50);
+    setTimeout(function(){ try{ map.invalidateSize({animate:false}); }catch(e){} }, 250);
   }
   map.on('click',function(e){setLocation(e.latlng.lat,e.latlng.lng,'تم تحديد الموقع على الخريطة');});
   document.getElementById('mysouqLocateMeBtn').addEventListener('click',function(){
@@ -7046,8 +7048,39 @@ html body #productModal .share-btn{order:4!important;}
   }
   // Existing checkout may call finalizeOrder directly rather than submit the form.
   if(typeof window.finalizeOrder==='function'){var originalFinalize=window.finalizeOrder;window.finalizeOrder=async function(){appendCoordinates();return originalFinalize.apply(this,arguments);};}
-  setTimeout(function(){map.invalidateSize();},350);
-  window.addEventListener('resize',function(){map.invalidateSize();});
+  function refreshDeliveryMap(){
+    try{
+      map.invalidateSize({animate:false});
+      var lat=latInput&&latInput.value, lon=lonInput&&lonInput.value;
+      if(lat&&lon){
+        map.setView([Number(lat),Number(lon)], map.getZoom()||16);
+      }
+    }catch(e){}
+  }
+  window.mysouqRefreshDeliveryMap = refreshDeliveryMap;
+  window.mysouqDeliveryMapInstance = map;
+
+  setTimeout(refreshDeliveryMap, 350);
+  window.addEventListener('resize', refreshDeliveryMap);
+
+  // When cart modal becomes visible, Leaflet must recalculate size
+  // (map was initialized while the modal was hidden → gray/empty tiles).
+  var cartModal = document.getElementById('cartModal');
+  if(cartModal && window.MutationObserver){
+    new MutationObserver(function(){
+      if(cartModal.classList.contains('active')){
+        setTimeout(refreshDeliveryMap, 80);
+        setTimeout(refreshDeliveryMap, 280);
+        setTimeout(refreshDeliveryMap, 600);
+      }
+    }).observe(cartModal, {attributes:true, attributeFilter:['class']});
+  }
+  // Also refresh when user scrolls the cart body (layout can settle late)
+  if(cartModal){
+    cartModal.addEventListener('transitionend', function(){
+      if(cartModal.classList.contains('active')) refreshDeliveryMap();
+    });
+  }
 })();
 </script>
 
@@ -7668,6 +7701,110 @@ body.dark-mode #cartModal .cart-footer{
 @media (prefers-reduced-motion: reduce){
   #cartModal *{
     transition-duration: .001ms !important;
+  }
+}
+</style>
+
+<style id="mysouq-delivery-map-field-fix-v1">
+/* Map field: same width/radius language as other form inputs inside the cart */
+#cartModal #mysouqMapAddressBox{
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+#cartModal #mysouqMapAddressBox > p{
+  margin: 0 0 10px !important;
+  font-size: 12px !important;
+  line-height: 1.7 !important;
+  color: var(--msq-muted, #75616a) !important;
+}
+#cartModal #mysouqDeliveryMap{
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  height: 280px !important;
+  min-height: 240px !important;
+  box-sizing: border-box !important;
+  border: 1px solid var(--msq-line, rgba(139,63,82,.16)) !important;
+  border-radius: 13px !important;
+  overflow: hidden !important;
+  background: #f3ecef !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5) !important;
+  z-index: 1 !important;
+}
+/* Leaflet must fill the box completely */
+#cartModal #mysouqDeliveryMap .leaflet-container,
+#cartModal #mysouqDeliveryMap.leaflet-container{
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 13px !important;
+  font: inherit !important;
+}
+#cartModal #mysouqDeliveryMap .leaflet-tile-pane,
+#cartModal #mysouqDeliveryMap .leaflet-map-pane{
+  width: 100%;
+  height: 100%;
+}
+#cartModal .mysouq-map-actions{
+  display: grid !important;
+  grid-template-columns: 1.4fr 1fr !important;
+  gap: 8px !important;
+  margin-top: 10px !important;
+  width: 100% !important;
+}
+#cartModal .mysouq-map-actions button{
+  width: 100% !important;
+  min-height: 46px !important;
+  border-radius: 13px !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  padding: 10px 12px !important;
+  border: 0 !important;
+  cursor: pointer !important;
+}
+#cartModal #mysouqLocateMeBtn{
+  background: linear-gradient(135deg, var(--msq-primary, #8b3f52), var(--msq-primary-2, #b75b72)) !important;
+  color: #fff !important;
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--msq-primary, #8b3f52) 22%, transparent) !important;
+}
+#cartModal #mysouqClearMapBtn{
+  background: #6e6266 !important;
+  color: #fff !important;
+}
+#cartModal #mysouqMapStatus{
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin-top: 8px !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--msq-line, rgba(139,63,82,.12)) !important;
+  background: color-mix(in srgb, var(--msq-primary, #8b3f52) 6%, #fff) !important;
+  font-size: 12px !important;
+  line-height: 1.7 !important;
+  color: var(--msq-muted, #64545b) !important;
+  overflow-wrap: anywhere !important;
+}
+body.dark-mode #cartModal #mysouqDeliveryMap{
+  background: #1a1418 !important;
+  border-color: rgba(255,255,255,.1) !important;
+}
+body.dark-mode #cartModal #mysouqMapStatus{
+  background: rgba(40,30,35,.7) !important;
+  border-color: rgba(255,255,255,.08) !important;
+  color: #c8b4ba !important;
+}
+@media (max-width: 639px){
+  #cartModal #mysouqDeliveryMap{
+    height: 250px !important;
+    min-height: 220px !important;
+  }
+  #cartModal .mysouq-map-actions{
+    grid-template-columns: 1fr !important;
+  }
+}
+@media (min-width: 900px){
+  #cartModal #mysouqDeliveryMap{
+    height: 300px !important;
   }
 }
 </style>
