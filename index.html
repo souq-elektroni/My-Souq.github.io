@@ -4291,16 +4291,18 @@ body:has(.zoom-overlay.active) .back-to-top {
         </div>
 
         <div class="form-group">
+          <label for="custGovernorate">المحافظة *</label>
+          <input type="text" id="custGovernorate" placeholder="مثال: القاهرة" autocomplete="off" oninput="checkFormCompletion()">
+        </div>
 
-          <label>العنوان بالتفصيل *</label>
+        <div class="form-group">
+          <label for="custCity">المدينة / المركز *</label>
+          <input type="text" id="custCity" placeholder="مثال: مدينة نصر" autocomplete="off" oninput="checkFormCompletion()">
+        </div>
 
-          <textarea
-            id="custAddress"
-            rows="2"
-            placeholder="العنوان"
-            oninput="checkFormCompletion()"
-          ></textarea>
-
+        <div class="form-group">
+          <label for="custDetailedAddress">العنوان بالتفصيل *</label>
+          <textarea id="custDetailedAddress" rows="2" placeholder="الشارع، رقم العقار، الدور، علامة مميزة" autocomplete="off" oninput="checkFormCompletion()"></textarea>
         </div>
 
       </div>
@@ -5540,10 +5542,12 @@ body:has(.zoom-overlay.active) .back-to-top {
         function buildCleanOrderWaMessage() {
           var nameEl = document.getElementById('custName');
           var phoneEl = document.getElementById('custPhone');
-          var addressEl = document.getElementById('custAddress');
+          var governorateEl = document.getElementById('custGovernorate');
+          var cityEl = document.getElementById('custCity');
+          var detailEl = document.getElementById('custDetailedAddress');
           var name = nameEl ? nameEl.value.trim() : '';
           var phone = phoneEl ? phoneEl.value.trim() : '';
-          var address = addressEl ? addressEl.value.trim() : '';
+          var address = 'المحافظة: ' + (governorateEl ? governorateEl.value.trim() : '') + '، المدينة: ' + (cityEl ? cityEl.value.trim() : '') + '، العنوان التفصيلي: ' + (detailEl ? detailEl.value.trim() : '');
           var payMethod = isInstapay ? 'InstaPay' : 'الدفع عند الاستلام';
           var totalEl = document.getElementById('cartTotalPrice');
           var totalText = totalEl ? totalEl.innerText : '0 ج.م';
@@ -6717,3 +6721,18 @@ html body #productModal .share-btn{order:4!important;}
 
 </body>
 </html>
+
+<style id="mysouq-success-modal-clean-v3">
+#successModal .success-modal{width:min(680px,calc(100vw - 28px))!important;max-height:88dvh!important;overflow-y:auto!important;padding:clamp(18px,4vw,34px)!important;border-radius:24px!important;background:linear-gradient(160deg,#fff 0%,#fff8fb 100%)!important;border:1px solid #ead0dc!important;box-shadow:0 24px 80px rgba(35,12,24,.32)!important;color:#432b36!important}
+#successModal .success-icon{font-size:clamp(42px,9vw,64px)!important;margin-bottom:4px!important}
+#successModal .success-title{font-size:clamp(23px,5vw,34px)!important;line-height:1.45!important;margin:8px 0 12px!important;color:#813d5d!important}
+#successModal .success-message{font-size:clamp(15px,3.6vw,19px)!important;line-height:1.9!important;margin:12px 0!important}
+#successModal #successOrderIdDisplay{background:#fff!important;border:1px dashed #a14d75!important;border-radius:14px!important;color:#813d5d!important;padding:14px 10px!important;font-size:clamp(18px,4.3vw,25px)!important;line-height:1.6!important;overflow-wrap:anywhere!important}
+#successModal .success-policy{background:#fff4f8!important;border:1px solid #e7c1d1!important;border-radius:14px!important;padding:12px 14px!important;font-size:clamp(14px,3.4vw,16px)!important;line-height:1.8!important;margin:14px 0!important}
+#successModal .success-btn{min-height:50px!important;font-size:clamp(16px,3.8vw,19px)!important;border-radius:13px!important;margin-top:9px!important}
+@media(max-width:520px){#successModal .success-modal{width:calc(100vw - 24px)!important;max-height:84dvh!important;padding:17px 14px!important;border-radius:20px!important}#successModal .success-message{text-align:right!important}}
+</style>
+
+<style id="mysouq-shipping-fields-v3">
+#customerFormBox .form-group{margin-bottom:12px!important}#customerFormBox input,#customerFormBox textarea{width:100%;box-sizing:border-box;min-height:46px;padding:12px 13px;border:1px solid #d9bdca;border-radius:12px;font-size:16px;line-height:1.6;background:#fff;color:#392b32}#customerFormBox textarea{min-height:82px;resize:vertical}#customerFormBox label{display:block;margin-bottom:6px;font-weight:800;font-size:14px}
+</style>
