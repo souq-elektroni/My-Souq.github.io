@@ -1,5 +1,6 @@
 let products = [];
-  let cart = JSON.parse(localStorage.getItem("souqCart")) || [];
+  let cart = []; // Cart is session-only; do not restore prior cart contents from localStorage.
+try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItems"); } catch (_) {}
   let ordersHistory = JSON.parse(localStorage.getItem("souqOrdersHistory")) || [];
   let isAdminMode = false;
   let currentAdminUser = null;
@@ -1691,10 +1692,6 @@ ${selectedImage}
     }
 
 
-    localStorage.setItem(
-      "souqCart",
-      JSON.stringify(cart)
-    );
 
 
     updateCartCount();
@@ -1766,10 +1763,6 @@ ${selectedImage}
     }
 
 
-    localStorage.setItem(
-      "souqCart",
-      JSON.stringify(cart)
-    );
 
   }
 
@@ -1805,7 +1798,6 @@ ${selectedImage}
     }
     if (cleaned) {
       try {
-        localStorage.setItem('souqCart', JSON.stringify(cart));
       } catch (e) {}
       try { updateCartCount(); } catch (e) {}
     }
@@ -1945,10 +1937,6 @@ ${selectedImage}
     }
 
 
-    localStorage.setItem(
-      "souqCart",
-      JSON.stringify(cart)
-    );
 
 
     updateCartCount();
@@ -1962,10 +1950,6 @@ ${selectedImage}
 
     cart.splice(index, 1);
 
-    localStorage.setItem(
-      "souqCart",
-      JSON.stringify(cart)
-    );
 
 
     updateCartCount();
@@ -2216,6 +2200,11 @@ function continueAfterOrderRecaptcha() {
   }
 
   closeOrderRecaptchaModal();
+  // Every order attempt requires the customer to actively re-check consent.
+  const termsCheckbox = document.getElementById('termsCheckbox');
+  const agreeButton = document.getElementById('agreeBtn');
+  if (termsCheckbox) termsCheckbox.checked = false;
+  if (agreeButton) agreeButton.classList.remove('active');
   const termsModal = document.getElementById('termsModal');
   if (termsModal) termsModal.classList.add('active');
 }
@@ -2448,26 +2437,37 @@ function continueAfterOrderRecaptcha() {
   /** إرسال بيانات الطلب المحفوظ إلى Telegram عبر Cloudflare Worker. */
   async function notifyOwnerNewOrderTelegram(orderMeta) {
     const meta = orderMeta || {};
-    const response = await fetch(TELEGRAM_ORDER_WORKER_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        orderId: meta.orderId,
-        name: meta.name,
-        phone: meta.phone,
-        address: meta.address,
-        paymentMethod: meta.payMethod,
-        total: meta.total,
-        items: Array.isArray(meta.items) ? meta.items : []
-      })
-    });
-    if (!response.ok) {
-      const detail = await response.text().catch(() => '');
-      throw new Error('Telegram Worker HTTP ' + response.status + (detail ? ': ' + detail.slice(0, 180) : ''));
+    const payload = {
+      orderId: meta.orderId,
+      name: meta.name,
+      phone: meta.phone,
+      address: meta.address,
+      paymentMethod: meta.payMethod,
+      total: meta.total,
+      items: Array.isArray(meta.items) ? meta.items : []
+    };
+    let lastError;
+    // Retry once for temporary mobile/network failures.
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const response = await fetch(TELEGRAM_ORDER_WORKER_URL, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!response.ok) {
+          const detail = await response.text().catch(() => '');
+          throw new Error('Telegram Worker HTTP ' + response.status + (detail ? ': ' + detail.slice(0, 180) : ''));
+        }
+        const result = await response.json();
+        if (!result || result.ok !== true) throw new Error('Telegram Worker did not confirm delivery');
+        return true;
+      } catch (error) {
+        lastError = error;
+        console.error('Telegram notification attempt ' + attempt + ' failed:', error);
+        if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 1200 * attempt));
+      }
     }
-    const result = await response.json();
-    if (!result || result.ok !== true) throw new Error('Telegram Worker did not confirm delivery');
-    return true;
+    throw lastError || new Error('Telegram notification failed');
   }
 
     async function finalizeOrder() {
@@ -2493,6 +2493,17 @@ function continueAfterOrderRecaptcha() {
 
       if (!Array.isArray(cart) || cart.length === 0) {
         alert('السلة فارغة، لا يمكن إتمام الطلب');
+        return;
+      }
+
+      // Enforce explicit consent at the final submission point as well,
+      // even if a browser restores an old modal state or the function is called directly.
+      const termsCheckbox = document.getElementById('termsCheckbox');
+      if (!termsCheckbox || !termsCheckbox.checked) {
+        alert('يرجى قراءة الشروط والأحكام ووضع علامة الموافقة بنفسك قبل إتمام الطلب.');
+        const termsModal = document.getElementById('termsModal');
+        if (termsModal) termsModal.classList.add('active');
+        if (termsCheckbox) termsCheckbox.focus();
         return;
       }
 
@@ -2582,7 +2593,12 @@ function continueAfterOrderRecaptcha() {
         if (successId) successId.innerText = `رقم طلبك هو: ${generatedOrderId}`;
         if (successModal) successModal.classList.add('active');
 
+        // Clear the cart only after the order was saved; never persist cart contents between sessions.
         cart = [];
+        try {
+          localStorage.removeItem('souqCart');
+          localStorage.removeItem('souqCartItems');
+        } catch (_) {}
         discountRate = 0;
         generatedOrderId = '';
         updateCartCount();
