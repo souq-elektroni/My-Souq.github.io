@@ -6772,6 +6772,110 @@ html body #productModal .share-btn{order:4!important;}
 @media(prefers-reduced-motion:reduce){#productModal *{transition:none!important;scroll-behavior:auto!important;}}
 </style>
 
+
+<script id="mysouq-customer-cancel-request-v1">
+(function(){
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
+  function statusCode(order){ return typeof order.statusCode === 'number' ? order.statusCode : 0; }
+  async function hasPendingRequest(orderId){
+    if(!window.db && typeof db === 'undefined') return false;
+    try { const ref = (typeof db !== 'undefined' ? db : window.db); const snap = await ref.collection('cancellationRequests').where('orderId','==',orderId).where('status','==','pending').limit(1).get(); return !snap.empty; } catch(e) { console.warn('Could not check cancellation request status'); return false; }
+  }
+  window.requestOrderCancellation = async function(orderId){
+    const id = String(orderId || '').trim();
+    const input = document.getElementById('trackInputId');
+    const found = (typeof adminOrdersCache !== 'undefined' ? adminOrdersCache : []).find(o => String(o.orderId||'').trim() === id) || null;
+    // Re-fetch authoritative order record; don't trust only the displayed UI.
+    let order = found;
+    try { if(typeof fetchOrderFromCloud === 'function') order = await fetchOrderFromCloud(id); } catch(e) {}
+    if(!order){ alert('تعذر التأكد من بيانات الطلب. أعد البحث برقم الطلب وحاول مرة أخرى.'); return; }
+    if(statusCode(order) !== 0){ alert('طلب الإلغاء متاح فقط والطلب في مرحلة «تحت التنفيذ». بعد انتقاله إلى أي مرحلة تالية لا يمكن تقديم طلب إلغاء من هنا.'); return; }
+    if(typeof firebaseReady !== 'undefined' && !firebaseReady || typeof db === 'undefined' || !db){ alert('خدمة الطلبات غير متاحة حاليًا. حاول مرة أخرى بعد قليل.'); return; }
+    const already = await hasPendingRequest(id);
+    if(already){ alert('تم استلام طلب إلغاء لهذا الطلب بالفعل، والإدارة ستراجعه.'); if(input) input.value=id; return; }
+    const ok = confirm('هل تريد إرسال طلب إلغاء للطلب ' + id + '؟\n\nسيصل طلبك إلى إدارة My Souq للمراجعة. لن يُحذف الطلب تلقائيًا.');
+    if(!ok) return;
+    const buttons = document.querySelectorAll('[data-cancel-request-order="'+CSS.escape(id)+'"]');
+    buttons.forEach(b=>{b.disabled=true;b.textContent='جاري إرسال طلب الإلغاء...';});
+    try {
+      const ref = db.collection('cancellationRequests').doc();
+      await ref.set({ requestId:ref.id, orderId:id, customerName:String(order.name||''), customerPhone:String(order.phone||''), status:'pending', message:'العميل يريد الإلغاء', createdAt:firebase.firestore.FieldValue.serverTimestamp(), orderStatusCode:statusCode(order) });
+      buttons.forEach(b=>{b.disabled=true;b.textContent='تم إرسال طلب الإلغاء ✓';});
+      const note = document.querySelector('#trackingResultContainer .cancel-request-note');
+      if(note){note.style.color='#237445';note.textContent='✅ تم إرسال طلب الإلغاء إلى الإدارة. انتظر مراجعة الطلب؛ لم يتم إلغاء الطلب تلقائيًا.';}
+      alert('تم إرسال طلب الإلغاء إلى إدارة My Souq بنجاح.');
+    } catch(e) {
+      console.error('Cancellation request failed', e);
+      buttons.forEach(b=>{b.disabled=false;b.textContent='🔴 طلب إلغاء';});
+      alert(/permission|insufficient permissions|PERMISSION_DENIED/i.test(String(e&&e.message)) ? 'تعذر إرسال طلب الإلغاء بسبب قواعد Firestore. يجب تحديث قواعد الأمان المرفقة مع هذا التحديث.' : 'تعذر إرسال طلب الإلغاء الآن. تحقق من الإنترنت وحاول مرة أخرى.');
+    }
+  };
+  function addCustomerCancelButton(){
+    const box=document.getElementById('trackingResultContainer'); if(!box || !box.innerHTML.includes('تم العثور على الطلب بنجاح')) return;
+    if(box.querySelector('.cancel-request-panel')) return;
+    const raw=(document.getElementById('trackInputId')||{}).value||''; const id=String(raw).trim().toUpperCase();
+    let order=null; try { if(typeof fetchOrderFromCloud === 'function') order=null; } catch(e){}
+    // Order ID is taken from the rendered order metadata, not arbitrary page text.
+    const idSpan=box.querySelector('.track-meta-item span'); const renderedId=idSpan ? idSpan.textContent.trim() : id;
+    const statusText=(box.querySelector('.track-status-banner')||{}).textContent||'';
+    const statusIsExecution=/تحت التنفيذ|قيد التنفيذ/.test(statusText);
+    const statusCodeKnown= statusIsExecution;
+    const panel=document.createElement('section'); panel.className='cancel-request-panel';
+    panel.innerHTML='<div class="cancel-request-title">🔴 طلب إلغاء الطلب</div><div class="cancel-request-desc">يمكنك إرسال طلب للإدارة لإلغاء الطلب أثناء مرحلة «تحت التنفيذ» فقط. إرسال الطلب لا يعني إلغاءه تلقائيًا.</div><button type="button" class="cancel-request-btn" data-cancel-request-order="'+esc(renderedId)+'" '+(!statusCodeKnown?'disabled':'')+'>'+(!statusCodeKnown?'🔒 الإلغاء غير متاح بعد انتقال الطلب':'🔴 طلب إلغاء')+'</button><div class="cancel-request-note" style="color:'+(statusCodeKnown?'#9f1d2d':'#76696b')+'">'+(statusCodeKnown?'سيصل طلبك إلى لوحة الإدارة لمراجعته.':'هذا الزر متوقف لأن الطلب تجاوز مرحلة تحت التنفيذ.')+'</div>';
+    box.appendChild(panel);
+    const btn=panel.querySelector('button'); btn.addEventListener('click',()=>window.requestOrderCancellation(renderedId));
+    // If this is an existing pending request, reflect it in the UI.
+    hasPendingRequest(renderedId).then(pending=>{ if(pending){btn.disabled=true;btn.textContent='تم إرسال طلب الإلغاء بالفعل';const n=panel.querySelector('.cancel-request-note');n.style.color='#237445';n.textContent='طلب الإلغاء قيد مراجعة الإدارة.';} });
+  }
+  function installAdminRequestsPanel(){
+    const modal=document.getElementById('adminOrdersModal'); const logout=document.getElementById('adminLogoutBtn'); if(!modal||!logout||document.getElementById('cancelRequestsAdminPanel')) return;
+    const panel=document.createElement('section'); panel.id='cancelRequestsAdminPanel'; panel.innerHTML='<div class="cancel-admin-heading">🔔 طلبات إلغاء العملاء <span id="cancelRequestsCount" style="display:inline-block;background:#c62828;color:#fff;border-radius:99px;padding:2px 8px;margin-inline-start:5px">0</span></div><div id="cancelRequestsAdminList" style="font-size:12px;color:#765b5b">تظهر هنا طلبات الإلغاء الجديدة.</div><button type="button" id="refreshCancelRequests" style="margin-top:8px;border:0;border-radius:8px;background:#a3202b;color:#fff;padding:8px 10px;font-weight:800;cursor:pointer">تحديث طلبات الإلغاء</button>';
+    logout.parentNode.insertBefore(panel,logout.nextSibling);
+    document.getElementById('refreshCancelRequests').addEventListener('click',loadAdminCancelRequests);
+  }
+  async function loadAdminCancelRequests(){
+    const listEl=document.getElementById('cancelRequestsAdminList'), countEl=document.getElementById('cancelRequestsCount'); if(!listEl) return;
+    if(typeof isAdminMode==='undefined'||!isAdminMode||!currentAdminUser){listEl.textContent='سجّل الدخول كإدارة لعرض الطلبات.';return;}
+    if(typeof db==='undefined'||!db){listEl.textContent='Firebase غير متاح حاليًا.';return;}
+    listEl.textContent='جاري تحميل طلبات الإلغاء...';
+    try{
+      const snap=await db.collection('cancellationRequests').limit(100).get();
+      const requests=[]; snap.forEach(doc=>requests.push({...doc.data(),_docId:doc.id}));
+      requests.sort((a,b)=>{const ta=a.createdAt&&a.createdAt.toMillis?a.createdAt.toMillis():0;const tb=b.createdAt&&b.createdAt.toMillis?b.createdAt.toMillis():0;return tb-ta;});
+      const pending=requests.filter(r=>r.status==='pending'); if(countEl) countEl.textContent=String(pending.length);
+      if(!requests.length){listEl.innerHTML='<div>لا توجد طلبات إلغاء حتى الآن.</div>';return;}
+      listEl.innerHTML=requests.map(r=>'<article class="cancel-request-admin-card"><div style="font-size:13px;font-weight:950;color:#a3202b">🔔 العميل يريد الإلغاء</div><div><b>رقم الطلب:</b> '+esc(r.orderId||'-')+'</div><div><b>الاسم:</b> '+esc(r.customerName||'-')+'</div><div><b>الهاتف:</b> '+esc(r.customerPhone||'-')+'</div><div><b>الحالة:</b> '+(r.status==='pending'?'⏳ بانتظار المراجعة':'✅ تمت المراجعة')+'</div><div><b>الرسالة:</b> '+esc(r.message||'العميل يريد الإلغاء')+'</div><button type="button" data-review-cancel="'+esc(r._docId)+'">تمت المراجعة</button> <button type="button" data-find-order="'+esc(r.orderId||'')+'">فتح الطلب</button></article>').join('');
+      listEl.querySelectorAll('[data-review-cancel]').forEach(btn=>btn.addEventListener('click',async()=>{try{await db.collection('cancellationRequests').doc(btn.dataset.reviewCancel).update({status:'reviewed',reviewedAt:firebase.firestore.FieldValue.serverTimestamp(),reviewedBy:currentAdminUser.email||''});await loadAdminCancelRequests();}catch(e){alert('تعذر تحديث الطلب. تأكد من قواعد Firestore.');}}));
+      listEl.querySelectorAll('[data-find-order]').forEach(btn=>btn.addEventListener('click',()=>{const inp=document.getElementById('adminOrderSearch');if(inp){inp.value=btn.dataset.findOrder; if(typeof filterAdminOrders==='function')filterAdminOrders();}}));
+    }catch(e){console.error('Loading cancellation requests failed',e);listEl.textContent='تعذر تحميل طلبات الإلغاء. تأكد من تحديث قواعد Firestore.';}
+  }
+  const originalSearch=window.searchOrderTracking;
+  if(typeof originalSearch==='function'&&!originalSearch.__cancelRequestWrapped){
+    window.searchOrderTracking=async function(){await originalSearch.apply(this,arguments);setTimeout(addCustomerCancelButton,0);};window.searchOrderTracking.__cancelRequestWrapped=true;
+  }
+  const originalAdminOpen=window.openAdminOrdersModal;
+  if(typeof originalAdminOpen==='function'&&!originalAdminOpen.__cancelRequestsWrapped){
+    window.openAdminOrdersModal=function(){const out=originalAdminOpen.apply(this,arguments);setTimeout(()=>{installAdminRequestsPanel();loadAdminCancelRequests();},250);return out;};window.openAdminOrdersModal.__cancelRequestsWrapped=true;
+  }
+  document.addEventListener('DOMContentLoaded',()=>{installAdminRequestsPanel();});
+})();
+</script>
+
+
+<style id="mysouq-cancel-request-polish-v1">
+#trackingResultContainer .cancel-request-panel{margin-top:14px;padding:14px;border:1px solid #efb4b4;border-radius:16px;background:linear-gradient(145deg,#fffafa,#fff0f0);box-shadow:0 8px 22px rgba(150,30,40,.07)}
+#trackingResultContainer .cancel-request-title{font-size:14px;font-weight:950;color:#9f1d2d;margin-bottom:6px}
+#trackingResultContainer .cancel-request-desc{font-size:12px;line-height:1.8;color:#6c4c50;margin-bottom:10px}
+#trackingResultContainer .cancel-request-btn{width:100%;min-height:46px;border:0;border-radius:12px;padding:11px 14px;background:linear-gradient(135deg,#c62828,#8e1520);color:#fff;font-weight:900;font-size:14px;box-shadow:0 6px 16px rgba(198,40,40,.2);cursor:pointer}
+#trackingResultContainer .cancel-request-btn:disabled{background:#d6c6c8;color:#78696b;box-shadow:none;cursor:not-allowed;opacity:1}
+#trackingResultContainer .cancel-request-note{font-size:12px;font-weight:800;line-height:1.7;margin-top:8px}
+#cancelRequestsAdminPanel{margin:10px 0 14px;padding:12px;border-radius:14px;background:#fff4f2;border:1px solid #f0b9b2}
+#cancelRequestsAdminPanel .cancel-admin-heading{font-size:14px;font-weight:950;color:#a3202b;margin-bottom:9px}
+.cancel-request-admin-card{background:#fff;border:1px solid #f0d1cd;border-radius:11px;padding:10px;margin:8px 0;font-size:12px;line-height:1.8}
+.cancel-request-admin-card button{border:0;border-radius:8px;background:#7f3c5b;color:#fff;padding:7px 10px;font-weight:800;cursor:pointer;margin-top:6px}
+@media(max-width:520px){#trackingResultContainer .cancel-request-panel{padding:12px}#trackingResultContainer .cancel-request-title{font-size:14px}#trackingResultContainer .cancel-request-btn{font-size:14px;min-height:48px}}
+</style>
+
 </body>
 </html>
 
