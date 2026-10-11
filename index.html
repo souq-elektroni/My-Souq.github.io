@@ -4305,6 +4305,19 @@ body:has(.zoom-overlay.active) .back-to-top {
           <textarea id="custDetailedAddress" rows="2" placeholder="الشارع، رقم العقار، الدور، علامة مميزة" autocomplete="off" oninput="checkFormCompletion()"></textarea>
         </div>
 
+        <div class="form-group" id="mysouqMapAddressBox">
+          <label>📍 تحديد موقع التوصيل على الخريطة</label>
+          <p style="font-size:12px;color:#75616a;margin:0 0 9px">اضغط على الخريطة لتحديد مكان التسليم، أو استخدم زر تحديد موقعي الحالي.</p>
+          <div id="mysouqDeliveryMap" role="application" aria-label="خريطة تحديد عنوان التوصيل"></div>
+          <div class="mysouq-map-actions">
+            <button type="button" id="mysouqLocateMeBtn">📡 تحديد موقعي الحالي (GPS)</button>
+            <button type="button" id="mysouqClearMapBtn">مسح الموقع</button>
+          </div>
+          <div id="mysouqMapStatus" aria-live="polite">لم يتم تحديد موقع بعد. يمكنك تحديده يدويًا على الخريطة.</div>
+          <input type="hidden" id="mysouqLatitude" name="latitude" value="">
+          <input type="hidden" id="mysouqLongitude" name="longitude" value="">
+        </div>
+
       </div>
 
       <div class="cart-footer">
@@ -6990,6 +7003,54 @@ html body #productModal .share-btn{order:4!important;}
   gov.addEventListener('change',function(){if(typeof window.checkFormCompletion==='function')window.checkFormCompletion();});
 })();
 </script>
+
+<!-- My Souq delivery map and GPS; adds location without replacing existing checkout logic. -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<style id="mysouq-delivery-map-styles">
+#mysouqDeliveryMap{height:300px;min-height:240px;width:100%;border:1px solid #decbd2;border-radius:14px;overflow:hidden;background:#eee;z-index:1}
+.mysouq-map-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.mysouq-map-actions button{border:0;border-radius:10px;padding:11px 14px;min-height:42px;background:#b9343c;color:#fff;font-weight:800;cursor:pointer}
+.mysouq-map-actions #mysouqClearMapBtn{background:#6e6266}
+#mysouqMapStatus{margin-top:8px;font-size:12px;line-height:1.7;color:#64545b;overflow-wrap:anywhere}
+@media(max-width:520px){#mysouqDeliveryMap{height:260px}.mysouq-map-actions button{flex:1}}
+</style>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script id="mysouq-delivery-map-script">
+(function(){
+  var mapEl=document.getElementById('mysouqDeliveryMap');
+  if(!mapEl || typeof L==='undefined'){return;}
+  var map=L.map(mapEl,{scrollWheelZoom:false}).setView([26.8206,30.8025],6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+  var marker=null, latInput=document.getElementById('mysouqLatitude'), lonInput=document.getElementById('mysouqLongitude'), status=document.getElementById('mysouqMapStatus');
+  function setLocation(lat,lon,source){
+    lat=Number(lat);lon=Number(lon);if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat < -90||lat > 90||lon < -180||lon > 180)return;
+    latInput.value=lat.toFixed(6);lonInput.value=lon.toFixed(6);
+    if(marker){marker.setLatLng([lat,lon]);}else{marker=L.marker([lat,lon],{draggable:true}).addTo(map);marker.on('dragend',function(){var p=marker.getLatLng();setLocation(p.lat,p.lng,'تم تعديل الموقع يدويًا');});}
+    map.setView([lat,lon],16);status.textContent=source+': '+lat.toFixed(6)+', '+lon.toFixed(6)+' — سيتم إرفاق الإحداثيات بالعنوان عند إرسال الطلب.';
+    var detail=document.getElementById('custDetailedAddress');if(detail && typeof window.checkFormCompletion==='function')window.checkFormCompletion();
+  }
+  map.on('click',function(e){setLocation(e.latlng.lat,e.latlng.lng,'تم تحديد الموقع على الخريطة');});
+  document.getElementById('mysouqLocateMeBtn').addEventListener('click',function(){
+    if(!navigator.geolocation){status.textContent='المتصفح لا يدعم تحديد الموقع. اضغط على الخريطة لتحديده يدويًا.';return;}
+    status.textContent='جارٍ تحديد موقعك… اسمح للمتصفح بالوصول إلى الموقع إذا طُلب منك ذلك.';
+    navigator.geolocation.getCurrentPosition(function(pos){setLocation(pos.coords.latitude,pos.coords.longitude,'تم تحديد موقعك عبر GPS');},function(err){var msg=err.code===1?'لم تسمح بالوصول للموقع. يمكنك اختيار المكان يدويًا على الخريطة.':err.code===2?'تعذر تحديد الموقع الحالي. جرّب تشغيل GPS أو اختر المكان يدويًا.':'انتهت مهلة تحديد الموقع. جرّب مرة أخرى أو اختر المكان يدويًا.';status.textContent=msg;},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+  });
+  document.getElementById('mysouqClearMapBtn').addEventListener('click',function(){if(marker){map.removeLayer(marker);marker=null;}latInput.value='';lonInput.value='';status.textContent='تم مسح الموقع. يمكنك اختيار مكان على الخريطة أو استخدام GPS.';});
+  // Include coordinates in the existing address field so current order-save/admin display flows retain them.
+  var form=document.getElementById('customerFormBox');
+  if(form){form.addEventListener('submit',function(){appendCoordinates();},true);}
+  function appendCoordinates(){
+    var lat=latInput.value,lon=lonInput.value,detail=document.getElementById('custDetailedAddress');if(!detail||!lat||!lon)return;
+    var base=detail.value.replace(/\n?\n?\[موقع التوصيل GPS:.*?\]/g,'').trim();
+    var line='[موقع التوصيل GPS: '+lat+', '+lon+']';if(base.indexOf(line)===-1)detail.value=(base?base+'\n':'')+line;
+  }
+  // Existing checkout may call finalizeOrder directly rather than submit the form.
+  if(typeof window.finalizeOrder==='function'){var originalFinalize=window.finalizeOrder;window.finalizeOrder=async function(){appendCoordinates();return originalFinalize.apply(this,arguments);};}
+  setTimeout(function(){map.invalidateSize();},350);
+  window.addEventListener('resize',function(){map.invalidateSize();});
+})();
+</script>
+
 </body>
 </html>
 
