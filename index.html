@@ -5038,6 +5038,20 @@ body:has(.zoom-overlay.active) .back-to-top {
       resultBox.style.display = 'block';
       resultBox.innerHTML = '<div style="text-align:center;padding:14px;font-weight:800;color:var(--text-muted);">جاري البحث...</div>';
 
+      // Privacy-first cancellation lookup: if a cancellation receipt exists, show ONLY the confirmation sentence.
+      // Do this before looking up orders so no old order/customer/product data can leak.
+      try {
+        if (typeof db !== 'undefined' && db) {
+          var cancelledReceipt = await db.collection('cancelledOrders').doc(searchId).get();
+          if (cancelledReceipt.exists) {
+            resultBox.innerHTML = '<div class="mysouq-cancelled-receipt" role="status" style="text-align:center;padding:28px 18px;border-radius:18px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.65);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 12px 32px rgba(40,20,30,.10);color:#8b3f52;font-weight:900;font-size:18px;line-height:1.9;">تم إلغاء الطلب بناءً على طلبكم. شكرًا لاستخدامكم My Souq</div>';
+            return;
+          }
+        }
+      } catch (cancelLookupError) {
+        console.warn('Cancelled-order receipt lookup failed', cancelLookupError);
+      }
+
       var foundOrder = await findOrderFlexible(searchId);
 
       if (foundOrder) {
@@ -5107,16 +5121,6 @@ body:has(.zoom-overlay.active) .back-to-top {
           adminControls;
 
       } else {
-        // If the full order was permanently removed, retain only a minimal cancellation receipt.
-        try {
-          if (typeof db !== 'undefined' && db) {
-            var cancelledSnap = await db.collection('cancelledOrders').doc(searchId).get();
-            if (cancelledSnap.exists && (cancelledSnap.data() || {}).orderId === searchId) {
-              resultBox.innerHTML = '<div class="mysouq-cancelled-receipt"><div class="mysouq-cancelled-icon">✓</div><h3>تم إلغاء الطلب بناءً على طلبكم</h3><p>شكرًا لاستخدامكم <strong>My Souq</strong></p><small>رقم الطلب: ' + escapeHtml(searchId) + '</small></div>';
-              return;
-            }
-          }
-        } catch (cancelLookupError) { console.warn('Cancelled-order receipt lookup failed', cancelLookupError); }
         resultBox.innerHTML =
           '<div style="font-weight:900;color:#c62828;font-size:14px;">❌ عذراً، لم يتم العثور على أي طلب بهذا الرقم</div>' +
           '<div style="font-size:12px;margin-top:6px;color:var(--text-muted);line-height:1.55;">' +
@@ -6873,10 +6877,17 @@ html body #productModal .share-btn{order:4!important;}
     let orderDeleted=false;
     try{
       // Write the minimal customer-facing receipt first so a successful deletion remains explainable.
-      await markerRef.set({orderId:id,status:'cancelled',message:'تم إلغاء الطلب بناءً على طلبكم',cancelledAt:firebase.firestore.FieldValue.serverTimestamp()});
-      await window.deleteOrderFromCloud(id);
-      orderDeleted=true;
-      // Remove all cancellation request documents tied to this order; keep no customer name/phone in the receipt.
+      await markerRef.set({status:'cancelled',cancelledAt:firebase.firestore.FieldValue.serverTimestamp()});
+      // Delete the order if it still exists. Older/partially processed cancellations may already have removed it.
+      try {
+        await window.deleteOrderFromCloud(id);
+        orderDeleted=true;
+      } catch (deleteError) {
+        if (!/لم يتم العثور على الطلب داخل مجموعة orders/i.test(String(deleteError && deleteError.message || ''))) throw deleteError;
+        // The order is already absent; continue cleaning the stale cancellation request.
+        orderDeleted=true;
+      }
+      // Remove all cancellation request documents tied to this order; receipt contains no customer details.
       const reqSnap=await db.collection('cancellationRequests').where('orderId','==',id).get();
       if(!reqSnap.empty){let batch=db.batch();let count=0;for(const d of reqSnap.docs){batch.delete(d.ref);count++;if(count===450){await batch.commit();batch=db.batch();count=0;}}if(count)await batch.commit();}
       // Clear in-memory/local order copies so the deleted order disappears from the admin UI too.
