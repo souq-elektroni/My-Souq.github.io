@@ -1662,9 +1662,62 @@
       }
     }
 
-    .success-modal .success-title { font-size: clamp(20px, 3vw, 27px); line-height: 1.7; }
-    .success-modal .success-message { font-size: 15px; line-height: 2; color: var(--text-muted); margin: 12px 0; text-align: right; }
-    .success-modal .success-policy { background: var(--pink-soft, #fff4f6); border: 1px solid var(--burgundy-soft, #8b3f52); border-radius: 14px; padding: 13px 15px; margin: 14px 0; text-align: right; line-height: 1.9; font-size: 14px; }
+    .success-modal .success-title { font-size: clamp(24px, 3.4vw, 32px); line-height: 1.55; margin: 8px 0 14px; }
+    .success-modal .success-message { font-size: clamp(16px, 1.8vw, 19px); line-height: 2; color: var(--text-muted); margin: 15px 0; text-align: right; }
+    .success-modal .success-policy { background: var(--pink-soft, #fff4f6); border: 1px solid var(--burgundy-soft, #8b3f52); border-radius: 16px; padding: 17px 18px; margin: 18px 0; text-align: right; line-height: 2; font-size: clamp(15px, 1.7vw, 17px); }
+    .success-modal #successOrderIdDisplay { font-size: clamp(19px, 2.4vw, 25px) !important; padding: 17px 12px !important; letter-spacing: .3px; }
+    .success-modal .success-btn { width: 100%; min-height: 54px; font-size: 17px; border-radius: 14px; margin-top: 8px; }
+    @media (max-width: 520px) {
+      .success-modal { width: calc(100vw - 20px); max-height: 90vh; padding: 22px 16px; border-radius: 20px; }
+      .success-modal .success-title { font-size: 24px; }
+      .success-modal .success-message { font-size: 16px; text-align: right; }
+      .success-modal .success-policy { font-size: 15px; padding: 14px; }
+      .success-modal .success-icon { font-size: 48px; }
+    }
+
+    /* My Souq: clearer, consistent order confirmation on desktop and mobile */
+    .success-modal {
+      background: var(--card-bg, #fff) !important;
+      border: 1px solid rgba(139,63,82,.22) !important;
+      box-shadow: 0 24px 70px rgba(30,15,22,.28) !important;
+    }
+    .success-modal .success-title {
+      font-size: clamp(25px, 4vw, 34px) !important;
+      font-weight: 900 !important;
+      line-height: 1.5 !important;
+      text-align: center !important;
+    }
+    .success-modal .success-message {
+      font-size: clamp(17px, 2vw, 20px) !important;
+      line-height: 2 !important;
+    }
+    .success-modal #successOrderIdDisplay {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      font-size: clamp(20px, 3vw, 27px) !important;
+      line-height: 1.7 !important;
+      font-weight: 900 !important;
+      text-align: center;
+      overflow-wrap: anywhere;
+    }
+    .success-modal .success-btn {
+      min-height: 56px !important;
+      font-size: clamp(17px, 2vw, 20px) !important;
+      font-weight: 900 !important;
+    }
+    .success-modal .success-policy {
+      font-size: clamp(16px, 1.8vw, 18px) !important;
+      line-height: 2 !important;
+    }
+    @media (max-width: 520px) {
+      .success-modal { width: calc(100vw - 20px); max-height: 90vh; padding: 22px 16px; border-radius: 20px; }
+      .success-modal .success-title { font-size: 25px !important; }
+      .success-modal .success-message { font-size: 17px !important; text-align: right; }
+      .success-modal .success-policy { font-size: 16px !important; padding: 14px; }
+      .success-modal .success-icon { font-size: 48px; }
+      .success-modal .success-btn { min-height: 54px !important; }
+    }
 
     .success-icon {
       font-size: 40px;
@@ -4339,14 +4392,13 @@ body:has(.zoom-overlay.active) .back-to-top {
 
       </div>
 
-      <div
-        class="checkbox-container"
-        onclick="toggleTermsCheckbox()"
-      >
+      <div class="checkbox-container">
 
         <input
           type="checkbox"
           id="termsCheckbox"
+          required
+          autocomplete="off"
           onchange="handleCheckboxChange(event)"
         >
 
@@ -4587,6 +4639,23 @@ body:has(.zoom-overlay.active) .back-to-top {
     </div>
   </div>
 
+  <script id="mysouq-terms-default-unchecked">
+    (function () {
+      function resetTermsConsent() {
+        var checkbox = document.getElementById('termsCheckbox');
+        var agreeButton = document.getElementById('agreeBtn');
+        if (checkbox) checkbox.checked = false;
+        if (agreeButton) agreeButton.classList.remove('active');
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', resetTermsConsent, { once: true });
+      } else {
+        resetTermsConsent();
+      }
+      window.addEventListener('pageshow', resetTermsConsent);
+    })();
+  </script>
+
   <!-- Success Modal -->
   <div class="modal-overlay" id="successModal">
     <div class="modal-content success-modal">
@@ -4793,7 +4862,7 @@ body:has(.zoom-overlay.active) .back-to-top {
             extra_piece: activeVariant.extra_piece || ''
           });
         }
-        localStorage.setItem('souqCart', JSON.stringify(cart));
+        // Cart is kept in memory only; do not persist order/cart contents.
         updateCartCount();
         closeModal();
         showToast('✓ تم إضافة المنتج إلى السلة بنجاح', false);
