@@ -158,20 +158,8 @@ let products = [];
   let discountRate = 0;
   let generatedOrderId = '';
 
-  /* ========== إشعار واتساب لصاحب المتجر (بدون تحويل العميل) ==========
-     العميل يضغط «تأكيد الطلب» فقط — الطلب يُحفظ + رسالة توصلك على واتساب مباشرة.
-     طريقة التفعيل مرة واحدة (مجاني عبر CallMeBot):
-     1) من رقم واتساب المتجر (01116339905) ابعت رسالة للرقم: +34 644 66 64 35
-        النص: I allow callmebot to send me messages
-     2) البوت هيرجّع لك apikey
-     3) حط المفتاح تحت في callMeBotApiKey
-     بديل اختياري: webhookUrl (Make.com / n8n / Google Apps Script)
-  ================================================================ */
-  const STORE_WHATSAPP_NOTIFY = {
-    phone: '201116339905',          // رقم المتجر دولي بدون +
-    callMeBotApiKey: '8982146',            // مفتاح CallMeBot
-    webhookUrl: ''                  // ← اختياري
-  };
+  /* إشعار طلبات My Souq عبر Telegram Worker؛ لا تضع Bot Token داخل هذا الملف. */
+  const TELEGRAM_ORDER_WORKER_URL = 'https://my-souq-telegram.ahmedaly1g.workers.dev/';
 
   const GITHUB_USER = 'souq-elektroni';
 
@@ -2457,122 +2445,29 @@ function continueAfterOrderRecaptcha() {
 
 
 
-  /** إرسال إشعار الطلب لصاحب المتجر بدون فتح واتساب عند العميل */
-  async function notifyOwnerNewOrder(message, orderMeta) {
-    var cfg = STORE_WHATSAPP_NOTIFY || {};
-    var phone = String(cfg.phone || '201116339905').replace(/\D/g, '');
-    var key = String(cfg.callMeBotApiKey || '').trim();
-    var webhook = String(cfg.webhookUrl || '').trim();
-    var sent = false;
-
-    // رسالة مركّزة + روابط الصور (الأهم لصاحب المتجر)
-    var meta = orderMeta || {};
-    var shortMsg =
-      '🛒 طلب جديد My Souq\n' +
-      '🆔 ' + (meta.orderId || '-') + '\n' +
-      '👤 ' + (meta.name || '-') + '\n' +
-      '📱 ' + (meta.phone || '-') + '\n' +
-      '📍 ' + String(meta.address || '-').slice(0, 100) + '\n' +
-      '💳 ' + (meta.payMethod || '-') + '\n' +
-      '💰 ' + (meta.total || '-') + '\n' +
-      '📦 المنتجات + روابط الصور:\n' +
-      (meta.itemsSummary || '-') + '\n' +
-      '⏰ ' + new Date().toLocaleString('ar-EG');
-
-    // نفضّل الرسالة القصيرة اللي فيها روابط الصور
-    var textToSend = shortMsg;
-    // لو الرسالة الأصلية فيها صور وأقصر من الحد، يمكن استخدامها
-    if (message && String(message).length > 0 && String(message).length < 1200 && /https?:\/\//i.test(String(message))) {
-      textToSend = String(message);
+  /** إرسال بيانات الطلب المحفوظ إلى Telegram عبر Cloudflare Worker. */
+  async function notifyOwnerNewOrderTelegram(orderMeta) {
+    const meta = orderMeta || {};
+    const response = await fetch(TELEGRAM_ORDER_WORKER_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId: meta.orderId,
+        name: meta.name,
+        phone: meta.phone,
+        address: meta.address,
+        paymentMethod: meta.payMethod,
+        total: meta.total,
+        items: Array.isArray(meta.items) ? meta.items : []
+      })
+    });
+    if (!response.ok) {
+      const detail = await response.text().catch(() => '');
+      throw new Error('Telegram Worker HTTP ' + response.status + (detail ? ': ' + detail.slice(0, 180) : ''));
     }
-
-    function sendViaImage(url) {
-      return new Promise(function (resolve) {
-        try {
-          var img = new Image();
-          var done = false;
-          var finish = function () {
-            if (done) return;
-            done = true;
-            resolve(true);
-          };
-          img.onload = finish;
-          img.onerror = finish;
-          img.src = url;
-          setTimeout(finish, 4000);
-        } catch (e) {
-          resolve(false);
-        }
-      });
-    }
-
-    async function sendCallMeBot(text) {
-      if (!key || !phone) return false;
-      var phones = [phone, '+' + phone];
-      for (var i = 0; i < phones.length; i++) {
-        var cmUrl =
-          'https://api.callmebot.com/whatsapp.php?phone=' +
-          encodeURIComponent(phones[i]) +
-          '&text=' +
-          encodeURIComponent(text) +
-          '&apikey=' +
-          encodeURIComponent(key);
-        // تجنب الروابط الأطول من حد المتصفح
-        if (cmUrl.length > 2000) {
-          // حافظ على أول منتج + رابطه قدر الإمكان
-          text = text.slice(0, 900);
-          cmUrl =
-            'https://api.callmebot.com/whatsapp.php?phone=' +
-            encodeURIComponent(phones[i]) +
-            '&text=' +
-            encodeURIComponent(text) +
-            '&apikey=' +
-            encodeURIComponent(key);
-        }
-        try {
-          await sendViaImage(cmUrl);
-        } catch (e0) {}
-        try {
-          await fetch(cmUrl, { method: 'GET', mode: 'no-cors', cache: 'no-store' });
-        } catch (e1) {}
-      }
-      return true;
-    }
-
-    if (key && phone) {
-      try {
-        sent = await sendCallMeBot(textToSend);
-        console.log('CallMeBot notify attempted', { phone: phone, len: textToSend.length, sent: sent });
-      } catch (e) {
-        console.warn('CallMeBot failed:', e);
-      }
-    } else {
-      console.warn('إشعار واتساب غير مفعّل: callMeBotApiKey فاضي');
-    }
-
-    if (webhook) {
-      try {
-        await fetch(webhook, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({
-            source: 'MySouq',
-            type: 'new_order',
-            message: textToSend,
-            fullMessage: message || '',
-            meta: meta,
-            phone: phone,
-            at: Date.now()
-          })
-        });
-        sent = true;
-      } catch (e2) {
-        console.warn('Webhook failed:', e2);
-      }
-    }
-
-    return sent;
+    const result = await response.json();
+    if (!result || result.ok !== true) throw new Error('Telegram Worker did not confirm delivery');
+    return true;
   }
 
     async function finalizeOrder() {
@@ -2645,37 +2540,37 @@ function continueAfterOrderRecaptcha() {
           return;
         }
 
-        let msg = `🛒 طلب جديد من متجر My Souq\n\n`;
-        msg += `🆔 رقم الطلب: ${generatedOrderId}\n`;
-        msg += `بيانات العميل:\n`;
-        msg += `• الاسم: ${name}\n`;
-        msg += `• رقم التواصل: ${phone}\n`;
-        msg += `• العنوان: ${address}\n`;
-        msg += `• طريقة الدفع: ${payMethod}\n\n`;
-        msg += `المنتجات المطلوبة:\n${itemsText}\n\n`;
-        msg += `الإجمالي الكلي: ${totalText}\n\n`;
-        msg += `إقرار العميل: أقر بأني اطلعت ووافقت على الشروط والأحكام (تأكيد المقاسات، عدم الإلغاء فور الحجز، والاسترجاع لعيوب التصنيع فقط).`;
-
+        // إرسال إشعار تيليجرام بعد تأكيد نجاح حفظ الطلب في Firebase.
+        // فشل الإشعار لا يلغي الطلب المحفوظ ولا يمنع ظهور شاشة النجاح للعميل.
         try {
-          const itemsSummary = cart.map(function (i, idx) {
-            var line = (idx + 1) + ') ' + (i.title || '') +
-              ' | مقاس: ' + (i.size || '-') +
-              ' ×' + (i.qty || 1) +
-              ' | ' + (i.price || '') + ' ج.م';
-            if (i.image) line += '\n🖼️ ' + i.image;
-            return line;
-          }).join('\n');
-          await notifyOwnerNewOrder(msg, {
+          const telegramItems = cart.map(function (item) {
+            let imageUrl = item.image || '';
+            if (!imageUrl && Array.isArray(products) && item.id != null) {
+              const product = products.find(function (p) { return String(p.id) === String(item.id); });
+              if (product && Array.isArray(product.images) && product.images[0]) imageUrl = product.images[0];
+            }
+            return {
+              name: item.title || 'منتج',
+              quantity: item.qty || 1,
+              price: item.price == null ? '-' : item.price,
+              size: item.size || '-',
+              color: item.color || '',
+              image: imageUrl,
+              url: item.url || ''
+            };
+          });
+          await notifyOwnerNewOrderTelegram({
             orderId: generatedOrderId,
             name: name,
             phone: phone,
             address: address,
             payMethod: payMethod,
             total: totalText,
-            itemsSummary: itemsSummary
+            items: telegramItems
           });
+          console.info('Telegram order notification delivered:', generatedOrderId);
         } catch (notifyErr) {
-          console.warn('تعذر إرسال إشعار واتساب (الطلب محفوظ):', notifyErr);
+          console.error('تعذر إرسال إشعار تيليجرام؛ الطلب محفوظ بالفعل:', notifyErr);
         }
 
         const confirmationModal = document.getElementById('confirmationModal');
