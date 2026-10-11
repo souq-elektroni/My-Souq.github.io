@@ -8068,3 +8068,146 @@ html body #productModal .size-selector{
 }
 </style>
 
+<style id="mysouq-cart-size-and-proceed-v1">
+/* Desktop: calmer cart width — not oversized */
+@media (min-width: 768px){
+  #cartModal .modal-content.cart-modal{
+    width: min(720px, calc(100vw - 48px)) !important;
+    max-width: 720px !important;
+    max-height: min(88vh, 860px) !important;
+  }
+  #cartModal #mysouqDeliveryMap{
+    height: 240px !important;
+    min-height: 200px !important;
+  }
+}
+@media (min-width: 900px){
+  #cartModal .modal-content.cart-modal{
+    width: min(760px, calc(100vw - 64px)) !important;
+    max-width: 760px !important;
+  }
+}
+
+/* Footer always pinned so proceed is visible after scroll */
+#cartModal .cart-footer{
+  position: sticky !important;
+  bottom: 0 !important;
+  z-index: 30 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Show proceed when our helper marks form ready */
+#cartModal .proceed-btn.is-ready,
+#cartModal #proceedBtn.is-ready{
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+</style>
+
+<script id="mysouq-proceed-btn-visibility-v1">
+(function(){
+  function val(id){
+    var el=document.getElementById(id);
+    return el ? String(el.value||'').trim() : '';
+  }
+  function phoneOk(p){
+    var d=String(p||'').replace(/\D/g,'');
+    // Egyptian mobile: 01xxxxxxxxx (11 digits) or 201xxxxxxxxx
+    if(d.indexOf('20')===0) d=d.slice(2);
+    if(d.length===10 && d.charAt(0)==='1') d='0'+d;
+    return /^01[0125][0-9]{8}$/.test(d);
+  }
+  function formReady(){
+    var name=val('custName');
+    var phone=val('custPhone');
+    var gov=val('custGovernorate');
+    var city=val('custCity');
+    var detail=val('custDetailedAddress');
+    // الاسم رباعي — نفس شرط النموذج الأصلي (4 أجزاء على الأقل)
+    var nameParts=name.split(/\s+/).filter(Boolean);
+    if(nameParts.length<4) return false;
+    if(!phoneOk(phone)) return false;
+    if(!gov || !city) return false;
+    if(!detail) return false;
+    try{
+      if(typeof window.mysouqAddressIsValid==='function' && !window.mysouqAddressIsValid()) return false;
+    }catch(e){}
+    return true;
+  }
+  function syncProceed(){
+    var btn=document.getElementById('proceedBtn');
+    if(!btn) return;
+    if(!btn.closest || !btn.closest('#cartModal')) return;
+    // 1) شغّل المنطق الأصلي أولاً بدون ما نلغي أي شرط موجود
+    try{
+      if(typeof window.__msqOrigCheckFormCompletion==='function'){
+        window.__msqOrigCheckFormCompletion();
+      }
+    }catch(e){}
+    // 2) لو الزر لسه مخفي رغم اكتمال الحقول الظاهرة، أظهره (إصلاح ظهور فقط — مش تخفيف شروط)
+    var ready=formReady();
+    var computed=window.getComputedStyle ? window.getComputedStyle(btn).display : btn.style.display;
+    if(ready && (btn.style.display==='none' || computed==='none' || !btn.style.display)){
+      btn.classList.add('is-ready');
+      btn.style.display='flex';
+      btn.removeAttribute('disabled');
+    } else if(!ready){
+      btn.classList.remove('is-ready');
+      // لا نجبر الإخفاء لو المنطق الأصلي أظهره لسبب عنده
+    }
+  }
+  function hookOriginal(){
+    if(typeof window.checkFormCompletion==='function' && !window.checkFormCompletion._msqProceedHook){
+      window.__msqOrigCheckFormCompletion=window.checkFormCompletion;
+      window.checkFormCompletion=function(){
+        var r;
+        try{ r=window.__msqOrigCheckFormCompletion.apply(this,arguments); }catch(e){}
+        // بعد المنطق الأصلي: إصلاح ظهور الزر فقط إذا الحقول مكتملة (بما فيها الاسم الرباعي)
+        try{
+          var btn=document.getElementById('proceedBtn');
+          if(btn && btn.closest && btn.closest('#cartModal') && formReady()){
+            var computed=window.getComputedStyle ? window.getComputedStyle(btn).display : '';
+            if(btn.style.display==='none' || computed==='none'){
+              btn.classList.add('is-ready');
+              btn.style.display='flex';
+            }
+          }
+        }catch(e2){}
+        return r;
+      };
+      window.checkFormCompletion._msqProceedHook=true;
+    }
+  }
+  function bindFields(){
+    ['custName','custPhone','custGovernorate','custCity','custDetailedAddress'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el || el._msqProceedBound) return;
+      el._msqProceedBound=true;
+      el.addEventListener('input', syncProceed);
+      el.addEventListener('change', syncProceed);
+      el.addEventListener('blur', syncProceed);
+    });
+  }
+  function boot(){
+    hookOriginal();
+    bindFields();
+    syncProceed();
+  }
+  boot();
+  setTimeout(boot, 400);
+  setTimeout(boot, 1200);
+  setTimeout(boot, 3000);
+  // When cart opens, re-check
+  var cart=document.getElementById('cartModal');
+  if(cart && window.MutationObserver){
+    new MutationObserver(function(){
+      if(cart.classList.contains('active')){
+        setTimeout(function(){ bindFields(); syncProceed(); }, 80);
+        setTimeout(syncProceed, 300);
+      }
+    }).observe(cart,{attributes:true,attributeFilter:['class']});
+  }
+})();
+</script>
+
