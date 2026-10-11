@@ -6777,10 +6777,8 @@ html body #productModal .share-btn{order:4!important;}
 (function(){
   const esc = (v) => String(v == null ? '' : v).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
   function statusCode(order){ return typeof order.statusCode === 'number' ? order.statusCode : 0; }
-  async function hasPendingRequest(orderId){
-    if(!window.db && typeof db === 'undefined') return false;
-    try { const ref = (typeof db !== 'undefined' ? db : window.db); const snap = await ref.collection('cancellationRequests').where('orderId','==',orderId).where('status','==','pending').limit(1).get(); return !snap.empty; } catch(e) { console.warn('Could not check cancellation request status'); return false; }
-  }
+  // Customer-side reads of the cancellationRequests collection are intentionally
+  // avoided: it contains customer contact details and is admin-readable only.
   window.requestOrderCancellation = async function(orderId){
     const id = String(orderId || '').trim();
     const input = document.getElementById('trackInputId');
@@ -6791,8 +6789,6 @@ html body #productModal .share-btn{order:4!important;}
     if(!order){ alert('تعذر التأكد من بيانات الطلب. أعد البحث برقم الطلب وحاول مرة أخرى.'); return; }
     if(statusCode(order) !== 0){ alert('طلب الإلغاء متاح فقط والطلب في مرحلة «تحت التنفيذ». بعد انتقاله إلى أي مرحلة تالية لا يمكن تقديم طلب إلغاء من هنا.'); return; }
     if(typeof firebaseReady !== 'undefined' && !firebaseReady || typeof db === 'undefined' || !db){ alert('خدمة الطلبات غير متاحة حاليًا. حاول مرة أخرى بعد قليل.'); return; }
-    const already = await hasPendingRequest(id);
-    if(already){ alert('تم استلام طلب إلغاء لهذا الطلب بالفعل، والإدارة ستراجعه.'); if(input) input.value=id; return; }
     const ok = confirm('هل تريد إرسال طلب إلغاء للطلب ' + id + '؟\n\nسيصل طلبك إلى إدارة My Souq للمراجعة. لن يُحذف الطلب تلقائيًا.');
     if(!ok) return;
     const buttons = document.querySelectorAll('[data-cancel-request-order="'+CSS.escape(id)+'"]');
@@ -6824,8 +6820,6 @@ html body #productModal .share-btn{order:4!important;}
     panel.innerHTML='<div class="cancel-request-title">🔴 طلب إلغاء الطلب</div><div class="cancel-request-desc">يمكنك إرسال طلب للإدارة لإلغاء الطلب أثناء مرحلة «تحت التنفيذ» فقط. إرسال الطلب لا يعني إلغاءه تلقائيًا.</div><button type="button" class="cancel-request-btn" data-cancel-request-order="'+esc(renderedId)+'" '+(!statusCodeKnown?'disabled':'')+'>'+(!statusCodeKnown?'🔒 الإلغاء غير متاح بعد انتقال الطلب':'🔴 طلب إلغاء')+'</button><div class="cancel-request-note" style="color:'+(statusCodeKnown?'#9f1d2d':'#76696b')+'">'+(statusCodeKnown?'سيصل طلبك إلى لوحة الإدارة لمراجعته.':'هذا الزر متوقف لأن الطلب تجاوز مرحلة تحت التنفيذ.')+'</div>';
     box.appendChild(panel);
     const btn=panel.querySelector('button'); btn.addEventListener('click',()=>window.requestOrderCancellation(renderedId));
-    // If this is an existing pending request, reflect it in the UI.
-    hasPendingRequest(renderedId).then(pending=>{ if(pending){btn.disabled=true;btn.textContent='تم إرسال طلب الإلغاء بالفعل';const n=panel.querySelector('.cancel-request-note');n.style.color='#237445';n.textContent='طلب الإلغاء قيد مراجعة الإدارة.';} });
   }
   function installAdminRequestsPanel(){
     const modal=document.getElementById('adminOrdersModal'); const logout=document.getElementById('adminLogoutBtn'); if(!modal||!logout||document.getElementById('cancelRequestsAdminPanel')) return;
