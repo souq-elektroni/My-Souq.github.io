@@ -3876,6 +3876,83 @@ body:has(.zoom-overlay.active) .back-to-top {
     }
   </style>
 
+\n<style id="mysouq-glass-floor-v2">
+:root{
+ --msq-teal:#087f80;--msq-teal-dark:#075e63;--msq-cream:rgba(255,250,243,.72);
+ --msq-glass:rgba(255,255,255,.40);--msq-glass-strong:rgba(255,255,255,.66);
+ --msq-glass-border:rgba(255,255,255,.82);--msq-glass-shadow:0 12px 34px rgba(60,45,30,.12);
+}
+html{scroll-behavior:smooth}
+body{
+ background:#f5eee4 !important;
+ background-image:linear-gradient(rgba(255,250,242,.17),rgba(255,250,242,.17)),url('ردهة-المتجر.png') !important;
+ background-size:cover !important;background-position:center center !important;background-attachment:fixed !important;
+}
+/* Keep the marble and plants visible, with only a gentle focus softness. */
+body::before{content:"";position:fixed;inset:-3px;z-index:-1;pointer-events:none;background:url('ردهة-المتجر.png') center/cover no-repeat;filter:blur(1.1px);opacity:.30}
+body.dark-mode{background-image:linear-gradient(rgba(15,25,26,.60),rgba(15,25,26,.60)),url('ردهة-المتجر.png') !important}
+/* Main banner: same supplied artwork, framed like floating glass. */
+header{
+ width:min(100%,1500px)!important;max-width:1500px!important;min-height:clamp(190px,24vw,370px)!important;
+ margin:10px auto 18px!important;padding:0!important;position:relative;overflow:hidden;
+ display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.82)!important;
+ border-radius:clamp(18px,2.3vw,34px)!important;box-shadow:0 18px 45px rgba(71,52,32,.13)!important;
+ background:rgba(255,255,255,.17) url('بانر-MySouq.png') center/cover no-repeat!important;
+ backdrop-filter:blur(2px) saturate(115%);-webkit-backdrop-filter:blur(2px) saturate(115%);
+}
+header .brand-logo-lockup,header>p{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+header::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,rgba(255,255,255,.02),rgba(255,255,255,.09));border-radius:inherit}
+/* Header actions and controls float independently over the room background. */
+.top-actions{position:relative;z-index:5;display:flex;flex-wrap:wrap;gap:9px;align-items:center;justify-content:center;margin:10px auto 16px!important;padding:10px 14px!important;width:fit-content;max-width:calc(100% - 20px);border-radius:999px!important;background:rgba(255,255,255,.46)!important;border:1px solid rgba(255,255,255,.82)!important;box-shadow:var(--msq-glass-shadow)!important;backdrop-filter:blur(18px) saturate(150%);-webkit-backdrop-filter:blur(18px) saturate(150%)}
+.brand-badge{background:linear-gradient(145deg,rgba(9,135,135,.86),rgba(4,91,98,.84))!important;color:#fff!important;border:1px solid rgba(255,255,255,.72)!important;box-shadow:0 10px 26px rgba(5,105,109,.22)!important;backdrop-filter:blur(14px)}
+.controls-wrapper,.categories-bar,.search-sort-box,.filter-row,.filters,.search-box,.search-input,.sort-select{
+ background:var(--msq-glass)!important;border:1px solid var(--msq-glass-border)!important;
+ box-shadow:var(--msq-glass-shadow)!important;backdrop-filter:blur(18px) saturate(145%)!important;-webkit-backdrop-filter:blur(18px) saturate(145%)!important;
+}
+.controls-wrapper{width:min(100%,1200px)!important;margin:0 auto 18px!important;border-radius:22px!important;padding:12px!important;gap:12px!important}
+button,.cat-btn,.filter-btn,.sort-btn,.theme-swatch,.back-to-top{
+ border-radius:999px!important;transition:transform .2s ease,box-shadow .2s ease,background .2s ease!important;
+}
+button:not(.unstyled):not(.plain-btn){box-shadow:0 6px 18px rgba(23,91,92,.10);}
+.cat-btn,.top-actions button,.controls-wrapper button,.search-sort-box button{
+ background:rgba(255,255,255,.52)!important;color:#155b60!important;border:1px solid rgba(255,255,255,.90)!important;
+ backdrop-filter:blur(14px) saturate(145%)!important;-webkit-backdrop-filter:blur(14px) saturate(145%)!important;
+}
+.cat-btn.active,.cat-btn[aria-pressed="true"],button.primary,button#checkoutBtn,.back-to-top{
+ background:linear-gradient(135deg,rgba(10,139,139,.91),rgba(5,93,101,.91))!important;color:#fff!important;border-color:rgba(255,255,255,.7)!important;
+}
+button:hover,.cat-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(7,105,108,.17)!important}
+input,select,textarea,.search-input{border-radius:16px!important;background:rgba(255,255,255,.66)!important;border-color:rgba(255,255,255,.9)!important}
+.products-grid{gap:clamp(12px,1.6vw,22px)!important}
+.product-card{overflow:hidden;border:1px solid rgba(255,255,255,.82)!important;border-radius:24px!important;background:rgba(255,255,255,.73)!important;box-shadow:0 12px 32px rgba(63,46,31,.12)!important;backdrop-filter:blur(12px) saturate(125%);-webkit-backdrop-filter:blur(12px) saturate(125%)}
+.product-card button{border-radius:999px!important}
+/* Make the mobile layout feel native: floating toolbar, legible banner, comfortable product cards. */
+@media(max-width:767px){
+ body{padding:8px 8px 92px!important;background-attachment:scroll!important}
+ body::before{background-attachment:scroll;opacity:.27}
+ header{min-height:clamp(145px,45vw,235px)!important;margin:6px auto 12px!important;border-radius:20px!important;background-position:center!important;background-size:cover!important}
+ .top-actions{width:calc(100% - 8px);max-width:none;margin:8px auto 12px!important;padding:8px!important;gap:6px!important;border-radius:24px!important}
+ .top-actions>*{min-height:38px!important}
+ .controls-wrapper{padding:9px!important;margin-bottom:12px!important;border-radius:20px!important}
+ .categories-bar{overflow-x:auto!important;scrollbar-width:none;gap:7px!important;padding:7px!important;border-radius:18px!important}
+ .categories-bar::-webkit-scrollbar{display:none}
+ .cat-btn{flex:0 0 auto!important;white-space:nowrap!important;padding:9px 13px!important;min-height:40px!important}
+ .search-sort-box{gap:7px!important;border-radius:18px!important;padding:8px!important}
+ .products-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+ .product-card{border-radius:18px!important}
+ .product-card img{object-fit:cover}
+ .product-card button{min-height:38px!important;padding:8px!important}
+}
+@media(max-width:390px){
+ header{min-height:132px!important}
+ .products-grid{gap:8px!important}
+ .product-card{border-radius:15px!important}
+ .cat-btn{padding:8px 10px!important;font-size:12px!important}
+ .top-actions{gap:5px!important}
+}
+body.dark-mode .controls-wrapper,body.dark-mode .categories-bar,body.dark-mode .search-sort-box,body.dark-mode .product-card{background:rgba(22,34,35,.70)!important;border-color:rgba(255,255,255,.19)!important}
+body.dark-mode .cat-btn,body.dark-mode .top-actions button,body.dark-mode .controls-wrapper button{background:rgba(255,255,255,.10)!important;color:#e9ffff!important;border-color:rgba(255,255,255,.18)!important}
+</style>
 </head>
 
 <body>
@@ -8573,82 +8650,5 @@ body.dark-mode #adminOrdersModal .order-card-admin{
     padding: 22px 24px 26px !important;
   }
 }
-</style>
-
-<!-- My Souq: warm marble floor + glass banner + teal controls -->
-<style id="my-souq-marble-glass-redesign">
-:root{
- --msq-primary:#006d70; --msq-primary-2:#07969a; --msq-line:rgba(0,91,96,.17);
- --msq-glass:rgba(255,255,255,.60); --msq-glass-border:rgba(255,255,255,.78);
- --msq-glass-shadow:rgba(55,43,29,.14); --msq-ink:#183b43; --msq-muted:#5d7375;
-}
-html{background:#f4eee5}
-body{
- background:linear-gradient(180deg,rgba(255,250,243,.70),rgba(248,242,233,.78)),url('ردهة عصرية مضيئة بالنباتات والإطلالات.png') center center / cover fixed no-repeat!important;
- color:#183b43!important;
-}
-body.dark-mode{
- background:linear-gradient(180deg,rgba(20,28,29,.76),rgba(20,25,26,.82)),url('ردهة عصرية مضيئة بالنباتات والإطلالات.png') center center / cover fixed no-repeat!important;
-}
-/* Banner artwork already contains the My Souq brand and Arabic copy. */
-header{
- width:min(1600px,calc(100% - 28px))!important; max-width:1600px!important;
- min-height:clamp(190px,30vw,430px)!important; height:auto!important;
- margin:100px auto 24px!important; padding:0!important; border-radius:30px!important;
- overflow:hidden!important; isolation:isolate!important; background:transparent!important;
-}
-header::before{
- content:""; position:absolute!important; inset:0!important; z-index:-1!important;
- background:linear-gradient(115deg,rgba(255,255,255,.16),rgba(255,255,255,.02)),url('لافتة أزياء أطفال عصرية بتصميم عربي.png') center / cover no-repeat!important;
- border:1px solid rgba(255,255,255,.82)!important; border-radius:30px!important;
- box-shadow:0 24px 70px rgba(63,51,36,.18),inset 0 1px 0 rgba(255,255,255,.9)!important;
- backdrop-filter:blur(16px) saturate(1.2)!important;-webkit-backdrop-filter:blur(16px) saturate(1.2)!important;
-}
-header::after{content:none!important}
-header .brand-logo-lockup,header>p{display:none!important}
-.brand-badge{
- background:linear-gradient(145deg,#006b70,#0c999b)!important;color:#fff!important;
- border:1px solid rgba(255,255,255,.7)!important;box-shadow:0 12px 30px rgba(0,100,105,.24),inset 0 1px 0 rgba(255,255,255,.48)!important;
-}
-.top-actions,.controls-wrapper,.search-sort-box,.product-card,.modal-content,.floating-qr-container,
-#adminOrdersModal .modal-content,#adminOrderDetailsModal .modal-content{
- background:rgba(255,255,255,.68)!important;border:1px solid rgba(255,255,255,.82)!important;
- box-shadow:0 14px 42px rgba(66,53,37,.11),inset 0 1px 0 rgba(255,255,255,.88)!important;
- backdrop-filter:blur(22px) saturate(1.35)!important;-webkit-backdrop-filter:blur(22px) saturate(1.35)!important;
-}
-body.dark-mode .top-actions,body.dark-mode .controls-wrapper,body.dark-mode .search-sort-box,
-body.dark-mode .product-card,body.dark-mode .modal-content,body.dark-mode .floating-qr-container{
- background:rgba(25,31,32,.78)!important;border-color:rgba(255,255,255,.12)!important;
-}
-button,.cat-btn,.size-btn,.add-cart-btn,.direct-wa-btn,.share-btn,.proceed-btn,.btn-agree,
-.copy-instapay-btn,.send-final-btn,.success-btn,.promo-btn,.admin-orders-trigger,.track-trigger,.cart-trigger,
-.theme-toggle,.qr-toggle-fab,.back-to-top{
- border-radius:999px!important;transition:transform .22s ease,box-shadow .22s ease,background .22s ease!important;
-}
-.cat-btn.active,.cat-btn:hover,.size-btn.active,.size-btn:hover,.add-cart-btn,.direct-wa-btn,
-.proceed-btn,.btn-agree.active,.copy-instapay-btn,.send-final-btn,.success-btn,.promo-btn,
-.qr-toggle-fab,.back-to-top,#toastNotification{
- background:linear-gradient(135deg,#006d70,#078f93)!important;color:#fff!important;border-color:rgba(255,255,255,.58)!important;
- box-shadow:0 8px 22px rgba(0,109,112,.20),inset 0 1px 0 rgba(255,255,255,.25)!important;
-}
-button:hover,.cat-btn:hover,.add-cart-btn:hover,.proceed-btn:hover{transform:translateY(-2px)}
-.cat-btn,.size-btn,.theme-toggle,.admin-orders-trigger,.track-trigger,.cart-trigger{
- background:rgba(255,255,255,.64)!important;color:#14545a!important;border:1px solid rgba(0,109,112,.15)!important;
-}
-body.dark-mode .cat-btn,body.dark-mode .size-btn,body.dark-mode .theme-toggle,
-body.dark-mode .admin-orders-trigger,body.dark-mode .track-trigger,body.dark-mode .cart-trigger{
- background:rgba(30,45,46,.78)!important;color:#e8ffff!important;
-}
-.product-card{border-radius:24px!important;overflow:hidden}
-.product-card:hover{transform:translateY(-4px);box-shadow:0 20px 48px rgba(55,75,67,.16)!important}
-input,select,textarea{border-radius:16px!important;border-color:rgba(0,109,112,.18)!important}
-input:focus,select:focus,textarea:focus{outline:2px solid rgba(0,137,141,.16)!important;border-color:#078f93!important}
-footer{background:rgba(255,255,255,.48);border-radius:24px;backdrop-filter:blur(12px)}
-@media(max-width:767px){
- header{width:calc(100% - 16px)!important;margin:82px auto 16px!important;min-height:clamp(150px,43vw,260px)!important;border-radius:20px!important}
- header::before{border-radius:20px!important;background-position:center!important}
- .controls-wrapper{width:calc(100% - 16px)!important}
-}
-@media(max-width:420px){header{min-height:145px!important;margin-top:76px!important}}
 </style>
 
