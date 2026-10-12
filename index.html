@@ -7316,6 +7316,153 @@ header p{max-width:54%!important}
 
 </style>
 
+
+<!-- My Souq glass background / banner correction v5 (CSS only; all existing markup and scripts preserved) -->
+<style id="mysouq-glass-banner-path-fix-v5">
+  html, body { min-height:100%; }
+  body {
+    background: #eee5d8 !important;
+    background-attachment: fixed !important;
+    isolation: isolate;
+  }
+  body::before {
+    content:"";
+    position:fixed;
+    inset:-8px;
+    z-index:-1;
+    pointer-events:none;
+    background:
+      linear-gradient(135deg, rgba(245,238,226,.22), rgba(248,242,233,.16)),
+      url("assets/store-room.png") center center / cover no-repeat;
+    filter: blur(1.35px) saturate(.92);
+    transform: scale(1.015);
+  }
+  body.dark-mode::before {
+    background:
+      linear-gradient(135deg, rgba(13,22,24,.66), rgba(16,25,27,.58)),
+      url("assets/store-room.png") center center / cover no-repeat;
+    filter: blur(1.7px) saturate(.78);
+  }
+
+  /* Restore the actual banner artwork. Its previous URL pointed to a missing assets/ file. */
+  body > header {
+    position:relative !important;
+    isolation:isolate !important;
+    overflow:hidden !important;
+    width:min(1400px, calc(100% - 32px)) !important;
+    max-width:1400px !important;
+    min-height:clamp(260px, 25vw, 430px) !important;
+    margin:24px auto 20px !important;
+    padding:0 !important;
+    border:1px solid rgba(255,255,255,.82) !important;
+    border-radius:28px !important;
+    background:
+      linear-gradient(90deg, rgba(255,250,244,.02), rgba(255,250,244,.02)),
+      url("assets/mysouq-banner.png") center center / 100% 100% no-repeat !important;
+    box-shadow:0 24px 65px rgba(51,38,29,.14), inset 0 1px 0 rgba(255,255,255,.7) !important;
+    backdrop-filter:blur(12px) saturate(1.08) !important;
+    -webkit-backdrop-filter:blur(12px) saturate(1.08) !important;
+  }
+  body > header::before, body > header::after { display:none !important; }
+
+  /* Keep the original live brand nodes in the document; the supplied complete banner already contains them. */
+  body > header .brand-logo-lockup,
+  body > header > p {
+    visibility:hidden !important;
+  }
+
+  /* Separate floating controls; no shared opaque toolbar slab. */
+  .top-actions {
+    display:flex !important;
+    flex-wrap:wrap !important;
+    align-items:center !important;
+    justify-content:center !important;
+    gap:10px !important;
+    background:transparent !important;
+    border:0 !important;
+    box-shadow:none !important;
+    padding:8px !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+  }
+  .top-actions > *,
+  .theme-toggle, .admin-orders-trigger, .track-trigger, .cart-trigger,
+  .cat-btn, .filter-btn, .sort-select, .size-filter-bar .size-btn,
+  .controls-wrapper input, .controls-wrapper select, .controls-wrapper button {
+    border-radius:17px !important;
+    box-shadow:0 8px 22px rgba(46,37,28,.10), inset 0 1px 0 rgba(255,255,255,.8) !important;
+    backdrop-filter:blur(16px) saturate(1.22) !important;
+    -webkit-backdrop-filter:blur(16px) saturate(1.22) !important;
+  }
+  .controls-wrapper {
+    width:min(1000px, calc(100% - 28px)) !important;
+    max-width:1000px !important;
+    margin:0 auto 22px !important;
+    padding:14px !important;
+    border:1px solid rgba(255,255,255,.78) !important;
+    border-radius:23px !important;
+    background:rgba(255,250,243,.53) !important;
+    box-shadow:0 18px 42px rgba(52,41,31,.10), inset 0 1px 0 rgba(255,255,255,.75) !important;
+    backdrop-filter:blur(18px) saturate(1.18) !important;
+    -webkit-backdrop-filter:blur(18px) saturate(1.18) !important;
+  }
+  .categories-bar, .filters-bar, .sort-filter-bar, .size-filter-bar {
+    background:transparent !important;
+    border-color:rgba(255,255,255,.48) !important;
+    gap:9px !important;
+  }
+  .product-card, .product-item, .product-card-new {
+    border:1px solid rgba(255,255,255,.82) !important;
+    border-radius:22px !important;
+    overflow:hidden !important;
+    box-shadow:0 14px 30px rgba(54,42,31,.12) !important;
+    background:rgba(255,255,255,.84) !important;
+    backdrop-filter:blur(12px) !important;
+    -webkit-backdrop-filter:blur(12px) !important;
+  }
+  body.dark-mode .controls-wrapper {
+    background:rgba(24,25,24,.58) !important;
+    border-color:rgba(255,255,255,.12) !important;
+  }
+
+  @media (max-width:767px) {
+    body > header {
+      width:calc(100% - 18px) !important;
+      min-height:clamp(145px, 43vw, 230px) !important;
+      margin:68px auto 14px !important;
+      border-radius:20px !important;
+      background-size:100% 100% !important;
+    }
+    .top-actions {
+      position:fixed !important;
+      top:7px !important;
+      left:8px !important;
+      right:8px !important;
+      z-index:100 !important;
+      justify-content:center !important;
+      gap:7px !important;
+      padding:4px !important;
+    }
+    .top-actions > *, .theme-toggle, .admin-orders-trigger, .track-trigger, .cart-trigger {
+      min-height:38px !important;
+      padding:7px 10px !important;
+    }
+    .controls-wrapper {
+      width:calc(100% - 18px) !important;
+      padding:10px !important;
+      margin-bottom:16px !important;
+      border-radius:18px !important;
+    }
+    .categories-bar, .filters-bar, .sort-filter-bar, .size-filter-bar {
+      flex-wrap:wrap !important;
+      justify-content:center !important;
+    }
+    .product-grid, #productsContainer, .products-container {
+      gap:10px !important;
+    }
+  }
+</style>
+
 </body>
 </html>
 
