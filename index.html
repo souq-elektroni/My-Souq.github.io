@@ -4001,6 +4001,245 @@ body:has(.zoom-overlay.active) .back-to-top {
     }
   </style>
 
+
+<style id="mysouq-theme-complete-fix">
+/* My Souq — apply selected theme to the whole storefront, not just icon buttons */
+html[data-theme] {
+  color-scheme: light;
+  --theme-page: var(--msq-base-1, var(--bg-cream));
+  --theme-surface: var(--card-cream, #fff);
+  --theme-soft: var(--msq-base-2, var(--pink-soft));
+  --theme-accent: var(--msq-primary);
+  --theme-accent-2: var(--msq-primary-2);
+  --theme-text: var(--msq-ink, var(--text-dark));
+  --theme-muted: var(--msq-muted, var(--text-muted));
+  --theme-border: var(--msq-line, var(--border-color));
+}
+html[data-theme] body {
+  background:
+    radial-gradient(ellipse at 92% 3%, var(--msq-glow-2, transparent), transparent 38%),
+    linear-gradient(135deg, var(--msq-base-1, #fdfbf7), var(--msq-base-2, #f7f2f2) 52%, var(--msq-base-3, #fdfbf7)) !important;
+  color: var(--theme-text) !important;
+  transition: background .25s ease, color .25s ease;
+}
+html[data-theme] .msq-editorial-hero {
+  background:
+    radial-gradient(ellipse at 78% 20%, var(--msq-hero-blob, transparent), transparent 45%),
+    linear-gradient(115deg, var(--msq-hero-a, var(--theme-page)), var(--msq-hero-b, var(--theme-soft)) 54%, var(--msq-hero-c, var(--theme-page))) !important;
+  border-color: var(--msq-glass-border, rgba(255,255,255,.7)) !important;
+  box-shadow: 0 18px 55px var(--msq-glass-shadow, rgba(30,60,60,.09)) !important;
+}
+html[data-theme] .msq-hero-copy,
+html[data-theme] .msq-hero-copy p,
+html[data-theme] .msq-eyebrow,
+html[data-theme] .msq-hero-benefits,
+html[data-theme] .msq-hero-benefits * {
+  color: var(--theme-text);
+}
+html[data-theme] .msq-hero-brand,
+html[data-theme] .msq-hero-brand .brand-my,
+html[data-theme] .msq-hero-brand .brand-souq {
+  background: linear-gradient(120deg, var(--theme-text), var(--theme-accent), var(--theme-accent-2)) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+html[data-theme] .msq-hero-cta,
+html[data-theme] .msq-hero-cta:hover {
+  background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent-2)) !important;
+  color: #fff !important;
+}
+html[data-theme] .controls-wrapper,
+html[data-theme] .categories-bar,
+html[data-theme] .search-sort-box {
+  background: color-mix(in srgb, var(--theme-surface) 88%, var(--theme-soft)) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--theme-text) !important;
+  box-shadow: 0 12px 32px var(--msq-glass-shadow, rgba(30,60,60,.07)) !important;
+}
+html[data-theme] .cat-btn,
+html[data-theme] .size-btn,
+html[data-theme] .gallery-mode-btn,
+html[data-theme] .search-input,
+html[data-theme] .sort-wrapper select,
+html[data-theme] .filter-btn,
+html[data-theme] .filter-control,
+html[data-theme] .search-field-wrap {
+  background-color: var(--theme-surface) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+html[data-theme] .cat-btn.active,
+html[data-theme] .cat-btn:hover,
+html[data-theme] .size-btn.active,
+html[data-theme] .size-btn:hover,
+html[data-theme] .gallery-mode-btn.active {
+  background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent-2)) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+html[data-theme] .product-card,
+html[data-theme] .featured-card,
+html[data-theme] .cart-item,
+html[data-theme] .order-card-admin,
+html[data-theme] .modal-content,
+html[data-theme] .customer-form,
+html[data-theme] .payment-option,
+html[data-theme] .terms-body,
+html[data-theme] .empty-state,
+html[data-theme] .info-card,
+html[data-theme] .benefit-card {
+  background-color: var(--theme-surface) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+html[data-theme] .product-card {
+  box-shadow: 0 8px 24px var(--msq-glass-shadow, rgba(20,40,40,.08)) !important;
+}
+html[data-theme] .product-card:hover {
+  border-color: color-mix(in srgb, var(--theme-accent) 42%, transparent) !important;
+  box-shadow: 0 16px 36px color-mix(in srgb, var(--theme-accent) 18%, transparent) !important;
+}
+html[data-theme] .product-title,
+html[data-theme] .click-hint,
+html[data-theme] .featured-title,
+html[data-theme] .modal-content,
+html[data-theme] .modal-content label,
+html[data-theme] .modal-content p,
+html[data-theme] .cart-item,
+html[data-theme] .customer-form,
+html[data-theme] .customer-form label,
+html[data-theme] .terms-body,
+html[data-theme] footer,
+html[data-theme] .footer,
+html[data-theme] .section-title {
+  color: var(--theme-text) !important;
+}
+html[data-theme] .text-muted,
+html[data-theme] .product-subtitle,
+html[data-theme] .product-meta,
+html[data-theme] .click-hint,
+html[data-theme] .modal-subtitle,
+html[data-theme] footer p,
+html[data-theme] .footer p {
+  color: var(--theme-muted) !important;
+}
+html[data-theme] .search-input::placeholder,
+html[data-theme] input::placeholder,
+html[data-theme] textarea::placeholder {
+  color: var(--theme-muted) !important;
+  opacity: .8;
+}
+html[data-theme] .add-cart-btn,
+html[data-theme] .proceed-btn,
+html[data-theme] .send-final-btn,
+html[data-theme] .success-btn,
+html[data-theme] .btn-agree,
+html[data-theme] .quick-order-btn,
+html[data-theme] .share-btn {
+  border-color: transparent !important;
+}
+html[data-theme] .price-tag,
+html[data-theme] .modal-title,
+html[data-theme] .modal-price,
+html[data-theme] .cart-title,
+html[data-theme] .featured-title {
+  color: var(--theme-accent) !important;
+}
+html[data-theme] .brand-badge,
+html[data-theme] .cart-trigger,
+html[data-theme] .track-trigger,
+html[data-theme] .add-cart-btn,
+html[data-theme] .proceed-btn,
+html[data-theme] .send-final-btn,
+html[data-theme] .success-btn,
+html[data-theme] .btn-agree,
+html[data-theme] .qr-toggle-fab,
+html[data-theme] .back-to-top,
+html[data-theme] #toastNotification {
+  background: linear-gradient(135deg, var(--theme-accent), var(--theme-accent-2)) !important;
+  color: #fff !important;
+}
+html[data-theme] .brand-my,
+html[data-theme] .brand-souq {
+  background: linear-gradient(120deg, var(--theme-text), var(--theme-accent)) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+html[data-theme] .brand-cart-icon { color: var(--theme-accent) !important; }
+html[data-theme] .brand-underline {
+  background: linear-gradient(90deg, var(--theme-accent), var(--theme-accent-2), transparent) !important;
+}
+html[data-theme] .modal-overlay,
+html[data-theme] .cart-overlay {
+  background: color-mix(in srgb, var(--theme-text) 54%, transparent) !important;
+}
+html[data-theme] .theme-palette-panel {
+  background: var(--theme-surface) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+html[data-theme] hr,
+html[data-theme] .divider,
+html[data-theme] .product-card,
+html[data-theme] .modal-content,
+html[data-theme] .cart-item {
+  border-color: var(--theme-border);
+}
+/* Keep the dark-mode switch independent, while recoloring all surfaces and typography */
+html[data-theme] body.dark-mode {
+  --theme-page: #12191b;
+  --theme-surface: #1b2527;
+  --theme-soft: #202f31;
+  --theme-text: #edf5f4;
+  --theme-muted: #b1c5c3;
+  --theme-border: rgba(190,220,215,.16);
+  --bg-gradient: linear-gradient(135deg,#11191b,#182527 55%,#101819);
+  color-scheme: dark;
+  background: radial-gradient(ellipse at 80% 0%, color-mix(in srgb, var(--theme-accent) 22%, transparent), transparent 45%), linear-gradient(135deg,#11191b,#182527 55%,#101819) !important;
+  color: var(--theme-text) !important;
+}
+html[data-theme] body.dark-mode .controls-wrapper,
+html[data-theme] body.dark-mode .categories-bar,
+html[data-theme] body.dark-mode .search-sort-box,
+html[data-theme] body.dark-mode .product-card,
+html[data-theme] body.dark-mode .featured-card,
+html[data-theme] body.dark-mode .modal-content,
+html[data-theme] body.dark-mode .cart-item,
+html[data-theme] body.dark-mode .customer-form,
+html[data-theme] body.dark-mode .payment-option,
+html[data-theme] body.dark-mode .terms-body,
+html[data-theme] body.dark-mode .theme-palette-panel {
+  background: var(--theme-surface) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+html[data-theme] body.dark-mode .cat-btn,
+html[data-theme] body.dark-mode .size-btn,
+html[data-theme] body.dark-mode .gallery-mode-btn,
+html[data-theme] body.dark-mode .search-input,
+html[data-theme] body.dark-mode .sort-wrapper select,
+html[data-theme] body.dark-mode input,
+html[data-theme] body.dark-mode textarea {
+  background-color: #172123 !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+html[data-theme] body.dark-mode .product-title,
+html[data-theme] body.dark-mode .click-hint,
+html[data-theme] body.dark-mode .modal-content,
+html[data-theme] body.dark-mode .modal-content p,
+html[data-theme] body.dark-mode .modal-content label,
+html[data-theme] body.dark-mode footer,
+html[data-theme] body.dark-mode .footer {
+  color: var(--theme-text) !important;
+}
+html[data-theme] body.dark-mode .msq-editorial-hero {
+  background: radial-gradient(ellipse at 75% 15%, color-mix(in srgb, var(--theme-accent) 32%, transparent), transparent 48%), linear-gradient(115deg,#172123,#1d3031 55%,#172123) !important;
+}
+</style>
+
 </head>
 
 <body>
