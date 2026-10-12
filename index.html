@@ -9590,3 +9590,251 @@ header .brand-underline {
   }
 })();
 </script>
+
+<style id="mysouq-premium-ui-v8">
+/* =========================================================
+   Premium UI refresh – buttons + product cards
+   Soft cream / rose aesthetic matching the new banners
+   ========================================================= */
+
+/* ---------- Controls wrapper (glass pill bar) ---------- */
+.controls-wrapper {
+  background: rgba(255, 252, 248, 0.72) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  box-shadow:
+    0 18px 40px rgba(60, 40, 50, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.2) !important;
+  border-radius: 26px !important;
+  padding: 14px 16px !important;
+  gap: 14px !important;
+}
+
+/* ---------- Category buttons ---------- */
+.cat-btn {
+  background: rgba(255, 255, 255, 0.78) !important;
+  color: #4a3a40 !important;
+  border: 1px solid rgba(220, 200, 205, 0.7) !important;
+  border-radius: 999px !important;
+  padding: 9px 16px !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  box-shadow: 0 2px 8px rgba(80, 50, 60, 0.05) !important;
+  transition: all 0.22s ease !important;
+  letter-spacing: 0.01em;
+}
+.cat-btn:hover {
+  background: #fff !important;
+  border-color: rgba(139, 63, 82, 0.35) !important;
+  color: #8b3f52 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(139, 63, 82, 0.12) !important;
+}
+.cat-btn.active {
+  background: linear-gradient(135deg, #8b3f52, #a34f66) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 6px 18px rgba(139, 63, 82, 0.28) !important;
+}
+
+/* Offer tab */
+.cat-btn.offer-tab {
+  background: linear-gradient(135deg, #fff8e7, #fff3d4) !important;
+  color: #9a6b00 !important;
+  border-color: #f0d78c !important;
+}
+.cat-btn.offer-tab.active,
+.cat-btn.offer-tab:hover {
+  background: linear-gradient(135deg, #e8a800, #d49200) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+
+/* Stock available */
+.cat-btn.stock-avail {
+  background: linear-gradient(135deg, #eefaf0, #e4f5e7) !important;
+  color: #1b7a32 !important;
+  border-color: #b8e0c0 !important;
+}
+.cat-btn.stock-avail.active,
+.cat-btn.stock-avail:hover {
+  background: linear-gradient(135deg, #2e9b45, #228a38) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+
+/* Stock out */
+.cat-btn.stock-out {
+  background: linear-gradient(135deg, #fff0f0, #ffe8e8) !important;
+  color: #c62828 !important;
+  border-color: #f0b8b8 !important;
+}
+.cat-btn.stock-out.active,
+.cat-btn.stock-out:hover {
+  background: linear-gradient(135deg, #d32f2f, #b71c1c) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+
+/* ---------- Search + Sort row ---------- */
+.search-sort-box {
+  border-top: 1px solid rgba(139, 63, 82, 0.08) !important;
+  padding-top: 12px !important;
+  gap: 10px !important;
+}
+.search-input,
+.search-field-wrap input,
+.sort-wrapper select {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border: 1px solid rgba(220, 200, 205, 0.75) !important;
+  border-radius: 14px !important;
+  color: #3a2c32 !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(80, 50, 60, 0.04) !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+.search-input:focus,
+.search-field-wrap input:focus,
+.sort-wrapper select:focus {
+  border-color: rgba(139, 63, 82, 0.45) !important;
+  box-shadow: 0 0 0 3px rgba(139, 63, 82, 0.12) !important;
+  outline: none !important;
+}
+
+/* ---------- Product Cards – premium soft look ---------- */
+.product-card {
+  background: #ffffff !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(235, 220, 220, 0.7) !important;
+  box-shadow:
+    0 6px 20px rgba(60, 40, 50, 0.06),
+    0 1px 3px rgba(60, 40, 50, 0.03) !important;
+  overflow: hidden !important;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.28s ease !important;
+}
+.product-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow:
+    0 18px 40px rgba(139, 63, 82, 0.12),
+    0 6px 14px rgba(60, 40, 50, 0.06) !important;
+  border-color: rgba(232, 197, 206, 0.9) !important;
+}
+
+/* Image area */
+.product-card .image-container {
+  background: linear-gradient(160deg, #faf5f3 0%, #f3eae8 100%) !important;
+  height: 170px !important;
+  overflow: hidden !important;
+}
+@media (min-width: 400px) {
+  .product-card .image-container { height: 190px !important; }
+}
+@media (min-width: 576px) {
+  .product-card .image-container { height: 240px !important; }
+}
+@media (min-width: 768px) {
+  .product-card .image-container { height: 270px !important; }
+}
+.product-card .product-image {
+  object-fit: cover !important;
+  transition: transform 0.45s ease !important;
+}
+.product-card:hover .product-image {
+  transform: scale(1.04) !important;
+}
+
+/* Details area */
+.product-card .product-details {
+  padding: 12px 14px 14px !important;
+  gap: 6px !important;
+  background: #fff !important;
+}
+@media (min-width: 768px) {
+  .product-card .product-details {
+    padding: 16px 18px 18px !important;
+    gap: 8px !important;
+  }
+}
+
+.product-card .product-title {
+  font-size: 13.5px !important;
+  font-weight: 800 !important;
+  color: #2c2224 !important;
+  line-height: 1.35 !important;
+  letter-spacing: -0.01em;
+}
+@media (min-width: 768px) {
+  .product-card .product-title {
+    font-size: 16.5px !important;
+  }
+}
+
+.product-card .price-tag {
+  font-size: 16px !important;
+  font-weight: 900 !important;
+  color: #8b3f52 !important;
+  margin-top: 4px !important;
+  letter-spacing: -0.02em;
+}
+@media (min-width: 768px) {
+  .product-card .price-tag {
+    font-size: 20px !important;
+  }
+}
+
+/* "عرض التفاصيل" button style */
+.product-card .click-hint {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  margin-top: 8px !important;
+  padding: 8px 12px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #f8ecee, #f3e4e8) !important;
+  color: #8b3f52 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  border: 1px solid rgba(232, 197, 206, 0.6) !important;
+  transition: all 0.2s ease !important;
+}
+.product-card:hover .click-hint {
+  background: linear-gradient(135deg, #8b3f52, #a34f66) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 12px rgba(139, 63, 82, 0.25) !important;
+}
+@media (min-width: 768px) {
+  .product-card .click-hint {
+    font-size: 13.5px !important;
+    padding: 10px 14px !important;
+    border-radius: 14px !important;
+  }
+}
+
+/* Mobile refinements */
+@media (max-width: 767px) {
+  .controls-wrapper {
+    border-radius: 20px !important;
+    padding: 10px 12px !important;
+    gap: 10px !important;
+  }
+  .cat-btn {
+    padding: 7px 12px !important;
+    font-size: 12px !important;
+  }
+  .product-card {
+    border-radius: 16px !important;
+  }
+  .product-card .product-details {
+    padding: 10px 12px 12px !important;
+  }
+  .product-card .click-hint {
+    padding: 7px 10px !important;
+    font-size: 11px !important;
+    border-radius: 10px !important;
+  }
+}
+</style>
