@@ -7677,6 +7677,58 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 }
 </style>
 
+
+
+<style id="mysouq-horizontal-controls-v3">
+/* Desktop: keep all category and filter controls neatly aligned in rows. */
+.controls-wrapper{width:min(1400px,calc(100% - 28px))!important;}
+.categories-bar,.categories-main,.msq-category-nav{
+  display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
+  align-items:center!important;justify-content:flex-start!important;gap:9px!important;
+  width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;
+  scrollbar-width:thin;scrollbar-color:rgba(8,127,131,.35) transparent;
+  -webkit-overflow-scrolling:touch!important;white-space:nowrap!important;
+}
+.categories-bar>*,.categories-main>*,.msq-category-nav>*{flex:0 0 auto!important;white-space:nowrap!important;}
+.search-sort-box{
+ display:flex!important;flex-flow:row nowrap!important;align-items:center!important;
+ gap:10px!important;width:100%!important;min-width:0!important;
+}
+.search-field-wrap{flex:1 1 240px!important;min-width:190px!important;}
+.search-sort-box>.sort-wrapper,.search-sort-box>.gallery-mode-btn,
+.search-sort-box>select,.search-sort-box>.filter-group{flex:0 1 190px!important;min-width:150px!important;}
+.search-sort-box select,.search-input,.gallery-mode-btn{width:100%!important;box-sizing:border-box!important;}
+@media(max-width:767px){
+ .controls-wrapper{width:calc(100% - 16px)!important;max-width:none!important;padding:10px!important;overflow:hidden!important;gap:10px!important;}
+ /* Category pills scroll horizontally instead of wrapping into multiple lines. */
+ .categories-bar,.categories-main,.msq-category-nav{
+   flex-wrap:nowrap!important;justify-content:flex-start!important;overflow-x:auto!important;
+   padding:2px 2px 10px!important;gap:7px!important;scroll-snap-type:x proximity!important;
+   overscroll-behavior-x:contain!important;touch-action:pan-x pan-y!important;
+ }
+ .categories-bar>*,.categories-main>*,.msq-category-nav>*{scroll-snap-align:start!important;}
+ .cat-btn{flex:0 0 auto!important;min-width:max-content!important;min-height:40px!important;padding:9px 13px!important;font-size:12px!important;white-space:nowrap!important;}
+ /* Search, size, sort, clothing type and image-only controls stay side by side in a swipeable row. */
+ .search-sort-box{
+   display:flex!important;flex-flow:row nowrap!important;align-items:stretch!important;
+   gap:8px!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;
+   overflow-y:hidden!important;padding:2px 2px 10px!important;
+   -webkit-overflow-scrolling:touch!important;scroll-snap-type:x proximity!important;
+   overscroll-behavior-x:contain!important;touch-action:pan-x pan-y!important;
+ }
+ .search-field-wrap{flex:0 0 190px!important;min-width:190px!important;grid-column:auto!important;scroll-snap-align:start!important;}
+ .search-sort-box>.sort-wrapper,.search-sort-box>.gallery-mode-btn,
+ .search-sort-box>select,.search-sort-box>.filter-group,
+ .search-sort-box>div:not(.search-field-wrap){flex:0 0 155px!important;min-width:155px!important;max-width:155px!important;scroll-snap-align:start!important;}
+ .search-sort-box select,.sort-wrapper select,.controls-wrapper select,.search-input,.gallery-mode-btn{
+   width:100%!important;min-width:0!important;min-height:43px!important;height:43px!important;
+   font-size:12px!important;border-radius:13px!important;white-space:nowrap!important;
+ }
+ .search-sort-box::-webkit-scrollbar,.categories-bar::-webkit-scrollbar,.categories-main::-webkit-scrollbar,.msq-category-nav::-webkit-scrollbar{height:4px!important;}
+ .search-sort-box::-webkit-scrollbar-thumb,.categories-bar::-webkit-scrollbar-thumb,.categories-main::-webkit-scrollbar-thumb,.msq-category-nav::-webkit-scrollbar-thumb{background:rgba(8,127,131,.28)!important;border-radius:20px!important;}
+}
+</style>
+
 </body>
 </html>
 
