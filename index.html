@@ -9106,7 +9106,7 @@ body.dark-mode::before {
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
 }
 
-/* ---- Banner Carousel: 4 rotating full-artwork banners ---- */
+/* ---- Banner Carousel: 4 rotating full-artwork banners (SHARP) ---- */
 body > header,
 header.mysouq-banner-carousel,
 header {
@@ -9127,9 +9127,30 @@ header {
   box-shadow:
     0 22px 55px rgba(32, 48, 45, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+  /* Kill any blur / filter from older CSS */
+  filter: none !important;
+  -webkit-filter: none !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   display: block !important;
+}
+
+/* Completely disable old header::before / ::after that had blur + old banner */
+body > header::before,
+header::before,
+header.mysouq-banner-carousel::before,
+body > header::after,
+header::after,
+header.mysouq-banner-carousel::after {
+  content: none !important;
+  display: none !important;
+  background: none !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 /* Slides container */
@@ -9140,6 +9161,8 @@ header .banner-slides {
   height: 100% !important;
   border-radius: inherit !important;
   overflow: hidden !important;
+  filter: none !important;
+  -webkit-filter: none !important;
 }
 header .banner-slide {
   position: absolute !important;
@@ -9150,41 +9173,21 @@ header .banner-slide {
   background-size: cover !important;
   background-repeat: no-repeat !important;
   opacity: 0 !important;
-  transition: opacity 0.9s ease-in-out !important;
+  transition: opacity 0.85s ease-in-out !important;
   z-index: 1 !important;
   border-radius: inherit !important;
+  /* Force sharp rendering */
+  filter: none !important;
+  -webkit-filter: none !important;
+  image-rendering: -webkit-optimize-contrast !important;
+  image-rendering: crisp-edges !important;
+  transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
+  -webkit-backface-visibility: hidden !important;
 }
 header .banner-slide.active {
   opacity: 1 !important;
   z-index: 2 !important;
-}
-
-/* Soft glass overlay on top of slides */
-header.mysouq-banner-carousel::before {
-  content: "" !important;
-  display: block !important;
-  position: absolute !important;
-  inset: 0 !important;
-  z-index: 3 !important;
-  pointer-events: none !important;
-  border-radius: inherit !important;
-  background: linear-gradient(180deg,
-    rgba(255,255,255,0.10) 0%,
-    transparent 30%,
-    transparent 75%,
-    rgba(255,255,255,0.06) 100%) !important;
-}
-header.mysouq-banner-carousel::after {
-  content: "" !important;
-  display: block !important;
-  position: absolute !important;
-  inset: 0 !important;
-  z-index: 3 !important;
-  pointer-events: none !important;
-  border-radius: inherit !important;
-  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 40%) !important;
-  opacity: 0.5 !important;
-  mix-blend-mode: soft-light !important;
 }
 
 /* Dots navigation */
