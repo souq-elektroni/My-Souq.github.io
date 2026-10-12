@@ -9108,29 +9108,36 @@ body.dark-mode::before {
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
 }
 
-/* ---- Banner: keep full artwork visible + light glass frame ---- */
+/* ---- Banner: full visible artwork (image already has logo + Arabic text) ---- */
 body > header,
 header {
   position: relative !important;
   isolation: isolate !important;
   overflow: hidden !important;
+  width: min(1280px, calc(100% - 20px)) !important;
+  max-width: 1280px !important;
+  margin: 78px auto 22px !important;
+  padding: 0 !important;
+  /* نسبة عرض البانر الحقيقي */
+  aspect-ratio: 16 / 5.2 !important;
+  min-height: 0 !important;
+  height: auto !important;
   border-radius: 28px !important;
-  /* صورة البانر ظاهرة بالكامل */
-  background-color: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.75) !important;
+  /* الصورة كاملة وواضحة */
+  background-color: #f5f0ea !important;
   background-image: url('assets/mysouq-banner.png') !important;
   background-position: center center !important;
   background-size: cover !important;
   background-repeat: no-repeat !important;
-  border: 1px solid rgba(255, 255, 255, 0.72) !important;
   box-shadow:
     0 22px 55px rgba(32, 48, 45, 0.16),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.25) !important;
-  /* زجاج خفيف على الإطار فقط — بدون تغطية الصورة */
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
+  display: block !important;
 }
-/* طبقة زجاج شفافة جداً فوق البانر (لا تخفي الصورة) */
+/* طبقة زجاج خفيفة جداً — لا تغطي الصورة */
 body > header::before,
 header::before {
   content: "" !important;
@@ -9140,12 +9147,11 @@ header::before {
   z-index: 0 !important;
   pointer-events: none !important;
   border-radius: inherit !important;
-  /* تدرج خفيف جداً على اليسار فقط لقراءة النص — الصورة تبقى واضحة */
-  background: linear-gradient(90deg,
-    rgba(255, 255, 255, 0.22) 0%,
-    rgba(255, 255, 255, 0.08) 32%,
-    rgba(255, 255, 255, 0.02) 55%,
-    transparent 72%) !important;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.12) 0%,
+    transparent 28%,
+    transparent 75%,
+    rgba(255,255,255,0.08) 100%) !important;
   opacity: 1 !important;
   filter: none !important;
   backdrop-filter: none !important;
@@ -9162,19 +9168,43 @@ header::after {
   z-index: 0 !important;
   pointer-events: none !important;
   border-radius: inherit !important;
-  /* لمعان زجاجي خفيف بدون إخفاء */
-  background: linear-gradient(160deg,
-    rgba(255, 255, 255, 0.18) 0%,
-    transparent 35%,
-    transparent 70%,
-    rgba(255, 255, 255, 0.06) 100%) !important;
-  opacity: 0.7 !important;
+  background: linear-gradient(135deg, rgba(255,255,255,0.14) 0%, transparent 40%) !important;
+  opacity: 0.55 !important;
   mix-blend-mode: soft-light !important;
   filter: none !important;
 }
-header > * {
-  position: relative !important;
-  z-index: 1 !important;
+/* إخفاء النصوص الحية المكررة — موجودة أصلاً داخل صورة البانر */
+header .brand-logo-lockup,
+header > p,
+header h1,
+header .brand-wordmark,
+header .brand-cart-icon,
+header .brand-underline {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+@media (max-width: 767px) {
+  body > header,
+  header {
+    width: calc(100% - 12px) !important;
+    margin: 64px auto 14px !important;
+    border-radius: 18px !important;
+    aspect-ratio: 16 / 7.5 !important;
+    background-position: center center !important;
+    background-size: cover !important;
+  }
+}
+@media (min-width: 900px) {
+  body > header,
+  header {
+    aspect-ratio: 16 / 5 !important;
+    border-radius: 32px !important;
+  }
 }
 
 /* ---- Top toolbar: cleaner layout (desktop + mobile) ---- */
