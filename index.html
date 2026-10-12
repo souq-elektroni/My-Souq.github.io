@@ -7206,6 +7206,116 @@ html body #productModal .share-btn{order:4!important;}
 })();
 </script>
 
+
+<style id="mysouq-safe-glass-v4">
+
+/* My Souq — safe visual correction v4. CSS-only override; all original features/scripts retained. */
+:root{
+  --msq-glass-bg:rgba(255,250,244,.48);
+  --msq-glass-edge:rgba(255,255,255,.82);
+  --msq-glass-shadow:rgba(35,61,58,.16);
+  --msq-teal:#087f83;
+  --msq-teal-light:#36aaa9;
+}
+html{background:#eee5d8!important}
+body{
+  position:relative!important;isolation:isolate!important;overflow-x:clip!important;
+  background:transparent!important;color:#203d42!important;
+}
+body::before{
+  content:""!important;position:fixed!important;inset:-5px!important;z-index:-1!important;
+  pointer-events:none!important;
+  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.png') center center/cover no-repeat!important;
+  filter:blur(1.5px) saturate(.94)!important;transform:scale(1.015)!important;
+}
+body.dark-mode::before{
+  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.png') center center/cover no-repeat!important;
+  filter:blur(2px) saturate(.8)!important;
+}
+/* Restore the full banner artwork as a visible layer behind the original live logo/text. */
+header{
+  position:relative!important;isolation:isolate!important;overflow:hidden!important;
+  width:min(1280px,calc(100% - 28px))!important;max-width:1280px!important;
+  min-height:clamp(250px,25vw,390px)!important;margin:82px auto 22px!important;
+  padding:clamp(26px,4vw,54px)!important;border-radius:30px!important;
+  background:rgba(255,250,244,.08)!important;
+  border:1px solid rgba(255,255,255,.82)!important;
+  box-shadow:0 18px 48px rgba(43,61,57,.13),inset 0 1px 0 rgba(255,255,255,.88)!important;
+}
+header::before{
+  content:""!important;display:block!important;position:absolute!important;inset:0!important;z-index:0!important;
+  pointer-events:none!important;border-radius:inherit!important;
+  background:linear-gradient(90deg,rgba(255,251,246,.10) 0%,rgba(255,250,245,.06) 48%,rgba(255,250,245,.02) 100%),url('assets/mysouq-banner.png') center center/cover no-repeat!important;
+  border:0!important;box-shadow:none!important;backdrop-filter:blur(8px) saturate(1.08)!important;
+  -webkit-backdrop-filter:blur(8px) saturate(1.08)!important;
+}
+header::after{z-index:0!important;pointer-events:none!important;opacity:.24!important}
+header>*{position:relative!important;z-index:1!important}
+.brand-logo-lockup{max-width:54%!important}
+header p{max-width:54%!important}
+/* Individual floating glass buttons: no enclosing opaque bar. */
+.top-actions{
+  position:fixed!important;top:16px!important;left:78px!important;right:auto!important;
+  width:auto!important;max-width:calc(100vw - 150px)!important;display:flex!important;
+  flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;gap:9px!important;
+  padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;z-index:960!important;
+}
+.top-actions>*{
+  border:1px solid rgba(255,255,255,.86)!important;border-radius:999px!important;
+  background:rgba(255,255,255,.56)!important;color:#14565b!important;
+  box-shadow:0 8px 22px rgba(32,65,62,.13),inset 0 1px 0 rgba(255,255,255,.92)!important;
+  backdrop-filter:blur(16px) saturate(1.25)!important;-webkit-backdrop-filter:blur(16px) saturate(1.25)!important;
+  transition:transform .18s ease,box-shadow .18s ease,background .18s ease!important;
+}
+.top-actions>*:hover{transform:translateY(-2px)!important;box-shadow:0 12px 26px rgba(32,65,62,.18),inset 0 1px 0 rgba(255,255,255,.95)!important}
+.brand-badge{
+  z-index:965!important;background:linear-gradient(145deg,#087f83,#36aaa9)!important;
+  border:1px solid rgba(255,255,255,.82)!important;
+  box-shadow:0 10px 28px rgba(8,127,131,.24),inset 0 1px 0 rgba(255,255,255,.78)!important;
+}
+/* Frosted, floating category/filter surfaces; each button remains a separate control. */
+.controls-wrapper{
+  width:min(1120px,calc(100% - 28px))!important;margin:0 auto 22px!important;
+  padding:14px 16px!important;border-radius:24px!important;
+  background:rgba(255,250,244,.48)!important;border:1px solid rgba(255,255,255,.84)!important;
+  box-shadow:0 18px 42px rgba(35,61,58,.12),inset 0 1px 0 rgba(255,255,255,.9)!important;
+  backdrop-filter:blur(18px) saturate(1.15)!important;-webkit-backdrop-filter:blur(18px) saturate(1.15)!important;
+}
+.msq-category-nav .cat-btn,.msq-category-nav button,.controls-wrapper button,.controls-wrapper select,.controls-wrapper input{
+  border-radius:14px!important;border:1px solid rgba(255,255,255,.92)!important;
+  box-shadow:0 7px 17px rgba(35,61,58,.08),inset 0 1px 0 rgba(255,255,255,.92)!important;
+}
+#products-container.products-grid{
+  width:min(1200px,calc(100% - 28px))!important;margin:0 auto!important;
+  justify-content:center!important;align-items:stretch!important;gap:18px!important;
+}
+#products-container .product-card{
+  border-radius:22px!important;overflow:hidden!important;
+  border:1px solid rgba(255,255,255,.86)!important;
+  box-shadow:0 12px 28px rgba(35,61,58,.12)!important;
+  background:rgba(255,255,255,.88)!important;
+}
+@media(max-width:700px){
+  body{padding:8px 0 84px!important}
+  body::before{background-position:center center!important}
+  .top-actions{top:10px!important;left:72px!important;right:76px!important;max-width:none!important;gap:6px!important}
+  .top-actions>*{min-height:36px!important;padding:6px 10px!important;font-size:11px!important}
+  .brand-badge{top:9px!important;right:9px!important;width:52px!important;height:52px!important}
+  header{width:calc(100% - 18px)!important;min-height:230px!important;margin:76px auto 16px!important;padding:20px 14px!important;border-radius:22px!important}
+  header::before{background-position:center center!important;background-size:cover!important}
+  .brand-logo-lockup{max-width:100%!important;margin:6px 0 8px!important}
+  .brand-wordmark h1{font-size:clamp(34px,9vw,54px)!important}
+  header p{max-width:100%!important;font-size:12px!important;padding:8px 10px!important;border-radius:14px!important}
+  .controls-wrapper{width:calc(100% - 18px)!important;padding:10px!important;margin-bottom:16px!important;border-radius:19px!important}
+  .msq-category-nav{gap:7px!important}
+  .msq-category-nav .cat-btn,.msq-category-nav button,.controls-wrapper button{min-height:36px!important}
+  #products-container.products-grid{width:calc(100% - 18px)!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
+  #products-container .product-card{border-radius:16px!important}
+}
+
+</style>
+
 </body>
 </html>
 
