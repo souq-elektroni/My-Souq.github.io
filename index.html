@@ -10142,3 +10142,61 @@ header .brand-underline {
 @media(prefers-reduced-motion:reduce){.cat-btn,.product-card,.product-item,.product-card-new,.product-card img,.product-item img,.product-card-new img{transition:none!important}}
 </style>
 
+<!-- My Souq toolbar layout FIX v8: final override after all older CSS; keeps original controls and handlers. -->
+<style id="mysouq-toolbar-layout-fix-v8">
+/* Desktop/tablet: all five filter controls stay in one aligned row. */
+.controls-wrapper{width:min(1460px,calc(100% - 24px))!important;max-width:none!important;box-sizing:border-box!important;}
+.categories-bar.categories-main.msq-category-nav{
+ display:flex!important;flex-flow:row nowrap!important;justify-content:flex-start!important;align-items:center!important;
+ width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;
+ white-space:nowrap!important;gap:8px!important;padding:3px 2px 11px!important;
+ -webkit-overflow-scrolling:touch!important;scrollbar-width:thin!important;scrollbar-color:rgba(8,127,131,.35) transparent!important;
+}
+.categories-bar.categories-main.msq-category-nav>.cat-btn,
+.categories-bar.categories-main.msq-category-nav>.cat-divider{flex:0 0 auto!important;white-space:nowrap!important;}
+.search-sort-box{
+ display:grid!important;grid-template-columns:minmax(190px,1.35fr) repeat(4,minmax(135px,1fr))!important;
+ align-items:center!important;justify-content:stretch!important;gap:9px!important;width:100%!important;min-width:0!important;
+ overflow:visible!important;padding-top:12px!important;
+}
+.search-sort-box>.search-field-wrap,
+.search-sort-box>.sort-wrapper,
+.search-sort-box>.gallery-mode-btn{min-width:0!important;width:100%!important;max-width:none!important;box-sizing:border-box!important;}
+.search-field-wrap{display:flex!important;align-items:center!important;gap:5px!important;}
+.search-field-wrap .search-input,.search-field-wrap input.search-input{flex:1 1 auto!important;width:1%!important;min-width:0!important;max-width:none!important;}
+.search-sort-box .sort-wrapper select,.search-sort-box>.gallery-mode-btn{width:100%!important;min-width:0!important;max-width:none!important;white-space:nowrap!important;}
+@media (min-width:768px) and (max-width:1100px){
+ .search-sort-box{grid-template-columns:repeat(5,minmax(125px,1fr))!important;gap:7px!important;}
+ .search-field-wrap .search-input,.search-sort-box select,.search-sort-box>.gallery-mode-btn{font-size:11px!important;padding-left:8px!important;padding-right:8px!important;}
+}
+/* Phones: two independent horizontal swipe rows — categories, then search + all filters. */
+@media (max-width:767px){
+ .controls-wrapper{width:calc(100% - 12px)!important;max-width:none!important;margin-inline:auto!important;padding:10px!important;gap:9px!important;overflow:hidden!important;}
+ .categories-bar.categories-main.msq-category-nav{
+  display:flex!important;flex-flow:row nowrap!important;justify-content:flex-start!important;align-items:center!important;
+  width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;touch-action:pan-x!important;
+  -webkit-overflow-scrolling:touch!important;scroll-snap-type:x proximity!important;scrollbar-width:thin!important;
+  padding:2px 2px 10px!important;gap:7px!important;
+ }
+ .categories-bar.categories-main.msq-category-nav>.cat-btn{flex:0 0 auto!important;min-width:max-content!important;scroll-snap-align:start!important;font-size:12px!important;padding:9px 13px!important;min-height:40px!important;}
+ .categories-bar.categories-main.msq-category-nav>.cat-divider{flex:0 0 1px!important;}
+ .search-sort-box{
+  display:flex!important;flex-flow:row nowrap!important;justify-content:flex-start!important;align-items:center!important;
+  width:100%!important;max-width:100%!important;min-width:0!important;gap:8px!important;
+  overflow-x:auto!important;overflow-y:hidden!important;touch-action:pan-x!important;-webkit-overflow-scrolling:touch!important;
+  scroll-snap-type:x proximity!important;scrollbar-width:thin!important;scrollbar-color:rgba(8,127,131,.35) transparent!important;
+  padding:10px 2px 7px!important;border-top:1px solid rgba(8,127,131,.12)!important;
+ }
+ .search-sort-box>.search-field-wrap{flex:0 0 210px!important;width:210px!important;min-width:210px!important;max-width:210px!important;grid-column:auto!important;scroll-snap-align:start!important;}
+ .search-sort-box>.sort-wrapper{flex:0 0 164px!important;width:164px!important;min-width:164px!important;max-width:164px!important;scroll-snap-align:start!important;}
+ .search-sort-box>.gallery-mode-btn{flex:0 0 126px!important;width:126px!important;min-width:126px!important;max-width:126px!important;scroll-snap-align:start!important;}
+ .search-sort-box .search-input,.search-sort-box .sort-wrapper select,.search-sort-box>.gallery-mode-btn{
+  height:43px!important;min-height:43px!important;max-height:43px!important;box-sizing:border-box!important;
+  border-radius:13px!important;font-size:12px!important;padding-top:8px!important;padding-bottom:8px!important;
+ }
+ .search-field-wrap .voice-search-btn{flex:0 0 32px!important;width:32px!important;min-width:32px!important;height:32px!important;}
+ .search-sort-box::-webkit-scrollbar,.categories-bar::-webkit-scrollbar,.categories-main::-webkit-scrollbar,.msq-category-nav::-webkit-scrollbar{height:4px!important;display:block!important;}
+ .search-sort-box::-webkit-scrollbar-thumb,.categories-bar::-webkit-scrollbar-thumb,.categories-main::-webkit-scrollbar-thumb,.msq-category-nav::-webkit-scrollbar-thumb{background:rgba(8,127,131,.32)!important;border-radius:20px!important;}
+}
+</style>
+
