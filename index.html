@@ -13908,3 +13908,123 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   document.addEventListener('click',function(e){if(e.target&&e.target.id==='refreshCancelRequests')setTimeout(function(){var a=document.getElementById('msqCancelBadge'),b=document.getElementById('cancelRequestsCount');if(a&&b)a.textContent=b.textContent;},300);});
 })();
 </script>
+
+<!-- My Souq: larger product image on mobile only; existing features and scripts preserved -->
+<style id="mysouq-mobile-product-image-large-v2">
+@media (max-width: 767px) {
+  html body #productModal.modal-overlay {
+    align-items: flex-start !important;
+    justify-content: center !important;
+    padding: max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom)) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+  }
+  html body #productModal .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 96dvh !important;
+    margin: 0 auto !important;
+    padding: 12px !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    border-radius: 20px !important;
+    box-sizing: border-box !important;
+  }
+  html body #productModal .modal-body,
+  html[dir="rtl"] body #productModal .modal-body {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+  }
+  html body #productModal .modal-gallery-wrapper,
+  html[dir="rtl"] body #productModal .modal-gallery-wrapper {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-rows: minmax(0, 1fr) auto !important;
+    grid-template-areas: "main" "thumbs" !important;
+    gap: 8px !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
+  }
+  html body #productModal .modal-img,
+  html body #productModal #modalImage {
+    grid-area: main !important;
+    display: block !important;
+    width: 100% !important;
+    height: 64dvh !important;
+    min-height: 390px !important;
+    max-height: 650px !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    margin: 0 auto !important;
+    border-radius: 16px !important;
+    background: #f7f1eb !important;
+    box-sizing: border-box !important;
+  }
+  html body #productModal .thumbs-vertical-wrap {
+    grid-area: thumbs !important;
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+  }
+  html body #productModal .thumbnails-bar,
+  html body #productModal #thumbnailsContainer {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 7px !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 2px 0 6px !important;
+    -webkit-overflow-scrolling: touch !important;
+    box-sizing: border-box !important;
+  }
+  html body #productModal .thumbnails-bar img,
+  html body #productModal #thumbnailsContainer img {
+    flex: 0 0 62px !important;
+    width: 62px !important;
+    height: 62px !important;
+    object-fit: cover !important;
+    border-radius: 9px !important;
+  }
+  html body #productModal .modal-info {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 1px 14px !important;
+    box-sizing: border-box !important;
+  }
+  html body #productModal .modal-title {
+    margin-top: 8px !important;
+  }
+}
+@media (max-width: 380px) {
+  html body #productModal .modal-img,
+  html body #productModal #modalImage {
+    height: 61dvh !important;
+    min-height: 350px !important;
+  }
+}
+</style>
