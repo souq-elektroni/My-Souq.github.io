@@ -10260,4 +10260,83 @@ header .brand-underline {
   .search-sort-box>.search-field-wrap{width:auto!important;max-width:none!important;}
   .search-sort-box>.gallery-mode-btn{width:auto!important;max-width:none!important;}
 }
+
+/* My Souq — floating cream & light-caramel controls (visual-only override) */
+:root{
+ --msq-caramel:#c9a184!important;
+ --msq-caramel-deep:#9b7155!important;
+ --msq-cream:#fff5e8!important;
+ --msq-cream-light:#fffaf3!important;
+ --msq-ink:#574437!important;
+}
+.top-actions{
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ padding:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+.theme-toggle,.theme-palette-btn,.admin-orders-trigger,.track-trigger,.cart-trigger{
+ background:linear-gradient(145deg,rgba(255,250,241,.97),rgba(239,218,196,.94))!important;
+ color:#674a37!important;border:1px solid rgba(255,255,255,.96)!important;
+ box-shadow:0 8px 20px rgba(111,75,49,.18),inset 0 1px 0 #fff!important;
+ backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;
+}
+.top-actions button:hover,.top-actions .admin-orders-trigger:hover,
+.top-actions .track-trigger:hover,.top-actions .cart-trigger:hover{
+ background:linear-gradient(145deg,#fffaf2,#e8c9a9)!important;
+ color:#573b29!important;box-shadow:0 12px 24px rgba(111,75,49,.24),inset 0 1px 0 #fff!important;
+}
+.cart-count{background:#b88762!important;color:#fffaf3!important}
+.controls-wrapper{
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+ padding:0!important;border-radius:0!important;gap:14px!important;
+ width:min(1200px,calc(100% - 24px))!important;
+}
+.categories-bar{
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ padding:3px!important;gap:10px!important;
+}
+.cat-btn{
+ background:linear-gradient(145deg,rgba(255,250,242,.98),rgba(239,219,199,.96))!important;
+ color:#674a37!important;border:1px solid rgba(255,255,255,.98)!important;
+ box-shadow:0 7px 18px rgba(111,75,49,.15),inset 0 1px 0 #fff!important;
+ backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;
+}
+.cat-btn:hover,.cat-btn.active{
+ background:linear-gradient(145deg,#cda585,#b88762)!important;
+ color:#fffaf3!important;border-color:#f8e8d7!important;
+ box-shadow:0 10px 22px rgba(111,75,49,.23)!important;
+}
+.cat-btn.offer-tab{background:linear-gradient(145deg,#fff4d9,#f0d5a6)!important;color:#79572f!important;border-color:#f4dfb9!important}
+.cat-btn.stock-avail{background:linear-gradient(145deg,#f7f0df,#e5d2ad)!important;color:#5f6541!important;border-color:#eee0c5!important}
+.cat-btn.stock-out{background:linear-gradient(145deg,#fff0e9,#edc9b9)!important;color:#995344!important;border-color:#f2d8ca!important}
+.search-sort-box{
+ border-top:0!important;padding:3px 0!important;gap:10px!important;
+ background:transparent!important;
+}
+.search-input,.sort-wrapper select,.gallery-mode-btn{
+ background:linear-gradient(145deg,rgba(255,250,242,.98),rgba(239,219,199,.96))!important;
+ color:#674a37!important;border:1px solid rgba(255,255,255,.98)!important;
+ box-shadow:0 7px 18px rgba(111,75,49,.14),inset 0 1px 0 #fff!important;
+ backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;
+}
+.search-input::placeholder{color:#9a7d66!important}
+.search-input:focus,.sort-wrapper select:focus{
+ border-color:#c9a184!important;box-shadow:0 0 0 3px rgba(201,161,132,.22)!important;
+}
+body.dark-mode .theme-toggle,body.dark-mode .theme-palette-btn,
+body.dark-mode .admin-orders-trigger,body.dark-mode .track-trigger,
+body.dark-mode .cart-trigger,body.dark-mode .cat-btn,
+body.dark-mode .search-input,body.dark-mode .sort-wrapper select,
+body.dark-mode .gallery-mode-btn{
+ background:linear-gradient(145deg,rgba(68,52,42,.96),rgba(47,37,31,.96))!important;
+ color:#fff0df!important;border-color:rgba(240,213,187,.28)!important;
+}
+@media(max-width:767px){
+ .top-actions{padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important}
+ .controls-wrapper{width:calc(100% - 12px)!important;margin:0 auto 22px!important;padding:0!important;gap:11px!important}
+ .categories-bar{flex-wrap:nowrap!important;overflow-x:auto!important;justify-content:flex-start!important;padding:4px 2px 8px!important}
+ .cat-btn{min-height:38px!important;padding:8px 12px!important}
+ .search-sort-box{padding:2px!important;gap:7px!important}
+}
+
 </style>
