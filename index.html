@@ -5026,7 +5026,9 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
       }
       return items.map(function (raw) {
         var it = enrichItemFromCatalog(raw);
-        var img = it.image || '';
+        var itemImages = Array.isArray(it.images) ? it.images.filter(Boolean) : (Array.isArray(it.imageUrls) ? it.imageUrls.filter(Boolean) : []);
+        var img = it.image || it.selectedImage || itemImages[0] || '';
+        if (!itemImages.length && img) itemImages = [img];
         var title = escapeHtml(it.title || 'منتج');
         var size = escapeHtml(it.size || '-');
         var color = it.color ? escapeHtml(it.color) : '';
@@ -5048,13 +5050,10 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
           ? '<div class="track-dims"><div class="track-dims-title">📏 المقاسات بالسنتيمتر</div>' + chips + '</div>'
           : '<div class="track-dims"><div class="track-dims-title">📏 المقاسات بالسنتيمتر</div><span class="track-dim-chip" style="opacity:.75;">غير مسجّلة لهذا الطلب</span></div>';
 
-        var safeSrc = escapeHtml(img);
-        var imgHtml = img
-          ? '<div class="track-product-img-wrap">' +
-              '<img class="track-product-img" src="' + safeSrc + '" alt="' + title + '" loading="lazy" ' +
-              'onclick="openTrackImageZoom(this.src)" title="اضغط لتكبير الصورة" ' +
-              'onerror="this.style.display=\'none\'">' +
-            '</div>'
+        var imgHtml = itemImages.length
+          ? '<div class="track-product-images">' + itemImages.slice(0, 4).map(function (src) {
+              return '<div class="track-product-img-wrap"><img class="track-product-img" src="' + escapeHtml(src) + '" alt="' + title + '" loading="lazy" onclick="openTrackImageZoom(this.src)" title="اضغط لتكبير الصورة" onerror="this.parentNode.style.display=\'none\'"></div>';
+            }).join('') + '</div>'
           : '<div class="track-product-img" style="display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--text-muted);cursor:default;">📦</div>';
 
         return (
@@ -5089,12 +5088,20 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
       if (!id) return null;
 
       var found = null;
+      // Direct cloud lookup keeps customer tracking functional without optional legacy helpers.
       try {
-        if (typeof fetchOrderFromCloud === 'function') {
-          found = await fetchOrderFromCloud(id);
+        if (typeof db !== 'undefined' && db) {
+          var direct = await db.collection('orders').doc(id).get();
+          if (direct && direct.exists) found = Object.assign({}, direct.data() || {}, { orderId: (direct.data() || {}).orderId || direct.id });
+          if (!found) {
+            var exact = await db.collection('orders').where('orderId', '==', id).limit(1).get();
+            if (exact && !exact.empty) { var d = exact.docs[0]; found = Object.assign({}, d.data() || {}, { orderId: (d.data() || {}).orderId || d.id }); }
+          }
         }
-      } catch (e) {}
-
+      } catch (cloudReadError) { console.warn('Direct customer order lookup failed:', cloudReadError); }
+      if (!found) {
+        try { if (typeof fetchOrderFromCloud === 'function') found = await fetchOrderFromCloud(id); } catch (e) {}
+      }
       if (found) return found;
 
       // احتياطي محلي case-insensitive
@@ -5176,51 +5183,47 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
           );
         }).join('');
 
+        // Read-only customer view. Order status changes remain exclusively in the admin orders screen.
         var adminControls = '';
-        if (typeof isAdminMode !== 'undefined' && isAdminMode) {
-          adminControls =
-            '<div style="margin-top:12px;padding:12px;background:#fff8e1;border:1px solid #ffe082;border-radius:12px;">' +
-              '<div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:8px;font-size:13px;">🔐 تحكم الإدارة — غيّر حالة الطلب:</div>' +
-              '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
-                ORDER_STATUSES.map(function (s) {
-                  return (
-                    '<button onclick="updateOrderStatus(\'' + String(foundOrder.orderId).replace(/'/g, "\\'") + '\', ' + s.code + ')" ' +
-                    'style="flex:1;min-width:110px;padding:9px 6px;border-radius:10px;border:2px solid ' + s.color +
-                    ';background:' + (currentCode === s.code ? s.color : 'white') +
-                    ';color:' + (currentCode === s.code ? 'white' : s.color) +
-                    ';font-weight:800;font-size:11.5px;cursor:pointer;">' + s.label + '</button>'
-                  );
-                }).join('') +
-              '</div>' +
-            '</div>';
-        }
 
         var cloudBadge = (typeof firebaseReady !== 'undefined' && firebaseReady)
           ? '<span style="font-size:10px;background:#e8f5e9;color:#2e7d32;padding:3px 8px;border-radius:6px;margin-right:4px;font-weight:800;">☁️ سحابي</span>'
           : '<span style="font-size:10px;background:#fff3e0;color:#e65100;padding:3px 8px;border-radius:6px;margin-right:4px;font-weight:800;">📱 محلي</span>';
 
-        var items = foundOrder.items || [];
+        var items = Array.isArray(foundOrder.items) ? foundOrder.items : (Array.isArray(foundOrder.products) ? foundOrder.products : []);
+        var orderIdDisplay = foundOrder.orderId || foundOrder.id || searchId;
+        var customerName = foundOrder.name || foundOrder.customerName || foundOrder.customer || foundOrder.fullName || '-';
+        var totalValue = foundOrder.total != null ? foundOrder.total : (foundOrder.totalPrice != null ? foundOrder.totalPrice : (foundOrder.grandTotal != null ? foundOrder.grandTotal : '-'));
+        var orderDate = foundOrder.date || foundOrder.orderDate || foundOrder.createdAt || foundOrder.timestamp || '-';
+        if (orderDate && typeof orderDate === 'object' && typeof orderDate.toDate === 'function') { try { orderDate = orderDate.toDate().toLocaleString('ar-EG'); } catch (_) { orderDate = '-'; } }
+        else if (typeof orderDate === 'number') { try { orderDate = new Date(orderDate).toLocaleString('ar-EG'); } catch (_) { orderDate = String(orderDate); } }
+        var addressValue = foundOrder.address || foundOrder.deliveryAddress || foundOrder.customerAddress || foundOrder.shippingAddress || '';
+        if (!addressValue) {
+          var addressParts = [foundOrder.governorate || foundOrder.governorateName, foundOrder.city || foundOrder.cityName, foundOrder.detailedAddress || foundOrder.addressDetails || foundOrder.streetAddress].filter(function (v) { return v && String(v).trim(); });
+          addressValue = addressParts.join('، ');
+        }
+        var statusLabel = current && current.label ? current.label : (foundOrder.status || foundOrder.orderStatus || 'قيد المراجعة');
 
         resultBox.innerHTML =
-          '<div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:10px;font-size:14.5px;display:flex;align-items:center;flex-wrap:wrap;gap:6px;">' +
-            '✅ تم العثور على الطلب بنجاح ' + cloudBadge +
-          '</div>' +
-          '<div class="track-meta-grid">' +
-            '<div class="track-meta-item"><strong>🆔 رقم الطلب</strong><span>' + escapeHtml(foundOrder.orderId) + '</span></div>' +
-            '<div class="track-meta-item"><strong>👤 اسم العميل</strong><span>' + escapeHtml(foundOrder.name || '-') + '</span></div>' +
-            '<div class="track-meta-item"><strong>💰 الإجمالي</strong><span>' + escapeHtml(foundOrder.total || '-') + '</span></div>' +
-            '<div class="track-meta-item"><strong>📅 تاريخ الطلب</strong><span>' + escapeHtml(foundOrder.date || '-') + '</span></div>' +
-          '</div>' +
-          '<div class="track-products-title">🛍️ المنتجات المطلوبة (' + items.length + ')</div>' +
-          buildTrackItemsHtml(items) +
-          '<div class="track-timeline-box">' +
-            '<div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:12px;font-size:13.5px;">📍 مسار الطلب</div>' +
-            timelineHtml +
-          '</div>' +
-          '<div class="track-status-banner" style="background:' + current.color + '18;border:1px solid ' + current.color + '40;color:' + current.color + ';">' +
-            'الحالة الحالية: ' + current.label +
-          '</div>' +
-          adminControls;
+          '<div class="customer-track-success"><span>✓ تم العثور على طلبك</span>' + cloudBadge + '</div>' +
+          '<div class="customer-track-columns">' +
+            '<section class="customer-track-order-panel" aria-label="بيانات الطلب">' +
+              '<div class="customer-track-section-title">📋 بيانات الطلب</div>' +
+              '<div class="customer-track-data-grid">' +
+                '<div class="customer-track-data"><small>رقم الطلب</small><strong>' + escapeHtml(orderIdDisplay) + '</strong></div>' +
+                '<div class="customer-track-data"><small>اسم العميل</small><strong>' + escapeHtml(customerName) + '</strong></div>' +
+                '<div class="customer-track-data customer-track-address"><small>عنوان التوصيل</small><strong>' + escapeHtml(addressValue || 'العنوان غير محفوظ في بيانات الطلب') + '</strong></div>' +
+                '<div class="customer-track-data"><small>تاريخ الطلب</small><strong>' + escapeHtml(orderDate || '-') + '</strong></div>' +
+                '<div class="customer-track-data"><small>إجمالي الطلب</small><strong>' + escapeHtml(String(totalValue)) + (totalValue !== '-' && String(totalValue).indexOf('ج.م') === -1 ? ' ج.م' : '') + '</strong></div>' +
+              '</div>' +
+              '<div class="customer-track-current-status" style="--status-color:' + (current.color || '#8b3f52') + '"><small>الحالة الحالية للطلب</small><strong>' + escapeHtml(statusLabel) + '</strong></div>' +
+              '<div class="track-timeline-box customer-track-timeline"><div class="customer-track-section-title">📍 مراحل الطلب</div>' + timelineHtml + '</div>' +
+            '</section>' +
+            '<section class="customer-track-products-panel" aria-label="المنتجات التي طلبها العميل">' +
+              '<div class="customer-track-section-title">🛍️ المنتجات التي اخترتها <span>(' + items.length + ')</span></div>' +
+              (items.length ? buildTrackItemsHtml(items) : '<div class="customer-track-empty-products">لا توجد تفاصيل المنتجات محفوظة مع هذا الطلب. قد يكون الطلب قديمًا أو أن تفاصيله لم تُحفظ في قاعدة البيانات.</div>') +
+            '</section>' +
+          '</div>';
 
       } else {
         resultBox.innerHTML =
@@ -5645,6 +5648,32 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
         var _origSave = typeof saveOrderToCloud === 'function' ? saveOrderToCloud : null;
         if (_origSave) {
           window.saveOrderToCloud = async function (orderRecord) {
+            // Ensure the cloud order has the customer-facing tracking fields.
+            // Only fill missing values; preserve fields already prepared by the original checkout flow.
+            if (orderRecord && typeof orderRecord === 'object') {
+              var valOf = function (id) { var el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; };
+              var customerName = valOf('custName');
+              var customerPhone = valOf('custPhone');
+              var governorate = valOf('custGovernorate');
+              var city = valOf('custCity');
+              var detailedAddress = valOf('custDetailedAddress');
+              var fullAddress = [governorate, city, detailedAddress].filter(Boolean).join('، ');
+              if (!orderRecord.name && customerName) orderRecord.name = customerName;
+              if (!orderRecord.phone && customerPhone) orderRecord.phone = customerPhone;
+              if (!orderRecord.address && fullAddress) orderRecord.address = fullAddress;
+              if (!orderRecord.governorate && governorate) orderRecord.governorate = governorate;
+              if (!orderRecord.city && city) orderRecord.city = city;
+              if (!orderRecord.detailedAddress && detailedAddress) orderRecord.detailedAddress = detailedAddress;
+              if (!Array.isArray(orderRecord.items) && typeof cart !== 'undefined' && Array.isArray(cart)) {
+                orderRecord.items = cart.map(function (item) { return Object.assign({}, item); });
+              }
+              if (orderRecord.total == null) {
+                var totalEl = document.getElementById('cartTotalPrice');
+                if (totalEl) orderRecord.total = (totalEl.innerText || totalEl.textContent || '').trim();
+              }
+              if (!orderRecord.date) orderRecord.date = new Date().toISOString();
+              if (typeof orderRecord.statusCode !== 'number') orderRecord.statusCode = 0;
+            }
             if (isInstapay && window.__instapayReceiptDataUrl) {
               orderRecord.instapayReceipt = window.__instapayReceiptDataUrl;
               orderRecord.hasInstapayReceipt = true;
@@ -7036,13 +7065,13 @@ html body #productModal .share-btn{order:4!important;}
     }
   };
   function addCustomerCancelButton(){
-    const box=document.getElementById('trackingResultContainer'); if(!box || !box.innerHTML.includes('تم العثور على الطلب بنجاح')) return;
+    const box=document.getElementById('trackingResultContainer'); if(!box || !(box.innerHTML.includes('تم العثور على الطلب بنجاح') || box.innerHTML.includes('تم العثور على طلبك'))) return;
     if(box.querySelector('.cancel-request-panel')) return;
     const raw=(document.getElementById('trackInputId')||{}).value||''; const id=String(raw).trim().toUpperCase();
     let order=null; try { if(typeof fetchOrderFromCloud === 'function') order=null; } catch(e){}
     // Order ID is taken from the rendered order metadata, not arbitrary page text.
     const idSpan=box.querySelector('.track-meta-item span'); const renderedId=idSpan ? idSpan.textContent.trim() : id;
-    const statusText=(box.querySelector('.track-status-banner')||{}).textContent||'';
+    const statusText=((box.querySelector('.track-status-banner')||box.querySelector('.customer-track-current-status'))||{}).textContent||'';
     const statusIsExecution=/تحت التنفيذ|قيد التنفيذ/.test(statusText);
     const statusCodeKnown= statusIsExecution;
     const panel=document.createElement('section'); panel.className='cancel-request-panel';
@@ -7115,7 +7144,7 @@ html body #productModal .share-btn{order:4!important;}
   }
   function updateTrackingAdminBackButton(){
     const btn=document.getElementById('trackingBackToAdminOrdersBtn');
-    if(btn) btn.style.display=(typeof isAdminNow==='function' && isAdminNow())?'block':'none';
+    if(btn) btn.style.display='none';
   }
   const originalTrackingOpen=window.openTrackingModal;
   if(typeof originalTrackingOpen==='function'&&!originalTrackingOpen.__adminBackWrapped){
@@ -8050,6 +8079,45 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
     overflow-wrap: anywhere !important;
   }
 }
+</style>
+
+
+<style id="mysouq-customer-tracking-redesign-v1">
+/* Customer-only order tracking: read-only, separated from admin status controls. */
+#trackingModal .track-modal-content{width:min(1080px,96vw)!important;max-width:1080px!important;max-height:94vh!important;overflow-y:auto!important;padding:clamp(14px,2vw,24px)!important;border-radius:24px!important;background:linear-gradient(145deg,rgba(255,251,247,.97),rgba(246,235,228,.96))!important}
+#trackingModal .track-modal-title{margin:0 44px 8px 0!important;text-align:right!important;font-size:clamp(19px,2.2vw,26px)!important}
+#trackingModal .track-modal-hint{font-size:12px!important;line-height:1.8!important;margin:0 0 12px!important;color:#79666a!important}
+#trackingModal .track-search-row{display:flex!important;gap:8px!important;align-items:stretch!important;margin-bottom:14px!important}
+#trackingModal .track-search-input{min-width:0!important;flex:1!important;border-radius:13px!important;padding:12px 14px!important;background:#fff!important;border:1px solid #e5d4d1!important}
+#trackingModal .track-search-btn{flex:0 0 auto!important;min-width:82px!important;border-radius:13px!important}
+#trackingResultContainer{padding:clamp(12px,2vw,22px)!important;border:1px solid rgba(255,255,255,.85)!important;border-radius:22px!important;background:rgba(255,255,255,.65)!important;box-shadow:0 12px 34px rgba(82,47,51,.08)!important}
+.customer-track-success{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:900;color:#237445;font-size:14px;margin-bottom:14px}
+.customer-track-columns{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:16px;align-items:start}
+.customer-track-order-panel,.customer-track-products-panel{min-width:0;padding:16px;border:1px solid #eadbd7;border-radius:18px;background:rgba(255,253,250,.92);box-shadow:0 7px 20px rgba(91,54,58,.05)}
+.customer-track-section-title{display:flex;align-items:center;gap:7px;justify-content:space-between;flex-wrap:wrap;font-size:15px;font-weight:950;color:#087f83;margin-bottom:12px}
+.customer-track-section-title span{font-size:12px;color:#76666c}
+.customer-track-data-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.customer-track-data{min-width:0;display:flex;flex-direction:column;gap:5px;padding:11px 12px;border-radius:13px;background:#fff;border:1px solid #eadbd7}
+.customer-track-data small,.customer-track-current-status small{font-size:11px;color:#806e70;font-weight:800}
+.customer-track-data strong{font-size:13px;color:#392d30;line-height:1.7;overflow-wrap:anywhere;white-space:pre-line}
+.customer-track-address{grid-column:1/-1}
+.customer-track-current-status{display:flex;flex-direction:column;gap:5px;margin-top:10px;padding:13px;border-radius:14px;background:rgba(139,63,82,.08);border:1px solid rgba(139,63,82,.25);color:var(--status-color)}
+.customer-track-current-status strong{font-size:16px;line-height:1.6}
+.customer-track-timeline{margin-top:12px;padding:12px!important;border-radius:14px!important;background:#fff!important;border:1px solid #eadbd7!important}
+.customer-track-timeline .customer-track-section-title{margin-bottom:10px}
+#trackingResultContainer .track-product-card{display:grid;grid-template-columns:minmax(105px,.62fr) minmax(0,1fr);gap:12px;padding:12px;margin:0 0 10px;border:1px solid #eadbd7;border-radius:16px;background:#fff;align-items:start}
+#trackingResultContainer .track-product-images{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;min-width:0}
+#trackingResultContainer .track-product-img-wrap{width:100%;min-width:0;overflow:hidden;border-radius:11px;background:#f3e7e3;border:1px solid #eadbd7}
+#trackingResultContainer .track-product-img{display:block;width:100%;height:135px;object-fit:contain;cursor:zoom-in;background:#fff}
+#trackingResultContainer .track-product-info{min-width:0}
+#trackingResultContainer .track-product-name{font-size:14px;line-height:1.7;font-weight:950;color:#8b3f52;margin-bottom:5px}
+#trackingResultContainer .track-product-row{font-size:12px;line-height:1.8;color:#68585c;overflow-wrap:anywhere}
+#trackingResultContainer .track-dims{margin-top:8px;padding:9px;border-radius:12px;background:#f9efeb;border:1px solid #eedbd5}
+#trackingResultContainer .track-dims-title{font-size:11px;font-weight:950;color:#8b3f52;margin-bottom:6px}
+#trackingResultContainer .track-dim-chip{display:inline-flex;margin:2px;padding:5px 7px;border-radius:8px;background:#fff;border:1px solid #eadbd7;font-size:10.5px;line-height:1.5;color:#58494d}
+.customer-track-empty-products{padding:20px 14px;border:1px dashed #d9c6c2;border-radius:14px;text-align:center;color:#76666c;font-size:13px;line-height:1.9;background:#fffaf8}
+@media(max-width:760px){.customer-track-columns{grid-template-columns:1fr}.customer-track-order-panel,.customer-track-products-panel{padding:12px}.customer-track-data-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#trackingResultContainer .track-product-img{height:125px}}
+@media(max-width:430px){#trackingModal .track-search-row{gap:6px!important}#trackingModal .track-search-btn{min-width:72px!important;padding-inline:9px!important}.customer-track-data-grid{grid-template-columns:1fr}.customer-track-address{grid-column:auto}#trackingResultContainer .track-product-card{grid-template-columns:1fr}#trackingResultContainer .track-product-images{grid-template-columns:repeat(2,minmax(0,1fr))}#trackingResultContainer .track-product-img{height:180px}}
 </style>
 
 </body>
