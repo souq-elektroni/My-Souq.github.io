@@ -14200,3 +14200,24 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   #adminOrdersModal #msqAdminTabs { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 6px !important; }
 }
 </style>
+
+<style id="mysouq-admin-close-button-spacing-fix-v3">
+/* Keep the admin modal close control in its own clear corner, away from logout. */
+#adminOrdersModal > .modal-content > .close-btn {
+  top: 10px !important;
+  left: 10px !important;
+  width: 32px !important;
+  height: 32px !important;
+  z-index: 30 !important;
+  box-shadow: 0 3px 10px rgba(50,30,30,.12) !important;
+}
+#adminOrdersModal #adminOrdersHeader {
+  padding-left: 44px !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 620px) {
+  #adminOrdersModal #adminOrdersHeader {
+    padding-left: 38px !important;
+  }
+}
+</style>
