@@ -13136,3 +13136,335 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   };
 })();
 </script>
+
+<style id="mysouq-final-modal-layout-v2">
+/* ========== FINAL clean product modal layout ========== */
+#productModal.modal-overlay {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px !important;
+  background: rgba(50, 38, 30, 0.5) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+#productModal.modal-overlay.active {
+  display: flex !important;
+}
+
+#productModal .modal-content {
+  width: min(1120px, calc(100vw - 28px)) !important;
+  max-width: 1120px !important;
+  max-height: 92vh !important;
+  border-radius: 26px !important;
+  background: #fffdfb !important;
+  border: 1px solid rgba(230, 215, 200, 0.5) !important;
+  box-shadow: 0 24px 60px rgba(40, 28, 20, 0.18) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 0 !important;
+}
+
+#productModal .modal-body {
+  display: grid !important;
+  grid-template-columns: minmax(280px, 0.92fr) minmax(0, 1.2fr) !important;
+  gap: 20px !important;
+  padding: 20px 22px 18px !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: 92vh !important;
+  overflow: hidden !important;
+  align-items: stretch !important;
+}
+html[dir="rtl"] #productModal .modal-body {
+  /* gallery on the right in RTL = first column in RTL is right */
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.92fr) !important;
+}
+
+/* Gallery: image fills + vertical thumbs */
+#productModal .modal-gallery-wrapper {
+  display: grid !important;
+  grid-template-columns: 1fr 74px !important;
+  grid-template-rows: 1fr !important;
+  grid-template-areas: "main thumbs" !important;
+  gap: 10px !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: calc(92vh - 40px) !important;
+}
+html[dir="rtl"] #productModal .modal-gallery-wrapper {
+  grid-template-columns: 74px 1fr !important;
+  grid-template-areas: "thumbs main" !important;
+}
+
+#productModal .modal-img,
+#productModal #modalImage {
+  grid-area: main !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 380px !important;
+  max-height: calc(92vh - 40px) !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  border-radius: 20px !important;
+  background: #f3ebe3 !important;
+  display: block !important;
+}
+
+#productModal .thumbnails-bar,
+#productModal #thumbnailsContainer {
+  grid-area: thumbs !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 7px !important;
+  height: 100% !important;
+  max-height: calc(92vh - 40px) !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 2px !important;
+  scrollbar-width: thin !important;
+}
+#productModal .thumbnails-bar img,
+#productModal #thumbnailsContainer img {
+  width: 64px !important;
+  height: 64px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+  object-fit: cover !important;
+  border-radius: 11px !important;
+  border: 2px solid transparent !important;
+  cursor: pointer !important;
+  flex: 0 0 auto !important;
+}
+#productModal .thumbnails-bar img.active,
+#productModal #thumbnailsContainer img.active {
+  border-color: #b88762 !important;
+}
+
+/* Hide nav arrows completely */
+#productModal .gallery-nav,
+#productModal .thumbs-swap-btn {
+  display: none !important;
+}
+
+/* Info column */
+#productModal .modal-info {
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 4px 6px 16px 2px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 11px !important;
+}
+
+#productModal .modal-back-btn {
+  display: inline-flex !important;
+  align-self: flex-start !important;
+}
+
+/* ===== SIZE BUTTONS — forced selected style ===== */
+#productModal #sizesContainer,
+#productModal .size-selector {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  overflow: visible !important;
+}
+
+#productModal #sizesContainer > *,
+#productModal .size-selector > *,
+#productModal .size-btn {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 9px 15px !important;
+  min-width: 54px !important;
+  border-radius: 11px !important;
+  background: #f0e8df !important;
+  color: #574437 !important;
+  border: 2px solid #e0d0c0 !important;
+  font-weight: 800 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  transition: background 0.15s, color 0.15s, border-color 0.15s !important;
+  box-shadow: none !important;
+  gap: 0 !important;
+}
+#productModal #sizesContainer > *::before,
+#productModal #sizesContainer > *::after,
+#productModal .size-btn::before,
+#productModal .size-btn::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Selected — darker, high specificity */
+#productModal #sizesContainer > *.active,
+#productModal #sizesContainer > *.selected,
+#productModal #sizesContainer > *[aria-pressed="true"],
+#productModal #sizesContainer > *.msq-size-on,
+#productModal .size-selector > *.active,
+#productModal .size-selector > *.selected,
+#productModal .size-btn.active,
+#productModal .size-btn.selected,
+#productModal .size-btn.msq-size-on,
+#productModal #sizesContainer button.active,
+#productModal #sizesContainer label.active {
+  background: #7a5439 !important;
+  color: #ffffff !important;
+  border-color: #5c3f2a !important;
+  box-shadow: 0 2px 8px rgba(90, 55, 35, 0.25) !important;
+}
+
+/* Action buttons row */
+#productModal .modal-actions-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 9px !important;
+  margin-top: 4px !important;
+}
+#productModal .modal-actions-row > * {
+  min-height: 48px !important;
+  border-radius: 13px !important;
+  font-weight: 900 !important;
+  font-size: 13px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border: none !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+}
+#productModal .add-cart-btn {
+  background: #b88762 !important;
+  color: #fff !important;
+}
+#productModal .direct-wa-btn {
+  background: #22c55e !important;
+  color: #fff !important;
+}
+#productModal .call-modal-btn {
+  background: #2e7d32 !important;
+  color: #fff !important;
+}
+#productModal .share-btn {
+  background: #f5efe8 !important;
+  color: #574437 !important;
+  border: 1.5px solid #e0d0c0 !important;
+}
+
+@media (max-width: 767px) {
+  #productModal .modal-body,
+  html[dir="rtl"] #productModal .modal-body {
+    grid-template-columns: 1fr !important;
+    overflow-y: auto !important;
+    max-height: 94vh !important;
+  }
+  #productModal .modal-gallery-wrapper,
+  html[dir="rtl"] #productModal .modal-gallery-wrapper {
+    grid-template-columns: 1fr !important;
+    grid-template-areas: "main" "thumbs" !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+  #productModal .modal-img,
+  #productModal #modalImage {
+    min-height: 240px !important;
+    max-height: 45vh !important;
+    height: auto !important;
+  }
+  #productModal .thumbnails-bar,
+  #productModal #thumbnailsContainer {
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+}
+</style>
+
+<script id="mysouq-size-select-force-v2">
+(function () {
+  function clearSizes(box) {
+    if (!box) return;
+    box.querySelectorAll('button, label, .size-btn, [data-size], *').forEach(function (el) {
+      el.classList.remove('active', 'selected', 'msq-size-on');
+      el.setAttribute('aria-pressed', 'false');
+      /* clear any inline that might fight us */
+      if (el.dataset && el.dataset.msqStyled) {
+        el.style.background = '';
+        el.style.color = '';
+        el.style.borderColor = '';
+        delete el.dataset.msqStyled;
+      }
+    });
+  }
+
+  function markSelected(el) {
+    if (!el) return;
+    el.classList.add('active', 'selected', 'msq-size-on');
+    el.setAttribute('aria-pressed', 'true');
+    /* Inline backup so it ALWAYS shows even if CSS loses */
+    el.style.setProperty('background', '#7a5439', 'important');
+    el.style.setProperty('color', '#ffffff', 'important');
+    el.style.setProperty('border-color', '#5c3f2a', 'important');
+    el.dataset.msqStyled = '1';
+
+    var text = (el.getAttribute('data-size') || el.textContent || '').replace(/\s+/g, ' ').trim();
+    if (text) {
+      try { window.selectedSize = text; } catch (e) {}
+      try { selectedSize = text; } catch (e) {}
+    }
+  }
+
+  function onSizeClick(e) {
+    var box = document.getElementById('sizesContainer');
+    if (!box) return;
+    var t = e.target;
+    if (!box.contains(t)) return;
+    /* climb to the size chip */
+    var chip = t.closest('button, label, .size-btn, [data-size]');
+    if (!chip || !box.contains(chip)) {
+      /* maybe clicked text node parent */
+      chip = t;
+      while (chip && chip !== box && chip.parentElement !== box) {
+        chip = chip.parentElement;
+      }
+      if (!chip || chip === box) return;
+    }
+    clearSizes(box);
+    markSelected(chip);
+  }
+
+  function bind() {
+    var box = document.getElementById('sizesContainer');
+    if (!box || box.dataset.msqSizeBound) return;
+    box.dataset.msqSizeBound = '1';
+    box.addEventListener('click', onSizeClick, true);
+  }
+
+  /* Also observe when sizes are re-rendered */
+  var obs = new MutationObserver(function () {
+    bind();
+    var box = document.getElementById('sizesContainer');
+    if (box && !box.dataset.msqSizeBound) bind();
+  });
+
+  function init() {
+    bind();
+    if (document.body) {
+      obs.observe(document.body, { childList: true, subtree: true });
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
