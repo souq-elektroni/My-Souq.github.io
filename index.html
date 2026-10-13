@@ -13835,8 +13835,8 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
     var cancel=document.getElementById('cancelRequestsAdminPanel');
     var maint=document.getElementById('maintenanceAdminBox');
     var searchPane=document.createElement('section');searchPane.className='msq-tab-pane';searchPane.dataset.pane='open';
+    /* Keep the main search input in the header between the title and compact logout button. */
     if(back)searchPane.appendChild(back);
-    if(search)searchPane.appendChild(search);
     if(list)searchPane.appendChild(list);
     var cancelPane=document.createElement('section');cancelPane.className='msq-tab-pane';cancelPane.dataset.pane='cancel';
     var deliveredPane=document.createElement('section');deliveredPane.className='msq-tab-pane';deliveredPane.dataset.pane='delivered';
@@ -13844,7 +13844,11 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
     var deliveredList=document.createElement('div');deliveredList.id='msqDeliveredList';deliveredPane.appendChild(deliveredList);
     var maintPane=document.createElement('section');maintPane.className='msq-tab-pane';maintPane.dataset.pane='maintenance';
     paneWrap.append(searchPane,cancelPane,deliveredPane,maintPane);
-    logout.insertAdjacentElement('afterend',tabs);tabs.insertAdjacentElement('afterend',paneWrap);
+    /* Place tabs below the complete header, never inside the title/search/logout row. */
+    var header=document.getElementById('adminOrdersHeader');
+    if(header) header.insertAdjacentElement('afterend',tabs);
+    else logout.insertAdjacentElement('afterend',tabs);
+    tabs.insertAdjacentElement('afterend',paneWrap);
     tabs.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){setTab(b.dataset.tab);});});
     deliveredSearch.addEventListener('input',renderDelivered);
     setTab(activeTab);
@@ -14165,5 +14169,34 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
     font-size: 10px !important;
   }
   #adminOrdersModal .maintenance-admin-box { padding: 11px !important; border-radius: 14px !important; }
+}
+</style>
+
+
+<style id="mysouq-admin-orders-layout-repair-v2">
+#adminOrdersModal #adminOrdersHeader {
+  display: grid !important;
+  grid-template-columns: max-content minmax(160px, 1fr) max-content !important;
+  align-items: center !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+#adminOrdersModal #msqAdminTabs {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  width: 100% !important;
+  margin: 0 0 14px !important;
+}
+#adminOrdersModal #msqAdminTabContent { width: 100% !important; min-width: 0 !important; }
+@media (max-width: 620px) {
+  #adminOrdersModal #adminOrdersHeader {
+    grid-template-columns: minmax(0, 1fr) max-content !important;
+    gap: 8px !important;
+  }
+  #adminOrdersModal #adminOrdersHeader .admin-orders-heading { grid-column: 1; grid-row: 1; white-space: normal !important; }
+  #adminOrdersModal #adminOrdersHeader .admin-orders-search { grid-column: 1 / -1 !important; grid-row: 2 !important; }
+  #adminOrdersModal #adminOrdersHeader .admin-logout-compact { grid-column: 2; grid-row: 1; }
+  #adminOrdersModal #msqAdminTabs { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 6px !important; }
 }
 </style>
