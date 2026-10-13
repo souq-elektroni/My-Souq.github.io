@@ -6583,6 +6583,7 @@ window.addToCartAndContinue = function () {
         var list = (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) ? adminOrdersCache : [];
         cards.forEach(function (card) {
           var existing = card.querySelector('.cancel-order-btn');
+          var actionRow = card.querySelector('.msq-cancel-actions-row');
           var oidEl = card.querySelector('.oid');
           var text = oidEl ? oidEl.textContent.replace(/^\s*🆔\s*/, '').trim() : '';
           var match = list.find(function (o) { return String(o.orderId || '') === text; });
@@ -6591,11 +6592,12 @@ window.addToCartAndContinue = function () {
             return;
           }
           var matchStatusCode = (typeof match.statusCode === 'number') ? match.statusCode : 0;
-          var row = existing ? existing.parentElement : null;
+          // Reuse the same action row on every render to prevent duplicate buttons.
+          var row = actionRow || (existing ? existing.parentElement : null);
           if (!row || !row.classList.contains('msq-cancel-actions-row')) {
             row = document.createElement('div');
             row.className = 'msq-cancel-actions-row';
-            row.style.cssText = 'display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;';
+            row.style.cssText = 'display:flex;align-items:center;justify-content:flex-start;gap:8px;margin-top:8px;flex-wrap:wrap;';
             card.appendChild(row);
           }
           if (matchStatusCode === 0 && !row.querySelector('.cancel-order-btn')) {
