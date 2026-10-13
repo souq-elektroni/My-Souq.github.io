@@ -10556,3 +10556,464 @@ header .banner-dot:hover {
   }
 }
 </style>
+
+<style id="mysouq-liquid-glass-cards-modals-v1">
+/* ============================================================
+   My Souq — Professional Liquid Glass
+   Product cards + Order/Cart modals matching cream-caramel buttons
+   ============================================================ */
+
+:root {
+  --lg-cream: #fffaf3;
+  --lg-cream-2: #fff5e8;
+  --lg-caramel: #c9a184;
+  --lg-caramel-deep: #9b7155;
+  --lg-ink: #574437;
+  --lg-ink-soft: #7a5f4a;
+  --lg-glass: rgba(255, 250, 241, 0.72);
+  --lg-glass-border: rgba(255, 255, 255, 0.88);
+  --lg-shadow: 0 12px 40px rgba(111, 75, 49, 0.12);
+  --lg-shadow-hover: 0 20px 50px rgba(111, 75, 49, 0.18);
+}
+
+/* ---------- PRODUCT CARDS — liquid glass ---------- */
+.product-card,
+.product-item,
+.product-card-new,
+#products-container .product-card,
+#productsContainer .product-card,
+.products-grid .product-card {
+  background: linear-gradient(
+    165deg,
+    rgba(255, 252, 247, 0.95) 0%,
+    rgba(255, 245, 232, 0.88) 50%,
+    rgba(255, 250, 241, 0.92) 100%
+  ) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 24px !important;
+  box-shadow:
+    0 10px 32px rgba(111, 75, 49, 0.1),
+    0 2px 8px rgba(111, 75, 49, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(201, 161, 132, 0.08) !important;
+  backdrop-filter: blur(16px) saturate(1.15) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.15) !important;
+  overflow: hidden !important;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease,
+    border-color 0.3s ease !important;
+}
+
+.product-card:hover,
+.product-item:hover,
+.product-card-new:hover {
+  transform: translateY(-8px) scale(1.01) !important;
+  border-color: rgba(201, 161, 132, 0.45) !important;
+  box-shadow:
+    0 22px 48px rgba(111, 75, 49, 0.16),
+    0 8px 20px rgba(111, 75, 49, 0.08),
+    inset 0 1px 0 #fff,
+    0 0 0 1px rgba(201, 161, 132, 0.12) !important;
+}
+
+/* Image area */
+.product-card .image-container,
+.product-item .image-container,
+.product-card-new .image-container {
+  background: linear-gradient(160deg, #faf6f0 0%, #f3ebe3 100%) !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+}
+.product-card img,
+.product-item img,
+.product-card-new img,
+.product-card .product-image {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+.product-card:hover img,
+.product-item:hover img,
+.product-card-new:hover img,
+.product-card:hover .product-image {
+  transform: scale(1.05) !important;
+}
+
+/* Details */
+.product-card .product-details,
+.product-item .product-details,
+.product-card-new .product-details,
+.product-card .product-info {
+  background: transparent !important;
+  padding: 14px 16px 16px !important;
+  gap: 6px !important;
+}
+
+.product-card .product-title,
+.product-card .product-name,
+.product-item .product-title,
+.product-item .product-name {
+  color: var(--lg-ink) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.02em !important;
+}
+
+.product-card .price-tag,
+.product-item .price-tag,
+.product-card-new .price-tag {
+  color: var(--lg-caramel-deep) !important;
+  font-weight: 950 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* Click hint button — liquid glass pill */
+.product-card .click-hint,
+.product-item .click-hint,
+.product-card-new .click-hint {
+  background: linear-gradient(145deg, rgba(255,250,241,.95), rgba(239,218,196,.85)) !important;
+  color: var(--lg-ink) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    0 4px 14px rgba(111, 75, 49, 0.1),
+    inset 0 1px 0 #fff !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  font-weight: 800 !important;
+  transition: all 0.28s ease !important;
+}
+.product-card:hover .click-hint,
+.product-item:hover .click-hint,
+.product-card-new:hover .click-hint {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+  border-color: transparent !important;
+  box-shadow: 0 8px 20px rgba(111, 75, 49, 0.25) !important;
+}
+
+/* Album badge on cards */
+.product-card [class*="album"],
+.product-card .badge,
+.product-card .product-badge {
+  background: rgba(87, 68, 55, 0.75) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255,255,255,.25) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,.15) !important;
+}
+
+/* ---------- MODAL OVERLAY — soft blur ---------- */
+.modal-overlay {
+  background: rgba(60, 45, 35, 0.45) !important;
+  backdrop-filter: blur(12px) saturate(1.1) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(1.1) !important;
+}
+
+/* ---------- ALL MODAL CONTENT — liquid glass ---------- */
+.modal-content,
+.cart-modal,
+.terms-modal,
+.payment-modal,
+.confirmation-modal,
+.track-modal-content,
+#successModal .success-modal,
+#successModal .modal-content {
+  background: linear-gradient(
+    165deg,
+    rgba(255, 252, 247, 0.92) 0%,
+    rgba(255, 245, 232, 0.88) 40%,
+    rgba(255, 250, 241, 0.9) 100%
+  ) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 28px !important;
+  box-shadow:
+    0 24px 64px rgba(80, 55, 40, 0.2),
+    0 8px 24px rgba(80, 55, 40, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(201, 161, 132, 0.1) !important;
+  backdrop-filter: blur(24px) saturate(1.25) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(1.25) !important;
+  color: var(--lg-ink) !important;
+}
+
+/* Close button */
+.close-btn {
+  background: linear-gradient(145deg, rgba(255,250,241,.95), rgba(239,218,196,.9)) !important;
+  color: var(--lg-ink) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 4px 14px rgba(111, 75, 49, 0.12), inset 0 1px 0 #fff !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  transition: all 0.25s ease !important;
+}
+.close-btn:hover {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+  transform: scale(1.08) !important;
+}
+
+/* Cart title */
+.cart-title,
+.terms-header,
+.success-title {
+  color: var(--lg-caramel-deep) !important;
+  font-weight: 900 !important;
+  border-bottom: 1px solid rgba(201, 161, 132, 0.2) !important;
+  padding-bottom: 10px !important;
+}
+
+/* Cart items */
+.cart-item {
+  background: linear-gradient(145deg, rgba(255,250,241,.9), rgba(255,245,232,.85)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 4px 12px rgba(111, 75, 49, 0.06), inset 0 1px 0 #fff !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+.cart-item-title {
+  color: var(--lg-ink) !important;
+}
+.cart-item-price {
+  color: var(--lg-caramel-deep) !important;
+}
+.quantity-controls {
+  background: rgba(255, 255, 255, 0.7) !important;
+  border: 1px solid rgba(201, 161, 132, 0.25) !important;
+  border-radius: 10px !important;
+}
+.qty-btn {
+  color: var(--lg-caramel-deep) !important;
+}
+
+/* Promo box */
+.promo-input {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1.5px solid rgba(201, 161, 132, 0.3) !important;
+  border-radius: 12px !important;
+  color: var(--lg-ink) !important;
+  box-shadow: inset 0 1px 0 #fff !important;
+}
+.promo-input:focus {
+  border-color: var(--lg-caramel) !important;
+  box-shadow: 0 0 0 3px rgba(201, 161, 132, 0.2) !important;
+  outline: none !important;
+}
+.promo-btn {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 14px rgba(111, 75, 49, 0.2) !important;
+  font-weight: 800 !important;
+}
+.promo-btn:hover {
+  background: linear-gradient(145deg, #b88762, #9b7155) !important;
+}
+
+/* Customer form */
+.customer-form {
+  background: linear-gradient(160deg, rgba(255,250,241,.7), rgba(255,245,232,.6)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.8) !important;
+  border-radius: 18px !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 4px 16px rgba(111,75,49,.05) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+.customer-form h4,
+.form-group label {
+  color: var(--lg-caramel-deep) !important;
+  font-weight: 800 !important;
+}
+.form-group input,
+.form-group select,
+.form-group textarea,
+#customerFormBox input,
+#customerFormBox select,
+#customerFormBox textarea {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1.5px solid rgba(201, 161, 132, 0.28) !important;
+  border-radius: 14px !important;
+  color: var(--lg-ink) !important;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 6px rgba(111,75,49,.04) !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus,
+#customerFormBox input:focus,
+#customerFormBox select:focus,
+#customerFormBox textarea:focus {
+  border-color: var(--lg-caramel) !important;
+  box-shadow: 0 0 0 3px rgba(201, 161, 132, 0.2), inset 0 1px 0 #fff !important;
+  outline: none !important;
+}
+
+/* Total + Proceed */
+.total-price {
+  color: var(--lg-ink) !important;
+  font-weight: 900 !important;
+}
+.total-price span[id],
+#cartTotalPrice {
+  color: var(--lg-caramel-deep) !important;
+}
+.proceed-btn,
+.send-final-btn,
+.success-btn,
+.btn-agree,
+.add-cart-btn {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  border-radius: 16px !important;
+  box-shadow:
+    0 8px 22px rgba(111, 75, 49, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  font-weight: 900 !important;
+  transition: all 0.28s ease !important;
+}
+.proceed-btn:hover,
+.send-final-btn:hover,
+.success-btn:hover,
+.btn-agree:hover,
+.add-cart-btn:hover {
+  background: linear-gradient(145deg, #b88762, #9b7155) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 28px rgba(111, 75, 49, 0.32) !important;
+}
+
+/* Terms body */
+.terms-body {
+  background: linear-gradient(160deg, #fff8f0, #fff3e6) !important;
+  border: 1px solid rgba(201, 161, 132, 0.3) !important;
+  border-radius: 14px !important;
+  color: var(--lg-ink-soft) !important;
+}
+.checkbox-container {
+  background: linear-gradient(145deg, rgba(255,250,241,.9), rgba(239,218,196,.7)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.85) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 12px rgba(111, 75, 49, 0.06) !important;
+}
+
+/* Product detail modal */
+.modal-title {
+  color: var(--lg-caramel-deep) !important;
+}
+.modal-price {
+  color: var(--lg-caramel-deep) !important;
+}
+.stock-badge {
+  background: linear-gradient(145deg, #eef8f0, #e0f0e4) !important;
+  color: #2e7d32 !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(46, 125, 50, 0.2) !important;
+}
+.stock-badge.out {
+  background: linear-gradient(145deg, #fff0f0, #ffe8e8) !important;
+  color: #c62828 !important;
+}
+.dimensions-box {
+  background: linear-gradient(145deg, rgba(255,250,241,.9), rgba(255,245,232,.85)) !important;
+  border: 1px solid rgba(201, 161, 132, 0.25) !important;
+  border-radius: 14px !important;
+  color: var(--lg-ink) !important;
+}
+.size-selector button,
+.size-btn {
+  background: linear-gradient(145deg, rgba(255,250,241,.95), rgba(239,218,196,.85)) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 12px !important;
+  color: var(--lg-ink) !important;
+  box-shadow: 0 3px 10px rgba(111, 75, 49, 0.08) !important;
+}
+.size-selector button.active,
+.size-btn.active,
+.size-selector button:hover {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+  border-color: transparent !important;
+}
+.direct-wa-btn {
+  background: linear-gradient(145deg, #25d366, #1ebe57) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3) !important;
+}
+.share-btn {
+  background: linear-gradient(145deg, rgba(255,250,241,.95), rgba(239,218,196,.85)) !important;
+  color: var(--lg-ink) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 14px !important;
+}
+
+/* Success modal polish */
+#successModal .success-modal,
+#successModal .modal-content {
+  border-radius: 28px !important;
+}
+#successModal .success-title {
+  color: var(--lg-caramel-deep) !important;
+}
+#successModal #successOrderIdDisplay {
+  background: linear-gradient(145deg, rgba(255,250,241,.95), rgba(255,245,232,.9)) !important;
+  border: 1.5px dashed var(--lg-caramel) !important;
+  border-radius: 16px !important;
+  color: var(--lg-caramel-deep) !important;
+}
+#successModal .success-policy {
+  background: linear-gradient(160deg, #fff8f0, #fff3e6) !important;
+  border: 1px solid rgba(201, 161, 132, 0.3) !important;
+  border-radius: 14px !important;
+}
+
+/* Map box if present */
+#mysouqDeliveryMap {
+  border-radius: 16px !important;
+  border: 1.5px solid rgba(201, 161, 132, 0.25) !important;
+  overflow: hidden !important;
+}
+.mysouq-map-actions button,
+#mysouqLocateMeBtn,
+#mysouqClearMapBtn {
+  background: linear-gradient(145deg, rgba(255,250,241,.95), rgba(239,218,196,.9)) !important;
+  color: var(--lg-ink) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(111, 75, 49, 0.1) !important;
+  font-weight: 800 !important;
+}
+#mysouqLocateMeBtn:hover,
+#mysouqClearMapBtn:hover {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+}
+
+/* Mobile refinements */
+@media (max-width: 767px) {
+  .product-card,
+  .product-item,
+  .product-card-new {
+    border-radius: 18px !important;
+  }
+  .modal-content,
+  .cart-modal,
+  .terms-modal,
+  .payment-modal,
+  .confirmation-modal,
+  .track-modal-content {
+    border-radius: 22px !important;
+  }
+  .product-card .product-details,
+  .product-item .product-details {
+    padding: 10px 12px 12px !important;
+  }
+  .product-card .click-hint,
+  .product-item .click-hint {
+    border-radius: 12px !important;
+    font-size: 11px !important;
+  }
+}
+</style>
