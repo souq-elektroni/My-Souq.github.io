@@ -4887,7 +4887,7 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
         // لازم اختيار مقاس أولاً — إشعار خطأ بدل نجاح
         if (!selectedSize) {
           if (typeof showToast === 'function') {
-            showToast('❌ خطأ >>> أختر المقاس أولا لإتمام الطلب ✨', true);
+            showToast('⚠️ من فضلك اختر المقاس أولاً لإتمام الطلب', true);
           } else {
             alert('من فضلك اختر المقاس أولاً');
           }
@@ -4917,7 +4917,7 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
           : (Number(currentSelectedProduct.price) || 0);
         if (!itemPrice || itemPrice <= 0) {
           if (typeof showToast === 'function') {
-            showToast('❌ خطأ >>> أختر المقاس أولا لإتمام الطلب ✨', true);
+            showToast('⚠️ من فضلك اختر المقاس أولاً لإتمام الطلب', true);
           } else {
             alert('لا يمكن إضافة المنتج: السعر غير محدد لهذا المقاس.');
           }
@@ -5566,7 +5566,7 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
             e.preventDefault();
             e.stopPropagation();
             if (typeof showToast === 'function') {
-              showToast('❌ خطأ >>> أختر المقاس أولا لإتمام الطلب ✨', true);
+              showToast('⚠️ من فضلك اختر المقاس أولاً لإتمام الطلب', true);
             } else if (typeof requireSelectedSize === 'function') {
               requireSelectedSize('الطلب السريع');
             } else {
@@ -11530,3 +11530,332 @@ header .banner-dot:hover {
   }
 }
 </style>
+
+<style id="mysouq-fix-modal-toast-frosted-card-v1">
+/* ============================================================
+   FIX: Product modal layout (sizes as pills, back btn visible)
+   Toast redesign (professional cream)
+   Product card bottom = frosted glass
+   ============================================================ */
+
+/* ----- Product card: frosted glass bottom ----- */
+.product-card .product-details,
+.product-item .product-details,
+.product-card-new .product-details,
+.product-card .product-info {
+  background: rgba(255, 252, 248, 0.55) !important;
+  backdrop-filter: blur(18px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(1.2) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+.product-card,
+.product-item,
+.product-card-new {
+  background: transparent !important;
+  /* keep image solid, glass only on text area */
+}
+.product-card .image-container,
+.product-item .image-container {
+  background: #f7f1ea !important;
+}
+
+/* ----- Toast — clean professional cream glass ----- */
+#toastNotification {
+  top: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) translateY(-120px) !important;
+  max-width: min(420px, calc(100vw - 28px)) !important;
+  width: auto !important;
+  min-width: 260px !important;
+  padding: 14px 22px !important;
+  border-radius: 18px !important;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 252, 247, 0.95) 0%,
+    rgba(255, 245, 232, 0.92) 100%
+  ) !important;
+  color: #574437 !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow:
+    0 16px 40px rgba(87, 68, 55, 0.18),
+    0 4px 12px rgba(87, 68, 55, 0.08),
+    inset 0 1px 0 #fff !important;
+  backdrop-filter: blur(20px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.2) !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: 1.5 !important;
+  letter-spacing: -0.01em !important;
+  gap: 10px !important;
+  z-index: 3000 !important;
+}
+#toastNotification.show {
+  transform: translateX(-50%) translateY(0) !important;
+}
+/* Error-looking toast (when message has خطأ) — soft warm accent, not harsh red */
+#toastNotification[data-error="true"],
+#toastNotification.error {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 248, 242, 0.96) 0%,
+    rgba(255, 236, 220, 0.94) 100%
+  ) !important;
+  color: #8a4a2a !important;
+  border-color: rgba(201, 140, 100, 0.35) !important;
+  box-shadow:
+    0 16px 40px rgba(140, 70, 40, 0.14),
+    inset 0 1px 0 #fff !important;
+}
+@media (max-width: 767px) {
+  #toastNotification {
+    padding: 12px 16px !important;
+    font-size: 13px !important;
+    border-radius: 16px !important;
+    min-width: 0 !important;
+  }
+}
+
+/* ----- Product modal: restore clean layout ----- */
+
+/* Back button ALWAYS visible */
+#productModal .modal-back-btn {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  min-height: 38px !important;
+  margin: 0 0 10px 0 !important;
+  padding: 8px 16px !important;
+  border-radius: 999px !important;
+  background: linear-gradient(145deg, #fffaf3, #f5ebe0) !important;
+  color: #574437 !important;
+  border: 1.5px solid rgba(201, 161, 132, 0.3) !important;
+  font-weight: 800 !important;
+  font-size: 13px !important;
+  box-shadow: 0 4px 12px rgba(87, 68, 55, 0.08) !important;
+  cursor: pointer !important;
+  align-items: center !important;
+  gap: 6px !important;
+  width: fit-content !important;
+  max-width: 100% !important;
+}
+#productModal .modal-back-btn:hover {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+  border-color: transparent !important;
+}
+
+/* Size pills — horizontal wrap, NOT full-width rows */
+#productModal .size-selector,
+#productModal #sizesContainer,
+html body #productModal .size-selector {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+}
+
+#productModal .size-selector > *,
+#productModal #sizesContainer > *,
+#productModal .size-selector button,
+#productModal .size-selector label,
+#productModal .size-btn,
+#productModal .size-option,
+#sizesContainer button,
+#sizesContainer label {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 9px 15px !important;
+  margin: 0 !important;
+  border-radius: 12px !important;
+  background: linear-gradient(145deg, #fffaf3, #f7efe6) !important;
+  color: #574437 !important;
+  border: 1.5px solid rgba(201, 161, 132, 0.28) !important;
+  font-weight: 800 !important;
+  font-size: 13px !important;
+  box-shadow: 0 2px 8px rgba(87, 68, 55, 0.05) !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+}
+
+#productModal .size-selector button.active,
+#productModal .size-selector label.active,
+#productModal .size-btn.active,
+#sizesContainer button.active,
+#sizesContainer label.active,
+#productModal .size-selector button:hover,
+#productModal .size-btn:hover,
+#sizesContainer button:hover {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+  border-color: transparent !important;
+  box-shadow: 0 6px 16px rgba(155, 113, 85, 0.28) !important;
+}
+
+/* Hide radio circles if present inside size labels */
+#productModal .size-selector input[type="radio"],
+#sizesContainer input[type="radio"] {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+  position: absolute !important;
+  pointer-events: none !important;
+}
+
+/* Modal shell — softer, less aggressive than before */
+#productModal .modal-content {
+  background: #fffdfb !important;
+  border: 1px solid rgba(230, 215, 200, 0.6) !important;
+  border-radius: 28px !important;
+  box-shadow: 0 24px 64px rgba(60, 40, 30, 0.18) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+#productModal .modal-title {
+  color: #3d2e26 !important;
+  font-weight: 900 !important;
+}
+
+#productModal .modal-price {
+  color: #9b7155 !important;
+  font-weight: 950 !important;
+}
+
+#productModal .dimensions-box {
+  background: #faf6f0 !important;
+  border: 1px solid rgba(201, 161, 132, 0.2) !important;
+  border-radius: 16px !important;
+  color: #574437 !important;
+}
+
+/* Action buttons — clean 2x2 grid, professional */
+#productModal .modal-actions-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+}
+#productModal .modal-actions-row > * {
+  min-height: 52px !important;
+  border-radius: 14px !important;
+  font-weight: 900 !important;
+  font-size: 13px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  border: none !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  box-shadow: 0 4px 14px rgba(60, 40, 30, 0.1) !important;
+}
+#productModal .modal-actions-row > *:hover {
+  transform: translateY(-2px) !important;
+}
+
+#productModal .add-cart-btn {
+  background: linear-gradient(145deg, #c9a184, #b88762) !important;
+  color: #fffaf3 !important;
+}
+#productModal .direct-wa-btn {
+  background: linear-gradient(145deg, #2dd46a, #22c55e) !important;
+  color: #fff !important;
+}
+#productModal .call-modal-btn {
+  background: linear-gradient(145deg, #3a9b45, #2e7d32) !important;
+  color: #fff !important;
+}
+#productModal .share-btn {
+  background: #fffaf3 !important;
+  color: #574437 !important;
+  border: 1.5px solid rgba(201, 161, 132, 0.3) !important;
+  box-shadow: 0 2px 10px rgba(87, 68, 55, 0.06) !important;
+}
+
+#productModal .add-another-design-btn {
+  width: 100% !important;
+  margin-top: 10px !important;
+  padding: 12px 14px !important;
+  border-radius: 14px !important;
+  background: #faf6f0 !important;
+  color: #574437 !important;
+  border: 1.5px dashed rgba(201, 161, 132, 0.4) !important;
+  font-weight: 800 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+}
+#productModal .add-another-design-btn:hover {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+  border-style: solid !important;
+  border-color: transparent !important;
+}
+
+#productModal .close-btn {
+  background: #fffaf3 !important;
+  color: #574437 !important;
+  border: 1.5px solid rgba(201, 161, 132, 0.25) !important;
+  box-shadow: 0 4px 12px rgba(87, 68, 55, 0.1) !important;
+}
+
+/* Keep modal info readable */
+#productModal .modal-info {
+  gap: 12px !important;
+}
+#productModal .modal-img {
+  border-radius: 20px !important;
+  box-shadow: 0 12px 32px rgba(60, 40, 30, 0.1) !important;
+}
+
+@media (max-width: 767px) {
+  #productModal .modal-content {
+    border-radius: 22px !important;
+  }
+  #productModal .modal-actions-row > * {
+    min-height: 48px !important;
+    font-size: 12px !important;
+  }
+  #productModal .size-selector > *,
+  #sizesContainer > * {
+    padding: 8px 12px !important;
+    font-size: 12px !important;
+  }
+}
+</style>
+
+<script id="mysouq-toast-error-class">
+(function () {
+  /* Mark toast as error when message contains خطأ so CSS can style it softer */
+  var orig = window.showToast;
+  if (typeof orig === 'function' && !window.__msqToastPatched) {
+    window.__msqToastPatched = true;
+    window.showToast = function (msg, isError) {
+      var el = document.getElementById('toastNotification');
+      if (el) {
+        var err = isError === true || (typeof msg === 'string' && msg.indexOf('خطأ') !== -1);
+        if (err) el.setAttribute('data-error', 'true');
+        else el.removeAttribute('data-error');
+      }
+      return orig.apply(this, arguments);
+    };
+  }
+})();
+</script>
