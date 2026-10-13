@@ -7096,15 +7096,32 @@ html body #productModal .share-btn{order:4!important;}
       const snap=await db.collection('cancellationRequests').limit(100).get();
       const requests=[]; snap.forEach(doc=>requests.push({...doc.data(),_docId:doc.id}));
       requests.sort((a,b)=>{const ta=a.createdAt&&a.createdAt.toMillis?a.createdAt.toMillis():0;const tb=b.createdAt&&b.createdAt.toMillis?b.createdAt.toMillis():0;return tb-ta;});
-      const pending=requests.filter(r=>r.status==='pending'); if(countEl) countEl.textContent=String(pending.length);
+      const pending=requests.filter(r=>String(r.status||'pending').toLowerCase()==='pending');
+      const pendingCount=String(pending.length);
+      if(countEl) countEl.textContent=pendingCount;
+      // Keep the notification badge on the admin tab synchronized with the live Firestore result.
+      // The previous code copied the count only during initialization, before this async query finished.
+      const tabBadge=document.getElementById('msqCancelBadge');
+      if(tabBadge){
+        tabBadge.textContent=pendingCount;
+        tabBadge.classList.toggle('has-pending-cancellations',pending.length>0);
+        tabBadge.setAttribute('aria-label',pending.length ? pending.length+' طلب إلغاء بانتظار المراجعة' : 'لا توجد طلبات إلغاء معلقة');
+      }
       if(!requests.length){listEl.innerHTML='<div>لا توجد طلبات إلغاء حتى الآن.</div>';return;}
       const visibleRequests=requests.filter(r=>r.status==='pending');
       if(!visibleRequests.length){listEl.innerHTML='<div class="cancel-empty-state">لا توجد طلبات إلغاء جديدة تنتظر المراجعة.</div>';return;}
       listEl.innerHTML=visibleRequests.map(r=>'<article class="cancel-request-admin-card"><div style="font-size:13px;font-weight:950;color:#a3202b">🔔 العميل يريد الإلغاء</div><div><b>رقم الطلب:</b> '+esc(r.orderId||'-')+'</div><div><b>الاسم:</b> '+esc(r.customerName||'-')+'</div><div><b>الهاتف:</b> '+esc(r.customerPhone||'-')+'</div><div><b>الحالة:</b> ⏳ بانتظار المراجعة</div><div><b>الرسالة:</b> '+esc(r.message||'العميل يريد الإلغاء')+'</div><div class="cancel-admin-actions"><button type="button" data-final-cancel="'+esc(r._docId)+'" data-order-id="'+esc(r.orderId||'')+'">إلغاء الطلب نهائيًا</button><button type="button" data-review-cancel="'+esc(r._docId)+'">تمت المراجعة فقط</button></div></article>').join('');
       listEl.querySelectorAll('[data-review-cancel]').forEach(btn=>btn.addEventListener('click',async()=>{try{await db.collection('cancellationRequests').doc(btn.dataset.reviewCancel).update({status:'reviewed',reviewedAt:firebase.firestore.FieldValue.serverTimestamp(),reviewedBy:currentAdminUser.email||''});await loadAdminCancelRequests();}catch(e){alert('تعذر تحديث الطلب. تأكد من قواعد Firestore.');}}));
       listEl.querySelectorAll('[data-final-cancel]').forEach(btn=>btn.addEventListener('click',async()=>{await finalizeCustomerCancellation(btn.dataset.orderId,btn.dataset.finalCancel,btn);}));
-    }catch(e){console.error('Loading cancellation requests failed',e);listEl.textContent='تعذر تحميل طلبات الإلغاء. تأكد من تحديث قواعد Firestore.';}
+    }catch(e){
+      console.error('Loading cancellation requests failed',e);
+      listEl.textContent='تعذر تحميل طلبات الإلغاء. تأكد من تحديث قواعد Firestore.';
+      const tabBadge=document.getElementById('msqCancelBadge');
+      if(tabBadge){tabBadge.title='تعذر تحديث عدد طلبات الإلغاء؛ اضغط على تبويب طلبات الإلغاء لإعادة المحاولة.';}
+    }
   }
+  // Expose the loader so the admin tabs can refresh the same source of truth.
+  window.loadAdminCancelRequests=loadAdminCancelRequests;
   async function finalizeCustomerCancellation(orderId, requestDocId, button){
     const id=String(orderId||'').trim().toUpperCase();
     if(!id){alert('رقم الطلب غير صالح.');return;}
@@ -13987,6 +14004,13 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   document.addEventListener('click',function(e){if(e.target&&e.target.id==='refreshCancelRequests')setTimeout(function(){var a=document.getElementById('msqCancelBadge'),b=document.getElementById('cancelRequestsCount');if(a&&b)a.textContent=b.textContent;},300);});
 })();
 </script>
+
+
+<style id="mysouq-cancel-notification-badge-fix">
+#msqCancelBadge.has-pending-cancellations{background:#c62828!important;color:#fff!important;box-shadow:0 0 0 2px rgba(198,40,40,.14);animation:msqCancelPulse 1.8s ease-in-out infinite}
+@keyframes msqCancelPulse{0%,100%{box-shadow:0 0 0 2px rgba(198,40,40,.12)}50%{box-shadow:0 0 0 5px rgba(198,40,40,.2)}}
+@media(prefers-reduced-motion:reduce){#msqCancelBadge.has-pending-cancellations{animation:none}}
+</style>
 
 <!-- My Souq: larger product image on mobile only; existing features and scripts preserved -->
 <style id="mysouq-mobile-product-image-large-v2">
