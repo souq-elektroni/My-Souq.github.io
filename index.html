@@ -4154,10 +4154,14 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
             alt=""
           >
 
-          <div
-            class="thumbnails-bar"
-            id="thumbnailsContainer"
-          ></div>
+          <div class="thumbs-vertical-wrap" id="thumbsVerticalWrap">
+            <button type="button" class="thumbs-swap-btn thumbs-up" onclick="thumbsScrollUp()" aria-label="الصورة السابقة">▲</button>
+            <div
+              class="thumbnails-bar"
+              id="thumbnailsContainer"
+            ></div>
+            <button type="button" class="thumbs-swap-btn thumbs-down" onclick="thumbsScrollDown()" aria-label="الصورة التالية">▼</button>
+          </div>
           <div class="gallery-nav">
             <button type="button" onclick="galleryPrev()" aria-label="السابق">‹</button>
             <button type="button" onclick="openZoom()" aria-label="تكبير">🔍</button>
@@ -12364,3 +12368,524 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   }
 }
 </style>
+
+<style id="mysouq-vertical-thumbs-swap-soft-image-v1">
+/* Vertical album with up/down swap + main image fills area with soft corners */
+
+#productModal .modal-gallery-wrapper {
+  display: grid !important;
+  grid-template-columns: 1fr 92px !important;
+  grid-template-rows: 1fr auto !important;
+  grid-template-areas:
+    "main thumbs"
+    "nav nav" !important;
+  gap: 14px !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: calc(94vh - 48px) !important;
+  align-items: stretch !important;
+}
+html[dir="rtl"] #productModal .modal-gallery-wrapper {
+  grid-template-columns: 92px 1fr !important;
+  grid-template-areas:
+    "thumbs main"
+    "nav nav" !important;
+}
+
+/* Main image — fill remaining space, soft corners */
+#productModal .modal-img,
+#productModal #modalImage {
+  grid-area: main !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  border-radius: 28px !important;
+  background: linear-gradient(160deg, #faf6f0, #f3ebe3) !important;
+  border: 1px solid rgba(230, 215, 200, 0.35) !important;
+  box-shadow:
+    0 14px 40px rgba(60, 40, 30, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+  overflow: hidden !important;
+}
+
+/* Vertical thumbs column with up/down */
+#productModal .thumbs-vertical-wrap {
+  grid-area: thumbs !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+#productModal .thumbs-swap-btn {
+  flex: 0 0 auto !important;
+  width: 40px !important;
+  height: 32px !important;
+  border-radius: 10px !important;
+  border: 1.5px solid rgba(201, 161, 132, 0.3) !important;
+  background: linear-gradient(145deg, #fffaf3, #f5ebe0) !important;
+  color: #574437 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 8px rgba(87, 68, 55, 0.08) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  padding: 0 !important;
+}
+#productModal .thumbs-swap-btn:hover {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+  border-color: transparent !important;
+}
+#productModal .thumbs-swap-btn:active {
+  transform: scale(0.96) !important;
+}
+
+#productModal .thumbnails-bar,
+#productModal #thumbnailsContainer {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  height: 100% !important;
+  width: 100% !important;
+  padding: 2px !important;
+  scroll-behavior: smooth !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+#productModal .thumbnails-bar::-webkit-scrollbar {
+  display: none !important;
+}
+
+#productModal .thumbnails-bar img,
+#productModal #thumbnailsContainer img,
+#productModal .thumbnails-bar button,
+#productModal #thumbnailsContainer button {
+  width: 76px !important;
+  height: 76px !important;
+  min-width: 76px !important;
+  min-height: 76px !important;
+  max-width: 76px !important;
+  flex: 0 0 auto !important;
+  object-fit: cover !important;
+  border-radius: 16px !important; /* soft corners */
+  border: 2px solid rgba(201, 161, 132, 0.22) !important;
+  cursor: pointer !important;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s !important;
+  box-shadow: 0 3px 10px rgba(60, 40, 30, 0.07) !important;
+  background: #fff !important;
+  padding: 0 !important;
+}
+#productModal .thumbnails-bar img:hover,
+#productModal .thumbnails-bar img.active,
+#productModal #thumbnailsContainer img.active,
+#productModal .thumbnails-bar .active {
+  border-color: #b88762 !important;
+  transform: scale(1.04) !important;
+  box-shadow: 0 6px 16px rgba(155, 113, 85, 0.22) !important;
+}
+
+#productModal .gallery-nav {
+  grid-area: nav !important;
+}
+
+/* Mobile: horizontal strip, hide vertical swap */
+@media (max-width: 767px) {
+  #productModal .modal-gallery-wrapper,
+  html[dir="rtl"] #productModal .modal-gallery-wrapper {
+    grid-template-columns: 1fr !important;
+    grid-template-areas:
+      "main"
+      "thumbs"
+      "nav" !important;
+    max-height: none !important;
+  }
+  #productModal .modal-img,
+  #productModal #modalImage {
+    min-height: 280px !important;
+    max-height: 50vh !important;
+    height: 50vh !important;
+    border-radius: 22px !important;
+  }
+  #productModal .thumbs-vertical-wrap {
+    flex-direction: row !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    gap: 6px !important;
+  }
+  #productModal .thumbs-swap-btn {
+    display: none !important; /* use bottom gallery-nav on mobile */
+  }
+  #productModal .thumbnails-bar,
+  #productModal #thumbnailsContainer {
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    height: auto !important;
+    width: 100% !important;
+  }
+  #productModal .thumbnails-bar img,
+  #productModal #thumbnailsContainer img {
+    width: 64px !important;
+    height: 64px !important;
+    min-width: 64px !important;
+    min-height: 64px !important;
+    border-radius: 14px !important;
+  }
+}
+</style>
+
+<script id="mysouq-thumbs-swap-up-down">
+(function () {
+  function getThumbsBar() {
+    return document.getElementById('thumbnailsContainer');
+  }
+  function step() {
+    var bar = getThumbsBar();
+    if (!bar) return 84;
+    var img = bar.querySelector('img, button');
+    return img ? (img.offsetHeight + 8) : 84;
+  }
+  window.thumbsScrollUp = function () {
+    var bar = getThumbsBar();
+    if (!bar) return;
+    bar.scrollBy({ top: -step(), behavior: 'smooth' });
+    if (typeof galleryPrev === 'function') {
+      /* also move active image one step when possible */
+      try { galleryPrev(); } catch (e) {}
+    }
+  };
+  window.thumbsScrollDown = function () {
+    var bar = getThumbsBar();
+    if (!bar) return;
+    bar.scrollBy({ top: step(), behavior: 'smooth' });
+    if (typeof galleryNext === 'function') {
+      try { galleryNext(); } catch (e) {}
+    }
+  };
+})();
+</script>
+
+<style id="mysouq-thumbs-updown-size-dot-image-fill-v1">
+/* Image fills its panel, soft corners */
+#productModal .modal-gallery-wrapper {
+  align-items: stretch !important;
+  min-height: 0 !important;
+}
+#productModal .modal-img,
+#productModal #modalImage {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  object-fit: contain !important;
+  border-radius: 24px !important;
+  background: linear-gradient(160deg, #faf6f0, #f3ebe3) !important;
+  box-shadow: 0 10px 28px rgba(60, 40, 30, 0.08) !important;
+  border: 1px solid rgba(230, 215, 200, 0.35) !important;
+}
+
+/* Thumbs column with up/down buttons */
+#productModal .modal-gallery-wrapper {
+  grid-template-columns: 1fr 88px !important;
+  grid-template-rows: auto 1fr auto auto !important;
+  grid-template-areas:
+    "main thumb-up"
+    "main thumbs"
+    "main thumb-down"
+    "nav nav" !important;
+  gap: 8px 12px !important;
+}
+html[dir="rtl"] #productModal .modal-gallery-wrapper {
+  grid-template-columns: 88px 1fr !important;
+  grid-template-areas:
+    "thumb-up main"
+    "thumbs main"
+    "thumb-down main"
+    "nav nav" !important;
+}
+
+#productModal .thumbnails-bar,
+#productModal #thumbnailsContainer {
+  grid-area: thumbs !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  max-height: none !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  scroll-behavior: smooth !important;
+  padding: 2px !important;
+}
+
+#productModal .thumbs-swap-btn {
+  width: 72px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  border-radius: 10px !important;
+  border: 1.5px solid rgba(201, 161, 132, 0.3) !important;
+  background: linear-gradient(145deg, #fffaf3, #f5ebe0) !important;
+  color: #574437 !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 2px 8px rgba(87, 68, 55, 0.08) !important;
+  transition: all 0.2s ease !important;
+  justify-self: center !important;
+  padding: 0 !important;
+}
+#productModal .thumbs-swap-btn:hover {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+  border-color: transparent !important;
+}
+#productModal .thumbs-swap-up { grid-area: thumb-up !important; }
+#productModal .thumbs-swap-down { grid-area: thumb-down !important; }
+
+#productModal .thumbnails-bar img,
+#productModal #thumbnailsContainer img {
+  width: 72px !important;
+  height: 72px !important;
+  min-width: 72px !important;
+  min-height: 72px !important;
+  border-radius: 14px !important;
+  border: 2px solid rgba(201, 161, 132, 0.2) !important;
+  object-fit: cover !important;
+}
+#productModal .thumbnails-bar img.active,
+#productModal #thumbnailsContainer img.active {
+  border-color: #b88762 !important;
+  box-shadow: 0 0 0 2px rgba(201, 161, 132, 0.35) !important;
+}
+
+/* Size buttons: hollow hole that fills when selected */
+#productModal .size-selector,
+#productModal #sizesContainer {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  padding-bottom: 4px !important;
+  overflow: visible !important;
+}
+
+#productModal .size-selector > *,
+#productModal #sizesContainer > *,
+#productModal .size-btn,
+#sizesContainer button,
+#sizesContainer label {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 64px !important;
+  padding: 10px 14px 10px 12px !important;
+  border-radius: 14px !important;
+  background: #faf6f0 !important;
+  color: #574437 !important;
+  border: 1.5px solid rgba(201, 161, 132, 0.28) !important;
+  font-weight: 800 !important;
+  font-size: 13px !important;
+  box-shadow: none !important;
+  /* remove previous checkmark */
+}
+#productModal .size-selector button.active::after,
+#productModal .size-btn.active::after,
+#sizesContainer button.active::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* The hole (radio circle) */
+#productModal .size-selector > *::before,
+#productModal #sizesContainer > *::before,
+#productModal .size-btn::before,
+#sizesContainer button::before,
+#sizesContainer label::before {
+  content: "" !important;
+  display: inline-block !important;
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  border-radius: 50% !important;
+  border: 2px solid rgba(155, 113, 85, 0.45) !important;
+  background: transparent !important;
+  box-sizing: border-box !important;
+  transition: all 0.2s ease !important;
+  flex-shrink: 0 !important;
+}
+
+/* Filled hole when selected */
+#productModal .size-selector > *.active::before,
+#productModal #sizesContainer > *.active::before,
+#productModal .size-btn.active::before,
+#sizesContainer button.active::before,
+#sizesContainer label.active::before,
+#productModal .size-selector button.active::before {
+  border-color: #fffaf3 !important;
+  background: #fffaf3 !important;
+  box-shadow: inset 0 0 0 3px #b88762 !important;
+}
+
+#productModal .size-selector > *.active,
+#productModal #sizesContainer > *.active,
+#productModal .size-btn.active,
+#sizesContainer button.active,
+#sizesContainer label.active {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+  border-color: #9b7155 !important;
+  box-shadow: 0 0 0 3px rgba(201, 161, 132, 0.3) !important;
+}
+
+/* Prevent last size from being clipped */
+#productModal .modal-info {
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding-bottom: 18px !important;
+  min-height: 0 !important;
+  scrollbar-width: thin !important;
+}
+#productModal .modal-content {
+  overflow: hidden !important;
+}
+#productModal .modal-body {
+  min-height: 0 !important;
+  overflow: hidden !important;
+}
+#productModal .size-selector,
+#productModal #sizesContainer {
+  margin-bottom: 4px !important;
+  max-width: 100% !important;
+}
+
+/* Mobile: horizontal thumbs, hide vertical swap or make them side arrows */
+@media (max-width: 767px) {
+  #productModal .modal-gallery-wrapper,
+  html[dir="rtl"] #productModal .modal-gallery-wrapper {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto auto auto !important;
+    grid-template-areas:
+      "main"
+      "thumbs"
+      "thumb-up"
+      "nav" !important;
+  }
+  #productModal .thumbs-swap-up,
+  #productModal .thumbs-swap-down {
+    display: none !important;
+  }
+  #productModal .thumbnails-bar,
+  #productModal #thumbnailsContainer {
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    height: auto !important;
+  }
+  #productModal .modal-img,
+  #productModal #modalImage {
+    min-height: 280px !important;
+    max-height: 50vh !important;
+    height: auto !important;
+    border-radius: 20px !important;
+  }
+}
+</style>
+
+<script id="mysouq-thumbs-swap-buttons-inject">
+(function () {
+  function ensureSwapButtons() {
+    var gallery = document.querySelector('#productModal .modal-gallery-wrapper');
+    if (!gallery) return;
+    if (!gallery.querySelector('.thumbs-swap-up')) {
+      var up = document.createElement('button');
+      up.type = 'button';
+      up.className = 'thumbs-swap-btn thumbs-swap-up';
+      up.setAttribute('aria-label', 'الصورة السابقة');
+      up.innerHTML = '▲';
+      up.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof window.thumbsScrollUp === 'function') window.thumbsScrollUp();
+        else scrollThumbs(-1);
+      };
+      gallery.appendChild(up);
+    }
+    if (!gallery.querySelector('.thumbs-swap-down')) {
+      var down = document.createElement('button');
+      down.type = 'button';
+      down.className = 'thumbs-swap-btn thumbs-swap-down';
+      down.setAttribute('aria-label', 'الصورة التالية');
+      down.innerHTML = '▼';
+      down.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof window.thumbsScrollDown === 'function') window.thumbsScrollDown();
+        else scrollThumbs(1);
+      };
+      gallery.appendChild(down);
+    }
+  }
+
+  function scrollThumbs(dir) {
+    var bar = document.getElementById('thumbnailsContainer');
+    if (!bar) return;
+    var imgs = bar.querySelectorAll('img, button');
+    if (!imgs.length) return;
+    var step = (imgs[0].offsetHeight || 72) + 8;
+    bar.scrollBy({ top: dir * step, behavior: 'smooth' });
+
+    /* Also activate next/prev thumbnail if possible */
+    var active = bar.querySelector('img.active, button.active, .active');
+    var list = Array.prototype.slice.call(imgs);
+    var idx = active ? list.indexOf(active) : -1;
+    var nextIdx = idx + dir;
+    if (nextIdx >= 0 && nextIdx < list.length) {
+      list[nextIdx].click();
+    } else if (dir > 0 && list.length) {
+      list[0].click();
+    } else if (dir < 0 && list.length) {
+      list[list.length - 1].click();
+    }
+  }
+
+  window.thumbsScrollUp = function () { scrollThumbs(-1); };
+  window.thumbsScrollDown = function () { scrollThumbs(1); };
+
+  /* Inject when product modal opens */
+  var obs = new MutationObserver(function () {
+    var modal = document.getElementById('productModal');
+    if (modal && modal.classList.contains('active')) {
+      ensureSwapButtons();
+    }
+  });
+  if (document.body) {
+    obs.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class'] });
+  }
+  document.addEventListener('DOMContentLoaded', ensureSwapButtons);
+  ensureSwapButtons();
+})();
+</script>
