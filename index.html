@@ -6379,21 +6379,30 @@ window.addToCartAndContinue = function () {
         return true;
       }
 
-      // Legacy compatibility: older documents may have a different document ID.
-      var snap = await db.collection('orders')
-        .where('orderId', '==', id)
-        .get();
-
-      if (snap.empty) {
-        throw new Error('لم يتم العثور على الطلب داخل مجموعة orders.');
+      // Legacy compatibility: old records may use another document ID or different letter casing.
+      var snap = await db.collection('orders').where('orderId', '==', id).get();
+      var refs = new Map();
+      snap.forEach(function (doc) { refs.set(doc.ref.path, doc.ref); });
+      if (refs.size === 0) {
+        // Fallback for legacy records whose orderId field differs only by casing/whitespace.
+        // Admin-only collection scan is already permitted by Firestore rules.
+        var legacySnap = await db.collection('orders').limit(500).get();
+        legacySnap.forEach(function (doc) {
+          var data = doc.data() || {};
+          var fieldId = String(data.orderId || '').trim().toUpperCase();
+          var documentId = String(doc.id || '').trim().toUpperCase();
+          if (fieldId === id.toUpperCase() || documentId === id.toUpperCase()) refs.set(doc.ref.path, doc.ref);
+        });
       }
-
-      var batch = db.batch();
-      snap.forEach(function (doc) {
-        batch.delete(doc.ref);
-      });
-      await batch.commit();
-
+      if (refs.size === 0) throw new Error('لم يتم العثور على الطلب داخل مجموعة orders. تحقق من رقم الطلب أو حدّث قائمة الإدارة.');
+      var refsArray = Array.from(refs.values());
+      for (var start = 0; start < refsArray.length; start += 450) {
+        var batch = db.batch();
+        refsArray.slice(start, start + 450).forEach(function (ref) { batch.delete(ref); });
+        await batch.commit();
+      }
+      // Remove public tracking document only after order deletion succeeds.
+      try { await db.collection('orderTracking').doc(id).delete(); } catch (trackingDeleteError) { console.warn('تعذر حذف سجل التتبع العام:', trackingDeleteError); }
       return true;
     };
 
@@ -6442,11 +6451,17 @@ window.addToCartAndContinue = function () {
       var order = null;
       try {
         order = (typeof adminOrdersCache !== 'undefined' ? adminOrdersCache : []).find(function (x) {
-          return String(x.orderId || '') === id;
+          return String(x.orderId || '').trim().toUpperCase() === id.toUpperCase();
         });
       } catch (e) {}
+      // Prefer the live Firestore record to avoid acting on a stale cached status.
+      try {
+        var live = await getDb().collection('orders').doc(id).get();
+        if (live.exists) order = Object.assign({}, live.data(), { orderId: live.data().orderId || live.id });
+      } catch (readError) { alert('تعذر التحقق من حالة الطلب من قاعدة البيانات. لم يتم الإلغاء.\n' + (readError.message || '')); return; }
+      if (!order) { alert('لم يتم العثور على الطلب في قاعدة البيانات. حدّث قائمة الطلبات وحاول مرة أخرى.'); return; }
 
-      // الإلغاء النهائي مسموح فقط لحالة «قيد التنفيذ» (statusCode = 0)
+      // الإلغاء النهائي العادي مسموح فقط لحالة «تحت التنفيذ» (statusCode = 0)
       var orderStatusCode = (order && typeof order.statusCode === 'number') ? order.statusCode : 0;
       if (orderStatusCode !== 0) {
         alert('لا يمكن إلغاء الطلب نهائياً إلا وهو في حالة «قيد التنفيذ» فقط.\nالحالات بعد الحجز أو الشحن أو التوريد غير قابلة للإلغاء النهائي.');
@@ -6496,6 +6511,54 @@ window.addToCartAndContinue = function () {
       }
     };
 
+    // إلغاء استثنائي لأي مرحلة، مع إعادة تأكيد كلمة مرور حساب الإدارة الحالي.
+    window.cancelOrderExceptionally = async function (orderId, button) {
+      var id = String(orderId || '').trim();
+      if (!id || !isAdminNow() || !currentAdminUser || !currentAdminUser.email) {
+        alert('يجب تسجيل الدخول إلى شاشة الإدارة أولاً.'); return;
+      }
+      var email = prompt('أدخل بريد حساب الإدارة لتأكيد الإلغاء الاستثنائي:', currentAdminUser.email || '');
+      if (email === null) return;
+      email = email.trim().toLowerCase();
+      if (email !== String(currentAdminUser.email || '').trim().toLowerCase()) {
+        alert('البريد المدخل لا يطابق حساب الإدارة المسجل دخوله.'); return;
+      }
+      var password = prompt('أدخل كلمة مرور حساب الإدارة لتأكيد الإلغاء الاستثنائي:');
+      if (password === null || !password) return;
+      var auth = firebase.auth();
+      try {
+        var credential = firebase.auth.EmailAuthProvider.credential(currentAdminUser.email, password);
+        await currentAdminUser.reauthenticateWithCredential(credential);
+      } catch (authError) {
+        alert('فشل تأكيد كلمة مرور الإدارة. لم يتم إلغاء الطلب.'); return;
+      }
+      var confirmText = 'إلغاء استثنائي للطلب ' + id + '؟\n\nسيُسمح بهذا الإجراء حتى لو كان الطلب في مرحلة حجز أو شحن أو توريد، وسيُحذف الطلب من قاعدة البيانات بعد تأكيد كلمة المرور.';
+      if (!confirm(confirmText)) return;
+      if (button) { button.disabled = true; button.textContent = 'جاري الإلغاء الاستثنائي...'; }
+      var markerRef = getDb().collection('cancelledOrders').doc(id);
+      var deleted = false;
+      try {
+        await markerRef.set({ status: 'cancelled', cancelledAt: firebase.firestore.FieldValue.serverTimestamp(), cancellationType: 'exceptional' });
+        await window.deleteOrderFromCloud(id);
+        deleted = true;
+        var reqSnap = await getDb().collection('cancellationRequests').where('orderId', '==', id).get();
+        if (!reqSnap.empty) {
+          var batch = getDb().batch(); var n = 0;
+          for (var i = 0; i < reqSnap.docs.length; i++) { batch.delete(reqSnap.docs[i].ref); n++; if (n === 450) { await batch.commit(); batch = getDb().batch(); n = 0; } }
+          if (n) await batch.commit();
+        }
+        await removeOrderLocally(id);
+        try { if (typeof loadAdminCancelRequests === 'function') await loadAdminCancelRequests(); } catch (_) {}
+        alert('تم الإلغاء الاستثنائي للطلب ' + id + ' بنجاح.');
+      } catch (e) {
+        console.error('Exceptional cancellation failed:', e);
+        if (!deleted) { try { await markerRef.delete(); } catch (_) {} }
+        alert('تعذر إتمام الإلغاء الاستثنائي. لم يتم تأكيد اكتمال العملية.\n' + (e && e.message ? e.message : 'خطأ غير معروف'));
+      } finally {
+        if (button) { button.disabled = false; button.textContent = '🔐 إلغاء استثنائي'; }
+      }
+    };
+
     function injectAdminMaintenanceControl() {
       var modal = document.getElementById('adminOrdersModal');
       if (!modal || document.getElementById('maintenanceAdminBox')) return;
@@ -6527,28 +6590,30 @@ window.addToCartAndContinue = function () {
             if (existing) existing.closest('div') && existing.closest('div').remove();
             return;
           }
-          // إظهار زر الإلغاء النهائي فقط إذا كانت الحالة «قيد التنفيذ» (statusCode = 0)
           var matchStatusCode = (typeof match.statusCode === 'number') ? match.statusCode : 0;
-          if (matchStatusCode !== 0) {
-            // إزالة الزر إن وُجد بعد تغيير الحالة
-            if (existing) {
-              var parentRow = existing.parentElement;
-              if (parentRow && parentRow.children.length === 1) parentRow.remove();
-              else existing.remove();
-            }
-            return;
+          var row = existing ? existing.parentElement : null;
+          if (!row || !row.classList.contains('msq-cancel-actions-row')) {
+            row = document.createElement('div');
+            row.className = 'msq-cancel-actions-row';
+            row.style.cssText = 'display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;';
+            card.appendChild(row);
           }
-          if (existing) return;
-          var row = document.createElement('div');
-          row.style.cssText = 'display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;';
-          var btn = document.createElement('button');
-          btn.type = 'button';
-          btn.className = 'cancel-order-btn';
-          btn.setAttribute('data-order-id', text);
-          btn.textContent = '🗑️ إلغاء نهائي';
-          btn.onclick = function () { cancelOrderPermanently(text); };
-          row.appendChild(btn);
-          card.appendChild(row);
+          if (matchStatusCode === 0 && !row.querySelector('.cancel-order-btn')) {
+            var btn = document.createElement('button');
+            btn.type = 'button'; btn.className = 'cancel-order-btn';
+            btn.setAttribute('data-order-id', text); btn.textContent = '🗑️ إلغاء نهائي';
+            btn.onclick = function () { cancelOrderPermanently(text); };
+            row.appendChild(btn);
+          } else if (matchStatusCode !== 0 && existing) existing.remove();
+          if (!row.querySelector('.cancel-exception-btn')) {
+            var exceptional = document.createElement('button');
+            exceptional.type = 'button'; exceptional.className = 'cancel-exception-btn';
+            exceptional.setAttribute('data-order-id', text);
+            exceptional.textContent = '🔐 إلغاء استثنائي';
+            exceptional.style.cssText = 'border:0;border-radius:8px;padding:8px 12px;background:#7b1e2b;color:#fff;font-weight:900;cursor:pointer;';
+            exceptional.onclick = function () { window.cancelOrderExceptionally(text, exceptional); };
+            row.appendChild(exceptional);
+          }
         });
       };
       window.filterAdminOrders.__cancelEnhanced = true;
@@ -6570,7 +6635,6 @@ window.addToCartAndContinue = function () {
           });
         } catch (e) {}
         var detailStatusCode = (detailOrder && typeof detailOrder.statusCode === 'number') ? detailOrder.statusCode : 0;
-        if (detailStatusCode !== 0) return;
         var row = document.createElement('div');
         row.style.cssText = 'display:flex;gap:6px;margin-top:12px;';
         var btn = document.createElement('button');
@@ -6582,6 +6646,12 @@ window.addToCartAndContinue = function () {
         btn.textContent = '🗑️ إلغاء الطلب نهائياً';
         btn.onclick = function () { cancelOrderPermanently(orderId); };
         row.appendChild(btn);
+        var exceptional = document.createElement('button');
+        exceptional.type = 'button'; exceptional.className = 'cancel-exception-btn';
+        exceptional.textContent = '🔐 إلغاء استثنائي';
+        exceptional.style.cssText = 'border:0;border-radius:8px;padding:8px 12px;background:#7b1e2b;color:#fff;font-weight:900;cursor:pointer;';
+        exceptional.onclick = function () { window.cancelOrderExceptionally(String(orderId || ''), exceptional); };
+        row.appendChild(exceptional);
         body.appendChild(row);
       };
       window.showAdminOrderDetails.__cancelEnhanced = true;
