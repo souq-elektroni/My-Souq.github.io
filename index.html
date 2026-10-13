@@ -2157,6 +2157,17 @@
       color: #f5eef0;
     }
 
+
+    /* إدارة الطلبات: شريط علوي وتبويبات أفقية */
+    #adminOrdersModal .modal-content { max-width: 900px !important; }
+    .admin-order-tab{border:1px solid #d9e5e8;background:#f6fbfc;color:#42646a;border-radius:11px;padding:10px 7px;font-size:12px;font-weight:900;cursor:pointer;min-height:42px;display:flex;align-items:center;justify-content:center;gap:6px}
+    .admin-order-tab span{background:#e1ebee;color:#35555b;border-radius:20px;padding:1px 7px;font-size:10px}
+    .admin-order-tab.active{background:linear-gradient(135deg,#138b91,#086d73);border-color:#086d73;color:#fff;box-shadow:0 4px 12px #138b912e}
+    .admin-order-tab.active span{background:#fff;color:#08767b}
+    #adminOrdersModal .cancel-admin-heading{font-weight:900;font-size:13px}
+    #adminOrdersModal #maintenanceAdminBox{margin:10px 0 12px}
+    #adminOrdersModal .order-card-admin{margin-bottom:10px}
+    @media(max-width:480px){#adminOrdersModal .modal-content{padding:10px!important}#adminOrdersTopBar .terms-header{font-size:15px!important}.admin-order-tab{font-size:11px;padding:8px 4px;line-height:1.4}}
   </style>
 
   <link rel="stylesheet" href="style.css">
@@ -4708,9 +4719,17 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
   <div class="modal-overlay" id="adminOrdersModal">
     <div class="modal-content" style="max-width:560px; padding:16px;">
       <button class="close-btn" onclick="closeAdminOrdersModal()">✕</button>
-      <div class="terms-header" style="font-size:17px; margin-bottom:10px;">📋 إدارة كل الطلبات</div>
-      <button id="adminLogoutBtn" onclick="logoutAdmin()" style="background:#c62828;color:white;border:none;border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:bold;margin-bottom:8px;">خروج</button>
+      <div id="adminOrdersTopBar" style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px;padding:8px 10px;border-radius:12px;background:#f5fbfb;border:1px solid #d7e7e7;">
+        <div class="terms-header" style="font-size:18px;margin:0;color:#138b91;font-weight:900;">📋 شاشة إدارة الطلبات</div>
+        <button id="adminLogoutBtn" onclick="logoutAdmin()" style="background:#c62828;color:white;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-weight:900;font-size:11px;white-space:nowrap;">تسجيل الخروج</button>
+      </div>
       <button type="button" id="adminBackToOrdersListBtn" onclick="(function(){var list=document.getElementById('adminOrdersList');if(list){list.scrollIntoView({behavior:'smooth',block:'start'});var input=document.getElementById('adminOrderSearch');if(input)setTimeout(function(){input.focus({preventScroll:true});},350);}})()" style="display:block;width:100%;background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;border:1px solid rgba(255,255,255,.75);border-radius:10px;padding:11px 14px;cursor:pointer;font-weight:900;margin:0 0 10px;box-shadow:0 5px 14px rgba(46,125,50,.18)">⬅ رجوع لقائمة الطلبات لتعديل الحالات</button>
+      <div id="adminOrderTabs" role="tablist" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:0 0 12px;">
+        <button type="button" data-order-tab="open" class="admin-order-tab active">📂 قائمة الطلبات المفتوحة <span id="openOrdersCount">0</span></button>
+        <button type="button" data-order-tab="delivered" class="admin-order-tab">📦 الطلبات تم التوريد <span id="deliveredOrdersCount">0</span></button>
+        <button type="button" data-order-tab="cancel" class="admin-order-tab">🔔 طلبات إلغاء <span id="cancelTabCount">0</span></button>
+        <button type="button" data-order-tab="maintenance" class="admin-order-tab">🛠️ وضع الصيانة</button>
+      </div>
       <p style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">ابحث بالاسم أو رقم التليفون أو رقم الطلب — غيّر الحالة وانسخ رسالة الشحن</p>
       <input
         type="text"
@@ -7732,6 +7751,77 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
  .search-sort-box::-webkit-scrollbar-thumb,.categories-bar::-webkit-scrollbar-thumb,.categories-main::-webkit-scrollbar-thumb,.msq-category-nav::-webkit-scrollbar-thumb{background:rgba(8,127,131,.28)!important;border-radius:20px!important;}
 }
 </style>
+
+
+<script id="mysouq-admin-orders-tabs-and-forward-only">
+(function(){
+  var activeTab='open';
+  function codeOf(o){return typeof o.statusCode==='number'?o.statusCode:0;}
+  function isDelivered(o){var c=codeOf(o), label=String(o.status||'');return c>=4 || /تم التوريد|تم التسليم|مكتمل|تم الاستلام/.test(label);}
+  function addTabs(){
+    var modal=document.getElementById('adminOrdersModal'), tabs=document.getElementById('adminOrderTabs');
+    if(!modal||!tabs||tabs.dataset.bound)return;
+    tabs.dataset.bound='1';
+    tabs.querySelectorAll('[data-order-tab]').forEach(function(btn){
+      btn.addEventListener('click',function(){
+        activeTab=btn.getAttribute('data-order-tab');
+        tabs.querySelectorAll('[data-order-tab]').forEach(function(b){b.classList.toggle('active',b===btn);});
+        var list=document.getElementById('adminOrdersList'), search=document.getElementById('adminOrderSearch');
+        if(list) list.style.display=(activeTab==='open'||activeTab==='delivered')?'block':'none';
+        if(search) search.style.display=(activeTab==='open'||activeTab==='delivered')?'block':'none';
+        var note=modal.querySelector('p[style*="font-size:12px"]'); if(note)note.style.display=(activeTab==='open'||activeTab==='delivered')?'block':'none';
+        var cancel=document.getElementById('cancelRequestsAdminPanel'), maint=document.getElementById('maintenanceAdminBox');
+        if(cancel)cancel.style.display=activeTab==='cancel'?'block':'none';
+        if(maint)maint.style.display=activeTab==='maintenance'?'block':'none';
+        if(activeTab==='cancel'&&typeof loadAdminCancelRequests==='function')loadAdminCancelRequests();
+        if(activeTab==='open'||activeTab==='delivered'){if(typeof window.filterAdminOrders==='function')window.filterAdminOrders();}
+      });
+    });
+    var original=window.filterAdminOrders;
+    if(typeof original==='function'&&!original.__tabsWrapped){
+      var wrapped=function(){
+        var cache=window.adminOrdersCache;
+        if(!Array.isArray(cache)){try{cache=adminOrdersCache}catch(e){cache=[]}}
+        var selected=cache.filter(function(o){return activeTab==='delivered'?isDelivered(o):!isDelivered(o);});
+        try{window.adminOrdersCache=selected; if(typeof adminOrdersCache!=='undefined')adminOrdersCache=selected;}catch(e){}
+        original.apply(this,arguments);
+        try{window.adminOrdersCache=cache;if(typeof adminOrdersCache!=='undefined')adminOrdersCache=cache;}catch(e){}
+        var oc=document.getElementById('openOrdersCount'),dc=document.getElementById('deliveredOrdersCount');
+        if(oc)oc.textContent=cache.filter(function(o){return !isDelivered(o)}).length;
+        if(dc)dc.textContent=cache.filter(isDelivered).length;
+      };
+      wrapped.__tabsWrapped=true;window.filterAdminOrders=wrapped;
+    }
+    // Keep cancellation and maintenance controls as separate tab content, not permanently visible.
+    var cancel=document.getElementById('cancelRequestsAdminPanel'),maint=document.getElementById('maintenanceAdminBox');
+    if(cancel){tabs.parentNode.insertBefore(cancel,tabs.nextSibling);cancel.style.display=activeTab==='cancel'?'block':'none';}
+    if(maint){tabs.parentNode.insertBefore(maint,tabs.nextSibling);maint.style.display=activeTab==='maintenance'?'block':'none';}
+    // Move tab strip directly below top bar, before any injected panels.
+    var search=document.getElementById('adminOrderSearch');
+    if(search&&tabs.nextElementSibling!==search){var p=search.previousElementSibling;if(p&&p.tagName==='P')tabs.parentNode.insertBefore(tabs,p);else search.parentNode.insertBefore(tabs,search);}
+  }
+  function enforceForwardOnly(){
+    ['updateOrderStatusFromAdmin','updateOrderStatus'].forEach(function(name){
+      var fn=window[name];if(typeof fn!=='function'||fn.__forwardOnlyWrapped)return;
+      var wrapped=async function(orderId,newCode){
+        var cache=window.adminOrdersCache||[];var order=cache.find(function(o){return String(o.orderId)===String(orderId)});
+        var current=order&&typeof order.statusCode==='number'?order.statusCode:0;
+        newCode=Number(newCode);
+        if(newCode<current){alert('ممنوع الرجوع لمرحلة سابقة. مسموح فقط الانتقال إلى المرحلة الحالية أو مرحلة تالية.');return;}
+        if(newCode===current){alert('الطلب بالفعل في هذه المرحلة.');return;}
+        if(newCode>current+1){alert('لا يمكن تخطي المراحل. انتقل للمرحلة التالية فقط.');return;}
+        return fn.apply(this,[orderId,newCode]);
+      };
+      wrapped.__forwardOnlyWrapped=true;window[name]=wrapped;
+    });
+  }
+  function boot(){addTabs();enforceForwardOnly();var c=document.getElementById('cancelTabCount'),n=document.getElementById('cancelRequestsCount');if(c&&n)c.textContent=n.textContent;
+    var observer=new MutationObserver(function(){addTabs();enforceForwardOnly();var c=document.getElementById('cancelTabCount'),n=document.getElementById('cancelRequestsCount');if(c&&n)c.textContent=n.textContent;});
+    observer.observe(document.body,{childList:true,subtree:true});
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+})();
+</script>
 
 </body>
 </html>
