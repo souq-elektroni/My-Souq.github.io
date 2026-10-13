@@ -77,6 +77,20 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
+      // Public tracking contains status only; customer details stay in /orders.
+      try {
+        const initialCode = Number.isInteger(localRecord.statusCode) ? localRecord.statusCode : 0;
+        await db.collection('orderTracking').doc(normalizedId).set({
+          orderId: normalizedId,
+          statusCode: initialCode,
+          status: String(localRecord.status || 'تحت التنفيذ 📦'),
+          createdAt: localRecord.createdAt || Date.now(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      } catch (trackingError) {
+        console.warn('تعذر تحديث سجل التتبع العام:', trackingError);
+      }
+
       return true;
     } catch (e) {
       console.error('فشل حفظ الطلب على Firestore:', e);
@@ -86,59 +100,77 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   // جلب طلب من Firebase (أو محلي كاحتياطي)
   async function fetchOrderFromCloud(orderId) {
+    const normalizedId = String(orderId || '').trim();
+    if (!normalizedId) return null;
+
     if (firebaseReady && db) {
+      // Customer tracking reads only the minimal public status document.
       try {
-        const snap = await db.collection("orders").doc(orderId).get();
-        if (snap.exists) {
-          const data = snap.data();
-          // حدّث الكاش المحلي
-          const idx = ordersHistory.findIndex(o => o.orderId === orderId);
-          if (idx >= 0) ordersHistory[idx] = data;
-          else ordersHistory.push(data);
-          localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
-          return data;
-        }
+        const trackingSnap = await db.collection('orderTracking').doc(normalizedId).get();
+        if (trackingSnap.exists) return trackingSnap.data();
       } catch (e) {
-        console.error("خطأ قراءة الطلب:", e);
+        console.error('خطأ قراءة حالة التتبع:', e);
+      }
+
+      // Full order details are only fetched in an authenticated admin session.
+      if (isAdminMode && currentAdminUser) {
+        try {
+          const orderSnap = await db.collection('orders').doc(normalizedId).get();
+          if (orderSnap.exists) return orderSnap.data();
+        } catch (e) {
+          console.error('خطأ قراءة تفاصيل الطلب:', e);
+        }
       }
     }
-    // احتياطي محلي
-    return ordersHistory.find(o => o.orderId.toLowerCase() === orderId.toLowerCase()) || null;
+
+    // Local fallback is limited to this browser and may be stale.
+    return ordersHistory.find(o => String(o.orderId || '').trim().toLowerCase() === normalizedId.toLowerCase()) || null;
   }
 
   // تحديث حالة الطلب على Firebase + محلي
   async function updateOrderStatusCloud(orderId, newCode, newLabel) {
-    const order = ordersHistory.find(o => o.orderId === orderId);
-    if (order) {
-      order.statusCode = newCode;
-      order.status = newLabel;
-      localStorage.setItem("souqOrdersHistory", JSON.stringify(ordersHistory));
+    const normalizedId = String(orderId || '').trim();
+    const nextCode = Number(newCode);
+    if (!normalizedId || !Number.isInteger(nextCode) || nextCode < 0) return false;
+
+    const order = ordersHistory.find(o => String(o.orderId || '').trim() === normalizedId);
+    const previousCode = order && Number.isInteger(order.statusCode) ? order.statusCode : 0;
+    if (order && nextCode < previousCode) {
+      console.warn('تم رفض إرجاع حالة الطلب إلى مرحلة سابقة.');
+      return false;
     }
 
-    if (!firebaseReady || !db) return !!order;
+    if (!firebaseReady || !db) {
+      if (!order) return false;
+      order.statusCode = nextCode;
+      order.status = newLabel;
+      localStorage.setItem('souqOrdersHistory', JSON.stringify(ordersHistory));
+      return true;
+    }
+
     try {
-      await db.collection("orders").doc(orderId).update({
-        statusCode: newCode,
+      await db.collection('orders').doc(normalizedId).update({
+        statusCode: nextCode,
         status: newLabel,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
+
+      // Keep public tracking status synchronized without exposing order details.
+      await db.collection('orderTracking').doc(normalizedId).set({
+        orderId: normalizedId,
+        statusCode: nextCode,
+        status: String(newLabel || ''),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+
+      if (order) {
+        order.statusCode = nextCode;
+        order.status = newLabel;
+        localStorage.setItem('souqOrdersHistory', JSON.stringify(ordersHistory));
+      }
       return true;
     } catch (e) {
-      console.error("فشل تحديث الحالة:", e);
-      // لو الطلب مش موجود على السحابة نحاول set كامل
-      if (order) {
-        try {
-          await db.collection("orders").doc(orderId).set({
-            ...order,
-            statusCode: newCode,
-            status: newLabel,
-            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
-          return true;
-        } catch (e2) {
-          console.error(e2);
-        }
-      }
+      console.error('فشل تحديث حالة الطلب:', e);
       return false;
     }
   }
@@ -3571,6 +3603,24 @@ function continueAfterOrderRecaptcha() {
     }
     if (!list.length) {
       list = [...ordersHistory].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    }
+
+    // Backfill minimal public tracking records for existing orders (admin session only).
+    if (firebaseReady && db && isAdminMode && currentAdminUser) {
+      const backfills = list.filter(o => o && o.orderId).map(o => {
+        const code = Number.isInteger(o.statusCode) ? o.statusCode : 0;
+        return db.collection('orderTracking').doc(String(o.orderId)).set({
+          orderId: String(o.orderId),
+          statusCode: code,
+          status: String(o.status || (ORDER_STATUSES[code] && ORDER_STATUSES[code].label) || 'تحت التنفيذ 📦'),
+          createdAt: o.createdAt || Date.now(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+      });
+      Promise.allSettled(backfills).then(results => {
+        const failed = results.filter(r => r.status === 'rejected').length;
+        if (failed) console.warn('تعذر إنشاء بعض سجلات تتبع الطلبات القديمة:', failed);
+      });
     }
 
     adminOrdersCache = list;
