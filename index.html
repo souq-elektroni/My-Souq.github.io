@@ -3979,30 +3979,6 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
 }
 </style>
 
-
-<style id="mysouq-admin-search-flow-fix">
-/* Keep the existing admin search feature in normal document flow; never float over order cards. */
-#adminOrdersModal #msqAdminTabContent,
-#adminOrdersModal #msqAdminTabContent .msq-tab-pane,
-#adminOrdersModal #msqAdminTabContent [data-pane="open"] {
-  position: relative !important;
-  inset: auto !important;
-  transform: none !important;
-}
-#adminOrdersModal #adminOrderSearch {
-  position: static !important;
-  inset: auto !important;
-  display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 8px 0 14px !important;
-  z-index: auto !important;
-  box-sizing: border-box !important;
-}
-#adminOrdersModal #adminOrdersList { position: relative !important; }
-#adminOrdersModal .msq-cancel-actions-row { position: relative !important; clear: both !important; }
-</style>
-
 </head>
 
 <body>
@@ -6390,51 +6366,57 @@ window.addToCartAndContinue = function () {
       var db = getDb();
       if (!db) throw new Error('Firebase غير متاح حالياً.');
 
-      // Prefer direct document ID, then search all admin-readable legacy documents.
-      // Do not limit the fallback to the first 500 orders.
+      var norm = function (v) { return String(v == null ? '' : v).trim().toUpperCase(); };
       var matches = new Map();
+      var addIfMatch = function (doc) {
+        var data = doc.data() || {};
+        var ids = [doc.id, data.orderId, data.id, data.orderNumber, data.orderCode, data.code];
+        if (ids.some(function (v) { return norm(v) === norm(id); })) matches.set(doc.ref.path, doc.ref);
+      };
+
+      // First check the canonical document path and exact orderId query.
       var directRef = db.collection('orders').doc(id);
       var directSnap = await directRef.get();
-      if (directSnap.exists) matches.set(directSnap.ref.path, directSnap.ref);
+      if (directSnap.exists) matches.set(directRef.path, directRef);
 
       var exactSnap = await db.collection('orders').where('orderId', '==', id).get();
-      exactSnap.forEach(function (doc) { matches.set(doc.ref.path, doc.ref); });
+      exactSnap.forEach(addIfMatch);
 
-      if (matches.size === 0) {
-        var upperId = id.toUpperCase();
-        var pageSize = 400;
-        var cursor = null;
-        var scanned = 0;
-        while (true) {
-          var query = db.collection('orders').orderBy(firebase.firestore.FieldPath.documentId()).limit(pageSize);
-          if (cursor) query = query.startAfter(cursor);
-          var page = await query.get();
-          if (page.empty) break;
-          page.forEach(function (doc) {
-            var data = doc.data() || {};
-            var fieldId = String(data.orderId || '').trim().toUpperCase();
-            var docId = String(doc.id || '').trim().toUpperCase();
-            if (fieldId === upperId || docId === upperId) matches.set(doc.ref.path, doc.ref);
-          });
-          scanned += page.size;
-          cursor = page.docs[page.docs.length - 1];
-          if (page.size < pageSize) break;
-        }
+      // Legacy documents may have a different document ID, casing, whitespace,
+      // or an alternate order-number field. Scan the entire admin-readable
+      // collection in pages rather than silently stopping at the first 500.
+      var lastDoc = null;
+      var pageSize = 400;
+      while (true) {
+        var query = db.collection('orders').orderBy(firebase.firestore.FieldPath.documentId()).limit(pageSize);
+        if (lastDoc) query = query.startAfter(lastDoc);
+        var page = await query.get();
+        if (page.empty) break;
+        page.forEach(addIfMatch);
+        lastDoc = page.docs[page.docs.length - 1];
+        if (page.size < pageSize) break;
       }
 
       if (matches.size === 0) {
-        throw new Error('لم يتم العثور على الطلب داخل مجموعة orders. تم البحث في معرّف المستند ورقم الطلب والسجلات القديمة. حدّث قائمة الإدارة وتأكد من الرقم.');
+        throw new Error('لم يتم العثور على الطلب داخل مجموعة orders. تم فحص معرّف المستند ورقم الطلب والسجلات القديمة. تأكد من أن الطلب موجود في مشروع Firebase نفسه وأن جلسة الإدارة مسجّلة بالبريد الصحيح.');
       }
 
+      // Delete only the matching order documents. Do not remove the customer's
+      // cancellation request flow; associated requests are cleaned by the caller.
       var refs = Array.from(matches.values());
-      for (var i = 0; i < refs.length; i += 400) {
+      for (var i = 0; i < refs.length; i += 450) {
         var batch = db.batch();
-        refs.slice(i, i + 400).forEach(function (ref) { batch.delete(ref); });
+        refs.slice(i, i + 450).forEach(function (ref) { batch.delete(ref); });
         await batch.commit();
       }
-      // Keep cancellation marker for customer lookup; only remove the public status document.
-      try { await db.collection('orderTracking').doc(id).delete(); }
-      catch (trackingDeleteError) { console.warn('تعذر حذف سجل التتبع العام:', trackingDeleteError); }
+
+      // Remove tracking docs under the public order number and any matched document IDs.
+      var trackingIds = new Set([norm(id)]);
+      refs.forEach(function (ref) { trackingIds.add(norm(ref.id)); });
+      for (var trackingId of trackingIds) {
+        try { await db.collection('orderTracking').doc(trackingId).delete(); }
+        catch (trackingDeleteError) { console.warn('تعذر حذف سجل التتبع العام:', trackingDeleteError); }
+      }
       return true;
     };
 
