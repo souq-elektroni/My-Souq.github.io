@@ -10340,3 +10340,219 @@ body.dark-mode .gallery-mode-btn{
 }
 
 </style>
+
+<style id="mysouq-soft-watery-borders-logo-v1">
+/* Soft watery borders for buttons + banner, logo color matching buttons */
+
+.brand-badge {
+  background: linear-gradient(145deg, rgba(255,250,241,.98), rgba(239,218,196,.95)) !important;
+  color: #674a37 !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.92) !important;
+  border-radius: 28px !important;
+  box-shadow:
+    0 10px 28px rgba(111, 75, 49, 0.18),
+    0 2px 8px rgba(111, 75, 49, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(201, 161, 132, 0.15) !important;
+  backdrop-filter: blur(14px) saturate(1.15) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.15) !important;
+  transform: rotate(-3deg) !important;
+  overflow: hidden !important;
+}
+.brand-badge::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 5px !important;
+  border: 1px solid rgba(255, 255, 255, 0.45) !important;
+  border-radius: 22px !important;
+  background: transparent !important;
+  pointer-events: none !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5) !important;
+}
+.brand-badge span {
+  color: #674a37 !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.6) !important;
+  font-weight: 900 !important;
+}
+.brand-badge:hover {
+  background: linear-gradient(145deg, #cda585, #b88762) !important;
+  color: #fffaf3 !important;
+  border-color: rgba(248, 232, 215, 0.9) !important;
+  box-shadow: 0 14px 32px rgba(111, 75, 49, 0.28), inset 0 1px 0 rgba(255,255,255,.35) !important;
+  transform: rotate(0deg) scale(1.06) !important;
+}
+.brand-badge:hover span {
+  color: #fffaf3 !important;
+  text-shadow: none !important;
+}
+
+body > header,
+header.mysouq-banner-carousel,
+header {
+  border-radius: 36px !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow:
+    0 20px 50px rgba(80, 55, 40, 0.12),
+    0 6px 18px rgba(80, 55, 40, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    inset 0 0 40px rgba(255, 250, 242, 0.25) !important;
+  overflow: hidden !important;
+}
+header .banner-slides,
+header .banner-slide {
+  border-radius: 36px !important;
+}
+header .banner-dots {
+  border-radius: 999px !important;
+  background: rgba(255, 250, 242, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.55) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  box-shadow: 0 4px 14px rgba(80, 55, 40, 0.1) !important;
+}
+header .banner-dot {
+  border-radius: 50% !important;
+  background: rgba(201, 161, 132, 0.55) !important;
+  box-shadow: 0 1px 4px rgba(111, 75, 49, 0.15) !important;
+}
+header .banner-dot.active {
+  background: linear-gradient(135deg, #c9a184, #b88762) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(111, 75, 49, 0.3) !important;
+}
+header .banner-dot:hover {
+  background: rgba(184, 135, 98, 0.75) !important;
+}
+
+@media (max-width: 767px) {
+  body > header,
+  header.mysouq-banner-carousel,
+  header {
+    border-radius: 24px !important;
+  }
+  header .banner-slides,
+  header .banner-slide {
+    border-radius: 24px !important;
+  }
+  .brand-badge {
+    border-radius: 20px !important;
+  }
+  .brand-badge::before {
+    border-radius: 15px !important;
+  }
+}
+@media (min-width: 900px) {
+  body > header,
+  header.mysouq-banner-carousel,
+  header {
+    border-radius: 40px !important;
+  }
+  header .banner-slides,
+  header .banner-slide {
+    border-radius: 40px !important;
+  }
+}
+
+.theme-toggle,
+.theme-palette-btn,
+.admin-orders-trigger,
+.track-trigger,
+.cart-trigger,
+.cat-btn,
+.search-input,
+.sort-wrapper select,
+.gallery-mode-btn,
+.controls-wrapper button:not(.voice-search-btn) {
+  border-radius: 18px !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow:
+    0 6px 16px rgba(111, 75, 49, 0.12),
+    0 2px 6px rgba(111, 75, 49, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(201, 161, 132, 0.12) !important;
+  backdrop-filter: blur(14px) saturate(1.1) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.1) !important;
+  transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+.cat-btn {
+  border-radius: 999px !important;
+}
+.cat-btn:hover,
+.cat-btn.active,
+.theme-toggle:hover,
+.admin-orders-trigger:hover,
+.track-trigger:hover,
+.cart-trigger:hover {
+  border-radius: 18px !important;
+  box-shadow:
+    0 10px 24px rgba(111, 75, 49, 0.2),
+    0 4px 10px rgba(111, 75, 49, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+.cat-btn:hover,
+.cat-btn.active {
+  border-radius: 999px !important;
+}
+.search-input,
+.sort-wrapper select,
+.gallery-mode-btn {
+  border-radius: 16px !important;
+}
+.search-input:focus,
+.sort-wrapper select:focus {
+  border-color: rgba(201, 161, 132, 0.7) !important;
+  box-shadow:
+    0 0 0 4px rgba(201, 161, 132, 0.18),
+    0 6px 16px rgba(111, 75, 49, 0.1),
+    inset 0 1px 0 #fff !important;
+}
+
+.product-card,
+.product-item,
+.product-card-new {
+  border-radius: 22px !important;
+  border: 1px solid rgba(255, 255, 255, 0.9) !important;
+  box-shadow:
+    0 8px 22px rgba(80, 55, 40, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+}
+.product-card:hover,
+.product-item:hover,
+.product-card-new:hover {
+  border-radius: 22px !important;
+  box-shadow:
+    0 16px 36px rgba(111, 75, 49, 0.14),
+    inset 0 1px 0 #fff !important;
+}
+.product-card .click-hint,
+.product-item .click-hint,
+.product-card-new .click-hint {
+  border-radius: 14px !important;
+}
+
+.whatsapp-float,
+.call-float,
+.qr-toggle-fab,
+.back-to-top {
+  border-radius: 50% !important;
+  border: 2px solid rgba(255, 255, 255, 0.55) !important;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255,255,255,.3) !important;
+}
+
+@media (max-width: 767px) {
+  .theme-toggle,
+  .admin-orders-trigger,
+  .track-trigger,
+  .cart-trigger,
+  .search-input,
+  .sort-wrapper select,
+  .gallery-mode-btn {
+    border-radius: 14px !important;
+  }
+  .product-card,
+  .product-item,
+  .product-card-new {
+    border-radius: 18px !important;
+  }
+}
+</style>
