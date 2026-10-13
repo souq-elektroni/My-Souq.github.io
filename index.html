@@ -14289,3 +14289,63 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   }
 }
 </style>
+
+
+<!-- My Souq: customer tracking polish v2 — enlarge product photos and hide admin-only hint -->
+<style id="mysouq-customer-tracking-photo-adminhint-v2">
+  /* Larger product photo area in the customer-only tracking view. */
+  #trackingResultContainer .track-product-card{
+    grid-template-columns:minmax(155px,.9fr) minmax(0,1fr) !important;
+    gap:14px !important;
+  }
+  #trackingResultContainer .track-product-images{
+    grid-template-columns:repeat(auto-fit,minmax(135px,1fr)) !important;
+    align-content:start !important;
+  }
+  #trackingResultContainer .track-product-img-wrap{min-height:165px !important}
+  #trackingResultContainer .track-product-img{
+    width:100% !important;
+    height:165px !important;
+    object-fit:contain !important;
+  }
+  /* The hint is for administrators only and should not appear in customer tracking. */
+  #trackingModal #adminHint{display:none !important}
+  @media(max-width:760px){
+    #trackingResultContainer .track-product-card{grid-template-columns:minmax(135px,.75fr) minmax(0,1fr) !important;gap:10px !important}
+    #trackingResultContainer .track-product-images{grid-template-columns:repeat(auto-fit,minmax(125px,1fr)) !important}
+    #trackingResultContainer .track-product-img-wrap{min-height:185px !important}
+    #trackingResultContainer .track-product-img{height:185px !important}
+  }
+  @media(max-width:430px){
+    #trackingResultContainer .track-product-card{grid-template-columns:1fr !important}
+    #trackingResultContainer .track-product-images{grid-template-columns:repeat(auto-fit,minmax(135px,1fr)) !important}
+    #trackingResultContainer .track-product-img-wrap{min-height:215px !important}
+    #trackingResultContainer .track-product-img{height:215px !important}
+  }
+</style>
+<script id="mysouq-hide-admin-only-tracking-hint-v2">
+(function(){
+  var phrases=['وضع الإدارة مفعّل','تقدر تغيّر حالة أي طلب'];
+  function hideAdminHint(){
+    var modal=document.getElementById('trackingModal');
+    if(!modal)return;
+    var hint=document.getElementById('adminHint');
+    if(hint)hint.style.display='none';
+    // Hide only the smallest element containing the admin-only notice; do not alter tracking data or controls.
+    var nodes=modal.querySelectorAll('div,p,span,small,strong,label');
+    nodes.forEach(function(el){
+      var txt=(el.innerText||el.textContent||'').replace(/\s+/g,' ').trim();
+      if(phrases.some(function(phrase){return txt.indexOf(phrase)!==-1;})){
+        var childHasSamePhrase=Array.prototype.some.call(el.children||[],function(child){
+          var ct=(child.innerText||child.textContent||'').replace(/\s+/g,' ').trim();
+          return phrases.some(function(phrase){return ct.indexOf(phrase)!==-1;});
+        });
+        if(!childHasSamePhrase)el.style.setProperty('display','none','important');
+      }
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hideAdminHint);else hideAdminHint();
+  try{new MutationObserver(hideAdminHint).observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){}
+  document.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('#trackingModal'))setTimeout(hideAdminHint,0);},true);
+})();
+</script>
