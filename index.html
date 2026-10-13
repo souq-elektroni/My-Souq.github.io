@@ -5140,7 +5140,11 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
         if (typeof db !== 'undefined' && db) {
           var cancelledReceipt = await db.collection('cancelledOrders').doc(searchId).get();
           if (cancelledReceipt.exists) {
-            resultBox.innerHTML = '<div class="mysouq-cancelled-receipt" role="status" style="text-align:center;padding:28px 18px;border-radius:18px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.65);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 12px 32px rgba(40,20,30,.10);color:#8b3f52;font-weight:900;font-size:18px;line-height:1.9;">تم إلغاء الطلب بناءً على طلبكم. شكرًا لاستخدامكم My Souq</div>';
+            var cancellationData = cancelledReceipt.data() || {};
+            var cancellationMessage = cancellationData.cancellationType === 'exceptional'
+              ? 'تم إلغاء الطلب إلغاءً استثنائيًا بناءً على طلب العميل، مع تحمّل تكلفة الحجز والشحن.'
+              : 'تم إلغاء الطلب بناءً على طلبكم. شكرًا لاستخدامكم My Souq';
+            resultBox.innerHTML = '<div class="mysouq-cancelled-receipt" role="status" style="text-align:center;padding:28px 18px;border-radius:18px;background:rgba(255,255,255,.72);border:1px solid rgba(255,255,255,.65);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 12px 32px rgba(40,20,30,.10);color:#8b3f52;font-weight:900;font-size:18px;line-height:1.9;">' + cancellationMessage + '</div>';
             return;
           }
         }
@@ -6421,19 +6425,33 @@ window.addToCartAndContinue = function () {
     };
 
     async function removeOrderLocally(orderId) {
+      var normId = function (v) { return String(v == null ? '' : v).trim().toUpperCase(); };
+      var targetId = normId(orderId);
       try {
         if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) {
-          for (var i = adminOrdersCache.length - 1; i >= 0; i--) {
-            if (String(adminOrdersCache[i].orderId || '') === String(orderId || '')) adminOrdersCache.splice(i, 1);
-          }
+          adminOrdersCache = adminOrdersCache.filter(function (o) { return normId(o && o.orderId) !== targetId; });
         }
       } catch (e) {}
       try {
         if (typeof ordersHistory !== 'undefined' && Array.isArray(ordersHistory)) {
-          for (var j = ordersHistory.length - 1; j >= 0; j--) {
-            if (String(ordersHistory[j].orderId || '') === String(orderId || '')) ordersHistory.splice(j, 1);
-          }
+          ordersHistory = ordersHistory.filter(function (o) { return normId(o && o.orderId) !== targetId; });
         }
+      } catch (e) {}
+
+      // Purge the deleted order from legacy and current localStorage caches.
+      try {
+        ['souqOrdersHistory', 'ordersHistory', 'adminOrdersCache'].forEach(function (key) {
+          try {
+            var raw = localStorage.getItem(key);
+            if (!raw) return;
+            var parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              localStorage.setItem(key, JSON.stringify(parsed.filter(function (o) {
+                return normId(o && o.orderId) !== targetId;
+              })));
+            }
+          } catch (_) {}
+        });
       } catch (e) {}
 
       var helperNames = ['saveOrdersHistory', 'persistOrdersHistory', 'saveOrderHistoryToLocal'];
@@ -6446,9 +6464,7 @@ window.addToCartAndContinue = function () {
         } catch (e) {}
       }
 
-      try {
-        if (typeof filterAdminOrders === 'function') filterAdminOrders();
-      } catch (e) {}
+      try { if (typeof filterAdminOrders === 'function') filterAdminOrders(); } catch (e) {}
     }
 
     window.cancelOrderPermanently = async function (orderId) {
@@ -7064,7 +7080,7 @@ html body #productModal .share-btn{order:4!important;}
     let orderDeleted=false;
     try{
       // Write the minimal customer-facing receipt first so a successful deletion remains explainable.
-      await markerRef.set({status:'cancelled',cancelledAt:firebase.firestore.FieldValue.serverTimestamp()});
+      await markerRef.set({status:'cancelled',cancelledAt:firebase.firestore.FieldValue.serverTimestamp(),cancellationType:'regular'});
       // Delete the order if it still exists. Older/partially processed cancellations may already have removed it.
       try {
         await window.deleteOrderFromCloud(id);
@@ -7078,9 +7094,8 @@ html body #productModal .share-btn{order:4!important;}
       const reqSnap=await db.collection('cancellationRequests').where('orderId','==',id).get();
       if(!reqSnap.empty){let batch=db.batch();let count=0;for(const d of reqSnap.docs){batch.delete(d.ref);count++;if(count===450){await batch.commit();batch=db.batch();count=0;}}if(count)await batch.commit();}
       // Clear in-memory/local order copies so the deleted order disappears from the admin UI too.
-      ['adminOrdersCache','ordersHistory'].forEach(name=>{try{if(Array.isArray(window[name]))window[name]=window[name].filter(o=>String(o.orderId||'').trim().toUpperCase()!==id);}catch(_){} });
-      try{localStorage.removeItem('ordersHistory');}catch(_){}
-      try{if(typeof filterAdminOrders==='function')filterAdminOrders();}catch(_){}
+      try { if (typeof removeOrderLocally === 'function') await removeOrderLocally(id); } catch (_) {}
+      try { if (typeof filterAdminOrders === 'function') filterAdminOrders(); } catch (_) {}
       await loadAdminCancelRequests();
       alert('تم إلغاء الطلب وحذف بياناته وطلبات الإلغاء المرتبطة به. سيظهر للعميل تأكيد الإلغاء عند الاستعلام عن رقم الطلب.');
     }catch(e){
