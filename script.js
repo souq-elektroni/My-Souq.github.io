@@ -123,6 +123,13 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       }
     }
 
+    // If Firestore records this ID as cancelled, never return an old local copy.
+    if (firebaseReady && db) {
+      try {
+        const cancelled = await db.collection('cancelledOrders').doc(normalizedId.trim().toUpperCase()).get();
+        if (cancelled.exists) return null;
+      } catch (e) {}
+    }
     // Local fallback is limited to this browser and may be stale.
     return ordersHistory.find(o => String(o.orderId || '').trim().toLowerCase() === normalizedId.toLowerCase()) || null;
   }
@@ -3589,20 +3596,46 @@ function continueAfterOrderRecaptcha() {
     box.innerHTML = '<p style="text-align:center;color:var(--text-muted);">جاري تحميل الطلبات...</p>';
 
     let list = [];
+    let cloudOrdersReadSucceeded = false;
     if (firebaseReady && db) {
       try {
         const snap = await db.collection('orders').orderBy('createdAt', 'desc').limit(150).get();
         snap.forEach(doc => list.push(doc.data()));
+        cloudOrdersReadSucceeded = true;
       } catch (e) {
         try {
           const snap2 = await db.collection('orders').limit(150).get();
           snap2.forEach(doc => list.push(doc.data()));
           list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+          cloudOrdersReadSucceeded = true;
         } catch (e2) { console.error(e2); }
       }
     }
-    if (!list.length) {
+
+    // A successful cloud read is authoritative, even when empty. Never resurrect
+    // deleted orders from the browser's old souqOrdersHistory cache.
+    if (!cloudOrdersReadSucceeded && !list.length) {
       list = [...ordersHistory].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    }
+
+    // Filter any stale copies of orders whose cancellation receipt remains in Firestore.
+    if (firebaseReady && db) {
+      try {
+        const cancelledSnap = await db.collection('cancelledOrders').get();
+        const cancelledIds = new Set();
+        cancelledSnap.forEach(doc => {
+          const data = doc.data() || {};
+          cancelledIds.add(String(doc.id || '').trim().toUpperCase());
+          if (data.orderId) cancelledIds.add(String(data.orderId).trim().toUpperCase());
+        });
+        list = list.filter(o => !cancelledIds.has(String(o && o.orderId || '').trim().toUpperCase()));
+        try {
+          ordersHistory = ordersHistory.filter(o => !cancelledIds.has(String(o && o.orderId || '').trim().toUpperCase()));
+          localStorage.setItem('souqOrdersHistory', JSON.stringify(ordersHistory));
+        } catch (_) {}
+      } catch (cancelledReadError) {
+        console.warn('تعذر قراءة سجل الطلبات الملغاة لتصفية النسخ القديمة:', cancelledReadError);
+      }
     }
 
     // Backfill minimal public tracking records for existing orders (admin session only).
