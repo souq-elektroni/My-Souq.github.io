@@ -14942,20 +14942,42 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
       if(!found.refs.length||!found.data)throw new Error('لم يتم العثور على الطلب في قاعدة البيانات.');
       var order=Object.assign({},found.data,{orderId:found.data.orderId||id});
       if(codeOf(order)!==4)throw new Error('فك الحظر متاح فقط من قناة «رفض استلام وحظر».');
+
       var nm=String(order.name||order.customerName||order.blockedCustomerName||'').trim();
       var ph=String(order.phone||order.customerPhone||order.blockedCustomerPhone||'').trim();
-      var nk=nameKey(nm),pk=phoneKey(ph);
+      // Prefer the exact keys recorded when the customer was blocked, then fall back
+      // to the same normalization used by the block-creation workflow.
+      var nk=String(order.blockedNameKey||nameKey(nm)||'');
+      var pk=String(order.blockedPhoneKey||phoneKey(ph)||'');
       if(!nk&&!pk)throw new Error('لا يوجد اسم أو هاتف محفوظ لهذا العميل في الطلب.');
-      if(!confirm('تأكيد فك الحظر عن العميل؟\\n\\nالعميل: '+(nm||'-')+'\\nالهاتف: '+(ph||'-')+'\\n\\nسيظل الطلب القديم في قناة «رفض استلام وحظر»، لكن سيتم السماح للعميل بمحاولة إنشاء طلبات جديدة.'))return;
+
+      if(!confirm('تأكيد فك الحظر عن العميل؟\n\nالعميل: '+(nm||'-')+'\nالهاتف: '+(ph||'-')+'\n\nسيتم حذف سجلات الحظر المطابقة من blockedCustomers. سيظل الطلب القديم محفوظًا في قناة «رفض استلام وحظر»، ولن تتغير حالته التاريخية.'))return;
 
       var batch=dbx.batch();
-      if(pk)batch.delete(dbx.collection('blockedCustomers').doc('phone_'+pk));
-      if(nk)batch.delete(dbx.collection('blockedCustomers').doc('name_'+encodeURIComponent(nk).replace(/%/g,'_')));
+      var idsToDelete={};
+      // These document IDs match the IDs created by returnDeliveredOrderAsRejected.
+      if(pk)idsToDelete['phone_'+pk]=true;
+      if(nk)idsToDelete['name_'+encodeURIComponent(nk).replace(/%/g,'_')]=true;
+
+      // Also remove exact stored IDs if older records used a saved key that differs
+      // from the current normalization; never delete by name/phone query broadly.
+      Object.keys(idsToDelete).forEach(function(docId){
+        batch.delete(dbx.collection('blockedCustomers').doc(docId));
+      });
+
       var stamp=firebase.firestore.FieldValue.serverTimestamp();
-      var update={customerBlocked:false,blockLifted:true,unblockedAt:stamp,unblockedBy:(typeof currentAdminUser!=='undefined'&&currentAdminUser&&currentAdminUser.email)||''};
+      var adminEmail='';
+      try{if(typeof currentAdminUser!=='undefined'&&currentAdminUser)adminEmail=currentAdminUser.email||'';}catch(e){}
+      var update={
+        customerBlocked:false,
+        blockLifted:true,
+        unblockedAt:stamp,
+        unblockedBy:adminEmail
+      };
       found.refs.forEach(function(ref){batch.update(ref,update);});
       await batch.commit();
 
+      // Keep the order and status-4 tracking record for audit/history; only lift the block.
       [cache(),(Array.isArray(window.ordersHistory)?window.ordersHistory:[])].forEach(function(arr){
         arr.forEach(function(o){
           if(String(o.orderId||o.id||'').trim().toUpperCase()===id)Object.assign(o,update);
@@ -14966,17 +14988,22 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
           var raw=localStorage.getItem(k);if(!raw)return;
           var arr=JSON.parse(raw);
           if(Array.isArray(arr)){
-            arr.forEach(function(o){if(String(o.orderId||o.id||'').trim().toUpperCase()===id)Object.assign(o,{customerBlocked:false,blockLifted:true});});
+            arr.forEach(function(o){
+              if(String(o.orderId||o.id||'').trim().toUpperCase()===id)
+                Object.assign(o,{customerBlocked:false,blockLifted:true});
+            });
             localStorage.setItem(k,JSON.stringify(arr));
           }
         });
       }catch(e){}
       renderRejected();
-      alert('تم فك الحظر بنجاح. سيظل الطلب القديم في قناة «رفض استلام وحظر»، ويمكن للعميل محاولة إنشاء طلب جديد.');
+      alert('تم فك الحظر بنجاح. تم حذف سجلات الحظر المطابقة، مع الاحتفاظ بالطلب القديم في قناة «رفض استلام وحظر». يمكن للعميل محاولة إنشاء طلب جديد.');
     }catch(e){
       console.error('Unblock customer failed:',e);
-      alert('تعذر فك الحظر. لم يتم تأكيد العملية.\\n'+(e&&e.message?e.message:'خطأ غير معروف'));
-    }finally{if(button){button.disabled=false;button.textContent=originalText;}}
+      alert('تعذر فك الحظر. لم يتم تأكيد العملية.\n'+(e&&e.message?e.message:'خطأ غير معروف')+'\n\nتأكد من تسجيل الدخول بحساب الإدارة وأن قواعد Firestore تسمح بحذف مستندات blockedCustomers وتحديث الطلب.');
+    }finally{
+      if(button){button.disabled=false;button.textContent=originalText;}
+    }
   };
 
   function renderRejected(){
