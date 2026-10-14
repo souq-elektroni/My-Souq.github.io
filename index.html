@@ -6266,7 +6266,7 @@ window.addToCartAndContinue = function () {
         نعمل حالياً على تحديث المتجر وتحسين الخدمة. برجاء المحاولة مرة أخرى بعد قليل.
       </p>
       <div id="maintenanceModeMessage" style="font-size:12px;font-weight:800;color:var(--burgundy-soft);margin-bottom:14px;"></div>
-      <button type="button" onclick="handleAdminButton()" style="background:#1565c0;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-weight:900;cursor:pointer;">
+      <button type="button" onclick="handleMaintenanceAdminEntry()" style="background:#1565c0;color:#fff;border:none;border-radius:10px;padding:10px 18px;font-weight:900;cursor:pointer;">
         🔐 دخول الإدارة
       </button>
     </div>
@@ -8136,6 +8136,112 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 @media(max-width:760px){.customer-track-columns{grid-template-columns:1fr}.customer-track-order-panel,.customer-track-products-panel{padding:12px}.customer-track-data-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#trackingResultContainer .track-product-img{height:125px}}
 @media(max-width:430px){#trackingModal .track-search-row{gap:6px!important}#trackingModal .track-search-btn{min-width:72px!important;padding-inline:9px!important}.customer-track-data-grid{grid-template-columns:1fr}.customer-track-address{grid-column:auto}#trackingResultContainer .track-product-card{grid-template-columns:1fr}#trackingResultContainer .track-product-images{grid-template-columns:repeat(2,minmax(0,1fr))}#trackingResultContainer .track-product-img{height:180px}}
 </style>
+
+
+<script id="mysouq-maintenance-admin-entry-fix">
+/* إصلاح دخول الإدارة أثناء تفعيل الصيانة: إبقاء نافذة الدخول فوق طبقة الصيانة */
+(function () {
+  if (window.__mysouqMaintenanceAdminEntryFix) return;
+  window.__mysouqMaintenanceAdminEntryFix = true;
+
+  function isAdminSignedIn() {
+    try {
+      return typeof isAdminMode !== 'undefined' &&
+             !!isAdminMode &&
+             typeof currentAdminUser !== 'undefined' &&
+             !!currentAdminUser;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  function liftModal(id) {
+    var modal = document.getElementById(id);
+    if (!modal) return null;
+    modal.style.zIndex = '10002';
+    modal.style.pointerEvents = 'auto';
+    return modal;
+  }
+
+  function hideMaintenanceForAdmin() {
+    var overlay = document.getElementById('maintenanceModeOverlay');
+    if (overlay) {
+      overlay.style.display = 'none';
+      overlay.style.pointerEvents = 'none';
+    }
+    document.body.style.overflow = '';
+  }
+
+  window.handleMaintenanceAdminEntry = function () {
+    var loginModal = liftModal('adminLoginModal');
+    var ordersModal = liftModal('adminOrdersModal');
+
+    if (isAdminSignedIn()) {
+      hideMaintenanceForAdmin();
+      if (typeof window.handleAdminButton === 'function') {
+        window.handleAdminButton();
+      } else if (ordersModal) {
+        ordersModal.classList.add('active');
+      }
+      if (ordersModal) ordersModal.style.zIndex = '10002';
+      return;
+    }
+
+    if (typeof window.handleAdminButton === 'function') {
+      window.handleAdminButton();
+    } else if (loginModal) {
+      loginModal.classList.add('active');
+    }
+
+    // نافذة الدخول تكون فوق غطاء الصيانة حتى يستطيع العميل رؤية الحقول والتفاعل معها.
+    if (loginModal) {
+      loginModal.style.zIndex = '10002';
+      loginModal.style.pointerEvents = 'auto';
+      loginModal.classList.add('active');
+    }
+  };
+
+  // بعد نجاح تسجيل الدخول، ارفع لوحة الإدارة وأخفِ غطاء الصيانة فورًا.
+  if (typeof window.loginAdmin === 'function' && !window.loginAdmin.__maintenanceEntryWrapped) {
+    var originalLoginAdmin = window.loginAdmin;
+    var wrappedLoginAdmin = async function () {
+      var result = await originalLoginAdmin.apply(this, arguments);
+      if (isAdminSignedIn()) {
+        hideMaintenanceForAdmin();
+        var ordersModal = liftModal('adminOrdersModal');
+        if (ordersModal) ordersModal.classList.add('active');
+      } else {
+        var loginModal = liftModal('adminLoginModal');
+        if (loginModal) loginModal.classList.add('active');
+      }
+      return result;
+    };
+    wrappedLoginAdmin.__maintenanceEntryWrapped = true;
+    window.loginAdmin = wrappedLoginAdmin;
+  }
+
+  // عند إغلاق نافذة الدخول من دون تسجيل الدخول، اترك شاشة الصيانة ظاهرة.
+  if (typeof window.closeAdminLogin === 'function' && !window.closeAdminLogin.__maintenanceEntryWrapped) {
+    var originalCloseAdminLogin = window.closeAdminLogin;
+    var wrappedCloseAdminLogin = function () {
+      var result = originalCloseAdminLogin.apply(this, arguments);
+      var loginModal = document.getElementById('adminLoginModal');
+      if (loginModal) loginModal.style.zIndex = '';
+      if (!isAdminSignedIn()) {
+        var overlay = document.getElementById('maintenanceModeOverlay');
+        if (overlay) {
+          overlay.style.display = 'flex';
+          overlay.style.pointerEvents = 'auto';
+        }
+        document.body.style.overflow = 'hidden';
+      }
+      return result;
+    };
+    wrappedCloseAdminLogin.__maintenanceEntryWrapped = true;
+    window.closeAdminLogin = wrappedCloseAdminLogin;
+  }
+})();
+</script>
 
 </body>
 </html>
