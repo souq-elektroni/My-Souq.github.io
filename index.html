@@ -5186,11 +5186,11 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
             if (Number(publicTrackingData.statusCode) === 4 ||
                 /رفض استلام وحظر/.test(String(publicTrackingData.status || publicTrackingData.statusLabel || ''))) {
               resultBox.innerHTML =
-                '<div role="status" aria-live="polite" style="text-align:center;padding:30px 20px;border-radius:18px;background:rgba(255,248,248,.94);border:1px solid #efb8bd;box-shadow:0 12px 30px rgba(80,20,30,.08);color:#9f1825;line-height:2;">' +
-                  '<div style="font-size:34px;margin-bottom:8px;">💔</div>' +
-                  '<div style="font-size:20px;font-weight:900;margin-bottom:8px;">مع الأسف، تم حظر وإنهاء التعامل مع حضراتكم</div>' +
-                  '<div style="font-size:15px;font-weight:800;">وذلك لرفض الاستلام في مرحلة «تم التوريد».</div>' +
-                  '<div style="font-size:14px;margin-top:10px;color:#79545a;">شكرًا لاستخدامكم My Souq 💔</div>' +
+                '<div role="status" aria-live="polite" style="text-align:center;padding:30px 20px;border-radius:20px;background:linear-gradient(155deg,rgba(255,253,248,.98),rgba(249,232,228,.97));border:1px solid #e7b8bb;box-shadow:0 14px 34px rgba(80,20,30,.10);color:#7f2630;line-height:2;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">' +
+                  '<div style="width:62px;height:62px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#f7dfe0,#edc3c6);border:1px solid #fff;box-shadow:0 8px 20px rgba(127,38,48,.13);font-size:31px;">🚫</div>' +
+                  '<div style="font-size:21px;font-weight:950;margin-bottom:8px;">Block 🚫</div>' +
+                  '<div style="font-size:17px;font-weight:900;">لا توجد بيانات خاصة عن هذا الطلب</div>' +
+                  '<div style="display:inline-block;margin-top:14px;padding:8px 14px;border-radius:12px;background:rgba(255,255,255,.78);border:1px solid rgba(127,38,48,.13);font-size:15px;font-weight:900;direction:rtl;">رقم الطلب: <bdi>' + searchId + '</bdi></div>' +
                 '</div>';
               return;
             }
@@ -5206,11 +5206,11 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
         var currentCode = typeof foundOrder.statusCode === 'number' ? foundOrder.statusCode : 0;
         if (currentCode === 4 || /رفض استلام وحظر/.test(String(foundOrder.status || foundOrder.statusLabel || ''))) {
           resultBox.innerHTML =
-            '<div role="status" aria-live="polite" style="text-align:center;padding:30px 20px;border-radius:18px;background:rgba(255,248,248,.94);border:1px solid #efb8bd;box-shadow:0 12px 30px rgba(80,20,30,.08);color:#9f1825;line-height:2;">' +
-              '<div style="font-size:34px;margin-bottom:8px;">💔</div>' +
-              '<div style="font-size:20px;font-weight:900;margin-bottom:8px;">مع الأسف، تم حظر وإنهاء التعامل مع حضراتكم</div>' +
-              '<div style="font-size:15px;font-weight:800;">وذلك لرفض الاستلام في مرحلة «تم التوريد».</div>' +
-              '<div style="font-size:14px;margin-top:10px;color:#79545a;">شكرًا لاستخدامكم My Souq 💔</div>' +
+            '<div role="status" aria-live="polite" style="text-align:center;padding:30px 20px;border-radius:20px;background:linear-gradient(155deg,rgba(255,253,248,.98),rgba(249,232,228,.97));border:1px solid #e7b8bb;box-shadow:0 14px 34px rgba(80,20,30,.10);color:#7f2630;line-height:2;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">' +
+              '<div style="width:62px;height:62px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#f7dfe0,#edc3c6);border:1px solid #fff;box-shadow:0 8px 20px rgba(127,38,48,.13);font-size:31px;">🚫</div>' +
+              '<div style="font-size:21px;font-weight:950;margin-bottom:8px;">Block 🚫</div>' +
+              '<div style="font-size:17px;font-weight:900;">لا توجد بيانات خاصة عن هذا الطلب</div>' +
+              '<div style="display:inline-block;margin-top:14px;padding:8px 14px;border-radius:12px;background:rgba(255,255,255,.78);border:1px solid rgba(127,38,48,.13);font-size:15px;font-weight:900;direction:rtl;">رقم الطلب: <bdi>' + searchId + '</bdi></div>' +
             '</div>';
           return;
         }
