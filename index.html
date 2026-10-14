@@ -5176,10 +5176,44 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
         console.warn('Cancelled-order receipt lookup failed', cancelLookupError);
       }
 
+      // Public blocked-order receipt: read only the minimal tracking document first.
+      // Do not expose customer name, address, phone, product or payment details for status 4.
+      try {
+        if (typeof db !== 'undefined' && db) {
+          var publicTrackingSnap = await db.collection('orderTracking').doc(searchId).get();
+          if (publicTrackingSnap && publicTrackingSnap.exists) {
+            var publicTrackingData = publicTrackingSnap.data() || {};
+            if (Number(publicTrackingData.statusCode) === 4 ||
+                /رفض استلام وحظر/.test(String(publicTrackingData.status || publicTrackingData.statusLabel || ''))) {
+              resultBox.innerHTML =
+                '<div role="status" aria-live="polite" style="text-align:center;padding:30px 20px;border-radius:18px;background:rgba(255,248,248,.94);border:1px solid #efb8bd;box-shadow:0 12px 30px rgba(80,20,30,.08);color:#9f1825;line-height:2;">' +
+                  '<div style="font-size:34px;margin-bottom:8px;">💔</div>' +
+                  '<div style="font-size:20px;font-weight:900;margin-bottom:8px;">مع الأسف، تم حظر وإنهاء التعامل مع حضراتكم</div>' +
+                  '<div style="font-size:15px;font-weight:800;">وذلك لرفض الاستلام في مرحلة «تم التوريد».</div>' +
+                  '<div style="font-size:14px;margin-top:10px;color:#79545a;">شكرًا لاستخدامكم My Souq 💔</div>' +
+                '</div>';
+              return;
+            }
+          }
+        }
+      } catch (blockedTrackingLookupError) {
+        console.warn('Blocked-order tracking lookup failed', blockedTrackingLookupError);
+      }
+
       var foundOrder = await findOrderFlexible(searchId);
 
       if (foundOrder) {
         var currentCode = typeof foundOrder.statusCode === 'number' ? foundOrder.statusCode : 0;
+        if (currentCode === 4 || /رفض استلام وحظر/.test(String(foundOrder.status || foundOrder.statusLabel || ''))) {
+          resultBox.innerHTML =
+            '<div role="status" aria-live="polite" style="text-align:center;padding:30px 20px;border-radius:18px;background:rgba(255,248,248,.94);border:1px solid #efb8bd;box-shadow:0 12px 30px rgba(80,20,30,.08);color:#9f1825;line-height:2;">' +
+              '<div style="font-size:34px;margin-bottom:8px;">💔</div>' +
+              '<div style="font-size:20px;font-weight:900;margin-bottom:8px;">مع الأسف، تم حظر وإنهاء التعامل مع حضراتكم</div>' +
+              '<div style="font-size:15px;font-weight:800;">وذلك لرفض الاستلام في مرحلة «تم التوريد».</div>' +
+              '<div style="font-size:14px;margin-top:10px;color:#79545a;">شكرًا لاستخدامكم My Souq 💔</div>' +
+            '</div>';
+          return;
+        }
         var current = currentCode === 4 ? { label: 'رفض استلام وحظر', color: '#c62828' } : (ORDER_STATUSES[currentCode] || ORDER_STATUSES[0]);
 
         var timelineHtml = ORDER_STATUSES.map(function (s, idx) {
@@ -8375,6 +8409,49 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
   }, 500);
 })();
 </script>
+
+
+<style id="mysouq-admin-five-tabs-and-delivered-actions">
+/* Keep the five primary admin channels on one horizontal row on desktop and mobile. */
+#msqAdminTabs{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:7px!important;
+  align-items:stretch;
+}
+#msqAdminTabs button{
+  min-width:0!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere;
+  line-height:1.35;
+  padding:10px 5px!important;
+  font-size:clamp(9px,1vw,13px)!important;
+}
+#msqAdminTabs button[data-tab="rejected"]{border-color:#c62828;color:#9d1823}
+#msqAdminTabs button[data-tab="rejected"].active{background:#b71c1c;color:#fff;border-color:#b71c1c}
+#msqDeliveredList .msq-delivered-actions{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:7px!important;
+  align-items:stretch;
+}
+#msqDeliveredList .msq-delivered-actions button{
+  min-width:0;
+  width:100%;
+  margin:0!important;
+  white-space:normal;
+  line-height:1.35;
+  padding:9px 5px;
+  border-radius:9px;
+  font-size:clamp(10px,1vw,13px);
+  font-weight:900;
+}
+@media(max-width:520px){
+  #msqAdminTabs{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:4px!important}
+  #msqAdminTabs button{padding:8px 2px!important;font-size:9px!important;min-height:52px}
+  #msqDeliveredList .msq-delivered-actions{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px!important}
+  #msqDeliveredList .msq-delivered-actions button{font-size:9px;padding:8px 2px;overflow-wrap:anywhere}
+}
+</style>
 
 </body>
 </html>
@@ -14204,7 +14281,7 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
     box.innerHTML=list.map(function(o){
       var st=labelOf(o),id=String(o.orderId||'').replace(/'/g,"\\'");
       var items=(o.items&&o.items.length)||0;
-      return '<article class="order-card-admin"><div class="oid">🆔 '+escText(o.orderId||'-')+'</div><div>👤 '+escText(o.name||'-')+' | 📱 '+escText(o.phone||'-')+'</div><div>💰 '+escText(o.total||'-')+' | 📅 '+escText(o.date||'-')+'</div><div style="font-weight:900;color:#2e7d32;margin:6px 0">الحالة: '+escText(st)+(items?' · 🛍️ '+items+' منتج':'')+'</div><div style="display:flex;gap:6px;flex-wrap:wrap"><button onclick="showAdminOrderDetails(\''+id+'\')">🧾 تفاصيل الطلب</button><button onclick="notifyCustomerStatus(\''+id+'\')">💬 إشعار واتساب</button><button onclick="copyShippingMessage(\''+id+'\')">📋 نسخ رسالة الشحن</button></div></article>';
+      return '<article class="order-card-admin"><div class="oid">🆔 '+escText(o.orderId||'-')+'</div><div>👤 '+escText(o.name||'-')+' | 📱 '+escText(o.phone||'-')+'</div><div>💰 '+escText(o.total||'-')+' | 📅 '+escText(o.date||'-')+'</div><div style="font-weight:900;color:#2e7d32;margin:6px 0">الحالة: '+escText(st)+(items?' · 🛍️ '+items+' منتج':'')+'</div><div class="msq-delivered-actions"><button type="button" onclick="showAdminOrderDetails(\''+id+'\')">🧾 تفاصيل الطلب</button><button type="button" onclick="notifyCustomerStatus(\''+id+'\')">💬 إشعار واتساب</button><button type="button" onclick="copyShippingMessage(\''+id+'\')">📋 نسخ رسالة الشحن</button><button type="button" onclick="returnDeliveredOrderAsRejected(\''+id+'\',this)">↩️ إرجاع حالة</button></div></article>';
     }).join('');
   }
   function escText(v){var d=document.createElement('div');d.textContent=String(v==null?'':v);return d.innerHTML;}
@@ -14711,6 +14788,8 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
     if(root.matches&&root.matches('.order-card-admin'))cards.push(root);
     if(root.querySelectorAll)root.querySelectorAll('.order-card-admin').forEach(function(c){cards.push(c);});
     cards.forEach(function(card){
+      // Delivered cards already render their four actions together in one dedicated row.
+      if(card.closest && card.closest('#msqDeliveredList'))return;
       var oid=card.querySelector('.oid');if(!oid)return;
       var id=oid.textContent.replace(/^\s*🆔\s*/,'').trim();
       var order=findCached(id);if(!order)return;
@@ -14850,6 +14929,56 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
     }finally{if(button){button.disabled=false;button.textContent=originalText;}}
   };
 
+  window.unblockRejectedCustomer=async function(orderId,button){
+    if(!isAdmin()){alert('يجب تسجيل الدخول إلى الإدارة أولًا.');return;}
+    var id=String(orderId||'').trim().toUpperCase();
+    if(!id){alert('رقم الطلب غير صالح.');return;}
+    var dbx=getDbSafe();
+    if(!dbx){alert('Firebase غير متاح؛ لم يتم فك الحظر.');return;}
+    var originalText=button?button.textContent:'🔓 فك حظر';
+    if(button){button.disabled=true;button.textContent='جارٍ فك الحظر...';}
+    try{
+      var found=await findOrderRefs(dbx,id);
+      if(!found.refs.length||!found.data)throw new Error('لم يتم العثور على الطلب في قاعدة البيانات.');
+      var order=Object.assign({},found.data,{orderId:found.data.orderId||id});
+      if(codeOf(order)!==4)throw new Error('فك الحظر متاح فقط من قناة «رفض استلام وحظر».');
+      var nm=String(order.name||order.customerName||order.blockedCustomerName||'').trim();
+      var ph=String(order.phone||order.customerPhone||order.blockedCustomerPhone||'').trim();
+      var nk=nameKey(nm),pk=phoneKey(ph);
+      if(!nk&&!pk)throw new Error('لا يوجد اسم أو هاتف محفوظ لهذا العميل في الطلب.');
+      if(!confirm('تأكيد فك الحظر عن العميل؟\\n\\nالعميل: '+(nm||'-')+'\\nالهاتف: '+(ph||'-')+'\\n\\nسيظل الطلب القديم في قناة «رفض استلام وحظر»، لكن سيتم السماح للعميل بمحاولة إنشاء طلبات جديدة.'))return;
+
+      var batch=dbx.batch();
+      if(pk)batch.delete(dbx.collection('blockedCustomers').doc('phone_'+pk));
+      if(nk)batch.delete(dbx.collection('blockedCustomers').doc('name_'+encodeURIComponent(nk).replace(/%/g,'_')));
+      var stamp=firebase.firestore.FieldValue.serverTimestamp();
+      var update={customerBlocked:false,blockLifted:true,unblockedAt:stamp,unblockedBy:(typeof currentAdminUser!=='undefined'&&currentAdminUser&&currentAdminUser.email)||''};
+      found.refs.forEach(function(ref){batch.update(ref,update);});
+      await batch.commit();
+
+      [cache(),(Array.isArray(window.ordersHistory)?window.ordersHistory:[])].forEach(function(arr){
+        arr.forEach(function(o){
+          if(String(o.orderId||o.id||'').trim().toUpperCase()===id)Object.assign(o,update);
+        });
+      });
+      try{
+        ['souqOrdersHistory','ordersHistory','adminOrdersCache'].forEach(function(k){
+          var raw=localStorage.getItem(k);if(!raw)return;
+          var arr=JSON.parse(raw);
+          if(Array.isArray(arr)){
+            arr.forEach(function(o){if(String(o.orderId||o.id||'').trim().toUpperCase()===id)Object.assign(o,{customerBlocked:false,blockLifted:true});});
+            localStorage.setItem(k,JSON.stringify(arr));
+          }
+        });
+      }catch(e){}
+      renderRejected();
+      alert('تم فك الحظر بنجاح. سيظل الطلب القديم في قناة «رفض استلام وحظر»، ويمكن للعميل محاولة إنشاء طلب جديد.');
+    }catch(e){
+      console.error('Unblock customer failed:',e);
+      alert('تعذر فك الحظر. لم يتم تأكيد العملية.\\n'+(e&&e.message?e.message:'خطأ غير معروف'));
+    }finally{if(button){button.disabled=false;button.textContent=originalText;}}
+  };
+
   function renderRejected(){
     var box=document.getElementById('msqRejectedList');if(!box)return;
     var q=String((document.getElementById('msqRejectedSearch')||{}).value||'').toLowerCase().trim().replace(/\s/g,'');
@@ -14866,7 +14995,10 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
         '<div>👤 '+esc(o.name||o.customerName||'-')+' | 📱 '+esc(o.phone||o.customerPhone||'-')+'</div>'+
         '<div>💰 '+esc(o.total||'-')+' | 📅 '+esc(o.date||'-')+'</div>'+
         '<div style="margin:7px 0"><span class="msq-reject-status-badge">❌🚫 رفض استلام وحظر</span></div>'+
-        '<div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" onclick="showAdminOrderDetails(\''+id+'\')">🧾 تفاصيل الطلب</button></div></article>';
+        '<div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" onclick="showAdminOrderDetails(\''+id+'\')">🧾 تفاصيل الطلب</button>' +
+        (o.customerBlocked===false || o.blockLifted ? '<button type="button" disabled style="border:0;border-radius:8px;padding:8px 12px;background:#e8f5e9;color:#237445;font-weight:900;opacity:1">✅ تم فك الحظر</button>' :
+        '<button type="button" style="border:0;border-radius:8px;padding:8px 12px;background:#176b3a;color:#fff;font-weight:900;cursor:pointer" onclick="unblockRejectedCustomer(\''+id+'\',this)">🔓 فك حظر</button>') +
+        '</div></article>';
     }).join('');
     patchOrderCards(box);
   }
