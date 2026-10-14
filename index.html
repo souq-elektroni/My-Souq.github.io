@@ -8453,37 +8453,6 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 }
 </style>
 
-
-<style id="mysouq-admin-five-tabs-wider-layout-v1">
-/* Widen only the admin orders modal so all five existing workflow tabs fit in one row. */
-#adminOrdersModal .modal-content{
-  width:min(98vw,1450px)!important;
-  max-width:1450px!important;
-  box-sizing:border-box!important;
-}
-#adminOrdersModal #msqAdminTabs{
-  display:grid!important;
-  grid-template-columns:repeat(5,minmax(0,1fr))!important;
-  gap:8px!important;
-  width:100%!important;
-}
-#adminOrdersModal #msqAdminTabs button{
-  min-width:0!important;
-  white-space:normal!important;
-  overflow-wrap:anywhere!important;
-  line-height:1.35!important;
-  padding:10px 6px!important;
-  font-size:clamp(10px,0.9vw,13px)!important;
-}
-@media(max-width:900px){
-  #adminOrdersModal .modal-content{width:96vw!important;max-width:96vw!important}
-  #adminOrdersModal #msqAdminTabs{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important}
-}
-@media(max-width:620px){
-  #adminOrdersModal #msqAdminTabs{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
-  #adminOrdersModal #msqAdminTabs button{font-size:11px!important;padding:9px 5px!important}
-}
-</style>
 </body>
 </html>
 
@@ -15140,3 +15109,35 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   var timer=setInterval(init,700);setTimeout(function(){clearInterval(timer);init();},30000);
 })();
 </script>
+
+
+<style id="mysouq-admin-five-tabs-final-layout-fix">
+/* Final override: all five admin tabs stay on one row on desktop. */
+#adminOrdersModal .modal-content {
+  width: min(98vw, 1450px) !important;
+  max-width: 1450px !important;
+  box-sizing: border-box !important;
+}
+#adminOrdersModal #msqAdminTabs {
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+  gap: 6px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+#adminOrdersModal #msqAdminTabs > button {
+  min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 10px 4px !important;
+  font-size: clamp(10px, 0.95vw, 13px) !important;
+  line-height: 1.35 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+@media (max-width: 760px) {
+  #adminOrdersModal #msqAdminTabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+</style>
