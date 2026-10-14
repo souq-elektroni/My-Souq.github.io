@@ -15142,6 +15142,23 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
 }
 </style>
 
+
+<style id="mysouq-blocked-notice-styles">
+#msqBlockedNoticeOverlay{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(45,34,27,.48);backdrop-filter:blur(11px);-webkit-backdrop-filter:blur(11px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility .22s ease}
+#msqBlockedNoticeOverlay.is-visible{opacity:1;visibility:visible;pointer-events:auto}
+.msq-blocked-notice{position:relative;width:min(100%,440px);box-sizing:border-box;padding:34px 28px 26px;text-align:center;border-radius:28px;background:linear-gradient(155deg,rgba(255,253,248,.98),rgba(246,232,215,.97));border:1px solid rgba(255,255,255,.95);box-shadow:0 28px 80px rgba(40,27,18,.3),inset 0 1px 0 #fff;color:#46372d;transform:translateY(12px) scale(.98);transition:transform .22s ease;font-family:inherit}
+#msqBlockedNoticeOverlay.is-visible .msq-blocked-notice{transform:translateY(0) scale(1)}
+.msq-blocked-notice-close{position:absolute;top:12px;left:12px;width:36px;height:36px;border:1px solid rgba(122,88,62,.15);border-radius:50%;background:rgba(255,255,255,.72);color:#5c493b;font-size:25px;line-height:1;cursor:pointer}
+.msq-blocked-notice-icon{width:58px;height:58px;margin:0 auto 15px;display:grid;place-items:center;border-radius:50%;background:linear-gradient(145deg,#f5e4d1,#e6c6a8);border:1px solid rgba(255,255,255,.95);box-shadow:0 8px 22px rgba(130,89,55,.16);color:#81512f;font-size:32px;font-weight:900}
+.msq-blocked-notice h2{margin:0 0 12px;font-size:22px;line-height:1.5;font-weight:900;color:#694a34}
+.msq-blocked-notice-message{margin:0 auto 23px;max-width:340px;font-size:16px;line-height:1.95;font-weight:650;overflow-wrap:anywhere}
+.msq-blocked-notice-action{width:100%;min-height:48px;padding:12px 18px;border:1px solid rgba(255,255,255,.8);border-radius:15px;background:linear-gradient(135deg,#a87956,#855638);box-shadow:0 7px 18px rgba(117,75,45,.22);color:#fffaf4;font:inherit;font-weight:850;cursor:pointer;transition:transform .18s ease,filter .18s ease}
+.msq-blocked-notice-action:hover{filter:brightness(1.05);transform:translateY(-1px)}
+#msqBlockedNoticeOverlay.is-error .msq-blocked-notice-icon{background:linear-gradient(145deg,#f5e5d9,#e7c3b5);color:#8a4237}
+#msqBlockedNoticeOverlay.is-error .msq-blocked-notice h2{color:#80463d}
+@media(max-width:480px){#msqBlockedNoticeOverlay{padding:16px}.msq-blocked-notice{padding:30px 21px 22px;border-radius:23px}.msq-blocked-notice h2{font-size:20px}.msq-blocked-notice-message{font-size:15px}}
+</style>
+
 <!-- My Souq blocked-customer checkout enforcement v2 -->
 <script id="mysouq-blocked-customer-checkout-enforcement-v2">
 (function(){
@@ -15149,6 +15166,36 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   var MESSAGE = 'الرقم الخاص بكم محظور من إدارة My Souq، الطلب لن يكتمل. رجاء الرجوع إلى الإدارة للاستعلام عن سبب الحظر.';
   var CHECK_ERROR = 'تعذر التحقق من قائمة الحظر حاليًا، لذلك لم يتم إرسال الطلب. من فضلك أعد المحاولة بعد قليل، وإذا استمرت المشكلة تواصل مع إدارة My Souq.';
   var busy = false;
+  var noticeEl = null;
+
+  function closeCartForNotice(){
+    var cart = document.getElementById('cartModal');
+    if (cart) {
+      cart.classList.remove('active');
+      cart.setAttribute('aria-hidden', 'true');
+    }
+    document.body.classList.remove('modal-open', 'cart-open');
+  }
+  function showNotice(message, isError){
+    closeCartForNotice();
+    if (!noticeEl) {
+      noticeEl = document.createElement('div');
+      noticeEl.id = 'msqBlockedNoticeOverlay';
+      noticeEl.innerHTML = '<section class="msq-blocked-notice" role="alertdialog" aria-modal="true" aria-labelledby="msqBlockedNoticeTitle"><button type="button" class="msq-blocked-notice-close" aria-label="إغلاق">×</button><div class="msq-blocked-notice-icon" aria-hidden="true">!</div><h2 id="msqBlockedNoticeTitle">تنبيه من My Souq</h2><p class="msq-blocked-notice-message"></p><button type="button" class="msq-blocked-notice-action">العودة إلى المتجر</button></section>';
+      document.body.appendChild(noticeEl);
+      var dismiss = function(){ noticeEl.classList.remove('is-visible'); document.body.classList.remove('msq-notice-open'); };
+      noticeEl.querySelector('.msq-blocked-notice-close').addEventListener('click', dismiss);
+      noticeEl.querySelector('.msq-blocked-notice-action').addEventListener('click', dismiss);
+      noticeEl.addEventListener('click', function(event){ if (event.target === noticeEl) dismiss(); });
+      document.addEventListener('keydown', function(event){ if (event.key === 'Escape' && noticeEl && noticeEl.classList.contains('is-visible')) dismiss(); });
+    }
+    noticeEl.querySelector('.msq-blocked-notice-message').textContent = message;
+    noticeEl.classList.toggle('is-error', !!isError);
+    noticeEl.classList.add('is-visible');
+    document.body.classList.add('msq-notice-open');
+    var closeButton = noticeEl.querySelector('.msq-blocked-notice-action');
+    if (closeButton) closeButton.focus();
+  }
 
   function getDb(){
     try { if (typeof db !== 'undefined' && db) return db; } catch(e) {}
@@ -15196,13 +15243,13 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
     busy = true;
     try {
       if (await isBlocked()) {
-        alert(MESSAGE);
+        showNotice(MESSAGE, false);
         return false;
       }
       return true;
     } catch(error) {
       console.error('My Souq blocked-customer verification failed:', error);
-      alert(CHECK_ERROR);
+      showNotice(CHECK_ERROR, true);
       return false;
     } finally {
       busy = false;
