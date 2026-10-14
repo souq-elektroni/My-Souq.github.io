@@ -15141,3 +15141,104 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   }
 }
 </style>
+
+<!-- My Souq blocked-customer checkout enforcement v2 -->
+<script id="mysouq-blocked-customer-checkout-enforcement-v2">
+(function(){
+  'use strict';
+  var MESSAGE = 'الرقم الخاص بكم محظور من إدارة My Souq، الطلب لن يكتمل. رجاء الرجوع إلى الإدارة للاستعلام عن سبب الحظر.';
+  var CHECK_ERROR = 'تعذر التحقق من قائمة الحظر حاليًا، لذلك لم يتم إرسال الطلب. من فضلك أعد المحاولة بعد قليل، وإذا استمرت المشكلة تواصل مع إدارة My Souq.';
+  var busy = false;
+
+  function getDb(){
+    try { if (typeof db !== 'undefined' && db) return db; } catch(e) {}
+    try { if (window.firebase && typeof window.firebase.firestore === 'function') return window.firebase.firestore(); } catch(e) {}
+    return null;
+  }
+  function phoneKey(value){
+    var d = String(value || '').replace(/\D/g, '');
+    if (d.indexOf('0020') === 0) d = '0' + d.slice(4);
+    else if (d.indexOf('20') === 0) d = '0' + d.slice(2);
+    return d;
+  }
+  function nameKey(value){
+    return String(value == null ? '' : value).trim().toLowerCase()
+      .replace(/[\u064B-\u065F\u0670]/g, '').replace(/[ـ]/g, '')
+      .replace(/\s+/g, ' ').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي')
+      .replace(/[^\w\u0600-\u06FF]/g, '').slice(0, 180);
+  }
+  function readCustomerFields(){
+    var nameEl = document.getElementById('custName');
+    var phoneEl = document.getElementById('custPhone');
+    return {
+      name: String(nameEl && nameEl.value || '').trim(),
+      phone: String(phoneEl && phoneEl.value || '').trim()
+    };
+  }
+  async function isBlocked(){
+    var customer = readCustomerFields();
+    var nk = nameKey(customer.name), pk = phoneKey(customer.phone);
+    if (!nk && !pk) return false;
+    var dbx = getDb();
+    if (!dbx) throw new Error('Firestore is unavailable');
+    var refs = [];
+    if (pk) refs.push(dbx.collection('blockedCustomers').doc('phone_' + pk).get());
+    if (nk) refs.push(dbx.collection('blockedCustomers').doc('name_' + encodeURIComponent(nk).replace(/%/g, '_')).get());
+    var snapshots = await Promise.all(refs);
+    return snapshots.some(function(snap){
+      if (!snap || !snap.exists) return false;
+      var data = snap.data() || {};
+      return data.blocked !== false;
+    });
+  }
+  async function allowCheckout(){
+    if (busy) return false;
+    busy = true;
+    try {
+      if (await isBlocked()) {
+        alert(MESSAGE);
+        return false;
+      }
+      return true;
+    } catch(error) {
+      console.error('My Souq blocked-customer verification failed:', error);
+      alert(CHECK_ERROR);
+      return false;
+    } finally {
+      busy = false;
+    }
+  }
+
+  function install(){
+    // Stop the customer before moving from customer details to the terms/confirmation stage.
+    if (typeof window.validateAndOpenTerms === 'function' && !window.validateAndOpenTerms.__msqBlockCheckV2) {
+      var previousValidate = window.validateAndOpenTerms;
+      var validateWrapper = async function(){
+        if (!(await allowCheckout())) return;
+        return previousValidate.apply(this, arguments);
+      };
+      validateWrapper.__msqBlockCheckV2 = true;
+      window.validateAndOpenTerms = validateWrapper;
+    }
+    // Re-check immediately before order creation, even if a user reaches confirmation by another path.
+    if (typeof window.finalizeOrder === 'function' && !window.finalizeOrder.__msqBlockCheckV2) {
+      var previousFinalize = window.finalizeOrder;
+      var finalizeWrapper = async function(){
+        if (!(await allowCheckout())) return;
+        return previousFinalize.apply(this, arguments);
+      };
+      finalizeWrapper.__msqBlockCheckV2 = true;
+      window.finalizeOrder = finalizeWrapper;
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);
+  else install();
+  var attempts = 0;
+  var timer = setInterval(function(){
+    install();
+    attempts++;
+    if (attempts >= 40) clearInterval(timer);
+  }, 500);
+})();
+</script>
+
