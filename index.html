@@ -8258,6 +8258,122 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 })();
 </script>
 
+
+<style id="mysouq-open-orders-status-filters-style">
+#msqOpenOrderFilters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px;width:100%}
+#msqOpenOrderFilters button{flex:1 1 220px;min-height:42px;border:1px solid #d7e2e8;border-radius:11px;padding:10px 14px;background:#fff;color:#344650;font-weight:900;cursor:pointer;box-shadow:0 3px 10px rgba(24,33,43,.06)}
+#msqOpenOrderFilters button.active[data-status="1"]{background:#1565c0;border-color:#1565c0;color:#fff}
+#msqOpenOrderFilters button.active[data-status="2"]{background:#6a1b9a;border-color:#6a1b9a;color:#fff}
+#msqOpenOrderFilters button:focus-visible{outline:3px solid rgba(8,127,140,.25);outline-offset:2px}
+@media(max-width:520px){#msqOpenOrderFilters{gap:6px}#msqOpenOrderFilters button{flex:1 1 100%;min-height:40px;padding:9px 8px}}
+</style>
+<script id="mysouq-open-orders-status-filters-script">
+(function(){
+  'use strict';
+  var selectedStatus = null; // null = كل الطلبات المفتوحة
+  var installed = false;
+
+  function getCode(order){
+    var n = Number(order && order.statusCode);
+    if (Number.isFinite(n)) return n;
+    var label = String(order && (order.status || order.statusLabel) || '');
+    if (/تم الحجز/.test(label)) return 1;
+    if (/جاري الشحن/.test(label)) return 2;
+    if (/تم التوريد|تم التسليم|تم التوصيل|تم الاستلام|مكتمل/.test(label)) return 3;
+    return 0;
+  }
+
+  function getCache(){
+    try {
+      if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) return adminOrdersCache;
+    } catch(e) {}
+    return Array.isArray(window.adminOrdersCache) ? window.adminOrdersCache : [];
+  }
+
+  function renderButtons(){
+    var pane = document.querySelector('#msqAdminTabContent [data-pane="open"]');
+    if (!pane) return false;
+
+    var oldBack = document.getElementById('adminBackToOrdersListBtn');
+    if (oldBack) oldBack.style.display = 'none';
+
+    var bar = document.getElementById('msqOpenOrderFilters');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'msqOpenOrderFilters';
+      bar.setAttribute('aria-label','تصفية الطلبات المفتوحة حسب الحالة');
+      bar.innerHTML =
+        '<button type="button" data-status="1" aria-pressed="false">✅ طلبات تم الحجز</button>' +
+        '<button type="button" data-status="2" aria-pressed="false">🚚 طلبات جاري الشحن</button>';
+      var list = document.getElementById('adminOrdersList');
+      if (list && list.parentNode === pane) pane.insertBefore(bar, list);
+      else pane.insertBefore(bar, pane.firstChild);
+      bar.addEventListener('click', function(ev){
+        var btn = ev.target.closest('button[data-status]');
+        if (!btn) return;
+        var next = Number(btn.getAttribute('data-status'));
+        // الضغط على الفلتر النشط مرة ثانية يعرض كل الطلبات المفتوحة من جديد.
+        selectedStatus = selectedStatus === next ? null : next;
+        updateButtons();
+        if (typeof window.filterAdminOrders === 'function') window.filterAdminOrders();
+      });
+    }
+    updateButtons();
+    return true;
+  }
+
+  function updateButtons(){
+    var bar = document.getElementById('msqOpenOrderFilters');
+    if (!bar) return;
+    bar.querySelectorAll('button[data-status]').forEach(function(btn){
+      var active = selectedStatus === Number(btn.getAttribute('data-status'));
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+  }
+
+  function installFilter(){
+    if (installed || typeof window.filterAdminOrders !== 'function') return;
+    var previous = window.filterAdminOrders;
+    var wrapped = function(){
+      if (selectedStatus === null) return previous.apply(this, arguments);
+
+      var cache = getCache();
+      // لا نعرض الطلبات التي تم توريدها في قائمة الطلبات المفتوحة.
+      var filtered = cache.filter(function(order){
+        return getCode(order) === selectedStatus;
+      });
+      try {
+        if (typeof adminOrdersCache !== 'undefined') adminOrdersCache = filtered;
+        else window.adminOrdersCache = filtered;
+        return previous.apply(this, arguments);
+      } finally {
+        if (typeof adminOrdersCache !== 'undefined') adminOrdersCache = cache;
+        else window.adminOrdersCache = cache;
+      }
+    };
+    wrapped.__msqOpenStatusFilter = true;
+    window.filterAdminOrders = wrapped;
+    installed = true;
+  }
+
+  function init(){
+    renderButtons();
+    installFilter();
+    updateButtons();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+  var tries = 0;
+  var timer = setInterval(function(){
+    init();
+    tries++;
+    if (tries > 60) clearInterval(timer);
+  }, 500);
+})();
+</script>
+
 </body>
 </html>
 
