@@ -8522,7 +8522,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
           <span class="msq-clause-number">٧</span>
           <div><h3>دمج الطلبات</h3><p>توجد أيضًا إمكانية دمج الطلبات في طلب واحد، ويتم ذلك من خلال إدارة My Souq.</p></div>
         </article>
-        <div class="msq-book-endnote"><span aria-hidden="true">✦</span> شكرًا لاختياركم My Souq وثقتكم بنا. نسعد دائمًا بخدمتكم، ونتمنى لكم تجربة تسوّق مريحة وممتعة. ويسعدنا أن نكون دائمًا عند حسن ظنكم — فريق My Souq <span aria-hidden="true">✦</span></div>
+        <div class="msq-book-endnote"><span class="msq-endnote-flourish" aria-hidden="true">✦</span><strong>شكرًا لأنكم جزء من عائلة My Souq</strong><p>ثقتكم الغالية هي سرّ سعادتنا، وراحتكم أولويتنا دائمًا. نتمنى أن تصلكم اختياراتكم كما تحبّون، وأن تكون كل تجربة تسوّق معانا بداية لفرحة جديدة.</p><span class="msq-endnote-signature">بكل الود، فريق My Souq</span><span class="msq-endnote-flourish" aria-hidden="true">✦</span></div>
         <button class="msq-book-read-btn" type="button" onclick="closeMySouqBookTerms()">قرأت الشروط — متابعة التسوّق</button>
       </div>
     </section>
@@ -8561,6 +8561,66 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
     .msq-book-read-btn{width:100%;padding:13px 16px;border:0;border-radius:12px;background:#8b3f52;color:white;font-weight:900;font-size:14px;cursor:pointer;margin:0 0 8px;box-shadow:0 5px 14px #8b3f5228}
     .msq-book-read-btn:hover{background:#6f3242}
     @media(max-width:650px){.msq-public-terms-trigger{top:8px;right:64px;left:auto;max-width:calc(100vw - 135px);padding:5px 7px;font-size:9px;gap:4px}.msq-book-icon svg{width:25px;height:25px}.msq-book-window{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);width:100%;height:94dvh;max-height:94vh;border-radius:14px}.msq-book-cover{padding:12px 45px 10px;min-height:0;border-left:0;border-bottom:4px double #e6c99b}.msq-book-cover-mark{font-size:12px;letter-spacing:3px;padding:3px 10px}.msq-book-cover-emblem{width:66px;height:66px;margin:5px 0 5px}.msq-cover-book-svg{width:44px;height:38px}.msq-book-cover h2{font-size:18px;line-height:1.25}.msq-book-cover-english{font-size:19px;margin:2px 0 2px}.msq-book-cover p{font-size:10px;margin-top:0;line-height:1.4}.msq-book-cover-line{margin-top:5px;width:34px}.msq-book-pages{padding:17px 15px;min-height:0}.msq-book-welcome h3{font-size:17px}.msq-book-welcome p,.msq-book-clause p{font-size:13px;line-height:2}.msq-book-clause h3{font-size:15px}.msq-book-clause{gap:8px;grid-template-columns:29px minmax(0,1fr);padding:11px 0}.msq-clause-number{width:28px;height:28px}.msq-book-close{top:8px;left:8px;width:32px;height:32px;font-size:23px}}
+
+    /* Final visual polish: keep the cover emblem and typography separate and balanced. */
+    .msq-book-cover{isolation:isolate;gap:0}
+    .msq-book-cover:before,.msq-book-cover:after{z-index:-1;top:50%;left:50%;transform:translate(-50%,-50%);width:250px;height:250px}
+    .msq-book-cover:after{width:210px;height:210px}
+    .msq-book-cover-mark{font-size:19px;letter-spacing:4.5px;padding:10px 18px;margin-bottom:14px}
+    .msq-book-cover-emblem{flex:0 0 auto;width:170px;height:170px;margin:0 0 18px;background:#ffffff08}
+    .msq-cover-book-svg{width:104px;height:90px}
+    .msq-book-cover h2{max-width:100%;margin-top:0;font-size:clamp(24px,2.7vw,32px);line-height:1.45;text-wrap:balance}
+    .msq-book-cover-english{margin:2px 0 7px;font-size:clamp(25px,2.8vw,33px);line-height:1.2}
+    .msq-book-cover p{max-width:250px;margin:4px auto 0;font-size:14px;line-height:1.8}
+    .msq-book-cover-line{margin-top:15px}
+    .msq-book-endnote{position:relative;overflow:hidden;margin:24px 0 18px;padding:22px clamp(15px,3vw,30px);background:linear-gradient(145deg,#fffaf1 0%,#f8ead9 100%);border:1px solid #e4c9a8;border-radius:18px;box-shadow:0 8px 22px #7a4a3010;color:#604047;font-weight:500;font-size:15px;line-height:2;text-align:center}
+    .msq-book-endnote:before{content:"";position:absolute;top:0;left:12%;right:12%;height:3px;border-radius:0 0 8px 8px;background:linear-gradient(90deg,#d8b77f,#8b3f52,#d8b77f)}
+    .msq-book-endnote strong{display:block;color:#813b4d;font-size:clamp(17px,2vw,21px);font-weight:900;line-height:1.7;margin:0 0 7px}
+    .msq-book-endnote p{margin:0 auto 10px;max-width:620px;line-height:2.05}
+    .msq-endnote-flourish{display:block;color:#bd9453;font-size:17px;line-height:1.3;padding:0 0 6px}
+    .msq-endnote-signature{display:inline-block;padding:5px 17px;border-top:1px solid #dfc7a6;color:#8b3f52;font-weight:900;margin-top:3px}
+    @media(max-width:650px){
+      .msq-book-cover{padding:13px 22px 12px;min-height:0;gap:0}
+      .msq-book-cover:before,.msq-book-cover:after{top:42%;width:150px;height:150px}
+      .msq-book-cover:after{width:126px;height:126px}
+      .msq-book-cover-mark{font-size:14px;letter-spacing:3px;padding:5px 14px;margin-bottom:9px}
+      .msq-book-cover-emblem{width:92px;height:92px;margin:0 0 9px}
+      .msq-cover-book-svg{width:59px;height:51px}
+      .msq-book-cover h2{font-size:clamp(20px,5.7vw,25px);line-height:1.35;margin:0}
+      .msq-book-cover-english{font-size:22px;line-height:1.15;margin:1px 0 3px}
+      .msq-book-cover p{font-size:11px;line-height:1.5;margin-top:2px}
+      .msq-book-cover-line{width:42px;height:3px;margin-top:8px}
+      .msq-book-endnote{padding:18px 14px;margin:19px 0 14px;border-radius:14px;font-size:13px;line-height:1.9}
+      .msq-book-endnote strong{font-size:16px;line-height:1.65}
+      .msq-book-endnote p{line-height:1.95}
+    }
+
+    /* Final requested cover refinement: one gold circle around the book only; all wording below it. */
+    .msq-book-cover:before,.msq-book-cover:after{display:none!important;content:none!important}
+    .msq-book-cover{gap:0;justify-content:center;}
+    .msq-book-cover-mark{margin-bottom:18px;font-size:21px;font-weight:1000;letter-spacing:4.5px;}
+    .msq-book-cover-emblem{width:220px;height:220px;min-width:220px;min-height:220px;box-sizing:border-box;border:2px solid #d8b56e;border-radius:50%;margin:0 0 24px;background:transparent;box-shadow:0 0 0 1px #f6e3b766,inset 0 0 0 1px #d8b56e55;}
+    .msq-cover-book-svg{width:148px;height:124px;filter:drop-shadow(0 8px 7px #35131d55);}
+    .msq-book-cover h2{margin:0!important;max-width:100%;font-size:clamp(26px,3vw,36px);line-height:1.3;}
+    .msq-book-cover-english{margin:3px 0 7px!important;font-size:clamp(27px,3vw,36px);line-height:1.2;}
+    .msq-book-cover p{margin:3px auto 0!important;font-size:14px;line-height:1.8;}
+    .msq-book-cover-line{margin-top:16px;width:68px;}
+    /* Closing message without decorative symbols or flourishes. */
+    .msq-book-endnote{padding:22px clamp(15px,3vw,30px);text-align:center;}
+    .msq-book-endnote .msq-endnote-flourish{display:none!important;}
+    .msq-book-endnote strong{margin-bottom:9px;}
+    .msq-endnote-signature{border-top:1px solid #dfc7a6;padding-top:8px;}
+    @media(max-width:650px){
+      .msq-book-cover{padding:14px 20px 13px;}
+      .msq-book-cover-mark{font-size:15px;letter-spacing:3.2px;padding:5px 14px;margin-bottom:10px;}
+      .msq-book-cover-emblem{width:116px;height:116px;min-width:116px;min-height:116px;margin:0 0 11px;border-width:2px;}
+      .msq-cover-book-svg{width:82px;height:70px;}
+      .msq-book-cover h2{font-size:clamp(21px,6vw,27px);line-height:1.3;}
+      .msq-book-cover-english{font-size:23px;line-height:1.2;margin:2px 0 3px!important;}
+      .msq-book-cover p{font-size:11px;line-height:1.5;margin-top:2px!important;}
+      .msq-book-cover-line{width:44px;height:3px;margin-top:8px;}
+      .msq-book-endnote{padding:17px 14px;margin:17px 0 13px;}
+    }
     @media(prefers-reduced-motion:no-preference){.msq-book-window{animation:msqBookAppear .22s ease-out}@keyframes msqBookAppear{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}}
   </style>
   <script>
