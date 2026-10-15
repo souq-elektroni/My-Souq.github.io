@@ -4000,6 +4000,27 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
 
   <div id="toastNotification">✓ تم إضافة المنتج إلى السلة بنجاح</div>
 
+
+<style id="mysouq-logo-longpress-no-select">
+/* Prevent text selection on the My Souq badge without changing its long-press admin shortcut. */
+.brand-badge{
+  -webkit-user-select:none!important;
+  -moz-user-select:none!important;
+  -ms-user-select:none!important;
+  user-select:none!important;
+  -webkit-touch-callout:none!important;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+}
+.brand-badge *{
+  -webkit-user-select:none!important;
+  -moz-user-select:none!important;
+  -ms-user-select:none!important;
+  user-select:none!important;
+  -webkit-touch-callout:none!important;
+}
+</style>
+
   <div class="brand-badge">
     <span>MY</span>
     <span>SOUQ</span>
@@ -8271,20 +8292,37 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
     window.loginAdmin = wrappedLoginAdmin;
   }
 
-  // عند إغلاق نافذة الدخول من دون تسجيل الدخول، اترك شاشة الصيانة ظاهرة.
+  // عند إغلاق نافذة الدخول، أعد تقييم حالة الصيانة الفعلية بدل إظهارها تلقائيًا.
+  // هذا يحافظ على شاشة الصيانة عند تفعيلها فقط، ويترك المتجر طبيعيًا عند إيقافها.
   if (typeof window.closeAdminLogin === 'function' && !window.closeAdminLogin.__maintenanceEntryWrapped) {
     var originalCloseAdminLogin = window.closeAdminLogin;
     var wrappedCloseAdminLogin = function () {
       var result = originalCloseAdminLogin.apply(this, arguments);
       var loginModal = document.getElementById('adminLoginModal');
-      if (loginModal) loginModal.style.zIndex = '';
+      if (loginModal) {
+        loginModal.style.zIndex = '';
+        loginModal.style.pointerEvents = '';
+      }
       if (!isAdminSignedIn()) {
-        var overlay = document.getElementById('maintenanceModeOverlay');
-        if (overlay) {
-          overlay.style.display = 'flex';
-          overlay.style.pointerEvents = 'auto';
+        if (typeof window.readMaintenanceMode === 'function') {
+          // القارئ يقرر إظهار الغطاء أو إخفاءه وفق إعداد Firebase/الإعداد المحفوظ.
+          Promise.resolve(window.readMaintenanceMode()).catch(function () {
+            var overlay = document.getElementById('maintenanceModeOverlay');
+            if (overlay) {
+              overlay.style.display = 'none';
+              overlay.style.pointerEvents = 'none';
+            }
+            document.body.style.overflow = '';
+          });
+        } else {
+          // في حال عدم توفر قارئ الصيانة، لا تفرض الصيانة لمجرد إلغاء تسجيل الدخول.
+          var overlay = document.getElementById('maintenanceModeOverlay');
+          if (overlay) {
+            overlay.style.display = 'none';
+            overlay.style.pointerEvents = 'none';
+          }
+          document.body.style.overflow = '';
         }
-        document.body.style.overflow = 'hidden';
       }
       return result;
     };
