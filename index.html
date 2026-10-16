@@ -4318,27 +4318,37 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
 
           </div>
 
-          <!-- Virtual Try-On (controlled by admin toggle) -->
-          <div id="virtualTryOnBox" style="display:none;margin:14px 0 8px;padding:14px;border-radius:14px;border:1px solid rgba(139,63,82,.18);background:linear-gradient(160deg,#fff8fb,#fff);">
-            <div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:8px;font-size:14px;">👕 جرب المنتج عليك</div>
-            <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:10px;line-height:1.45;">ارفع صورتك وهنشوف المنتج عليك بشكل تقريبي باستخدام الذكاء الاصطناعي (مجاني).</div>
-            <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px;">صورتك (يفضل صورة كاملة للجسم):</label>
-            <input type="file" id="vtoPersonInput" accept="image/*" style="width:100%;margin-bottom:10px;font-size:12px;">
-            <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px;">نوع القطعة:</label>
-            <select id="vtoCategory" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid #e0c8d2;font-size:13px;">
-              <option value="tops">بلوزة / تيشيرت / جاكيت</option>
-              <option value="bottoms">بنطلون / جيبة</option>
-              <option value="one-pieces">فستان / أوفرول</option>
-            </select>
-            <button type="button" id="vtoRunBtn" onclick="runVirtualTryOn()" style="width:100%;padding:11px 14px;border:none;border-radius:12px;background:linear-gradient(135deg,#8b3f52,#b75b72);color:#fff;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 6px 16px rgba(100,35,55,.16);">✨ جرب دلوقتي</button>
-            <div id="vtoStatus" style="margin-top:10px;font-size:12.5px;font-weight:800;color:var(--text-muted);"></div>
-            <img id="vtoResultImg" alt="نتيجة تجربة الملابس" style="display:none;max-width:100%;margin-top:12px;border-radius:12px;border:1px solid #ead0dc;">
-          </div>
-
           <button type="button" class="add-another-design-btn" onclick="addToCartAndContinue()">
             ＋ أضف هذا الشكل واختر شكلًا آخر
           </button>
           <p class="multi-design-hint">تقدر تجمع أكثر من شكل في السلة، وبعدها تبعتهم كلهم في طلب واتساب واحد مع روابط صور كل شكل.</p>
+
+          <!-- Virtual Try-On (controlled by admin toggle) -->
+          <div id="virtualTryOnBox" style="display:none;margin:16px 0 8px;padding:16px;border-radius:16px;border:1px solid rgba(139,63,82,.16);background:linear-gradient(165deg,#fffafc 0%,#fff 55%,#f8f4f6 100%);box-shadow:0 8px 24px rgba(80,30,50,.06);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span style="font-size:18px;" aria-hidden="true">👕</span>
+              <div style="font-weight:900;color:var(--burgundy-soft);font-size:14.5px;letter-spacing:-.2px;">جرب المنتج عليك</div>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">ارفع صورة كاملة للجسم بإضاءة كويسة، وهنشوف المنتج عليك بشكل تقريبي بالذكاء الاصطناعي.</div>
+
+            <input type="file" id="vtoPersonInput" accept="image/*" style="display:none;">
+            <label for="vtoPersonInput" id="vtoUploadLabel" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;min-height:92px;margin-bottom:12px;padding:14px 12px;border-radius:14px;border:1.5px dashed rgba(139,63,82,.35);background:rgba(255,255,255,.85);cursor:pointer;transition:border-color .2s, background .2s, box-shadow .2s;box-sizing:border-box;">
+              <span style="width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#8b3f52,#c46b82);color:#fff;font-size:20px;box-shadow:0 6px 14px rgba(139,63,82,.22);">📷</span>
+              <span id="vtoUploadTitle" style="font-weight:900;font-size:13px;color:#5a3040;">اضغط لرفع صورتك</span>
+              <span id="vtoUploadHint" style="font-size:11px;color:var(--text-muted);text-align:center;line-height:1.35;">يفضل صورة كاملة للجسم · JPG أو PNG</span>
+            </label>
+
+            <label style="font-size:12px;font-weight:800;display:block;margin-bottom:5px;color:#5a3040;">نوع القطعة</label>
+            <select id="vtoCategory" style="width:100%;margin-bottom:12px;padding:10px 12px;border-radius:12px;border:1px solid #e6ccd6;font-size:13px;background:#fff;color:#432b36;box-sizing:border-box;">
+              <option value="tops">بلوزة / تيشيرت / جاكيت</option>
+              <option value="bottoms">بنطلون / جيبة</option>
+              <option value="one-pieces">فستان / أوفرول</option>
+            </select>
+
+            <button type="button" id="vtoRunBtn" onclick="runVirtualTryOn()" style="width:100%;padding:12px 14px;border:none;border-radius:13px;background:linear-gradient(135deg,#7a3548,#b75b72);color:#fff;font-weight:900;font-size:14.5px;cursor:pointer;box-shadow:0 8px 18px rgba(100,35,55,.18);letter-spacing:-.2px;">✨ جرب دلوقتي</button>
+            <div id="vtoStatus" style="margin-top:10px;font-size:12.5px;font-weight:800;color:var(--text-muted);line-height:1.4;"></div>
+            <img id="vtoResultImg" alt="نتيجة تجربة الملابس" style="display:none;max-width:100%;margin-top:12px;border-radius:14px;border:1px solid #ead0dc;box-shadow:0 8px 20px rgba(40,20,28,.08);">
+          </div>
 
         </div>
 
@@ -8866,9 +8876,45 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
         if (status) status.textContent = '';
         if (img) { img.style.display = 'none'; img.removeAttribute('src'); }
         if (input) input.value = '';
+        var title = document.getElementById('vtoUploadTitle');
+        var hint = document.getElementById('vtoUploadHint');
+        var label = document.getElementById('vtoUploadLabel');
+        if (title) title.textContent = 'اضغط لرفع صورتك';
+        if (hint) hint.textContent = 'يفضل صورة كاملة للجسم · JPG أو PNG';
+        if (label) {
+          label.style.borderColor = 'rgba(139,63,82,.35)';
+          label.style.background = 'rgba(255,255,255,.85)';
+        }
       }
     });
     obs.observe(modal, { attributes: true, attributeFilter: ['class', 'style'] });
+  }
+
+  function bindVtoUploadUi() {
+    var input = document.getElementById('vtoPersonInput');
+    var title = document.getElementById('vtoUploadTitle');
+    var hint = document.getElementById('vtoUploadHint');
+    var label = document.getElementById('vtoUploadLabel');
+    if (!input || input._vtoBound) return;
+    input._vtoBound = true;
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      if (f) {
+        if (title) title.textContent = 'تم اختيار الصورة ✓';
+        if (hint) hint.textContent = f.name.length > 34 ? (f.name.slice(0, 31) + '...') : f.name;
+        if (label) {
+          label.style.borderColor = 'rgba(46,125,50,.55)';
+          label.style.background = 'rgba(232,245,233,.65)';
+        }
+      } else {
+        if (title) title.textContent = 'اضغط لرفع صورتك';
+        if (hint) hint.textContent = 'يفضل صورة كاملة للجسم · JPG أو PNG';
+        if (label) {
+          label.style.borderColor = 'rgba(139,63,82,.35)';
+          label.style.background = 'rgba(255,255,255,.85)';
+        }
+      }
+    });
   }
 
   // Hook openProductModal if available
@@ -8914,7 +8960,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
     }
 
     if (btn) btn.disabled = true;
-    if (statusEl) statusEl.textContent = 'جاري تجهيز الصورة... قد تستغرق 20–45 ثانية';
+    if (statusEl) statusEl.textContent = 'جاري إنشاء صورة عالية الجودة... قد تستغرق 30–60 ثانية';
     if (resultImg) { resultImg.style.display = 'none'; resultImg.removeAttribute('src'); }
 
     try {
@@ -8957,8 +9003,8 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
         garment_image: garmentBlob,
         category: category,
         garment_photo_type: 'model',
-        num_timesteps: 30,
-        guidance_scale: 2.0,
+        num_timesteps: 50,
+        guidance_scale: 2.5,
         seed: 42,
         segmentation_free: true
       });
@@ -8991,11 +9037,13 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
     watchAdminModal();
     watchProductModal();
     hookOpenProductModal();
+    bindVtoUploadUi();
     // initial read
     setTimeout(readVtoEnabled, 800);
     setTimeout(injectVtoAdminControl, 1200);
     // retry hook in case script.js loads later
     setTimeout(hookOpenProductModal, 2000);
+    setTimeout(bindVtoUploadUi, 1500);
   }
 
   if (document.readyState === 'loading') {
