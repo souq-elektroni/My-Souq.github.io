@@ -18468,71 +18468,90 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
 </style>
 
 
-<style id="mysouq-topbar-mobile-fix">
-/* فصل أزرار أعلى الصفحة عن زر الشروط على الموبايل */
+
+
+<style id="mysouq-terms-next-to-logo">
+/* ===== زر الشروط دائماً جنب اللوجو (يمين الشاشة) ===== */
+
+/* الوضع العادي: زر كامل بالكتابة جنب اللوجو */
+.msq-public-terms-trigger {
+  position: fixed !important;
+  top: 14px !important;
+  right: 82px !important; /* جنب اللوجو من غير تداخل */
+  left: auto !important;
+  z-index: 960 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 7px !important;
+  padding: 7px 11px !important;
+  border: 1px solid #d8b98c !important;
+  border-radius: 14px !important;
+  background: linear-gradient(135deg, #fffaf0, #ead7b8) !important;
+  color: #573a30 !important;
+  box-shadow: 0 5px 18px rgba(86, 55, 43, 0.17) !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  max-width: 210px !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+.msq-public-terms-trigger .msq-terms-full { display: inline !important; }
+.msq-public-terms-trigger .msq-terms-short { display: none !important; }
+.msq-public-terms-trigger .msq-book-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+.msq-public-terms-trigger .msq-book-icon svg {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+@media (min-width: 768px) {
+  .msq-public-terms-trigger {
+    top: 22px !important;
+    right: 120px !important; /* جنب اللوجو الكبير */
+    padding: 8px 12px !important;
+    font-size: 13px !important;
+    max-width: 230px !important;
+  }
+  .msq-public-terms-trigger .msq-book-icon svg {
+    width: 32px !important;
+    height: 32px !important;
+  }
+}
+
 @media (max-width: 767px) {
+  .msq-public-terms-trigger {
+    top: 12px !important;
+    right: 66px !important; /* جنب لوجو الموبايل ~52px + مسافة */
+    max-width: calc(100vw - 130px) !important;
+    padding: 6px 9px !important;
+    font-size: 11px !important;
+    gap: 5px !important;
+  }
+  .msq-public-terms-trigger .msq-terms-full { display: none !important; }
+  .msq-public-terms-trigger .msq-terms-short { display: inline !important; }
+  .msq-public-terms-trigger .msq-book-icon svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+  /* أزرار السلة/التتبع شمال — بعيدة عن اللوجو والشروط */
   .top-actions {
     position: fixed !important;
     top: 8px !important;
     left: 6px !important;
     right: auto !important;
-    width: auto !important;
-    max-width: calc(100vw - 70px) !important;
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 5px !important;
-    padding: 4px !important;
+    max-width: calc(100vw - 160px) !important;
     z-index: 960 !important;
-    background: rgba(255,255,255,.72) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px) !important;
-    border-radius: 14px !important;
-  }
-  .top-actions .admin-orders-trigger,
-  .top-actions .track-trigger,
-  .top-actions .cart-trigger {
-    flex: 0 0 auto !important;
-    white-space: nowrap !important;
-    font-size: 11px !important;
-    padding: 7px 10px !important;
-    min-height: 34px !important;
-  }
-  .brand-badge {
-    z-index: 970 !important;
-  }
-  /* زر الشروط في صف منفصل تحت الشريط، مش جوا الطلبات */
-  .msq-public-terms-trigger {
-    position: fixed !important;
-    top: 56px !important;
-    right: 10px !important;
-    left: auto !important;
-    max-width: min(200px, calc(100vw - 20px)) !important;
-    z-index: 955 !important;
-    padding: 6px 10px !important;
-    font-size: 11px !important;
-    gap: 5px !important;
-    border-radius: 12px !important;
-  }
-  .msq-public-terms-trigger .msq-terms-full {
-    display: none !important;
-  }
-  .msq-public-terms-trigger .msq-terms-short {
-    display: inline !important;
   }
 }
-@media (min-width: 768px) {
-  .msq-public-terms-trigger .msq-terms-short {
-    display: none !important;
-  }
-  .msq-public-terms-trigger .msq-terms-full {
-    display: inline !important;
-  }
-}
-</style>
 
-
-<style id="mysouq-terms-admin-compact">
-/* لما وضع الإدارة مفعّل: زر الشروط يبقى أيقونة كتاب دائرية صغيرة فقط */
+/* ===== وضع الإدارة: دائرة فيها الكتاب فقط جنب اللوجو ===== */
 body.msq-admin-on .msq-public-terms-trigger {
   width: 44px !important;
   height: 44px !important;
@@ -18544,34 +18563,54 @@ body.msq-admin-on .msq-public-terms-trigger {
   align-items: center !important;
   gap: 0 !important;
   overflow: hidden !important;
+  right: 82px !important;
+  top: 18px !important;
 }
 body.msq-admin-on .msq-public-terms-trigger .msq-terms-full,
 body.msq-admin-on .msq-public-terms-trigger .msq-terms-short {
   display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  font-size: 0 !important;
 }
 body.msq-admin-on .msq-public-terms-trigger .msq-book-icon {
   margin: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
 }
 body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
-  width: 26px !important;
-  height: 26px !important;
+  width: 24px !important;
+  height: 24px !important;
 }
+
+@media (min-width: 768px) {
+  body.msq-admin-on .msq-public-terms-trigger {
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    max-width: 48px !important;
+    top: 28px !important;
+    right: 120px !important;
+  }
+  body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
+    width: 26px !important;
+    height: 26px !important;
+  }
+}
+
 @media (max-width: 767px) {
   body.msq-admin-on .msq-public-terms-trigger {
-    top: 8px !important;
-    right: 58px !important; /* جنب شعار MY SOUQ من غير ما يدخل في صف الطلبات */
-    left: auto !important;
     width: 40px !important;
     height: 40px !important;
     min-width: 40px !important;
     max-width: 40px !important;
+    top: 14px !important;
+    right: 66px !important; /* جنب اللوجو، مش جواه */
   }
   body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
-    width: 22px !important;
-    height: 22px !important;
+    width: 20px !important;
+    height: 20px !important;
   }
 }
 </style>
@@ -18588,8 +18627,7 @@ body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   }
 
   function syncTermsCompact() {
-    var on = isAdminNow();
-    document.body.classList.toggle('msq-admin-on', on);
+    document.body.classList.toggle('msq-admin-on', isAdminNow());
   }
 
   function hook(name) {
@@ -18599,12 +18637,16 @@ body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
       var r = orig.apply(this, arguments);
       try {
         if (r && typeof r.then === 'function') {
-          r.then(function () { setTimeout(syncTermsCompact, 50); setTimeout(syncTermsCompact, 400); });
+          r.then(function () {
+            setTimeout(syncTermsCompact, 40);
+            setTimeout(syncTermsCompact, 300);
+            setTimeout(syncTermsCompact, 900);
+          });
         }
       } catch (e) {}
-      setTimeout(syncTermsCompact, 50);
-      setTimeout(syncTermsCompact, 400);
-      setTimeout(syncTermsCompact, 1200);
+      setTimeout(syncTermsCompact, 40);
+      setTimeout(syncTermsCompact, 300);
+      setTimeout(syncTermsCompact, 900);
       return r;
     };
     window[name]._msqTermsCompact = true;
@@ -18615,13 +18657,15 @@ body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
     hook('loginAdmin');
     hook('logoutAdmin');
     hook('handleAdminButton');
-    // راقب ظهور/اختفاء زر الطلبات
     var btn = document.getElementById('adminOrdersBtn');
     if (btn) {
-      var obs = new MutationObserver(syncTermsCompact);
-      obs.observe(btn, { attributes: true, attributeFilter: ['class', 'style'] });
+      new MutationObserver(syncTermsCompact).observe(btn, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+      });
     }
-    setInterval(syncTermsCompact, 2000);
+    // لو auth state اتغير من Firebase
+    setInterval(syncTermsCompact, 1500);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
