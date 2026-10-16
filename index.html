@@ -11043,6 +11043,56 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 }
 </style>
 
+
+<!-- My Souq: final correction for top action buttons; keep one row without clipping -->
+<style id="mysouq-top-actions-final-fix">
+html body .top-actions {
+  position: fixed !important;
+  top: 12px !important;
+  left: 8px !important;
+  right: auto !important;
+  width: max-content !important;
+  max-width: calc(100vw - 16px) !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 5px !important;
+  padding: 0 !important;
+  overflow: visible !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+}
+html body .top-actions > .admin-orders-trigger,
+html body .top-actions > .track-trigger,
+html body .top-actions > .cart-trigger {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: max-content !important;
+  max-width: none !important;
+  min-height: 36px !important;
+  height: 36px !important;
+  padding: 0 8px !important;
+  margin: 0 !important;
+  font-size: 10px !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 360px) {
+  html body .top-actions { gap: 3px !important; }
+  html body .top-actions > .admin-orders-trigger,
+  html body .top-actions > .track-trigger,
+  html body .top-actions > .cart-trigger { padding-inline: 5px !important; font-size: 9px !important; }
+}
+</style>
+
 </body>
 </html>
 
