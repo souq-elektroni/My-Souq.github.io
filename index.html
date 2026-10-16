@@ -6878,13 +6878,14 @@ window.addToCartAndContinue = function () {
     }
 
     function syncAdminOrdersButton() {
+      // دخول الإدارة يظل سريًا: لا نُظهر زر الطلبات في واجهة المتجر حتى بعد تسجيل الدخول.
+      // فتح شاشة الطلبات يتم من الضغط المطوّل على شعار MY SOUQ فقط.
       var btn = document.getElementById('adminOrdersBtn');
       if (!btn) return;
-      if (isAdminNow()) {
-        btn.classList.add('show');
-      } else {
-        btn.classList.remove('show');
-      }
+      btn.classList.remove('show');
+      btn.style.setProperty('display', 'none', 'important');
+      btn.setAttribute('aria-hidden', 'true');
+      btn.setAttribute('tabindex', '-1');
     }
 
     // إغلاق لوحة الطلبات لو خرج الأدمن
@@ -11140,6 +11141,16 @@ html body .top-actions > .cart-trigger {
 }
 </style>
 
+
+<style id="mysouq-keep-admin-orders-entry-secret-v2">
+/* زر الطلبات لا يظهر في واجهة المتجر؛ الدخول السري يظل عبر الضغط المطوّل على الشعار. */
+html body #adminOrdersBtn,
+html body #adminOrdersBtn.show {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+</style>
 </body>
 </html>
 
