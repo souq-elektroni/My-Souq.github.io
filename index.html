@@ -6385,7 +6385,6 @@ window.addToCartAndContinue = function () {
   (function () {
     var MAINT_COLLECTION = 'siteSettings';
     var MAINT_DOC = 'maintenance';
-    var MAINT_LOCAL_KEY = 'mysouq_maintenance_mode';
     var MAINT_POLL_MS = 20000;
 
     function isAdminNow() {
@@ -6444,11 +6443,9 @@ window.addToCartAndContinue = function () {
           } catch (e) {}
         }
       }
-      if (!data) {
-        try {
-          data = JSON.parse(localStorage.getItem(MAINT_LOCAL_KEY) || 'null');
-        } catch (e) { data = null; }
-      }
+      // Firebase is the single source of truth. Do not fall back to an old
+      // localStorage value: it can keep the maintenance screen stuck ON after
+      // the administrator has switched maintenance OFF.
       var enabled = !!(data && (data.enabled === true || data.maintenance === true));
       var message = data && (data.message || data.notice) ? (data.message || data.notice) : 'سيعود المتجر للعمل فور انتهاء الصيانة.';
       updateMaintenanceAdminUi(enabled);
@@ -6472,10 +6469,26 @@ window.addToCartAndContinue = function () {
       }
 
       var current = false;
-      try {
-        var snap = await db.collection(MAINT_COLLECTION).doc(MAINT_DOC).get();
-        if (snap.exists) current = !!(snap.data() || {}).enabled;
-      } catch (e) {}
+      var readSucceeded = false;
+      var maintenancePaths = [
+        [MAINT_COLLECTION, MAINT_DOC],
+        ['settings', MAINT_DOC]
+      ];
+      for (var pi = 0; pi < maintenancePaths.length; pi++) {
+        try {
+          var snap = await db.collection(maintenancePaths[pi][0]).doc(maintenancePaths[pi][1]).get();
+          readSucceeded = true;
+          if (snap.exists) {
+            var savedMaintenance = snap.data() || {};
+            current = savedMaintenance.enabled === true || savedMaintenance.maintenance === true;
+            break;
+          }
+        } catch (e) {}
+      }
+      if (!readSucceeded) {
+        alert('تعذر قراءة حالة الصيانة من Firebase، لم يتم تغييرها. تحقق من اتصال الإنترنت وصلاحيات Firestore.');
+        return;
+      }
 
       var next = !current;
       var payload = {
@@ -6491,7 +6504,6 @@ window.addToCartAndContinue = function () {
         return;
       }
 
-      try { localStorage.setItem(MAINT_LOCAL_KEY, JSON.stringify(payload)); } catch (e) {}
       updateMaintenanceAdminUi(next);
       setMaintenanceOverlay(next, payload.message);
       alert(next ? 'تم تشغيل وضع الصيانة ✅' : 'تم إيقاف وضع الصيانة ✅');
@@ -11090,6 +11102,41 @@ html body .top-actions > .cart-trigger {
   html body .top-actions > .admin-orders-trigger,
   html body .top-actions > .track-trigger,
   html body .top-actions > .cart-trigger { padding-inline: 5px !important; font-size: 9px !important; }
+}
+</style>
+
+
+<style id="mysouq-final-admin-modal-mobile-fix-v1">
+/* Final admin orders modal layout: reserve a dedicated corner for the close X. */
+#adminOrdersModal { z-index: 10001 !important; }
+#adminOrdersModal > .modal-content { position: relative !important; }
+#adminOrdersModal > .modal-content > .close-btn {
+  position: absolute !important;
+  top: 10px !important;
+  left: 10px !important;
+  right: auto !important;
+  z-index: 100 !important;
+}
+#adminOrdersModal #adminOrdersHeader { min-width: 0 !important; }
+@media (max-width: 620px) {
+  #adminOrdersModal > .modal-content {
+    padding-top: 48px !important;
+  }
+  #adminOrdersModal #adminOrdersHeader {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-top: 0 !important;
+  }
+  #adminOrdersModal #adminOrderSearch,
+  #adminOrdersModal #adminOrdersHeader #adminOrderSearch {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin-top: 8px !important;
+    position: relative !important;
+    z-index: 1 !important;
+  }
 }
 </style>
 
