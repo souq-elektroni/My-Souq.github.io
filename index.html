@@ -8531,7 +8531,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
         <path d="M24 14v27" stroke="currentColor" stroke-width="1.5"/>
       </svg>
     </span>
-    <span>شروط وأحكام My Souq</span>
+    <span class="msq-terms-full">شروط وأحكام My Souq</span><span class="msq-terms-short">الشروط</span>
   </button>
 
   <div class="msq-book-overlay" id="msqPublicTermsModal" role="dialog" aria-modal="true"
@@ -18351,68 +18351,280 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
 
 
 
-<style id="mysouq-vto-image-restore-v2">
-/* Force product image visible + try-on under it */
-#productModal .modal-gallery-wrapper {
-  display: grid !important;
-  grid-template-columns: 1fr 92px !important;
-  grid-template-rows: auto auto auto !important;
-  grid-template-areas:
-    "main thumbs"
-    "nav nav"
-    "tryon tryon" !important;
-  height: auto !important;
-  max-height: calc(96vh - 12px) !important;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
-  align-content: start !important;
-}
-html[dir="rtl"] #productModal .modal-gallery-wrapper {
-  grid-template-columns: 92px 1fr !important;
-  grid-template-areas:
-    "thumbs main"
-    "nav nav"
-    "tryon tryon" !important;
-}
-#productModal .modal-img,
-#productModal #modalImage {
-  grid-area: main !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  width: 100% !important;
-  height: auto !important;
-  min-height: 300px !important;
-  max-height: min(50vh, 480px) !important;
-  object-fit: contain !important;
-  background: linear-gradient(160deg, #faf6f0, #f3ebe3) !important;
-}
-#productModal #virtualTryOnBox {
-  grid-area: tryon !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-#productModal .thumbs-vertical-wrap {
-  grid-area: thumbs !important;
-}
-#productModal .gallery-nav {
-  grid-area: nav !important;
-}
-@media (max-width: 767px) {
-  #productModal .modal-gallery-wrapper,
-  html[dir="rtl"] #productModal .modal-gallery-wrapper {
-    grid-template-columns: 1fr !important;
+<style id="mysouq-vto-image-restore-v3">
+/* Desktop: image + thumbs + try-on under image */
+@media (min-width: 768px) {
+  #productModal .modal-gallery-wrapper {
+    display: grid !important;
+    grid-template-columns: 1fr 92px !important;
+    grid-template-rows: auto auto auto !important;
     grid-template-areas:
-      "main"
-      "thumbs"
-      "nav"
-      "tryon" !important;
+      "main thumbs"
+      "nav nav"
+      "tryon tryon" !important;
+    height: auto !important;
+    max-height: calc(96vh - 12px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    align-content: start !important;
+  }
+  html[dir="rtl"] #productModal .modal-gallery-wrapper {
+    grid-template-columns: 92px 1fr !important;
+    grid-template-areas:
+      "thumbs main"
+      "nav nav"
+      "tryon tryon" !important;
   }
   #productModal .modal-img,
   #productModal #modalImage {
-    min-height: 240px !important;
-    max-height: 40vh !important;
+    grid-area: main !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 320px !important;
+    max-height: min(52vh, 500px) !important;
+    object-fit: contain !important;
+  }
+  #productModal .thumbs-vertical-wrap { grid-area: thumbs !important; }
+  #productModal .gallery-nav { grid-area: nav !important; }
+  #productModal #virtualTryOnBox {
+    grid-area: tryon !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Phone: stack image first, then thumbs, then try-on — never hide product image */
+@media (max-width: 767px) {
+  html body #productModal .modal-gallery-wrapper,
+  html[dir="rtl"] body #productModal .modal-gallery-wrapper,
+  #productModal .modal-gallery-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 8px 10px 12px !important;
+    box-sizing: border-box !important;
+  }
+  html body #productModal #modalImage,
+  html body #productModal .modal-img,
+  #productModal #modalImage,
+  #productModal .modal-img {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    order: 1 !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 220px !important;
+    max-height: 48vh !important;
+    aspect-ratio: auto !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    margin: 0 auto !important;
+    border-radius: 16px !important;
+    background: linear-gradient(160deg, #faf6f0, #f3ebe3) !important;
+  }
+  html body #productModal .thumbs-vertical-wrap,
+  #productModal .thumbs-vertical-wrap {
+    order: 2 !important;
+    flex: 0 0 auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+  html body #productModal .gallery-nav,
+  #productModal .gallery-nav {
+    order: 3 !important;
+    flex: 0 0 auto !important;
+  }
+  html body #productModal #virtualTryOnBox,
+  #productModal #virtualTryOnBox {
+    order: 4 !important;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+  }
+  #productModal #virtualTryOnBox.vto-visible {
+    display: block !important;
   }
 }
 </style>
+
+
+<style id="mysouq-topbar-mobile-fix">
+/* فصل أزرار أعلى الصفحة عن زر الشروط على الموبايل */
+@media (max-width: 767px) {
+  .top-actions {
+    position: fixed !important;
+    top: 8px !important;
+    left: 6px !important;
+    right: auto !important;
+    width: auto !important;
+    max-width: calc(100vw - 70px) !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 5px !important;
+    padding: 4px !important;
+    z-index: 960 !important;
+    background: rgba(255,255,255,.72) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border-radius: 14px !important;
+  }
+  .top-actions .admin-orders-trigger,
+  .top-actions .track-trigger,
+  .top-actions .cart-trigger {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    font-size: 11px !important;
+    padding: 7px 10px !important;
+    min-height: 34px !important;
+  }
+  .brand-badge {
+    z-index: 970 !important;
+  }
+  /* زر الشروط في صف منفصل تحت الشريط، مش جوا الطلبات */
+  .msq-public-terms-trigger {
+    position: fixed !important;
+    top: 56px !important;
+    right: 10px !important;
+    left: auto !important;
+    max-width: min(200px, calc(100vw - 20px)) !important;
+    z-index: 955 !important;
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+    gap: 5px !important;
+    border-radius: 12px !important;
+  }
+  .msq-public-terms-trigger .msq-terms-full {
+    display: none !important;
+  }
+  .msq-public-terms-trigger .msq-terms-short {
+    display: inline !important;
+  }
+}
+@media (min-width: 768px) {
+  .msq-public-terms-trigger .msq-terms-short {
+    display: none !important;
+  }
+  .msq-public-terms-trigger .msq-terms-full {
+    display: inline !important;
+  }
+}
+</style>
+
+
+<style id="mysouq-terms-admin-compact">
+/* لما وضع الإدارة مفعّل: زر الشروط يبقى أيقونة كتاب دائرية صغيرة فقط */
+body.msq-admin-on .msq-public-terms-trigger {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+}
+body.msq-admin-on .msq-public-terms-trigger .msq-terms-full,
+body.msq-admin-on .msq-public-terms-trigger .msq-terms-short {
+  display: none !important;
+}
+body.msq-admin-on .msq-public-terms-trigger .msq-book-icon {
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
+  width: 26px !important;
+  height: 26px !important;
+}
+@media (max-width: 767px) {
+  body.msq-admin-on .msq-public-terms-trigger {
+    top: 8px !important;
+    right: 58px !important; /* جنب شعار MY SOUQ من غير ما يدخل في صف الطلبات */
+    left: auto !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
+  }
+  body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+}
+</style>
+
+
+<script id="mysouq-terms-admin-compact-js">
+(function () {
+  function isAdminNow() {
+    try {
+      if (typeof isAdminMode !== 'undefined' && !!isAdminMode) return true;
+    } catch (e) {}
+    var btn = document.getElementById('adminOrdersBtn');
+    return !!(btn && btn.classList.contains('show'));
+  }
+
+  function syncTermsCompact() {
+    var on = isAdminNow();
+    document.body.classList.toggle('msq-admin-on', on);
+  }
+
+  function hook(name) {
+    if (typeof window[name] !== 'function' || window[name]._msqTermsCompact) return;
+    var orig = window[name];
+    window[name] = function () {
+      var r = orig.apply(this, arguments);
+      try {
+        if (r && typeof r.then === 'function') {
+          r.then(function () { setTimeout(syncTermsCompact, 50); setTimeout(syncTermsCompact, 400); });
+        }
+      } catch (e) {}
+      setTimeout(syncTermsCompact, 50);
+      setTimeout(syncTermsCompact, 400);
+      setTimeout(syncTermsCompact, 1200);
+      return r;
+    };
+    window[name]._msqTermsCompact = true;
+  }
+
+  function boot() {
+    syncTermsCompact();
+    hook('loginAdmin');
+    hook('logoutAdmin');
+    hook('handleAdminButton');
+    // راقب ظهور/اختفاء زر الطلبات
+    var btn = document.getElementById('adminOrdersBtn');
+    if (btn) {
+      var obs = new MutationObserver(syncTermsCompact);
+      obs.observe(btn, { attributes: true, attributeFilter: ['class', 'style'] });
+    }
+    setInterval(syncTermsCompact, 2000);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
