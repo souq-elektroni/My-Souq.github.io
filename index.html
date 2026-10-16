@@ -9106,8 +9106,21 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
   }
 
   window.runVirtualTryOnImproved = async function () {
+    // لا تفحص حالة التفعيل قبل اكتمال قراءة Firebase؛ فتح نافذة المنتج
+    // يقرأ الحالة بشكل غير متزامن وقد يضغط العميل الزر قبل وصول النتيجة.
+    if (vtoEnabledCache === null) {
+      try { await readVtoEnabled(); } catch (e) {
+        console.warn('VTO activation refresh failed:', e);
+      }
+    }
     if (vtoEnabledCache !== true) {
-      alert('ميزة تجربة الملابس غير مفعّلة حالياً.');
+      // إعادة قراءة واحدة لتفادي حالة قديمة من الكاش.
+      try { await readVtoEnabled(); } catch (e) {}
+    }
+    if (vtoEnabledCache !== true) {
+      var disabledStatus = document.getElementById('vtoStatus');
+      if (disabledStatus) disabledStatus.textContent = 'الميزة غير مفعّلة في إعدادات الموقع. حدّث الصفحة وحاول مرة أخرى.';
+      alert('ميزة تجربة الملابس غير مفعّلة حالياً. إذا كانت مفعّلة في الإدارة، حدّث الصفحة ثم حاول مرة أخرى.');
       return;
     }
     var personInput = document.getElementById('vtoPersonInput');
