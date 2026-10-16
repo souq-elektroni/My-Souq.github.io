@@ -3994,6 +3994,13 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
 }
 </style>
 
+
+<style id="mysouq-top-buttons-one-line-fix">
+/* Keep the existing top action buttons on one level; never wrap or create horizontal scrolling. */
+.top-actions{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;align-items:center!important;justify-content:flex-start!important;gap:clamp(3px,1.2vw,9px)!important;overflow:visible!important;white-space:nowrap!important;max-width:calc(100vw - 16px)!important;min-width:0!important}
+.top-actions > button,.top-actions .admin-orders-trigger,.top-actions .track-trigger,.top-actions .cart-trigger{flex:0 1 auto!important;min-width:0!important;max-width:100%!important;white-space:nowrap!important;padding-inline:clamp(7px,1.8vw,15px)!important;font-size:clamp(10px,2.6vw,14px)!important}
+@media(max-width:600px){.top-actions{left:8px!important;right:56px!important;top:12px!important;width:auto!important;gap:4px!important}.top-actions > button,.top-actions .admin-orders-trigger,.top-actions .track-trigger,.top-actions .cart-trigger{padding-inline:7px!important;font-size:10px!important;letter-spacing:0!important;min-height:34px!important}}
+</style>
 </head>
 
 <body>
