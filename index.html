@@ -8522,7 +8522,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
   <!-- My Souq: شروط وأحكام المتجر (إضافة مستقلة دون تغيير نافذة شروط الدفع الحالية) -->
   <button type="button" class="msq-public-terms-trigger" id="msqPublicTermsTrigger"
     onclick="openMySouqBookTerms()" aria-haspopup="dialog" aria-controls="msqPublicTermsModal"
-    title="شروط وأحكام My Souq">
+    title="شروط وأحكام My Souq" aria-label="شروط وأحكام My Souq">
     <span class="msq-book-icon" aria-hidden="true">
       <svg viewBox="0 0 48 48" width="30" height="30" fill="none">
         <path d="M5 10.5c7-2.5 13.2-1.3 19 3.5v27c-5.8-4.8-12-6-19-3.5z" fill="#fff8e9" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
@@ -8531,7 +8531,8 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
         <path d="M24 14v27" stroke="currentColor" stroke-width="1.5"/>
       </svg>
     </span>
-    <span class="msq-terms-full">شروط وأحكام My Souq</span><span class="msq-terms-short">الشروط</span>
+    <span class="msq-terms-label msq-terms-full">شروط وأحكام My Souq</span>
+    <span class="msq-terms-label msq-terms-short">الشروط</span>
   </button>
 
   <div class="msq-book-overlay" id="msqPublicTermsModal" role="dialog" aria-modal="true"
@@ -10753,203 +10754,6 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 }
 </style>
 
-
-  <!-- My Souq: شروط وأحكام المتجر (إضافة مستقلة دون تغيير نافذة شروط الدفع الحالية) -->
-  <button type="button" class="msq-public-terms-trigger" id="msqPublicTermsTrigger"
-    onclick="openMySouqBookTerms()" aria-haspopup="dialog" aria-controls="msqPublicTermsModal"
-    title="شروط وأحكام My Souq">
-    <span class="msq-book-icon" aria-hidden="true">
-      <svg viewBox="0 0 48 48" width="30" height="30" fill="none">
-        <path d="M5 10.5c7-2.5 13.2-1.3 19 3.5v27c-5.8-4.8-12-6-19-3.5z" fill="#fff8e9" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
-        <path d="M43 10.5c-7-2.5-13.2-1.3-19 3.5v27c5.8-4.8 12-6 19-3.5z" fill="#f4e3c8" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/>
-        <path d="M10 17c4-.8 7.4-.1 10.5 1.5M10 23c4-.8 7.4-.1 10.5 1.5M38 17c-4-.8-7.4-.1-10.5 1.5M38 23c-4-.8-7.4-.1-10.5 1.5" stroke="#8b3f52" stroke-width="1.7" stroke-linecap="round"/>
-        <path d="M24 14v27" stroke="currentColor" stroke-width="1.5"/>
-      </svg>
-    </span>
-    <span>شروط وأحكام My Souq</span>
-  </button>
-
-  <div class="msq-book-overlay" id="msqPublicTermsModal" role="dialog" aria-modal="true"
-    aria-labelledby="msqPublicTermsTitle" aria-hidden="true" onclick="closeMySouqBookTerms(event)">
-    <section class="msq-book-window" role="document" onclick="event.stopPropagation()">
-      <button class="msq-book-close" type="button" onclick="closeMySouqBookTerms()" aria-label="إغلاق">×</button>
-      <div class="msq-book-cover">
-        <span class="msq-book-cover-mark" aria-hidden="true">MY SOUQ</span>
-        <div class="msq-book-cover-emblem" aria-hidden="true">
-          <svg class="msq-cover-book-svg" viewBox="0 0 72 60" role="presentation">
-            <path d="M7 10 Q23 4 35 15 V49 Q21 39 7 44 Z" fill="#fffaf0" stroke="#f4dfbb" stroke-width="2.5" stroke-linejoin="round"/>
-            <path d="M65 10 Q49 4 37 15 V49 Q51 39 65 44 Z" fill="#f4e3c8" stroke="#f4dfbb" stroke-width="2.5" stroke-linejoin="round"/>
-            <path d="M13 19 Q23 16 30 22 M13 27 Q23 24 30 30 M59 19 Q49 16 42 22 M59 27 Q49 24 42 30" fill="none" stroke="#8b3f52" stroke-width="2" stroke-linecap="round"/>
-            <path d="M36 15 V50" stroke="#d6b77f" stroke-width="2"/>
-          </svg>
-        </div>
-        <h2 id="msqPublicTermsTitle">شروط وأحكام</h2>
-        <h3 class="msq-book-cover-english">My Souq</h3>
-        <p>دليل التعامل والشراء من المتجر</p>
-        <span class="msq-book-cover-line"></span>
-      </div>
-      <div class="msq-book-pages">
-        <div class="msq-book-welcome">
-          <span class="msq-book-small-label">أهلًا بكم في عالم My Souq</span>
-          <h3>السادة العملاء الكرام، مرحبًا بكم في My Souq</h3>
-          <p>نتمنى لكم تجربة رائعة تنال رضاكم. وتسهيلًا عليكم في التعامل، ودِدنا إحاطتكم علمًا بشروط التعامل على متجركم، وفيما يلي الشروط والأحكام الآتية:</p>
-        </div>
-        <article class="msq-book-clause">
-          <span class="msq-clause-number">١</span>
-          <div><h3>سياسة الطلب</h3><p>تقوم سياسة الطلب على نوعين: <strong>طلب الإضافة</strong> و<strong>الطلب السريع</strong>. عند الطلب عن طريق الإضافة، يُرجى التأكد من كتابة البيانات بشكل سليم، والتأكد من أن رقم الهاتف المُدخل هو رقم واتساب صحيح. أما الطلب السريع، فهو وسيلة تواصل سريعة بين المشتري والبائع لإنهاء عمليات الشراء العاجلة.</p></div>
-        </article>
-        <article class="msq-book-clause">
-          <span class="msq-clause-number">٢</span>
-          <div><h3>إلغاء الطلب ومتابعته</h3><p>عند الطلب عن طريق الإضافة، يتم إنشاء طلب فعلي ويحصل العميل في نهاية إتمام الطلب على رقم طلب لمتابعة مساره من شاشة متابعة الطلبات. وللعميل كامل الحرية في طلب الإلغاء خلال مرحلة <strong>«تحت التنفيذ» فقط</strong>، وذلك من خلال زر «طلب الإلغاء» في شاشة تتبع الطلب.</p><p>أما الطلب السريع، فللعميل كامل الحرية في طلب الإلغاء من البائع عبر التواصل المباشر، ويُنفّذ الإلغاء فعليًا إذا لم يتم الحجز.</p></div>
-        </article>
-        <article class="msq-book-clause msq-book-important">
-          <span class="msq-clause-number">٣</span>
-          <div><h3>سياسة الحجز ومدة الحجز</h3><p>يعتمد البيع على سياسة الحجز، ومدة الحجز <strong>10 أيام</strong>.</p><p><strong>هام:</strong> عند الانتقال إلى مرحلة الحجز، لا يحق للعميل طلب الإلغاء أو الاستبدال. ويُسمح بالإلغاء استثنائيًا في هذه المرحلة فقط بعد الاتفاق بين البائع والمشتري على تحمّل المشتري قيمة الشحن فقط.</p><p>لذلك نرجو مراجعة الطلب والمقاسات جيدًا قبل إتمام عملية الشراء.</p></div>
-        </article>
-        <article class="msq-book-clause">
-          <span class="msq-clause-number">٤</span>
-          <div><h3>الفاتورة والسداد</h3><p>في اليوم العاشر، تصلكم فاتورتكم من خلال إدارة My Souq على واتساب، ويلزم تحويل القيمة أثناء استلام المنتج بعد شحنه.</p></div>
-        </article>
-        <article class="msq-book-clause">
-          <span class="msq-clause-number">٥</span>
-          <div><h3>مراجعة تفاصيل المنتج</h3><p>برجاء مراجعة الطلب جيدًا جدًا، والتأكد من المنتج واللون والمقاس قبل تأكيد الشراء.</p></div>
-        </article>
-        <article class="msq-book-clause">
-          <span class="msq-clause-number">٦</span>
-          <div><h3>تعدد القطع في الطلب</h3><p>للعميل صلاحية طلب أكثر من قطعة في طلب واحد.</p></div>
-        </article>
-        <article class="msq-book-clause">
-          <span class="msq-clause-number">٧</span>
-          <div><h3>دمج الطلبات</h3><p>توجد أيضًا إمكانية دمج الطلبات في طلب واحد، ويتم ذلك من خلال إدارة My Souq.</p></div>
-        </article>
-        <div class="msq-book-endnote"><span class="msq-endnote-flourish" aria-hidden="true">✦</span><strong>شكرًا لأنكم جزء من عائلة My Souq</strong><p>ثقتكم الغالية هي سرّ سعادتنا، وراحتكم أولويتنا دائمًا. نتمنى أن تصلكم اختياراتكم كما تحبّون، وأن تكون كل تجربة تسوّق معانا بداية لفرحة جديدة.</p><span class="msq-endnote-signature">بكل الود، فريق My Souq</span><span class="msq-endnote-flourish" aria-hidden="true">✦</span></div>
-        <button class="msq-book-read-btn" type="button" onclick="closeMySouqBookTerms()">قرأت الشروط — متابعة التسوّق</button>
-      </div>
-    </section>
-  </div>
-
-  <style id="msq-public-book-terms-style">
-    .msq-public-terms-trigger{position:fixed;top:12px;right:82px;left:auto;z-index:899;display:flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid #d8b98c;border-radius:14px;background:linear-gradient(135deg,#fffaf0,#ead7b8);color:#573a30;box-shadow:0 5px 18px #56372b2b;font-size:11px;font-weight:900;cursor:pointer;max-width:calc(100vw - 190px)}
-    .msq-public-terms-trigger:hover{transform:translateY(-2px);box-shadow:0 8px 20px #56372b38}
-    .msq-book-icon{display:flex;align-items:center;flex-shrink:0;color:#8b3f52}
-    .msq-public-terms-trigger span:last-child{white-space:normal;text-align:center;line-height:1.35}
-    @media(min-width:768px){.msq-public-terms-trigger{top:12px;right:82px;left:auto;padding:8px 12px;font-size:13px;gap:8px;max-width:220px}.msq-book-icon svg{width:34px;height:34px}}
-    .msq-book-overlay{display:none;position:fixed;inset:0;z-index:3000;padding:12px;background:rgba(35,23,25,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);align-items:center;justify-content:center}
-    .msq-book-overlay.is-open{display:flex}
-    .msq-book-window{position:relative;display:grid;grid-template-columns:minmax(150px,.7fr) minmax(0,1.3fr);width:min(1000px,96vw);height:min(820px,92dvh);max-height:92vh;overflow:hidden;border-radius:18px;background:#f7edda;box-shadow:0 28px 90px #0005;border:1px solid #e3cda9;direction:rtl}
-    .msq-book-close{position:absolute;top:10px;left:10px;z-index:5;width:38px;height:38px;border:1px solid #d8c5a7;border-radius:50%;background:#fff9ef;color:#6c3a43;font-size:27px;line-height:1;cursor:pointer;box-shadow:0 3px 10px #0001}
-    .msq-book-cover{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px 20px;background:radial-gradient(circle at 50% 20%,#b86d7d,#7b3548 70%);color:#fff8ed;border-left:5px double #e6c99b;position:relative;overflow:hidden}
-    .msq-book-cover:before,.msq-book-cover:after{content:"";position:absolute;border:1px solid #f5dfb4aa;border-radius:50%;width:260px;height:260px;pointer-events:none}
-    .msq-book-cover:after{width:220px;height:220px}
-    .msq-book-cover-mark{font-size:17px;font-weight:950;letter-spacing:4px;border-block:1px solid #f3d8b0;padding:9px 14px;text-shadow:0 1px 1px #35131d55}
-    .msq-book-cover-emblem{width:184px;height:184px;display:flex;align-items:center;justify-content:center;border:1px solid #f5dfb4cc;border-radius:50%;margin:20px 0 18px;box-shadow:inset 0 0 0 10px #ffffff08,0 8px 22px #35131d20;position:relative;z-index:1}.msq-cover-book-svg{width:100px;height:84px;filter:drop-shadow(0 7px 5px #35131d55)}
-    .msq-book-cover h2{font-size:clamp(25px,3vw,34px);font-weight:950;line-height:1.35;margin:0;position:relative;z-index:1}.msq-book-cover-english{font-size:clamp(25px,3vw,34px);font-weight:950;letter-spacing:.3px;line-height:1.2;margin:5px 0 8px;color:#fffaf0;position:relative;z-index:1}
-    .msq-book-cover p{margin-top:4px;font-size:14px;line-height:1.8;color:#f8e8d8;position:relative;z-index:1}
-    .msq-book-cover-line{width:60px;height:3px;background:#e7c78e;margin-top:18px;border-radius:9px}
-    .msq-book-pages{min-height:0;max-height:100%;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;padding:28px clamp(14px,3vw,34px);background:repeating-linear-gradient(0deg,#fffdf7 0,#fffdf7 33px,#f1e7d6 34px);color:#392d2c;line-height:1.95;scrollbar-color:#bd8790 #f1e7d6}
-    .msq-book-welcome{padding:8px 4px 20px;border-bottom:1px solid #dfcbb2;margin-bottom:14px}
-    .msq-book-small-label{display:inline-block;color:#8b3f52;font-size:11px;font-weight:900;border:1px solid #d8b9a5;border-radius:30px;padding:2px 12px;margin-bottom:8px}
-    .msq-book-welcome h3{font-size:clamp(17px,2vw,22px);color:#873d50;margin-bottom:8px;line-height:1.8}
-    .msq-book-welcome p,.msq-book-clause p{font-size:15px;line-height:2.05;margin:5px 0 10px;letter-spacing:.05px}
-    .msq-book-clause{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;padding:13px 0;border-bottom:1px dashed #d8c3aa}
-    .msq-clause-number{width:32px;height:32px;display:flex;align-items:center;justify-content:center;background:#8b3f52;color:#fff7e8;border-radius:50%;font-weight:900;box-shadow:0 3px 7px #8b3f5225}
-    .msq-book-clause h3{color:#853b4e;font-size:17px;font-weight:950;margin:0 0 6px;line-height:1.65}
-    .msq-book-clause strong{color:#7d3448}
-    .msq-book-important{background:#fff3dc;border:1px solid #e8ca8e;border-radius:12px;padding:13px 10px;margin:12px 0}
-    .msq-book-endnote{text-align:center;color:#874052;font-weight:800;padding:24px 12px 16px;font-size:15px;line-height:2.05;background:linear-gradient(180deg,#fff8ec,#f8eadb);border:1px solid #e8d3b6;border-radius:14px;margin:18px 0 14px}
-    .msq-book-endnote span{color:#c49a51;padding:0 4px}
-    .msq-book-read-btn{width:100%;padding:13px 16px;border:0;border-radius:12px;background:#8b3f52;color:white;font-weight:900;font-size:14px;cursor:pointer;margin:0 0 8px;box-shadow:0 5px 14px #8b3f5228}
-    .msq-book-read-btn:hover{background:#6f3242}
-    @media(max-width:650px){.msq-public-terms-trigger{top:8px;right:64px;left:auto;max-width:calc(100vw - 135px);padding:5px 7px;font-size:9px;gap:4px}.msq-book-icon svg{width:25px;height:25px}.msq-book-window{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);width:100%;height:94dvh;max-height:94vh;border-radius:14px}.msq-book-cover{padding:12px 45px 10px;min-height:0;border-left:0;border-bottom:4px double #e6c99b}.msq-book-cover-mark{font-size:12px;letter-spacing:3px;padding:3px 10px}.msq-book-cover-emblem{width:66px;height:66px;margin:5px 0 5px}.msq-cover-book-svg{width:44px;height:38px}.msq-book-cover h2{font-size:18px;line-height:1.25}.msq-book-cover-english{font-size:19px;margin:2px 0 2px}.msq-book-cover p{font-size:10px;margin-top:0;line-height:1.4}.msq-book-cover-line{margin-top:5px;width:34px}.msq-book-pages{padding:17px 15px;min-height:0}.msq-book-welcome h3{font-size:17px}.msq-book-welcome p,.msq-book-clause p{font-size:13px;line-height:2}.msq-book-clause h3{font-size:15px}.msq-book-clause{gap:8px;grid-template-columns:29px minmax(0,1fr);padding:11px 0}.msq-clause-number{width:28px;height:28px}.msq-book-close{top:8px;left:8px;width:32px;height:32px;font-size:23px}}
-
-    /* Final visual polish: keep the cover emblem and typography separate and balanced. */
-    .msq-book-cover{isolation:isolate;gap:0}
-    .msq-book-cover:before,.msq-book-cover:after{z-index:-1;top:50%;left:50%;transform:translate(-50%,-50%);width:250px;height:250px}
-    .msq-book-cover:after{width:210px;height:210px}
-    .msq-book-cover-mark{font-size:19px;letter-spacing:4.5px;padding:10px 18px;margin-bottom:14px}
-    .msq-book-cover-emblem{flex:0 0 auto;width:170px;height:170px;margin:0 0 18px;background:#ffffff08}
-    .msq-cover-book-svg{width:104px;height:90px}
-    .msq-book-cover h2{max-width:100%;margin-top:0;font-size:clamp(24px,2.7vw,32px);line-height:1.45;text-wrap:balance}
-    .msq-book-cover-english{margin:2px 0 7px;font-size:clamp(25px,2.8vw,33px);line-height:1.2}
-    .msq-book-cover p{max-width:250px;margin:4px auto 0;font-size:14px;line-height:1.8}
-    .msq-book-cover-line{margin-top:15px}
-    .msq-book-endnote{position:relative;overflow:hidden;margin:24px 0 18px;padding:22px clamp(15px,3vw,30px);background:linear-gradient(145deg,#fffaf1 0%,#f8ead9 100%);border:1px solid #e4c9a8;border-radius:18px;box-shadow:0 8px 22px #7a4a3010;color:#604047;font-weight:500;font-size:15px;line-height:2;text-align:center}
-    .msq-book-endnote:before{content:"";position:absolute;top:0;left:12%;right:12%;height:3px;border-radius:0 0 8px 8px;background:linear-gradient(90deg,#d8b77f,#8b3f52,#d8b77f)}
-    .msq-book-endnote strong{display:block;color:#813b4d;font-size:clamp(17px,2vw,21px);font-weight:900;line-height:1.7;margin:0 0 7px}
-    .msq-book-endnote p{margin:0 auto 10px;max-width:620px;line-height:2.05}
-    .msq-endnote-flourish{display:block;color:#bd9453;font-size:17px;line-height:1.3;padding:0 0 6px}
-    .msq-endnote-signature{display:inline-block;padding:5px 17px;border-top:1px solid #dfc7a6;color:#8b3f52;font-weight:900;margin-top:3px}
-    @media(max-width:650px){
-      .msq-book-cover{padding:13px 22px 12px;min-height:0;gap:0}
-      .msq-book-cover:before,.msq-book-cover:after{top:42%;width:150px;height:150px}
-      .msq-book-cover:after{width:126px;height:126px}
-      .msq-book-cover-mark{font-size:14px;letter-spacing:3px;padding:5px 14px;margin-bottom:9px}
-      .msq-book-cover-emblem{width:92px;height:92px;margin:0 0 9px}
-      .msq-cover-book-svg{width:59px;height:51px}
-      .msq-book-cover h2{font-size:clamp(20px,5.7vw,25px);line-height:1.35;margin:0}
-      .msq-book-cover-english{font-size:22px;line-height:1.15;margin:1px 0 3px}
-      .msq-book-cover p{font-size:11px;line-height:1.5;margin-top:2px}
-      .msq-book-cover-line{width:42px;height:3px;margin-top:8px}
-      .msq-book-endnote{padding:18px 14px;margin:19px 0 14px;border-radius:14px;font-size:13px;line-height:1.9}
-      .msq-book-endnote strong{font-size:16px;line-height:1.65}
-      .msq-book-endnote p{line-height:1.95}
-    }
-
-    /* Final requested cover refinement: one gold circle around the book only; all wording below it. */
-    .msq-book-cover:before,.msq-book-cover:after{display:none!important;content:none!important}
-    .msq-book-cover{gap:0;justify-content:center;}
-    .msq-book-cover-mark{margin-bottom:18px;font-size:21px;font-weight:1000;letter-spacing:4.5px;}
-    .msq-book-cover-emblem{width:220px;height:220px;min-width:220px;min-height:220px;box-sizing:border-box;border:2px solid #d8b56e;border-radius:50%;margin:0 0 24px;background:transparent;box-shadow:0 0 0 1px #f6e3b766,inset 0 0 0 1px #d8b56e55;}
-    .msq-cover-book-svg{width:148px;height:124px;filter:drop-shadow(0 8px 7px #35131d55);}
-    .msq-book-cover h2{margin:0!important;max-width:100%;font-size:clamp(26px,3vw,36px);line-height:1.3;}
-    .msq-book-cover-english{margin:3px 0 7px!important;font-size:clamp(27px,3vw,36px);line-height:1.2;}
-    .msq-book-cover p{margin:3px auto 0!important;font-size:14px;line-height:1.8;}
-    .msq-book-cover-line{margin-top:16px;width:68px;}
-    /* Closing message without decorative symbols or flourishes. */
-    .msq-book-endnote{padding:22px clamp(15px,3vw,30px);text-align:center;}
-    .msq-book-endnote .msq-endnote-flourish{display:none!important;}
-    .msq-book-endnote strong{margin-bottom:9px;}
-    .msq-endnote-signature{border-top:1px solid #dfc7a6;padding-top:8px;}
-    @media(max-width:650px){
-      .msq-book-cover{padding:14px 20px 13px;}
-      .msq-book-cover-mark{font-size:15px;letter-spacing:3.2px;padding:5px 14px;margin-bottom:10px;}
-      .msq-book-cover-emblem{width:116px;height:116px;min-width:116px;min-height:116px;margin:0 0 11px;border-width:2px;}
-      .msq-cover-book-svg{width:82px;height:70px;}
-      .msq-book-cover h2{font-size:clamp(21px,6vw,27px);line-height:1.3;}
-      .msq-book-cover-english{font-size:23px;line-height:1.2;margin:2px 0 3px!important;}
-      .msq-book-cover p{font-size:11px;line-height:1.5;margin-top:2px!important;}
-      .msq-book-cover-line{width:44px;height:3px;margin-top:8px;}
-      .msq-book-endnote{padding:17px 14px;margin:17px 0 13px;}
-    }
-    @media(prefers-reduced-motion:no-preference){.msq-book-window{animation:msqBookAppear .22s ease-out}@keyframes msqBookAppear{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}}
-  </style>
-  <script>
-    function openMySouqBookTerms(){
-      const modal=document.getElementById('msqPublicTermsModal');
-      if(!modal)return;
-      modal.classList.add('is-open');
-      modal.setAttribute('aria-hidden','false');
-      document.body.style.overflow='hidden';
-      const close=modal.querySelector('.msq-book-close');
-      if(close)close.focus();
-    }
-    function closeMySouqBookTerms(event){
-      if(event && event.target!==event.currentTarget)return;
-      const modal=document.getElementById('msqPublicTermsModal');
-      if(!modal)return;
-      modal.classList.remove('is-open');
-      modal.setAttribute('aria-hidden','true');
-      document.body.style.overflow='';
-      const trigger=document.getElementById('msqPublicTermsTrigger');
-      if(trigger)trigger.focus();
-    }
-    document.addEventListener('keydown',function(event){
-      if(event.key==='Escape'){
-        const modal=document.getElementById('msqPublicTermsModal');
-        if(modal && modal.classList.contains('is-open'))closeMySouqBookTerms();
-      }
-    });
-  </script>
 
 <script id="mysouq-virtual-tryon-feature">
 /* ===== My Souq: Virtual Try-On (FASHN VTON free) + Admin Toggle =====
@@ -18470,152 +18274,6 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
 
 
 
-<style id="mysouq-terms-next-to-logo">
-/* ===== زر الشروط دائماً جنب اللوجو (يمين الشاشة) ===== */
-
-/* الوضع العادي: زر كامل بالكتابة جنب اللوجو */
-.msq-public-terms-trigger {
-  position: fixed !important;
-  top: 14px !important;
-  right: 82px !important; /* جنب اللوجو من غير تداخل */
-  left: auto !important;
-  z-index: 960 !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 7px !important;
-  padding: 7px 11px !important;
-  border: 1px solid #d8b98c !important;
-  border-radius: 14px !important;
-  background: linear-gradient(135deg, #fffaf0, #ead7b8) !important;
-  color: #573a30 !important;
-  box-shadow: 0 5px 18px rgba(86, 55, 43, 0.17) !important;
-  font-size: 12px !important;
-  font-weight: 900 !important;
-  cursor: pointer !important;
-  max-width: 210px !important;
-  width: auto !important;
-  height: auto !important;
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-}
-.msq-public-terms-trigger .msq-terms-full { display: inline !important; }
-.msq-public-terms-trigger .msq-terms-short { display: none !important; }
-.msq-public-terms-trigger .msq-book-icon {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex-shrink: 0 !important;
-}
-.msq-public-terms-trigger .msq-book-icon svg {
-  width: 28px !important;
-  height: 28px !important;
-}
-
-@media (min-width: 768px) {
-  .msq-public-terms-trigger {
-    top: 22px !important;
-    right: 120px !important; /* جنب اللوجو الكبير */
-    padding: 8px 12px !important;
-    font-size: 13px !important;
-    max-width: 230px !important;
-  }
-  .msq-public-terms-trigger .msq-book-icon svg {
-    width: 32px !important;
-    height: 32px !important;
-  }
-}
-
-@media (max-width: 767px) {
-  .msq-public-terms-trigger {
-    top: 12px !important;
-    right: 66px !important; /* جنب لوجو الموبايل ~52px + مسافة */
-    max-width: calc(100vw - 130px) !important;
-    padding: 6px 9px !important;
-    font-size: 11px !important;
-    gap: 5px !important;
-  }
-  .msq-public-terms-trigger .msq-terms-full { display: none !important; }
-  .msq-public-terms-trigger .msq-terms-short { display: inline !important; }
-  .msq-public-terms-trigger .msq-book-icon svg {
-    width: 22px !important;
-    height: 22px !important;
-  }
-  /* أزرار السلة/التتبع شمال — بعيدة عن اللوجو والشروط */
-  .top-actions {
-    position: fixed !important;
-    top: 8px !important;
-    left: 6px !important;
-    right: auto !important;
-    max-width: calc(100vw - 160px) !important;
-    z-index: 960 !important;
-  }
-}
-
-/* ===== وضع الإدارة: دائرة فيها الكتاب فقط جنب اللوجو ===== */
-body.msq-admin-on .msq-public-terms-trigger {
-  width: 44px !important;
-  height: 44px !important;
-  min-width: 44px !important;
-  max-width: 44px !important;
-  padding: 0 !important;
-  border-radius: 50% !important;
-  justify-content: center !important;
-  align-items: center !important;
-  gap: 0 !important;
-  overflow: hidden !important;
-  right: 82px !important;
-  top: 18px !important;
-}
-body.msq-admin-on .msq-public-terms-trigger .msq-terms-full,
-body.msq-admin-on .msq-public-terms-trigger .msq-terms-short {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
-  font-size: 0 !important;
-}
-body.msq-admin-on .msq-public-terms-trigger .msq-book-icon {
-  margin: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-}
-body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
-  width: 24px !important;
-  height: 24px !important;
-}
-
-@media (min-width: 768px) {
-  body.msq-admin-on .msq-public-terms-trigger {
-    width: 48px !important;
-    height: 48px !important;
-    min-width: 48px !important;
-    max-width: 48px !important;
-    top: 28px !important;
-    right: 120px !important;
-  }
-  body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
-    width: 26px !important;
-    height: 26px !important;
-  }
-}
-
-@media (max-width: 767px) {
-  body.msq-admin-on .msq-public-terms-trigger {
-    width: 40px !important;
-    height: 40px !important;
-    min-width: 40px !important;
-    max-width: 40px !important;
-    top: 14px !important;
-    right: 66px !important; /* جنب اللوجو، مش جواه */
-  }
-  body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
-    width: 20px !important;
-    height: 20px !important;
-  }
-}
-</style>
-
-
 <script id="mysouq-terms-admin-compact-js">
 (function () {
   function isAdminNow() {
@@ -18672,3 +18330,107 @@ body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   else boot();
 })();
 </script>
+
+
+<style id="mysouq-terms-final-v4">
+/* زر واحد جنب اللوجو — شمال الأزرار (سلة/تتبع) بعيدة */
+html body .msq-public-terms-trigger {
+  position: fixed !important;
+  top: 14px !important;
+  right: 78px !important;
+  left: auto !important;
+  z-index: 980 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  padding: 7px 11px !important;
+  border-radius: 14px !important;
+  max-width: 200px !important;
+  width: auto !important;
+  height: auto !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+html body .msq-public-terms-trigger .msq-terms-full { display: inline !important; }
+html body .msq-public-terms-trigger .msq-terms-short { display: none !important; }
+
+html body .top-actions {
+  left: 6px !important;
+  right: auto !important;
+  max-width: min(52vw, 280px) !important;
+  z-index: 970 !important;
+}
+
+@media (max-width: 767px) {
+  html body .msq-public-terms-trigger {
+    top: 12px !important;
+    right: 64px !important;
+    padding: 6px 8px !important;
+    max-width: 110px !important;
+  }
+  html body .msq-public-terms-trigger .msq-terms-full { display: none !important; }
+  html body .msq-public-terms-trigger .msq-terms-short { display: inline !important; }
+  html body .top-actions {
+    max-width: calc(100vw - 180px) !important;
+  }
+}
+
+/* وضع الأدمن: دائرة + كتاب فقط — إخفاء أي كلام */
+html body.msq-admin-on .msq-public-terms-trigger {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  max-width: 42px !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  border-radius: 50% !important;
+  right: 64px !important;
+  top: 14px !important;
+}
+html body.msq-admin-on .msq-public-terms-trigger .msq-terms-label,
+html body.msq-admin-on .msq-public-terms-trigger .msq-terms-full,
+html body.msq-admin-on .msq-public-terms-trigger .msq-terms-short,
+html body.msq-admin-on .msq-public-terms-trigger > span:not(.msq-book-icon) {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  font-size: 0 !important;
+  line-height: 0 !important;
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100% !important;
+  height: 100% !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: static !important;
+}
+html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
+  width: 22px !important;
+  height: 22px !important;
+  display: block !important;
+}
+
+@media (min-width: 768px) {
+  html body .msq-public-terms-trigger {
+    top: 22px !important;
+    right: 110px !important;
+  }
+  html body.msq-admin-on .msq-public-terms-trigger {
+    width: 46px !important;
+    height: 46px !important;
+    min-width: 46px !important;
+    max-width: 46px !important;
+    top: 26px !important;
+    right: 110px !important;
+  }
+}
+</style>
