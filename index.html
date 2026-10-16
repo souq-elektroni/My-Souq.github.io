@@ -4198,10 +4198,39 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
             ></div>
             <button type="button" class="thumbs-swap-btn thumbs-down" onclick="thumbsScrollDown()" aria-label="الصورة التالية">▼</button>
           </div>
+
           <div class="gallery-nav">
             <button type="button" onclick="galleryPrev()" aria-label="السابق">‹</button>
             <button type="button" onclick="openZoom()" aria-label="تكبير">🔍</button>
             <button type="button" onclick="galleryNext()" aria-label="التالي">›</button>
+          </div>
+
+          <!-- Virtual Try-On (controlled by admin toggle) -->
+          <div id="virtualTryOnBox" style="display:none;margin:16px 0 8px;padding:16px;border-radius:16px;border:1px solid rgba(139,63,82,.16);background:linear-gradient(165deg,#fffafc 0%,#fff 55%,#f8f4f6 100%);box-shadow:0 8px 24px rgba(80,30,50,.06);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span style="font-size:18px;" aria-hidden="true">👕</span>
+              <div style="font-weight:900;color:var(--burgundy-soft);font-size:14.5px;letter-spacing:-.2px;">جرب المنتج عليك</div>
+            </div>
+            <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">ارفع صورة كاملة للجسم بإضاءة كويسة، وهنشوف المنتج عليك بشكل تقريبي بالذكاء الاصطناعي.</div>
+
+            <input type="file" id="vtoPersonInput" accept="image/*" style="display:none;">
+            <label for="vtoPersonInput" id="vtoUploadLabel" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;min-height:92px;margin-bottom:12px;padding:14px 12px;border-radius:14px;border:1.5px dashed rgba(139,63,82,.35);background:rgba(255,255,255,.85);cursor:pointer;transition:border-color .2s, background .2s, box-shadow .2s;box-sizing:border-box;">
+              <span style="width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#8b3f52,#c46b82);color:#fff;font-size:20px;box-shadow:0 6px 14px rgba(139,63,82,.22);">📷</span>
+              <span id="vtoUploadTitle" style="font-weight:900;font-size:13px;color:#5a3040;">اضغط لرفع صورتك</span>
+              <span id="vtoUploadHint" style="font-size:11px;color:var(--text-muted);text-align:center;line-height:1.35;">يفضل صورة كاملة للجسم · JPG أو PNG</span>
+            </label>
+
+            <label style="font-size:12px;font-weight:800;display:block;margin-bottom:5px;color:#5a3040;">نوع القطعة <span style="font-weight:700;color:var(--text-muted);font-size:11px;">(مهم لجودة النتيجة)</span></label>
+            <select id="vtoCategory" style="width:100%;margin-bottom:8px;padding:10px 12px;border-radius:12px;border:1px solid #e6ccd6;font-size:13px;background:#fff;color:#432b36;box-sizing:border-box;">
+              <option value="one-pieces">طقم كامل (تيشيرت + بنطلون / فستان)</option>
+              <option value="tops">بلوزة / تيشيرت / جاكيت فقط</option>
+              <option value="bottoms">بنطلون / جيبة فقط</option>
+            </select>
+            <div style="font-size:10.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.4;">لو المنتج طقم كامل اختار «طقم كامل» عشان البنطلون يظهر بالكامل.</div>
+
+            <button type="button" id="vtoRunBtn" onclick="runVirtualTryOn()" style="width:100%;padding:12px 14px;border:none;border-radius:13px;background:linear-gradient(135deg,#7a3548,#b75b72);color:#fff;font-weight:900;font-size:14.5px;cursor:pointer;box-shadow:0 8px 18px rgba(100,35,55,.18);letter-spacing:-.2px;">✨ جرب دلوقتي</button>
+            <div id="vtoStatus" style="margin-top:10px;font-size:12.5px;font-weight:800;color:var(--text-muted);line-height:1.4;"></div>
+            <img id="vtoResultImg" alt="نتيجة تجربة الملابس" style="display:none;max-width:100%;margin-top:12px;border-radius:14px;border:1px solid #ead0dc;box-shadow:0 8px 20px rgba(40,20,28,.08);">
           </div>
 
         </div>
@@ -4321,37 +4350,7 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
           <button type="button" class="add-another-design-btn" onclick="addToCartAndContinue()">
             ＋ أضف هذا الشكل واختر شكلًا آخر
           </button>
-          <p class="multi-design-hint">تقدر تجمع أكثر من شكل في السلة، وبعدها تبعتهم كلهم في طلب واتساب واحد مع روابط صور كل شكل.</p>
-
-          <!-- Virtual Try-On (controlled by admin toggle) -->
-          <div id="virtualTryOnBox" style="display:none;margin:16px 0 8px;padding:16px;border-radius:16px;border:1px solid rgba(139,63,82,.16);background:linear-gradient(165deg,#fffafc 0%,#fff 55%,#f8f4f6 100%);box-shadow:0 8px 24px rgba(80,30,50,.06);">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-              <span style="font-size:18px;" aria-hidden="true">👕</span>
-              <div style="font-weight:900;color:var(--burgundy-soft);font-size:14.5px;letter-spacing:-.2px;">جرب المنتج عليك</div>
-            </div>
-            <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">ارفع صورة كاملة للجسم بإضاءة كويسة، وهنشوف المنتج عليك بشكل تقريبي بالذكاء الاصطناعي.</div>
-
-            <input type="file" id="vtoPersonInput" accept="image/*" style="display:none;">
-            <label for="vtoPersonInput" id="vtoUploadLabel" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;min-height:92px;margin-bottom:12px;padding:14px 12px;border-radius:14px;border:1.5px dashed rgba(139,63,82,.35);background:rgba(255,255,255,.85);cursor:pointer;transition:border-color .2s, background .2s, box-shadow .2s;box-sizing:border-box;">
-              <span style="width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#8b3f52,#c46b82);color:#fff;font-size:20px;box-shadow:0 6px 14px rgba(139,63,82,.22);">📷</span>
-              <span id="vtoUploadTitle" style="font-weight:900;font-size:13px;color:#5a3040;">اضغط لرفع صورتك</span>
-              <span id="vtoUploadHint" style="font-size:11px;color:var(--text-muted);text-align:center;line-height:1.35;">يفضل صورة كاملة للجسم · JPG أو PNG</span>
-            </label>
-
-            <label style="font-size:12px;font-weight:800;display:block;margin-bottom:5px;color:#5a3040;">نوع القطعة <span style="font-weight:700;color:var(--text-muted);font-size:11px;">(مهم لجودة النتيجة)</span></label>
-            <select id="vtoCategory" style="width:100%;margin-bottom:8px;padding:10px 12px;border-radius:12px;border:1px solid #e6ccd6;font-size:13px;background:#fff;color:#432b36;box-sizing:border-box;">
-              <option value="one-pieces">طقم كامل (تيشيرت + بنطلون / فستان)</option>
-              <option value="tops">بلوزة / تيشيرت / جاكيت فقط</option>
-              <option value="bottoms">بنطلون / جيبة فقط</option>
-            </select>
-            <div style="font-size:10.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.4;">لو المنتج طقم كامل اختار «طقم كامل» عشان البنطلون يظهر بالكامل.</div>
-
-            <button type="button" id="vtoRunBtn" onclick="runVirtualTryOn()" style="width:100%;padding:12px 14px;border:none;border-radius:13px;background:linear-gradient(135deg,#7a3548,#b75b72);color:#fff;font-weight:900;font-size:14.5px;cursor:pointer;box-shadow:0 8px 18px rgba(100,35,55,.18);letter-spacing:-.2px;">✨ جرب دلوقتي</button>
-            <div id="vtoStatus" style="margin-top:10px;font-size:12.5px;font-weight:800;color:var(--text-muted);line-height:1.4;"></div>
-            <img id="vtoResultImg" alt="نتيجة تجربة الملابس" style="display:none;max-width:100%;margin-top:12px;border-radius:14px;border:1px solid #ead0dc;box-shadow:0 8px 20px rgba(40,20,28,.08);">
-          </div>
-
-        </div>
+          <p class="multi-design-hint">تقدر تجمع أكثر من شكل في السلة، وبعدها تبعتهم كلهم في طلب واتساب واحد مع روابط صور كل شكل.</p></div>
 
       </div>
 
@@ -9147,6 +9146,11 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
       // Attempt 1: flat-lay + mild guidance (better lighting preservation)
       var imageUrl = null;
       var lastErr = null;
+      function isQuotaError(e) {
+        var m = e && (e.message || String(e)) || '';
+        return /ZeroGPU|exceeded your ZeroGPU|runs limit|quota|429|rate limit/i.test(m);
+      }
+
       try {
         var result1 = await callFashnTryOn(client, personFile, garmentFile, category, 'flat-lay', 50, 1.8, 42);
         imageUrl = extractResultUrl(result1);
@@ -9155,12 +9159,11 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
         console.warn('VTO attempt 1 failed:', e1);
       }
 
-      // Attempt 2 if no image: alternate photo type + slightly stronger guidance + new seed
-      if (!imageUrl) {
+      // Attempt 2 only if not a quota error (retries burn more free quota)
+      if (!imageUrl && !isQuotaError(lastErr)) {
         if (statusEl) statusEl.textContent = 'المحاولة 1 لم تنجح — جاري المحاولة 2 بإعدادات مختلفة...';
         try {
-          var altType = 'model';
-          var result2 = await callFashnTryOn(client, personFile, garmentFile, category, altType, 50, 2.2, 123);
+          var result2 = await callFashnTryOn(client, personFile, garmentFile, category, 'model', 50, 2.2, 123);
           imageUrl = extractResultUrl(result2);
         } catch (e2) {
           lastErr = e2;
@@ -9168,8 +9171,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
         }
       }
 
-      // Attempt 3 only if still failing and category is one-pieces: try tops as last resort hint
-      if (!imageUrl && category === 'one-pieces') {
+      if (!imageUrl && !isQuotaError(lastErr) && category === 'one-pieces') {
         if (statusEl) statusEl.textContent = 'محاولة أخيرة بإعداد بديل...';
         try {
           var result3 = await callFashnTryOn(client, personFile, garmentFile, 'one-pieces', 'flat-lay', 40, 2.0, 7);
@@ -9187,18 +9189,30 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
         }
         if (statusEl) statusEl.textContent = 'تم بنجاح ✅';
       } else {
-        var msg = 'تعذر الحصول على نتيجة بعد عدة محاولات.';
-        if (lastErr && lastErr.message) msg += ' (' + lastErr.message + ')';
-        msg += ' جرّب صورة أوضح للجسم أو حاول لاحقاً إذا السيرفر مشغول.';
-        if (statusEl) statusEl.textContent = msg;
+        if (statusEl) statusEl.textContent = lastErr ? humanizeVtoError(lastErr) : 'تعذر الحصول على نتيجة بعد عدة محاولات. جرّب لاحقاً إذا السيرفر مشغول.';
       }
     } catch (err) {
       console.error('VTO error:', err);
-      if (statusEl) statusEl.textContent = 'خطأ: ' + (err && err.message ? err.message : 'حاول مرة أخرى بعد قليل (قد يكون السيرفر مشغول)');
+      if (statusEl) statusEl.textContent = humanizeVtoError(err);
     } finally {
       if (btn) btn.disabled = false;
     }
   };
+
+  function humanizeVtoError(err) {
+    var msg = (err && (err.message || err.toString())) ? String(err.message || err) : '';
+    if (/ZeroGPU|exceeded your ZeroGPU|HF ZeroGPU|runs limit/i.test(msg) || /huggingface\.co\/settings\/tokens/i.test(msg)) {
+      return 'السيرفر المجاني خلص حصته دلوقتي (حد Hugging Face). حاول بعد ساعة أو غداً، أو سجّل حساب مجاني على Hugging Face عشان تزود الحصة.';
+    }
+    if (/quota|rate limit|429|too many/i.test(msg)) {
+      return 'السيرفر مشغول أو الحصة خلصت مؤقتاً. حاول بعد شوية.';
+    }
+    if (/Failed to fetch|NetworkError|network/i.test(msg)) {
+      return 'مشكلة في الاتصال. تأكد من الإنترنت وحاول تاني.';
+    }
+    if (msg) return 'خطأ: ' + msg;
+    return 'حاول مرة أخرى بعد قليل (قد يكون السيرفر مشغول)';
+  }
 
   function boot() {
       hookAuthFunctions();
