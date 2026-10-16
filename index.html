@@ -4318,6 +4318,23 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
 
           </div>
 
+          <!-- Virtual Try-On (controlled by admin toggle) -->
+          <div id="virtualTryOnBox" style="display:none;margin:14px 0 8px;padding:14px;border-radius:14px;border:1px solid rgba(139,63,82,.18);background:linear-gradient(160deg,#fff8fb,#fff);">
+            <div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:8px;font-size:14px;">👕 جرب المنتج عليك</div>
+            <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:10px;line-height:1.45;">ارفع صورتك وهنشوف المنتج عليك بشكل تقريبي باستخدام الذكاء الاصطناعي (مجاني).</div>
+            <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px;">صورتك (يفضل صورة كاملة للجسم):</label>
+            <input type="file" id="vtoPersonInput" accept="image/*" style="width:100%;margin-bottom:10px;font-size:12px;">
+            <label style="font-size:12px;font-weight:800;display:block;margin-bottom:4px;">نوع القطعة:</label>
+            <select id="vtoCategory" style="width:100%;margin-bottom:10px;padding:8px;border-radius:8px;border:1px solid #e0c8d2;font-size:13px;">
+              <option value="tops">بلوزة / تيشيرت / جاكيت</option>
+              <option value="bottoms">بنطلون / جيبة</option>
+              <option value="one-pieces">فستان / أوفرول</option>
+            </select>
+            <button type="button" id="vtoRunBtn" onclick="runVirtualTryOn()" style="width:100%;padding:11px 14px;border:none;border-radius:12px;background:linear-gradient(135deg,#8b3f52,#b75b72);color:#fff;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 6px 16px rgba(100,35,55,.16);">✨ جرب دلوقتي</button>
+            <div id="vtoStatus" style="margin-top:10px;font-size:12.5px;font-weight:800;color:var(--text-muted);"></div>
+            <img id="vtoResultImg" alt="نتيجة تجربة الملابس" style="display:none;max-width:100%;margin-top:12px;border-radius:12px;border:1px solid #ead0dc;">
+          </div>
+
           <button type="button" class="add-another-design-btn" onclick="addToCartAndContinue()">
             ＋ أضف هذا الشكل واختر شكلًا آخر
           </button>
@@ -8688,6 +8705,307 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
       }
     });
   </script>
+
+<script id="mysouq-virtual-tryon-feature">
+/* ===== My Souq: Virtual Try-On (FASHN VTON free) + Admin Toggle =====
+   - Toggle lives inside admin orders modal (same access as maintenance)
+   - Flag stored in Firestore: settings/features.virtual_tryon_enabled
+   - Does not remove or alter any existing feature
+*/
+(function () {
+  var VTO_COLLECTION = 'settings';
+  var VTO_DOC = 'features';
+  var VTO_LOCAL_KEY = 'mysouq_vto_enabled';
+  var vtoEnabledCache = null;
+
+  function isAdminNow() {
+    try { return typeof isAdminMode !== 'undefined' && !!isAdminMode; } catch (e) { return false; }
+  }
+
+  function getDb() {
+    try {
+      if (typeof db !== 'undefined' && db) return db;
+      if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
+        return firebase.firestore();
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  async function readVtoEnabled() {
+    var enabled = false;
+    var dbRef = getDb();
+    if (dbRef) {
+      try {
+        var snap = await dbRef.collection(VTO_COLLECTION).doc(VTO_DOC).get();
+        if (snap.exists) {
+          var data = snap.data() || {};
+          enabled = data.virtual_tryon_enabled === true;
+        }
+      } catch (e) {
+        console.warn('VTO read failed:', e);
+      }
+    }
+    if (!dbRef) {
+      try {
+        var local = JSON.parse(localStorage.getItem(VTO_LOCAL_KEY) || 'null');
+        if (local && typeof local.enabled === 'boolean') enabled = local.enabled;
+      } catch (e) {}
+    }
+    vtoEnabledCache = enabled;
+    updateVtoAdminUi(enabled);
+    syncVtoBoxVisibility();
+    return enabled;
+  }
+
+  function updateVtoAdminUi(enabled) {
+    var status = document.getElementById('vtoAdminStatus');
+    var btn = document.getElementById('vtoAdminToggle');
+    if (status) {
+      status.textContent = enabled ? '🟢 ميزة تجربة الملابس مفعّلة' : '🔴 ميزة تجربة الملابس متوقفة';
+    }
+    if (btn) {
+      btn.textContent = enabled ? 'إيقاف تجربة الملابس' : 'تشغيل تجربة الملابس';
+      btn.className = 'maintenance-toggle-btn ' + (enabled ? 'on' : 'off');
+    }
+  }
+
+  function syncVtoBoxVisibility() {
+    var box = document.getElementById('virtualTryOnBox');
+    if (!box) return;
+    var on = vtoEnabledCache === true;
+    box.style.display = on ? 'block' : 'none';
+  }
+
+  window.toggleVirtualTryOn = async function () {
+    if (!isAdminNow()) {
+      alert('يجب تسجيل الدخول كمسؤول أولاً.');
+      return;
+    }
+    var dbRef = getDb();
+    if (!dbRef) {
+      alert('Firebase غير متاح حالياً.');
+      return;
+    }
+    var current = false;
+    try {
+      var snap = await dbRef.collection(VTO_COLLECTION).doc(VTO_DOC).get();
+      if (snap.exists) current = !!(snap.data() || {}).virtual_tryon_enabled;
+    } catch (e) {}
+    var next = !current;
+    var payload = {
+      virtual_tryon_enabled: next,
+      updatedAt: new Date().toISOString()
+    };
+    try {
+      await dbRef.collection(VTO_COLLECTION).doc(VTO_DOC).set(payload, { merge: true });
+    } catch (e) {
+      alert('تعذر حفظ إعداد تجربة الملابس على السحابة.\nتأكد من قواعد Firestore.\n' + (e && e.message ? e.message : ''));
+      return;
+    }
+    try { localStorage.setItem(VTO_LOCAL_KEY, JSON.stringify({ enabled: next })); } catch (e) {}
+    vtoEnabledCache = next;
+    updateVtoAdminUi(next);
+    syncVtoBoxVisibility();
+    alert(next ? 'تم تشغيل ميزة تجربة الملابس ✅' : 'تم إيقاف ميزة تجربة الملابس ✅');
+  };
+
+  function injectVtoAdminControl() {
+    if (document.getElementById('vtoAdminBox')) return;
+    var modal = document.getElementById('adminOrdersModal');
+    if (!modal) return;
+    var after = document.getElementById('maintenanceAdminBox');
+    var logout = document.getElementById('adminLogoutBtn');
+    var wrap = document.createElement('div');
+    wrap.id = 'vtoAdminBox';
+    wrap.className = 'maintenance-admin-box';
+    wrap.style.marginTop = '8px';
+    wrap.innerHTML =
+      '<div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:7px;">👕 تجربة الملابس (Virtual Try-On)</div>' +
+      '<div class="maintenance-admin-row">' +
+      '  <span id="vtoAdminStatus" style="font-size:12px;font-weight:800;">جاري قراءة الحالة...</span>' +
+      '  <button id="vtoAdminToggle" type="button" class="maintenance-toggle-btn off" onclick="toggleVirtualTryOn()">تشغيل تجربة الملابس</button>' +
+      '</div>' +
+      '<div style="font-size:10.5px;color:var(--text-muted);margin-top:6px;">عند تشغيله يظهر زر «جرب المنتج عليك» داخل تفاصيل المنتج للعملاء.</div>';
+    if (after && after.parentNode) {
+      after.parentNode.insertBefore(wrap, after.nextSibling);
+    } else if (logout && logout.parentNode) {
+      logout.parentNode.insertBefore(wrap, logout.nextSibling);
+    } else {
+      var header = document.getElementById('adminOrdersHeader');
+      if (header && header.parentNode) header.parentNode.insertBefore(wrap, header.nextSibling);
+    }
+    readVtoEnabled();
+  }
+
+  // Re-inject when admin modal opens
+  function watchAdminModal() {
+    var modal = document.getElementById('adminOrdersModal');
+    if (!modal) return;
+    var obs = new MutationObserver(function () {
+      if (modal.classList.contains('active')) {
+        injectVtoAdminControl();
+        readVtoEnabled();
+      }
+    });
+    obs.observe(modal, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  // When product modal opens, refresh visibility
+  function watchProductModal() {
+    var modal = document.getElementById('productModal');
+    if (!modal) return;
+    var obs = new MutationObserver(function () {
+      if (modal.classList.contains('active') || modal.style.display === 'flex') {
+        if (vtoEnabledCache === null) readVtoEnabled();
+        else syncVtoBoxVisibility();
+        // reset result UI
+        var status = document.getElementById('vtoStatus');
+        var img = document.getElementById('vtoResultImg');
+        var input = document.getElementById('vtoPersonInput');
+        if (status) status.textContent = '';
+        if (img) { img.style.display = 'none'; img.removeAttribute('src'); }
+        if (input) input.value = '';
+      }
+    });
+    obs.observe(modal, { attributes: true, attributeFilter: ['class', 'style'] });
+  }
+
+  // Hook openProductModal if available
+  function hookOpenProductModal() {
+    if (typeof window.openProductModal !== 'function' || window.openProductModal._vtoHooked) return;
+    var orig = window.openProductModal;
+    window.openProductModal = function () {
+      var r = orig.apply(this, arguments);
+      setTimeout(function () {
+        if (vtoEnabledCache === null) readVtoEnabled();
+        else syncVtoBoxVisibility();
+      }, 50);
+      return r;
+    };
+    window.openProductModal._vtoHooked = true;
+  }
+
+  window.runVirtualTryOn = async function () {
+    if (vtoEnabledCache !== true) {
+      alert('ميزة تجربة الملابس غير مفعّلة حالياً.');
+      return;
+    }
+    var personInput = document.getElementById('vtoPersonInput');
+    var categoryEl = document.getElementById('vtoCategory');
+    var statusEl = document.getElementById('vtoStatus');
+    var resultImg = document.getElementById('vtoResultImg');
+    var btn = document.getElementById('vtoRunBtn');
+    if (!personInput || !personInput.files || !personInput.files[0]) {
+      if (statusEl) statusEl.textContent = 'من فضلك ارفع صورتك أولاً';
+      return;
+    }
+    var garmentUrl = null;
+    try {
+      if (typeof currentSelectedProduct !== 'undefined' && currentSelectedProduct) {
+        garmentUrl = (currentSelectedProduct.images && currentSelectedProduct.images[0]) || currentSelectedProduct.image || null;
+      }
+      var modalImg = document.getElementById('modalImage');
+      if (!garmentUrl && modalImg && modalImg.src) garmentUrl = modalImg.src;
+    } catch (e) {}
+    if (!garmentUrl) {
+      if (statusEl) statusEl.textContent = 'تعذر تحديد صورة المنتج';
+      return;
+    }
+
+    if (btn) btn.disabled = true;
+    if (statusEl) statusEl.textContent = 'جاري تجهيز الصورة... قد تستغرق 20–45 ثانية';
+    if (resultImg) { resultImg.style.display = 'none'; resultImg.removeAttribute('src'); }
+
+    try {
+      // Fetch garment as blob
+      var gRes = await fetch(garmentUrl, { mode: 'cors' }).catch(function () { return null; });
+      var garmentBlob;
+      if (gRes && gRes.ok) {
+        garmentBlob = await gRes.blob();
+      } else {
+        // fallback: try without cors via image element canvas (may fail cross-origin)
+        garmentBlob = await new Promise(function (resolve, reject) {
+          var im = new Image();
+          im.crossOrigin = 'anonymous';
+          im.onload = function () {
+            try {
+              var c = document.createElement('canvas');
+              c.width = im.naturalWidth; c.height = im.naturalHeight;
+              c.getContext('2d').drawImage(im, 0, 0);
+              c.toBlob(function (b) { b ? resolve(b) : reject(new Error('blob fail')); }, 'image/jpeg', 0.92);
+            } catch (err) { reject(err); }
+          };
+          im.onerror = function () { reject(new Error('image load fail')); };
+          im.src = garmentUrl;
+        }).catch(function () { return null; });
+      }
+      if (!garmentBlob) {
+        throw new Error('تعذر تحميل صورة المنتج. جرب صورة منتج من نفس الموقع.');
+      }
+
+      var personFile = personInput.files[0];
+      var category = (categoryEl && categoryEl.value) || 'tops';
+
+      // Dynamic import Gradio client
+      var mod = await import('https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js');
+      var Client = mod.Client;
+      var client = await Client.connect('fashn-ai/fashn-vton-1.5');
+
+      var result = await client.predict('/try_on', {
+        person_image: personFile,
+        garment_image: garmentBlob,
+        category: category,
+        garment_photo_type: 'model',
+        num_timesteps: 30,
+        guidance_scale: 2.0,
+        seed: 42,
+        segmentation_free: true
+      });
+
+      var imageUrl = null;
+      if (result && result.data) {
+        var d0 = result.data[0];
+        if (typeof d0 === 'string') imageUrl = d0;
+        else if (d0 && d0.url) imageUrl = d0.url;
+        else if (Array.isArray(d0) && d0[0]) imageUrl = (typeof d0[0] === 'string' ? d0[0] : d0[0].url);
+      }
+      if (imageUrl) {
+        if (resultImg) {
+          resultImg.src = imageUrl;
+          resultImg.style.display = 'block';
+        }
+        if (statusEl) statusEl.textContent = 'تم بنجاح ✅';
+      } else {
+        if (statusEl) statusEl.textContent = 'اكتملت المعالجة لكن لم نحصل على صورة. حاول مرة أخرى.';
+      }
+    } catch (err) {
+      console.error('VTO error:', err);
+      if (statusEl) statusEl.textContent = 'خطأ: ' + (err && err.message ? err.message : 'حاول مرة أخرى بعد قليل (قد يكون السيرفر مشغول)');
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  };
+
+  function boot() {
+    watchAdminModal();
+    watchProductModal();
+    hookOpenProductModal();
+    // initial read
+    setTimeout(readVtoEnabled, 800);
+    setTimeout(injectVtoAdminControl, 1200);
+    // retry hook in case script.js loads later
+    setTimeout(hookOpenProductModal, 2000);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+
 </body>
 </html>
 
