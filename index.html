@@ -4222,11 +4222,11 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
 
             <label style="font-size:12px;font-weight:800;display:block;margin-bottom:5px;color:#5a3040;">نوع القطعة <span style="font-weight:700;color:var(--text-muted);font-size:11px;">(مهم لجودة النتيجة)</span></label>
             <select id="vtoCategory" style="width:100%;margin-bottom:8px;padding:10px 12px;border-radius:12px;border:1px solid #e6ccd6;font-size:13px;background:#fff;color:#432b36;box-sizing:border-box;">
-              <option value="one-pieces">طقم كامل (تيشيرت + بنطلون / فستان)</option>
+              <option value="one-pieces">قطعة واحدة / طقم (حسب قدرة المحرك)</option>
               <option value="tops">بلوزة / تيشيرت / جاكيت فقط</option>
               <option value="bottoms">بنطلون / جيبة فقط</option>
             </select>
-            <div style="font-size:10.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.4;">لو المنتج طقم كامل اختار «طقم كامل» عشان البنطلون يظهر بالكامل.</div>
+            <div style="font-size:10.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.4;">اختَر الفئة الأقرب للصورة. قد لا يحافظ المحرك على تفاصيل الطقم المكوّن من قطعتين بدقة كاملة.</div>
 
             <button type="button" id="vtoRunBtn" onclick="runVirtualTryOn()" style="width:100%;padding:12px 14px;border:none;border-radius:13px;background:linear-gradient(135deg,#7a3548,#b75b72);color:#fff;font-weight:900;font-size:14.5px;cursor:pointer;box-shadow:0 8px 18px rgba(100,35,55,.18);letter-spacing:-.2px;">✨ جرب دلوقتي</button>
             <div id="vtoStatus" style="margin-top:10px;font-size:12.5px;font-weight:800;color:var(--text-muted);line-height:1.4;"></div>
@@ -9085,7 +9085,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
     });
   }
 
-  window.runVirtualTryOn = async function () {
+  window.runVirtualTryOnImproved = async function () {
     if (vtoEnabledCache !== true) {
       alert('ميزة تجربة الملابس غير مفعّلة حالياً.');
       return;
@@ -9126,19 +9126,8 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
       var personFile = await preprocessImageBlob(personRaw, 1024, { filename: 'person.jpg', quality: 0.92 });
       var garmentFile = await preprocessImageBlob(garmentRaw, 1024, { filename: 'garment.jpg', quality: 0.93 });
 
+      // احترم الفئة التي اختارها المستخدم؛ لا نخمن نوع القطعة من اسم المنتج.
       var category = (categoryEl && categoryEl.value) || 'one-pieces';
-      try {
-        var p = (typeof currentSelectedProduct !== 'undefined') ? currentSelectedProduct : null;
-        var title = ((p && (p.title || p.name || p.productName)) || '') + ' ' + ((p && p.desc) || '');
-        title = String(title).toLowerCase();
-        if (!categoryEl || !categoryEl.dataset.userTouched) {
-          if (/طقم|set|pajamas|بيجام|بدلة|اوفرول|أوفرول|فستان/.test(title) ||
-              (p && p.images && p.images.length && /بنطلون|pants|trousers/.test(title))) {
-            category = 'one-pieces';
-            if (categoryEl) categoryEl.value = 'one-pieces';
-          }
-        }
-      } catch (e) {}
 
       if (statusEl) statusEl.textContent = 'المحاولة 1 من 2... قد تستغرق 30–60 ثانية';
 
@@ -10982,121 +10971,9 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
     window.openProductModal._vtoHooked = true;
   }
 
-  window.runVirtualTryOn = async function () {
-    if (vtoEnabledCache !== true) {
-      alert('ميزة تجربة الملابس غير مفعّلة حالياً.');
-      return;
-    }
-    var personInput = document.getElementById('vtoPersonInput');
-    var categoryEl = document.getElementById('vtoCategory');
-    var statusEl = document.getElementById('vtoStatus');
-    var resultImg = document.getElementById('vtoResultImg');
-    var btn = document.getElementById('vtoRunBtn');
-    if (!personInput || !personInput.files || !personInput.files[0]) {
-      if (statusEl) statusEl.textContent = 'من فضلك ارفع صورتك أولاً';
-      return;
-    }
-    var garmentUrl = null;
-    try {
-      if (typeof currentSelectedProduct !== 'undefined' && currentSelectedProduct) {
-        garmentUrl = (currentSelectedProduct.images && currentSelectedProduct.images[0]) || currentSelectedProduct.image || null;
-      }
-      var modalImg = document.getElementById('modalImage');
-      if (!garmentUrl && modalImg && modalImg.src) garmentUrl = modalImg.src;
-    } catch (e) {}
-    if (!garmentUrl) {
-      if (statusEl) statusEl.textContent = 'تعذر تحديد صورة المنتج';
-      return;
-    }
-
-    if (btn) btn.disabled = true;
-    if (statusEl) statusEl.textContent = 'جاري إنشاء صورة عالية الجودة... قد تستغرق 30–60 ثانية';
-    if (resultImg) { resultImg.style.display = 'none'; resultImg.removeAttribute('src'); }
-
-    try {
-      // Fetch garment as blob
-      var gRes = await fetch(garmentUrl, { mode: 'cors' }).catch(function () { return null; });
-      var garmentBlob;
-      if (gRes && gRes.ok) {
-        garmentBlob = await gRes.blob();
-      } else {
-        // fallback: try without cors via image element canvas (may fail cross-origin)
-        garmentBlob = await new Promise(function (resolve, reject) {
-          var im = new Image();
-          im.crossOrigin = 'anonymous';
-          im.onload = function () {
-            try {
-              var c = document.createElement('canvas');
-              c.width = im.naturalWidth; c.height = im.naturalHeight;
-              c.getContext('2d').drawImage(im, 0, 0);
-              c.toBlob(function (b) { b ? resolve(b) : reject(new Error('blob fail')); }, 'image/jpeg', 0.92);
-            } catch (err) { reject(err); }
-          };
-          im.onerror = function () { reject(new Error('image load fail')); };
-          im.src = garmentUrl;
-        }).catch(function () { return null; });
-      }
-      if (!garmentBlob) {
-        throw new Error('تعذر تحميل صورة المنتج. جرب صورة منتج من نفس الموقع.');
-      }
-
-      var personFile = personInput.files[0];
-      var category = (categoryEl && categoryEl.value) || 'one-pieces';
-
-      // Auto-hint: if product looks like a full set, prefer one-pieces
-      try {
-        var p = (typeof currentSelectedProduct !== 'undefined') ? currentSelectedProduct : null;
-        var title = ((p && (p.title || p.name || p.productName)) || '') + ' ' + ((p && p.desc) || '');
-        title = String(title).toLowerCase();
-        if (!categoryEl || !categoryEl.dataset.userTouched) {
-          if (/طقم|طقم|set|pajamas|بيجام|بيجاما|بدلة|اوفرول|أوفرول|فستان/.test(title) ||
-              (p && p.images && p.images.length && /بنطلون|pants|trousers/.test(title))) {
-            category = 'one-pieces';
-            if (categoryEl) categoryEl.value = 'one-pieces';
-          }
-        }
-      } catch (e) {}
-
-      // Dynamic import Gradio client
-      var mod = await import('https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js');
-      var Client = mod.Client;
-      var client = await Client.connect('fashn-ai/fashn-vton-1.5');
-
-      // flat-lay: صور المنتجات عندنا غالباً مفرودة مش على موديل
-      // guidance أقل شوية يحافظ على إضاءة صورة العميل أكتر
-      var result = await client.predict('/try_on', {
-        person_image: personFile,
-        garment_image: garmentBlob,
-        category: category,
-        garment_photo_type: 'flat-lay',
-        num_timesteps: 50,
-        guidance_scale: 1.8,
-        seed: 42,
-        segmentation_free: true
-      });
-
-      var imageUrl = null;
-      if (result && result.data) {
-        var d0 = result.data[0];
-        if (typeof d0 === 'string') imageUrl = d0;
-        else if (d0 && d0.url) imageUrl = d0.url;
-        else if (Array.isArray(d0) && d0[0]) imageUrl = (typeof d0[0] === 'string' ? d0[0] : d0[0].url);
-      }
-      if (imageUrl) {
-        if (resultImg) {
-          resultImg.src = imageUrl;
-          resultImg.style.display = 'block';
-        }
-        if (statusEl) statusEl.textContent = 'تم بنجاح ✅';
-      } else {
-        if (statusEl) statusEl.textContent = 'اكتملت المعالجة لكن لم نحصل على صورة. حاول مرة أخرى.';
-      }
-    } catch (err) {
-      console.error('VTO error:', err);
-      if (statusEl) statusEl.textContent = 'خطأ: ' + (err && err.message ? err.message : 'حاول مرة أخرى بعد قليل (قد يكون السيرفر مشغول)');
-    } finally {
-      if (btn) btn.disabled = false;
-    }
+  window.runVirtualTryOn = function () {
+    // استخدم التنفيذ المحسّن الوحيد لتجنب استبداله بتعريف قديم.
+    return window.runVirtualTryOnImproved();
   };
 
   function boot() {
