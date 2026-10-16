@@ -8785,6 +8785,8 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
     if (!box) return;
     var on = vtoEnabledCache === true;
     box.style.display = on ? 'block' : 'none';
+    if (on) box.classList.add('vto-visible');
+    else box.classList.remove('vto-visible');
   }
 
   window.toggleVirtualTryOn = async function () {
@@ -11320,6 +11322,72 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
   }
 })();
 </script>
+
+
+<style id="mysouq-vto-layout-fix">
+/* Place try-on under product image, full width of gallery column */
+#productModal #virtualTryOnBox {
+  grid-area: tryon !important;
+  display: none; /* JS toggles to block when enabled */
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 14px 14px 16px !important;
+  border-radius: 16px !important;
+  writing-mode: horizontal-tb !important;
+  direction: rtl !important;
+  text-orientation: mixed !important;
+  white-space: normal !important;
+  position: relative !important;
+  z-index: 4 !important;
+  overflow: visible !important;
+}
+#productModal #virtualTryOnBox[style*="display: block"],
+#productModal #virtualTryOnBox.vto-visible {
+  display: block !important;
+}
+#productModal #virtualTryOnBox * {
+  writing-mode: horizontal-tb !important;
+  direction: rtl !important;
+  white-space: normal !important;
+}
+#productModal #virtualTryOnBox #vtoUploadLabel {
+  min-height: 84px !important;
+}
+#productModal #virtualTryOnBox #vtoResultImg {
+  max-height: 320px !important;
+  object-fit: contain !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  display: block !important;
+}
+
+/* Larger main product image, leave room for try-on below */
+#productModal .modal-img,
+#productModal #modalImage {
+  min-height: 320px !important;
+}
+@media (min-width: 720px) {
+  #productModal .modal-img,
+  #productModal #modalImage {
+    min-height: 420px !important;
+    max-height: min(58vh, 560px) !important;
+    height: min(58vh, 560px) !important;
+  }
+  #productModal .modal-gallery-wrapper {
+    max-height: calc(96vh - 16px) !important;
+  }
+}
+@media (max-width: 719px) {
+  #productModal .modal-img,
+  #productModal #modalImage {
+    min-height: 260px !important;
+    max-height: 42vh !important;
+    height: 42vh !important;
+  }
+}
+</style>
 
 </body>
 </html>
@@ -15703,11 +15771,15 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   #productModal .modal-gallery-wrapper,
   html[dir="rtl"] #productModal .modal-gallery-wrapper {
     grid-template-columns: 1fr !important;
+    grid-template-rows: auto auto auto auto !important;
     grid-template-areas:
       "main"
       "thumbs"
-      "nav" !important;
+      "nav"
+      "tryon" !important;
     max-height: none !important;
+    height: auto !important;
+    padding: 10px 10px 12px !important;
   }
   #productModal .modal-img,
   #productModal #modalImage {
@@ -15963,21 +16035,26 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
 #productModal .modal-gallery-wrapper {
   display: grid !important;
   grid-template-columns: 1fr 92px !important;
-  grid-template-rows: 1fr auto !important;
+  grid-template-rows: minmax(280px, 1fr) auto auto !important;
   grid-template-areas:
     "main thumbs"
-    "nav nav" !important;
-  gap: 14px !important;
+    "nav nav"
+    "tryon tryon" !important;
+  gap: 12px !important;
   min-height: 0 !important;
   height: 100% !important;
-  max-height: calc(94vh - 48px) !important;
+  max-height: calc(96vh - 24px) !important;
   align-items: stretch !important;
+  overflow-y: auto !important;
+  padding: 12px 12px 14px !important;
+  box-sizing: border-box !important;
 }
 html[dir="rtl"] #productModal .modal-gallery-wrapper {
   grid-template-columns: 92px 1fr !important;
   grid-template-areas:
     "thumbs main"
-    "nav nav" !important;
+    "nav nav"
+    "tryon tryon" !important;
 }
 
 /* Main image — fill remaining space, soft corners */
