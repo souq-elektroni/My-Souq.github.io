@@ -4453,8 +4453,11 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
 
         <div class="form-group">
           <label for="custDetailedAddress">العنوان بالتفصيل * <span style="font-size:11px;font-weight:700;color:#b42332;margin-right:6px;">— يجب ملء الحقول الموضحة</span></label>
-          <textarea id="custDetailedAddress" rows="2" placeholder="الشارع، رقم العقار، الدور، علامة مميزة" autocomplete="off" oninput="checkFormCompletion()"></textarea>
+          <textarea id="custDetailedAddress" rows="2" placeholder="الشارع، رقم العقار، الدور، علامة مميزة" autocomplete="off" oninput="if(window.mysouqSyncCheckoutAddress)window.mysouqSyncCheckoutAddress(); checkFormCompletion()"></textarea>
         </div>
+
+        <!-- Compatibility field: the original checkout script still reads #custAddress. -->
+        <input type="hidden" id="custAddress" name="address" value="">
 
         <div class="form-group" id="mysouqMapAddressBox">
           <label>📍 تحديد موقع التوصيل على الخريطة</label>
@@ -4465,6 +4468,11 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
             <button type="button" id="mysouqClearMapBtn">مسح الموقع</button>
           </div>
           <div id="mysouqMapStatus" aria-live="polite">لم يتم تحديد موقع بعد. يمكنك تحديده يدويًا على الخريطة.</div>
+          <div class="mysouq-coordinates-field" style="margin-top:10px;padding:10px 12px;border:1px solid #e6cbd3;border-radius:12px;background:#fff;">
+            <label for="mysouqCoordinatesDisplay" style="display:block;font-weight:900;font-size:12px;margin-bottom:6px;color:var(--burgundy-soft,#8b3f52);">📍 إحداثيات موقع التوصيل (خط العرض، خط الطول)</label>
+            <input type="text" id="mysouqCoordinatesDisplay" value="" readonly placeholder="ستظهر الإحداثيات هنا بعد تحديد الموقع" aria-live="polite" style="display:block;width:100%;min-height:42px;padding:9px 11px;border:1px solid #e6d8dc;border-radius:9px;background:#faf7f8;color:#382a30;font-weight:800;direction:ltr;text-align:center;" />
+            <a id="mysouqCoordinatesMapLink" href="#" target="_blank" rel="noopener noreferrer" style="display:none;margin-top:7px;color:#8b3f52;font-size:12px;font-weight:900;">🗺️ فتح الإحداثيات على Google Maps</a>
+          </div>
           <input type="hidden" id="mysouqLatitude" name="latitude" value="">
           <input type="hidden" id="mysouqLongitude" name="longitude" value="">
         </div>
@@ -4949,6 +4957,31 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
       try { saved = localStorage.getItem(THEME_KEY); } catch(e) {}
       applyTheme(saved || 'rose');
     })();
+  </script>
+
+  <script id="mysouq-checkout-address-compat-v1">
+  (function(){
+    function el(id){return document.getElementById(id);}
+    function sync(){
+      var out=el('custAddress'),gov=el('custGovernorate'),city=el('custCity'),detail=el('custDetailedAddress'),lat=el('mysouqLatitude'),lon=el('mysouqLongitude');
+      if(!out)return '';
+      var parts=[];
+      if(gov&&gov.value.trim())parts.push(gov.value.trim());
+      if(city&&city.value.trim())parts.push(city.value.trim());
+      if(detail&&detail.value.trim())parts.push(detail.value.trim());
+      var base=parts.join('، ');
+      var la=lat&&lat.value.trim(),lo=lon&&lon.value.trim();
+      if(la&&lo){var mapUrl='https://maps.google.com/?q='+encodeURIComponent(la+','+lo);base+='\n[موقع التوصيل GPS: '+la+', '+lo+']\n🔗 الخريطة: '+mapUrl;}
+      out.value=base;
+      if(typeof window.checkFormCompletion==='function')window.checkFormCompletion();
+      return base;
+    }
+    window.mysouqSyncCheckoutAddress=sync;
+    ['custGovernorate','custCity','custDetailedAddress','mysouqLatitude','mysouqLongitude'].forEach(function(id){var node=el(id);if(node){node.addEventListener('input',sync);node.addEventListener('change',sync);}});
+    document.addEventListener('DOMContentLoaded',sync);
+    window.addEventListener('pageshow',sync);
+    sync();
+  })();
   </script>
 
   <script src="script.js"></script>
@@ -7378,12 +7411,19 @@ html body #productModal .share-btn{order:4!important;}
 (function(){
   var mapEl=document.getElementById('mysouqDeliveryMap');
   if(!mapEl || typeof L==='undefined'){return;}
+  // The legacy page contains a duplicate copy of this map script; do not initialize Leaflet twice.
+  if(mapEl._leaflet_id){return;}
   var map=L.map(mapEl,{scrollWheelZoom:false}).setView([26.8206,30.8025],6);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
   var marker=null, latInput=document.getElementById('mysouqLatitude'), lonInput=document.getElementById('mysouqLongitude'), status=document.getElementById('mysouqMapStatus');
   function setLocation(lat,lon,source){
     lat=Number(lat);lon=Number(lon);if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat < -90||lat > 90||lon < -180||lon > 180)return;
     latInput.value=lat.toFixed(6);lonInput.value=lon.toFixed(6);
+    var coordDisplay=document.getElementById('mysouqCoordinatesDisplay');
+    var coordLink=document.getElementById('mysouqCoordinatesMapLink');
+    if(coordDisplay)coordDisplay.value=latInput.value+', '+lonInput.value;
+    if(coordLink){coordLink.href='https://maps.google.com/?q='+encodeURIComponent(latInput.value+','+lonInput.value);coordLink.style.display='inline-block';}
+    if(typeof window.mysouqSyncCheckoutAddress==='function')window.mysouqSyncCheckoutAddress();
     if(marker){marker.setLatLng([lat,lon]);}else{marker=L.marker([lat,lon],{draggable:true}).addTo(map);marker.on('dragend',function(){var p=marker.getLatLng();setLocation(p.lat,p.lng,'تم تعديل الموقع يدويًا');});}
     map.setView([lat,lon],16);status.textContent=source+': '+lat.toFixed(6)+', '+lon.toFixed(6)+' — سيتم إرفاق الإحداثيات بالعنوان عند إرسال الطلب.';
     var detail=document.getElementById('custDetailedAddress');if(detail && typeof window.checkFormCompletion==='function')window.checkFormCompletion();
@@ -7396,7 +7436,7 @@ html body #productModal .share-btn{order:4!important;}
     status.textContent='جارٍ تحديد موقعك… اسمح للمتصفح بالوصول إلى الموقع إذا طُلب منك ذلك.';
     navigator.geolocation.getCurrentPosition(function(pos){setLocation(pos.coords.latitude,pos.coords.longitude,'تم تحديد موقعك عبر GPS');},function(err){var msg=err.code===1?'لم تسمح بالوصول للموقع. يمكنك اختيار المكان يدويًا على الخريطة.':err.code===2?'تعذر تحديد الموقع الحالي. جرّب تشغيل GPS أو اختر المكان يدويًا.':'انتهت مهلة تحديد الموقع. جرّب مرة أخرى أو اختر المكان يدويًا.';status.textContent=msg;},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
   });
-  document.getElementById('mysouqClearMapBtn').addEventListener('click',function(){if(marker){map.removeLayer(marker);marker=null;}latInput.value='';lonInput.value='';status.textContent='تم مسح الموقع. يمكنك اختيار مكان على الخريطة أو استخدام GPS.';});
+  document.getElementById('mysouqClearMapBtn').addEventListener('click',function(){if(marker){map.removeLayer(marker);marker=null;}latInput.value='';lonInput.value='';var coordDisplay=document.getElementById('mysouqCoordinatesDisplay');var coordLink=document.getElementById('mysouqCoordinatesMapLink');if(coordDisplay)coordDisplay.value='';if(coordLink){coordLink.removeAttribute('href');coordLink.style.display='none';}if(typeof window.mysouqSyncCheckoutAddress==='function')window.mysouqSyncCheckoutAddress();status.textContent='تم مسح الموقع. يمكنك اختيار مكان على الخريطة أو استخدام GPS.';});
   // Include coordinates in the existing address field so current order-save/admin display flows retain them.
   var form=document.getElementById('customerFormBox');
   if(form){form.addEventListener('submit',function(){appendCoordinates();},true);}
@@ -9106,21 +9146,8 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
   }
 
   window.runVirtualTryOnImproved = async function () {
-    // لا تفحص حالة التفعيل قبل اكتمال قراءة Firebase؛ فتح نافذة المنتج
-    // يقرأ الحالة بشكل غير متزامن وقد يضغط العميل الزر قبل وصول النتيجة.
-    if (vtoEnabledCache === null) {
-      try { await readVtoEnabled(); } catch (e) {
-        console.warn('VTO activation refresh failed:', e);
-      }
-    }
     if (vtoEnabledCache !== true) {
-      // إعادة قراءة واحدة لتفادي حالة قديمة من الكاش.
-      try { await readVtoEnabled(); } catch (e) {}
-    }
-    if (vtoEnabledCache !== true) {
-      var disabledStatus = document.getElementById('vtoStatus');
-      if (disabledStatus) disabledStatus.textContent = 'الميزة غير مفعّلة في إعدادات الموقع. حدّث الصفحة وحاول مرة أخرى.';
-      alert('ميزة تجربة الملابس غير مفعّلة حالياً. إذا كانت مفعّلة في الإدارة، حدّث الصفحة ثم حاول مرة أخرى.');
+      alert('ميزة تجربة الملابس غير مفعّلة حالياً.');
       return;
     }
     var personInput = document.getElementById('vtoPersonInput');
