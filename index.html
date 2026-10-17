@@ -15732,9 +15732,12 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   }
   function moveInjectedPanels(){
     var cancel=document.getElementById('cancelRequestsAdminPanel'), maint=document.getElementById('maintenanceAdminBox');
+    var exchange=document.getElementById('msqExchangeAdminPanel');
     var cp=document.querySelector('#msqAdminTabContent [data-pane="cancel"]'), mp=document.querySelector('#msqAdminTabContent [data-pane="maintenance"]');
+    var ep=document.querySelector('#msqAdminTabContent [data-pane="exchanges"]');
     if(cancel&&cp&&cancel.parentElement!==cp)cp.appendChild(cancel);
     if(maint&&mp&&maint.parentElement!==mp)mp.appendChild(maint);
+    if(exchange&&ep&&exchange.parentElement!==ep)ep.appendChild(exchange);
   }
   function setTab(tab){
     activeTab=tab;
@@ -15743,8 +15746,10 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
     if(tab==='open'){if(typeof window.filterAdminOrders==='function')window.filterAdminOrders();}
     if(tab==='delivered')renderDelivered();
     if(tab==='cancel'&&typeof window.loadAdminCancelRequests==='function')window.loadAdminCancelRequests();
+    if(tab==='exchanges'&&typeof window.msqLoadExchangeRequests==='function')window.msqLoadExchangeRequests();
     moveInjectedPanels();
   }
+  window.msqSetAdminTab = setTab;
   function renderDelivered(){
     var box=document.getElementById('msqDeliveredList');if(!box)return;
     var q=(document.getElementById('msqDeliveredSearch')||{}).value||'';
@@ -18364,37 +18369,66 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
     var modal = document.getElementById('adminOrdersModal');
     if (!modal) return;
 
-    // Panel near cancel panel
-    if (!document.getElementById('msqExchangeAdminPanel')) {
-      var panel = document.createElement('div');
+    // 1) Create panel content (hidden until its tab is active)
+    var panel = document.getElementById('msqExchangeAdminPanel');
+    if (!panel) {
+      panel = document.createElement('div');
       panel.id = 'msqExchangeAdminPanel';
       panel.innerHTML =
         '<div class="ex-admin-heading">🔄 طلبات الاستبدال (عيب مصنع) <span id="msqExchangeCount" style="display:none;background:#c9a227;color:#fff;border-radius:99px;padding:2px 8px;margin-inline-start:5px">0</span></div>'+
-        '<div id="msqExchangeAdminList" style="font-size:12px;color:#765b5b">اضغط تحديث لعرض الطلبات.</div>'+
-        '<button type="button" id="msqRefreshExchanges" style="margin-top:8px;border:0;border-radius:8px;background:#8a6a00;color:#fff;padding:8px 10px;font-weight:800;cursor:pointer">تحديث الاستبدالات</button>';
-      var cancelPanel = document.getElementById('cancelRequestsAdminPanel');
-      if (cancelPanel && cancelPanel.parentNode) cancelPanel.parentNode.insertBefore(panel, cancelPanel.nextSibling);
-      else {
-        var header = document.getElementById('adminOrdersHeader');
-        if (header && header.parentNode) header.parentNode.insertBefore(panel, header.nextSibling);
-      }
-      var refBtn = document.getElementById('msqRefreshExchanges');
-      if (refBtn) refBtn.addEventListener('click', loadExchangeRequests);
+        '<p style="font-size:12px;color:#7a6a40;line-height:1.7;margin:0 0 10px">هنا تظهر طلبات العملاء بعد الاستلام عند وجود عيب مصنع، مع الصور.</p>'+
+        '<div id="msqExchangeAdminList" style="font-size:12px;color:#765b5b">اضغط التبويب أو زر التحديث لعرض الطلبات.</div>'+
+        '<button type="button" id="msqRefreshExchanges" style="margin-top:10px;border:0;border-radius:10px;background:#8a6a00;color:#fff;padding:10px 14px;font-weight:800;cursor:pointer;width:100%">تحديث الاستبدالات</button>';
     }
 
-    // Tab button if tabs exist
+    // 2) Ensure a dedicated tab pane
+    var wrap = document.getElementById('msqAdminTabContent');
     var tabs = document.getElementById('msqAdminTabs');
+    if (wrap) {
+      var pane = wrap.querySelector('[data-pane="exchanges"]');
+      if (!pane) {
+        pane = document.createElement('section');
+        pane.className = 'msq-tab-pane';
+        pane.dataset.pane = 'exchanges';
+        wrap.appendChild(pane);
+      }
+      if (panel.parentElement !== pane) pane.appendChild(panel);
+    }
+
+    // 3) Tab button beside the others (not a floating box)
     if (tabs && !tabs.querySelector('[data-tab="exchanges"]')) {
       var b = document.createElement('button');
       b.type = 'button';
-      b.setAttribute('data-tab','exchanges');
-      b.innerHTML = '🔄 الاستبدالات <span class="msq-ex-badge" style="display:none;background:#fff;color:#8a6a00;border-radius:99px;padding:0 6px;margin-right:4px;font-size:10px"></span>';
+      b.setAttribute('data-tab', 'exchanges');
+      b.innerHTML = '🔄 الاستبدالات <span class="msq-ex-badge" style="display:none;background:#fff;color:#8a6a00;border-radius:99px;padding:0 6px;margin-right:4px;font-size:10px;font-weight:900"></span>';
       tabs.appendChild(b);
       b.addEventListener('click', function(){
+        // Prefer official setTab if available
+        if (typeof window.msqSetAdminTab === 'function') {
+          window.msqSetAdminTab('exchanges');
+        } else {
+          document.querySelectorAll('#msqAdminTabs button').forEach(function(btn){
+            btn.classList.toggle('active', btn.getAttribute('data-tab') === 'exchanges');
+          });
+          document.querySelectorAll('#msqAdminTabContent .msq-tab-pane').forEach(function(p){
+            p.classList.toggle('active', p.getAttribute('data-pane') === 'exchanges');
+          });
+        }
         loadExchangeRequests();
-        var p = document.getElementById('msqExchangeAdminPanel');
-        if (p) p.scrollIntoView({ behavior:'smooth', block:'start' });
       });
+    }
+
+    // Style the exchanges tab like the rest
+    var exBtn = tabs && tabs.querySelector('[data-tab="exchanges"]');
+    if (exBtn) {
+      exBtn.style.borderColor = '#c9a227';
+      exBtn.style.color = '#8a6a00';
+    }
+
+    var refBtn = document.getElementById('msqRefreshExchanges');
+    if (refBtn && !refBtn._msqBound) {
+      refBtn._msqBound = true;
+      refBtn.addEventListener('click', loadExchangeRequests);
     }
   }
 
@@ -18449,4 +18483,123 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   }, 3000);
 })();
 </script>
+
+<style id="mysouq-exchanges-tab-fix">
+/* Exchange is a normal admin tab — not a floating card in the header */
+#msqAdminTabContent [data-pane="exchanges"]:not(.active) { display: none !important; }
+#msqAdminTabContent [data-pane="exchanges"].active { display: block !important; }
+#msqExchangeAdminPanel {
+  margin: 0 !important;
+  padding: 14px !important;
+  border-radius: 16px !important;
+  background: #fffbeb !important;
+  border: 1px solid #f0d78c !important;
+  position: static !important;
+  float: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+#msqAdminTabs button[data-tab="exchanges"] {
+  border-color: #c9a227 !important;
+  color: #8a6a00 !important;
+}
+#msqAdminTabs button[data-tab="exchanges"].active {
+  background: #c9a227 !important;
+  color: #fff !important;
+  border-color: #c9a227 !important;
+}
+/* Keep tabs wrapping nicely with the extra button */
+#msqAdminTabs {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+}
+#msqAdminTabs button {
+  flex: 1 1 auto !important;
+  min-width: 120px !important;
+}
+</style>
+
+<style id="mysouq-fixed-logo-v1">
+/* Keep MY SOUQ logo fixed while scrolling — same behavior as other top icons */
+.brand-badge,
+button.brand-badge,
+#brandBadge,
+.mysouq-brand-badge {
+  position: fixed !important;
+  top: 12px !important;
+  right: 12px !important;
+  left: auto !important;
+  bottom: auto !important;
+  z-index: 980 !important;
+  margin: 0 !important;
+  transform: rotate(-4deg) !important;
+  /* keep circular badge look */
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+}
+.brand-badge:hover {
+  transform: rotate(0deg) scale(1.06) !important;
+}
+
+/* Top action icons also stay fixed (cart / track / etc.) */
+.top-actions {
+  position: fixed !important;
+  top: 12px !important;
+  left: 12px !important;
+  right: auto !important;
+  z-index: 970 !important;
+  margin: 0 !important;
+}
+
+/* Terms book button if present near logo */
+.msq-public-terms-trigger {
+  position: fixed !important;
+  z-index: 975 !important;
+}
+
+@media (min-width: 768px) {
+  .brand-badge,
+  button.brand-badge,
+  #brandBadge {
+    top: 20px !important;
+    right: 20px !important;
+    width: 70px !important;
+    height: 70px !important;
+    min-width: 70px !important;
+    min-height: 70px !important;
+  }
+  .top-actions {
+    top: 20px !important;
+    left: 20px !important;
+  }
+}
+@media (max-width: 600px) {
+  .brand-badge,
+  button.brand-badge,
+  #brandBadge {
+    top: 10px !important;
+    right: 10px !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    min-height: 48px !important;
+    font-size: 8px !important;
+  }
+  .top-actions {
+    top: 10px !important;
+    left: 8px !important;
+    max-width: calc(100vw - 70px) !important;
+  }
+}
+</style>
 
