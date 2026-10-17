@@ -19317,3 +19317,31 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
 }
 </style>
 
+<style id="mysouq-launcher-tooltip-fix-v8">
+/* Hide "محتاج مساعدة؟" bubble when chat is open — no overlap with panel */
+#msqSupportLauncher[aria-expanded="true"] .msq-support-launcher-copy {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+/* Keep tooltip only when closed, and position safely above launcher on the right */
+#msqSupportLauncher[aria-expanded="false"] .msq-support-launcher-copy,
+#msqSupportLauncher .msq-support-launcher-copy {
+  position: absolute !important;
+  right: 0 !important;
+  left: auto !important;
+  bottom: calc(100% + 10px) !important;
+  transform: none !important;
+  z-index: 10041 !important;
+  max-width: 160px !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+}
+/* When panel is open, also push launcher slightly if needed */
+#msqSupportPanel:not([hidden]) ~ #msqSupportLauncher .msq-support-launcher-copy,
+#mysouqSupportChatWidget:has(#msqSupportPanel:not([hidden])) #msqSupportLauncher .msq-support-launcher-copy {
+  display: none !important;
+}
+</style>
+
