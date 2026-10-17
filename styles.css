@@ -207,7 +207,7 @@ header p {
 
 /* Brand badge */
 .brand-badge {
-  position: relative !important;
+  position: fixed !important;
   z-index: 2;
   display: inline-flex !important;
   align-items: center;
@@ -236,7 +236,7 @@ body.dark-mode .brand-badge {
    ========================================================= */
 
 .top-actions {
-  position: relative !important;
+  position: fixed !important;
   z-index: 100 !important;
   display: flex !important;
   flex-wrap: wrap;
