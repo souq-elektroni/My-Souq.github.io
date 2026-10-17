@@ -11199,7 +11199,7 @@ html body #adminOrdersBtn.show {
       <button type="button" id="msqSupportClose" aria-label="إغلاق المحادثة">×</button>
     </header>
     <div id="msqSupportMessages" class="msq-support-messages" aria-live="polite" aria-relevant="additions text">
-      <div class="msq-support-message bot">أهلًا وسهلًا بيك في <strong>My Souq</strong> ✨<br>نورتنا! أنا مساعدك الشخصي هنا عشان أسهّل عليك التسوق والطلبات والشحن.<br>احكيلي محتاج إيه، وهنمشي مع بعض خطوة بخطوة بكل راحة.</div>
+      <div class="msq-support-message bot">أهلًا وسهلًا بيك في <strong>My Souq</strong> ✨<br>نورتنا! أنا مساعدك الشخصي للتسوق والطلبات والشحن.<br>نتشرف نعرف اسمك؟ وبعدين أحكي لي محتاج إيه.</div>
       <div class="msq-support-quick" aria-label="أسئلة سريعة">
         <button type="button" data-msq-quick="track">تتبع طلبي 📦</button>
         <button type="button" data-msq-quick="order">مشكلة في تأكيد الطلب</button>
@@ -18551,8 +18551,20 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   var supportNumber='201116339905';
   var supportApi=window.MYSOUQ_SUPPORT_API_ENDPOINT, conversationId='', syncBusy=false, pollHandle=null;
   try{conversationId=localStorage.getItem('msqSupportConversationId')||'';}catch(e){}
+  var customerName='';
+  try{customerName=localStorage.getItem('msqSupportCustomerName')||'';}catch(e){}
+  async function setCustomerName(name){
+    name=safeText(name).slice(0,80);
+    if(!name)return;
+    customerName=name;
+    try{localStorage.setItem('msqSupportCustomerName',name);}catch(e){}
+    try{
+      var id=await ensureConversation();
+      await apiRequest('/api/chat/name',{method:'POST',body:JSON.stringify({conversationId:id,name:name})});
+    }catch(e){console.warn('set name failed',e);}
+  }
   function apiRequest(path,options){options=options||{};options.headers=Object.assign({'Content-Type':'application/json'},options.headers||{});options.credentials='omit';return fetch(supportApi+path,options).then(function(r){return r.json().catch(function(){return {ok:false,error:'استجابة غير صالحة'};}).then(function(d){if(!r.ok||d.ok===false)throw new Error(d.error||('HTTP '+r.status));return d;});});}
-  async function ensureConversation(){if(conversationId)return conversationId;var ctx=getContext();var d=await apiRequest('/api/chat/create',{method:'POST',body:JSON.stringify({name:'زائر My Souq',pageUrl:location.href,product:ctx.product||'',order:ctx.order||''})});conversationId=(d.conversation&&d.conversation.id)||d.conversationId||'';if(!conversationId)throw new Error('لم يرجع الخادم رقم المحادثة');try{localStorage.setItem('msqSupportConversationId',conversationId);}catch(e){}return conversationId;}
+  async function ensureConversation(){if(conversationId)return conversationId;var ctx=getContext();var d=await apiRequest('/api/chat/create',{method:'POST',body:JSON.stringify({name:customerName||'زائر My Souq',pageUrl:location.href,product:ctx.product||'',order:ctx.order||''})});conversationId=(d.conversation&&d.conversation.id)||d.conversationId||'';if(!conversationId)throw new Error('لم يرجع الخادم رقم المحادثة');try{localStorage.setItem('msqSupportConversationId',conversationId);}catch(e){}return conversationId;}
   async function storeCustomerMessage(text){var id=await ensureConversation();return apiRequest('/api/chat/message',{method:'POST',body:JSON.stringify({conversationId:id,text:text})});}
   async function syncAdminReplies(){if(!conversationId||syncBusy||panel.hidden)return;syncBusy=true;try{var d=await apiRequest('/api/chat/messages?conversationId='+encodeURIComponent(conversationId));var items=Array.isArray(d.messages)?d.messages:[],known={};messages.querySelectorAll('[data-msq-server-id]').forEach(function(n){known[n.getAttribute('data-msq-server-id')]='1';});items.forEach(function(m){if((m.role==='admin'||m.role==='owner')&&m.id&&!known[m.id]){var node=document.createElement('div');node.className='msq-support-message bot';node.textContent='صاحب المتجر: '+safeText(m.text||m.content||'');node.setAttribute('data-msq-server-id',m.id);messages.appendChild(node);history.push({role:'assistant',content:safeText(m.text||m.content||'')});}});messages.scrollTop=messages.scrollHeight;}catch(e){console.warn('My Souq support sync unavailable.',e);}finally{syncBusy=false;}}
   function startReplyPolling(){if(pollHandle)clearInterval(pollHandle);syncAdminReplies();pollHandle=setInterval(syncAdminReplies,8000);}
@@ -18594,12 +18606,40 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
     }
     var intent=detectIntent(text);if(intent)return quickAnswers[intent];
     var lower=text.toLowerCase();
-    if(/^(هاي|هاى|اهلا|أهلا|أهلًا|مرحبا|مرحبًا|السلام عليكم|سلام|hello|hi|hey)[!؟.\s]*$/i.test(text.trim()))return 'أهلًا وسهلًا بيك في My Souq 😊 نورتنا!\nعامل إيه؟ تحب أساعدك في اختيار منتج، ولا بتسأل عن طلب، ولا عايز تستفسر عن حاجة تانية؟';
-    if(/عامل ايه|عاملة ايه|اخبارك|إزيك|ازيك|كيفك/.test(lower))return 'الحمد لله تمام، وشكرًا لسؤالك 😊 يا رب تكون بخير.\nقولي أقدر أساعدك في إيه النهاردة في My Souq؟';
-    if(/شكرا|شكرًا|تسلم|متشكر|متشكرة/.test(text))return 'العفو، دا واجبنا ❤️\nلو محتاج أي مساعدة تانية في المنتجات أو الطلبات أو الشحن، أنا موجود.';
-    if(/تمام|ماشي|حلو|كويس/.test(text) && history.length>2)return 'تمام 😊 أنا معاك.\nتحب نكمّل في نفس الموضوع ولا عندك سؤال تاني؟';
-    if(history.length<=2)return 'حاضر، أنا معاك 😊\nاحكيلي براحتك: إيه اللي محتاج تعرفه أو إيه اللي حصل معاك؟ هنمشي مع بعض خطوة بخطوة.';
-    return 'فاهمك تمام 😊 خلّينا نوضحها مع بعض.\nهل الموضوع متعلق بـ طلب، أو منتج، أو شحن، أو دفع؟ ولو سؤالك مختلف، اكتب لي التفاصيل بطريقتك وهوجّهك خطوة بخطوة.';
+    var trimmed=text.trim();
+
+    // استخراج الاسم: "اسمي أحمد" / "أنا سارة" / اسم قصير بعد ما سألنا
+    var nameMatch=trimmed.match(/^(?:اسمي|أنا اسمي|انا اسمي|أنا|انا)\s+([\u0600-\u06FFa-zA-Z][\u0600-\u06FFa-zA-Z\s]{1,40})$/i);
+    if(nameMatch){
+      var nm=nameMatch[1].trim();
+      setCustomerName(nm);
+      return 'تشرفنا يا '+nm+' 😊\nقولي أقدر أساعدك في إيه؟ منتج، طلب، شحن، ولا حاجة تانية؟';
+    }
+    // لو مش معانا اسم ولسه في بداية المحادثة واحنا سألنا عن الاسم
+    var askedName=history.some(function(m){return m.role==='assistant'&&/نتشرف|اسمك|باسمك/.test(m.content||'');});
+    if(askedName && !customerName && trimmed.length>=2 && trimmed.length<=40 && !/[؟?]/.test(trimmed) && !detectIntent(trimmed)){
+      // غالباً الرد اسم فقط
+      if(!/^(هاي|هاى|اهلا|أهلا|مرحبا|السلام|hello|hi|شكرا|تمام|ماشي)/i.test(trimmed)){
+        setCustomerName(trimmed);
+        return 'تشرفنا يا '+trimmed+' 😊\nقولي أقدر أساعدك في إيه النهاردة؟';
+      }
+    }
+
+    if(/^(هاي|هاى|اهلا|أهلا|أهلًا|مرحبا|مرحبًا|السلام عليكم|سلام عليكم|سلام|hello|hi|hey)[!؟.\s]*$/i.test(trimmed)){
+      if(customerName)return 'أهلًا يا '+customerName+' 😊 نورتنا في My Souq.\nتحب أساعدك في إيه؟';
+      return 'أهلًا وسهلًا بيك في My Souq 😊 نورتنا!\nنتشرف نعرف اسمك؟';
+    }
+    if(/عامل ايه|عاملة ايه|اخبارك|إزيك|ازيك|كيفك/.test(lower)){
+      if(customerName)return 'الحمد لله تمام يا '+customerName+' 😊\nقولي أقدر أساعدك في إيه؟';
+      return 'الحمد لله تمام 😊 يا رب تكون بخير.\nنتشرف نعرف اسمك وبعدين أساعدك في اللي محتاجه.';
+    }
+    if(/شكرا|شكرًا|تسلم|متشكر|متشكرة/.test(text))return 'العفو'+(customerName?' يا '+customerName:'')+' ❤️\nلو محتاج أي حاجة تانية أنا موجود.';
+    if(/تمام|ماشي|حلو|كويس/.test(text) && history.length>2)return 'تمام 😊 أنا معاك.\nتحب نكمّل ولا عندك سؤال تاني؟';
+    if(history.length<=2){
+      if(!customerName)return 'حاضر 😊 نتشرف نعرف اسمك الأول، وبعدين احكيلي محتاج إيه.';
+      return 'حاضر يا '+customerName+' 😊\nاحكيلي براحتك إيه اللي محتاجه.';
+    }
+    return 'فاهمك تمام 😊 خلّينا نوضحها مع بعض.\nهل الموضوع متعلق بـ طلب، أو منتج، أو شحن، أو دفع؟';
   }
   async function submitText(raw){var text=safeText(raw);if(!text)return;input.value='';input.style.height='auto';addMessage(text,'user');try{await storeCustomerMessage(text);}catch(err){addMessage('تعذر إرسال رسالتك لخادم الدعم الآن. تأكد من اتصال الإنترنت وحاول مرة أخرى.','bot');console.warn('Support message save failed',err);return;}var pending=addMessage('ثوانٍ من فضلك، بجيب لك الرد المناسب…','bot');var answer=await askAssistant(text);pending.textContent=answer;history[history.length-1].content=answer;messages.scrollTop=messages.scrollHeight;syncAdminReplies();}
   form.addEventListener('submit',function(e){e.preventDefault();if(form.dataset.busy==='1')return;var v=safeText(input.value);if(!v)return;form.dataset.busy='1';var btn=document.getElementById('msqSupportSend');btn.disabled=true;submitText(v).finally(function(){form.dataset.busy='0';btn.disabled=false;input.focus();});});
