@@ -8893,6 +8893,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
   var VTO_DOC = 'features';
   var VTO_LOCAL_KEY = 'mysouq_vto_enabled';
   var vtoEnabledCache = null;
+  if (typeof window.__mysouqVtoEnabled === 'undefined') window.__mysouqVtoEnabled = null;
 
   function isAdminNow() {
     try { return typeof isAdminMode !== 'undefined' && !!isAdminMode; } catch (e) { return false; }
@@ -8929,6 +8930,8 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
       } catch (e) {}
     }
     vtoEnabledCache = enabled;
+    // Shared state prevents duplicate feature modules from disagreeing about activation.
+    window.__mysouqVtoEnabled = enabled;
     updateVtoAdminUi(enabled);
     syncVtoBoxVisibility();
     return enabled;
@@ -8983,6 +8986,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
     }
     try { localStorage.setItem(VTO_LOCAL_KEY, JSON.stringify({ enabled: next })); } catch (e) {}
     vtoEnabledCache = next;
+    window.__mysouqVtoEnabled = next;
     updateVtoAdminUi(next);
     syncVtoBoxVisibility();
     alert(next ? 'تم تشغيل ميزة تجربة الملابس ✅' : 'تم إيقاف ميزة تجربة الملابس ✅');
@@ -9251,8 +9255,19 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
   }
 
   window.runVirtualTryOnImproved = async function () {
+    // The admin UI and try-on executor were initialized by duplicate closures in older builds.
+    // Reuse their shared flag and re-check Firestore before declaring the feature disabled.
+    if (vtoEnabledCache !== true && window.__mysouqVtoEnabled === true) {
+      vtoEnabledCache = true;
+    }
     if (vtoEnabledCache !== true) {
-      alert('ميزة تجربة الملابس غير مفعّلة حالياً.');
+      try { await readVtoEnabled(); } catch (e) {}
+      if (vtoEnabledCache !== true && window.__mysouqVtoEnabled === true) {
+        vtoEnabledCache = true;
+      }
+    }
+    if (vtoEnabledCache !== true) {
+      alert('تعذر التأكد من حالة تجربة الملابس الآن. حدّث الصفحة وحاول مرة أخرى.');
       return;
     }
     var personInput = document.getElementById('vtoPersonInput');
@@ -9591,6 +9606,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
   var VTO_DOC = 'features';
   var VTO_LOCAL_KEY = 'mysouq_vto_enabled';
   var vtoEnabledCache = null;
+  if (typeof window.__mysouqVtoEnabled === 'undefined') window.__mysouqVtoEnabled = null;
 
   function isAdminNow() {
     try { return typeof isAdminMode !== 'undefined' && !!isAdminMode; } catch (e) { return false; }
@@ -9627,6 +9643,8 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
       } catch (e) {}
     }
     vtoEnabledCache = enabled;
+    // Shared state prevents duplicate feature modules from disagreeing about activation.
+    window.__mysouqVtoEnabled = enabled;
     updateVtoAdminUi(enabled);
     syncVtoBoxVisibility();
     return enabled;
@@ -9679,6 +9697,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
     }
     try { localStorage.setItem(VTO_LOCAL_KEY, JSON.stringify({ enabled: next })); } catch (e) {}
     vtoEnabledCache = next;
+    window.__mysouqVtoEnabled = next;
     updateVtoAdminUi(next);
     syncVtoBoxVisibility();
     alert(next ? 'تم تشغيل ميزة تجربة الملابس ✅' : 'تم إيقاف ميزة تجربة الملابس ✅');
