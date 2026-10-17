@@ -287,7 +287,7 @@ async function loadConversations(quiet){
 async function selectConversation(id){
   currentId=id;
   var c=conversations.find(function(x){return x.id===id});
-  document.getElementById('threadTitle').textContent='محادثة '+id;
+  document.getElementById('threadTitle').textContent=(c&&c.name&&c.name!=='زائر My Souq'?(c.name+' — '):'')+'محادثة '+id;
   document.getElementById('threadMeta').textContent=c?'العميل: '+(c.name||'زائر')+' · بدأت: '+date(c.createdAt)+' · '+(c.pageUrl||''):'';
   statusSelect.value=c&&c.status||'open';
   reply.disabled=false;replyBtn.disabled=false;statusBtn.disabled=false;
