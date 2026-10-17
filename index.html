@@ -11194,8 +11194,8 @@ html body #adminOrdersBtn.show {
   <button type="button" id="msqSupportLauncher" aria-label="افتح مساعد My Souq" aria-expanded="false" title="مساعد My Souq"><span class="msq-support-launcher-icon" aria-hidden="true">🎧</span><span class="msq-support-launcher-copy"><strong>محتاج مساعدة؟</strong><small>شات دعم My Souq</small></span><span class="msq-support-launcher-dot"></span></button>
   <section id="msqSupportPanel" role="dialog" aria-label="مساعد دعم عملاء My Souq" aria-modal="false" hidden>
     <header class="msq-support-head">
-      <div class="msq-support-avatar" aria-hidden="true"><span>🎧</span></div>
-      <div class="msq-support-head-copy"><strong>My Souq <span class="msq-support-head-label">مساعدك الشخصي</span></strong><small><span class="msq-support-status-dot"></span> موجودين لمساعدتك • تسوّق براحة</small></div>
+      <div class="msq-support-avatar" aria-hidden="true">🎧</div>
+      <div class="msq-support-head-copy"><strong>دعم My Souq</strong></div>
       <button type="button" id="msqSupportClose" aria-label="إغلاق المحادثة">×</button>
     </header>
     <div id="msqSupportMessages" class="msq-support-messages" aria-live="polite" aria-relevant="additions text">
@@ -19158,6 +19158,162 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
 @keyframes msqMessageIn {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<style id="mysouq-chat-header-final-v7">
+/* ===== Header: simple burgundy bar only ===== */
+#msqSupportPanel .msq-support-head,
+.msq-support-head {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 10px !important;
+  padding: 11px 12px !important;
+  margin: 0 !important;
+  min-height: 48px !important;
+  height: 48px !important;
+  max-height: 52px !important;
+  background: linear-gradient(90deg, #4a2034 0%, #6b2f4a 100%) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+  flex: 0 0 auto !important;
+}
+#msqSupportPanel .msq-support-head:before,
+#msqSupportPanel .msq-support-head:after,
+.msq-support-head:before,
+.msq-support-head:after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Icon */
+#msqSupportPanel .msq-support-avatar,
+.msq-support-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  flex: 0 0 32px !important;
+  border-radius: 9px !important;
+  background: linear-gradient(145deg, #f3dfb0, #c9a04e) !important;
+  border: 1px solid #f0e0b8 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  color: #4a2236 !important;
+}
+.msq-support-avatar span {
+  display: none !important; /* we put emoji directly in div now */
+}
+
+/* Title text only */
+#msqSupportPanel .msq-support-head-copy,
+.msq-support-head-copy {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+.msq-support-head-copy strong {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  color: #ffffff !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  letter-spacing: 0 !important;
+}
+.msq-support-head-copy small,
+.msq-support-head-label,
+.msq-support-status-dot {
+  display: none !important;
+}
+
+/* Close button on the left in RTL (end of bar) */
+#msqSupportClose {
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  flex: 0 0 30px !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255,255,255,0.35) !important;
+  background: rgba(255,255,255,0.12) !important;
+  color: #fff !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  position: static !important;
+  transform: none !important;
+}
+#msqSupportClose:hover {
+  background: rgba(255,255,255,0.25) !important;
+  transform: none !important;
+}
+
+/* More space for chat */
+#msqSupportPanel .msq-support-messages,
+.msq-support-messages {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  padding: 12px !important;
+}
+#msqSupportPanel .msq-support-compose,
+.msq-support-compose {
+  padding: 10px !important;
+}
+#msqSupportPanel .msq-support-footer,
+.msq-support-footer {
+  padding: 8px 10px 10px !important;
+}
+
+/* Kill any old tall/rounded header looks from previous skins */
+#msqSupportPanel .msq-support-head {
+  border-top-left-radius: 24px !important;
+  border-top-right-radius: 24px !important;
+  border-bottom-left-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+@media (max-width: 600px) {
+  #msqSupportPanel .msq-support-head,
+  .msq-support-head {
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 48px !important;
+    padding: 9px 10px !important;
+  }
+  .msq-support-avatar {
+    width: 30px !important;
+    height: 30px !important;
+    flex: 0 0 30px !important;
+    font-size: 15px !important;
+  }
+  .msq-support-head-copy strong { font-size: 13px !important; }
+  #msqSupportClose {
+    width: 28px !important;
+    height: 28px !important;
+    flex: 0 0 28px !important;
+    font-size: 17px !important;
+  }
 }
 </style>
 
