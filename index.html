@@ -18609,22 +18609,62 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   async function handoff(){
     var transcript=history.slice(-12).map(function(m){return (m.role==='user'?'العميل: ':'المساعد: ')+m.content;}).join('\n');
     var ctx=getContext();
-    var payload={conversation:history.slice(-18),summary:transcript,order:ctx.order||'',product:ctx.product||'',pageUrl:location.href,customerMessage:'طلب العميل تدخل صاحب المتجر'};
+    var handoffMsg='🚨 طلب تدخل صاحب المتجر';
     var endpoint=window.MYSOUQ_SUPPORT_API_ENDPOINT;
+    var savedOk=false;
+    var followId='';
+
+    // 1) سجّل الطلب على السيرفر (لوحة الإدارة + أي تنبيه سيرفر)
     if(endpoint && /^https:\/\//i.test(endpoint)){
       try{
-        var id=await ensureConversation();var response=await apiRequest('/api/chat/handoff',{method:'POST',body:JSON.stringify({conversationId:id,summary:payload.summary,conversation:payload.conversation,order:payload.order,product:payload.product,pageUrl:payload.pageUrl})});
-        if(response.ok){addMessage('تم تسجيل طلبك بنجاح، وصاحب المتجر يقدر يرد عليك من داخل الشات. رقم المتابعة: '+(response.conversationId||id),'bot');startReplyPolling();return;}
+        var id=await ensureConversation();
+        followId=id;
+        try{await storeCustomerMessage(handoffMsg);}catch(e){console.warn('handoff message save',e);}
+        var response=await apiRequest('/api/chat/handoff',{method:'POST',body:JSON.stringify({
+          conversationId:id,
+          summary:transcript,
+          conversation:history.slice(-18),
+          order:ctx.order||'',
+          product:ctx.product||'',
+          pageUrl:location.href,
+          status:'pending',
+          needsHuman:true,
+          notifyWhatsApp:true
+        })});
+        if(response.ok){
+          savedOk=true;
+          followId=response.conversationId||id;
+        }
       }catch(err){console.warn('My Souq support handoff endpoint unavailable.',err);}
     }
-    addMessage('تعذر تسجيل طلبك داخل الشات مؤقتًا. تقدر تبعت ملخص المحادثة لصاحب المتجر على واتساب كحل بديل.','bot');
-    var whatsappText='مرحبًا My Souq، محتاج تدخل صاحب المتجر.\n\n'+transcript;
+
+    addMessage(handoffMsg,'user');
+    if(savedOk){
+      addMessage('تم تسجيل طلبك بنجاح ✅ تم إرسال تنبيه لصاحب المتجر، وهيرد عليك من داخل الشات أو واتساب. رقم المتابعة: '+followId,'bot');
+      startReplyPolling();
+    }else{
+      addMessage('سجّلنا طلبك محليًا. هنحاول نبلّغ صاحب المتجر على واتساب الآن.','bot');
+    }
+
+    // 2) دائمًا: افتح واتساب برسالة جاهزة لصاحب المتجر
+    // ده بيشتغل حتى لو لوحة الإدارة مقفولة (العميل بيبعت لصاحب المتجر مباشرة)
+    var whatsappText='🚨 طلب تدخل عاجل من عميل My Souq\n\n'+transcript;
     if(ctx.order)whatsappText+='\nرقم الطلب: '+ctx.order;
     if(ctx.product)whatsappText+='\nالمنتج: '+ctx.product;
+    if(followId)whatsappText+='\nرقم المحادثة: '+followId;
     whatsappText+='\nرابط الصفحة: '+location.href;
+    whatsappText+='\n\n— تم الإرسال من شات دعم My Souq';
     var whatsappUrl='https://wa.me/201116339905?text='+encodeURIComponent(whatsappText);
     var opened=window.open(whatsappUrl,'_blank','noopener,noreferrer');
-    if(!opened){addMessage('المتصفح منع فتح واتساب تلقائيًا. اضغط زر «طلب تدخل صاحب المتجر» مرة أخرى أو اسمح بالنوافذ المنبثقة لهذا الموقع.','bot');}
+    if(!opened){
+      addMessage('المتصفح منع فتح واتساب تلقائيًا. اضغط هنا للإرسال اليدوي أو اسمح بالنوافذ المنبثقة.', 'bot');
+      var link=document.createElement('a');
+      link.href=whatsappUrl; link.target='_blank'; link.rel='noopener noreferrer';
+      link.textContent='اضغط لإرسال الطلب على واتساب';
+      link.style.cssText='display:inline-block;margin-top:6px;padding:8px 12px;background:#25d366;color:#fff;border-radius:10px;font-weight:800;text-decoration:none';
+      var last=messages.querySelector('.msq-support-message.bot:last-child');
+      if(last) last.appendChild(document.createElement('br')), last.appendChild(link);
+    }
   }
   document.getElementById('msqSupportHuman').addEventListener('click',handoff);
 })();
