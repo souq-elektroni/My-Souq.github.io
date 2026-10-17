@@ -9289,352 +9289,40 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
   })();
   </script>
 
-<style id="msq-actions-2x2-fix">
-/* صف 1: إضافة للسلة | الطلب السريع — صف 2: الاتصال | المشاركة */
-html body #productModal .modal-actions-row{
-  display:grid!important;
-  grid-template-columns:1fr 1fr!important;
-  gap:10px!important;
-  width:100%!important;
-}
-html body #productModal .modal-actions-row > *{
-  min-width:0!important;
-  width:100%!important;
-  grid-column:auto!important;
-}
-html body #productModal .add-cart-btn{order:1!important;}
-html body #productModal .direct-wa-btn{order:2!important;}
-html body #productModal .call-modal-btn{order:3!important;}
-html body #productModal .share-btn{order:4!important;}
-</style>
+
+<!-- removed duplicate style:msq-actions-2x2-fix -->
 
 
-<script id="mysouq-shared-subcategory-filter">
-(function(){
-  let sharedSubcategoryValue = '';
-  window.applySharedSubcategoryFilter = function(value){
-    sharedSubcategoryValue = value || '';
-    const grid = document.getElementById('products-container');
-    if(!grid) return;
-    const cards = Array.from(grid.querySelectorAll('.product-card'));
-    cards.forEach(function(card){
-      if(!sharedSubcategoryValue){ card.style.display = ''; return; }
-      const dataText = [
-        card.innerText || '',
-        card.getAttribute('data-category') || '',
-        card.getAttribute('data-subcategory') || '',
-        card.getAttribute('data-title') || ''
-      ].join(' ').toLowerCase();
-      const isHome = /ملابس\s*للمنزل|للمنزل|homewear|home wear|بيت/.test(dataText);
-      const isGoingOut = /ملابس\s*للخروج|للخروج|خروج|outwear|outfit/.test(dataText);
-      card.style.display = (sharedSubcategoryValue === 'ملابس للمنزل' ? isHome : isGoingOut) ? '' : 'none';
-    });
-    let empty = grid.querySelector('.shared-filter-empty');
-    const visible = cards.some(card => card.style.display !== 'none');
-    if(!visible && cards.length){
-      if(!empty){
-        empty = document.createElement('p');
-        empty.className = 'shared-filter-empty';
-        empty.style.cssText = 'grid-column:1/-1;text-align:center;padding:24px 12px;font-weight:800;color:var(--text-muted)';
-        grid.appendChild(empty);
-      }
-      empty.textContent = 'لا توجد منتجات ضمن هذا التصنيف في النتائج الحالية.';
-      empty.style.display = '';
-    } else if(empty){ empty.style.display = 'none'; }
-  };
-  // Keep the selected shared filter active when other controls rerender the product grid.
-  const grid = document.getElementById('products-container');
-  if(grid && window.MutationObserver){
-    new MutationObserver(function(){
-      if(!sharedSubcategoryValue) return;
-      const select = document.getElementById('sharedSubcategorySelect');
-      if(select && select.value) window.applySharedSubcategoryFilter(select.value);
-    }).observe(grid,{childList:true});
-  }
-})();
-</script>
 
 
-<style id="mysouq-product-modal-premium-responsive-v4">
-/* Premium product dialog: preserve the existing overall footprint, improve hierarchy and mobile fit. */
-#productModal{padding:clamp(8px,2vw,22px)!important;backdrop-filter:blur(9px)!important;background:rgba(32,20,28,.62)!important;}
-#productModal .modal-content{width:min(1080px,calc(100vw - 28px))!important;max-width:1080px!important;max-height:min(94dvh,920px)!important;overflow:auto!important;overscroll-behavior:contain!important;border:1px solid rgba(255,255,255,.82)!important;border-radius:clamp(18px,2.4vw,30px)!important;background:linear-gradient(145deg,#fffdfd 0%,#f8eef3 100%)!important;box-shadow:0 28px 90px rgba(24,10,18,.32),inset 0 1px 0 rgba(255,255,255,.95)!important;scrollbar-width:thin;scrollbar-color:#c99aaf transparent;}
-#productModal .modal-body{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;gap:clamp(16px,2.5vw,30px)!important;padding:clamp(18px,2.6vw,30px)!important;align-items:center!important;}
-#productModal .modal-gallery-wrapper{min-width:0!important;gap:10px!important;padding:0!important;background:transparent!important;}
-#productModal .modal-img{display:block!important;width:100%!important;height:clamp(300px,62vh,640px)!important;max-height:640px!important;object-fit:contain!important;background:#f8f1f4!important;border:1px solid rgba(128,61,72,.12)!important;border-radius:20px!important;box-shadow:0 14px 36px rgba(70,30,44,.11)!important;}
-#productModal .thumbnails-bar{gap:8px!important;padding:5px 2px!important;scrollbar-width:thin;scrollbar-color:#c99aaf transparent;}
-#productModal .thumbnails-bar img{width:clamp(48px,5vw,70px)!important;height:clamp(52px,5.5vw,78px)!important;object-fit:cover!important;border-radius:10px!important;border:1px solid rgba(128,61,72,.14)!important;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important;}
-#productModal .thumbnails-bar img:hover{transform:translateY(-2px)!important;border-color:#98506f!important;box-shadow:0 5px 14px rgba(128,61,72,.16)!important;}
-#productModal .gallery-nav{gap:10px!important;padding:5px 0!important;}
-#productModal .gallery-nav button{width:42px!important;height:42px!important;border:1px solid #f0dfe7!important;border-radius:50%!important;background:#fff!important;color:#803d48!important;box-shadow:0 5px 16px rgba(65,30,45,.10)!important;transition:transform .18s ease,box-shadow .18s ease!important;}
-#productModal .gallery-nav button:hover{transform:translateY(-2px)!important;box-shadow:0 9px 22px rgba(65,30,45,.15)!important;}
-#productModal .modal-info{min-width:0!important;gap:clamp(9px,1.2vw,14px)!important;padding:clamp(0px,.5vw,5px)!important;}
-#productModal .modal-back-btn{min-height:36px!important;padding:8px 14px!important;border:1px solid #ead5df!important;border-radius:999px!important;background:linear-gradient(135deg,#fff,#f7eaf0)!important;color:#803d48!important;font-size:12px!important;box-shadow:0 4px 12px rgba(80,35,55,.05)!important;}
-#productModal .modal-title{margin:2px 0!important;color:#803d62!important;font-size:clamp(23px,2.5vw,32px)!important;line-height:1.35!important;font-weight:950!important;letter-spacing:-.35px!important;overflow-wrap:anywhere!important;}
-#productModal .stock-badge{align-self:flex-start!important;max-width:100%!important;padding:8px 13px!important;border:1px solid #d8eedc!important;border-radius:999px!important;background:linear-gradient(135deg,#f0fbf2,#e5f5e8)!important;color:#267b36!important;font-size:clamp(11px,1.1vw,13px)!important;line-height:1.5!important;box-shadow:0 5px 15px rgba(46,125,50,.07)!important;}
-#productModal .size-selector{gap:7px!important;}
-#productModal .size-selector label,#productModal .size-selector button{border-radius:12px!important;border-color:#e8ceda!important;transition:background .15s ease,border-color .15s ease,transform .15s ease!important;}
-#productModal .modal-price{margin:3px 0!important;color:#803d62!important;font-size:clamp(27px,2.7vw,35px)!important;font-weight:950!important;line-height:1.25!important;}
-#productModal .dimensions-box{padding:clamp(11px,1.3vw,16px)!important;gap:10px 14px!important;border:1px dashed #e5c6d5!important;border-radius:17px!important;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(250,240,245,.96))!important;box-shadow:0 7px 22px rgba(70,30,44,.045)!important;}
-#productModal .modal-actions-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;margin-top:3px!important;}
-#productModal .modal-actions-row>*{min-width:0!important;min-height:56px!important;height:auto!important;padding:10px 8px!important;border-radius:15px!important;font-size:clamp(11px,1.15vw,13px)!important;font-weight:900!important;line-height:1.35!important;white-space:normal!important;overflow-wrap:anywhere!important;box-shadow:0 7px 18px rgba(45,29,37,.09)!important;}
-#productModal .add-another-design-btn{min-height:44px!important;margin-top:2px!important;border-radius:13px!important;border-color:#d8b1c4!important;background:#fbf3f7!important;font-size:12px!important;}
-#productModal .multi-design-hint{font-size:11px!important;line-height:1.75!important;margin:0!important;}
-#productModal .close-btn{width:38px!important;height:38px!important;top:10px!important;left:10px!important;border:1px solid rgba(128,61,72,.12)!important;background:rgba(255,255,255,.96)!important;box-shadow:0 4px 15px rgba(40,20,30,.12)!important;}
-@media(max-width:767px){
- #productModal{align-items:flex-start!important;padding:8px!important;overflow-y:auto!important;}
- #productModal .modal-content{width:100%!important;max-width:560px!important;max-height:calc(100dvh - 16px)!important;margin:auto!important;border-radius:20px!important;}
- #productModal .modal-body{grid-template-columns:minmax(0,1fr)!important;gap:14px!important;padding:14px!important;}
- #productModal .modal-gallery-wrapper{order:0!important;}
- #productModal .modal-img{height:clamp(220px,39vh,360px)!important;max-height:360px!important;border-radius:15px!important;}
- #productModal .thumbnails-bar{gap:6px!important;}
- #productModal .thumbnails-bar img{width:54px!important;height:58px!important;flex:0 0 auto!important;}
- #productModal .gallery-nav button{width:38px!important;height:38px!important;}
- #productModal .modal-info{order:1!important;gap:10px!important;padding:0 2px 4px!important;}
- #productModal .modal-title{font-size:clamp(22px,6vw,28px)!important;}
- #productModal .stock-badge{font-size:12px!important;}
- #productModal .modal-price{font-size:29px!important;}
- #productModal .modal-actions-row{gap:8px!important;}
- #productModal .modal-actions-row>*{min-height:52px!important;padding:9px 6px!important;font-size:12px!important;border-radius:13px!important;}
- #productModal .close-btn{position:sticky!important;float:left!important;top:8px!important;left:auto!important;margin:8px 8px -44px auto!important;z-index:30!important;width:34px!important;height:34px!important;}
-}
-@media(max-width:360px){
- #productModal .modal-body{padding:10px!important;gap:11px!important;}
- #productModal .modal-img{height:215px!important;}
- #productModal .modal-actions-row>*{font-size:10.5px!important;min-height:48px!important;}
- #productModal .dimensions-box{grid-template-columns:1fr!important;}
-}
-@media(prefers-reduced-motion:reduce){#productModal *{transition:none!important;scroll-behavior:auto!important;}}
-</style>
+<!-- removed duplicate script:mysouq-shared-subcategory-filter -->
 
 
-<script id="mysouq-customer-cancel-request-v1">
-(function(){
-  const esc = (v) => String(v == null ? '' : v).replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
-  function statusCode(order){ return typeof order.statusCode === 'number' ? order.statusCode : 0; }
-  async function hasPendingRequest(orderId){
-    if(!window.db && typeof db === 'undefined') return false;
-    try { const ref = (typeof db !== 'undefined' ? db : window.db); const snap = await ref.collection('cancellationRequests').where('orderId','==',orderId).where('status','==','pending').limit(1).get(); return !snap.empty; } catch(e) { console.warn('Could not check cancellation request status'); return false; }
-  }
-  window.requestOrderCancellation = async function(orderId){
-    const id = String(orderId || '').trim();
-    const input = document.getElementById('trackInputId');
-    const found = (typeof adminOrdersCache !== 'undefined' ? adminOrdersCache : []).find(o => String(o.orderId||'').trim() === id) || null;
-    // Re-fetch authoritative order record; don't trust only the displayed UI.
-    let order = found;
-    try { if(typeof fetchOrderFromCloud === 'function') order = await fetchOrderFromCloud(id); } catch(e) {}
-    if(!order){ alert('تعذر التأكد من بيانات الطلب. أعد البحث برقم الطلب وحاول مرة أخرى.'); return; }
-    if(statusCode(order) !== 0){ alert('طلب الإلغاء متاح فقط والطلب في مرحلة «تحت التنفيذ». بعد انتقاله إلى أي مرحلة تالية لا يمكن تقديم طلب إلغاء من هنا.'); return; }
-    if(typeof firebaseReady !== 'undefined' && !firebaseReady || typeof db === 'undefined' || !db){ alert('خدمة الطلبات غير متاحة حاليًا. حاول مرة أخرى بعد قليل.'); return; }
-    const already = await hasPendingRequest(id);
-    if(already){ alert('تم استلام طلب إلغاء لهذا الطلب بالفعل، والإدارة ستراجعه.'); if(input) input.value=id; return; }
-    const ok = confirm('هل تريد إرسال طلب إلغاء للطلب ' + id + '؟\n\nسيصل طلبك إلى إدارة My Souq للمراجعة. لن يُحذف الطلب تلقائيًا.');
-    if(!ok) return;
-    const buttons = document.querySelectorAll('[data-cancel-request-order="'+CSS.escape(id)+'"]');
-    buttons.forEach(b=>{b.disabled=true;b.textContent='جاري إرسال طلب الإلغاء...';});
-    try {
-      const ref = db.collection('cancellationRequests').doc();
-      await ref.set({ requestId:ref.id, orderId:id, customerName:String(order.name||''), customerPhone:String(order.phone||''), status:'pending', message:'العميل يريد الإلغاء', createdAt:firebase.firestore.FieldValue.serverTimestamp(), orderStatusCode:statusCode(order) });
-      buttons.forEach(b=>{b.disabled=true;b.textContent='تم إرسال طلب الإلغاء ✓';});
-      const note = document.querySelector('#trackingResultContainer .cancel-request-note');
-      if(note){note.style.color='#237445';note.textContent='✅ تم إرسال طلب الإلغاء إلى الإدارة. انتظر مراجعة الطلب؛ لم يتم إلغاء الطلب تلقائيًا.';}
-      alert('تم إرسال طلب الإلغاء إلى إدارة My Souq بنجاح.');
-    } catch(e) {
-      console.error('Cancellation request failed', e);
-      buttons.forEach(b=>{b.disabled=false;b.textContent='🔴 طلب إلغاء';});
-      alert(/permission|insufficient permissions|PERMISSION_DENIED/i.test(String(e&&e.message)) ? 'تعذر إرسال طلب الإلغاء بسبب قواعد Firestore. يجب تحديث قواعد الأمان المرفقة مع هذا التحديث.' : 'تعذر إرسال طلب الإلغاء الآن. تحقق من الإنترنت وحاول مرة أخرى.');
-    }
-  };
-  function addCustomerCancelButton(){
-    const box=document.getElementById('trackingResultContainer'); if(!box || !(box.innerHTML.includes('تم العثور على الطلب بنجاح') || box.innerHTML.includes('تم العثور على طلبك'))) return;
-    if(box.querySelector('.cancel-request-panel')) return;
-    const raw=(document.getElementById('trackInputId')||{}).value||''; const id=String(raw).trim().toUpperCase();
-    let order=null; try { if(typeof fetchOrderFromCloud === 'function') order=null; } catch(e){}
-    // Order ID is taken from the rendered order metadata, not arbitrary page text.
-    const idSpan=box.querySelector('.track-meta-item span'); const renderedId=idSpan ? idSpan.textContent.trim() : id;
-    const statusText=((box.querySelector('.track-status-banner')||box.querySelector('.customer-track-current-status'))||{}).textContent||'';
-    const statusIsExecution=/تحت التنفيذ|قيد التنفيذ/.test(statusText);
-    const statusCodeKnown= statusIsExecution;
-    const panel=document.createElement('section'); panel.className='cancel-request-panel';
-    panel.innerHTML='<div class="cancel-request-title">🔴 طلب إلغاء الطلب</div><div class="cancel-request-desc">يمكنك إرسال طلب للإدارة لإلغاء الطلب أثناء مرحلة «تحت التنفيذ» فقط. إرسال الطلب لا يعني إلغاءه تلقائيًا.</div><button type="button" class="cancel-request-btn" data-cancel-request-order="'+esc(renderedId)+'" '+(!statusCodeKnown?'disabled':'')+'>'+(!statusCodeKnown?'🔒 الإلغاء غير متاح بعد انتقال الطلب':'🔴 طلب إلغاء')+'</button><div class="cancel-request-note" style="color:'+(statusCodeKnown?'#9f1d2d':'#76696b')+'">'+(statusCodeKnown?'سيصل طلبك إلى لوحة الإدارة لمراجعته.':'هذا الزر متوقف لأن الطلب تجاوز مرحلة تحت التنفيذ.')+'</div>';
-    box.appendChild(panel);
-    const btn=panel.querySelector('button'); btn.addEventListener('click',()=>window.requestOrderCancellation(renderedId));
-    // If this is an existing pending request, reflect it in the UI.
-    hasPendingRequest(renderedId).then(pending=>{ if(pending){btn.disabled=true;btn.textContent='تم إرسال طلب الإلغاء بالفعل';const n=panel.querySelector('.cancel-request-note');n.style.color='#237445';n.textContent='طلب الإلغاء قيد مراجعة الإدارة.';} });
-  }
-  function installAdminRequestsPanel(){
-    const modal=document.getElementById('adminOrdersModal'); const logout=document.getElementById('adminLogoutBtn'); if(!modal||!logout||document.getElementById('cancelRequestsAdminPanel')) return;
-    const panel=document.createElement('section'); panel.id='cancelRequestsAdminPanel'; panel.innerHTML='<div class="cancel-admin-heading">🔔 طلبات إلغاء العملاء <span id="cancelRequestsCount" style="display:inline-block;background:#c62828;color:#fff;border-radius:99px;padding:2px 8px;margin-inline-start:5px">0</span></div><div id="cancelRequestsAdminList" style="font-size:12px;color:#765b5b">تظهر هنا طلبات الإلغاء الجديدة.</div><button type="button" id="refreshCancelRequests" style="margin-top:8px;border:0;border-radius:8px;background:#a3202b;color:#fff;padding:8px 10px;font-weight:800;cursor:pointer">تحديث طلبات الإلغاء</button>';
-    logout.parentNode.insertBefore(panel,logout.nextSibling);
-    document.getElementById('refreshCancelRequests').addEventListener('click',loadAdminCancelRequests);
-  }
-  async function loadAdminCancelRequests(){
-    const listEl=document.getElementById('cancelRequestsAdminList'), countEl=document.getElementById('cancelRequestsCount'); if(!listEl) return;
-    if(typeof isAdminMode==='undefined'||!isAdminMode||!currentAdminUser){listEl.textContent='سجّل الدخول كإدارة لعرض الطلبات.';return;}
-    if(typeof db==='undefined'||!db){listEl.textContent='Firebase غير متاح حاليًا.';return;}
-    listEl.textContent='جاري تحميل طلبات الإلغاء...';
-    try{
-      const snap=await db.collection('cancellationRequests').limit(100).get();
-      const requests=[]; snap.forEach(doc=>requests.push({...doc.data(),_docId:doc.id}));
-      requests.sort((a,b)=>{const ta=a.createdAt&&a.createdAt.toMillis?a.createdAt.toMillis():0;const tb=b.createdAt&&b.createdAt.toMillis?b.createdAt.toMillis():0;return tb-ta;});
-      const pending=requests.filter(r=>String(r.status||'pending').toLowerCase()==='pending');
-      const pendingCount=String(pending.length);
-      if(countEl) countEl.textContent=pendingCount;
-      // Keep the notification badge on the admin tab synchronized with the live Firestore result.
-      // The previous code copied the count only during initialization, before this async query finished.
-      const tabBadge=document.getElementById('msqCancelBadge');
-      if(tabBadge){
-        tabBadge.textContent=pendingCount;
-        tabBadge.classList.toggle('has-pending-cancellations',pending.length>0);
-        tabBadge.setAttribute('aria-label',pending.length ? pending.length+' طلب إلغاء بانتظار المراجعة' : 'لا توجد طلبات إلغاء معلقة');
-      }
-      if(!requests.length){listEl.innerHTML='<div>لا توجد طلبات إلغاء حتى الآن.</div>';return;}
-      const visibleRequests=requests.filter(r=>r.status==='pending');
-      if(!visibleRequests.length){listEl.innerHTML='<div class="cancel-empty-state">لا توجد طلبات إلغاء جديدة تنتظر المراجعة.</div>';return;}
-      listEl.innerHTML=visibleRequests.map(r=>'<article class="cancel-request-admin-card"><div style="font-size:13px;font-weight:950;color:#a3202b">🔔 العميل يريد الإلغاء</div><div><b>رقم الطلب:</b> '+esc(r.orderId||'-')+'</div><div><b>الاسم:</b> '+esc(r.customerName||'-')+'</div><div><b>الهاتف:</b> '+esc(r.customerPhone||'-')+'</div><div><b>الحالة:</b> ⏳ بانتظار المراجعة</div><div><b>الرسالة:</b> '+esc(r.message||'العميل يريد الإلغاء')+'</div><div class="cancel-admin-actions"><button type="button" data-final-cancel="'+esc(r._docId)+'" data-order-id="'+esc(r.orderId||'')+'">إلغاء الطلب نهائيًا</button><button type="button" data-review-cancel="'+esc(r._docId)+'">تمت المراجعة فقط</button></div></article>').join('');
-      listEl.querySelectorAll('[data-review-cancel]').forEach(btn=>btn.addEventListener('click',async()=>{try{await db.collection('cancellationRequests').doc(btn.dataset.reviewCancel).update({status:'reviewed',reviewedAt:firebase.firestore.FieldValue.serverTimestamp(),reviewedBy:currentAdminUser.email||''});await loadAdminCancelRequests();}catch(e){alert('تعذر تحديث الطلب. تأكد من قواعد Firestore.');}}));
-      listEl.querySelectorAll('[data-final-cancel]').forEach(btn=>btn.addEventListener('click',async()=>{await finalizeCustomerCancellation(btn.dataset.orderId,btn.dataset.finalCancel,btn);}));
-    }catch(e){
-      console.error('Loading cancellation requests failed',e);
-      listEl.textContent='تعذر تحميل طلبات الإلغاء. تأكد من تحديث قواعد Firestore.';
-      const tabBadge=document.getElementById('msqCancelBadge');
-      if(tabBadge){tabBadge.title='تعذر تحديث عدد طلبات الإلغاء؛ اضغط على تبويب طلبات الإلغاء لإعادة المحاولة.';}
-    }
-  }
-  // Expose the loader so the admin tabs can refresh the same source of truth.
-  window.loadAdminCancelRequests=loadAdminCancelRequests;
-  async function finalizeCustomerCancellation(orderId, requestDocId, button){
-    const id=String(orderId||'').trim().toUpperCase();
-    if(!id){alert('رقم الطلب غير صالح.');return;}
-    if(typeof isAdminNow==='function' && !isAdminNow()){alert('يجب تسجيل الدخول كمسؤول أولاً.');return;}
-    const ok=confirm('تأكيد الإلغاء النهائي للطلب '+id+'؟\n\nسيتم حذف بيانات الطلب وطلبات الإلغاء المرتبطة به من النظام، مع الاحتفاظ بسجل مختصر جدًا برقم الطلب فقط لإظهار رسالة الإلغاء للعميل عند الاستعلام. لا يمكن التراجع عن الحذف.');
-    if(!ok)return;
-    if(button){button.disabled=true;button.textContent='جاري الإلغاء والحذف...';}
-    const markerRef=db.collection('cancelledOrders').doc(id);
-    let orderDeleted=false;
-    try{
-      // Write the minimal customer-facing receipt first so a successful deletion remains explainable.
-      await markerRef.set({status:'cancelled',cancelledAt:firebase.firestore.FieldValue.serverTimestamp(),cancellationType:'regular'});
-      // Delete the order if it still exists. Older/partially processed cancellations may already have removed it.
-      try {
-        await window.deleteOrderFromCloud(id);
-        orderDeleted=true;
-      } catch (deleteError) {
-        if (!/لم يتم العثور على الطلب داخل مجموعة orders/i.test(String(deleteError && deleteError.message || ''))) throw deleteError;
-        // The order is already absent; continue cleaning the stale cancellation request.
-        orderDeleted=true;
-      }
-      // Remove all cancellation request documents tied to this order; receipt contains no customer details.
-      const reqSnap=await db.collection('cancellationRequests').where('orderId','==',id).get();
-      if(!reqSnap.empty){let batch=db.batch();let count=0;for(const d of reqSnap.docs){batch.delete(d.ref);count++;if(count===450){await batch.commit();batch=db.batch();count=0;}}if(count)await batch.commit();}
-      // Clear in-memory/local order copies so the deleted order disappears from the admin UI too.
-      try { if (typeof removeOrderLocally === 'function') await removeOrderLocally(id); } catch (_) {}
-      try { if (typeof filterAdminOrders === 'function') filterAdminOrders(); } catch (_) {}
-      await loadAdminCancelRequests();
-      alert('تم إلغاء الطلب وحذف بياناته وطلبات الإلغاء المرتبطة به. سيظهر للعميل تأكيد الإلغاء عند الاستعلام عن رقم الطلب.');
-    }catch(e){
-      console.error('Final cancellation failed',e);
-      // Roll back the receipt only if deleting the original order failed; after deletion keep it for customer lookup.
-      if(!orderDeleted){try{await markerRef.delete();}catch(rollbackError){console.error('Cancellation marker rollback failed',rollbackError);}}
-      if(button){button.disabled=false;button.textContent='إلغاء الطلب نهائيًا';}
-      alert('تعذر إتمام الإلغاء النهائي بالكامل. راجع قواعد Firestore وصلاحيات الإدارة.\n'+(e&&e.message?e.message:''));
-    }
-  }
-  function updateTrackingAdminBackButton(){
-    const btn=document.getElementById('trackingBackToAdminOrdersBtn');
-    if(btn) btn.style.display='none';
-  }
-  const originalTrackingOpen=window.openTrackingModal;
-  if(typeof originalTrackingOpen==='function'&&!originalTrackingOpen.__adminBackWrapped){
-    window.openTrackingModal=function(){const out=originalTrackingOpen.apply(this,arguments);setTimeout(updateTrackingAdminBackButton,0);return out;};
-    window.openTrackingModal.__adminBackWrapped=true;
-  }
-  document.addEventListener('DOMContentLoaded',updateTrackingAdminBackButton);
-  const originalSearch=window.searchOrderTracking;
-  if(typeof originalSearch==='function'&&!originalSearch.__cancelRequestWrapped){
-    window.searchOrderTracking=async function(){await originalSearch.apply(this,arguments);setTimeout(addCustomerCancelButton,0);};window.searchOrderTracking.__cancelRequestWrapped=true;
-  }
-  const originalAdminOpen=window.openAdminOrdersModal;
-  if(typeof originalAdminOpen==='function'&&!originalAdminOpen.__cancelRequestsWrapped){
-    window.openAdminOrdersModal=function(){const out=originalAdminOpen.apply(this,arguments);setTimeout(()=>{installAdminRequestsPanel();loadAdminCancelRequests();},250);return out;};window.openAdminOrdersModal.__cancelRequestsWrapped=true;
-  }
-  document.addEventListener('DOMContentLoaded',()=>{installAdminRequestsPanel();});
-})();
-</script>
 
 
-<style id="mysouq-cancel-request-polish-v1">
-#trackingResultContainer .cancel-request-panel{margin-top:14px;padding:14px;border:1px solid #efb4b4;border-radius:16px;background:linear-gradient(145deg,#fffafa,#fff0f0);box-shadow:0 8px 22px rgba(150,30,40,.07)}
-#trackingResultContainer .cancel-request-title{font-size:14px;font-weight:950;color:#9f1d2d;margin-bottom:6px}
-#trackingResultContainer .cancel-request-desc{font-size:12px;line-height:1.8;color:#6c4c50;margin-bottom:10px}
-#trackingResultContainer .cancel-request-btn{width:100%;min-height:46px;border:0;border-radius:12px;padding:11px 14px;background:linear-gradient(135deg,#c62828,#8e1520);color:#fff;font-weight:900;font-size:14px;box-shadow:0 6px 16px rgba(198,40,40,.2);cursor:pointer}
-#trackingResultContainer .cancel-request-btn:disabled{background:#d6c6c8;color:#78696b;box-shadow:none;cursor:not-allowed;opacity:1}
-#trackingResultContainer .cancel-request-note{font-size:12px;font-weight:800;line-height:1.7;margin-top:8px}
-#cancelRequestsAdminPanel{margin:10px 0 14px;padding:12px;border-radius:14px;background:#fff4f2;border:1px solid #f0b9b2}
-#cancelRequestsAdminPanel .cancel-admin-heading{font-size:14px;font-weight:950;color:#a3202b;margin-bottom:9px}
-.cancel-request-admin-card{background:#fff;border:1px solid #f0d1cd;border-radius:11px;padding:10px;margin:8px 0;font-size:12px;line-height:1.8}
-.cancel-request-admin-card button{border:0;border-radius:8px;background:#7f3c5b;color:#fff;padding:7px 10px;font-weight:800;cursor:pointer;margin-top:6px}
-@media(max-width:520px){#trackingResultContainer .cancel-request-panel{padding:12px}#trackingResultContainer .cancel-request-title{font-size:14px}#trackingResultContainer .cancel-request-btn{font-size:14px;min-height:48px}}
-</style>
+<!-- removed duplicate style:mysouq-product-modal-premium-responsive-v4 -->
 
 
-<script id="mysouq-dependent-egypt-address-v1">
-(function(){
-  // Main cities/centres by governorate. The city list is deliberately controlled,
-  // so a city cannot be submitted under a different governorate.
-  var data={
-    "القاهرة":["القاهرة","مدينة نصر","مصر الجديدة","المعادي","حلوان","شبرا","عين شمس","المطرية","المرج","التجمع الأول","التجمع الخامس","الشروق","بدر","العبور","السلام","الزيتون","الوايلي","وسط البلد"],
-    "الجيزة":["الجيزة","الدقي","العجوزة","الهرم","فيصل","العمرانية","بولاق الدكرور","إمبابة","الوراق","6 أكتوبر","الشيخ زايد","حدائق أكتوبر","أوسيم","كرداسة","أبو النمرس","البدرشين","العياط","الصف","أطفيح","منشأة القناطر"],
-    "القليوبية":["بنها","شبرا الخيمة","قليوب","القناطر الخيرية","الخانكة","كفر شكر","طوخ","قها","العبور","الخصوص","شبين القناطر","الحيّز/مركز بنها"],
-    "الإسكندرية":["الإسكندرية","برج العرب","برج العرب الجديدة","العجمي","العامرية","المنتزه","شرق الإسكندرية","وسط الإسكندرية","الجمرك","العطارين"],
-    "البحيرة":["دمنهور","كفر الدوار","رشيد","إدكو","أبو حمص","أبو المطامير","الدلنجات","المحمودية","الرحمانية","إيتاي البارود","حوش عيسى","شبراخيت","كوم حمادة","بدر","وادي النطرون","النوبارية الجديدة"],
-    "مطروح":["مرسى مطروح","الحمام","العلمين","الضبعة","النجيلة","سيدي براني","السلوم","سيوة"],
-    "دمياط":["دمياط","دمياط الجديدة","رأس البر","فارسكور","الزرقا","كفر سعد","كفر البطيخ","عزبة البرج"],
-    "الدقهلية":["المنصورة","طلخا","ميت غمر","دكرنس","أجا","السنبلاوين","منية النصر","بلقاس","شربين","الجمالية","المطرية","تمي الأمديد","نبروه","بني عبيد","ميت سلسيل","الكردي","جمصة"],
-    "كفر الشيخ":["كفر الشيخ","دسوق","فوه","مطوبس","بلطيم","الحامول","بيلا","سيدي سالم","قلين","الرياض","برج البرلس"],
-    "الغربية":["طنطا","المحلة الكبرى","كفر الزيات","زفتى","السنطة","قطور","بسيون","سمنود"],
-    "المنوفية":["شبين الكوم","منوف","أشمون","الباجور","قويسنا","بركة السبع","تلا","الشهداء","سرس الليان","السادات"],
-    "الشرقية":["الزقازيق","العاشر من رمضان","بلبيس","منيا القمح","فاقوس","أبو كبير","ههيا","ديرب نجم","الإبراهيمية","أولاد صقر","الحسينية","كفر صقر","مشتول السوق","أبو حماد","القرين","صان الحجر"],
-    "الإسماعيلية":["الإسماعيلية","فايد","القنطرة شرق","القنطرة غرب","التل الكبير","أبو صوير","القصاصين الجديدة"],
-    "بورسعيد":["بورسعيد","بورفؤاد"],
-    "السويس":["السويس","عتاقة","الأربعين","الجناين","فيصل"],
-    "شمال سيناء":["العريش","بئر العبد","رفح","الشيخ زويد","الحسنة","نخل"],
-    "جنوب سيناء":["الطور","شرم الشيخ","دهب","نويبع","طابا","سانت كاترين","أبو رديس","أبو زنيمة","رأس سدر"],
-    "بني سويف":["بني سويف","الواسطى","ناصر","إهناسيا","ببا","سمسطا","الفشن"],
-    "الفيوم":["الفيوم","سنورس","إطسا","طامية","أبشواي","يوسف الصديق"],
-    "المنيا":["المنيا","مغاغة","بني مزار","مطاي","سمالوط","أبو قرقاص","ملوي","دير مواس","العدوة"],
-    "أسيوط":["أسيوط","ديروط","القوصية","منفلوط","أبنوب","الفتح","أبو تيج","الغنايم","ساحل سليم","البداري","صدفا"],
-    "سوهاج":["سوهاج","أخميم","البلينا","المراغة","طهطا","طما","جرجا","المنشأة","دار السلام","جهينة","ساقلتة"],
-    "قنا":["قنا","نجع حمادي","دشنا","أبو تشت","فرشوط","قفط","قوص","نقادة","الوقف"],
-    "الأقصر":["الأقصر","القرنة","إسنا","أرمنت","البياضية","الزينية","الطود"],
-    "أسوان":["أسوان","كوم أمبو","إدفو","دراو","نصر النوبة","أبو سمبل"],
-    "البحر الأحمر":["الغردقة","رأس غارب","سفاجا","القصير","مرسى علم","الشلاتين","حلايب"],
-    "الوادي الجديد":["الخارجة","الداخلة","الفرافرة","باريس","بلاط"]
-  };
-  var gov=document.getElementById('custGovernorate'), city=document.getElementById('custCity');
-  if(!gov||!city)return;
-  function fill(select,items,placeholder){select.innerHTML='';var first=document.createElement('option');first.value='';first.textContent=placeholder;select.appendChild(first);items.forEach(function(item){var o=document.createElement('option');o.value=item;o.textContent=item;select.appendChild(o);});}
-  fill(gov,Object.keys(data),'اختر المحافظة');
-  window.mysouqGovernorateChanged=function(){var list=data[gov.value]||[];fill(city,list,list.length?'اختر المدينة / المركز':'اختر المحافظة أولًا');city.disabled=!list.length;city.value='';city.setCustomValidity('');};
-  window.mysouqAddressIsValid=function(){return !!(gov.value&&data[gov.value]&&city.value&&data[gov.value].indexOf(city.value)!==-1);};
-  // Keep the existing checkout flow intact, but stop it before terms/order creation
-  // if the selected city does not belong to the selected governorate.
-  var oldValidate=window.validateAndOpenTerms;
-  if(typeof oldValidate==='function'){window.validateAndOpenTerms=function(){if(!window.mysouqAddressIsValid()){alert('من فضلك اختر المحافظة ثم المدينة أو المركز التابع لها من القوائم.');if(!gov.value)gov.focus();else city.focus();return;}return oldValidate.apply(this,arguments);};}
-  gov.addEventListener('change',function(){if(typeof window.checkFormCompletion==='function')window.checkFormCompletion();});
-})();
-</script>
+
+
+<!-- removed duplicate script:mysouq-customer-cancel-request-v1 -->
+
+
+
+
+<!-- removed duplicate style:mysouq-cancel-request-polish-v1 -->
+
+
+
+
+<!-- removed duplicate script:mysouq-dependent-egypt-address-v1 -->
+
 
 <!-- My Souq delivery map and GPS; adds location without replacing existing checkout logic. -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<style id="mysouq-delivery-map-styles">
-#mysouqDeliveryMap{height:300px;min-height:240px;width:100%;border:1px solid #decbd2;border-radius:14px;overflow:hidden;background:#eee;z-index:1}
-.mysouq-map-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
-.mysouq-map-actions button{border:0;border-radius:10px;padding:11px 14px;min-height:42px;background:#b9343c;color:#fff;font-weight:800;cursor:pointer}
-.mysouq-map-actions #mysouqClearMapBtn{background:#6e6266}
-#mysouqMapStatus{margin-top:8px;font-size:12px;line-height:1.7;color:#64545b;overflow-wrap:anywhere}
-@media(max-width:520px){#mysouqDeliveryMap{height:260px}.mysouq-map-actions button{flex:1}}
-</style>
+
+<!-- removed duplicate style:mysouq-delivery-map-styles -->
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script id="mysouq-delivery-map-script">
 (function(){
@@ -9720,1085 +9408,62 @@ html body #productModal .share-btn{order:4!important;}
 </script>
 
 
-<style id="mysouq-safe-glass-v4">
 
-/* My Souq — safe visual correction v4. CSS-only override; all original features/scripts retained. */
-:root{
-  --msq-glass-bg:rgba(255,250,244,.48);
-  --msq-glass-edge:rgba(255,255,255,.82);
-  --msq-glass-shadow:rgba(35,61,58,.16);
-  --msq-teal:#087f83;
-  --msq-teal-light:#36aaa9;
-}
-html{background:#eee5d8!important}
-body{
-  position:relative!important;isolation:isolate!important;overflow-x:clip!important;
-  background:transparent!important;color:#203d42!important;
-}
-body::before{
-  content:""!important;position:fixed!important;inset:-5px!important;z-index:-1!important;
-  pointer-events:none!important;
-  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp') center center/cover no-repeat!important;
-  filter:blur(1.5px) saturate(.94)!important;transform:scale(1.015)!important;
-}
-body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp') center center/cover no-repeat!important;
-  filter:blur(2px) saturate(.8)!important;
-}
-/* Restore the full banner artwork as a visible layer behind the original live logo/text. */
-header{
-  position:relative!important;isolation:isolate!important;overflow:hidden!important;
-  width:min(1280px,calc(100% - 28px))!important;max-width:1280px!important;
-  min-height:clamp(250px,25vw,390px)!important;margin:82px auto 22px!important;
-  padding:clamp(26px,4vw,54px)!important;border-radius:30px!important;
-  background:rgba(255,250,244,.08)!important;
-  border:1px solid rgba(255,255,255,.82)!important;
-  box-shadow:0 18px 48px rgba(43,61,57,.13),inset 0 1px 0 rgba(255,255,255,.88)!important;
-}
-header::before{
-  content:""!important;display:block!important;position:absolute!important;inset:0!important;z-index:0!important;
-  pointer-events:none!important;border-radius:inherit!important;
-  background:linear-gradient(90deg,rgba(255,251,246,.10) 0%,rgba(255,250,245,.06) 48%,rgba(255,250,245,.02) 100%),url('assets/mysouq-banner.png') center center/cover no-repeat!important;
-  border:0!important;box-shadow:none!important;backdrop-filter:blur(8px) saturate(1.08)!important;
-  -webkit-backdrop-filter:blur(8px) saturate(1.08)!important;
-}
-header::after{z-index:0!important;pointer-events:none!important;opacity:.24!important}
-header>*{position:relative!important;z-index:1!important}
-.brand-logo-lockup{max-width:54%!important}
-header p{max-width:54%!important}
-/* Individual floating glass buttons: no enclosing opaque bar. */
-.top-actions{
-  position:fixed!important;top:16px!important;left:78px!important;right:auto!important;
-  width:auto!important;max-width:calc(100vw - 150px)!important;display:flex!important;
-  flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;gap:9px!important;
-  padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;
-  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;z-index:960!important;
-}
-.top-actions>*{
-  border:1px solid rgba(255,255,255,.86)!important;border-radius:999px!important;
-  background:rgba(255,255,255,.56)!important;color:#14565b!important;
-  box-shadow:0 8px 22px rgba(32,65,62,.13),inset 0 1px 0 rgba(255,255,255,.92)!important;
-  backdrop-filter:blur(16px) saturate(1.25)!important;-webkit-backdrop-filter:blur(16px) saturate(1.25)!important;
-  transition:transform .18s ease,box-shadow .18s ease,background .18s ease!important;
-}
-.top-actions>*:hover{transform:translateY(-2px)!important;box-shadow:0 12px 26px rgba(32,65,62,.18),inset 0 1px 0 rgba(255,255,255,.95)!important}
-.brand-badge{
-  z-index:965!important;background:linear-gradient(145deg,#087f83,#36aaa9)!important;
-  border:1px solid rgba(255,255,255,.82)!important;
-  box-shadow:0 10px 28px rgba(8,127,131,.24),inset 0 1px 0 rgba(255,255,255,.78)!important;
-}
-/* Frosted, floating category/filter surfaces; each button remains a separate control. */
-.controls-wrapper{
-  width:min(1120px,calc(100% - 28px))!important;margin:0 auto 22px!important;
-  padding:14px 16px!important;border-radius:24px!important;
-  background:rgba(255,250,244,.48)!important;border:1px solid rgba(255,255,255,.84)!important;
-  box-shadow:0 18px 42px rgba(35,61,58,.12),inset 0 1px 0 rgba(255,255,255,.9)!important;
-  backdrop-filter:blur(18px) saturate(1.15)!important;-webkit-backdrop-filter:blur(18px) saturate(1.15)!important;
-}
-.msq-category-nav .cat-btn,.msq-category-nav button,.controls-wrapper button,.controls-wrapper select,.controls-wrapper input{
-  border-radius:14px!important;border:1px solid rgba(255,255,255,.92)!important;
-  box-shadow:0 7px 17px rgba(35,61,58,.08),inset 0 1px 0 rgba(255,255,255,.92)!important;
-}
-#products-container.products-grid{
-  width:min(1200px,calc(100% - 28px))!important;margin:0 auto!important;
-  justify-content:center!important;align-items:stretch!important;gap:18px!important;
-}
-#products-container .product-card{
-  border-radius:22px!important;overflow:hidden!important;
-  border:1px solid rgba(255,255,255,.86)!important;
-  box-shadow:0 12px 28px rgba(35,61,58,.12)!important;
-  background:rgba(255,255,255,.88)!important;
-}
-@media(max-width:700px){
-  body{padding:8px 0 84px!important}
-  body::before{background-position:center center!important}
-  .top-actions{top:10px!important;left:72px!important;right:76px!important;max-width:none!important;gap:6px!important}
-  .top-actions>*{min-height:36px!important;padding:6px 10px!important;font-size:11px!important}
-  .brand-badge{top:9px!important;right:9px!important;width:52px!important;height:52px!important}
-  header{width:calc(100% - 18px)!important;min-height:230px!important;margin:76px auto 16px!important;padding:20px 14px!important;border-radius:22px!important}
-  header::before{background-position:center center!important;background-size:cover!important}
-  .brand-logo-lockup{max-width:100%!important;margin:6px 0 8px!important}
-  .brand-wordmark h1{font-size:clamp(34px,9vw,54px)!important}
-  header p{max-width:100%!important;font-size:12px!important;padding:8px 10px!important;border-radius:14px!important}
-  .controls-wrapper{width:calc(100% - 18px)!important;padding:10px!important;margin-bottom:16px!important;border-radius:19px!important}
-  .msq-category-nav{gap:7px!important}
-  .msq-category-nav .cat-btn,.msq-category-nav button,.controls-wrapper button{min-height:36px!important}
-  #products-container.products-grid{width:calc(100% - 18px)!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important}
-  #products-container .product-card{border-radius:16px!important}
-}
+<!-- removed duplicate style:mysouq-safe-glass-v4 -->
 
-</style>
 
 
 <!-- My Souq glass background / banner correction v5 (CSS only; all existing markup and scripts preserved) -->
-<style id="mysouq-glass-banner-path-fix-v5">
-  html, body { min-height:100%; }
-  body {
-    background: #eee5d8 !important;
-    background-attachment: fixed !important;
-    isolation: isolate;
-  }
-  body::before {
-    content:"";
-    position:fixed;
-    inset:-8px;
-    z-index:-1;
-    pointer-events:none;
-    background:
-      linear-gradient(135deg, rgba(245,238,226,.22), rgba(248,242,233,.16)),
-      url("assets/store-room.webp") center center / cover no-repeat;
-    filter: blur(1.35px) saturate(.92);
-    transform: scale(1.015);
-  }
-  body.dark-mode::before {
-    background:
-      linear-gradient(135deg, rgba(13,22,24,.66), rgba(16,25,27,.58)),
-      url("assets/store-room.webp") center center / cover no-repeat;
-    filter: blur(1.7px) saturate(.78);
-  }
 
-  /* Restore the actual banner artwork. Its previous URL pointed to a missing assets/ file. */
-  body > header {
-    position:relative !important;
-    isolation:isolate !important;
-    overflow:hidden !important;
-    width:min(1400px, calc(100% - 32px)) !important;
-    max-width:1400px !important;
-    min-height:clamp(260px, 25vw, 430px) !important;
-    margin:24px auto 20px !important;
-    padding:0 !important;
-    border:1px solid rgba(255,255,255,.82) !important;
-    border-radius:28px !important;
-    background:
-      linear-gradient(90deg, rgba(255,250,244,.02), rgba(255,250,244,.02)),
-      url("assets/mysouq-banner.png") center center / 100% 100% no-repeat !important;
-    box-shadow:0 24px 65px rgba(51,38,29,.14), inset 0 1px 0 rgba(255,255,255,.7) !important;
-    backdrop-filter:blur(12px) saturate(1.08) !important;
-    -webkit-backdrop-filter:blur(12px) saturate(1.08) !important;
-  }
-  body > header::before, body > header::after { display:none !important; }
+<!-- removed duplicate style:mysouq-glass-banner-path-fix-v5 -->
 
-  /* Keep the original live brand nodes in the document; the supplied complete banner already contains them. */
-  body > header .brand-logo-lockup,
-  body > header > p {
-    visibility:hidden !important;
-  }
-
-  /* Separate floating controls; no shared opaque toolbar slab. */
-  .top-actions {
-    display:flex !important;
-    flex-wrap:wrap !important;
-    align-items:center !important;
-    justify-content:center !important;
-    gap:10px !important;
-    background:transparent !important;
-    border:0 !important;
-    box-shadow:none !important;
-    padding:8px !important;
-    backdrop-filter:none !important;
-    -webkit-backdrop-filter:none !important;
-  }
-  .top-actions > *,
-  .theme-toggle, .admin-orders-trigger, .track-trigger, .cart-trigger,
-  .cat-btn, .filter-btn, .sort-select, .size-filter-bar .size-btn,
-  .controls-wrapper input, .controls-wrapper select, .controls-wrapper button {
-    border-radius:17px !important;
-    box-shadow:0 8px 22px rgba(46,37,28,.10), inset 0 1px 0 rgba(255,255,255,.8) !important;
-    backdrop-filter:blur(16px) saturate(1.22) !important;
-    -webkit-backdrop-filter:blur(16px) saturate(1.22) !important;
-  }
-  .controls-wrapper {
-    width:min(1000px, calc(100% - 28px)) !important;
-    max-width:1000px !important;
-    margin:0 auto 22px !important;
-    padding:14px !important;
-    border:1px solid rgba(255,255,255,.78) !important;
-    border-radius:23px !important;
-    background:rgba(255,250,243,.53) !important;
-    box-shadow:0 18px 42px rgba(52,41,31,.10), inset 0 1px 0 rgba(255,255,255,.75) !important;
-    backdrop-filter:blur(18px) saturate(1.18) !important;
-    -webkit-backdrop-filter:blur(18px) saturate(1.18) !important;
-  }
-  .categories-bar, .filters-bar, .sort-filter-bar, .size-filter-bar {
-    background:transparent !important;
-    border-color:rgba(255,255,255,.48) !important;
-    gap:9px !important;
-  }
-  .product-card, .product-item, .product-card-new {
-    border:1px solid rgba(255,255,255,.82) !important;
-    border-radius:22px !important;
-    overflow:hidden !important;
-    box-shadow:0 14px 30px rgba(54,42,31,.12) !important;
-    background:rgba(255,255,255,.84) !important;
-    backdrop-filter:blur(12px) !important;
-    -webkit-backdrop-filter:blur(12px) !important;
-  }
-  body.dark-mode .controls-wrapper {
-    background:rgba(24,25,24,.58) !important;
-    border-color:rgba(255,255,255,.12) !important;
-  }
-
-  @media (max-width:767px) {
-    body > header {
-      width:calc(100% - 18px) !important;
-      min-height:clamp(145px, 43vw, 230px) !important;
-      margin:68px auto 14px !important;
-      border-radius:20px !important;
-      background-size:100% 100% !important;
-    }
-    .top-actions {
-      position:fixed !important;
-      top:7px !important;
-      left:8px !important;
-      right:8px !important;
-      z-index:100 !important;
-      justify-content:center !important;
-      gap:7px !important;
-      padding:4px !important;
-    }
-    .top-actions > *, .theme-toggle, .admin-orders-trigger, .track-trigger, .cart-trigger {
-      min-height:38px !important;
-      padding:7px 10px !important;
-    }
-    .controls-wrapper {
-      width:calc(100% - 18px) !important;
-      padding:10px !important;
-      margin-bottom:16px !important;
-      border-radius:18px !important;
-    }
-    .categories-bar, .filters-bar, .sort-filter-bar, .size-filter-bar {
-      flex-wrap:wrap !important;
-      justify-content:center !important;
-    }
-    .product-grid, #productsContainer, .products-container {
-      gap:10px !important;
-    }
-  }
-</style>
 
 <!-- <!-- My Souq final glass refinement v6: visual-only overrides; original functions and markup retained. -->
-<style id="mysouq-final-glass-v6">
-:root{
-  --msq-v6-teal:#087f83;
-  --msq-v6-teal-bright:#24a6a5;
-  --msq-v6-glass-light:rgba(255,250,244,.43);
-  --msq-v6-glass-edge:rgba(255,255,255,.72);
-  --msq-v6-glass-shadow:rgba(29,49,47,.14);
-}
-html,body{max-width:100%;overflow-x:hidden!important}
-body::before{
-  filter:blur(3px) saturate(.94)!important;
-  transform:scale(1.025)!important;
-}
-body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp') center center/cover no-repeat!important;
-  filter:blur(3.5px) saturate(.82)!important;
-}
-/* Hero keeps the full supplied banner art visible. */
-body>header{
-  background-image:url('assets/mysouq-banner.png')!important;
-  background-position:center!important;background-size:cover!important;background-repeat:no-repeat!important;
-  border:1px solid rgba(255,255,255,.78)!important;
-  box-shadow:0 22px 55px rgba(32,48,45,.16),inset 0 1px 0 rgba(255,255,255,.8)!important;
-}
-/* Floating top controls stay individual; never become a horizontally scrolling strip. */
-.top-actions{
-  max-width:calc(100vw - 140px)!important;flex-wrap:wrap!important;overflow:visible!important;
-  justify-content:flex-start!important;gap:8px!important;
-}
-.top-actions>*{
-  background:rgba(232,249,247,.58)!important;color:#14565b!important;
-  border:1px solid rgba(255,255,255,.78)!important;
-  backdrop-filter:blur(18px) saturate(1.25)!important;-webkit-backdrop-filter:blur(18px) saturate(1.25)!important;
-}
-/* The category/filter panel is a frosted surface, while each control floats separately. */
-.controls-wrapper{
-  display:flex!important;flex-direction:column!important;align-items:stretch!important;
-  gap:12px!important;overflow:visible!important;min-width:0!important;
-  background:rgba(255,250,244,.40)!important;border:1px solid rgba(255,255,255,.76)!important;
-  box-shadow:0 18px 45px rgba(31,49,46,.13),inset 0 1px 0 rgba(255,255,255,.84)!important;
-  backdrop-filter:blur(24px) saturate(1.22)!important;-webkit-backdrop-filter:blur(24px) saturate(1.22)!important;
-}
-.categories-bar,.categories-main,.msq-category-nav{
-  display:flex!important;flex-flow:row wrap!important;justify-content:center!important;align-items:center!important;
-  gap:8px!important;width:100%!important;max-width:100%!important;min-width:0!important;
-  overflow:visible!important;white-space:normal!important;scrollbar-width:none!important;
-}
-.categories-bar::-webkit-scrollbar,.categories-main::-webkit-scrollbar,.msq-category-nav::-webkit-scrollbar{display:none!important}
-.search-sort-box{
-  display:flex!important;flex-flow:row wrap!important;align-items:center!important;justify-content:center!important;
-  gap:9px!important;width:100%!important;max-width:100%!important;min-width:0!important;
-  overflow:visible!important;white-space:normal!important;
-}
-.search-field-wrap{flex:1 1 230px!important;min-width:0!important;max-width:100%!important}
-.search-field-wrap .search-input,.search-field-wrap input{width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
-.sort-wrapper{flex:0 1 auto!important;min-width:0!important;max-width:100%!important}
-.sort-wrapper select,.controls-wrapper select,.controls-wrapper input{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
-.controls-wrapper button,.controls-wrapper select,.controls-wrapper input,.cat-btn,.gallery-mode-btn{
-  flex-shrink:1!important;max-width:100%!important;
-  border:1px solid rgba(255,255,255,.82)!important;border-radius:15px!important;
-  box-shadow:0 7px 18px rgba(35,61,58,.10),inset 0 1px 0 rgba(255,255,255,.88)!important;
-  backdrop-filter:blur(16px) saturate(1.2)!important;-webkit-backdrop-filter:blur(16px) saturate(1.2)!important;
-}
-/* Product cards: glass body, clean image rendering, legible title and price. */
-#products-container.products-grid{
-  max-width:1200px!important;width:calc(100% - 28px)!important;min-width:0!important;
-  display:grid!important;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),260px))!important;
-  justify-content:center!important;align-items:stretch!important;gap:16px!important;overflow:visible!important;
-}
-#products-container .product-card,#products-container .product-item,#products-container .product-card-new{
-  min-width:0!important;max-width:100%!important;overflow:hidden!important;
-  background:rgba(255,252,248,.52)!important;border:1px solid rgba(255,255,255,.78)!important;
-  border-radius:22px!important;box-shadow:0 14px 32px rgba(33,48,44,.15),inset 0 1px 0 rgba(255,255,255,.78)!important;
-  backdrop-filter:blur(20px) saturate(1.12)!important;-webkit-backdrop-filter:blur(20px) saturate(1.12)!important;
-}
-#products-container .product-card img,#products-container .product-item img,#products-container .product-card-new img{
-  opacity:1!important;filter:none!important;mix-blend-mode:normal!important;
-}
-#products-container .product-card .product-info,#products-container .product-card .product-details,
-#products-container .product-item .product-info,#products-container .product-card-new .product-info{
-  background:rgba(255,255,255,.30)!important;backdrop-filter:blur(12px)!important;-webkit-backdrop-filter:blur(12px)!important;
-}
-/* Dark mode: deep translucent charcoal glass with the brand's teal retained. */
-body.dark-mode .controls-wrapper{
-  background:rgba(18,31,33,.52)!important;border-color:rgba(215,249,245,.20)!important;
-  box-shadow:0 20px 48px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.13)!important;
-}
-body.dark-mode .categories-bar,body.dark-mode .categories-main,body.dark-mode .msq-category-nav,
-body.dark-mode .search-sort-box{background:transparent!important;border-color:rgba(220,250,247,.16)!important}
-body.dark-mode .controls-wrapper button,body.dark-mode .controls-wrapper select,body.dark-mode .controls-wrapper input,
-body.dark-mode .cat-btn,body.dark-mode .gallery-mode-btn,body.dark-mode .top-actions>*{
-  color:#e8f8f6!important;background:rgba(26,48,51,.68)!important;
-  border-color:rgba(198,242,237,.22)!important;box-shadow:0 7px 18px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.12)!important;
-}
-body.dark-mode #products-container .product-card,body.dark-mode #products-container .product-item,body.dark-mode #products-container .product-card-new{
-  color:#eaf7f5!important;background:rgba(17,31,34,.66)!important;border-color:rgba(210,244,240,.24)!important;
-  box-shadow:0 16px 34px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.10)!important;
-}
-body.dark-mode #products-container .product-card .product-info,body.dark-mode #products-container .product-card .product-details,
-body.dark-mode #products-container .product-item .product-info,body.dark-mode #products-container .product-card-new .product-info{
-  color:#eaf7f5!important;background:rgba(15,29,32,.50)!important;
-}
-body.dark-mode #products-container .product-card h2,body.dark-mode #products-container .product-card h3,
-body.dark-mode #products-container .product-card p,body.dark-mode #products-container .product-item h2,
-body.dark-mode #products-container .product-item h3,body.dark-mode #products-container .product-item p,
-body.dark-mode #products-container .product-card-new h2,body.dark-mode #products-container .product-card-new h3,
-body.dark-mode #products-container .product-card-new p{color:#eaf7f5!important}
-body.dark-mode #products-container .product-card .price,body.dark-mode #products-container .product-item .price,
-body.dark-mode #products-container .product-card-new .price{color:#49d2ce!important}
-body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!important}
-@media(max-width:767px){
-  body{padding-left:0!important;padding-right:0!important;overflow-x:hidden!important}
-  body>header{width:calc(100% - 18px)!important;min-height:clamp(140px,43vw,225px)!important;margin:66px auto 14px!important;background-size:cover!important;background-position:center!important}
-  .top-actions{left:8px!important;right:68px!important;top:8px!important;max-width:none!important;justify-content:flex-start!important;flex-wrap:wrap!important;gap:5px!important}
-  .top-actions>*{min-height:34px!important;padding:5px 8px!important;font-size:10px!important}
-  .controls-wrapper{width:calc(100% - 16px)!important;margin:0 auto 14px!important;padding:9px!important;gap:9px!important}
-  .categories-bar,.categories-main,.msq-category-nav{gap:6px!important;justify-content:center!important}
-  .cat-btn{padding:7px 9px!important;min-height:34px!important;font-size:11px!important}
-  .search-sort-box{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
-  .search-field-wrap{grid-column:1/-1!important;width:100%!important;min-width:0!important}
-  .sort-wrapper{width:100%!important;min-width:0!important}
-  .sort-wrapper select,.controls-wrapper select,.controls-wrapper button,.gallery-mode-btn{width:100%!important;min-width:0!important;font-size:11px!important;padding:8px 6px!important}
-  #products-container.products-grid{width:calc(100% - 16px)!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
-  #products-container .product-card,#products-container .product-item,#products-container .product-card-new{border-radius:16px!important}
-}
-@media(max-width:360px){
-  .top-actions>*{font-size:9px!important;padding:4px 6px!important}
-  .cat-btn{font-size:10px!important;padding:6px 7px!important}
-  #products-container.products-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-}
-</style>
+
+<!-- removed duplicate style:mysouq-final-glass-v6 -->
 
 
 
-<style id="mysouq-button-order-and-wider-cards-v8">
-/* My Souq — cleaner control alignment and wider product cards; visual-only overrides. */
-.controls-wrapper{
-  width:min(1320px,calc(100% - 28px))!important;
-  margin-inline:auto!important;
-  padding:16px 20px!important;
-  gap:14px!important;
-}
-.categories-bar,.categories-main,.msq-category-nav{
-  display:flex!important;
-  flex-direction:row!important;
-  flex-wrap:wrap!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:10px!important;
-  width:100%!important;
-}
-.cat-btn{
-  flex:0 0 auto!important;
-  min-width:94px!important;
-  min-height:46px!important;
-  padding:11px 18px!important;
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  text-align:center!important;
-  line-height:1.2!important;
-  border-radius:14px!important;
-}
-.search-sort-box{
-  display:grid!important;
-  grid-template-columns:minmax(250px,1.65fr) repeat(3,minmax(155px,1fr))!important;
-  gap:12px!important;
-  align-items:stretch!important;
-}
-.search-field-wrap,.sort-wrapper,.search-sort-box>*,.controls-wrapper select{
-  min-width:0!important;
-  max-width:100%!important;
-}
-.search-input,.sort-wrapper select,.controls-wrapper select,.gallery-mode-btn{
-  min-height:48px!important;
-  border-radius:14px!important;
-}
-.controls-wrapper button:not(.voice-search-btn):focus-visible,.cat-btn:focus-visible,
-.search-input:focus-visible,.sort-wrapper select:focus-visible{
-  outline:3px solid rgba(8,127,120,.22)!important;
-  outline-offset:2px!important;
-}
-/* More generous card width with a controlled grid that remains centered. */
-#products-container.products-grid,#productsContainer.products-grid,
-.products-grid,#products-container,#productsContainer,.products-container{
-  width:min(1320px,calc(100% - 32px))!important;
-  max-width:1320px!important;
-  margin-inline:auto!important;
-  display:grid!important;
-  grid-template-columns:repeat(auto-fit,minmax(min(100%,285px),320px))!important;
-  justify-content:center!important;
-  align-items:stretch!important;
-  gap:clamp(16px,2vw,24px)!important;
-}
-#products-container .product-card,#products-container .product-item,#products-container .product-card-new,
-#productsContainer .product-card,#productsContainer .product-item,#productsContainer .product-card-new,
-.products-grid .product-card,.products-grid .product-item,.products-grid .product-card-new,
-.product-card,.product-item,.product-card-new{
-  width:100%!important;
-  max-width:320px!important;
-  border-radius:24px!important;
-}
-.product-card .image-container,.product-card .product-image-container,.product-item .image-container,
-.product-card-new .image-container{
-  width:100%!important;
-}
-@media(min-width:1100px){
-  #products-container.products-grid,#productsContainer.products-grid,.products-grid,#products-container,#productsContainer,.products-container{
-    grid-template-columns:repeat(auto-fit,minmax(300px,340px))!important;
-  }
-  #products-container .product-card,#products-container .product-item,#products-container .product-card-new,
-  #productsContainer .product-card,#productsContainer .product-item,#productsContainer .product-card-new,
-  .products-grid .product-card,.products-grid .product-item,.products-grid .product-card-new,
-  .product-card,.product-item,.product-card-new{max-width:340px!important}
-}
-@media(max-width:767px){
-  .controls-wrapper{width:calc(100% - 18px)!important;padding:11px!important;gap:10px!important}
-  .categories-bar,.categories-main,.msq-category-nav{justify-content:center!important;gap:7px!important}
-  .cat-btn{min-width:0!important;min-height:40px!important;padding:9px 12px!important;font-size:12px!important}
-  .search-sort-box{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
-  .search-field-wrap{grid-column:1/-1!important}
-  #products-container.products-grid,#productsContainer.products-grid,.products-grid,#products-container,#productsContainer,.products-container{
-    width:calc(100% - 20px)!important;
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;
-    gap:10px!important;
-  }
-  #products-container .product-card,#products-container .product-item,#products-container .product-card-new,
-  #productsContainer .product-card,#productsContainer .product-item,#productsContainer .product-card-new,
-  .products-grid .product-card,.products-grid .product-item,.products-grid .product-card-new,
-  .product-card,.product-item,.product-card-new{max-width:none!important;border-radius:17px!important}
-}
-@media(max-width:390px){
-  #products-container.products-grid,#productsContainer.products-grid,.products-grid,#products-container,#productsContainer,.products-container{
-    grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;width:calc(100% - 14px)!important
-  }
-  .cat-btn{padding:8px 9px!important;font-size:11px!important}
-}
-</style>
+
+
+<!-- removed duplicate style:mysouq-button-order-and-wider-cards-v8 -->
 
 
 
-<style id="mysouq-horizontal-controls-v3">
-/* Desktop: keep all category and filter controls neatly aligned in rows. */
-.controls-wrapper{width:min(1400px,calc(100% - 28px))!important;}
-.categories-bar,.categories-main,.msq-category-nav{
-  display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;
-  align-items:center!important;justify-content:flex-start!important;gap:9px!important;
-  width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;
-  scrollbar-width:thin;scrollbar-color:rgba(8,127,131,.35) transparent;
-  -webkit-overflow-scrolling:touch!important;white-space:nowrap!important;
-}
-.categories-bar>*,.categories-main>*,.msq-category-nav>*{flex:0 0 auto!important;white-space:nowrap!important;}
-.search-sort-box{
- display:flex!important;flex-flow:row nowrap!important;align-items:center!important;
- gap:10px!important;width:100%!important;min-width:0!important;
-}
-.search-field-wrap{flex:1 1 240px!important;min-width:190px!important;}
-.search-sort-box>.sort-wrapper,.search-sort-box>.gallery-mode-btn,
-.search-sort-box>select,.search-sort-box>.filter-group{flex:0 1 190px!important;min-width:150px!important;}
-.search-sort-box select,.search-input,.gallery-mode-btn{width:100%!important;box-sizing:border-box!important;}
-@media(max-width:767px){
- .controls-wrapper{width:calc(100% - 16px)!important;max-width:none!important;padding:10px!important;overflow:hidden!important;gap:10px!important;}
- /* Category pills scroll horizontally instead of wrapping into multiple lines. */
- .categories-bar,.categories-main,.msq-category-nav{
-   flex-wrap:nowrap!important;justify-content:flex-start!important;overflow-x:auto!important;
-   padding:2px 2px 10px!important;gap:7px!important;scroll-snap-type:x proximity!important;
-   overscroll-behavior-x:contain!important;touch-action:pan-x pan-y!important;
- }
- .categories-bar>*,.categories-main>*,.msq-category-nav>*{scroll-snap-align:start!important;}
- .cat-btn{flex:0 0 auto!important;min-width:max-content!important;min-height:40px!important;padding:9px 13px!important;font-size:12px!important;white-space:nowrap!important;}
- /* Search, size, sort, clothing type and image-only controls stay side by side in a swipeable row. */
- .search-sort-box{
-   display:flex!important;flex-flow:row nowrap!important;align-items:stretch!important;
-   gap:8px!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;
-   overflow-y:hidden!important;padding:2px 2px 10px!important;
-   -webkit-overflow-scrolling:touch!important;scroll-snap-type:x proximity!important;
-   overscroll-behavior-x:contain!important;touch-action:pan-x pan-y!important;
- }
- .search-field-wrap{flex:0 0 190px!important;min-width:190px!important;grid-column:auto!important;scroll-snap-align:start!important;}
- .search-sort-box>.sort-wrapper,.search-sort-box>.gallery-mode-btn,
- .search-sort-box>select,.search-sort-box>.filter-group,
- .search-sort-box>div:not(.search-field-wrap){flex:0 0 155px!important;min-width:155px!important;max-width:155px!important;scroll-snap-align:start!important;}
- .search-sort-box select,.sort-wrapper select,.controls-wrapper select,.search-input,.gallery-mode-btn{
-   width:100%!important;min-width:0!important;min-height:43px!important;height:43px!important;
-   font-size:12px!important;border-radius:13px!important;white-space:nowrap!important;
- }
- .search-sort-box::-webkit-scrollbar,.categories-bar::-webkit-scrollbar,.categories-main::-webkit-scrollbar,.msq-category-nav::-webkit-scrollbar{height:4px!important;}
- .search-sort-box::-webkit-scrollbar-thumb,.categories-bar::-webkit-scrollbar-thumb,.categories-main::-webkit-scrollbar-thumb,.msq-category-nav::-webkit-scrollbar-thumb{background:rgba(8,127,131,.28)!important;border-radius:20px!important;}
-}
-</style>
+
+
+<!-- removed duplicate style:mysouq-horizontal-controls-v3 -->
+
 
 
 
 <!-- My Souq: mobile-only product order modal polish. Existing behavior and desktop layout remain unchanged. -->
-<style id="mysouq-mobile-product-modal-polish-v1">
-@media (max-width: 767px) {
-  html body #productModal.modal-overlay {
-    align-items: flex-end !important;
-    justify-content: center !important;
-    padding: 0 !important;
-    overflow: hidden !important;
-    overscroll-behavior: contain !important;
-  }
-  html body #productModal > .modal-content {
-    width: 100% !important;
-    max-width: 100% !important;
-    height: min(94dvh, 820px) !important;
-    max-height: 94dvh !important;
-    margin: 0 !important;
-    border-radius: 20px 20px 0 0 !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior-y: contain !important;
-    padding: 0 !important;
-    display: block !important;
-    position: relative !important;
-  }
-  html body #productModal .modal-body {
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 10px !important;
-    width: 100% !important;
-    max-height: none !important;
-    height: auto !important;
-    overflow: visible !important;
-    padding: 10px 12px 18px !important;
-    margin: 0 !important;
-  }
-  html body #productModal .modal-gallery-wrapper {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 7px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: hidden !important;
-    position: relative !important;
-  }
-  html body #productModal #modalImage,
-  html body #productModal .modal-img {
-    display: block !important;
-    width: 100% !important;
-    height: clamp(190px, 31dvh, 270px) !important;
-    min-height: 0 !important;
-    max-height: 31dvh !important;
-    object-fit: contain !important;
-    object-position: center !important;
-    background: #f6f0eb !important;
-    border: 1px solid rgba(139,63,82,.12) !important;
-    border-radius: 15px !important;
-    flex: 0 0 auto !important;
-  }
-  html body #productModal .thumbs-vertical-wrap {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 5px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    height: 54px !important;
-    max-height: 54px !important;
-    overflow: hidden !important;
-  }
-  html body #productModal #thumbnailsContainer,
-  html body #productModal .thumbnails-bar {
-    display: flex !important;
-    flex: 1 1 auto !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 6px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    height: 54px !important;
-    max-height: 54px !important;
-    overflow-x: auto !important;
-    overflow-y: hidden !important;
-    padding: 2px 1px 5px !important;
-    scrollbar-width: none !important;
-    -webkit-overflow-scrolling: touch !important;
-  }
-  html body #productModal #thumbnailsContainer::-webkit-scrollbar,
-  html body #productModal .thumbnails-bar::-webkit-scrollbar { display:none !important; }
-  html body #productModal #thumbnailsContainer img,
-  html body #productModal .thumbnails-bar img,
-  html body #productModal #thumbnailsContainer button,
-  html body #productModal .thumbnails-bar button {
-    flex: 0 0 48px !important;
-    width: 48px !important;
-    min-width: 48px !important;
-    height: 46px !important;
-    min-height: 46px !important;
-    object-fit: cover !important;
-    border-radius: 9px !important;
-  }
-  html body #productModal .thumbs-swap-btn { display:none !important; }
-  html body #productModal .gallery-nav {
-    position: absolute !important;
-    top: clamp(75px, 13dvh, 115px) !important;
-    left: 8px !important;
-    right: 8px !important;
-    display: flex !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-    pointer-events: none !important;
-  }
-  html body #productModal .gallery-nav button {
-    pointer-events: auto !important;
-    width: 34px !important;
-    height: 34px !important;
-    border-radius: 50% !important;
-    background: rgba(255,255,255,.92) !important;
-    color: #49383a !important;
-    border: 1px solid rgba(139,63,82,.16) !important;
-    box-shadow: 0 2px 9px rgba(0,0,0,.1) !important;
-  }
-  html body #productModal .modal-info {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 9px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    padding: 0 1px !important;
-  }
-  html body #productModal .modal-back-btn {
-    align-self: flex-start !important;
-    max-width: 100% !important;
-    min-height: 34px !important;
-    padding: 6px 12px !important;
-    border-radius: 20px !important;
-    font-size: 11px !important;
-  }
-  html body #productModal .modal-title {
-    font-size: clamp(17px, 4.8vw, 21px) !important;
-    line-height: 1.45 !important;
-    margin: 0 !important;
-    overflow-wrap: anywhere !important;
-  }
-  html body #productModal .stock-badge {
-    max-width: 100% !important;
-    white-space: normal !important;
-    line-height: 1.55 !important;
-    padding: 6px 10px !important;
-    font-size: 11px !important;
-  }
-  html body #productModal .size-selector {
-    display: flex !important;
-    flex-wrap: wrap !important;
-    gap: 6px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    margin-top: 5px !important;
-  }
-  html body #productModal .size-selector > * {
-    min-height: 38px !important;
-    max-width: 100% !important;
-    padding: 7px 11px !important;
-    border-radius: 10px !important;
-    font-size: 12px !important;
-  }
-  html body #productModal .modal-price {
-    font-size: 23px !important;
-    line-height: 1.35 !important;
-    margin: 2px 0 !important;
-  }
-  html body #productModal .modal-actions-row {
-    display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    gap: 7px !important;
-    width: 100% !important;
-    min-width: 0 !important;
-    margin-top: 5px !important;
-  }
-  html body #productModal .modal-actions-row > * {
-    min-width: 0 !important;
-    min-height: 43px !important;
-    padding: 8px 6px !important;
-    font-size: 12px !important;
-    overflow-wrap: anywhere !important;
-  }
-  html body #productModal .close-btn {
-    position: sticky !important;
-    float: left !important;
-    top: 8px !important;
-    left: 8px !important;
-    margin: 8px 8px -38px auto !important;
-    z-index: 50 !important;
-    width: 30px !important;
-    height: 30px !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,.08) !important;
-  }
-  html body #productModal .dimensions-box {
-    grid-template-columns: minmax(0, 1fr) !important;
-    overflow-wrap: anywhere !important;
-  }
-}
-</style>
+
+<!-- removed duplicate style:mysouq-mobile-product-modal-polish-v1 -->
 
 
-<style id="mysouq-customer-tracking-redesign-v1">
-/* Customer-only order tracking: read-only, separated from admin status controls. */
-#trackingModal .track-modal-content{width:min(1080px,96vw)!important;max-width:1080px!important;max-height:94vh!important;overflow-y:auto!important;padding:clamp(14px,2vw,24px)!important;border-radius:24px!important;background:linear-gradient(145deg,rgba(255,251,247,.97),rgba(246,235,228,.96))!important}
-#trackingModal .track-modal-title{margin:0 44px 8px 0!important;text-align:right!important;font-size:clamp(19px,2.2vw,26px)!important}
-#trackingModal .track-modal-hint{font-size:12px!important;line-height:1.8!important;margin:0 0 12px!important;color:#79666a!important}
-#trackingModal .track-search-row{display:flex!important;gap:8px!important;align-items:stretch!important;margin-bottom:14px!important}
-#trackingModal .track-search-input{min-width:0!important;flex:1!important;border-radius:13px!important;padding:12px 14px!important;background:#fff!important;border:1px solid #e5d4d1!important}
-#trackingModal .track-search-btn{flex:0 0 auto!important;min-width:82px!important;border-radius:13px!important}
-#trackingResultContainer{padding:clamp(12px,2vw,22px)!important;border:1px solid rgba(255,255,255,.85)!important;border-radius:22px!important;background:rgba(255,255,255,.65)!important;box-shadow:0 12px 34px rgba(82,47,51,.08)!important}
-.customer-track-success{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:900;color:#237445;font-size:14px;margin-bottom:14px}
-.customer-track-columns{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:16px;align-items:start}
-.customer-track-order-panel,.customer-track-products-panel{min-width:0;padding:16px;border:1px solid #eadbd7;border-radius:18px;background:rgba(255,253,250,.92);box-shadow:0 7px 20px rgba(91,54,58,.05)}
-.customer-track-section-title{display:flex;align-items:center;gap:7px;justify-content:space-between;flex-wrap:wrap;font-size:15px;font-weight:950;color:#087f83;margin-bottom:12px}
-.customer-track-section-title span{font-size:12px;color:#76666c}
-.customer-track-data-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-.customer-track-data{min-width:0;display:flex;flex-direction:column;gap:5px;padding:11px 12px;border-radius:13px;background:#fff;border:1px solid #eadbd7}
-.customer-track-data small,.customer-track-current-status small{font-size:11px;color:#806e70;font-weight:800}
-.customer-track-data strong{font-size:13px;color:#392d30;line-height:1.7;overflow-wrap:anywhere;white-space:pre-line}
-.customer-track-address{grid-column:1/-1}
-.customer-track-current-status{display:flex;flex-direction:column;gap:5px;margin-top:10px;padding:13px;border-radius:14px;background:rgba(139,63,82,.08);border:1px solid rgba(139,63,82,.25);color:var(--status-color)}
-.customer-track-current-status strong{font-size:16px;line-height:1.6}
-.customer-track-timeline{margin-top:12px;padding:12px!important;border-radius:14px!important;background:#fff!important;border:1px solid #eadbd7!important}
-.customer-track-timeline .customer-track-section-title{margin-bottom:10px}
-#trackingResultContainer .track-product-card{display:grid;grid-template-columns:minmax(105px,.62fr) minmax(0,1fr);gap:12px;padding:12px;margin:0 0 10px;border:1px solid #eadbd7;border-radius:16px;background:#fff;align-items:start}
-#trackingResultContainer .track-product-images{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;min-width:0}
-#trackingResultContainer .track-product-img-wrap{width:100%;min-width:0;overflow:hidden;border-radius:11px;background:#f3e7e3;border:1px solid #eadbd7}
-#trackingResultContainer .track-product-img{display:block;width:100%;height:135px;object-fit:contain;cursor:zoom-in;background:#fff}
-#trackingResultContainer .track-product-info{min-width:0}
-#trackingResultContainer .track-product-name{font-size:14px;line-height:1.7;font-weight:950;color:#8b3f52;margin-bottom:5px}
-#trackingResultContainer .track-product-row{font-size:12px;line-height:1.8;color:#68585c;overflow-wrap:anywhere}
-#trackingResultContainer .track-dims{margin-top:8px;padding:9px;border-radius:12px;background:#f9efeb;border:1px solid #eedbd5}
-#trackingResultContainer .track-dims-title{font-size:11px;font-weight:950;color:#8b3f52;margin-bottom:6px}
-#trackingResultContainer .track-dim-chip{display:inline-flex;margin:2px;padding:5px 7px;border-radius:8px;background:#fff;border:1px solid #eadbd7;font-size:10.5px;line-height:1.5;color:#58494d}
-.customer-track-empty-products{padding:20px 14px;border:1px dashed #d9c6c2;border-radius:14px;text-align:center;color:#76666c;font-size:13px;line-height:1.9;background:#fffaf8}
-@media(max-width:760px){.customer-track-columns{grid-template-columns:1fr}.customer-track-order-panel,.customer-track-products-panel{padding:12px}.customer-track-data-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#trackingResultContainer .track-product-img{height:125px}}
-@media(max-width:430px){#trackingModal .track-search-row{gap:6px!important}#trackingModal .track-search-btn{min-width:72px!important;padding-inline:9px!important}.customer-track-data-grid{grid-template-columns:1fr}.customer-track-address{grid-column:auto}#trackingResultContainer .track-product-card{grid-template-columns:1fr}#trackingResultContainer .track-product-images{grid-template-columns:repeat(2,minmax(0,1fr))}#trackingResultContainer .track-product-img{height:180px}}
-</style>
 
 
-<script id="mysouq-maintenance-admin-entry-fix">
-/* إصلاح دخول الإدارة أثناء تفعيل الصيانة: إبقاء نافذة الدخول فوق طبقة الصيانة */
-(function () {
-  if (window.__mysouqMaintenanceAdminEntryFix) return;
-  window.__mysouqMaintenanceAdminEntryFix = true;
-
-  function isAdminSignedIn() {
-    try {
-      return typeof isAdminMode !== 'undefined' &&
-             !!isAdminMode &&
-             typeof currentAdminUser !== 'undefined' &&
-             !!currentAdminUser;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  function liftModal(id) {
-    var modal = document.getElementById(id);
-    if (!modal) return null;
-    modal.style.zIndex = '10002';
-    modal.style.pointerEvents = 'auto';
-    return modal;
-  }
-
-  function hideMaintenanceForAdmin() {
-    var overlay = document.getElementById('maintenanceModeOverlay');
-    if (overlay) {
-      overlay.style.display = 'none';
-      overlay.style.pointerEvents = 'none';
-    }
-    document.body.style.overflow = '';
-  }
-
-  window.handleMaintenanceAdminEntry = function () {
-    var loginModal = liftModal('adminLoginModal');
-    var ordersModal = liftModal('adminOrdersModal');
-
-    if (isAdminSignedIn()) {
-      hideMaintenanceForAdmin();
-      if (typeof window.handleAdminButton === 'function') {
-        window.handleAdminButton();
-      } else if (ordersModal) {
-        ordersModal.classList.add('active');
-      }
-      if (ordersModal) ordersModal.style.zIndex = '10002';
-      return;
-    }
-
-    if (typeof window.handleAdminButton === 'function') {
-      window.handleAdminButton();
-    } else if (loginModal) {
-      loginModal.classList.add('active');
-    }
-
-    // نافذة الدخول تكون فوق غطاء الصيانة حتى يستطيع العميل رؤية الحقول والتفاعل معها.
-    if (loginModal) {
-      loginModal.style.zIndex = '10002';
-      loginModal.style.pointerEvents = 'auto';
-      loginModal.classList.add('active');
-    }
-  };
-
-  // بعد نجاح تسجيل الدخول، ارفع لوحة الإدارة وأخفِ غطاء الصيانة فورًا.
-  if (typeof window.loginAdmin === 'function' && !window.loginAdmin.__maintenanceEntryWrapped) {
-    var originalLoginAdmin = window.loginAdmin;
-    var wrappedLoginAdmin = async function () {
-      var result = await originalLoginAdmin.apply(this, arguments);
-      if (isAdminSignedIn()) {
-        hideMaintenanceForAdmin();
-        var ordersModal = liftModal('adminOrdersModal');
-        if (ordersModal) ordersModal.classList.add('active');
-      } else {
-        var loginModal = liftModal('adminLoginModal');
-        if (loginModal) loginModal.classList.add('active');
-      }
-      return result;
-    };
-    wrappedLoginAdmin.__maintenanceEntryWrapped = true;
-    window.loginAdmin = wrappedLoginAdmin;
-  }
-
-  // عند إغلاق نافذة الدخول، أعد تقييم حالة الصيانة الفعلية بدل إظهارها تلقائيًا.
-  // هذا يحافظ على شاشة الصيانة عند تفعيلها فقط، ويترك المتجر طبيعيًا عند إيقافها.
-  if (typeof window.closeAdminLogin === 'function' && !window.closeAdminLogin.__maintenanceEntryWrapped) {
-    var originalCloseAdminLogin = window.closeAdminLogin;
-    var wrappedCloseAdminLogin = function () {
-      var result = originalCloseAdminLogin.apply(this, arguments);
-      var loginModal = document.getElementById('adminLoginModal');
-      if (loginModal) {
-        loginModal.style.zIndex = '';
-        loginModal.style.pointerEvents = '';
-      }
-      if (!isAdminSignedIn()) {
-        if (typeof window.readMaintenanceMode === 'function') {
-          // القارئ يقرر إظهار الغطاء أو إخفاءه وفق إعداد Firebase/الإعداد المحفوظ.
-          Promise.resolve(window.readMaintenanceMode()).catch(function () {
-            var overlay = document.getElementById('maintenanceModeOverlay');
-            if (overlay) {
-              overlay.style.display = 'none';
-              overlay.style.pointerEvents = 'none';
-            }
-            document.body.style.overflow = '';
-          });
-        } else {
-          // في حال عدم توفر قارئ الصيانة، لا تفرض الصيانة لمجرد إلغاء تسجيل الدخول.
-          var overlay = document.getElementById('maintenanceModeOverlay');
-          if (overlay) {
-            overlay.style.display = 'none';
-            overlay.style.pointerEvents = 'none';
-          }
-          document.body.style.overflow = '';
-        }
-      }
-      return result;
-    };
-    wrappedCloseAdminLogin.__maintenanceEntryWrapped = true;
-    window.closeAdminLogin = wrappedCloseAdminLogin;
-  }
-})();
-</script>
+<!-- removed duplicate style:mysouq-customer-tracking-redesign-v1 -->
 
 
-<style id="mysouq-open-orders-status-filters-style">
-#msqOpenOrderFilters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px;width:100%}
-#msqOpenOrderFilters button{flex:1 1 220px;min-height:42px;border:1px solid #d7e2e8;border-radius:11px;padding:10px 14px;background:#fff;color:#344650;font-weight:900;cursor:pointer;box-shadow:0 3px 10px rgba(24,33,43,.06)}
-#msqOpenOrderFilters button.active[data-status="1"]{background:#1565c0;border-color:#1565c0;color:#fff}
-#msqOpenOrderFilters button.active[data-status="2"]{background:#6a1b9a;border-color:#6a1b9a;color:#fff}
-#msqOpenOrderFilters button:focus-visible{outline:3px solid rgba(8,127,140,.25);outline-offset:2px}
-@media(max-width:520px){#msqOpenOrderFilters{gap:6px}#msqOpenOrderFilters button{flex:1 1 100%;min-height:40px;padding:9px 8px}}
-</style>
-<script id="mysouq-open-orders-status-filters-script">
-(function(){
-  'use strict';
-  var selectedStatus = null; // null = كل الطلبات المفتوحة
-  var installed = false;
-
-  function getCode(order){
-    var n = Number(order && order.statusCode);
-    if (Number.isFinite(n)) return n;
-    var label = String(order && (order.status || order.statusLabel) || '');
-    if (/تم الحجز/.test(label)) return 1;
-    if (/جاري الشحن/.test(label)) return 2;
-    if (/تم التوريد|تم التسليم|تم التوصيل|تم الاستلام|مكتمل/.test(label)) return 3;
-    return 0;
-  }
-
-  function getCache(){
-    try {
-      if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) return adminOrdersCache;
-    } catch(e) {}
-    return Array.isArray(window.adminOrdersCache) ? window.adminOrdersCache : [];
-  }
-
-  function renderButtons(){
-    var pane = document.querySelector('#msqAdminTabContent [data-pane="open"]');
-    if (!pane) return false;
-
-    var oldBack = document.getElementById('adminBackToOrdersListBtn');
-    if (oldBack) oldBack.style.display = 'none';
-
-    var bar = document.getElementById('msqOpenOrderFilters');
-    if (!bar) {
-      bar = document.createElement('div');
-      bar.id = 'msqOpenOrderFilters';
-      bar.setAttribute('aria-label','تصفية الطلبات المفتوحة حسب الحالة');
-      bar.innerHTML =
-        '<button type="button" data-status="1" aria-pressed="false">✅ طلبات تم الحجز</button>' +
-        '<button type="button" data-status="2" aria-pressed="false">🚚 طلبات جاري الشحن</button>';
-      var list = document.getElementById('adminOrdersList');
-      if (list && list.parentNode === pane) pane.insertBefore(bar, list);
-      else pane.insertBefore(bar, pane.firstChild);
-      bar.addEventListener('click', function(ev){
-        var btn = ev.target.closest('button[data-status]');
-        if (!btn) return;
-        var next = Number(btn.getAttribute('data-status'));
-        // الضغط على الفلتر النشط مرة ثانية يعرض كل الطلبات المفتوحة من جديد.
-        selectedStatus = selectedStatus === next ? null : next;
-        updateButtons();
-        if (typeof window.filterAdminOrders === 'function') window.filterAdminOrders();
-      });
-    }
-    updateButtons();
-    return true;
-  }
-
-  function updateButtons(){
-    var bar = document.getElementById('msqOpenOrderFilters');
-    if (!bar) return;
-    bar.querySelectorAll('button[data-status]').forEach(function(btn){
-      var active = selectedStatus === Number(btn.getAttribute('data-status'));
-      btn.classList.toggle('active', active);
-      btn.setAttribute('aria-pressed', active ? 'true' : 'false');
-    });
-  }
-
-  function installFilter(){
-    if (installed || typeof window.filterAdminOrders !== 'function') return;
-    var previous = window.filterAdminOrders;
-    var wrapped = function(){
-      if (selectedStatus === null) return previous.apply(this, arguments);
-
-      var cache = getCache();
-      // لا نعرض الطلبات التي تم توريدها في قائمة الطلبات المفتوحة.
-      var filtered = cache.filter(function(order){
-        return getCode(order) === selectedStatus;
-      });
-      try {
-        if (typeof adminOrdersCache !== 'undefined') adminOrdersCache = filtered;
-        else window.adminOrdersCache = filtered;
-        return previous.apply(this, arguments);
-      } finally {
-        if (typeof adminOrdersCache !== 'undefined') adminOrdersCache = cache;
-        else window.adminOrdersCache = cache;
-      }
-    };
-    wrapped.__msqOpenStatusFilter = true;
-    window.filterAdminOrders = wrapped;
-    installed = true;
-  }
-
-  function init(){
-    renderButtons();
-    installFilter();
-    updateButtons();
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-  else init();
-  var tries = 0;
-  var timer = setInterval(function(){
-    init();
-    tries++;
-    if (tries > 60) clearInterval(timer);
-  }, 500);
-})();
-</script>
 
 
-<style id="mysouq-admin-five-tabs-and-delivered-actions">
-/* Keep the five primary admin channels on one horizontal row on desktop and mobile. */
-#msqAdminTabs{
-  grid-template-columns:repeat(5,minmax(0,1fr))!important;
-  gap:7px!important;
-  align-items:stretch;
-}
-#msqAdminTabs button{
-  min-width:0!important;
-  white-space:normal!important;
-  overflow-wrap:anywhere;
-  line-height:1.35;
-  padding:10px 5px!important;
-  font-size:clamp(9px,1vw,13px)!important;
-}
-#msqAdminTabs button[data-tab="rejected"]{border-color:#c62828;color:#9d1823}
-#msqAdminTabs button[data-tab="rejected"].active{background:#b71c1c;color:#fff;border-color:#b71c1c}
-#msqDeliveredList .msq-delivered-actions{
-  display:grid!important;
-  grid-template-columns:repeat(4,minmax(0,1fr));
-  gap:7px!important;
-  align-items:stretch;
-}
-#msqDeliveredList .msq-delivered-actions button{
-  min-width:0;
-  width:100%;
-  margin:0!important;
-  white-space:normal;
-  line-height:1.35;
-  padding:9px 5px;
-  border-radius:9px;
-  font-size:clamp(10px,1vw,13px);
-  font-weight:900;
-}
-@media(max-width:520px){
-  #msqAdminTabs{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:4px!important}
-  #msqAdminTabs button{padding:8px 2px!important;font-size:9px!important;min-height:52px}
-  #msqDeliveredList .msq-delivered-actions{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px!important}
-  #msqDeliveredList .msq-delivered-actions button{font-size:9px;padding:8px 2px;overflow-wrap:anywhere}
-}
-</style>
+<!-- removed duplicate script:mysouq-maintenance-admin-entry-fix -->
+
+
+
+
+<!-- removed duplicate style:mysouq-open-orders-status-filters-style -->
+
+
+<!-- removed duplicate script:mysouq-open-orders-status-filters-script -->
+
+
+
+
+<!-- removed duplicate style:mysouq-admin-five-tabs-and-delivered-actions -->
+
 
 
 <script id="mysouq-virtual-tryon-feature">
@@ -18510,31 +17175,9 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
 </style>
 
 
-<style id="mysouq-customer-support-chat-v2">
-#mysouqSupportChatWidget{font-family:inherit;color:#35232b;direction:rtl}
-#msqSupportLauncher{position:fixed!important;left:22px!important;bottom:128px!important;z-index:10020!important;width:94px!important;min-width:94px!important;height:94px!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:0!important;border:2px solid rgba(255,255,255,.95)!important;border-radius:50%!important;background:linear-gradient(145deg,#7f354d 0%,#b85d79 58%,#d58b9c 100%)!important;color:#fff!important;box-shadow:0 14px 36px rgba(104,39,63,.34),inset 0 1px 0 #ffffff70!important;cursor:pointer!important;text-align:center!important;transition:transform .2s,box-shadow .2s!important;overflow:visible!important}
-#msqSupportLauncher:hover{transform:translateY(-3px) scale(1.04)!important;box-shadow:0 18px 42px rgba(104,39,63,.42)!important}
-.msq-support-launcher-icon{width:100%;height:100%;flex:0 0 100%;border-radius:50%;display:grid;place-items:center;background:transparent;border:0;font-size:49px;line-height:1;filter:drop-shadow(0 2px 2px #43152555)}
-.msq-support-launcher-copy{position:absolute;left:50%;bottom:calc(100% + 9px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:1px;white-space:nowrap;padding:6px 10px;border:1px solid #ffffffd9;border-radius:12px;background:#fff;color:#81394f;box-shadow:0 5px 18px #43202a20;pointer-events:none}.msq-support-launcher-copy strong{font-size:12px;font-weight:900;line-height:1.4}.msq-support-launcher-copy small{font-size:10px;line-height:1.4}
-.msq-support-launcher-dot{position:absolute;width:15px;height:15px;border-radius:50%;background:#76f0a1;border:3px solid white;top:3px;right:4px;box-shadow:0 2px 7px #153c2450}
-#msqSupportPanel{position:fixed!important;left:20px!important;bottom:210px!important;z-index:10021!important;width:min(430px,calc(100vw - 32px))!important;height:min(680px,calc(100dvh - 235px))!important;min-height:410px!important;max-height:calc(100dvh - 24px)!important;background:#fffdfb!important;border:1px solid #ead5dd!important;border-radius:26px!important;box-shadow:0 26px 85px rgba(48,18,31,.28)!important;overflow:hidden!important;display:flex;flex-direction:column;backdrop-filter:blur(18px)}
-#msqSupportPanel[hidden]{display:none!important}
-.msq-support-head{display:flex;align-items:center;gap:12px;padding:18px 17px;background:linear-gradient(125deg,#67283f,#913d59 58%,#c16a83);color:#fff;flex-shrink:0;box-shadow:0 5px 20px #6f2f471f}
-.msq-support-avatar{width:48px;height:48px;display:grid;place-items:center;border-radius:17px;background:#ffffff20;border:1px solid #ffffff3d;font-size:26px;font-weight:900}
-.msq-support-head-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}.msq-support-head-copy strong{font-size:17px;font-weight:900}.msq-support-head-copy small{font-size:11px;opacity:.96}.msq-support-status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#8af1a9;margin-left:5px;box-shadow:0 0 0 3px #8af1a927}
-#msqSupportClose{border:1px solid #ffffff40!important;background:#ffffff1c!important;color:white!important;font-size:27px!important;width:36px!important;height:36px!important;border-radius:13px!important;cursor:pointer!important;line-height:1!important}
-.msq-support-messages{padding:17px 14px;display:flex;flex-direction:column;gap:11px;overflow-y:auto;flex:1;overscroll-behavior:contain;background:radial-gradient(ellipse at top right,#fff0f4 0%,transparent 42%),linear-gradient(180deg,#fffdfb,#fff9f7)}
-.msq-support-message{max-width:92%;padding:12px 14px;border-radius:17px;font-size:13px;line-height:1.85;white-space:pre-wrap;overflow-wrap:anywhere;box-shadow:0 3px 10px #43202a08}
-.msq-support-message.bot{align-self:flex-start;background:#fff;border:1px solid #f0dfe5;border-bottom-right-radius:5px;color:#49333b}.msq-support-message.user{align-self:flex-end;background:linear-gradient(135deg,#e5f7eb,#d8f0e1);border:1px solid #c7e7d2;border-bottom-left-radius:5px;color:#244a32}
-.msq-support-quick{display:flex;flex-wrap:wrap;gap:7px;align-self:flex-start;max-width:100%}.msq-support-quick button{border:1px solid #e3bdca!important;border-radius:999px!important;padding:8px 11px!important;background:#fff!important;color:#813a55!important;font-size:11px!important;font-weight:800!important;cursor:pointer!important;box-shadow:0 3px 8px #87394f0a!important}.msq-support-quick button:hover{background:#fff2f6!important}
-.msq-support-compose{display:flex;align-items:flex-end;gap:9px;padding:12px;border-top:1px solid #f0e0e5;background:#fff;flex-shrink:0}
-#msqSupportInput{flex:1;min-width:0;max-height:112px;resize:none;border:1px solid #e7d4dc;border-radius:16px;padding:12px 13px;font:inherit;font-size:13px;line-height:1.6;outline:none;background:#fffdfd;color:#49333b}#msqSupportInput:focus{border-color:#b45b78;box-shadow:0 0 0 4px #b45b7817}
-#msqSupportSend{width:46px;height:46px;flex:0 0 46px;border:0!important;border-radius:15px!important;background:linear-gradient(135deg,#287d47,#1d6138)!important;color:#fff!important;font-size:22px!important;cursor:pointer!important;box-shadow:0 5px 13px #287d4733!important}#msqSupportSend:disabled{opacity:.55;cursor:wait!important}
-.msq-support-footer{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 13px;background:#fff;font-size:10px;color:#84717a;border-top:1px solid #f5e9ed;flex-shrink:0}.msq-support-footer button{border:1px solid #e3bdca!important;background:#fff5f8!important;color:#81394f!important;padding:7px 10px!important;border-radius:10px!important;font:inherit!important;font-weight:900!important;cursor:pointer!important;white-space:nowrap}
-.msq-support-sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-@media(max-width:600px){#msqSupportLauncher{left:12px!important;bottom:118px!important;width:80px!important;min-width:80px!important;height:80px!important;padding:0!important;border-radius:50%!important}.msq-support-launcher-icon{width:100%;height:100%;flex-basis:100%;font-size:42px}.msq-support-launcher-copy{bottom:calc(100% + 7px)}.msq-support-launcher-copy strong{font-size:11px}#msqSupportPanel{left:8px!important;bottom:190px!important;width:calc(100vw - 16px)!important;height:min(650px,calc(100dvh - 205px))!important;min-height:350px!important;border-radius:22px!important}.msq-support-head{padding:14px}.msq-support-footer{font-size:9px}}
-@media(max-height:560px){#msqSupportPanel{height:calc(100dvh - 84px)!important;bottom:74px!important;min-height:250px!important}#msqSupportLauncher{bottom:14px!important}}
-</style>
+
+<!-- cleaned obsolete mysouq-customer-support-chat-v2 -->
+
 
 
 <script id="mysouq-customer-support-chat-script-v1">
@@ -18710,84 +17353,33 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
 })();
 </script>
 
-<style id="mysouq-chat-luxury-skin-v3">
-:root{--msq-luxe-ink:#24151d;--msq-luxe-plum:#55243a;--msq-luxe-rose:#8d405d;--msq-luxe-gold:#d8b778;--msq-luxe-cream:#fffaf4}
-#mysouqSupportChatWidget{font-family:Tahoma,"Segoe UI",Arial,sans-serif!important;color:var(--msq-luxe-ink)!important}
-#msqSupportLauncher{left:24px!important;bottom:30px!important;width:76px!important;min-width:76px!important;height:76px!important;border:1px solid #f3dfb7!important;border-radius:25px!important;background:linear-gradient(145deg,#321827 0%,#69304a 62%,#a85c73 100%)!important;box-shadow:0 18px 42px #3218274d, inset 0 1px 0 #ffffff60!important;animation:msqLuxeFloat 4s ease-in-out infinite;overflow:hidden!important}
-#msqSupportLauncher:before{content:"";position:absolute;inset:5px;border:1px solid #e3c58c99;border-radius:20px;pointer-events:none}
-#msqSupportLauncher:hover{transform:translateY(-4px) scale(1.035)!important;box-shadow:0 22px 48px #32182766!important}
-.msq-support-launcher-icon{font-family:Georgia,serif!important;font-size:43px!important;color:#f1d59b!important;filter:drop-shadow(0 3px 7px #0005)!important}
-.msq-support-launcher-copy{left:0;bottom:calc(100% + 12px);transform:none;padding:9px 12px;border:1px solid #ead7b5;border-radius:13px 13px 13px 4px;background:#fffaf4;color:#55243a;box-shadow:0 9px 26px #32182724}
-.msq-support-launcher-copy strong{font-size:12px}.msq-support-launcher-copy small{font-size:10px;color:#866776}
-.msq-support-launcher-dot{top:4px;right:4px;width:13px;height:13px;background:#6ee6a0;border:2px solid #fffaf4;box-shadow:0 0 0 4px #6ee6a022}
-#msqSupportPanel{left:24px!important;bottom:120px!important;width:min(460px,calc(100vw - 32px))!important;height:min(740px,calc(100dvh - 145px))!important;min-height:430px!important;border:1px solid #e7d1aa!important;border-radius:28px!important;background:var(--msq-luxe-cream)!important;box-shadow:0 32px 100px #24101e42,0 0 0 6px #ffffff80!important;overflow:hidden!important;backdrop-filter:blur(22px)!important;isolation:isolate}
-#msqSupportPanel:before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,#a87942,#f4dfae,#b78a4a);z-index:3;pointer-events:none}
-.msq-support-head{position:relative;padding:22px 19px 20px!important;gap:13px!important;background:radial-gradient(ellipse at 15% 0%,#a45b77 0%,transparent 42%),linear-gradient(125deg,#291520 0%,#51243a 55%,#783650 100%)!important;box-shadow:0 12px 28px #3218272c!important}
-.msq-support-head:after{content:"";position:absolute;left:-30px;bottom:-50px;width:150px;height:150px;border:1px solid #e3c58c30;border-radius:50%;box-shadow:0 0 0 18px #e3c58c0b,0 0 0 38px #e3c58c08;pointer-events:none}
-.msq-support-avatar{width:54px!important;height:54px!important;flex:0 0 54px;border-radius:19px!important;background:linear-gradient(145deg,#f6e4b8,#bd9554)!important;border:1px solid #fff1cc!important;box-shadow:0 7px 20px #14081140,inset 0 1px 0 #fff!important;color:#51243a!important;font-family:Georgia,serif;font-size:32px!important}
-.msq-support-avatar span{display:block;transform:translateY(-1px);text-shadow:0 1px 0 #fff8}
-.msq-support-head-copy{gap:6px!important;z-index:1}.msq-support-head-copy strong{font-size:18px!important;letter-spacing:.1px}.msq-support-head-label{display:inline-block;margin-right:5px;padding:4px 7px;border:1px solid #f3dca65c;border-radius:7px;background:#ffffff10;color:#f1d7a0;font-size:10px;vertical-align:middle;font-weight:700}.msq-support-head-copy small{font-size:11px!important;color:#f7eaf0!important;opacity:.92!important}
-.msq-support-status-dot{background:#6fe7a1!important;box-shadow:0 0 0 4px #6fe7a126,0 0 12px #6fe7a177!important}
-#msqSupportClose{position:relative;z-index:2;width:39px!important;height:39px!important;border-radius:14px!important;border:1px solid #ffffff40!important;background:#ffffff12!important;color:#fff!important;font-size:25px!important;transition:all .18s!important}#msqSupportClose:hover{background:#ffffff25!important;transform:rotate(90deg)}
-.msq-support-messages{position:relative;padding:21px 17px 18px!important;gap:13px!important;background:radial-gradient(ellipse at 95% 0%,#f4e6d7a8 0%,transparent 40%),radial-gradient(ellipse at 0% 100%,#f5e4ea 0%,transparent 38%),linear-gradient(180deg,#fffaf4,#fffdfb)!important}
-.msq-support-message{position:relative;max-width:88%!important;padding:13px 16px!important;border-radius:19px!important;font-size:13px!important;line-height:1.95!important;box-shadow:0 7px 22px #3c1b2b0b!important;animation:msqMessageIn .22s ease-out both}
-.msq-support-message.bot{align-self:flex-start!important;background:#fff!important;border:1px solid #eee0d0!important;border-bottom-right-radius:6px!important;color:#49323d!important}
-.msq-support-message.bot:first-child{border-color:#e8d2a8!important;background:linear-gradient(145deg,#fffefa,#fff8ee)!important}
-.msq-support-message.user{align-self:flex-end!important;background:linear-gradient(135deg,#f1dfbd,#e5c991)!important;border:1px solid #d8b778!important;border-bottom-left-radius:6px!important;color:#432438!important;box-shadow:0 7px 20px #99743c20!important}
-.msq-support-quick{gap:8px!important;margin:0 2px 3px!important;max-width:100%!important}.msq-support-quick:before{content:"ممكن أساعدك في إيه؟";display:block;width:100%;font-size:11px;font-weight:800;color:#8c6a4c;margin:0 0 1px}
-.msq-support-quick button{border:1px solid #e4cfa8!important;border-radius:999px!important;padding:9px 12px!important;background:#fffdf8!important;color:#663149!important;font-size:11px!important;font-weight:800!important;box-shadow:0 4px 12px #5a2a3d0b!important;transition:all .18s!important}
-.msq-support-quick button:hover{background:#55243a!important;border-color:#55243a!important;color:#fff8ec!important;transform:translateY(-1px)}
-.msq-support-compose{gap:9px!important;padding:14px 14px 12px!important;border-top:1px solid #e9ddcc!important;background:#fffdf9!important;box-shadow:0 -8px 24px #4b26340a!important}
-#msqSupportInput{min-height:48px!important;max-height:118px!important;border:1px solid #e5d7c5!important;border-radius:17px!important;padding:13px 15px!important;font-size:13px!important;background:#fff!important;color:#35212b!important;box-shadow:inset 0 1px 2px #3a1d2b06!important;transition:border-color .2s,box-shadow .2s!important}
-#msqSupportInput::placeholder{color:#aa9aa0!important}#msqSupportInput:focus{border-color:#b78b4c!important;box-shadow:0 0 0 4px #d8b7782b!important}
-#msqSupportSend{width:49px!important;height:49px!important;flex-basis:49px!important;border:1px solid #e9d09c!important;border-radius:17px!important;background:linear-gradient(145deg,#69304a,#3b1b2b)!important;color:#f5dca7!important;font-size:22px!important;box-shadow:0 7px 18px #49203533,inset 0 1px 0 #ffffff30!important;transition:transform .18s,filter .18s!important}#msqSupportSend:hover{transform:translateY(-2px);filter:brightness(1.12)}
-.msq-support-footer{padding:11px 14px 13px!important;background:#fffdf9!important;border-top:0!important;font-size:10px!important;color:#97828a!important}.msq-support-footer button{border:1px solid #e3cfae!important;background:#fff8ec!important;color:#6d344c!important;padding:8px 10px!important;border-radius:11px!important;font-size:10px!important;font-weight:900!important;transition:all .18s!important}.msq-support-footer button:hover{background:#f4e4c5!important}
-@keyframes msqLuxeFloat{0%,100%{box-shadow:0 18px 42px #3218274d,inset 0 1px 0 #ffffff60}50%{box-shadow:0 21px 48px #3218275c,inset 0 1px 0 #ffffff60}}
-@keyframes msqMessageIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
-@media(max-width:600px){#msqSupportLauncher{left:14px!important;bottom:18px!important;width:64px!important;min-width:64px!important;height:64px!important;border-radius:22px!important}.msq-support-launcher-icon{font-size:36px!important}.msq-support-launcher-copy{left:0;bottom:calc(100% + 10px);padding:7px 9px}.msq-support-launcher-copy strong{font-size:11px!important}#msqSupportPanel{left:8px!important;bottom:94px!important;width:calc(100vw - 16px)!important;height:min(690px,calc(100dvh - 112px))!important;min-height:350px!important;border-radius:24px!important}.msq-support-head{padding:18px 15px 16px!important}.msq-support-avatar{width:47px!important;height:47px!important;flex-basis:47px;font-size:28px!important}.msq-support-head-copy strong{font-size:16px!important}.msq-support-messages{padding:17px 12px!important}.msq-support-message{max-width:92%!important;font-size:12.5px!important}.msq-support-compose{padding:11px!important}.msq-support-footer{align-items:flex-start!important}.msq-support-footer span{max-width:47%;line-height:1.6}}
-@media(max-height:560px){#msqSupportPanel{height:calc(100dvh - 76px)!important;bottom:68px!important;min-height:250px!important}#msqSupportLauncher{bottom:8px!important}}
-@media(prefers-reduced-motion:reduce){#msqSupportLauncher,.msq-support-message{animation:none!important;transition:none!important}}
-</style>
+
+<!-- cleaned obsolete mysouq-chat-luxury-skin-v3 -->
 
 
-<style id="mysouq-chat-layout-fix-v4">
-/* Layout repair: prevent launcher overlap and keep Arabic text inside bubbles */
-#mysouqSupportChatWidget, #mysouqSupportChatWidget *{box-sizing:border-box!important}
-#msqSupportLauncher{left:20px!important;bottom:22px!important;width:64px!important;min-width:64px!important;height:64px!important;border-radius:50%!important;overflow:visible!important;z-index:10030!important;display:flex!important;align-items:center!important;justify-content:center!important}
-#msqSupportLauncher:before{inset:4px!important;border-radius:50%!important}
-.msq-support-launcher-icon{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;height:100%!important;flex:0 0 100%!important;font-family:Arial,sans-serif!important;font-size:32px!important;line-height:1!important;filter:none!important;position:relative!important;z-index:1!important}
-.msq-support-launcher-copy{max-width:180px!important;white-space:nowrap!important;z-index:2!important}
-#msqSupportPanel{left:16px!important;bottom:98px!important;width:min(420px,calc(100vw - 32px))!important;height:min(680px,calc(100dvh - 122px))!important;min-height:320px!important;max-height:calc(100dvh - 122px)!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;z-index:10029!important}
-.msq-support-head{flex:0 0 auto!important;min-width:0!important;align-items:center!important}
-.msq-support-head-copy{min-width:0!important;flex:1 1 auto!important;overflow-wrap:anywhere!important}
-.msq-support-head-copy strong{line-height:1.45!important;white-space:normal!important;overflow-wrap:anywhere!important}
-.msq-support-messages{flex:1 1 auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;align-items:stretch!important}
-.msq-support-message{width:fit-content!important;max-width:min(88%,340px)!important;min-width:0!important;white-space:pre-wrap!important;overflow-wrap:anywhere!important;word-break:normal!important;line-height:1.8!important;padding:12px 14px!important}
-.msq-support-quick{max-width:100%!important;min-width:0!important;flex-wrap:wrap!important}
-.msq-support-compose{flex:0 0 auto!important;min-width:0!important;align-items:flex-end!important}
-#msqSupportInput{min-width:0!important;width:100%!important;max-width:100%!important;overflow-wrap:anywhere!important;line-height:1.6!important;resize:none!important}
-.msq-support-footer{flex:0 0 auto!important;display:flex!important;flex-wrap:wrap!important;gap:8px!important;align-items:center!important;line-height:1.6!important}
-.msq-support-avatar{display:grid!important;place-items:center!important;flex:0 0 48px!important;font-family:Arial,sans-serif!important;font-size:27px!important;line-height:1!important}
-.msq-support-avatar span{transform:none!important;text-shadow:none!important}
-@media(max-width:600px){
- #msqSupportLauncher{left:14px!important;bottom:16px!important;width:58px!important;min-width:58px!important;height:58px!important}
- .msq-support-launcher-icon{font-size:29px!important}
- #msqSupportPanel{left:8px!important;bottom:84px!important;width:calc(100vw - 16px)!important;height:min(640px,calc(100dvh - 100px))!important;min-height:280px!important;max-height:calc(100dvh - 100px)!important;border-radius:22px!important}
- .msq-support-message{max-width:92%!important;font-size:13px!important;line-height:1.85!important}
- .msq-support-head{padding:14px!important}
- .msq-support-messages{padding:14px 11px!important;gap:10px!important}
- .msq-support-compose{padding:10px!important}
- .msq-support-footer span{max-width:100%!important}
-}
-@media(max-height:500px){#msqSupportPanel{height:calc(100dvh - 80px)!important;max-height:calc(100dvh - 80px)!important;bottom:70px!important;min-height:220px!important}#msqSupportLauncher{bottom:8px!important}}
-</style>
 
 
-<style id="mysouq-chat-premium-fix-v5">
-/* ========== My Souq Support Chat — Premium Fix v5 ========== */
-/* 1) Move launcher + panel to RIGHT → zero overlap with WhatsApp / QR / back-to-top */
-/* 2) Solid overflow & text containment */
-/* 3) Cleaner luxury visual polish */
+<!-- cleaned obsolete mysouq-chat-layout-fix-v4 -->
+
+
+
+
+<!-- cleaned obsolete mysouq-chat-premium-fix-v5 -->
+
+
+
+<!-- cleaned obsolete mysouq-chat-header-final-v7 -->
+
+
+
+<!-- cleaned obsolete mysouq-launcher-tooltip-fix-v8 -->
+
+
+
+<!-- cleaned obsolete mysouq-floats-layout-v9 -->
+
+<style id="mysouq-support-chat-final">
+/* My Souq Support Chat + Floating controls — single clean stylesheet */
 
 #mysouqSupportChatWidget {
   font-family: 'Cairo', Tahoma, 'Segoe UI', Arial, sans-serif !important;
@@ -18795,12 +17387,12 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   direction: rtl !important;
 }
 
-/* ----- LAUNCHER (right side) ----- */
+/* Launcher — right side */
 #msqSupportLauncher {
   position: fixed !important;
-  right: 18px !important;
+  right: 16px !important;
   left: auto !important;
-  bottom: 22px !important;
+  bottom: 20px !important;
   z-index: 10040 !important;
   width: 62px !important;
   min-width: 62px !important;
@@ -18838,7 +17430,6 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   height: 100% !important;
   font-size: 28px !important;
   line-height: 1 !important;
-  filter: none !important;
   position: relative !important;
   z-index: 1 !important;
 }
@@ -18847,7 +17438,6 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   right: 0 !important;
   left: auto !important;
   bottom: calc(100% + 10px) !important;
-  transform: none !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: flex-end !important;
@@ -18860,23 +17450,15 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   color: #55243a !important;
   box-shadow: 0 8px 22px rgba(50, 24, 39, 0.18) !important;
   pointer-events: none !important;
-  max-width: 170px !important;
+  max-width: 160px !important;
+  z-index: 10041 !important;
 }
-.msq-support-launcher-copy strong {
-  font-size: 12px !important;
-  font-weight: 800 !important;
-  line-height: 1.35 !important;
-}
-.msq-support-launcher-copy small {
-  font-size: 10px !important;
-  color: #866776 !important;
-  line-height: 1.3 !important;
-}
+.msq-support-launcher-copy strong { font-size: 12px !important; font-weight: 800 !important; line-height: 1.35 !important; }
+.msq-support-launcher-copy small { font-size: 10px !important; color: #866776 !important; }
 .msq-support-launcher-dot {
   position: absolute !important;
   top: 2px !important;
   left: 2px !important;
-  right: auto !important;
   width: 12px !important;
   height: 12px !important;
   border-radius: 50% !important;
@@ -18885,13 +17467,16 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   box-shadow: 0 0 0 3px rgba(94, 224, 154, 0.25) !important;
   z-index: 2 !important;
 }
+#msqSupportLauncher[aria-expanded="true"] .msq-support-launcher-copy {
+  display: none !important;
+}
 
-/* ----- PANEL (right side) ----- */
+/* Panel — right */
 #msqSupportPanel {
   position: fixed !important;
-  right: 16px !important;
+  right: 14px !important;
   left: auto !important;
-  bottom: 96px !important;
+  bottom: 92px !important;
   z-index: 10039 !important;
   width: min(400px, calc(100vw - 28px)) !important;
   height: min(640px, calc(100dvh - 120px)) !important;
@@ -18904,125 +17489,114 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   border-radius: 24px !important;
   background: #fffaf6 !important;
   box-shadow: 0 28px 90px rgba(36, 16, 30, 0.32), 0 0 0 5px rgba(255,255,255,0.55) !important;
-  backdrop-filter: blur(18px) !important;
 }
 #msqSupportPanel:before {
   content: "" !important;
   position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
+  top: 0; left: 0; right: 0;
   height: 3px !important;
   background: linear-gradient(90deg, #a87942, #f0dba8, #b78a4a) !important;
   z-index: 3 !important;
   pointer-events: none !important;
 }
 
-/* Header */
+/* Compact header */
 .msq-support-head {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 11px 12px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  max-height: 52px !important;
+  background: linear-gradient(90deg, #4a2034 0%, #6b2f4a 100%) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  border-top-left-radius: 24px !important;
+  border-top-right-radius: 24px !important;
+  box-shadow: none !important;
   flex: 0 0 auto !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+.msq-support-head:before,
+.msq-support-head:after { display: none !important; content: none !important; }
+.msq-support-avatar {
+  width: 32px !important;
+  height: 32px !important;
+  flex: 0 0 32px !important;
+  border-radius: 9px !important;
+  background: linear-gradient(145deg, #f3dfb0, #c9a04e) !important;
+  border: 1px solid #f0e0b8 !important;
   display: flex !important;
   align-items: center !important;
-  gap: 12px !important;
-  padding: 16px 16px 14px !important;
-  background: linear-gradient(125deg, #2a1520 0%, #4e2238 50%, #6e3450 100%) !important;
-  min-width: 0 !important;
-}
-.msq-support-avatar {
-  width: 46px !important;
-  height: 46px !important;
-  flex: 0 0 46px !important;
-  border-radius: 16px !important;
-  background: linear-gradient(145deg, #f5e2b4, #c49a52) !important;
-  border: 1px solid #fff0c8 !important;
-  display: grid !important;
-  place-items: center !important;
-  font-size: 24px !important;
+  justify-content: center !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
   color: #4a2236 !important;
-  box-shadow: 0 6px 16px rgba(20, 8, 17, 0.35) !important;
 }
 .msq-support-head-copy {
   flex: 1 1 auto !important;
   min-width: 0 !important;
-  overflow: hidden !important;
-}
-.msq-support-head-copy strong {
-  display: block !important;
-  font-size: 15px !important;
-  font-weight: 800 !important;
-  color: #fff !important;
-  line-height: 1.4 !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: ellipsis !important;
-}
-.msq-support-head-label {
-  display: inline-block !important;
-  margin-right: 4px !important;
-  padding: 2px 6px !important;
-  border-radius: 6px !important;
-  border: 1px solid rgba(243, 220, 166, 0.45) !important;
-  background: rgba(255,255,255,0.1) !important;
-  color: #f0d8a0 !important;
-  font-size: 9px !important;
-  font-weight: 700 !important;
-  vertical-align: middle !important;
-}
-.msq-support-head-copy small {
   display: flex !important;
   align-items: center !important;
-  gap: 6px !important;
-  font-size: 11px !important;
-  color: #f5e8ef !important;
-  opacity: 0.92 !important;
-  margin-top: 3px !important;
-  white-space: nowrap !important;
   overflow: hidden !important;
-  text-overflow: ellipsis !important;
+  margin: 0 !important;
+  padding: 0 !important;
 }
-.msq-support-status-dot {
-  width: 8px !important;
-  height: 8px !important;
-  border-radius: 50% !important;
-  background: #6fe7a1 !important;
-  box-shadow: 0 0 0 3px rgba(111, 231, 161, 0.28) !important;
-  flex-shrink: 0 !important;
-}
-#msqSupportClose {
-  width: 36px !important;
-  height: 36px !important;
-  flex: 0 0 36px !important;
-  border-radius: 12px !important;
-  border: 1px solid rgba(255,255,255,0.35) !important;
-  background: rgba(255,255,255,0.1) !important;
+.msq-support-head-copy strong {
+  font-size: 14px !important;
+  font-weight: 800 !important;
   color: #fff !important;
-  font-size: 22px !important;
+  line-height: 1.2 !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+}
+.msq-support-head-copy small,
+.msq-support-head-label,
+.msq-support-status-dot { display: none !important; }
+#msqSupportClose {
+  width: 30px !important;
+  height: 30px !important;
+  flex: 0 0 30px !important;
+  border-radius: 8px !important;
+  border: 1px solid rgba(255,255,255,0.35) !important;
+  background: rgba(255,255,255,0.12) !important;
+  color: #fff !important;
+  font-size: 18px !important;
   line-height: 1 !important;
   cursor: pointer !important;
-  display: grid !important;
-  place-items: center !important;
-  transition: background 0.18s, transform 0.18s !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  position: static !important;
+  transform: none !important;
 }
 #msqSupportClose:hover {
-  background: rgba(255,255,255,0.22) !important;
-  transform: rotate(90deg) !important;
+  background: rgba(255,255,255,0.25) !important;
+  transform: none !important;
 }
 
-/* Messages area — strict overflow control */
+/* Messages */
 .msq-support-messages {
   flex: 1 1 auto !important;
   min-height: 0 !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   overscroll-behavior: contain !important;
-  padding: 16px 14px !important;
-  gap: 11px !important;
+  padding: 12px !important;
+  gap: 10px !important;
   display: flex !important;
   flex-direction: column !important;
   background: linear-gradient(180deg, #fffaf4 0%, #fffdfb 100%) !important;
 }
 .msq-support-message {
-  position: relative !important;
   width: fit-content !important;
   max-width: min(86%, 310px) !important;
   min-width: 0 !important;
@@ -19034,11 +17608,10 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   overflow-wrap: anywhere !important;
   word-break: normal !important;
   box-shadow: 0 4px 14px rgba(60, 27, 43, 0.07) !important;
-  animation: msqMessageIn 0.2s ease-out both !important;
 }
 .msq-support-message.bot {
   align-self: flex-start !important;
-  background: #ffffff !important;
+  background: #fff !important;
   border: 1px solid #eee0d0 !important;
   border-bottom-right-radius: 5px !important;
   color: #3f2a34 !important;
@@ -19057,7 +17630,6 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   flex-wrap: wrap !important;
   gap: 7px !important;
   max-width: 100% !important;
-  min-width: 0 !important;
   margin: 2px 0 4px !important;
 }
 .msq-support-quick:before {
@@ -19078,24 +17650,22 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   font-size: 11.5px !important;
   font-weight: 700 !important;
   cursor: pointer !important;
-  box-shadow: 0 3px 10px rgba(90, 42, 61, 0.06) !important;
-  transition: all 0.16s !important;
   white-space: nowrap !important;
+  transition: all 0.16s !important;
 }
 .msq-support-quick button:hover {
   background: #55243a !important;
   border-color: #55243a !important;
   color: #fff8ec !important;
-  transform: translateY(-1px) !important;
 }
 
-/* Compose */
+/* Compose + footer */
 .msq-support-compose {
   flex: 0 0 auto !important;
   display: flex !important;
   align-items: flex-end !important;
   gap: 8px !important;
-  padding: 12px 12px 10px !important;
+  padding: 10px !important;
   border-top: 1px solid #ebe0d0 !important;
   background: #fffdf9 !important;
   min-width: 0 !important;
@@ -19104,7 +17674,6 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   flex: 1 1 auto !important;
   min-width: 0 !important;
   width: 100% !important;
-  max-width: 100% !important;
   min-height: 44px !important;
   max-height: 110px !important;
   border: 1px solid #e4d6c4 !important;
@@ -19117,11 +17686,6 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   resize: none !important;
   overflow-wrap: anywhere !important;
   outline: none !important;
-  box-shadow: inset 0 1px 2px rgba(58, 29, 43, 0.04) !important;
-  transition: border-color 0.18s, box-shadow 0.18s !important;
-}
-#msqSupportInput::placeholder {
-  color: #a8989e !important;
 }
 #msqSupportInput:focus {
   border-color: #b78b4c !important;
@@ -19139,19 +17703,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   cursor: pointer !important;
   display: grid !important;
   place-items: center !important;
-  box-shadow: 0 6px 16px rgba(73, 32, 53, 0.28) !important;
-  transition: transform 0.16s, filter 0.16s !important;
 }
-#msqSupportSend:hover {
-  transform: translateY(-2px) !important;
-  filter: brightness(1.1) !important;
-}
-#msqSupportSend:disabled {
-  opacity: 0.55 !important;
-  cursor: wait !important;
-}
-
-/* Footer */
 .msq-support-footer {
   flex: 0 0 auto !important;
   display: flex !important;
@@ -19159,16 +17711,10 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   align-items: center !important;
   justify-content: space-between !important;
   gap: 8px !important;
-  padding: 10px 12px 12px !important;
+  padding: 8px 10px 10px !important;
   background: #fffdf9 !important;
-  border-top: 0 !important;
   font-size: 10px !important;
   color: #8f7a82 !important;
-  line-height: 1.55 !important;
-}
-.msq-support-footer span {
-  max-width: 55% !important;
-  overflow-wrap: anywhere !important;
 }
 .msq-support-footer button {
   border: 1px solid #e0cba8 !important;
@@ -19180,248 +17726,107 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   font-weight: 800 !important;
   cursor: pointer !important;
   white-space: nowrap !important;
-  transition: background 0.16s !important;
-}
-.msq-support-footer button:hover {
-  background: #f3e4c4 !important;
 }
 
-/* Mobile */
+/* Left floats stack: QR, WhatsApp, Back-to-top */
+.qr-toggle-fab {
+  position: fixed !important;
+  left: 16px !important;
+  right: auto !important;
+  bottom: 18px !important;
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 16px !important;
+  z-index: 900 !important;
+  background: linear-gradient(145deg, #5a2a3d 0%, #8b3f52 100%) !important;
+  color: #fff !important;
+  border: 1.5px solid rgba(243, 224, 184, 0.55) !important;
+  box-shadow: 0 8px 22px rgba(50, 24, 39, 0.28) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.whatsapp-float {
+  position: fixed !important;
+  left: 16px !important;
+  right: auto !important;
+  bottom: 78px !important;
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 16px !important;
+  z-index: 900 !important;
+  background: linear-gradient(145deg, #1faa55 0%, #25d366 100%) !important;
+  color: #fff !important;
+  border: 1.5px solid rgba(255,255,255,0.35) !important;
+  box-shadow: 0 8px 22px rgba(37, 211, 102, 0.35) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 24px !important;
+  text-decoration: none !important;
+}
+.back-to-top {
+  position: fixed !important;
+  left: 16px !important;
+  right: auto !important;
+  bottom: 138px !important;
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 16px !important;
+  z-index: 900 !important;
+  background: linear-gradient(145deg, #2a1520 0%, #6b3048 55%, #a85c73 100%) !important;
+  color: #f5e6c8 !important;
+  border: 1.5px solid rgba(243, 224, 184, 0.5) !important;
+  box-shadow: 0 8px 22px rgba(50, 24, 39, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: translateY(8px) !important;
+  transition: opacity 0.25s, visibility 0.25s, transform 0.25s !important;
+}
+.back-to-top.show {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: translateY(0) !important;
+}
+.floating-qr-container {
+  left: 16px !important;
+  right: auto !important;
+  bottom: 200px !important;
+  z-index: 998 !important;
+}
+
 @media (max-width: 600px) {
   #msqSupportLauncher {
-    right: 14px !important;
-    left: auto !important;
-    bottom: 16px !important;
+    right: 12px !important;
+    bottom: 14px !important;
     width: 56px !important;
     min-width: 56px !important;
     height: 56px !important;
   }
-  .msq-support-launcher-icon { font-size: 26px !important; }
-  .msq-support-launcher-copy {
-    right: 0 !important;
-    max-width: 150px !important;
-    padding: 6px 9px !important;
-  }
-  .msq-support-launcher-copy strong { font-size: 11px !important; }
   #msqSupportPanel {
     right: 8px !important;
-    left: auto !important;
-    bottom: 82px !important;
+    bottom: 80px !important;
     width: calc(100vw - 16px) !important;
     height: min(620px, calc(100dvh - 100px)) !important;
-    min-height: 280px !important;
-    max-height: calc(100dvh - 100px) !important;
     border-radius: 20px !important;
   }
-  .msq-support-message {
-    max-width: 90% !important;
-    font-size: 12.5px !important;
-    line-height: 1.8 !important;
-  }
-  .msq-support-head { padding: 13px 12px !important; }
-  .msq-support-messages { padding: 13px 11px !important; gap: 9px !important; }
-  .msq-support-compose { padding: 10px !important; }
-  .msq-support-footer span { max-width: 100% !important; }
-}
-@media (max-height: 500px) {
-  #msqSupportPanel {
-    height: calc(100dvh - 78px) !important;
-    max-height: calc(100dvh - 78px) !important;
-    bottom: 68px !important;
-    min-height: 220px !important;
-  }
-  #msqSupportLauncher { bottom: 8px !important; }
-}
-@media (prefers-reduced-motion: reduce) {
-  #msqSupportLauncher, .msq-support-message { animation: none !important; transition: none !important; }
-}
-@keyframes msqMessageIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-</style>
-
-<style id="mysouq-chat-header-final-v7">
-/* ===== Header: simple burgundy bar only ===== */
-#msqSupportPanel .msq-support-head,
-.msq-support-head {
-  display: flex !important;
-  flex-direction: row !important;
-  align-items: center !important;
-  justify-content: flex-start !important;
-  gap: 10px !important;
-  padding: 11px 12px !important;
-  margin: 0 !important;
-  min-height: 48px !important;
-  height: 48px !important;
-  max-height: 52px !important;
-  background: linear-gradient(90deg, #4a2034 0%, #6b2f4a 100%) !important;
-  border: 0 !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  position: relative !important;
-  overflow: hidden !important;
-  flex: 0 0 auto !important;
-}
-#msqSupportPanel .msq-support-head:before,
-#msqSupportPanel .msq-support-head:after,
-.msq-support-head:before,
-.msq-support-head:after {
-  display: none !important;
-  content: none !important;
-}
-
-/* Icon */
-#msqSupportPanel .msq-support-avatar,
-.msq-support-avatar {
-  width: 32px !important;
-  height: 32px !important;
-  min-width: 32px !important;
-  flex: 0 0 32px !important;
-  border-radius: 9px !important;
-  background: linear-gradient(145deg, #f3dfb0, #c9a04e) !important;
-  border: 1px solid #f0e0b8 !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 16px !important;
-  line-height: 1 !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  box-shadow: none !important;
-  color: #4a2236 !important;
-}
-.msq-support-avatar span {
-  display: none !important; /* we put emoji directly in div now */
-}
-
-/* Title text only */
-#msqSupportPanel .msq-support-head-copy,
-.msq-support-head-copy {
-  flex: 1 1 auto !important;
-  min-width: 0 !important;
-  display: flex !important;
-  align-items: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow: hidden !important;
-}
-.msq-support-head-copy strong {
-  font-size: 14px !important;
-  font-weight: 800 !important;
-  color: #ffffff !important;
-  line-height: 1.2 !important;
-  white-space: nowrap !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  letter-spacing: 0 !important;
-}
-.msq-support-head-copy small,
-.msq-support-head-label,
-.msq-support-status-dot {
-  display: none !important;
-}
-
-/* Close button on the left in RTL (end of bar) */
-#msqSupportClose {
-  width: 30px !important;
-  height: 30px !important;
-  min-width: 30px !important;
-  flex: 0 0 30px !important;
-  border-radius: 8px !important;
-  border: 1px solid rgba(255,255,255,0.35) !important;
-  background: rgba(255,255,255,0.12) !important;
-  color: #fff !important;
-  font-size: 18px !important;
-  font-weight: 600 !important;
-  line-height: 1 !important;
-  cursor: pointer !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  box-shadow: none !important;
-  position: static !important;
-  transform: none !important;
-}
-#msqSupportClose:hover {
-  background: rgba(255,255,255,0.25) !important;
-  transform: none !important;
-}
-
-/* More space for chat */
-#msqSupportPanel .msq-support-messages,
-.msq-support-messages {
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  padding: 12px !important;
-}
-#msqSupportPanel .msq-support-compose,
-.msq-support-compose {
-  padding: 10px !important;
-}
-#msqSupportPanel .msq-support-footer,
-.msq-support-footer {
-  padding: 8px 10px 10px !important;
-}
-
-/* Kill any old tall/rounded header looks from previous skins */
-#msqSupportPanel .msq-support-head {
-  border-top-left-radius: 24px !important;
-  border-top-right-radius: 24px !important;
-  border-bottom-left-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-}
-@media (max-width: 600px) {
-  #msqSupportPanel .msq-support-head,
-  .msq-support-head {
+  .msq-support-head { height: 46px !important; min-height: 46px !important; padding: 9px 10px !important; }
+  .msq-support-message { max-width: 90% !important; font-size: 12.5px !important; }
+  .qr-toggle-fab, .whatsapp-float, .back-to-top {
+    left: 12px !important;
+    width: 46px !important;
     height: 46px !important;
-    min-height: 46px !important;
-    max-height: 48px !important;
-    padding: 9px 10px !important;
+    border-radius: 14px !important;
   }
-  .msq-support-avatar {
-    width: 30px !important;
-    height: 30px !important;
-    flex: 0 0 30px !important;
-    font-size: 15px !important;
-  }
-  .msq-support-head-copy strong { font-size: 13px !important; }
-  #msqSupportClose {
-    width: 28px !important;
-    height: 28px !important;
-    flex: 0 0 28px !important;
-    font-size: 17px !important;
-  }
-}
-</style>
-
-<style id="mysouq-launcher-tooltip-fix-v8">
-/* Hide "محتاج مساعدة؟" bubble when chat is open — no overlap with panel */
-#msqSupportLauncher[aria-expanded="true"] .msq-support-launcher-copy {
-  display: none !important;
-  opacity: 0 !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
-}
-/* Keep tooltip only when closed, and position safely above launcher on the right */
-#msqSupportLauncher[aria-expanded="false"] .msq-support-launcher-copy,
-#msqSupportLauncher .msq-support-launcher-copy {
-  position: absolute !important;
-  right: 0 !important;
-  left: auto !important;
-  bottom: calc(100% + 10px) !important;
-  transform: none !important;
-  z-index: 10041 !important;
-  max-width: 160px !important;
-  white-space: nowrap !important;
-  pointer-events: none !important;
-}
-/* When panel is open, also push launcher slightly if needed */
-#msqSupportPanel:not([hidden]) ~ #msqSupportLauncher .msq-support-launcher-copy,
-#mysouqSupportChatWidget:has(#msqSupportPanel:not([hidden])) #msqSupportLauncher .msq-support-launcher-copy {
-  display: none !important;
+  .whatsapp-float { bottom: 70px !important; }
+  .back-to-top { bottom: 126px !important; }
+  .floating-qr-container { left: 12px !important; bottom: 180px !important; }
 }
 </style>
 
