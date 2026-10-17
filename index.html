@@ -11199,7 +11199,7 @@ html body #adminOrdersBtn.show {
       <button type="button" id="msqSupportClose" aria-label="إغلاق المحادثة">×</button>
     </header>
     <div id="msqSupportMessages" class="msq-support-messages" aria-live="polite" aria-relevant="additions text">
-      <div class="msq-support-message bot">أهلًا وسهلًا بيك في My Souq ✨<br>نورتنا! أنا هنا أساعدك في المنتجات والطلبات والشحن وأي سؤال عندك. احكيلي محتاج إيه وهنمشي مع بعض خطوة بخطوة 😊</div>
+      <div class="msq-support-message bot">أهلًا وسهلًا بيك في <strong>My Souq</strong> ✨<br>نورتنا! أنا مساعدك الشخصي هنا عشان أسهّل عليك التسوق والطلبات والشحن.<br>احكيلي محتاج إيه، وهنمشي مع بعض خطوة بخطوة بكل راحة.</div>
       <div class="msq-support-quick" aria-label="أسئلة سريعة">
         <button type="button" data-msq-quick="track">تتبع طلبي 📦</button>
         <button type="button" data-msq-quick="order">مشكلة في تأكيد الطلب</button>
@@ -18558,12 +18558,12 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   function startReplyPolling(){if(pollHandle)clearInterval(pollHandle);syncAdminReplies();pollHandle=setInterval(syncAdminReplies,8000);}
 
   var quickAnswers={
-    track:'تقدر تتابع طلبك من زر «تتبع طلبك» أعلى الموقع. اضغط عليه واكتب رقم الطلب. لو النتيجة مش واضحة، اختار «التواصل مع صاحب المتجر» وهجهز لك رسالة فيها تفاصيل المشكلة.',
-    order:'خلّينا نحلها خطوة خطوة: تأكد إن الاسم ورقم الموبايل والعنوان مكتوبين، وإنك اخترت طريقة الدفع ووافقت على الشروط لو ظهرت. لو زر التأكيد ما زال لا يستجيب، ابعتلي رقم الطلب إن وُجد أو اختار التواصل مع صاحب المتجر. ما تضغطش مرات متتالية لو الزر بيحمّل.',
-    shipping:'مواعيد الشحن قد تختلف حسب المنطقة وحالة الطلب. افتح «تتبع طلبك» لمعرفة آخر حالة متاحة. لو محتاج تأكيدًا خاصًا على ميعاد الوصول، أقدر أحوّلك لصاحب المتجر برسالة جاهزة.',
-    sizes:'افتح المنتج واختار المقاس واللون المتاحين قبل الطلب. لو جدول المقاسات أو وصف المنتج مش واضح، ابعت اسم المنتج أو رابطه وسأساعدك بالمعلومات الظاهرة في الصفحة، أو أحوّلك لصاحب المتجر للتأكيد.',
-    payment:'راجع اختيار طريقة الدفع واتبع التعليمات الظاهرة في صفحة إتمام الطلب. لا ترسل هنا أرقام بطاقات أو كلمات مرور أو بيانات دفع حساسة. لو الدفع تم لكن الطلب لم يتأكد، تواصل مع صاحب المتجر وأرفق رقم الطلب إن كان متاحًا.',
-    return:'سياسة الاستبدال أو الإرجاع تعتمد على حالة الطلب والمنتج. ابعت تفاصيل مختصرة من غير بيانات دفع، وسأساعدك بالخطوة التالية أو أجهز لك رسالة مباشرة لصاحب المتجر.'
+    track:'تمام، خلّينا نتابع طلبك مع بعض.\n\nاضغط على زر «تتبع طلبك» أعلى الصفحة، ثم اكتب رقم الطلب.\n\nلو النتيجة مش واضحة أو محتاج تأكيد إضافي، ابعتلي رقم الطلب هنا وأوجّهك، أو اضغط «طلب تدخل صاحب المتجر» وأنا هجهّز لك ملخص جاهز.',
+    order:'ما تقلقش، هنحلها خطوة بخطوة.\n\nتأكد من:\n• الاسم ورقم الموبايل والعنوان مكتوبين صح\n• اختيار طريقة الدفع\n• الموافقة على الشروط إن ظهرت\n\nلو زر التأكيد لسه مش شغال، ابعتلي رقم الطلب (لو موجود) أو وصف سريع للمشكلة، وهساعدك أو أحوّلك لصاحب المتجر مباشرة. ما تضغطش مرات متتالية لو الزر بيحمّل.',
+    shipping:'مواعيد الشحن بتختلف حسب المنطقة وحالة الطلب.\n\nأفضل خطوة دلوقتي: افتح «تتبع طلبك» عشان تشوف آخر حالة.\n\nلو محتاج تأكيد خاص على ميعاد الوصول، قولي رقم الطلب أو المنطقة، وأقدر أجهّز لك رسالة مباشرة لصاحب المتجر.',
+    sizes:'عشان نختار المقاس الصح:\n\n1) افتح صفحة المنتج\n2) شوف جدول المقاسات أو الوصف\n3) اختار المقاس واللون المتاحين قبل ما تضيف للسلة\n\nلو جدول المقاسات مش واضح أو محتاج تأكيد على منتج معيّن، ابعت اسم المنتج أو رابطه هنا وأساعدك بالمعلومات الظاهرة، أو أحوّلك لصاحب المتجر.',
+    payment:'راجع اختيار طريقة الدفع واتبع التعليمات في صفحة إتمام الطلب.\n\nمهم: من فضلك ما تبعتش هنا أرقام بطاقات أو كلمات مرور أو أي بيانات دفع حساسة.\n\nلو الدفع تم لكن الطلب مش متأكد، ابعت رقم الطلب (إن وجد) واضغط «طلب تدخل صاحب المتجر» عشان نتابع معاك بأمان.',
+    return:'سياسة الاستبدال أو الإرجاع تعتمد على حالة الطلب ونوع المنتج.\n\nابعتلي تفاصيل مختصرة (رقم الطلب + سبب مختصر) من غير أي بيانات دفع، وأوجّهك للخطوة التالية أو أجهّز لك رسالة مباشرة لصاحب المتجر.'
   };
   function safeText(v){return String(v==null?'':v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').trim();}
   function addMessage(text,who){
@@ -18594,14 +18594,14 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
     }
     var intent=detectIntent(text);if(intent)return quickAnswers[intent];
     var lower=text.toLowerCase();
-    if(/^(هاي|هاى|اهلا|أهلا|أهلًا|مرحبا|مرحبًا|السلام عليكم|سلام|hello|hi|hey)[!؟.\s]*$/i.test(text.trim()))return 'أهلًا وسهلًا بيك في My Souq 😊 نورتنا! عامل إيه؟ تحب أساعدك في اختيار منتج، ولا بتسأل عن طلب عملته، ولا داخل تتفرج بس؟';
-    if(/عامل ايه|عاملة ايه|اخبارك|إزيك|ازيك|كيفك/.test(lower))return 'الحمد لله تمام، وشكرًا لسؤالك 😊 يا رب تكون بخير إنت كمان! قولي بقى أقدر أساعدك في إيه في My Souq؟';
-    if(/شكرا|شكرًا|تسلم|متشكر|متشكرة/.test(text))return 'العفو يا فندم ❤️ إحنا هنا عشان نساعدك. تحب أساعدك في حاجة تانية؟';
-    if(/تمام|ماشي|حلو|كويس/.test(text) && history.length>2)return 'تمام 😊 أنا معاك. تحب نكمّل في نفس الموضوع ولا عندك سؤال تاني عن My Souq؟';
-    if(history.length<=2)return 'حاضر، أنا معاك 😊 احكيلي براحتك: إيه اللي محتاج تعرفه أو إيه اللي حصل معاك؟ هحاول أساعدك خطوة بخطوة.';
-    return 'فاهمك، وخلّينا نشوفها سوا خطوة بخطوة 😊 ممكن توضّحلي نقطة صغيرة كمان عشان أوجّهك صح؟ هل الموضوع متعلق بطلب، أو منتج، أو شحن، أو دفع؟ ولو سؤالك مختلف، احكيلي بطريقتك.';
+    if(/^(هاي|هاى|اهلا|أهلا|أهلًا|مرحبا|مرحبًا|السلام عليكم|سلام|hello|hi|hey)[!؟.\s]*$/i.test(text.trim()))return 'أهلًا وسهلًا بيك في My Souq 😊 نورتنا!\nعامل إيه؟ تحب أساعدك في اختيار منتج، ولا بتسأل عن طلب، ولا عايز تستفسر عن حاجة تانية؟';
+    if(/عامل ايه|عاملة ايه|اخبارك|إزيك|ازيك|كيفك/.test(lower))return 'الحمد لله تمام، وشكرًا لسؤالك 😊 يا رب تكون بخير.\nقولي أقدر أساعدك في إيه النهاردة في My Souq؟';
+    if(/شكرا|شكرًا|تسلم|متشكر|متشكرة/.test(text))return 'العفو، دا واجبنا ❤️\nلو محتاج أي مساعدة تانية في المنتجات أو الطلبات أو الشحن، أنا موجود.';
+    if(/تمام|ماشي|حلو|كويس/.test(text) && history.length>2)return 'تمام 😊 أنا معاك.\nتحب نكمّل في نفس الموضوع ولا عندك سؤال تاني؟';
+    if(history.length<=2)return 'حاضر، أنا معاك 😊\nاحكيلي براحتك: إيه اللي محتاج تعرفه أو إيه اللي حصل معاك؟ هنمشي مع بعض خطوة بخطوة.';
+    return 'فاهمك تمام 😊 خلّينا نوضحها مع بعض.\nهل الموضوع متعلق بـ طلب، أو منتج، أو شحن، أو دفع؟ ولو سؤالك مختلف، اكتب لي التفاصيل بطريقتك وهوجّهك خطوة بخطوة.';
   }
-  async function submitText(raw){var text=safeText(raw);if(!text)return;input.value='';input.style.height='auto';addMessage(text,'user');try{await storeCustomerMessage(text);}catch(err){addMessage('تعذر إرسال رسالتك لخادم الدعم الآن. تأكد من اتصال الإنترنت وحاول مرة أخرى.','bot');console.warn('Support message save failed',err);return;}var pending=addMessage('ثواني، بحاول أساعدك…','bot');var answer=await askAssistant(text);pending.textContent=answer;history[history.length-1].content=answer;messages.scrollTop=messages.scrollHeight;syncAdminReplies();}
+  async function submitText(raw){var text=safeText(raw);if(!text)return;input.value='';input.style.height='auto';addMessage(text,'user');try{await storeCustomerMessage(text);}catch(err){addMessage('تعذر إرسال رسالتك لخادم الدعم الآن. تأكد من اتصال الإنترنت وحاول مرة أخرى.','bot');console.warn('Support message save failed',err);return;}var pending=addMessage('ثوانٍ من فضلك، بجيب لك الرد المناسب…','bot');var answer=await askAssistant(text);pending.textContent=answer;history[history.length-1].content=answer;messages.scrollTop=messages.scrollHeight;syncAdminReplies();}
   form.addEventListener('submit',function(e){e.preventDefault();if(form.dataset.busy==='1')return;var v=safeText(input.value);if(!v)return;form.dataset.busy='1';var btn=document.getElementById('msqSupportSend');btn.disabled=true;submitText(v).finally(function(){form.dataset.busy='0';btn.disabled=false;input.focus();});});
   input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit();}});
   input.addEventListener('input',function(){input.style.height='auto';input.style.height=Math.min(input.scrollHeight,100)+'px';});
@@ -18701,3 +18701,463 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
 }
 @media(max-height:500px){#msqSupportPanel{height:calc(100dvh - 80px)!important;max-height:calc(100dvh - 80px)!important;bottom:70px!important;min-height:220px!important}#msqSupportLauncher{bottom:8px!important}}
 </style>
+
+
+<style id="mysouq-chat-premium-fix-v5">
+/* ========== My Souq Support Chat — Premium Fix v5 ========== */
+/* 1) Move launcher + panel to RIGHT → zero overlap with WhatsApp / QR / back-to-top */
+/* 2) Solid overflow & text containment */
+/* 3) Cleaner luxury visual polish */
+
+#mysouqSupportChatWidget {
+  font-family: 'Cairo', Tahoma, 'Segoe UI', Arial, sans-serif !important;
+  color: #2a1a22 !important;
+  direction: rtl !important;
+}
+
+/* ----- LAUNCHER (right side) ----- */
+#msqSupportLauncher {
+  position: fixed !important;
+  right: 18px !important;
+  left: auto !important;
+  bottom: 22px !important;
+  z-index: 10040 !important;
+  width: 62px !important;
+  min-width: 62px !important;
+  height: 62px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 2px solid #f3e0b8 !important;
+  border-radius: 50% !important;
+  background: linear-gradient(145deg, #3a1c2b 0%, #6d3048 55%, #a85c73 100%) !important;
+  box-shadow: 0 12px 32px rgba(50, 24, 39, 0.38), inset 0 1px 0 rgba(255,255,255,0.35) !important;
+  cursor: pointer !important;
+  overflow: visible !important;
+  transition: transform 0.22s ease, box-shadow 0.22s ease !important;
+}
+#msqSupportLauncher:hover {
+  transform: translateY(-4px) scale(1.06) !important;
+  box-shadow: 0 18px 40px rgba(50, 24, 39, 0.48) !important;
+}
+#msqSupportLauncher:before {
+  content: "" !important;
+  position: absolute !important;
+  inset: 4px !important;
+  border: 1px solid rgba(243, 224, 184, 0.55) !important;
+  border-radius: 50% !important;
+  pointer-events: none !important;
+}
+.msq-support-launcher-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  font-size: 28px !important;
+  line-height: 1 !important;
+  filter: none !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+.msq-support-launcher-copy {
+  position: absolute !important;
+  right: 0 !important;
+  left: auto !important;
+  bottom: calc(100% + 10px) !important;
+  transform: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  gap: 2px !important;
+  white-space: nowrap !important;
+  padding: 8px 12px !important;
+  border: 1px solid #e8d4a8 !important;
+  border-radius: 12px 12px 4px 12px !important;
+  background: #fffaf4 !important;
+  color: #55243a !important;
+  box-shadow: 0 8px 22px rgba(50, 24, 39, 0.18) !important;
+  pointer-events: none !important;
+  max-width: 170px !important;
+}
+.msq-support-launcher-copy strong {
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  line-height: 1.35 !important;
+}
+.msq-support-launcher-copy small {
+  font-size: 10px !important;
+  color: #866776 !important;
+  line-height: 1.3 !important;
+}
+.msq-support-launcher-dot {
+  position: absolute !important;
+  top: 2px !important;
+  left: 2px !important;
+  right: auto !important;
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  background: #5ee09a !important;
+  border: 2px solid #fffaf4 !important;
+  box-shadow: 0 0 0 3px rgba(94, 224, 154, 0.25) !important;
+  z-index: 2 !important;
+}
+
+/* ----- PANEL (right side) ----- */
+#msqSupportPanel {
+  position: fixed !important;
+  right: 16px !important;
+  left: auto !important;
+  bottom: 96px !important;
+  z-index: 10039 !important;
+  width: min(400px, calc(100vw - 28px)) !important;
+  height: min(640px, calc(100dvh - 120px)) !important;
+  min-height: 320px !important;
+  max-height: calc(100dvh - 120px) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  border: 1px solid #e6d0a0 !important;
+  border-radius: 24px !important;
+  background: #fffaf6 !important;
+  box-shadow: 0 28px 90px rgba(36, 16, 30, 0.32), 0 0 0 5px rgba(255,255,255,0.55) !important;
+  backdrop-filter: blur(18px) !important;
+}
+#msqSupportPanel:before {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, #a87942, #f0dba8, #b78a4a) !important;
+  z-index: 3 !important;
+  pointer-events: none !important;
+}
+
+/* Header */
+.msq-support-head {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 16px 16px 14px !important;
+  background: linear-gradient(125deg, #2a1520 0%, #4e2238 50%, #6e3450 100%) !important;
+  min-width: 0 !important;
+}
+.msq-support-avatar {
+  width: 46px !important;
+  height: 46px !important;
+  flex: 0 0 46px !important;
+  border-radius: 16px !important;
+  background: linear-gradient(145deg, #f5e2b4, #c49a52) !important;
+  border: 1px solid #fff0c8 !important;
+  display: grid !important;
+  place-items: center !important;
+  font-size: 24px !important;
+  color: #4a2236 !important;
+  box-shadow: 0 6px 16px rgba(20, 8, 17, 0.35) !important;
+}
+.msq-support-head-copy {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+.msq-support-head-copy strong {
+  display: block !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  color: #fff !important;
+  line-height: 1.4 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+.msq-support-head-label {
+  display: inline-block !important;
+  margin-right: 4px !important;
+  padding: 2px 6px !important;
+  border-radius: 6px !important;
+  border: 1px solid rgba(243, 220, 166, 0.45) !important;
+  background: rgba(255,255,255,0.1) !important;
+  color: #f0d8a0 !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  vertical-align: middle !important;
+}
+.msq-support-head-copy small {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 11px !important;
+  color: #f5e8ef !important;
+  opacity: 0.92 !important;
+  margin-top: 3px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+.msq-support-status-dot {
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: #6fe7a1 !important;
+  box-shadow: 0 0 0 3px rgba(111, 231, 161, 0.28) !important;
+  flex-shrink: 0 !important;
+}
+#msqSupportClose {
+  width: 36px !important;
+  height: 36px !important;
+  flex: 0 0 36px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(255,255,255,0.35) !important;
+  background: rgba(255,255,255,0.1) !important;
+  color: #fff !important;
+  font-size: 22px !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  display: grid !important;
+  place-items: center !important;
+  transition: background 0.18s, transform 0.18s !important;
+}
+#msqSupportClose:hover {
+  background: rgba(255,255,255,0.22) !important;
+  transform: rotate(90deg) !important;
+}
+
+/* Messages area — strict overflow control */
+.msq-support-messages {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  overscroll-behavior: contain !important;
+  padding: 16px 14px !important;
+  gap: 11px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  background: linear-gradient(180deg, #fffaf4 0%, #fffdfb 100%) !important;
+}
+.msq-support-message {
+  position: relative !important;
+  width: fit-content !important;
+  max-width: min(86%, 310px) !important;
+  min-width: 0 !important;
+  padding: 11px 14px !important;
+  border-radius: 16px !important;
+  font-size: 13px !important;
+  line-height: 1.85 !important;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  box-shadow: 0 4px 14px rgba(60, 27, 43, 0.07) !important;
+  animation: msqMessageIn 0.2s ease-out both !important;
+}
+.msq-support-message.bot {
+  align-self: flex-start !important;
+  background: #ffffff !important;
+  border: 1px solid #eee0d0 !important;
+  border-bottom-right-radius: 5px !important;
+  color: #3f2a34 !important;
+}
+.msq-support-message.user {
+  align-self: flex-end !important;
+  background: linear-gradient(135deg, #f0dcb8, #e4c68e) !important;
+  border: 1px solid #d4b06e !important;
+  border-bottom-left-radius: 5px !important;
+  color: #3a2230 !important;
+}
+
+/* Quick replies */
+.msq-support-quick {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 7px !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 2px 0 4px !important;
+}
+.msq-support-quick:before {
+  content: "ممكن أساعدك في إيه؟" !important;
+  display: block !important;
+  width: 100% !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  color: #8a6a4a !important;
+  margin-bottom: 2px !important;
+}
+.msq-support-quick button {
+  border: 1px solid #e2cea6 !important;
+  border-radius: 999px !important;
+  padding: 8px 12px !important;
+  background: #fffdf8 !important;
+  color: #5c2e42 !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  box-shadow: 0 3px 10px rgba(90, 42, 61, 0.06) !important;
+  transition: all 0.16s !important;
+  white-space: nowrap !important;
+}
+.msq-support-quick button:hover {
+  background: #55243a !important;
+  border-color: #55243a !important;
+  color: #fff8ec !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Compose */
+.msq-support-compose {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  gap: 8px !important;
+  padding: 12px 12px 10px !important;
+  border-top: 1px solid #ebe0d0 !important;
+  background: #fffdf9 !important;
+  min-width: 0 !important;
+}
+#msqSupportInput {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-height: 44px !important;
+  max-height: 110px !important;
+  border: 1px solid #e4d6c4 !important;
+  border-radius: 14px !important;
+  padding: 11px 13px !important;
+  font-size: 13px !important;
+  line-height: 1.6 !important;
+  background: #fff !important;
+  color: #322028 !important;
+  resize: none !important;
+  overflow-wrap: anywhere !important;
+  outline: none !important;
+  box-shadow: inset 0 1px 2px rgba(58, 29, 43, 0.04) !important;
+  transition: border-color 0.18s, box-shadow 0.18s !important;
+}
+#msqSupportInput::placeholder {
+  color: #a8989e !important;
+}
+#msqSupportInput:focus {
+  border-color: #b78b4c !important;
+  box-shadow: 0 0 0 3px rgba(216, 183, 120, 0.22) !important;
+}
+#msqSupportSend {
+  width: 46px !important;
+  height: 46px !important;
+  flex: 0 0 46px !important;
+  border: 1px solid #e6ce96 !important;
+  border-radius: 14px !important;
+  background: linear-gradient(145deg, #69304a, #3a1b2b) !important;
+  color: #f4d9a4 !important;
+  font-size: 20px !important;
+  cursor: pointer !important;
+  display: grid !important;
+  place-items: center !important;
+  box-shadow: 0 6px 16px rgba(73, 32, 53, 0.28) !important;
+  transition: transform 0.16s, filter 0.16s !important;
+}
+#msqSupportSend:hover {
+  transform: translateY(-2px) !important;
+  filter: brightness(1.1) !important;
+}
+#msqSupportSend:disabled {
+  opacity: 0.55 !important;
+  cursor: wait !important;
+}
+
+/* Footer */
+.msq-support-footer {
+  flex: 0 0 auto !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  padding: 10px 12px 12px !important;
+  background: #fffdf9 !important;
+  border-top: 0 !important;
+  font-size: 10px !important;
+  color: #8f7a82 !important;
+  line-height: 1.55 !important;
+}
+.msq-support-footer span {
+  max-width: 55% !important;
+  overflow-wrap: anywhere !important;
+}
+.msq-support-footer button {
+  border: 1px solid #e0cba8 !important;
+  background: #fff8ec !important;
+  color: #6a334a !important;
+  padding: 7px 10px !important;
+  border-radius: 10px !important;
+  font-size: 10px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  white-space: nowrap !important;
+  transition: background 0.16s !important;
+}
+.msq-support-footer button:hover {
+  background: #f3e4c4 !important;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  #msqSupportLauncher {
+    right: 14px !important;
+    left: auto !important;
+    bottom: 16px !important;
+    width: 56px !important;
+    min-width: 56px !important;
+    height: 56px !important;
+  }
+  .msq-support-launcher-icon { font-size: 26px !important; }
+  .msq-support-launcher-copy {
+    right: 0 !important;
+    max-width: 150px !important;
+    padding: 6px 9px !important;
+  }
+  .msq-support-launcher-copy strong { font-size: 11px !important; }
+  #msqSupportPanel {
+    right: 8px !important;
+    left: auto !important;
+    bottom: 82px !important;
+    width: calc(100vw - 16px) !important;
+    height: min(620px, calc(100dvh - 100px)) !important;
+    min-height: 280px !important;
+    max-height: calc(100dvh - 100px) !important;
+    border-radius: 20px !important;
+  }
+  .msq-support-message {
+    max-width: 90% !important;
+    font-size: 12.5px !important;
+    line-height: 1.8 !important;
+  }
+  .msq-support-head { padding: 13px 12px !important; }
+  .msq-support-messages { padding: 13px 11px !important; gap: 9px !important; }
+  .msq-support-compose { padding: 10px !important; }
+  .msq-support-footer span { max-width: 100% !important; }
+}
+@media (max-height: 500px) {
+  #msqSupportPanel {
+    height: calc(100dvh - 78px) !important;
+    max-height: calc(100dvh - 78px) !important;
+    bottom: 68px !important;
+    min-height: 220px !important;
+  }
+  #msqSupportLauncher { bottom: 8px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #msqSupportLauncher, .msq-support-message { animation: none !important; transition: none !important; }
+}
+@keyframes msqMessageIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+
