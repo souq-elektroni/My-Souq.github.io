@@ -17188,6 +17188,10 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   var panel=document.getElementById('msqSupportPanel'), launcher=document.getElementById('msqSupportLauncher');
   var messages=document.getElementById('msqSupportMessages'), form=document.getElementById('msqSupportForm'), input=document.getElementById('msqSupportInput');
   if(!panel||!launcher||!messages||!form||!input) return;
+  // Ensure chat starts closed (never auto-open on load/cache)
+  panel.hidden = true;
+  panel.setAttribute('hidden','');
+  launcher.setAttribute('aria-expanded','false');
   var history=[];
   // Public support endpoint; no secrets belong in this HTML.
   window.MYSOUQ_SUPPORT_API_ENDPOINT = 'https://mysouq-bot.ahmedaly1g.workers.dev';
@@ -17379,7 +17383,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
 <!-- cleaned obsolete mysouq-floats-layout-v9 -->
 
 <style id="mysouq-support-chat-final">
-/* My Souq Support Chat + Floating controls — single clean stylesheet */
+/* My Souq Support Chat — fixed: stays closed until opened, clean header, no overlap */
 
 #mysouqSupportChatWidget {
   font-family: 'Cairo', Tahoma, 'Segoe UI', Arial, sans-serif !important;
@@ -17387,7 +17391,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   direction: rtl !important;
 }
 
-/* Launcher — right side */
+/* ===== Launcher (right) ===== */
 #msqSupportLauncher {
   position: fixed !important;
   right: 16px !important;
@@ -17453,7 +17457,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   max-width: 160px !important;
   z-index: 10041 !important;
 }
-.msq-support-launcher-copy strong { font-size: 12px !important; font-weight: 800 !important; line-height: 1.35 !important; }
+.msq-support-launcher-copy strong { font-size: 12px !important; font-weight: 800 !important; }
 .msq-support-launcher-copy small { font-size: 10px !important; color: #866776 !important; }
 .msq-support-launcher-dot {
   position: absolute !important;
@@ -17464,15 +17468,25 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   border-radius: 50% !important;
   background: #5ee09a !important;
   border: 2px solid #fffaf4 !important;
-  box-shadow: 0 0 0 3px rgba(94, 224, 154, 0.25) !important;
   z-index: 2 !important;
 }
+/* Hide tip when chat is open */
 #msqSupportLauncher[aria-expanded="true"] .msq-support-launcher-copy {
   display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
 }
 
-/* Panel — right */
-#msqSupportPanel {
+/* ===== Panel: MUST respect hidden ===== */
+#msqSupportPanel[hidden],
+#msqSupportPanel[hidden=""],
+#msqSupportPanel[hidden="hidden"] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}
+#msqSupportPanel:not([hidden]) {
   position: fixed !important;
   right: 14px !important;
   left: auto !important;
@@ -17485,44 +17499,45 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   display: flex !important;
   flex-direction: column !important;
   overflow: hidden !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
   border: 1px solid #e6d0a0 !important;
   border-radius: 24px !important;
   background: #fffaf6 !important;
   box-shadow: 0 28px 90px rgba(36, 16, 30, 0.32), 0 0 0 5px rgba(255,255,255,0.55) !important;
 }
-#msqSupportPanel:before {
-  content: "" !important;
-  position: absolute !important;
-  top: 0; left: 0; right: 0;
-  height: 3px !important;
-  background: linear-gradient(90deg, #a87942, #f0dba8, #b78a4a) !important;
-  z-index: 3 !important;
-  pointer-events: none !important;
-}
 
-/* Compact header */
-.msq-support-head {
+/* Compact header bar: 🎧 دعم My Souq ........ × */
+#msqSupportPanel .msq-support-head {
   display: flex !important;
   flex-direction: row !important;
+  flex-wrap: nowrap !important;
   align-items: center !important;
+  justify-content: flex-start !important;
   gap: 10px !important;
-  padding: 11px 12px !important;
+  padding: 10px 12px !important;
   height: 48px !important;
   min-height: 48px !important;
-  max-height: 52px !important;
+  max-height: 48px !important;
+  margin: 0 !important;
   background: linear-gradient(90deg, #4a2034 0%, #6b2f4a 100%) !important;
   border: 0 !important;
   border-radius: 0 !important;
-  border-top-left-radius: 24px !important;
-  border-top-right-radius: 24px !important;
+  border-top-left-radius: 23px !important;
+  border-top-right-radius: 23px !important;
   box-shadow: none !important;
-  flex: 0 0 auto !important;
+  flex: 0 0 48px !important;
   position: relative !important;
   overflow: hidden !important;
 }
-.msq-support-head:before,
-.msq-support-head:after { display: none !important; content: none !important; }
-.msq-support-avatar {
+#msqSupportPanel .msq-support-head:before,
+#msqSupportPanel .msq-support-head:after {
+  display: none !important;
+  content: none !important;
+}
+#msqSupportPanel .msq-support-avatar {
+  order: 1 !important;
   width: 32px !important;
   height: 32px !important;
   flex: 0 0 32px !important;
@@ -17535,10 +17550,12 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   font-size: 16px !important;
   line-height: 1 !important;
   margin: 0 !important;
+  padding: 0 !important;
   box-shadow: none !important;
   color: #4a2236 !important;
 }
-.msq-support-head-copy {
+#msqSupportPanel .msq-support-head-copy {
+  order: 2 !important;
   flex: 1 1 auto !important;
   min-width: 0 !important;
   display: flex !important;
@@ -17547,21 +17564,28 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   margin: 0 !important;
   padding: 0 !important;
 }
-.msq-support-head-copy strong {
+#msqSupportPanel .msq-support-head-copy strong {
   font-size: 14px !important;
   font-weight: 800 !important;
-  color: #fff !important;
+  color: #ffffff !important;
   line-height: 1.2 !important;
   white-space: nowrap !important;
   margin: 0 !important;
+  padding: 0 !important;
 }
-.msq-support-head-copy small,
-.msq-support-head-label,
-.msq-support-status-dot { display: none !important; }
-#msqSupportClose {
+#msqSupportPanel .msq-support-head-copy small,
+#msqSupportPanel .msq-support-head-label,
+#msqSupportPanel .msq-support-status-dot {
+  display: none !important;
+}
+#msqSupportPanel #msqSupportClose {
+  order: 3 !important;
   width: 30px !important;
   height: 30px !important;
   flex: 0 0 30px !important;
+  margin: 0 !important;
+  margin-right: auto !important; /* push close to the far side in RTL flex */
+  padding: 0 !important;
   border-radius: 8px !important;
   border: 1px solid rgba(255,255,255,0.35) !important;
   background: rgba(255,255,255,0.12) !important;
@@ -17572,19 +17596,17 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
   box-shadow: none !important;
   position: static !important;
   transform: none !important;
 }
-#msqSupportClose:hover {
+#msqSupportPanel #msqSupportClose:hover {
   background: rgba(255,255,255,0.25) !important;
   transform: none !important;
 }
 
 /* Messages */
-.msq-support-messages {
+#msqSupportPanel .msq-support-messages {
   flex: 1 1 auto !important;
   min-height: 0 !important;
   overflow-y: auto !important;
@@ -17596,7 +17618,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   flex-direction: column !important;
   background: linear-gradient(180deg, #fffaf4 0%, #fffdfb 100%) !important;
 }
-.msq-support-message {
+#msqSupportPanel .msq-support-message {
   width: fit-content !important;
   max-width: min(86%, 310px) !important;
   min-width: 0 !important;
@@ -17609,14 +17631,14 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   word-break: normal !important;
   box-shadow: 0 4px 14px rgba(60, 27, 43, 0.07) !important;
 }
-.msq-support-message.bot {
+#msqSupportPanel .msq-support-message.bot {
   align-self: flex-start !important;
   background: #fff !important;
   border: 1px solid #eee0d0 !important;
   border-bottom-right-radius: 5px !important;
   color: #3f2a34 !important;
 }
-.msq-support-message.user {
+#msqSupportPanel .msq-support-message.user {
   align-self: flex-end !important;
   background: linear-gradient(135deg, #f0dcb8, #e4c68e) !important;
   border: 1px solid #d4b06e !important;
@@ -17625,14 +17647,14 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
 }
 
 /* Quick replies */
-.msq-support-quick {
+#msqSupportPanel .msq-support-quick {
   display: flex !important;
   flex-wrap: wrap !important;
   gap: 7px !important;
   max-width: 100% !important;
   margin: 2px 0 4px !important;
 }
-.msq-support-quick:before {
+#msqSupportPanel .msq-support-quick:before {
   content: "ممكن أساعدك في إيه؟" !important;
   display: block !important;
   width: 100% !important;
@@ -17641,7 +17663,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   color: #8a6a4a !important;
   margin-bottom: 2px !important;
 }
-.msq-support-quick button {
+#msqSupportPanel .msq-support-quick button {
   border: 1px solid #e2cea6 !important;
   border-radius: 999px !important;
   padding: 8px 12px !important;
@@ -17651,18 +17673,18 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   font-weight: 700 !important;
   cursor: pointer !important;
   white-space: nowrap !important;
-  transition: all 0.16s !important;
 }
-.msq-support-quick button:hover {
+#msqSupportPanel .msq-support-quick button:hover {
   background: #55243a !important;
   border-color: #55243a !important;
   color: #fff8ec !important;
 }
 
-/* Compose + footer */
-.msq-support-compose {
+/* Compose */
+#msqSupportPanel .msq-support-compose {
   flex: 0 0 auto !important;
   display: flex !important;
+  flex-direction: row !important;
   align-items: flex-end !important;
   gap: 8px !important;
   padding: 10px !important;
@@ -17670,7 +17692,18 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   background: #fffdf9 !important;
   min-width: 0 !important;
 }
-#msqSupportInput {
+#msqSupportPanel .msq-support-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0,0,0,0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+#msqSupportPanel #msqSupportInput {
   flex: 1 1 auto !important;
   min-width: 0 !important;
   width: 100% !important;
@@ -17687,11 +17720,11 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   overflow-wrap: anywhere !important;
   outline: none !important;
 }
-#msqSupportInput:focus {
+#msqSupportPanel #msqSupportInput:focus {
   border-color: #b78b4c !important;
   box-shadow: 0 0 0 3px rgba(216, 183, 120, 0.22) !important;
 }
-#msqSupportSend {
+#msqSupportPanel #msqSupportSend {
   width: 46px !important;
   height: 46px !important;
   flex: 0 0 46px !important;
@@ -17704,7 +17737,9 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   display: grid !important;
   place-items: center !important;
 }
-.msq-support-footer {
+
+/* Footer */
+#msqSupportPanel .msq-support-footer {
   flex: 0 0 auto !important;
   display: flex !important;
   flex-wrap: wrap !important;
@@ -17715,8 +17750,9 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   background: #fffdf9 !important;
   font-size: 10px !important;
   color: #8f7a82 !important;
+  border-top: 0 !important;
 }
-.msq-support-footer button {
+#msqSupportPanel .msq-support-footer button {
   border: 1px solid #e0cba8 !important;
   background: #fff8ec !important;
   color: #6a334a !important;
@@ -17728,7 +17764,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   white-space: nowrap !important;
 }
 
-/* Left floats stack: QR, WhatsApp, Back-to-top */
+/* Left floats — no conflict with chat on right */
 .qr-toggle-fab {
   position: fixed !important;
   left: 16px !important;
@@ -17742,9 +17778,6 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   color: #fff !important;
   border: 1.5px solid rgba(243, 224, 184, 0.55) !important;
   box-shadow: 0 8px 22px rgba(50, 24, 39, 0.28) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
 }
 .whatsapp-float {
   position: fixed !important;
@@ -17759,11 +17792,11 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   color: #fff !important;
   border: 1.5px solid rgba(255,255,255,0.35) !important;
   box-shadow: 0 8px 22px rgba(37, 211, 102, 0.35) !important;
+  font-size: 24px !important;
+  text-decoration: none !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 24px !important;
-  text-decoration: none !important;
 }
 .back-to-top {
   position: fixed !important;
@@ -17809,15 +17842,20 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
     min-width: 56px !important;
     height: 56px !important;
   }
-  #msqSupportPanel {
+  #msqSupportPanel:not([hidden]) {
     right: 8px !important;
     bottom: 80px !important;
     width: calc(100vw - 16px) !important;
     height: min(620px, calc(100dvh - 100px)) !important;
     border-radius: 20px !important;
   }
-  .msq-support-head { height: 46px !important; min-height: 46px !important; padding: 9px 10px !important; }
-  .msq-support-message { max-width: 90% !important; font-size: 12.5px !important; }
+  #msqSupportPanel .msq-support-head {
+    height: 46px !important;
+    min-height: 46px !important;
+    max-height: 46px !important;
+    padding: 9px 10px !important;
+  }
+  #msqSupportPanel .msq-support-message { max-width: 90% !important; font-size: 12.5px !important; }
   .qr-toggle-fab, .whatsapp-float, .back-to-top {
     left: 12px !important;
     width: 46px !important;
