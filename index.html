@@ -16241,7 +16241,40 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
 <script id="mysouq-rejected-orders-workflow-v1">
 (function(){
   'use strict';
-  var rejectedTabReady=false, observersStarted=false;
+  var rejectedTabReady=false, observersStarted=false, blockCheckMigrationStarted=false;
+
+  // Migrate existing active blocks once while an admin session is available.
+  // The public collection contains only {blocked:true}; no names, phones, or order data.
+  async function migrateExistingBlockChecks(){
+    if(blockCheckMigrationStarted || !isAdmin()) return;
+    var dbx=getDbSafe(); if(!dbx) return;
+    blockCheckMigrationStarted=true;
+    try{
+      var snap=await dbx.collection('blockedCustomers').get();
+      var ops=[];
+      snap.forEach(function(doc){
+        var d=doc.data()||{}, id=String(doc.id||'');
+        var checkId='';
+        if(id.indexOf('phone_')===0) checkId=id;
+        else if(id.indexOf('name_')===0) checkId=id;
+        else if(d.identifierType==='phone' && d.phoneNormalized) checkId='phone_'+String(d.phoneNormalized);
+        else if(d.identifierType==='name' && d.nameNormalized) checkId='name_'+encodeURIComponent(String(d.nameNormalized)).replace(/%/g,'_');
+        if(checkId) ops.push({id:checkId,active:d.blocked!==false});
+      });
+      for(var i=0;i<ops.length;i+=400){
+        var batch=dbx.batch();
+        ops.slice(i,i+400).forEach(function(op){
+          var ref=dbx.collection('blockedCustomerChecks').doc(op.id);
+          if(op.active) batch.set(ref,{blocked:true},{merge:true});
+          else batch.delete(ref);
+        });
+        await batch.commit();
+      }
+    }catch(e){
+      blockCheckMigrationStarted=false;
+      console.warn('My Souq existing block-check migration failed:',e);
+    }
+  }
 
   function getDbSafe(){
     try{if(typeof db!=='undefined'&&db)return db;}catch(e){}
@@ -16443,6 +16476,9 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
           blockedBy:(typeof currentAdminUser!=='undefined'&&currentAdminUser&&currentAdminUser.email)||''
         },{merge:true});
       }
+      // Public checkout reads only these minimal flags; personal details remain admin-only.
+      if(pk)batch.set(dbx.collection('blockedCustomerChecks').doc('phone_'+pk),{blocked:true},{merge:true});
+      if(nk)batch.set(dbx.collection('blockedCustomerChecks').doc('name_'+encodeURIComponent(nk).replace(/%/g,'_')),{blocked:true},{merge:true});
       var trackRef=dbx.collection('orderTracking').doc(id);
       var trackSnap=await trackRef.get();
       if(trackSnap.exists)batch.set(trackRef,update,{merge:true});
@@ -16500,6 +16536,9 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
       // from the current normalization; never delete by name/phone query broadly.
       Object.keys(idsToDelete).forEach(function(docId){
         batch.delete(dbx.collection('blockedCustomers').doc(docId));
+      });
+      Object.keys(idsToDelete).forEach(function(docId){
+        batch.delete(dbx.collection('blockedCustomerChecks').doc(docId));
       });
 
       var stamp=firebase.firestore.FieldValue.serverTimestamp();
@@ -16606,8 +16645,8 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
       if(!dbx)return old.apply(this,arguments);
       try{
         var refs=[];
-        if(pk)refs.push(dbx.collection('blockedCustomers').doc('phone_'+pk).get());
-        if(nk)refs.push(dbx.collection('blockedCustomers').doc('name_'+encodeURIComponent(nk).replace(/%/g,'_')).get());
+        if(pk)refs.push(dbx.collection('blockedCustomerChecks').doc('phone_'+pk).get());
+        if(nk)refs.push(dbx.collection('blockedCustomerChecks').doc('name_'+encodeURIComponent(nk).replace(/%/g,'_')).get());
         var snaps=await Promise.all(refs);
         var blocked=snaps.some(function(snap){return snap.exists&&(snap.data()||{}).blocked!==false;});
         if(blocked){
@@ -16624,6 +16663,7 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   }
 
   function init(){
+    migrateExistingBlockChecks();
     ensureRejectedTab();
     installDetailWrapper();
     installExceptionalGuard();
@@ -16766,8 +16806,8 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
     var dbx = getDb();
     if (!dbx) throw new Error('Firestore is unavailable');
     var refs = [];
-    if (pk) refs.push(dbx.collection('blockedCustomers').doc('phone_' + pk).get());
-    if (nk) refs.push(dbx.collection('blockedCustomers').doc('name_' + encodeURIComponent(nk).replace(/%/g, '_')).get());
+    if (pk) refs.push(dbx.collection('blockedCustomerChecks').doc('phone_' + pk).get());
+    if (nk) refs.push(dbx.collection('blockedCustomerChecks').doc('name_' + encodeURIComponent(nk).replace(/%/g, '_')).get());
     var snapshots = await Promise.all(refs);
     return snapshots.some(function(snap){
       if (!snap || !snap.exists) return false;
