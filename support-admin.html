@@ -1,14 +1,384 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Souq — لوحة شات الدعم</title><style>
-:root{color-scheme:light;font-family:Tahoma,Arial,sans-serif}*{box-sizing:border-box}body{margin:0;background:#f7f2f4;color:#38232b}.wrap{max-width:1100px;margin:24px auto;padding:14px}.card{background:#fff;border:1px solid #ead6de;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 8px 28px #4b1e2d0c}h1{font-size:23px;margin:0 0 8px;color:#81394f}p{line-height:1.8}.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}input,textarea,button,select{font:inherit;border-radius:10px;padding:11px;border:1px solid #dec5ce}input,textarea{width:100%;min-width:0}button{cursor:pointer;background:#81394f;color:#fff;border:0;font-weight:700}button.secondary{background:#f7eaf0;color:#81394f;border:1px solid #e5c8d3}button:disabled{opacity:.5;cursor:wait}.status{padding:10px;border-radius:10px;background:#f8edf1;margin-top:12px;white-space:pre-wrap}.layout{display:grid;grid-template-columns:minmax(250px,.85fr) minmax(0,1.5fr);gap:14px}.list{display:flex;flex-direction:column;gap:8px;max-height:65vh;overflow:auto}.conv{background:#fff;border:1px solid #ead6de;border-radius:12px;padding:12px;text-align:right;color:#38232b;width:100%}.conv.active{border:2px solid #81394f;background:#fff6f8}.muted{font-size:12px;color:#7a6470;line-height:1.8;overflow-wrap:anywhere}.messages{height:48vh;min-height:300px;overflow:auto;border:1px solid #f0e2e7;border-radius:12px;padding:12px;background:#fffdfd}.msg{padding:9px 11px;border-radius:10px;margin:7px 0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;max-width:92%}.msg.customer{background:#e6f5eb;margin-left:auto}.msg.admin{background:#f9edf2;margin-right:auto}.empty{color:#7a6470;padding:20px;text-align:center}.compose{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}.compose textarea{min-height:70px;resize:vertical}@media(max-width:760px){.layout{grid-template-columns:1fr}.list{max-height:230px}.messages{height:40vh;min-height:240px}}
-</style></head><body><main class="wrap"><section class="card"><h1>لوحة شات دعم My Souq</h1><p>تابع رسائل العملاء ورد عليهم من هنا. أدخل قيمة <b>ADMIN_KEY</b> المحفوظة في Cloudflare Worker. المفتاح لا يُحفظ في الصفحة.</p><div class="row"><div style="flex:1;min-width:220px"><input id="adminKey" type="password" autocomplete="off" placeholder="ADMIN_KEY من Cloudflare"></div><button id="loadBtn">تحميل المحادثات</button><button id="clearBtn" class="secondary">مسح المفتاح</button></div><div id="status" class="status" role="status">أدخل المفتاح ثم اضغط تحميل المحادثات. بعد التحميل يتم التحديث تلقائيًا كل بضع ثوانٍ.</div></section><div class="layout"><section class="card"><h2>المحادثات</h2><div id="conversations" class="list"><div class="empty">لم يتم تحميل المحادثات.</div></div></section><section class="card"><h2 id="threadTitle">الرسائل</h2><div id="threadMeta" class="muted">اختر محادثة لعرض الرسائل والرد.</div><div id="messages" class="messages"><div class="empty">اختر محادثة من القائمة.</div></div><div class="row" style="margin-top:10px"><label for="convStatus">حالة المحادثة</label><select id="convStatus"><option value="open">مفتوحة</option><option value="pending">بانتظار الرد</option><option value="closed">مغلقة</option></select><button id="statusBtn" class="secondary" disabled>حفظ الحالة</button></div><div class="compose"><textarea id="replyText" placeholder="اكتب ردك للعميل..." disabled></textarea><button id="replyBtn" disabled>إرسال الرد</button></div></section></div></main><script>
-(function(){'use strict';var API='https://mysouq-bot.ahmedaly1g.workers.dev',key=document.getElementById('adminKey'),status=document.getElementById('status'),list=document.getElementById('conversations'),msgs=document.getElementById('messages'),reply=document.getElementById('replyText'),replyBtn=document.getElementById('replyBtn'),statusBtn=document.getElementById('statusBtn'),statusSelect=document.getElementById('convStatus'),currentId='',conversations=[],poll=null,busy=false;
-function el(t,c,x){var n=document.createElement(t);if(c)n.className=c;if(x!==undefined)n.textContent=x;return n}function date(v){try{return v?new Date(v).toLocaleString('ar-EG'):''}catch(e){return ''}}function setStatus(t){status.textContent=t}
-async function api(path,opts){opts=opts||{};opts.headers=Object.assign({'Content-Type':'application/json','X-Admin-Key':key.value.trim()},opts.headers||{});opts.credentials='omit';var r=await fetch(API+path,opts),d=await r.json().catch(function(){return {ok:false,error:'استجابة غير صالحة'}});if(!r.ok||d.ok===false)throw Error(r.status===401?'ADMIN_KEY غير صحيح أو غير مضبوط.':d.error||'فشل الطلب');return d}
-function renderConversations(items){conversations=items||[];list.replaceChildren();if(!conversations.length){list.appendChild(el('div','empty','لا توجد محادثات حتى الآن.'));return}conversations.forEach(function(c){var b=el('button','conv'+(c.id===currentId?' active':''));b.type='button';b.appendChild(el('strong','',c.name||'زائر My Souq'));b.appendChild(el('div','muted','الحالة: '+(c.status||'open')+' · '+date(c.updatedAt||c.createdAt)));if(c.lastMessage)b.appendChild(el('div','muted',String(c.lastMessage).slice(0,120)));b.addEventListener('click',function(){selectConversation(c.id)});list.appendChild(b)})}
-async function loadConversations(quiet){if(busy)return;busy=true;if(!quiet)setStatus('جاري تحميل المحادثات...');try{var d=await api('/api/admin/conversations');renderConversations(d.conversations||[]);if(!quiet)setStatus('تم تحميل '+conversations.length+' محادثة. التحديث التلقائي يعمل كل 4 ثوانٍ.');if(currentId)await loadMessages(true)}catch(e){if(!quiet)setStatus('خطأ: '+e.message)}finally{busy=false}}
-async function selectConversation(id){currentId=id;var c=conversations.find(function(x){return x.id===id});document.getElementById('threadTitle').textContent='محادثة '+id;document.getElementById('threadMeta').textContent=c?'العميل: '+(c.name||'زائر')+' · بدأت: '+date(c.createdAt)+' · '+(c.pageUrl||''):'';statusSelect.value=c&&c.status||'open';reply.disabled=false;replyBtn.disabled=false;statusBtn.disabled=false;renderConversations(conversations);await loadMessages(false)}
-async function loadMessages(quiet){if(!currentId)return;try{var d=await api('/api/admin/messages?conversationId='+encodeURIComponent(currentId));msgs.replaceChildren();var arr=d.messages||[];if(!arr.length)msgs.appendChild(el('div','empty','لا توجد رسائل بعد.'));arr.forEach(function(m){var who=(m.role==='admin'||m.role==='owner')?'admin':'customer',n=el('div','msg '+who);n.textContent=(who==='admin'?'أنت: ':'العميل: ')+(m.text||m.content||'')+'\n'+date(m.createdAt);msgs.appendChild(n)});msgs.scrollTop=msgs.scrollHeight}catch(e){if(!quiet)setStatus('تعذر تحميل الرسائل: '+e.message)}}
-replyBtn.addEventListener('click',async function(){var text=reply.value.trim();if(!currentId||!text)return;replyBtn.disabled=true;try{await api('/api/admin/reply',{method:'POST',body:JSON.stringify({conversationId:currentId,text:text})});reply.value='';await loadMessages(false);await loadConversations(true);setStatus('تم إرسال الرد للعميل. سيظهر داخل الشات خلال ثوانٍ.')}catch(e){setStatus('تعذر إرسال الرد: '+e.message)}finally{replyBtn.disabled=false}});reply.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();replyBtn.click()}});
-statusBtn.addEventListener('click',async function(){if(!currentId)return;statusBtn.disabled=true;try{await api('/api/admin/status',{method:'POST',body:JSON.stringify({conversationId:currentId,status:statusSelect.value})});await loadConversations(true);setStatus('تم تحديث حالة المحادثة.')}catch(e){setStatus('تعذر تحديث الحالة: '+e.message)}finally{statusBtn.disabled=false}});
-document.getElementById('loadBtn').addEventListener('click',function(){loadConversations(false);if(poll)clearInterval(poll);poll=setInterval(function(){loadConversations(true);if(currentId)loadMessages(true);},4000)});document.getElementById('clearBtn').addEventListener('click',function(){key.value='';if(poll)clearInterval(poll);poll=null;currentId='';conversations=[];list.replaceChildren(el('div','empty','أدخل المفتاح لتحميل المحادثات.'));msgs.replaceChildren(el('div','empty','اختر محادثة من القائمة.'));reply.disabled=true;replyBtn.disabled=true;statusBtn.disabled=true;setStatus('تم مسح المفتاح من الحقل.')});})();
-</script></body></html>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Souq — لوحة شات الدعم</title>
+<style>
+:root{color-scheme:light;font-family:Tahoma,Arial,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:#f7f2f4;color:#38232b}
+.wrap{max-width:1100px;margin:24px auto;padding:14px}
+.card{background:#fff;border:1px solid #ead6de;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 8px 28px #4b1e2d0c}
+h1{font-size:23px;margin:0 0 8px;color:#81394f}
+p{line-height:1.8}
+.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+input,textarea,button,select{font:inherit;border-radius:10px;padding:11px;border:1px solid #dec5ce}
+input,textarea{width:100%;min-width:0}
+button{cursor:pointer;background:#81394f;color:#fff;border:0;font-weight:700}
+button.secondary{background:#f7eaf0;color:#81394f;border:1px solid #e5c8d3}
+button:disabled{opacity:.5;cursor:wait}
+.status{padding:10px;border-radius:10px;background:#f8edf1;margin-top:12px;white-space:pre-wrap}
+.layout{display:grid;grid-template-columns:minmax(250px,.85fr) minmax(0,1.5fr);gap:14px}
+.list{display:flex;flex-direction:column;gap:8px;max-height:65vh;overflow:auto}
+.conv{background:#fff;border:1px solid #ead6de;border-radius:12px;padding:12px;text-align:right;color:#38232b;width:100%;cursor:pointer}
+.conv.active{border:2px solid #81394f;background:#fff6f8}
+.conv.needs-human{border:2px solid #c62828;background:#fff5f5;animation:pulseAlert 1.6s ease-in-out infinite}
+.conv.needs-human .badge-human{display:inline-block}
+.badge-human{display:none;background:#c62828;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;margin-right:6px}
+.muted{font-size:12px;color:#7a6470;line-height:1.8;overflow-wrap:anywhere}
+.messages{height:48vh;min-height:300px;overflow:auto;border:1px solid #f0e2e7;border-radius:12px;padding:12px;background:#fffdfd}
+.msg{padding:9px 11px;border-radius:10px;margin:7px 0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;max-width:92%}
+.msg.customer{background:#e6f5eb;margin-left:auto}
+.msg.admin{background:#f9edf2;margin-right:auto}
+.msg.system{background:#fff3cd;border:1px solid #ffe08a;margin:7px auto;text-align:center;max-width:100%;font-weight:700;color:#7a5b00}
+.empty{color:#7a6470;padding:20px;text-align:center}
+.compose{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:10px}
+.compose textarea{min-height:70px;resize:vertical}
+.alert-bar{display:none;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-radius:12px;background:#c62828;color:#fff;font-weight:800;margin-bottom:12px;box-shadow:0 6px 20px #c6282833}
+.alert-bar.show{display:flex}
+.alert-bar button{background:#fff;color:#c62828;border:0;padding:8px 12px;border-radius:8px;font-weight:800;cursor:pointer}
+@keyframes pulseAlert{0%,100%{box-shadow:0 0 0 0 #c6282844}50%{box-shadow:0 0 0 6px #c6282818}}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.list{max-height:230px}.messages{height:40vh;min-height:240px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div id="alertBar" class="alert-bar" role="alert">
+    <span id="alertText">يوجد طلب تدخل من عميل</span>
+    <button type="button" id="alertDismiss">تم الاطلاع</button>
+  </div>
+
+  <section class="card">
+    <h1>لوحة شات دعم My Souq</h1>
+    <p>تابع رسائل العملاء ورد عليهم من هنا. أدخل قيمة <b>ADMIN_KEY</b> المحفوظة في Cloudflare Worker. المفتاح لا يُحفظ في الصفحة.</p>
+    <div class="row">
+      <div style="flex:1;min-width:220px">
+        <input id="adminKey" type="password" autocomplete="off" placeholder="ADMIN_KEY من Cloudflare">
+      </div>
+      <button id="loadBtn">تحميل المحادثات</button>
+      <button id="clearBtn" class="secondary">مسح المفتاح</button>
+      <button id="notifyBtn" class="secondary" type="button">تفعيل إشعارات المتصفح</button>
+    </div>
+    <div id="status" class="status" role="status">أدخل المفتاح ثم اضغط تحميل المحادثات. بعد التحميل يتم التحديث تلقائيًا، ولو عميل طلب تدخلك هيظهر تنبيه.</div>
+  </section>
+
+  <div class="layout">
+    <section class="card">
+      <h2>المحادثات <span id="humanCount" class="badge-human" style="display:none"></span></h2>
+      <div id="conversations" class="list"><div class="empty">لم يتم تحميل المحادثات.</div></div>
+    </section>
+    <section class="card">
+      <h2 id="threadTitle">الرسائل</h2>
+      <div id="threadMeta" class="muted">اختر محادثة لعرض الرسائل والرد.</div>
+      <div id="messages" class="messages"><div class="empty">اختر محادثة من القائمة.</div></div>
+      <div class="row" style="margin-top:10px">
+        <label for="convStatus">حالة المحادثة</label>
+        <select id="convStatus">
+          <option value="open">مفتوحة</option>
+          <option value="pending">بانتظار الرد / طلب تدخل</option>
+          <option value="closed">مغلقة</option>
+        </select>
+        <button id="statusBtn" class="secondary" disabled>حفظ الحالة</button>
+      </div>
+      <div class="compose">
+        <textarea id="replyText" placeholder="اكتب ردك للعميل..." disabled></textarea>
+        <button id="replyBtn" disabled>إرسال الرد</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+(function(){
+'use strict';
+var API='https://mysouq-bot.ahmedaly1g.workers.dev';
+var key=document.getElementById('adminKey');
+var status=document.getElementById('status');
+var list=document.getElementById('conversations');
+var msgs=document.getElementById('messages');
+var reply=document.getElementById('replyText');
+var replyBtn=document.getElementById('replyBtn');
+var statusBtn=document.getElementById('statusBtn');
+var statusSelect=document.getElementById('convStatus');
+var alertBar=document.getElementById('alertBar');
+var alertText=document.getElementById('alertText');
+var humanCountEl=document.getElementById('humanCount');
+var currentId='', conversations=[], poll=null, busy=false;
+var knownHumanIds={}; // ids we already notified about
+var baseTitle=document.title;
+
+function el(t,c,x){var n=document.createElement(t);if(c)n.className=c;if(x!==undefined)n.textContent=x;return n}
+function date(v){try{return v?new Date(v).toLocaleString('ar-EG'):''}catch(e){return ''}}
+function setStatus(t){status.textContent=t}
+
+function isNeedsHuman(c){
+  if(!c)return false;
+  var st=String(c.status||'').toLowerCase();
+  if(st==='pending'||st==='handoff'||st==='human'||st==='needs_human')return true;
+  if(c.needsHuman===true||c.handoff===true||c.requestedHuman===true)return true;
+  var last=String(c.lastMessage||c.summary||'');
+  if(/تدخل|صاحب المتجر|طلب.*دعم|handoff|human/i.test(last))return true;
+  return false;
+}
+
+function playBeep(){
+  try{
+    var Ctx=window.AudioContext||window.webkitAudioContext;
+    if(!Ctx)return;
+    var ctx=new Ctx();
+    var o=ctx.createOscillator();
+    var g=ctx.createGain();
+    o.type='sine';o.frequency.value=880;
+    g.gain.value=0.08;
+    o.connect(g);g.connect(ctx.destination);
+    o.start();
+    setTimeout(function(){o.frequency.value=1175},120);
+    setTimeout(function(){o.stop();ctx.close()},320);
+  }catch(e){}
+}
+
+function flashTitle(msg){
+  var n=0;
+  if(window.__msqTitleFlash)clearInterval(window.__msqTitleFlash);
+  window.__msqTitleFlash=setInterval(function(){
+    document.title=(n%2===0)?('🚨 '+msg):(baseTitle);
+    n++;
+    if(n>12){clearInterval(window.__msqTitleFlash);document.title=baseTitle}
+  },700);
+}
+
+function browserNotify(title,body){
+  try{
+    if(!('Notification' in window))return;
+    if(Notification.permission==='granted'){
+      var n=new Notification(title,{body:body,tag:'mysouq-handoff',dir:'rtl'});
+      n.onclick=function(){window.focus();n.close()};
+    }
+  }catch(e){}
+}
+
+function showAlertBar(count,names){
+  alertText.textContent=count===1
+    ?('🚨 عميل يطلب تدخلك'+(names?' — '+names:''))
+    :('🚨 '+count+' عملاء يطلبون تدخلك');
+  alertBar.classList.add('show');
+}
+
+document.getElementById('alertDismiss').addEventListener('click',function(){
+  alertBar.classList.remove('show');
+  document.title=baseTitle;
+});
+
+document.getElementById('notifyBtn').addEventListener('click',function(){
+  if(!('Notification' in window)){
+    setStatus('المتصفح لا يدعم إشعارات سطح المكتب.');
+    return;
+  }
+  Notification.requestPermission().then(function(p){
+    if(p==='granted')setStatus('تم تفعيل إشعارات المتصفح. هتصلك تنبيهات عند طلب التدخل.');
+    else setStatus('لم يتم السماح بالإشعارات. تقدر تفعّلها من إعدادات المتصفح.');
+  });
+});
+
+async function api(path,opts){
+  opts=opts||{};
+  opts.headers=Object.assign({'Content-Type':'application/json','X-Admin-Key':key.value.trim()},opts.headers||{});
+  opts.credentials='omit';
+  var r=await fetch(API+path,opts);
+  var d=await r.json().catch(function(){return {ok:false,error:'استجابة غير صالحة'}});
+  if(!r.ok||d.ok===false)throw Error(r.status===401?'ADMIN_KEY غير صحيح أو غير مضبوط.':(d.error||'فشل الطلب'));
+  return d;
+}
+
+function renderConversations(items){
+  conversations=items||[];
+  list.replaceChildren();
+  var humanList=[];
+  if(!conversations.length){
+    list.appendChild(el('div','empty','لا توجد محادثات حتى الآن.'));
+    humanCountEl.style.display='none';
+    return;
+  }
+  conversations.forEach(function(c){
+    var needs=isNeedsHuman(c);
+    if(needs)humanList.push(c.name||c.id||'زائر');
+    var b=el('button','conv'+(c.id===currentId?' active':'')+(needs?' needs-human':''));
+    b.type='button';
+    var title=el('strong','',(c.name||'زائر My Souq'));
+    if(needs){
+      var badge=el('span','badge-human','🚨 يطلب التدخل');
+      badge.style.display='inline-block';
+      b.appendChild(badge);
+    }
+    b.appendChild(title);
+    b.appendChild(el('div','muted','الحالة: '+(c.status||'open')+' · '+date(c.updatedAt||c.createdAt)));
+    if(c.lastMessage)b.appendChild(el('div','muted',String(c.lastMessage).slice(0,120)));
+    b.addEventListener('click',function(){selectConversation(c.id)});
+    list.appendChild(b);
+  });
+  if(humanList.length){
+    humanCountEl.style.display='inline-block';
+    humanCountEl.textContent=humanList.length+' تدخل';
+  }else{
+    humanCountEl.style.display='none';
+  }
+}
+
+function detectNewHandoffs(items){
+  var fresh=[];
+  (items||[]).forEach(function(c){
+    if(!isNeedsHuman(c))return;
+    if(knownHumanIds[c.id])return;
+    knownHumanIds[c.id]=true;
+    fresh.push(c);
+  });
+  // mark existing ones as known on first load without spamming
+  return fresh;
+}
+
+async function loadConversations(quiet){
+  if(busy)return;
+  busy=true;
+  if(!quiet)setStatus('جاري تحميل المحادثات...');
+  try{
+    var d=await api('/api/admin/conversations');
+    var items=d.conversations||[];
+    var isFirst=!Object.keys(knownHumanIds).length && quiet===false;
+    renderConversations(items);
+
+    var fresh;
+    if(isFirst){
+      // first explicit load: register known handoffs silently
+      items.forEach(function(c){if(isNeedsHuman(c))knownHumanIds[c.id]=true});
+      fresh=[];
+    }else{
+      fresh=detectNewHandoffs(items);
+    }
+
+    var humanNow=items.filter(isNeedsHuman);
+    if(humanNow.length){
+      showAlertBar(humanNow.length, humanNow.map(function(c){return c.name||'زائر'}).slice(0,3).join('، '));
+    }else{
+      alertBar.classList.remove('show');
+    }
+
+    if(fresh.length){
+      var names=fresh.map(function(c){return c.name||'زائر'}).join('، ');
+      var msg=fresh.length===1
+        ?('عميل يطلب تدخلك: '+names)
+        :(fresh.length+' عملاء يطلبون تدخلك');
+      setStatus('🚨 '+msg);
+      playBeep();
+      flashTitle('طلب تدخل');
+      browserNotify('My Souq — طلب تدخل', msg);
+    }else if(!quiet){
+      setStatus('تم تحميل '+conversations.length+' محادثة. التحديث التلقائي يعمل كل 4 ثوانٍ.');
+    }
+
+    if(currentId)await loadMessages(true);
+  }catch(e){
+    if(!quiet)setStatus('خطأ: '+e.message);
+  }finally{
+    busy=false;
+  }
+}
+
+async function selectConversation(id){
+  currentId=id;
+  var c=conversations.find(function(x){return x.id===id});
+  document.getElementById('threadTitle').textContent='محادثة '+id;
+  document.getElementById('threadMeta').textContent=c?'العميل: '+(c.name||'زائر')+' · بدأت: '+date(c.createdAt)+' · '+(c.pageUrl||''):'';
+  statusSelect.value=c&&c.status||'open';
+  reply.disabled=false;replyBtn.disabled=false;statusBtn.disabled=false;
+  // mark as seen for notifications
+  knownHumanIds[id]=true;
+  renderConversations(conversations);
+  await loadMessages(false);
+}
+
+async function loadMessages(quiet){
+  if(!currentId)return;
+  try{
+    var d=await api('/api/admin/messages?conversationId='+encodeURIComponent(currentId));
+    msgs.replaceChildren();
+    var arr=d.messages||[];
+    if(!arr.length)msgs.appendChild(el('div','empty','لا توجد رسائل بعد.'));
+    arr.forEach(function(m){
+      var role=String(m.role||'');
+      var text=m.text||m.content||'';
+      var who=(role==='admin'||role==='owner')?'admin':(role==='system'?'system':'customer');
+      var n=el('div','msg '+who);
+      var prefix=who==='admin'?'أنت: ':(who==='system'?'🔔 النظام: ':'العميل: ');
+      // highlight handoff-looking system/customer lines
+      if(/تدخل صاحب المتجر|طلب.*تدخل|handoff/i.test(text)){
+        n.className='msg system';
+        prefix='🚨 ';
+      }
+      n.textContent=prefix+text+'\n'+date(m.createdAt);
+      msgs.appendChild(n);
+    });
+    msgs.scrollTop=msgs.scrollHeight;
+  }catch(e){
+    if(!quiet)setStatus('تعذر تحميل الرسائل: '+e.message);
+  }
+}
+
+replyBtn.addEventListener('click',async function(){
+  var text=reply.value.trim();
+  if(!currentId||!text)return;
+  replyBtn.disabled=true;
+  try{
+    await api('/api/admin/reply',{method:'POST',body:JSON.stringify({conversationId:currentId,text:text})});
+    reply.value='';
+    await loadMessages(false);
+    await loadConversations(true);
+    setStatus('تم إرسال الرد للعميل. سيظهر داخل الشات خلال ثوانٍ.');
+  }catch(e){
+    setStatus('تعذر إرسال الرد: '+e.message);
+  }finally{
+    replyBtn.disabled=false;
+  }
+});
+reply.addEventListener('keydown',function(e){
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();replyBtn.click()}
+});
+
+statusBtn.addEventListener('click',async function(){
+  if(!currentId)return;
+  statusBtn.disabled=true;
+  try{
+    await api('/api/admin/status',{method:'POST',body:JSON.stringify({conversationId:currentId,status:statusSelect.value})});
+    await loadConversations(true);
+    setStatus('تم تحديث حالة المحادثة.');
+  }catch(e){
+    setStatus('تعذر تحديث الحالة: '+e.message);
+  }finally{
+    statusBtn.disabled=false;
+  }
+});
+
+document.getElementById('loadBtn').addEventListener('click',function(){
+  loadConversations(false);
+  if(poll)clearInterval(poll);
+  poll=setInterval(function(){
+    loadConversations(true);
+    if(currentId)loadMessages(true);
+  },4000);
+});
+
+document.getElementById('clearBtn').addEventListener('click',function(){
+  key.value='';
+  if(poll)clearInterval(poll);
+  poll=null;currentId='';conversations=[];knownHumanIds={};
+  list.replaceChildren(el('div','empty','أدخل المفتاح لتحميل المحادثات.'));
+  msgs.replaceChildren(el('div','empty','اختر محادثة من القائمة.'));
+  reply.disabled=true;replyBtn.disabled=true;statusBtn.disabled=true;
+  alertBar.classList.remove('show');
+  document.title=baseTitle;
+  setStatus('تم مسح المفتاح من الحقل.');
+});
+})();
+</script>
+</body>
+</html>
