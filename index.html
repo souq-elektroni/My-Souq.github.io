@@ -4001,6 +4001,9 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
 .top-actions > button,.top-actions .admin-orders-trigger,.top-actions .track-trigger,.top-actions .cart-trigger{flex:0 1 auto!important;min-width:0!important;max-width:100%!important;white-space:nowrap!important;padding-inline:clamp(7px,1.8vw,15px)!important;font-size:clamp(10px,2.6vw,14px)!important}
 @media(max-width:600px){.top-actions{left:8px!important;right:56px!important;top:12px!important;width:auto!important;gap:4px!important}.top-actions > button,.top-actions .admin-orders-trigger,.top-actions .track-trigger,.top-actions .cart-trigger{padding-inline:7px!important;font-size:10px!important;letter-spacing:0!important;min-height:34px!important}}
 </style>
+
+
+
 </head>
 
 <body>
@@ -11188,15 +11191,15 @@ html body #adminOrdersBtn.show {
 
 <!-- My Souq Customer Support Chat — additive feature; existing floating tools remain untouched. -->
 <div id="mysouqSupportChatWidget" dir="rtl">
-  <button type="button" id="msqSupportLauncher" aria-label="افتح مساعد My Souq" aria-expanded="false" title="مساعد My Souq"><span class="msq-support-launcher-icon" aria-hidden="true">🤖</span><span class="msq-support-launcher-copy"><strong>محتاج مساعدة؟</strong><small>شات دعم My Souq</small></span><span class="msq-support-launcher-dot"></span></button>
+  <button type="button" id="msqSupportLauncher" aria-label="افتح مساعد My Souq" aria-expanded="false" title="مساعد My Souq"><span class="msq-support-launcher-icon" aria-hidden="true">✦</span><span class="msq-support-launcher-copy"><strong>محتاج مساعدة؟</strong><small>شات دعم My Souq</small></span><span class="msq-support-launcher-dot"></span></button>
   <section id="msqSupportPanel" role="dialog" aria-label="مساعد دعم عملاء My Souq" aria-modal="false" hidden>
     <header class="msq-support-head">
-      <div class="msq-support-avatar" aria-hidden="true">🤖</div>
-      <div class="msq-support-head-copy"><strong>مساعد My Souq</strong><small><span class="msq-support-status-dot"></span> نساعدك لحد ما مشكلتك تتحل</small></div>
+      <div class="msq-support-avatar" aria-hidden="true"><span>✦</span></div>
+      <div class="msq-support-head-copy"><strong>My Souq <span class="msq-support-head-label">مساعدك الشخصي</span></strong><small><span class="msq-support-status-dot"></span> موجودين لمساعدتك • تسوّق براحة</small></div>
       <button type="button" id="msqSupportClose" aria-label="إغلاق المحادثة">×</button>
     </header>
     <div id="msqSupportMessages" class="msq-support-messages" aria-live="polite" aria-relevant="additions text">
-      <div class="msq-support-message bot">أهلًا بيك في My Souq 👋<br>أنا مساعدك في التسوق والطلبات والشحن والدفع. هحاول أحل المشكلة معاك، ولو احتجنا تدخل صاحب المتجر هنوضح لك طريقة التصعيد.</div>
+      <div class="msq-support-message bot">أهلًا وسهلًا بيك في My Souq ✨<br>نورتنا! أنا هنا أساعدك في المنتجات والطلبات والشحن وأي سؤال عندك. احكيلي محتاج إيه وهنمشي مع بعض خطوة بخطوة 😊</div>
       <div class="msq-support-quick" aria-label="أسئلة سريعة">
         <button type="button" data-msq-quick="track">تتبع طلبي 📦</button>
         <button type="button" data-msq-quick="order">مشكلة في تأكيد الطلب</button>
@@ -11212,6 +11215,23 @@ html body #adminOrdersBtn.show {
     <footer class="msq-support-footer"><span>لا ترسل بيانات الدفع أو كلمات المرور.</span><button type="button" id="msqSupportHuman">طلب تدخل صاحب المتجر</button></footer>
   </section>
 </div>
+
+
+<style id="msq-support-admin-secret-style">
+#msqSupportAdminOverlay{position:fixed;inset:0;z-index:200000;background:rgba(31,13,21,.72);display:none;align-items:center;justify-content:center;padding:10px}
+#msqSupportAdminOverlay.is-open{display:flex}
+#msqSupportAdminWindow{width:min(1500px,100%);height:min(94dvh,1000px);background:#fff;border:2px solid #e7c8d3;border-radius:18px;overflow:hidden;box-shadow:0 24px 90px #0005;display:flex;flex-direction:column}
+#msqSupportAdminTop{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 14px;background:#81394f;color:#fff;font-weight:800}
+#msqSupportAdminClose{border:1px solid #ffffff70;background:#fff;color:#81394f;border-radius:9px;padding:6px 12px;font:inherit;cursor:pointer}
+#msqSupportAdminFrame{width:100%;height:100%;border:0;flex:1;background:#f7f2f4}
+@media(max-width:600px){#msqSupportAdminOverlay{padding:0}#msqSupportAdminWindow{height:100dvh;border-radius:0}#msqSupportAdminTop{padding:8px}}
+</style>
+<div id="msqSupportAdminOverlay" aria-hidden="true"><section id="msqSupportAdminWindow" role="dialog" aria-modal="true" aria-label="لوحة شات دعم My Souq"><div id="msqSupportAdminTop"><span>لوحة شات دعم My Souq</span><button id="msqSupportAdminClose" type="button">إغلاق ✕</button></div><iframe id="msqSupportAdminFrame" title="لوحة شات دعم My Souq" src="./support-admin.html"></iframe></section></div>
+<script id="msq-support-admin-triple-logo-click">
+(function(){'use strict';var badge=document.querySelector('.brand-badge'),overlay=document.getElementById('msqSupportAdminOverlay'),close=document.getElementById('msqSupportAdminClose');if(!badge||!overlay||!close)return;var clicks=0,timer=null;badge.style.cursor='pointer';badge.addEventListener('click',function(){clicks++;if(timer)clearTimeout(timer);timer=setTimeout(function(){clicks=0;},1200);if(clicks>=3){clicks=0;clearTimeout(timer);overlay.classList.add('is-open');overlay.setAttribute('aria-hidden','false');}});function hide(){overlay.classList.remove('is-open');overlay.setAttribute('aria-hidden','true');}close.addEventListener('click',hide);overlay.addEventListener('click',function(e){if(e.target===overlay)hide();});document.addEventListener('keydown',function(e){if(e.key==='Escape'&&overlay.classList.contains('is-open'))hide();});})();
+</script>
+
+
 
 </body>
 </html>
@@ -18573,9 +18593,13 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
       }catch(err){console.warn('My Souq support AI unavailable; using guided help.',err);}
     }
     var intent=detectIntent(text);if(intent)return quickAnswers[intent];
-    if(/سلام|السلام عليكم|اهلا|أهلا|مرحبا|هاي|hello|hi\b/.test(text.toLowerCase()))return 'أهلًا بيك 🌷 اكتبلي المشكلة باختصار، أو اختار من الأسئلة السريعة فوق. أقدر أساعدك في الطلبات والشحن والمقاسات والدفع.';
-    if(/شكرا|شكرًا|تسلم|متشكر/.test(text))return 'العفو، إحنا تحت أمرك ❤️ لو لسه محتاج مساعدة، اكتبلي التفاصيل أو اضغط «التواصل مع صاحب المتجر».'.replace('\u0027','\u0027');
-    return 'فهمت إنك محتاج مساعدة، لكن محتاج تفاصيل أكتر عشان ما أديكش معلومة غير مؤكدة. هل المشكلة في الطلب، أو الدفع، أو الشحن، أو المقاس؟ ولو الموضوع مستعجل، اضغط «التواصل مع صاحب المتجر» وسأجهز لك ملخصًا للمحادثة.';
+    var lower=text.toLowerCase();
+    if(/^(هاي|هاى|اهلا|أهلا|أهلًا|مرحبا|مرحبًا|السلام عليكم|سلام|hello|hi|hey)[!؟.\s]*$/i.test(text.trim()))return 'أهلًا وسهلًا بيك في My Souq 😊 نورتنا! عامل إيه؟ تحب أساعدك في اختيار منتج، ولا بتسأل عن طلب عملته، ولا داخل تتفرج بس؟';
+    if(/عامل ايه|عاملة ايه|اخبارك|إزيك|ازيك|كيفك/.test(lower))return 'الحمد لله تمام، وشكرًا لسؤالك 😊 يا رب تكون بخير إنت كمان! قولي بقى أقدر أساعدك في إيه في My Souq؟';
+    if(/شكرا|شكرًا|تسلم|متشكر|متشكرة/.test(text))return 'العفو يا فندم ❤️ إحنا هنا عشان نساعدك. تحب أساعدك في حاجة تانية؟';
+    if(/تمام|ماشي|حلو|كويس/.test(text) && history.length>2)return 'تمام 😊 أنا معاك. تحب نكمّل في نفس الموضوع ولا عندك سؤال تاني عن My Souq؟';
+    if(history.length<=2)return 'حاضر، أنا معاك 😊 احكيلي براحتك: إيه اللي محتاج تعرفه أو إيه اللي حصل معاك؟ هحاول أساعدك خطوة بخطوة.';
+    return 'فاهمك، وخلّينا نشوفها سوا خطوة بخطوة 😊 ممكن توضّحلي نقطة صغيرة كمان عشان أوجّهك صح؟ هل الموضوع متعلق بطلب، أو منتج، أو شحن، أو دفع؟ ولو سؤالك مختلف، احكيلي بطريقتك.';
   }
   async function submitText(raw){var text=safeText(raw);if(!text)return;input.value='';input.style.height='auto';addMessage(text,'user');try{await storeCustomerMessage(text);}catch(err){addMessage('تعذر إرسال رسالتك لخادم الدعم الآن. تأكد من اتصال الإنترنت وحاول مرة أخرى.','bot');console.warn('Support message save failed',err);return;}var pending=addMessage('ثواني، بحاول أساعدك…','bot');var answer=await askAssistant(text);pending.textContent=answer;history[history.length-1].content=answer;messages.scrollTop=messages.scrollHeight;syncAdminReplies();}
   form.addEventListener('submit',function(e){e.preventDefault();if(form.dataset.busy==='1')return;var v=safeText(input.value);if(!v)return;form.dataset.busy='1';var btn=document.getElementById('msqSupportSend');btn.disabled=true;submitText(v).finally(function(){form.dataset.busy='0';btn.disabled=false;input.focus();});});
@@ -18606,3 +18630,41 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
 })();
 </script>
 
+<style id="mysouq-chat-luxury-skin-v3">
+:root{--msq-luxe-ink:#24151d;--msq-luxe-plum:#55243a;--msq-luxe-rose:#8d405d;--msq-luxe-gold:#d8b778;--msq-luxe-cream:#fffaf4}
+#mysouqSupportChatWidget{font-family:Tahoma,"Segoe UI",Arial,sans-serif!important;color:var(--msq-luxe-ink)!important}
+#msqSupportLauncher{left:24px!important;bottom:30px!important;width:76px!important;min-width:76px!important;height:76px!important;border:1px solid #f3dfb7!important;border-radius:25px!important;background:linear-gradient(145deg,#321827 0%,#69304a 62%,#a85c73 100%)!important;box-shadow:0 18px 42px #3218274d, inset 0 1px 0 #ffffff60!important;animation:msqLuxeFloat 4s ease-in-out infinite;overflow:hidden!important}
+#msqSupportLauncher:before{content:"";position:absolute;inset:5px;border:1px solid #e3c58c99;border-radius:20px;pointer-events:none}
+#msqSupportLauncher:hover{transform:translateY(-4px) scale(1.035)!important;box-shadow:0 22px 48px #32182766!important}
+.msq-support-launcher-icon{font-family:Georgia,serif!important;font-size:43px!important;color:#f1d59b!important;filter:drop-shadow(0 3px 7px #0005)!important}
+.msq-support-launcher-copy{left:0;bottom:calc(100% + 12px);transform:none;padding:9px 12px;border:1px solid #ead7b5;border-radius:13px 13px 13px 4px;background:#fffaf4;color:#55243a;box-shadow:0 9px 26px #32182724}
+.msq-support-launcher-copy strong{font-size:12px}.msq-support-launcher-copy small{font-size:10px;color:#866776}
+.msq-support-launcher-dot{top:4px;right:4px;width:13px;height:13px;background:#6ee6a0;border:2px solid #fffaf4;box-shadow:0 0 0 4px #6ee6a022}
+#msqSupportPanel{left:24px!important;bottom:120px!important;width:min(460px,calc(100vw - 32px))!important;height:min(740px,calc(100dvh - 145px))!important;min-height:430px!important;border:1px solid #e7d1aa!important;border-radius:28px!important;background:var(--msq-luxe-cream)!important;box-shadow:0 32px 100px #24101e42,0 0 0 6px #ffffff80!important;overflow:hidden!important;backdrop-filter:blur(22px)!important;isolation:isolate}
+#msqSupportPanel:before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,#a87942,#f4dfae,#b78a4a);z-index:3;pointer-events:none}
+.msq-support-head{position:relative;padding:22px 19px 20px!important;gap:13px!important;background:radial-gradient(ellipse at 15% 0%,#a45b77 0%,transparent 42%),linear-gradient(125deg,#291520 0%,#51243a 55%,#783650 100%)!important;box-shadow:0 12px 28px #3218272c!important}
+.msq-support-head:after{content:"";position:absolute;left:-30px;bottom:-50px;width:150px;height:150px;border:1px solid #e3c58c30;border-radius:50%;box-shadow:0 0 0 18px #e3c58c0b,0 0 0 38px #e3c58c08;pointer-events:none}
+.msq-support-avatar{width:54px!important;height:54px!important;flex:0 0 54px;border-radius:19px!important;background:linear-gradient(145deg,#f6e4b8,#bd9554)!important;border:1px solid #fff1cc!important;box-shadow:0 7px 20px #14081140,inset 0 1px 0 #fff!important;color:#51243a!important;font-family:Georgia,serif;font-size:32px!important}
+.msq-support-avatar span{display:block;transform:translateY(-1px);text-shadow:0 1px 0 #fff8}
+.msq-support-head-copy{gap:6px!important;z-index:1}.msq-support-head-copy strong{font-size:18px!important;letter-spacing:.1px}.msq-support-head-label{display:inline-block;margin-right:5px;padding:4px 7px;border:1px solid #f3dca65c;border-radius:7px;background:#ffffff10;color:#f1d7a0;font-size:10px;vertical-align:middle;font-weight:700}.msq-support-head-copy small{font-size:11px!important;color:#f7eaf0!important;opacity:.92!important}
+.msq-support-status-dot{background:#6fe7a1!important;box-shadow:0 0 0 4px #6fe7a126,0 0 12px #6fe7a177!important}
+#msqSupportClose{position:relative;z-index:2;width:39px!important;height:39px!important;border-radius:14px!important;border:1px solid #ffffff40!important;background:#ffffff12!important;color:#fff!important;font-size:25px!important;transition:all .18s!important}#msqSupportClose:hover{background:#ffffff25!important;transform:rotate(90deg)}
+.msq-support-messages{position:relative;padding:21px 17px 18px!important;gap:13px!important;background:radial-gradient(ellipse at 95% 0%,#f4e6d7a8 0%,transparent 40%),radial-gradient(ellipse at 0% 100%,#f5e4ea 0%,transparent 38%),linear-gradient(180deg,#fffaf4,#fffdfb)!important}
+.msq-support-message{position:relative;max-width:88%!important;padding:13px 16px!important;border-radius:19px!important;font-size:13px!important;line-height:1.95!important;box-shadow:0 7px 22px #3c1b2b0b!important;animation:msqMessageIn .22s ease-out both}
+.msq-support-message.bot{align-self:flex-start!important;background:#fff!important;border:1px solid #eee0d0!important;border-bottom-right-radius:6px!important;color:#49323d!important}
+.msq-support-message.bot:first-child{border-color:#e8d2a8!important;background:linear-gradient(145deg,#fffefa,#fff8ee)!important}
+.msq-support-message.user{align-self:flex-end!important;background:linear-gradient(135deg,#f1dfbd,#e5c991)!important;border:1px solid #d8b778!important;border-bottom-left-radius:6px!important;color:#432438!important;box-shadow:0 7px 20px #99743c20!important}
+.msq-support-quick{gap:8px!important;margin:0 2px 3px!important;max-width:100%!important}.msq-support-quick:before{content:"ممكن أساعدك في إيه؟";display:block;width:100%;font-size:11px;font-weight:800;color:#8c6a4c;margin:0 0 1px}
+.msq-support-quick button{border:1px solid #e4cfa8!important;border-radius:999px!important;padding:9px 12px!important;background:#fffdf8!important;color:#663149!important;font-size:11px!important;font-weight:800!important;box-shadow:0 4px 12px #5a2a3d0b!important;transition:all .18s!important}
+.msq-support-quick button:hover{background:#55243a!important;border-color:#55243a!important;color:#fff8ec!important;transform:translateY(-1px)}
+.msq-support-compose{gap:9px!important;padding:14px 14px 12px!important;border-top:1px solid #e9ddcc!important;background:#fffdf9!important;box-shadow:0 -8px 24px #4b26340a!important}
+#msqSupportInput{min-height:48px!important;max-height:118px!important;border:1px solid #e5d7c5!important;border-radius:17px!important;padding:13px 15px!important;font-size:13px!important;background:#fff!important;color:#35212b!important;box-shadow:inset 0 1px 2px #3a1d2b06!important;transition:border-color .2s,box-shadow .2s!important}
+#msqSupportInput::placeholder{color:#aa9aa0!important}#msqSupportInput:focus{border-color:#b78b4c!important;box-shadow:0 0 0 4px #d8b7782b!important}
+#msqSupportSend{width:49px!important;height:49px!important;flex-basis:49px!important;border:1px solid #e9d09c!important;border-radius:17px!important;background:linear-gradient(145deg,#69304a,#3b1b2b)!important;color:#f5dca7!important;font-size:22px!important;box-shadow:0 7px 18px #49203533,inset 0 1px 0 #ffffff30!important;transition:transform .18s,filter .18s!important}#msqSupportSend:hover{transform:translateY(-2px);filter:brightness(1.12)}
+.msq-support-footer{padding:11px 14px 13px!important;background:#fffdf9!important;border-top:0!important;font-size:10px!important;color:#97828a!important}.msq-support-footer button{border:1px solid #e3cfae!important;background:#fff8ec!important;color:#6d344c!important;padding:8px 10px!important;border-radius:11px!important;font-size:10px!important;font-weight:900!important;transition:all .18s!important}.msq-support-footer button:hover{background:#f4e4c5!important}
+@keyframes msqLuxeFloat{0%,100%{box-shadow:0 18px 42px #3218274d,inset 0 1px 0 #ffffff60}50%{box-shadow:0 21px 48px #3218275c,inset 0 1px 0 #ffffff60}}
+@keyframes msqMessageIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){#msqSupportLauncher{left:14px!important;bottom:18px!important;width:64px!important;min-width:64px!important;height:64px!important;border-radius:22px!important}.msq-support-launcher-icon{font-size:36px!important}.msq-support-launcher-copy{left:0;bottom:calc(100% + 10px);padding:7px 9px}.msq-support-launcher-copy strong{font-size:11px!important}#msqSupportPanel{left:8px!important;bottom:94px!important;width:calc(100vw - 16px)!important;height:min(690px,calc(100dvh - 112px))!important;min-height:350px!important;border-radius:24px!important}.msq-support-head{padding:18px 15px 16px!important}.msq-support-avatar{width:47px!important;height:47px!important;flex-basis:47px;font-size:28px!important}.msq-support-head-copy strong{font-size:16px!important}.msq-support-messages{padding:17px 12px!important}.msq-support-message{max-width:92%!important;font-size:12.5px!important}.msq-support-compose{padding:11px!important}.msq-support-footer{align-items:flex-start!important}.msq-support-footer span{max-width:47%;line-height:1.6}}
+@media(max-height:560px){#msqSupportPanel{height:calc(100dvh - 76px)!important;bottom:68px!important;min-height:250px!important}#msqSupportLauncher{bottom:8px!important}}
+@media(prefers-reduced-motion:reduce){#msqSupportLauncher,.msq-support-message{animation:none!important;transition:none!important}}
+</style>
