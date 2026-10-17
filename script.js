@@ -236,7 +236,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     // 1) jsDelivr (مستقر ومش بيتأثر بحد GitHub API)
     try {
       const jd = await fetch(
-        `https://data.jsdelivr.com/v1/packages/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}`,
+        `https://data.jsdelivr.com/v1/packages/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}?_=${Date.now()}`,
         { cache: 'no-store' }
       );
       if (jd.ok) {
@@ -261,7 +261,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     // 2) GitHub Contents API
     try {
       const res = await fetch(
-        `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/products`,
+        `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/products?ref=${encodeURIComponent(GITHUB_BRANCH)}&_=${Date.now()}`,
         { cache: 'no-store' }
       );
       if (res.ok) {
@@ -290,8 +290,8 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   async function fetchProductMarkdown(fileName) {
     const encoded = fileName.split('/').map(encodeURIComponent).join('/');
     const urls = [
-      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}`,
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}`
+      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261017e')}&_=${Date.now()}`,
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261017e')}&_=${Date.now()}`
     ];
     for (let i = 0; i < urls.length; i++) {
       try {
@@ -3801,8 +3801,15 @@ ${itemsText || '-'}
     loadCustomerData();
     loadRealProducts();
 
-    // تسجيل Service Worker للـ PWA وتسريع التحميل
+    // تحديث Service Worker الحالي مع منع المتصفح من استخدام نسخة مخزنة من ملفه.
+    // يظل دعم PWA موجوداً، لكن ملف العامل يُعاد فحصه مع كل إصدار جديد.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+      navigator.serviceWorker.register('./sw.js?v=20261017e', { updateViaCache: 'none' })
+        .then(function(registration) {
+          if (registration && typeof registration.update === 'function') {
+            return registration.update().catch(function() {});
+          }
+        })
+        .catch(function() {});
     }
   };
