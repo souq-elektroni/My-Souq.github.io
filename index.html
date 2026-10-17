@@ -4,14 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#8b3f52">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="msq-build" content="20261017c">
+
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="favicon.svg" type="image/svg+xml">
-  <link rel="icon" href="favicon.svg" sizes="any">
-  <link rel="apple-touch-icon" href="favicon.svg">
-  <link rel="shortcut icon" href="favicon.svg">
+  <link rel="manifest" href="manifest.json?v=20261017c">
+  <link rel="icon" href="favicon.svg?v=20261017c" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=20261017c" sizes="any">
+  <link rel="apple-touch-icon" href="favicon.svg?v=20261017c">
+  <link rel="shortcut icon" href="favicon.svg?v=20261017c">
   <title>My Souq</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
@@ -2159,7 +2164,7 @@
 
   </style>
 
-  <link rel="stylesheet" href="styles.css?v=20261017">
+  <link rel="stylesheet" href="styles.css?v=20261017c">
 
 
 <style id="my-souq-wow-layer">
@@ -3895,10 +3900,10 @@ body{
 body::before{
  content:""!important;position:fixed!important;inset:-8px!important;z-index:-1!important;
  pointer-events:none!important;
- background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp') center center/cover no-repeat!important;
+ background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261017c') center center/cover no-repeat!important;
  filter:blur(2px) saturate(.9)!important;transform:scale(1.025)!important;
 }
-body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
+body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261017c') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
 /* Floating app badge and independent action buttons */
 .brand-badge{top:16px!important;right:16px!important;width:58px!important;height:58px!important;border-radius:19px!important;transform:rotate(3deg)!important;background:linear-gradient(145deg,#087f83,#36aaa9)!important;box-shadow:0 12px 30px rgba(8,127,131,.25),inset 0 1px 0 rgba(255,255,255,.75)!important;border:1px solid rgba(255,255,255,.8)!important}
 .brand-badge::before{inset:5px!important;border-radius:14px!important}
@@ -4004,6 +4009,30 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
 
 
 
+
+<script id="mysouq-cache-bust-v1">
+(function(){
+  // Build marker: 20261017c
+  window.__MSQ_BUILD__ = "20261017c";
+  // Drop any old service workers that could freeze an old shell
+  try {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(regs){
+        regs.forEach(function(r){ r.unregister(); });
+      });
+    }
+  } catch (e) {}
+  // Clear Cache Storage API shells if present
+  try {
+    if (window.caches && caches.keys) {
+      caches.keys().then(function(keys){
+        keys.forEach(function(k){ caches.delete(k); });
+      });
+    }
+  } catch (e) {}
+})();
+</script>
+
 </head>
 
 <body>
@@ -4101,10 +4130,10 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
     <p style="display:none!important" aria-hidden="true"></p>
 
     <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-men.webp')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
+      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261017c')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261017c')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261017c')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261017c')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
     </div>
 
     <div class="banner-dots" role="tablist" aria-label="اختيار البانر">
@@ -4981,7 +5010,7 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
   })();
   </script>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=20261017c"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -7523,11 +7552,11 @@ body{
 body::before{
   content:""!important;position:fixed!important;inset:-5px!important;z-index:-1!important;
   pointer-events:none!important;
-  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261017c') center center/cover no-repeat!important;
   filter:blur(1.5px) saturate(.94)!important;transform:scale(1.015)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261017c') center center/cover no-repeat!important;
   filter:blur(2px) saturate(.8)!important;
 }
 /* Restore the full banner artwork as a visible layer behind the original live logo/text. */
@@ -7631,14 +7660,14 @@ header p{max-width:54%!important}
     pointer-events:none;
     background:
       linear-gradient(135deg, rgba(245,238,226,.22), rgba(248,242,233,.16)),
-      url("assets/store-room.webp") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261017c") center center / cover no-repeat;
     filter: blur(1.35px) saturate(.92);
     transform: scale(1.015);
   }
   body.dark-mode::before {
     background:
       linear-gradient(135deg, rgba(13,22,24,.66), rgba(16,25,27,.58)),
-      url("assets/store-room.webp") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261017c") center center / cover no-repeat;
     filter: blur(1.7px) saturate(.78);
   }
 
@@ -7776,7 +7805,7 @@ body::before{
   transform:scale(1.025)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261017c') center center/cover no-repeat!important;
   filter:blur(3.5px) saturate(.82)!important;
 }
 /* Hero keeps the full supplied banner art visible. */
@@ -11439,7 +11468,7 @@ body::before {
   pointer-events: none !important;
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261017c') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   transform: scale(1.06) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
@@ -11447,7 +11476,7 @@ body::before {
 body.dark-mode::before {
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261017c') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
 }
