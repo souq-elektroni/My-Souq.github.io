@@ -1053,3 +1053,42 @@ textarea:focus-visible {
 }
 
 /* End of My Souq modern stylesheet */
+
+
+/* =========================================================
+   MY SOUQ — LIGHT FOOTER / COPYRIGHT BAR
+   Visual override only: preserves all existing styles/features.
+   ========================================================= */
+
+footer,
+.footer {
+  background:
+    radial-gradient(circle at 80% 0%, rgba(214,154,166,.12), transparent 32%),
+    linear-gradient(135deg, rgba(255,250,247,.94), rgba(246,226,220,.92)) !important;
+  color: #59454a !important;
+  border-top: 1px solid rgba(255,255,255,.78) !important;
+  box-shadow: 0 -8px 28px rgba(95,55,62,.05) !important;
+}
+
+.footer-brand h3,
+.footer-contact h4,
+.footer-links h4 {
+  color: #70404a !important;
+}
+
+.footer-brand p,
+.footer-links a,
+.footer-bottom {
+  color: #765f64 !important;
+}
+
+.footer-links a:hover {
+  color: #803d48 !important;
+}
+
+.footer-bottom {
+  background: linear-gradient(135deg, rgba(255,255,255,.42), rgba(255,245,242,.58)) !important;
+  border-top: 1px solid rgba(128,61,72,.12) !important;
+  color: #765f64 !important;
+  text-shadow: none !important;
+}
