@@ -18401,7 +18401,10 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
       b.type = 'button';
       b.setAttribute('data-tab', 'exchanges');
       b.innerHTML = '🔄 الاستبدالات <span class="msq-ex-badge" style="display:none;background:#fff;color:#8a6a00;border-radius:99px;padding:0 6px;margin-right:4px;font-size:10px;font-weight:900"></span>';
-      tabs.appendChild(b);
+      var cancelBtn = tabs.querySelector('[data-tab="cancel"]');
+      if (cancelBtn && cancelBtn.nextSibling) tabs.insertBefore(b, cancelBtn.nextSibling);
+      else if (cancelBtn) tabs.appendChild(b);
+      else tabs.appendChild(b);
       b.addEventListener('click', function(){
         // Prefer official setTab if available
         if (typeof window.msqSetAdminTab === 'function') {
@@ -18485,7 +18488,14 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
 </script>
 
 <style id="mysouq-exchanges-tab-fix">
-/* Exchange is a normal admin tab — not a floating card in the header */
+/* Wider admin window */
+#adminOrdersModal .modal-content {
+  width: min(98vw, 1180px) !important;
+  max-width: 1180px !important;
+  max-height: 94vh !important;
+}
+
+/* Exchange is a normal admin tab — not floating */
 #msqAdminTabContent [data-pane="exchanges"]:not(.active) { display: none !important; }
 #msqAdminTabContent [data-pane="exchanges"].active { display: block !important; }
 #msqExchangeAdminPanel {
@@ -18500,6 +18510,27 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   max-width: 100% !important;
   box-sizing: border-box !important;
 }
+
+/* All main tabs (including exchanges) on ONE row */
+#adminOrdersModal #msqAdminTabs {
+  display: grid !important;
+  grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  width: 100% !important;
+  margin: 8px 0 12px !important;
+  align-items: stretch !important;
+}
+#adminOrdersModal #msqAdminTabs > button {
+  flex: unset !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  padding: 10px 6px !important;
+  font-size: clamp(10px, 1.1vw, 13px) !important;
+  white-space: normal !important;
+  line-height: 1.35 !important;
+  min-height: 48px !important;
+  border-radius: 12px !important;
+}
 #msqAdminTabs button[data-tab="exchanges"] {
   border-color: #c9a227 !important;
   color: #8a6a00 !important;
@@ -18509,15 +18540,36 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   color: #fff !important;
   border-color: #c9a227 !important;
 }
-/* Keep tabs wrapping nicely with the extra button */
-#msqAdminTabs {
-  display: flex !important;
-  flex-wrap: wrap !important;
+
+/* Status filters row under open tab — full width, 3 equal */
+#msqOpenOrderFilters {
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
   gap: 8px !important;
+  width: 100% !important;
 }
-#msqAdminTabs button {
-  flex: 1 1 auto !important;
-  min-width: 120px !important;
+#msqOpenOrderFilters button {
+  flex: unset !important;
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+@media (max-width: 900px) {
+  #adminOrdersModal #msqAdminTabs {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+@media (max-width: 560px) {
+  #adminOrdersModal .modal-content {
+    width: 96vw !important;
+    max-width: 96vw !important;
+  }
+  #adminOrdersModal #msqAdminTabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  #msqOpenOrderFilters {
+    grid-template-columns: 1fr !important;
+  }
 }
 </style>
 
