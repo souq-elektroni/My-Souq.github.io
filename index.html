@@ -18135,6 +18135,8 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   var history=[];
   // Public support endpoint; no secrets belong in this HTML.
   window.MYSOUQ_SUPPORT_API_ENDPOINT = 'https://mysouq-bot.ahmedaly1g.workers.dev';
+  // AI runs only on the Cloudflare Worker; Gemini API key stays in Worker Secrets.
+  window.MYSOUQ_SUPPORT_AI_ENDPOINT = window.MYSOUQ_SUPPORT_API_ENDPOINT + '/api/ai/reply';
   var supportNumber='201116339905';
   var supportApi=window.MYSOUQ_SUPPORT_API_ENDPOINT, conversationId='', syncBusy=false, pollHandle=null;
   // لا نسترجع محادثة قديمة: كل فتح جديد للشات يبدأ جلسة جديدة.
@@ -18187,7 +18189,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
       try{
         var controller=typeof AbortController!=='undefined'?new AbortController():null;
         var timer=controller?setTimeout(function(){controller.abort();},12000):null;
-        var response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:history.slice(-10),page:{url:location.href,title:document.title}}),signal:controller?controller.signal:undefined,credentials:'omit'});
+        var response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify((function(){var ctx=getContext(),box=document.getElementById('trackingResultContainer');var st=box?safeText(box.innerText).slice(0,1800):'';return {message:text,history:history.slice(-10),page:{url:location.href,title:document.title,product:ctx.product,order:ctx.order,orderStatus:st}};})()),signal:controller?controller.signal:undefined,credentials:'omit'});
         if(timer)clearTimeout(timer);
         if(response.ok){var data=await response.json();var answer=safeText(data.reply||data.answer||data.message);if(answer)return answer;}
       }catch(err){console.warn('My Souq support AI unavailable; using guided help.',err);}
