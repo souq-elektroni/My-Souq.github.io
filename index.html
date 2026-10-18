@@ -18911,7 +18911,7 @@ button.brand-badge,
 <script id="msq-order-issues-js">
 (function(){'use strict';
 // Replace this URL after deploying mysouq-order-issues-worker.js. Telegram token stays only in Worker secrets.
-window.MYSOUQ_ORDER_ISSUES_API_ENDPOINT=window.MYSOUQ_ORDER_ISSUES_API_ENDPOINT||'https://mysouq-order-issues.YOUR-SUBDOMAIN.workers.dev';
+window.MYSOUQ_ORDER_ISSUES_API_ENDPOINT=window.MYSOUQ_ORDER_ISSUES_API_ENDPOINT||'https://mysouq-order-issues.ahmedaly1g.workers.dev';
 var TRANSFER_NUMBER='01116339905', proofData='', activeOrder=null;
 function esc(v){return String(v==null?'':v).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]})}
 function dbref(){try{if(typeof db!=='undefined'&&db)return db;if(window.db)return window.db;if(window.firebase&&firebase.apps&&firebase.apps.length)return firebase.firestore()}catch(e){}return null}
