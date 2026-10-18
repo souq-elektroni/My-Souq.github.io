@@ -18377,7 +18377,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
     var panel = document.createElement('div');
     panel.className = 'msq-exchange-panel';
     panel.innerHTML =
-      '<h4>🔄 طلب استبدال (عيب مصنع)</h4>'+
+      '<h4>🔄 طلب الاستبدال والإرجاع (عيب مصنع)</h4>'+
       '<p>الاستبدال متاح فقط لعيب تصنيع. اشرح العيب وارفع صور واضحة للمنتج تُظهر العيب.</p>'+
       '<textarea id="msqExReason" placeholder="اكتب وصف عيب المصنع بوضوح..."></textarea>'+
       '<input type="file" id="msqExPhotos" accept="image/*" multiple>'+
@@ -18439,7 +18439,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
 
       await db.collection('exchangeRequests').add(payload);
       try { if (typeof window.msqNotifyOrderIssue === 'function') await window.msqNotifyOrderIssue({type:'exchange',title:'طلب استبدال (عيب مصنع)',orderId:String(orderId),customerName:payload.customerName||'',customerPhone:payload.customerPhone||'',reason:reason,photos:payload.photos.slice(0,5)}); } catch (notifyErr) { console.warn('Telegram notification failed',notifyErr); }
-      if (note) note.textContent = '✅ تم إرسال طلب الاستبدال للإدارة. هنراجع الصور وهنتواصل معاك.';
+      if (note) note.textContent = '✅ تم إرسال طلب الاستبدال والإرجاع للإدارة. هنراجع الصور وهنتواصل معاك.';
       if (btn) { btn.textContent = 'تم الإرسال'; }
       alert('تم إرسال طلب الاستبدال بنجاح');
     } catch (e) {
@@ -18485,7 +18485,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
         tabBadge.textContent = pending.length ? String(pending.length) : '';
         tabBadge.style.display = pending.length ? 'inline-block' : 'none';
       }
-      if (!rows.length) { listEl.innerHTML = '<div>لا توجد طلبات استبدال بعد.</div>'; return; }
+      if (!rows.length) { listEl.innerHTML = '<div>لا توجد طلبات استبدال أو إرجاع بعد.</div>'; return; }
 
       listEl.innerHTML = rows.map(function(r){
         var photos = Array.isArray(r.photos) ? r.photos : [];
@@ -18500,21 +18500,31 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
             '<b>الحالة:</b> '+esc(st)+
           '</div>'+
           '<div style="margin-top:6px">'+imgs+'</div>'+
-          (st==='pending' ? '<button type="button" data-ex-done="'+esc(r.__id)+'" style="margin-top:8px;padding:7px 10px;border:0;border-radius:8px;background:#2e7d32;color:#fff;font-weight:800;cursor:pointer">تم المراجعة</button>' : '')+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px">'+
+          '<button type="button" data-ex-replaced="'+esc(r.__id)+'" style="padding:9px 12px;border:0;border-radius:9px;background:#287447;color:#fff;font-weight:900;cursor:pointer">✅ تم الاستبدال بعد الرجوع للمصنع</button>'+
+          '<button type="button" data-ex-refund="'+esc(r.__id)+'" style="padding:9px 12px;border:0;border-radius:9px;background:#803d48;color:#fff;font-weight:900;cursor:pointer">💵 إرجاع مع رد القيمة</button></div>'+
+          (r.customerOutcome ? '<div style="margin-top:8px;padding:9px;background:#f1f8f2;border-radius:8px;color:#28633c;font-weight:800">تم حفظ إفادة العميل: '+esc(r.customerOutcome==='replaced'?'تم الاستبدال':'إرجاع مع رد القيمة')+'</div>' : '')+
         '</div>';
       }).join('');
 
-      listEl.querySelectorAll('[data-ex-done]').forEach(function(btn){
-        btn.addEventListener('click', async function(){
-          try {
-            await db.collection('exchangeRequests').doc(btn.getAttribute('data-ex-done')).update({
-              status: 'reviewed',
-              reviewedAt: new Date().toISOString()
-            });
-            loadExchangeRequests();
-          } catch(e) { alert('تعذر التحديث'); }
-        });
-      });
+      async function saveExchangeOutcome(btn, outcome){
+        var replaced = outcome === 'replaced';
+        var message = replaced
+          ? 'تم استبدال المنتج الذي ظهر به عيب تصنيع بعد الرجوع إلى المصنع، ونتمنى أن تكون تجربتكم معنا دائمًا على قدر ثقتكم. شكرًا لاستخدامكم My Souq.'
+          : 'تم إرجاع المنتج الذي به عيب إلى المصنع، وتم رد قيمة المنتج لحضراتكم. شكرًا لثقتكم واستخدامكم My Souq.';
+        if(!confirm(replaced ? 'تأكيد تسجيل أن المنتج تم استبداله بعد الرجوع للمصنع؟' : 'تأكيد تسجيل إرجاع المنتج ورد قيمته للعميل؟')) return;
+        btn.disabled = true;
+        try {
+          await db.collection('exchangeRequests').doc(btn.dataset.exReplaced || btn.dataset.exRefund).update({
+            status: replaced ? 'replaced' : 'refunded', customerOutcome: outcome,
+            customerOutcomeMessage: message, customerOutcomeAt: new Date().toISOString(),
+            resolvedAt: new Date().toISOString(), resolvedBy: (window.currentAdminUser && window.currentAdminUser.email) || ''
+          });
+          loadExchangeRequests();
+        } catch(e) { btn.disabled = false; alert('تعذر حفظ إفادة العميل. راجع صلاحيات Firestore لمجموعة exchangeRequests.'); }
+      }
+      listEl.querySelectorAll('[data-ex-replaced]').forEach(function(btn){btn.addEventListener('click',function(){saveExchangeOutcome(btn,'replaced')})});
+      listEl.querySelectorAll('[data-ex-refund]').forEach(function(btn){btn.addEventListener('click',function(){saveExchangeOutcome(btn,'refunded')})});
     } catch(e) {
       console.error(e);
       listEl.innerHTML = '<div style="color:#c62828">تعذر التحميل. أضف صلاحيات Firestore لمجموعة <b>exchangeRequests</b>.</div>';
@@ -18532,7 +18542,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
       panel = document.createElement('div');
       panel.id = 'msqExchangeAdminPanel';
       panel.innerHTML =
-        '<div class="ex-admin-heading">🔄 طلبات الاستبدال (عيب مصنع) <span id="msqExchangeCount" style="display:none;background:#c9a227;color:#fff;border-radius:99px;padding:2px 8px;margin-inline-start:5px">0</span></div>'+
+        '<div class="ex-admin-heading">🔄 طلبات الاستبدال والإرجاع (عيب مصنع) <span id="msqExchangeCount" style="display:none;background:#c9a227;color:#fff;border-radius:99px;padding:2px 8px;margin-inline-start:5px">0</span></div>'+
         '<p style="font-size:12px;color:#7a6a40;line-height:1.7;margin:0 0 10px">هنا تظهر طلبات العملاء بعد الاستلام عند وجود عيب مصنع، مع الصور.</p>'+
         '<div id="msqExchangeAdminList" style="font-size:12px;color:#765b5b">اضغط التبويب أو زر التحديث لعرض الطلبات.</div>'+
         '<button type="button" id="msqRefreshExchanges" style="margin-top:10px;border:0;border-radius:10px;background:#8a6a00;color:#fff;padding:10px 14px;font-weight:800;cursor:pointer;width:100%">تحديث الاستبدالات</button>';
@@ -18557,7 +18567,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
       var b = document.createElement('button');
       b.type = 'button';
       b.setAttribute('data-tab', 'exchanges');
-      b.innerHTML = '🔄 الاستبدالات <span class="msq-ex-badge" style="display:none;background:#fff;color:#8a6a00;border-radius:99px;padding:0 6px;margin-right:4px;font-size:10px;font-weight:900"></span>';
+      b.innerHTML = '🔄 الاستبدال والإرجاع <span class="msq-ex-badge" style="display:none;background:#fff;color:#8a6a00;border-radius:99px;padding:0 6px;margin-right:4px;font-size:10px;font-weight:900"></span>';
       var cancelBtn = tabs.querySelector('[data-tab="cancel"]');
       if (cancelBtn && cancelBtn.nextSibling) tabs.insertBefore(b, cancelBtn.nextSibling);
       else if (cancelBtn) tabs.appendChild(b);
@@ -18939,7 +18949,7 @@ var exchangeAllowed=/تم التوريد/.test(status);
 var inp=document.getElementById('trackInputId'),id=String(inp&&inp.value||'').trim().toUpperCase();
 if(!id)return;
 var p=box.querySelector('.msq-exceptional-cancel-panel');
-if(!p){p=document.createElement('section');p.className='msq-exceptional-cancel-panel';p.style.cssText='margin:12px 0;padding:16px;border:1px solid #dfc9b9;border-radius:18px;background:linear-gradient(145deg,#fffdf8,#f7eee6);direction:rtl;box-shadow:0 8px 24px rgba(75,43,35,.06)';p.innerHTML='<div style="font-weight:950;color:#803d48;font-size:16px;margin-bottom:5px">📦 خدمات ما بعد الطلب</div><div style="font-size:12px;line-height:1.8;color:#806a61;margin-bottom:12px">اختر الإجراء المناسب حسب المرحلة الحالية لطلبك.</div><div class="ec-cancel-actions" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:stretch;margin:8px 0 6px"><button type="button" class="ec-cancel-action" style="width:100%;min-height:48px;border:0;border-radius:12px;padding:10px 8px;background:#a92332;color:white;font-weight:900;cursor:pointer;margin:0;line-height:1.5">🔴 طلب إلغاء الطلب</button><button type="button" class="ec-exceptional-action" style="width:100%;min-height:48px;border:0;border-radius:12px;padding:10px 8px;background:#803d48;color:white;font-weight:900;cursor:pointer;margin:0;line-height:1.5">🔐 طلب الإلغاء الاستثنائي</button></div><div class="ec-inline-note" style="font-size:11px;line-height:1.8;color:#806a61;margin:4px 0 12px">الإلغاء العادي متاح أثناء «تحت التنفيذ»، والاستثنائي في «تم الحجز» و«جاري الشحن» بعد الموافقة على تحمّل الشحن وإرفاق الإثبات.</div><button type="button" class="ec-exchange-action" style="width:100%;min-height:48px;border:0;border-radius:12px;padding:11px;background:#a8790a;color:white;font-weight:900;cursor:pointer;margin:4px 0;line-height:1.5">🔄 طلب الاستبدال (عيب مصنع)</button><div class="ec-exchange-note" style="font-size:11px;line-height:1.8;color:#806a61;margin-top:5px">متاح فقط في مرحلة «تم التوريد».</div>';box.appendChild(p);
+if(!p){p=document.createElement('section');p.className='msq-exceptional-cancel-panel';p.style.cssText='margin:12px 0;padding:16px;border:1px solid #dfc9b9;border-radius:18px;background:linear-gradient(145deg,#fffdf8,#f7eee6);direction:rtl;box-shadow:0 8px 24px rgba(75,43,35,.06)';p.innerHTML='<div style="font-weight:950;color:#803d48;font-size:16px;margin-bottom:5px">📦 خدمات ما بعد الطلب</div><div style="font-size:12px;line-height:1.8;color:#806a61;margin-bottom:12px">اختر الإجراء المناسب حسب المرحلة الحالية لطلبك.</div><div class="ec-cancel-actions" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:stretch;margin:8px 0 6px"><button type="button" class="ec-cancel-action" style="width:100%;min-height:48px;border:0;border-radius:12px;padding:10px 8px;background:#a92332;color:white;font-weight:900;cursor:pointer;margin:0;line-height:1.5">🔴 طلب إلغاء الطلب</button><button type="button" class="ec-exceptional-action" style="width:100%;min-height:48px;border:0;border-radius:12px;padding:10px 8px;background:#803d48;color:white;font-weight:900;cursor:pointer;margin:0;line-height:1.5">🔐 طلب الإلغاء الاستثنائي</button></div><div class="ec-inline-note" style="font-size:11px;line-height:1.8;color:#806a61;margin:4px 0 12px">الإلغاء العادي متاح أثناء «تحت التنفيذ»، والاستثنائي في «تم الحجز» و«جاري الشحن» بعد الموافقة على تحمّل الشحن وإرفاق الإثبات.</div><button type="button" class="ec-exchange-action" style="width:100%;min-height:48px;border:0;border-radius:12px;padding:11px;background:#a8790a;color:white;font-weight:900;cursor:pointer;margin:4px 0;line-height:1.5">🔄 الاستبدال والإرجاع (عيب مصنع)</button><div class="ec-exchange-note" style="font-size:11px;line-height:1.8;color:#806a61;margin-top:5px">متاح فقط في مرحلة «تم التوريد».</div>';box.appendChild(p);
 }
 /* Keep the existing ordinary-cancellation action and move it beside exceptional cancellation. */
 var normalPanel=box.querySelector('.cancel-request-panel'),normalBtn=normalPanel&&normalPanel.querySelector('.cancel-request-btn'),actions=p.querySelector('.ec-cancel-actions'),exceptionalBtn=p.querySelector('.ec-exceptional-action');
@@ -18957,9 +18967,10 @@ exchangeBtn.onclick=function(){if(!exchangeAllowed)return;var ep=box.querySelect
 var cn=p.querySelector('.ec-inline-note');if(cn)cn.textContent='الإلغاء العادي متاح أثناء «تحت التنفيذ» فقط. الإلغاء الاستثنائي متاح في «تم الحجز» و«جاري الشحن» فقط، وكلا الطلبين يخضع لمراجعة الإدارة.';
 var en=p.querySelector('.ec-exchange-note');if(en)en.textContent=exchangeAllowed?'متاح الآن بعد التوريد، ولعيب المصنع فقط.':'غير متاح في مرحلة الطلب الحالية؛ يتفعّل عند «تم التوريد».';
 }
-var track=document.getElementById('trackingResultContainer');if(track&&window.MutationObserver)new MutationObserver(function(){setTimeout(injectButton,80)}).observe(track,{childList:true,subtree:true});
+async function showExchangeOutcome(){var box=document.getElementById('trackingResultContainer');var inp=document.getElementById('trackInputId');var id=String(inp&&inp.value||'').trim().toUpperCase();var d=dbref();if(!box||!id||!d)return;try{var snap=await d.collection('exchangeRequests').where('orderId','==',id).limit(10).get();var rows=[];snap.forEach(function(doc){var x=doc.data()||{};rows.push(x)});var done=rows.filter(function(x){return x.customerOutcomeMessage}).sort(function(a,b){return String(b.customerOutcomeAt||'').localeCompare(String(a.customerOutcomeAt||''))})[0];var old=box.querySelector('.msq-exchange-outcome-message');if(old)old.remove();if(done){var note=document.createElement('section');note.className='msq-exchange-outcome-message';note.style.cssText='margin:12px 0;padding:14px;border:1px solid #b8d9c0;background:#f2faf3;color:#245b36;border-radius:14px;line-height:1.9;font-weight:800;direction:rtl';note.innerHTML='<div style="font-size:15px;margin-bottom:5px">✅ إفادة بخصوص الاستبدال والإرجاع</div><div>'+esc(done.customerOutcomeMessage)+'</div>';box.appendChild(note)}}catch(e){console.warn('Could not load exchange outcome for tracking',e)}}
+var track=document.getElementById('trackingResultContainer');if(track&&window.MutationObserver)new MutationObserver(function(){setTimeout(injectButton,80);setTimeout(showExchangeOutcome,250)}).observe(track,{childList:true,subtree:true});setTimeout(showExchangeOutcome,900);
 async function loadAdmin(){var list=document.getElementById('msqEcAdminList'),cnt=document.getElementById('msqEcAdminCount');if(!list)return;if(typeof isAdminMode==='undefined'||!isAdminMode||!window.currentAdminUser){list.textContent='سجّل الدخول كإدارة لعرض الطلبات.';return}var d=dbref();if(!d){list.textContent='Firebase غير متاح.';return}list.textContent='جاري التحميل...';try{var snap=await d.collection('exceptionalCancellationRequests').limit(100).get(),rows=[];snap.forEach(function(doc){var x=doc.data()||{};x.__id=doc.id;rows.push(x)});rows.sort(function(a,b){return String(b.createdAtIso||'').localeCompare(String(a.createdAtIso||''))});var n=rows.filter(function(x){return (x.status||'pending')==='pending'}).length;if(cnt)cnt.textContent=String(n);if(!rows.length){list.innerHTML='لا توجد طلبات حتى الآن.';return}list.innerHTML=rows.map(function(r){var proof=String(r.transferProof||'');return '<article class="ec-admin-card"><b style="color:#803d48">⚠️ طلب إلغاء استثنائي</b><div><b>رقم الطلب:</b> '+esc(r.orderId||'-')+'</div><div><b>العميل:</b> '+esc(r.customerName||'-')+'</div><div><b>الهاتف:</b> '+esc(r.customerPhone||'-')+'</div><div><b>حالة الطلب:</b> '+esc(r.orderStatus||'-')+'</div><div><b>الموافقة:</b> '+(r.policyAccepted?'تمت':'غير موجودة')+'</div><div><b>وصف التحويل:</b> '+esc(r.transferPurpose||'تحويل قيمة شحن مقابل إلغاء استثنائي')+'</div><div><b>الحالة:</b> '+esc(r.status||'pending')+'</div>'+(proof?'<a href="'+proof+'" target="_blank" rel="noopener">فتح صورة الإثبات</a><img src="'+proof+'" alt="إثبات التحويل">':'<div style="color:#b3261e">لا توجد صورة إثبات</div>')+'<div class="ec-admin-actions">'+((r.status||'pending')==='pending'?'<button class="ec-review" data-ec-review="'+esc(r.__id)+'">تمت مراجعة الإثبات</button>':'')+'<button class="ec-close-request" data-ec-close="'+esc(r.__id)+'">إغلاق الطلب</button></div></article>'}).join('');list.querySelectorAll('[data-ec-review]').forEach(function(b){b.onclick=async function(){try{await d.collection('exceptionalCancellationRequests').doc(b.dataset.ecReview).update({status:'reviewed',reviewedAt:new Date().toISOString(),reviewedBy:(window.currentAdminUser&&currentAdminUser.email)||''});loadAdmin()}catch(e){alert('تعذر تحديث الحالة. راجع صلاحيات Firestore.')}}});list.querySelectorAll('[data-ec-close]').forEach(function(b){b.onclick=async function(){try{await d.collection('exceptionalCancellationRequests').doc(b.dataset.ecClose).update({status:'closed',closedAt:new Date().toISOString()});loadAdmin()}catch(e){alert('تعذر إغلاق الطلب. راجع صلاحيات Firestore.')}}})}catch(e){console.error(e);list.textContent='تعذر التحميل. تأكد من صلاحيات exceptionalCancellationRequests.'}}
-function installAdmin(){var modal=document.getElementById('adminOrdersModal');if(!modal||document.getElementById('msqExceptionalAdmin'))return;var content=modal.querySelector('.modal-content');if(!content)return;var p=document.createElement('section');p.id='msqExceptionalAdmin';p.innerHTML='<div style="font-weight:950;color:#803d48;font-size:15px;margin-bottom:6px">⚠️ طلبات الإلغاء الاستثنائي <span id="msqEcAdminCount" style="background:#803d48;color:white;border-radius:99px;padding:2px 8px">0</span></div><p style="font-size:11px;line-height:1.7;margin:0 0 8px">راجع صورة إثبات التحويل واتخذ القرار يدويًا؛ إرسال الطلب لا يلغي الطلب تلقائيًا.</p><button id="msqEcAdminRefresh" type="button" style="border:0;border-radius:9px;padding:8px 12px;background:#f0dfcc;color:#603b32;font-weight:900;cursor:pointer">تحديث الطلبات</button><div id="msqEcAdminList" style="margin-top:8px;font-size:12px">اضغط تحديث الطلبات لعرضها.</div>';content.appendChild(p);p.querySelector('#msqEcAdminRefresh').onclick=loadAdmin;new MutationObserver(function(){if(modal.classList.contains('active')&&typeof isAdminMode!=='undefined'&&isAdminMode)loadAdmin()}).observe(modal,{attributes:true,attributeFilter:['class']})}
-window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installAdmin);else installAdmin();setTimeout(installAdmin,800);document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#msqAdminTabs button'))setTimeout(loadAdmin,200)});
+function installAdmin(){var modal=document.getElementById('adminOrdersModal');if(!modal)return;var existing=document.getElementById('msqExceptionalAdmin');var target=document.querySelector('#msqAdminTabContent [data-pane="cancel"]');if(existing){if(target&&existing.parentElement!==target)target.appendChild(existing);return;}var content=modal.querySelector('.modal-content');if(!content)return;var p=document.createElement('section');p.id='msqExceptionalAdmin';p.innerHTML='<div style="font-weight:950;color:#803d48;font-size:15px;margin-bottom:6px">⚠️ طلبات الإلغاء الاستثنائي <span id="msqEcAdminCount" style="background:#803d48;color:white;border-radius:99px;padding:2px 8px">0</span></div><p style="font-size:11px;line-height:1.7;margin:0 0 8px">راجع صورة إثبات التحويل واتخذ القرار يدويًا؛ إرسال الطلب لا يلغي الطلب تلقائيًا.</p><button id="msqEcAdminRefresh" type="button" style="border:0;border-radius:9px;padding:8px 12px;background:#f0dfcc;color:#603b32;font-weight:900;cursor:pointer">تحديث الطلبات</button><div id="msqEcAdminList" style="margin-top:8px;font-size:12px">اضغط تحديث الطلبات لعرضها.</div>';var cancelPane=document.querySelector('#msqAdminTabContent [data-pane="cancel"]');(cancelPane||content).appendChild(p);p.querySelector('#msqEcAdminRefresh').onclick=loadAdmin;new MutationObserver(function(){if(modal.classList.contains('active')&&typeof isAdminMode!=='undefined'&&isAdminMode)loadAdmin()}).observe(modal,{attributes:true,attributeFilter:['class']})}
+window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installAdmin);else installAdmin();setTimeout(installAdmin,800);document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#msqAdminTabs button')){setTimeout(function(){var p=document.getElementById('msqExceptionalAdmin'),cp=document.querySelector('#msqAdminTabContent [data-pane="cancel"]');if(p&&cp&&p.parentElement!==cp)cp.appendChild(p);loadAdmin()},200)}});
 })();
 </script>
