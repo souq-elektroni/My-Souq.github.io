@@ -18153,16 +18153,16 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   }
   function apiRequest(path,options){options=options||{};options.headers=Object.assign({'Content-Type':'application/json'},options.headers||{});options.credentials='omit';return fetch(supportApi+path,options).then(function(r){return r.json().catch(function(){return {ok:false,error:'استجابة غير صالحة'};}).then(function(d){if(!r.ok||d.ok===false)throw new Error(d.error||('HTTP '+r.status));return d;});});}
   async function ensureConversation(){if(conversationId)return conversationId;var ctx=getContext();var d=await apiRequest('/api/chat/create',{method:'POST',body:JSON.stringify({name:customerName||'زائر My Souq',pageUrl:location.href,product:ctx.product||'',order:ctx.order||''})});conversationId=(d.conversation&&d.conversation.id)||d.conversationId||'';if(!conversationId)throw new Error('لم يرجع الخادم رقم المحادثة');return conversationId;}
-  async function storeCustomerMessage(text){var id=await ensureConversation();return apiRequest('/api/chat/message',{method:'POST',body:JSON.stringify({conversationId:id,text:text})});}
-  async function syncAdminReplies(){if(!conversationId||syncBusy||panel.hidden)return;syncBusy=true;try{var d=await apiRequest('/api/chat/messages?conversationId='+encodeURIComponent(conversationId));var items=Array.isArray(d.messages)?d.messages:[],known={};humanMode=!!d.humanMode||!!d.needsHuman||d.status==='pending';messages.querySelectorAll('[data-msq-server-id]').forEach(function(n){known[n.getAttribute('data-msq-server-id')]='1';});items.forEach(function(m){if((m.role==='admin'||m.role==='owner')&&m.id&&!known[m.id]){var node=document.createElement('div');node.className='msq-support-message bot';node.textContent='صاحب المتجر: '+safeText(m.text||m.content||'');node.setAttribute('data-msq-server-id',m.id);messages.appendChild(node);history.push({role:'assistant',content:safeText(m.text||m.content||'')});if(history.length>18)history=history.slice(-18);if(/إنهاء المحادثة البشرية|إنهاء المحادثة/.test(String(m.text||'')))closedNoticeShown=true;}});if(d.status==='closed')humanMode=false;messages.scrollTop=messages.scrollHeight;}catch(e){console.warn('My Souq support sync unavailable.',e);}finally{syncBusy=false;}}
+  async function storeCustomerMessage(text){var id=await ensureConversation();var result=await apiRequest('/api/chat/message',{method:'POST',body:JSON.stringify({conversationId:id,text:text})});if(result.status==='closed'){conversationId='';humanMode=false;closedNoticeShown=false;history=[];messages.replaceChildren();var newId=await ensureConversation();result=await apiRequest('/api/chat/message',{method:'POST',body:JSON.stringify({conversationId:newId,text:text})});}return result;}
+  async function syncAdminReplies(){if(!conversationId||syncBusy||panel.hidden)return;syncBusy=true;try{var d=await apiRequest('/api/chat/messages?conversationId='+encodeURIComponent(conversationId));var items=Array.isArray(d.messages)?d.messages:[],known={};humanMode=!!d.humanMode||!!d.needsHuman||d.status==='pending';messages.querySelectorAll('[data-msq-server-id]').forEach(function(n){known[n.getAttribute('data-msq-server-id')]='1';});items.forEach(function(m){if((m.role==='admin'||m.role==='owner')&&m.id&&!known[m.id]){var node=document.createElement('div');node.className='msq-support-message bot';node.textContent='CEO: '+safeText(m.text||m.content||'');node.setAttribute('data-msq-server-id',m.id);messages.appendChild(node);history.push({role:'assistant',content:safeText(m.text||m.content||'')});if(history.length>18)history=history.slice(-18);if(/إنهاء المحادثة البشرية|إنهاء المحادثة/.test(String(m.text||'')))closedNoticeShown=true;}});if(d.status==='closed')humanMode=false;messages.scrollTop=messages.scrollHeight;}catch(e){console.warn('My Souq support sync unavailable.',e);}finally{syncBusy=false;}}
   function startReplyPolling(){if(pollHandle)clearInterval(pollHandle);syncAdminReplies();pollHandle=setInterval(syncAdminReplies,1200);}
 
   var quickAnswers={
-    track:'تمام، خلّينا نتابع طلبك مع بعض.\n\nاضغط على زر «تتبع طلبك» أعلى الصفحة، ثم اكتب رقم الطلب.\n\nلو النتيجة مش واضحة أو محتاج تأكيد إضافي، ابعتلي رقم الطلب هنا وأوجّهك، أو اضغط «طلب تدخل صاحب المتجر» وأنا هجهّز لك ملخص جاهز.',
-    order:'ما تقلقش، هنحلها خطوة بخطوة.\n\nتأكد من:\n• الاسم ورقم الموبايل والعنوان مكتوبين صح\n• اختيار طريقة الدفع\n• الموافقة على الشروط إن ظهرت\n\nلو زر التأكيد لسه مش شغال، ابعتلي رقم الطلب (لو موجود) أو وصف سريع للمشكلة، وهساعدك أو أحوّلك لصاحب المتجر مباشرة. ما تضغطش مرات متتالية لو الزر بيحمّل.',
+    track:'تمام، خلّينا نتابع طلبك مع بعض.\n\nاضغط على زر «تتبع طلبك» أعلى الصفحة، ثم اكتب رقم الطلب.\n\nلو النتيجة مش واضحة أو محتاج تأكيد إضافي، ابعتلي رقم الطلب هنا وأوجّهك، أو اضغط «طلب تدخل CEO» وأنا هجهّز لك ملخص جاهز.',
+    order:'ما تقلقش، هنحلها خطوة بخطوة.\n\nتأكد من:\n• الاسم ورقم الموبايل والعنوان مكتوبين صح\n• اختيار طريقة الدفع\n• الموافقة على الشروط إن ظهرت\n\nلو زر التأكيد لسه مش شغال، ابعتلي رقم الطلب (لو موجود) أو وصف سريع للمشكلة، وهساعدك أو أحوّلك لCEO مباشرة. ما تضغطش مرات متتالية لو الزر بيحمّل.',
     shipping:'مواعيد الشحن بتختلف حسب المنطقة وحالة الطلب.\n\nأفضل خطوة دلوقتي: افتح «تتبع طلبك» عشان تشوف آخر حالة.\n\nلو محتاج تأكيد خاص على ميعاد الوصول، قولي رقم الطلب أو المنطقة، وأقدر أجهّز لك رسالة مباشرة لصاحب المتجر.',
     sizes:'عشان نختار المقاس الصح:\n\n1) افتح صفحة المنتج\n2) شوف جدول المقاسات أو الوصف\n3) اختار المقاس واللون المتاحين قبل ما تضيف للسلة\n\nلو جدول المقاسات مش واضح أو محتاج تأكيد على منتج معيّن، ابعت اسم المنتج أو رابطه هنا وأساعدك بالمعلومات الظاهرة، أو أحوّلك لصاحب المتجر.',
-    payment:'راجع اختيار طريقة الدفع واتبع التعليمات في صفحة إتمام الطلب.\n\nمهم: من فضلك ما تبعتش هنا أرقام بطاقات أو كلمات مرور أو أي بيانات دفع حساسة.\n\nلو الدفع تم لكن الطلب مش متأكد، ابعت رقم الطلب (إن وجد) واضغط «طلب تدخل صاحب المتجر» عشان نتابع معاك بأمان.',
+    payment:'راجع اختيار طريقة الدفع واتبع التعليمات في صفحة إتمام الطلب.\n\nمهم: من فضلك ما تبعتش هنا أرقام بطاقات أو كلمات مرور أو أي بيانات دفع حساسة.\n\nلو الدفع تم لكن الطلب مش متأكد، ابعت رقم الطلب (إن وجد) واضغط «طلب تدخل CEO» عشان نتابع معاك بأمان.',
     return:'سياسة الاستبدال أو الإرجاع تعتمد على حالة الطلب ونوع المنتج.\n\nابعتلي تفاصيل مختصرة (رقم الطلب + سبب مختصر) من غير أي بيانات دفع، وأوجّهك للخطوة التالية أو أجهّز لك رسالة مباشرة لصاحب المتجر.'
   };
   function safeText(v){return String(v==null?'':v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').trim();}
@@ -18229,7 +18229,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
     }
     return 'فاهمك تمام 😊 خلّينا نوضحها مع بعض.\nهل الموضوع متعلق بـ طلب، أو منتج، أو شحن، أو دفع؟';
   }
-  async function submitText(raw){var text=safeText(raw);if(!text)return;input.value='';input.style.height='auto';addMessage(text,'user');var saved;try{saved=await storeCustomerMessage(text);}catch(err){addMessage('تعذر إرسال رسالتك لخادم الدعم الآن. تأكد من اتصال الإنترنت وحاول مرة أخرى.','bot');console.warn('Support message save failed',err);return;}if(saved&&(saved.humanMode||saved.needsHuman||saved.status==='pending'))humanMode=true;if(humanMode){addMessage('رسالتك وصلت لصاحب المتجر ✅ هيرد عليك هنا في نفس المحادثة. المساعد الآلي متوقف أثناء المتابعة البشرية.','bot');startReplyPolling();return;}var pending=addMessage('ثوانٍ من فضلك، بجيب لك الرد المناسب…','bot');var answer=await askAssistant(text);pending.textContent=answer;history[history.length-1].content=answer;messages.scrollTop=messages.scrollHeight;syncAdminReplies();}
+  async function submitText(raw){var text=safeText(raw);if(!text)return;input.value='';input.style.height='auto';var saved;try{saved=await storeCustomerMessage(text);}catch(err){addMessage(text,'user');addMessage('تعذر إرسال رسالتك لخادم الدعم الآن. تأكد من اتصال الإنترنت وحاول مرة أخرى.','bot');console.warn('Support message save failed',err);return;}addMessage(text,'user');if(saved&&(saved.humanMode||saved.needsHuman||saved.status==='pending'))humanMode=true;if(humanMode){startReplyPolling();return;}var pending=addMessage('ثوانٍ من فضلك، بجيب لك الرد المناسب…','bot');var answer=await askAssistant(text);pending.textContent=answer;history[history.length-1].content=answer;messages.scrollTop=messages.scrollHeight;syncAdminReplies();}
   form.addEventListener('submit',function(e){e.preventDefault();if(form.dataset.busy==='1')return;var v=safeText(input.value);if(!v)return;form.dataset.busy='1';var btn=document.getElementById('msqSupportSend');btn.disabled=true;submitText(v).finally(function(){form.dataset.busy='0';btn.disabled=false;input.focus();});});
   input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit();}});
   input.addEventListener('input',function(){input.style.height='auto';input.style.height=Math.min(input.scrollHeight,100)+'px';});
@@ -18237,7 +18237,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
   async function handoff(){
     var transcript=history.slice(-12).map(function(m){return (m.role==='user'?'العميل: ':'المساعد: ')+m.content;}).join('\n');
     var ctx=getContext();
-    var handoffMsg='🚨 طلب تدخل صاحب المتجر';
+    var handoffMsg='🚨 طلب تدخل CEO';
     var endpoint=window.MYSOUQ_SUPPORT_API_ENDPOINT;
     var savedOk=false;
     var followId='';
@@ -18269,12 +18269,12 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
 
     addMessage(handoffMsg,'user');
     if(savedOk){
-      addMessage('تم تسجيل طلبك بنجاح ✅ هيصلك رد من صاحب المتجر هنا في الشات خلال لحظات.\nرقم المتابعة: '+followId,'bot');
+      addMessage('تم تسجيل طلبك بنجاح ✅ هيصلك رد من CEO هنا في الشات خلال لحظات.\nرقم المتابعة: '+followId,'bot');
       startReplyPolling();
     }else{
       addMessage('تعذر إرسال التنبيه الآن. حاول مرة تانية بعد قليل، أو تواصل من صفحة التواصل.','bot');
     }
-    // التنبيه بيروح على تيليجرام لصاحب المتجر — مفيش واتساب ولا فتح لوحة دعم
+    // التنبيه بيروح على تيليجرام للـ CEO — مفيش واتساب ولا فتح لوحة دعم
   }
   
   document.getElementById('msqSupportHuman').addEventListener('click',handoff);
