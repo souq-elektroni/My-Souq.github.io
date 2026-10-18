@@ -7,16 +7,16 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="20261018f">
+  <meta name="msq-build" content="20261018g">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=20261018f">
-  <link rel="icon" href="favicon.svg?v=20261018f" type="image/svg+xml">
-  <link rel="icon" href="favicon.svg?v=20261018f" sizes="any">
-  <link rel="apple-touch-icon" href="favicon.svg?v=20261018f">
-  <link rel="shortcut icon" href="favicon.svg?v=20261018f">
+  <link rel="manifest" href="manifest.json?v=20261018g">
+  <link rel="icon" href="favicon.svg?v=20261018g" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=20261018g" sizes="any">
+  <link rel="apple-touch-icon" href="favicon.svg?v=20261018g">
+  <link rel="shortcut icon" href="favicon.svg?v=20261018g">
   <title>My Souq</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
@@ -2164,7 +2164,7 @@
 
   </style>
 
-  <link rel="stylesheet" href="styles.css?v=20261018f">
+  <link rel="stylesheet" href="styles.css?v=20261018g">
 
 
 <style id="my-souq-wow-layer">
@@ -3900,10 +3900,10 @@ body{
 body::before{
  content:""!important;position:fixed!important;inset:-8px!important;z-index:-1!important;
  pointer-events:none!important;
- background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261018f') center center/cover no-repeat!important;
+ background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261018g') center center/cover no-repeat!important;
  filter:blur(2px) saturate(.9)!important;transform:scale(1.025)!important;
 }
-body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261018f') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
+body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261018g') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
 /* Floating app badge and independent action buttons */
 .brand-badge{top:16px!important;right:16px!important;width:58px!important;height:58px!important;border-radius:19px!important;transform:rotate(3deg)!important;background:linear-gradient(145deg,#087f83,#36aaa9)!important;box-shadow:0 12px 30px rgba(8,127,131,.25),inset 0 1px 0 rgba(255,255,255,.75)!important;border:1px solid rgba(255,255,255,.8)!important}
 .brand-badge::before{inset:5px!important;border-radius:14px!important}
@@ -4197,10 +4197,10 @@ html.msq-version-checking { background: #f4e5d8; }
     <p style="display:none!important" aria-hidden="true"></p>
 
     <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261018f')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261018f')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261018f')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261018f')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
+      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261018g')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261018g')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261018g')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261018g')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
     </div>
 
     <div class="banner-dots" role="tablist" aria-label="اختيار البانر">
@@ -5077,7 +5077,7 @@ html.msq-version-checking { background: #f4e5d8; }
   })();
   </script>
 
-  <script src="script.js?v=20261018f"></script>
+  <script src="script.js?v=20261018g"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -5442,39 +5442,45 @@ html.msq-version-checking { background: #f4e5d8; }
         var disAttr = function(on){ return on ? '' : ' disabled aria-disabled="true"'; };
         var disClass = function(on){ return on ? '' : ' is-disabled'; };
 
-        // If exchange/return case closed — customer sees ONLY the afada
-        var exchangeOnlyAfada = null;
+        // Exchange/return resolved? Show professional afada + read-only details (no action buttons)
+        var exchangeAfada = null;
         try {
           if (typeof db !== 'undefined' && db) {
             var _trOut = await db.collection('orderTracking').doc(searchId).get();
             if (_trOut && _trOut.exists) {
               var _td = _trOut.data() || {};
-              if (_td.exchangeResolved || _td.exchangeOutcomeMessage) {
-                exchangeOnlyAfada = {
+              if (_td.exchangeResolved || _td.exchangeOutcomeMessage || _td.exchangeOrReturnClosed) {
+                exchangeAfada = {
                   label: String(_td.exchangeOutcomeLabel || (_td.exchangeOutcome === 'replaced' ? 'تم الاستبدال' : 'تم الإرجاع ورد القيمة')),
-                  message: String(_td.exchangeOutcomeMessage || '')
+                  message: String(_td.exchangeOutcomeMessage || ''),
+                  outcome: String(_td.exchangeOutcome || '')
                 };
               }
             }
           }
         } catch (_exAfada) {}
+        // Also check local closed-exchange map (admin session / prior loads)
+        try {
+          var _map = window.__msqClosedExchangeMap || {};
+          var _hit = _map[String(searchId).toUpperCase()];
+          if (!exchangeAfada && _hit) {
+            exchangeAfada = { label: String(_hit.label||''), message: String(_hit.message||''), outcome: String(_hit.outcome||'') };
+          }
+        } catch (_m) {}
+        var caseClosed = !!exchangeAfada;
+        try { if (caseClosed) resultBox.setAttribute('data-msq-afada','1'); else resultBox.removeAttribute('data-msq-afada'); } catch (_) {}
 
-        if (exchangeOnlyAfada) {
-          resultBox.setAttribute('data-msq-afada', '1');
-          resultBox.innerHTML =
-            '<div class="msq-afada-only">' +
-              '<div class="msq-afada-badge">✅ ' + escapeHtml(exchangeOnlyAfada.label || 'إفادة الطلب') + '</div>' +
-              '<p class="msq-afada-text">' + escapeHtml(exchangeOnlyAfada.message || '') + '</p>' +
-              '<div class="msq-afada-foot">My Souq</div>' +
-            '</div>';
-          try { window.__lastTrackedOrder = foundOrder; } catch (_) {}
-          return;
-        }
-        try { resultBox.removeAttribute('data-msq-afada'); } catch (_) {}
+        var afadaBanner = caseClosed ? (
+          '<div class="msq-afada-banner">' +
+            '<div class="msq-afada-badge">✅ ' + escapeHtml(exchangeAfada.label || 'إفادة الطلب') + '</div>' +
+            '<p class="msq-afada-text">' + escapeHtml(exchangeAfada.message || '') + '</p>' +
+          '</div>'
+        ) : '';
 
         resultBox.innerHTML =
           '<div class="customer-track-success"><span>✓ تم العثور على طلبك</span>' + cloudBadge + '</div>' +
-          '<div class="customer-track-columns-3">' +
+          afadaBanner +
+          '<div class="customer-track-columns-3' + (caseClosed ? ' is-case-closed' : '') + '">' +
             '<section class="customer-track-order-panel customer-track-col" aria-label="بيانات الطلب">' +
               '<div class="customer-track-section-title">📋 بيانات الطلب</div>' +
               '<div class="customer-track-data-list">' +
@@ -5491,22 +5497,31 @@ html.msq-version-checking { background: #f4e5d8; }
               '<div class="customer-track-section-title">🛍️ المنتج المختار <span>(' + items.length + ')</span></div>' +
               (items.length ? buildTrackItemsHtml(items) : '<div class="customer-track-empty-products">لا توجد تفاصيل منتجات محفوظة لهذا الطلب.</div>') +
             '</section>' +
-            '<section class="customer-track-actions-panel customer-track-col" aria-label="إجراءات الطلب" data-track-status-code="' + currentCode + '">' +
-              '<div class="customer-track-section-title">⚙️ إجراءات الطلب</div>' +
-              '<div class="customer-track-actions-stack">' +
-                '<button type="button" class="ct-action-btn ct-cancel-normal' + disClass(canNormalCancel) + '" data-action="normal-cancel" data-order-id="' + escapeHtml(orderIdDisplay) + '"' + disAttr(canNormalCancel) + '>' +
-                  '<span class="ct-action-icon">🔴</span><span class="ct-action-body"><span class="ct-action-label">إلغاء طلب تحت التنفيذ</span><span class="ct-action-hint">' + (canNormalCancel ? 'متاح الآن' : 'مُعطّل — تحت التنفيذ فقط') + '</span></span>' +
-                '</button>' +
-                '<button type="button" class="ct-action-btn ct-cancel-exceptional' + disClass(canExceptionalCancel) + '" data-action="exceptional-cancel" data-order-id="' + escapeHtml(orderIdDisplay) + '"' + disAttr(canExceptionalCancel) + '>' +
-                  '<span class="ct-action-icon">🔐</span><span class="ct-action-body"><span class="ct-action-label">إلغاء استثنائي</span><span class="ct-action-hint">' + (canExceptionalCancel ? 'متاح الآن' : 'مُعطّل — الحجز والشحن فقط') + '</span></span>' +
-                '</button>' +
-                '<button type="button" class="ct-action-btn ct-exchange' + disClass(canExchange) + '" data-action="exchange" data-order-id="' + escapeHtml(orderIdDisplay) + '"' + disAttr(canExchange) + '>' +
-                  '<span class="ct-action-icon">🔄</span><span class="ct-action-body"><span class="ct-action-label">استبدال وإرجاع</span><span class="ct-action-hint">' + (canExchange ? 'متاح الآن — عيب مصنع' : 'مُعطّل — بعد التوريد فقط') + '</span></span>' +
-                '</button>' +
-              '</div>' +
-              '<div class="customer-track-actions-note">الزر الفعّال حسب مرحلة طلبك فقط.</div>' +
-              '<div id="msqTrackExchangeSlot" class="msq-track-exchange-slot"></div>' +
-            '</section>' +
+            (caseClosed
+              ? '<section class="customer-track-actions-panel customer-track-col customer-track-closed-note" aria-label="موقف مغلق">' +
+                  '<div class="customer-track-section-title">✅ موقف مغلق</div>' +
+                  '<div style="padding:14px;border-radius:14px;background:#f1f8f2;border:1px solid #a5d6a7;color:#1b5e20;font-weight:800;line-height:1.8;font-size:13.5px;text-align:center">' +
+                    escapeHtml(exchangeAfada.label || 'تم إنهاء موقف الاستبدال/الإرجاع') +
+                    '<div style="margin-top:6px;font-size:12px;font-weight:700;opacity:.9">لا يمكن فتح طلب استبدال أو إرجاع جديد لهذا الطلب.</div>' +
+                  '</div>' +
+                '</section>'
+              : ('<section class="customer-track-actions-panel customer-track-col" aria-label="إجراءات الطلب" data-track-status-code="' + currentCode + '">' +
+                  '<div class="customer-track-section-title">⚙️ إجراءات الطلب</div>' +
+                  '<div class="customer-track-actions-stack">' +
+                    '<button type="button" class="ct-action-btn ct-cancel-normal' + disClass(canNormalCancel) + '" data-action="normal-cancel" data-order-id="' + escapeHtml(orderIdDisplay) + '"' + disAttr(canNormalCancel) + '>' +
+                      '<span class="ct-action-icon">🔴</span><span class="ct-action-body"><span class="ct-action-label">إلغاء طلب تحت التنفيذ</span><span class="ct-action-hint">' + (canNormalCancel ? 'متاح الآن' : 'مُعطّل — تحت التنفيذ فقط') + '</span></span>' +
+                    '</button>' +
+                    '<button type="button" class="ct-action-btn ct-cancel-exceptional' + disClass(canExceptionalCancel) + '" data-action="exceptional-cancel" data-order-id="' + escapeHtml(orderIdDisplay) + '"' + disAttr(canExceptionalCancel) + '>' +
+                      '<span class="ct-action-icon">🔐</span><span class="ct-action-body"><span class="ct-action-label">إلغاء استثنائي</span><span class="ct-action-hint">' + (canExceptionalCancel ? 'متاح الآن' : 'مُعطّل — الحجز والشحن فقط') + '</span></span>' +
+                    '</button>' +
+                    '<button type="button" class="ct-action-btn ct-exchange' + disClass(canExchange) + '" data-action="exchange" data-order-id="' + escapeHtml(orderIdDisplay) + '"' + disAttr(canExchange) + '>' +
+                      '<span class="ct-action-icon">🔄</span><span class="ct-action-body"><span class="ct-action-label">استبدال وإرجاع</span><span class="ct-action-hint">' + (canExchange ? 'متاح الآن — عيب مصنع' : 'مُعطّل — بعد التوريد فقط') + '</span></span>' +
+                    '</button>' +
+                  '</div>' +
+                  '<div class="customer-track-actions-note">الزر الفعّال حسب مرحلة طلبك فقط.</div>' +
+                  '<div id="msqTrackExchangeSlot" class="msq-track-exchange-slot"></div>' +
+                '</section>')
+            ) +
           '</div>';
 
         try {
@@ -7677,11 +7692,11 @@ body{
 body::before{
   content:""!important;position:fixed!important;inset:-5px!important;z-index:-1!important;
   pointer-events:none!important;
-  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261018f') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261018g') center center/cover no-repeat!important;
   filter:blur(1.5px) saturate(.94)!important;transform:scale(1.015)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261018f') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261018g') center center/cover no-repeat!important;
   filter:blur(2px) saturate(.8)!important;
 }
 /* Restore the full banner artwork as a visible layer behind the original live logo/text. */
@@ -7785,14 +7800,14 @@ header p{max-width:54%!important}
     pointer-events:none;
     background:
       linear-gradient(135deg, rgba(245,238,226,.22), rgba(248,242,233,.16)),
-      url("assets/store-room.webp?v=20261018f") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261018g") center center / cover no-repeat;
     filter: blur(1.35px) saturate(.92);
     transform: scale(1.015);
   }
   body.dark-mode::before {
     background:
       linear-gradient(135deg, rgba(13,22,24,.66), rgba(16,25,27,.58)),
-      url("assets/store-room.webp?v=20261018f") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261018g") center center / cover no-repeat;
     filter: blur(1.7px) saturate(.78);
   }
 
@@ -7930,7 +7945,7 @@ body::before{
   transform:scale(1.025)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261018f') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261018g') center center/cover no-repeat!important;
   filter:blur(3.5px) saturate(.82)!important;
 }
 /* Hero keeps the full supplied banner art visible. */
@@ -10425,6 +10440,154 @@ html body #adminOrdersBtn.show {
 }
 </style>
 
+
+<style id="mysouq-afada-banner-v1">
+.msq-afada-banner{
+  margin:0 0 16px;padding:18px 20px;border-radius:18px;text-align:center;direction:rtl;
+  background:linear-gradient(155deg,#e8f5e9 0%,#f1f8f2 100%);
+  border:1.5px solid #a5d6a7;box-shadow:0 10px 28px rgba(40,100,50,.08);
+}
+.msq-afada-banner .msq-afada-badge{font-size:clamp(18px,2.5vw,22px);font-weight:950;color:#1b5e20;margin-bottom:8px}
+.msq-afada-banner .msq-afada-text{font-size:clamp(13px,1.8vw,15px);font-weight:800;color:#2e5a3a;line-height:1.9;margin:0}
+.customer-track-columns-3.is-case-closed .customer-track-actions-panel:not(.customer-track-closed-note){display:none!important}
+</style>
+
+
+<script id="mysouq-sync-closed-exchanges-v1">
+(function(){
+  'use strict';
+  window.__msqClosedExchangeMap = window.__msqClosedExchangeMap || {};
+
+  function applyPatchToCaches(orderId, patch){
+    var id = String(orderId||'').trim().toUpperCase();
+    if (!id) return;
+    try {
+      [ (typeof adminOrdersCache!=='undefined'?adminOrdersCache:null), window.adminOrdersCache, window.ordersHistory ].forEach(function(arr){
+        if (!Array.isArray(arr)) return;
+        arr.forEach(function(o){
+          if (String(o.orderId||'').trim().toUpperCase() === id) Object.assign(o, patch);
+        });
+      });
+    } catch(e){}
+    try {
+      ['souqOrdersHistory','ordersHistory','adminOrdersCache'].forEach(function(k){
+        var raw = localStorage.getItem(k); if (!raw) return;
+        var arr = JSON.parse(raw); if (!Array.isArray(arr)) return;
+        var changed = false;
+        arr.forEach(function(o){
+          if (String(o.orderId||'').trim().toUpperCase() === id) { Object.assign(o, patch); changed = true; }
+        });
+        if (changed) localStorage.setItem(k, JSON.stringify(arr));
+      });
+    } catch(e){}
+  }
+
+  async function syncClosedExchanges(opts){
+    opts = opts || {};
+    var db = null;
+    try {
+      if (typeof window.db !== 'undefined' && window.db) db = window.db;
+      else if (typeof db !== 'undefined' && db) db = db;
+      else if (window.firebase && firebase.apps && firebase.apps.length) db = firebase.firestore();
+    } catch(e){}
+    if (!db) return window.__msqClosedExchangeMap;
+
+    try {
+      var snap = await db.collection('exchangeRequests').limit(150).get();
+      var map = window.__msqClosedExchangeMap || {};
+      var writes = [];
+      snap.forEach(function(doc){
+        var r = doc.data() || {};
+        var st = String(r.status||'pending');
+        var closed = !!(r.caseClosed || st==='replaced' || st==='refunded' || r.customerOutcome);
+        if (!closed) return;
+        var oid = String(r.orderId||'').trim().toUpperCase();
+        if (!oid) return;
+        var label = r.caseClosedLabel || r.exchangeOutcomeLabel || (st==='replaced' || r.customerOutcome==='replaced' ? 'تم الاستبدال' : 'تم الإرجاع ورد القيمة');
+        var message = r.customerOutcomeMessage || '';
+        var outcome = r.customerOutcome || (st==='replaced'?'replaced':'refunded');
+        map[oid] = { label: label, message: message, outcome: outcome };
+        var patch = {
+          statusCode: 3,
+          status: label,
+          statusLabel: label,
+          exchangeOrReturnClosed: true,
+          exchangeResolved: true,
+          exchangeOutcome: outcome,
+          exchangeOutcomeLabel: label,
+          exchangeOutcomeMessage: message
+        };
+        applyPatchToCaches(oid, patch);
+        if (opts.writeFirestore) {
+          writes.push(
+            db.collection('orders').where('orderId','==',oid).limit(1).get().then(function(q){
+              if (!q.empty) return q.docs[0].ref.set(patch, { merge: true });
+              return db.collection('orders').doc(oid).set(patch, { merge: true }).catch(function(){});
+            }).catch(function(){}),
+            db.collection('orderTracking').doc(oid).set({
+              orderId: oid,
+              statusCode: 3,
+              status: label,
+              statusLabel: label,
+              exchangeOrReturnClosed: true,
+              exchangeResolved: true,
+              exchangeOutcome: outcome,
+              exchangeOutcomeLabel: label,
+              exchangeOutcomeMessage: message,
+              updatedAt: new Date().toISOString()
+            }, { merge: true }).catch(function(){})
+          );
+        }
+      });
+      window.__msqClosedExchangeMap = map;
+      if (writes.length) await Promise.all(writes);
+    } catch(e){ console.warn('syncClosedExchanges', e); }
+    return window.__msqClosedExchangeMap;
+  }
+
+  window.msqSyncClosedExchanges = syncClosedExchanges;
+
+  // Hook delivered tab render
+  var _origRender = null;
+  function patchRenderDelivered(){
+    // find via string search in page scripts is hard; wrap after delay by replacing window if exposed
+  }
+
+  // When admin opens modal / clicks delivered tab, sync then refresh
+  document.addEventListener('click', function(e){
+    var t = e.target && e.target.closest && e.target.closest('#msqAdminTabs button[data-tab="delivered"], #msqAdminTabs button[data-tab="exchanges"]');
+    if (!t) return;
+    var write = t.getAttribute('data-tab') === 'delivered';
+    syncClosedExchanges({ writeFirestore: write }).then(function(){
+      try { if (typeof window.filterAdminOrders === 'function') window.filterAdminOrders(); } catch(e){}
+    });
+  }, true);
+
+  // Initial sync after load
+  setTimeout(function(){ syncClosedExchanges({ writeFirestore: false }); }, 1500);
+  setTimeout(function(){ syncClosedExchanges({ writeFirestore: true }); }, 4000);
+})();
+</script>
+
+
+<style id="mysouq-reject-ban-btn-style">
+.msq-return-status-btn,.msq-reject-ban-btn,
+button.msq-return-status-btn,button.msq-reject-ban-btn{
+  background:#111 !important;
+  color:#fff !important;
+  border:0 !important;
+  border-radius:10px !important;
+  font-weight:900 !important;
+}
+.msq-return-status-btn:hover,.msq-reject-ban-btn:hover{
+  background:#000 !important;
+}
+.msq-delivered-actions button.msq-reject-ban-btn{
+  background:#111 !important;
+  color:#fff !important;
+}
+</style>
+
 </body>
 </html>
 
@@ -11951,7 +12114,7 @@ body::before {
   pointer-events: none !important;
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261018f') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261018g') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   transform: scale(1.06) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
@@ -11959,7 +12122,7 @@ body::before {
 body.dark-mode::before {
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261018f') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261018g') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
 }
@@ -16276,14 +16439,25 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
     if(!list.length){box.innerHTML='<p style="text-align:center;padding:20px;color:#667">لا توجد طلبات تم توريدها مطابقة.</p>';return;}
     // Reuse the original card renderer without moving delivered orders into the open list.
     box.innerHTML=list.map(function(o){
-      var closed = !!(o.exchangeOrReturnClosed || o.exchangeResolved);
-      var outcomeLab = o.exchangeOutcomeLabel || '';
+      var oid = String(o.orderId||'').trim().toUpperCase();
+      var mapHit = (window.__msqClosedExchangeMap||{})[oid];
+      var closed = !!(o.exchangeOrReturnClosed || o.exchangeResolved || mapHit);
+      if (mapHit && !o.exchangeOrReturnClosed) {
+        o.exchangeOrReturnClosed = true;
+        o.exchangeResolved = true;
+        o.exchangeOutcomeLabel = mapHit.label;
+        o.status = mapHit.label;
+        o.statusLabel = mapHit.label;
+      }
+      var outcomeLab = o.exchangeOutcomeLabel || (mapHit && mapHit.label) || '';
       var st = closed && outcomeLab ? outcomeLab : labelOf(o);
       var id=String(o.orderId||'').replace(/'/g,"\\'");
       var items=(o.items&&o.items.length)||0;
       var statusColor = closed ? '#8a6a00' : '#2e7d32';
       var badge = closed ? ' <span style="display:inline-block;margin-right:6px;padding:2px 8px;border-radius:8px;background:#fff8e1;border:1px solid #ffe082;color:#8a6a00;font-size:11px">تم إنهاء موقف الاستبدال/الإرجاع</span>' : '';
-      var returnBtn = closed ? '' : ('<button type="button" onclick="returnDeliveredOrderAsRejected(\''+id+'\',this)">↩️ إرجاع حالة</button>');
+      var returnBtn = closed
+        ? '<button type="button" disabled style="opacity:.4;cursor:not-allowed;background:#222;color:#fff;border:0;border-radius:10px;padding:8px 12px;font-weight:900">❌🚫 رفض استلام وحظر</button>'
+        : ('<button type="button" class="msq-reject-ban-btn" onclick="returnDeliveredOrderAsRejected(\''+id+'\',this)" style="background:#111;color:#fff;border:0;border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">❌🚫 رفض استلام وحظر</button>');
       return '<article class="order-card-admin"><div class="oid">🆔 '+escText(o.orderId||'-')+'</div><div>👤 '+escText(o.name||'-')+' | 📱 '+escText(o.phone||'-')+'</div><div>💰 '+escText(o.total||'-')+' | 📅 '+escText(o.date||'-')+'</div><div style="font-weight:900;color:'+statusColor+';margin:6px 0">الحالة: '+escText(st)+badge+(items?' · 🛍️ '+items+' منتج':'')+'</div><div class="msq-delivered-actions"><button type="button" onclick="showAdminOrderDetails(\''+id+'\')">🧾 تفاصيل الطلب</button><button type="button" onclick="notifyCustomerStatus(\''+id+'\')">💬 إشعار واتساب</button><button type="button" onclick="copyShippingMessage(\''+id+'\')">📋 نسخ رسالة الشحن</button>'+returnBtn+'</div></article>';
     }).join('');
   }
@@ -16845,7 +17019,7 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
       addStatusButton(row,'🔐 إلغاء استثنائي','cancel-exception-btn',function(b){if(typeof window.cancelOrderExceptionally==='function')window.cancelOrderExceptionally(id,b);});
     }else if(c===3){
       if(!(order.exchangeOrReturnClosed || order.exchangeResolved)){
-        addStatusButton(row,'↩️ إرجاع حالة','msq-return-status-btn',function(b){window.returnDeliveredOrderAsRejected(id,b);});
+        addStatusButton(row,'❌🚫 رفض استلام وحظر','msq-return-status-btn msq-reject-ban-btn',function(b){window.returnDeliveredOrderAsRejected(id,b);});
       }
     }else{
       row.remove();
@@ -16941,8 +17115,9 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
       } catch(e){}
       if (!__ord && Array.isArray(window.adminOrdersCache))
         __ord = window.adminOrdersCache.find(function(o){ return String(o.orderId||'').trim().toUpperCase()===__oid; });
-      if (__ord && (__ord.exchangeOrReturnClosed || __ord.exchangeResolved)) {
-        alert('هذا الطلب تم إنهاء موقف الاستبدال/الإرجاع عليه.\nلا يمكن إرجاع حالته إلى «رفض استلام وحظر».\nرفض الاستلام والحظر متاح فقط إذا المندوب لم يسلّم والمنتج رجع وهو في مرحلة التوريد.');
+      var __mapHit = (window.__msqClosedExchangeMap||{})[__oid];
+      if ((__ord && (__ord.exchangeOrReturnClosed || __ord.exchangeResolved)) || __mapHit) {
+        alert('هذا الطلب تم إنهاء موقف الاستبدال/الإرجاع عليه.\nلا يمكن تحويله إلى «رفض استلام وحظر».\nرفض الاستلام والحظر متاح فقط إذا المندوب لم يسلّم والمنتج رجع وهو في مرحلة التوريد.');
         return;
       }
     } catch(__g){}
@@ -18913,6 +19088,19 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
         tabBadge.style.display = pending.length ? 'inline-block' : 'none';
       }
       if (!rows.length) { listEl.innerHTML = '<div>لا توجد طلبات استبدال أو إرجاع بعد.</div>'; return; }
+      try {
+        window.__msqClosedExchangeMap = window.__msqClosedExchangeMap || {};
+        rows.forEach(function(r){
+          var st=String(r.status||'pending');
+          var closed=!!(r.caseClosed||st==='replaced'||st==='refunded'||r.customerOutcome);
+          if(!closed)return;
+          var oid=String(r.orderId||'').trim().toUpperCase();
+          if(!oid)return;
+          var label=r.caseClosedLabel||r.exchangeOutcomeLabel||(st==='replaced'||r.customerOutcome==='replaced'?'تم الاستبدال':'تم الإرجاع ورد القيمة');
+          window.__msqClosedExchangeMap[oid]={label:label,message:r.customerOutcomeMessage||'',outcome:r.customerOutcome||st};
+        });
+      } catch(_sm){}
+
 
             listEl.innerHTML = rows.map(function(r){
         var photos = Array.isArray(r.photos) ? r.photos : [];
@@ -19535,14 +19723,22 @@ try{
     }catch(e2){}
   }
   if(msg||label){
-    if(box.querySelector('.msq-afada-only')&&box.getAttribute('data-msq-afada')==='1')return;
+    // Don't wipe the tracking UI — only ensure afada banner exists (no flicker)
+    if(box.getAttribute('data-msq-afada')==='1' && box.querySelector('.msq-afada-banner, .msq-afada-only')) return;
     box.setAttribute('data-msq-afada','1');
-    box.innerHTML =
-      '<div class="msq-afada-only">' +
-        '<div class="msq-afada-badge">✅ '+(label?esc(label):'إفادة الطلب')+'</div>' +
-        '<p class="msq-afada-text">'+(msg?esc(msg):'')+'</p>' +
-        '<div class="msq-afada-foot">My Souq</div>' +
-      '</div>';
+    if(!box.querySelector('.msq-afada-banner') && !box.querySelector('.msq-afada-only')){
+      var ban=document.createElement('div');
+      ban.className='msq-afada-banner';
+      ban.innerHTML='<div class="msq-afada-badge">✅ '+(label?esc(label):'إفادة الطلب')+'</div><p class="msq-afada-text">'+(msg?esc(msg):'')+'</p>';
+      var success=box.querySelector('.customer-track-success');
+      if(success&&success.nextSibling) box.insertBefore(ban, success.nextSibling);
+      else box.insertBefore(ban, box.firstChild);
+    }
+    // Hide action buttons if still present
+    var act=box.querySelector('.customer-track-actions-panel:not(.customer-track-closed-note)');
+    if(act) act.style.display='none';
+    var slot=box.querySelector('#msqTrackExchangeSlot,.msq-exchange-panel');
+    if(slot) slot.style.display='none';
   }
 }catch(e){console.warn('Could not load exchange outcome for tracking',e)}
 }
