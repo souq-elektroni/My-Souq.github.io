@@ -7,16 +7,16 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="20261018d">
+  <meta name="msq-build" content="20261018f">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=20261018d">
-  <link rel="icon" href="favicon.svg?v=20261018d" type="image/svg+xml">
-  <link rel="icon" href="favicon.svg?v=20261018d" sizes="any">
-  <link rel="apple-touch-icon" href="favicon.svg?v=20261018d">
-  <link rel="shortcut icon" href="favicon.svg?v=20261018d">
+  <link rel="manifest" href="manifest.json?v=20261018f">
+  <link rel="icon" href="favicon.svg?v=20261018f" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=20261018f" sizes="any">
+  <link rel="apple-touch-icon" href="favicon.svg?v=20261018f">
+  <link rel="shortcut icon" href="favicon.svg?v=20261018f">
   <title>My Souq</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
@@ -2164,7 +2164,7 @@
 
   </style>
 
-  <link rel="stylesheet" href="styles.css?v=20261018d">
+  <link rel="stylesheet" href="styles.css?v=20261018f">
 
 
 <style id="my-souq-wow-layer">
@@ -3900,10 +3900,10 @@ body{
 body::before{
  content:""!important;position:fixed!important;inset:-8px!important;z-index:-1!important;
  pointer-events:none!important;
- background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261018d') center center/cover no-repeat!important;
+ background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261018f') center center/cover no-repeat!important;
  filter:blur(2px) saturate(.9)!important;transform:scale(1.025)!important;
 }
-body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261018d') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
+body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261018f') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
 /* Floating app badge and independent action buttons */
 .brand-badge{top:16px!important;right:16px!important;width:58px!important;height:58px!important;border-radius:19px!important;transform:rotate(3deg)!important;background:linear-gradient(145deg,#087f83,#36aaa9)!important;box-shadow:0 12px 30px rgba(8,127,131,.25),inset 0 1px 0 rgba(255,255,255,.75)!important;border:1px solid rgba(255,255,255,.8)!important}
 .brand-badge::before{inset:5px!important;border-radius:14px!important}
@@ -4197,10 +4197,10 @@ html.msq-version-checking { background: #f4e5d8; }
     <p style="display:none!important" aria-hidden="true"></p>
 
     <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261018d')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261018d')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261018d')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261018d')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
+      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261018f')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261018f')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261018f')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261018f')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
     </div>
 
     <div class="banner-dots" role="tablist" aria-label="اختيار البانر">
@@ -5077,7 +5077,7 @@ html.msq-version-checking { background: #f4e5d8; }
   })();
   </script>
 
-  <script src="script.js?v=20261018d"></script>
+  <script src="script.js?v=20261018f"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -5460,6 +5460,7 @@ html.msq-version-checking { background: #f4e5d8; }
         } catch (_exAfada) {}
 
         if (exchangeOnlyAfada) {
+          resultBox.setAttribute('data-msq-afada', '1');
           resultBox.innerHTML =
             '<div class="msq-afada-only">' +
               '<div class="msq-afada-badge">✅ ' + escapeHtml(exchangeOnlyAfada.label || 'إفادة الطلب') + '</div>' +
@@ -5469,6 +5470,7 @@ html.msq-version-checking { background: #f4e5d8; }
           try { window.__lastTrackedOrder = foundOrder; } catch (_) {}
           return;
         }
+        try { resultBox.removeAttribute('data-msq-afada'); } catch (_) {}
 
         resultBox.innerHTML =
           '<div class="customer-track-success"><span>✓ تم العثور على طلبك</span>' + cloudBadge + '</div>' +
@@ -7394,7 +7396,7 @@ html body #productModal .share-btn{order:4!important;}
   }
   function installAdminRequestsPanel(){
     const modal=document.getElementById('adminOrdersModal'); const logout=document.getElementById('adminLogoutBtn'); if(!modal||!logout||document.getElementById('cancelRequestsAdminPanel')) return;
-    const panel=document.createElement('section'); panel.id='cancelRequestsAdminPanel'; panel.innerHTML='<div class="cancel-admin-heading">🔔 طلبات إلغاء العملاء <span id="cancelRequestsCount" style="display:inline-block;background:#c62828;color:#fff;border-radius:99px;padding:2px 8px;margin-inline-start:5px">0</span></div><div id="cancelRequestsAdminList" style="font-size:12px;color:#765b5b">تظهر هنا طلبات الإلغاء الجديدة.</div><button type="button" id="refreshCancelRequests" style="margin-top:8px;border:0;border-radius:8px;background:#a3202b;color:#fff;padding:8px 10px;font-weight:800;cursor:pointer">تحديث طلبات الإلغاء</button>';
+    const panel=document.createElement('section'); panel.id='cancelRequestsAdminPanel'; panel.innerHTML='<div class="cancel-admin-heading">🔔 طلبات إلغاء العملاء <span id="cancelRequestsCount" style="display:inline-block;background:#c62828;color:#fff;border-radius:99px;padding:2px 8px;margin-inline-start:5px">0</span></div><div id="cancelRequestsAdminList" style="font-size:12px;color:#765b5b">تظهر هنا طلبات الإلغاء الجديدة.</div><button type="button" id="refreshCancelRequests" style="margin-top:8px;border:0;border-radius:9px;background:#a3202b;color:#fff;padding:8px 12px;font-weight:900;cursor:pointer;font-size:13px;display:inline-block">تحديث طلبات الإلغاء</button>';
     logout.parentNode.insertBefore(panel,logout.nextSibling);
     document.getElementById('refreshCancelRequests').addEventListener('click',loadAdminCancelRequests);
   }
@@ -7675,11 +7677,11 @@ body{
 body::before{
   content:""!important;position:fixed!important;inset:-5px!important;z-index:-1!important;
   pointer-events:none!important;
-  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261018d') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261018f') center center/cover no-repeat!important;
   filter:blur(1.5px) saturate(.94)!important;transform:scale(1.015)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261018d') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261018f') center center/cover no-repeat!important;
   filter:blur(2px) saturate(.8)!important;
 }
 /* Restore the full banner artwork as a visible layer behind the original live logo/text. */
@@ -7783,14 +7785,14 @@ header p{max-width:54%!important}
     pointer-events:none;
     background:
       linear-gradient(135deg, rgba(245,238,226,.22), rgba(248,242,233,.16)),
-      url("assets/store-room.webp?v=20261018d") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261018f") center center / cover no-repeat;
     filter: blur(1.35px) saturate(.92);
     transform: scale(1.015);
   }
   body.dark-mode::before {
     background:
       linear-gradient(135deg, rgba(13,22,24,.66), rgba(16,25,27,.58)),
-      url("assets/store-room.webp?v=20261018d") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261018f") center center / cover no-repeat;
     filter: blur(1.7px) saturate(.78);
   }
 
@@ -7928,7 +7930,7 @@ body::before{
   transform:scale(1.025)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261018d') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261018f') center center/cover no-repeat!important;
   filter:blur(3.5px) saturate(.82)!important;
 }
 /* Hero keeps the full supplied banner art visible. */
@@ -11815,15 +11817,18 @@ body.dark-mode #adminOrdersModal .order-card-admin{
   color: #fff !important;
 }
 #adminOrdersModal #refreshCancelRequests{
-  width: 100% !important;
-  min-height: 42px !important;
-  margin-top: 10px !important;
-  border-radius: 11px !important;
-  background: linear-gradient(135deg, #a3202b, #c62828) !important;
+  width: auto !important;
+  min-height: 0 !important;
+  margin-top: 8px !important;
+  border-radius: 9px !important;
+  background: #a3202b !important;
   color: #fff !important;
   font-weight: 900 !important;
   border: 0 !important;
   cursor: pointer !important;
+  padding: 8px 12px !important;
+  font-size: 13px !important;
+  display: inline-block !important;
 }
 #adminOrdersModal .cancel-admin-actions [data-final-cancel]{
   background: linear-gradient(135deg, #c62828, #8e1520) !important;
@@ -11946,7 +11951,7 @@ body::before {
   pointer-events: none !important;
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261018d') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261018f') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   transform: scale(1.06) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
@@ -11954,7 +11959,7 @@ body::before {
 body.dark-mode::before {
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261018d') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261018f') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
 }
@@ -16193,6 +16198,9 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   var activeTab='open';
   function codeOf(o){return Number.isFinite(Number(o&&o.statusCode))?Number(o.statusCode):0;}
   function labelOf(o){
+    if(o&&(o.exchangeOrReturnClosed||o.exchangeResolved)){
+      return String(o.exchangeOutcomeLabel||o.statusLabel||o.status||'تم إنهاء الاستبدال/الإرجاع');
+    }
     var code=codeOf(o);
     try{if(window.ORDER_STATUSES&&window.ORDER_STATUSES[code])return String(window.ORDER_STATUSES[code].label||'');}catch(e){}
     return String(o&&o.status||'');
@@ -16200,7 +16208,9 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
   function groupOf(o){
     var code=codeOf(o), label=labelOf(o);
     if(code===4 || /رفض استلام وحظر/.test(label)) return 'rejected';
-    if(code===3 || /تم التوريد|تم التسليم|تم التوصيل|تم الاستلام|مكتمل/.test(label)) return 'delivered';
+    if(o&&(o.exchangeOrReturnClosed||o.exchangeResolved)) return 'delivered';
+    if(o&&(o.exchangeOrReturnClosed||o.exchangeResolved)) return 'delivered';
+    if(code===3 || /تم التوريد|تم التسليم|تم التوصيل|تم الاستلام|مكتمل|تم الاستبدال|تم الإرجاع/.test(label)) return 'delivered';
     return 'open';
   }
   function buildTabs(){
@@ -16802,6 +16812,9 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
     return 0;
   }
   function labelOf(o){
+    if(o&&(o.exchangeOrReturnClosed||o.exchangeResolved)){
+      return String(o.exchangeOutcomeLabel||o.statusLabel||o.status||'تم إنهاء الاستبدال/الإرجاع');
+    }
     try{if(window.ORDER_STATUSES&&window.ORDER_STATUSES[codeOf(o)])return String(window.ORDER_STATUSES[codeOf(o)].label||'');}catch(e){}
     return String(o&&(o.statusLabel||o.status)||'');
   }
@@ -18901,10 +18914,28 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
       }
       if (!rows.length) { listEl.innerHTML = '<div>لا توجد طلبات استبدال أو إرجاع بعد.</div>'; return; }
 
-      listEl.innerHTML = rows.map(function(r){
+            listEl.innerHTML = rows.map(function(r){
         var photos = Array.isArray(r.photos) ? r.photos : [];
         var imgs = photos.map(function(src){ return '<img src="'+esc(src)+'" alt="عيب" onclick="window.open(this.src,\'_blank\')">'; }).join('');
         var st = String(r.status||'pending');
+        var closed = !!(r.caseClosed || r.status==='replaced' || r.status==='refunded' || r.customerOutcome);
+        var closedLabel = r.caseClosedLabel || (r.customerOutcome==='replaced' || r.status==='replaced' ? 'تم الاستبدال' : (r.customerOutcome==='refunded' || r.status==='refunded' ? 'تم الإرجاع ورد القيمة' : 'تم إنهاء الموقف'));
+        if (closed) {
+          var detailId = 'exd_'+esc(r.__id);
+          return '<div class="msq-ex-admin-card msq-ex-closed" data-ex-closed="1">'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">'+
+              '<div style="font-weight:950;color:#5d4a00;font-size:14px">🆔 '+esc(r.orderId||'-')+'</div>'+
+              '<div style="font-weight:900;color:#1b5e20;font-size:13px">✅ '+esc(closedLabel)+'</div>'+
+            '</div>'+
+            '<button type="button" class="msq-ex-toggle-details" data-ex-detail="'+detailId+'" style="margin-top:10px;border:1px solid #e0c36a;background:#fffbeb;color:#7a5a00;border-radius:9px;padding:7px 12px;font-weight:900;cursor:pointer;font-size:12px">🧾 تفاصيل الطلب</button>'+
+            '<div id="'+detailId+'" style="display:none;margin-top:10px;padding:12px;border-radius:12px;background:#fff;border:1px solid #f0e0c0;font-size:12.5px;line-height:1.75;color:#5a4a30">'+
+              '<div><b>العميل:</b> '+esc(r.customerName||'-')+' | <b>موبايل:</b> '+esc(r.customerPhone||'-')+'</div>'+
+              '<div><b>السبب:</b> '+esc(r.reason||'-')+'</div>'+
+              '<div><b>الإفادة:</b> '+esc(r.customerOutcomeMessage||closedLabel)+'</div>'+
+              '<div style="margin-top:6px">'+imgs+'</div>'+
+            '</div>'+
+          '</div>';
+        }
         return '<div class="msq-ex-admin-card">'+
           '<div style="font-weight:900;color:#8a6a00">🚨 طلب استبدال — عيب مصنع</div>'+
           '<div style="margin-top:4px;font-size:12.5px;line-height:1.7">'+
@@ -18914,20 +18945,24 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
             '<b>الحالة:</b> '+esc(st)+
           '</div>'+
           '<div style="margin-top:6px">'+imgs+'</div>'+
-          (function(){
-            var closed = r.caseClosed || r.status==='replaced' || r.status==='refunded' || r.customerOutcome;
-            var closedLabel = r.caseClosedLabel || (r.customerOutcome==='replaced' || r.status==='replaced' ? 'تم الاستبدال — تم إنهاء موقف الطلب' : (r.customerOutcome==='refunded' || r.status==='refunded' ? 'تم الإرجاع ورد القيمة — تم إنهاء موقف الطلب' : ''));
-            if (closed) {
-              return '<div style="margin-top:10px;padding:12px;border-radius:12px;background:linear-gradient(135deg,#e8f5e9,#f1f8f2);border:1px solid #a5d6a7;color:#1b5e20;font-weight:900;font-size:13.5px;line-height:1.7">✅ '+esc(closedLabel||'تم إنهاء موقف الطلب')+'</div>';
-            }
-            return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px">'+
-              '<button type="button" data-ex-replaced="'+esc(r.__id)+'" style="padding:9px 12px;border:0;border-radius:9px;background:#287447;color:#fff;font-weight:900;cursor:pointer">✅ تم الاستبدال</button>'+
-              '<button type="button" data-ex-refund="'+esc(r.__id)+'" style="padding:9px 12px;border:0;border-radius:9px;background:#803d48;color:#fff;font-weight:900;cursor:pointer">💵 إرجاع ورد القيمة</button></div>';
-          })()+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px">'+
+            '<button type="button" data-ex-replaced="'+esc(r.__id)+'" style="padding:9px 12px;border:0;border-radius:9px;background:#287447;color:#fff;font-weight:900;cursor:pointer">✅ تم الاستبدال</button>'+
+            '<button type="button" data-ex-refund="'+esc(r.__id)+'" style="padding:9px 12px;border:0;border-radius:9px;background:#803d48;color:#fff;font-weight:900;cursor:pointer">💵 إرجاع ورد القيمة</button>'+
+          '</div>'+
         '</div>';
       }).join('');
 
-      async function saveExchangeOutcome(btn, outcome){
+      listEl.querySelectorAll('.msq-ex-toggle-details').forEach(function(btn){
+        btn.onclick = function(){
+          var el = document.getElementById(btn.getAttribute('data-ex-detail'));
+          if (!el) return;
+          var open = el.style.display !== 'none';
+          el.style.display = open ? 'none' : 'block';
+          btn.textContent = open ? '🧾 تفاصيل الطلب' : '🔼 إخفاء التفاصيل';
+        };
+      });
+
+async function saveExchangeOutcome(btn, outcome){
         var replaced = outcome === 'replaced';
         var statusLabel = replaced ? 'تم الاستبدال' : 'تم الإرجاع ورد القيمة';
         var message = replaced
@@ -18990,7 +19025,7 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
                 updatedAt: new Date().toISOString()
               }, { merge: true });
             } catch (trackErr) { console.warn('orderTracking outcome write failed', trackErr); }
-            // local caches
+            // local caches + localStorage so delivered channel reflects immediately
             try {
               [ (typeof adminOrdersCache!=='undefined'?adminOrdersCache:null), window.adminOrdersCache, window.ordersHistory ].forEach(function(arr){
                 if (!Array.isArray(arr)) return;
@@ -19000,7 +19035,23 @@ html body.msq-admin-on .msq-public-terms-trigger .msq-book-icon svg {
                 });
               });
             } catch (cacheErr) {}
+            try {
+              ['souqOrdersHistory','ordersHistory','adminOrdersCache'].forEach(function(k){
+                var raw = localStorage.getItem(k); if (!raw) return;
+                var arr = JSON.parse(raw);
+                if (!Array.isArray(arr)) return;
+                arr.forEach(function(o){
+                  if (String(o.orderId||'').trim().toUpperCase() === String(orderId).toUpperCase())
+                    Object.assign(o, orderPatch);
+                });
+                localStorage.setItem(k, JSON.stringify(arr));
+              });
+            } catch (lsErr) {}
             try { if (typeof window.filterAdminOrders === 'function') window.filterAdminOrders(); } catch(e){}
+            try {
+              var delList = document.getElementById('msqDeliveredList');
+              if (delList && typeof window.filterAdminOrders === 'function') window.filterAdminOrders();
+            } catch(e2){}
           }
           alert('✅ ' + statusLabel + ' — تم إنهاء موقف الطلب');
           loadExchangeRequests();
@@ -19429,6 +19480,7 @@ async function submit(){var m=document.getElementById('msqExceptionalCancelModal
 function injectButton(){
 var box=document.getElementById('trackingResultContainer');
 if(!box||box.style.display==='none')return;
+if(box.querySelector('.msq-afada-only')||box.getAttribute('data-msq-afada')==='1')return;
 if(!(box.innerHTML.includes('تم العثور على الطلب بنجاح')||box.innerHTML.includes('تم العثور على طلبك')||box.innerHTML.includes('تم العثور على الطلب')))return;
 var el=box.querySelector('.customer-track-current-status strong, .customer-track-current-status, .track-status-banner'),status=String(el&&el.textContent||'').replace(/\s+/g,' ').trim();
 var cancelAllowed=/تم الحجز|جاري الشحن/.test(status);
@@ -19483,6 +19535,8 @@ try{
     }catch(e2){}
   }
   if(msg||label){
+    if(box.querySelector('.msq-afada-only')&&box.getAttribute('data-msq-afada')==='1')return;
+    box.setAttribute('data-msq-afada','1');
     box.innerHTML =
       '<div class="msq-afada-only">' +
         '<div class="msq-afada-badge">✅ '+(label?esc(label):'إفادة الطلب')+'</div>' +
