@@ -5436,11 +5436,18 @@ html.msq-version-checking { background: #f4e5d8; }
         }
         var statusLabel = current && current.label ? current.label : (foundOrder.status || foundOrder.orderStatus || 'قيد المراجعة');
 
+        var canNormalCancel = (currentCode === 0);
+        var canExceptionalCancel = (currentCode === 1 || currentCode === 2);
+        var canExchange = (currentCode === 3);
+        var disAttr = function(on){ return on ? '' : ' disabled aria-disabled="true"'; };
+        var disClass = function(on){ return on ? '' : ' is-disabled'; };
+
         resultBox.innerHTML =
           '<div class="customer-track-success"><span>✓ تم العثور على طلبك</span>' + cloudBadge + '</div>' +
-          '<div class="customer-track-columns">' +
-            '<section class="customer-track-order-panel" aria-label="بيانات الطلب">' +
-              '<div class="customer-track-section-title">📋 بيانات الطلب</div>' +
+          '<div class="customer-track-stack">' +
+            /* ===== 1) بيانات الطلب + المراحل + الحالة ===== */
+            '<section class="customer-track-order-panel customer-track-section" aria-label="بيانات الطلب">' +
+              '<div class="customer-track-section-title">📋 بيانات الطلب ومراحله</div>' +
               '<div class="customer-track-data-grid">' +
                 '<div class="customer-track-data"><small>رقم الطلب</small><strong>' + escapeHtml(orderIdDisplay) + '</strong></div>' +
                 '<div class="customer-track-data"><small>اسم العميل</small><strong>' + escapeHtml(customerName) + '</strong></div>' +
@@ -5451,11 +5458,36 @@ html.msq-version-checking { background: #f4e5d8; }
               '<div class="customer-track-current-status" style="--status-color:' + (current.color || '#8b3f52') + '"><small>الحالة الحالية للطلب</small><strong>' + escapeHtml(statusLabel) + '</strong></div>' +
               '<div class="track-timeline-box customer-track-timeline"><div class="customer-track-section-title">📍 مراحل الطلب</div>' + timelineHtml + '</div>' +
             '</section>' +
-            '<section class="customer-track-products-panel" aria-label="المنتجات التي طلبها العميل">' +
+            /* ===== 2) المنتجات ===== */
+            '<section class="customer-track-products-panel customer-track-section" aria-label="المنتجات التي طلبها العميل">' +
               '<div class="customer-track-section-title">🛍️ المنتجات التي اخترتها <span>(' + items.length + ')</span></div>' +
               (items.length ? buildTrackItemsHtml(items) : '<div class="customer-track-empty-products">لا توجد تفاصيل المنتجات محفوظة مع هذا الطلب. قد يكون الطلب قديمًا أو أن تفاصيله لم تُحفظ في قاعدة البيانات.</div>') +
             '</section>' +
+            /* ===== 3) الأزرار الثلاثة ===== */
+            '<section class="customer-track-actions-panel customer-track-section" aria-label="إجراءات الطلب" data-track-status-code="' + currentCode + '">' +
+              '<div class="customer-track-section-title">⚙️ إجراءات الطلب</div>' +
+              '<div class="customer-track-actions-grid">' +
+                '<button type="button" class="ct-action-btn ct-cancel-normal' + disClass(canNormalCancel) + '" data-action="normal-cancel" data-order-id="' + escapeHtml(orderIdDisplay) + '"' + disAttr(canNormalCancel) + ' title="' + (canNormalCancel ? 'متاح في مرحلة تحت التنفيذ' : 'متاح فقط أثناء «تحت التنفيذ»') + '">' +
+                  '<span class="ct-action-icon">🔴</span><span class="ct-action-label">إلغاء طلب تحت التنفيذ</span>' +
+                  '<span class="ct-action-hint">' + (canNormalCancel ? 'متاح الآن' : 'مُعطّل — متاح فقط تحت التنفيذ') + '</span>' +
+                '</button>' +
+                '<button type="button" class="ct-action-btn ct-cancel-exceptional' + disClass(canExceptionalCancel) + '" data-action="exceptional-cancel" data-order-id="' + escapeHtml(orderIdDisplay) + '"' + disAttr(canExceptionalCancel) + ' title="' + (canExceptionalCancel ? 'متاح في تم الحجز وجاري الشحن' : 'متاح فقط في «تم الحجز» و«جاري الشحن»') + '">' +
+                  '<span class="ct-action-icon">🔐</span><span class="ct-action-label">إلغاء استثنائي</span>' +
+                  '<span class="ct-action-hint">' + (canExceptionalCancel ? 'متاح الآن' : 'مُعطّل — متاح في الحجز والشحن فقط') + '</span>' +
+                '</button>' +
+                '<button type="button" class="ct-action-btn ct-exchange' + disClass(canExchange) + '" data-action="exchange" data-order-id="' + escapeHtml(orderIdDisplay) + '"' + disAttr(canExchange) + ' title="' + (canExchange ? 'متاح بعد التوريد لعيب المصنع' : 'متاح فقط بعد «تم التوريد»') + '">' +
+                  '<span class="ct-action-icon">🔄</span><span class="ct-action-label">استبدال وإرجاع</span>' +
+                  '<span class="ct-action-hint">' + (canExchange ? 'متاح الآن — عيب مصنع فقط' : 'مُعطّل — متاح بعد التوريد فقط') + '</span>' +
+                '</button>' +
+              '</div>' +
+              '<div class="customer-track-actions-note">الأزرار الثلاثة ظاهرة دائمًا. الزر الفعّال حسب مرحلة طلبك فقط، والباقي يظهر مُعطّلًا.</div>' +
+              '<div id="msqTrackExchangeSlot" class="msq-track-exchange-slot"></div>' +
+            '</section>' +
           '</div>';
+
+        try {
+          if (typeof window.msqBindTrackActions === 'function') window.msqBindTrackActions(orderIdDisplay, currentCode, statusLabel);
+        } catch (bindErr) { console.warn('msqBindTrackActions', bindErr); }
 
       } else {
         resultBox.innerHTML =
@@ -8364,7 +8396,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 
 <style id="mysouq-customer-tracking-redesign-v1">
 /* Customer-only order tracking: read-only, separated from admin status controls. */
-#trackingModal .track-modal-content{width:min(1080px,96vw)!important;max-width:1080px!important;max-height:94vh!important;overflow-y:auto!important;padding:clamp(14px,2vw,24px)!important;border-radius:24px!important;background:linear-gradient(145deg,rgba(255,251,247,.97),rgba(246,235,228,.96))!important}
+#trackingModal .track-modal-content{width:min(1180px,98vw)!important;max-width:1180px!important;max-height:94vh!important;overflow-y:auto!important;padding:clamp(14px,2vw,24px)!important;border-radius:24px!important;background:linear-gradient(145deg,rgba(255,251,247,.97),rgba(246,235,228,.96))!important}
 #trackingModal .track-modal-title{margin:0 44px 8px 0!important;text-align:right!important;font-size:clamp(19px,2.2vw,26px)!important}
 #trackingModal .track-modal-hint{font-size:12px!important;line-height:1.8!important;margin:0 0 12px!important;color:#79666a!important}
 #trackingModal .track-search-row{display:flex!important;gap:8px!important;align-items:stretch!important;margin-bottom:14px!important}
@@ -8372,7 +8404,9 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 #trackingModal .track-search-btn{flex:0 0 auto!important;min-width:82px!important;border-radius:13px!important}
 #trackingResultContainer{padding:clamp(12px,2vw,22px)!important;border:1px solid rgba(255,255,255,.85)!important;border-radius:22px!important;background:rgba(255,255,255,.65)!important;box-shadow:0 12px 34px rgba(82,47,51,.08)!important}
 .customer-track-success{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:900;color:#237445;font-size:14px;margin-bottom:14px}
-.customer-track-columns{display:grid;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr);gap:16px;align-items:start}
+.customer-track-stack{display:flex;flex-direction:column;gap:16px;width:100%}
+.customer-track-section{width:100%;min-width:0}
+.customer-track-columns{display:flex;flex-direction:column;gap:16px;align-items:stretch}
 .customer-track-order-panel,.customer-track-products-panel{min-width:0;padding:16px;border:1px solid #eadbd7;border-radius:18px;background:rgba(255,253,250,.92);box-shadow:0 7px 20px rgba(91,54,58,.05)}
 .customer-track-section-title{display:flex;align-items:center;gap:7px;justify-content:space-between;flex-wrap:wrap;font-size:15px;font-weight:950;color:#087f83;margin-bottom:12px}
 .customer-track-section-title span{font-size:12px;color:#76666c}
@@ -8396,8 +8430,78 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 #trackingResultContainer .track-dims-title{font-size:11px;font-weight:950;color:#8b3f52;margin-bottom:6px}
 #trackingResultContainer .track-dim-chip{display:inline-flex;margin:2px;padding:5px 7px;border-radius:8px;background:#fff;border:1px solid #eadbd7;font-size:10.5px;line-height:1.5;color:#58494d}
 .customer-track-empty-products{padding:20px 14px;border:1px dashed #d9c6c2;border-radius:14px;text-align:center;color:#76666c;font-size:13px;line-height:1.9;background:#fffaf8}
-@media(max-width:760px){.customer-track-columns{grid-template-columns:1fr}.customer-track-order-panel,.customer-track-products-panel{padding:12px}.customer-track-data-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#trackingResultContainer .track-product-img{height:125px}}
+@media(max-width:760px){.customer-track-stack{gap:12px}.customer-track-order-panel,.customer-track-products-panel,.customer-track-actions-panel{padding:12px}.customer-track-data-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#trackingResultContainer .track-product-img{height:125px}}
 @media(max-width:430px){#trackingModal .track-search-row{gap:6px!important}#trackingModal .track-search-btn{min-width:72px!important;padding-inline:9px!important}.customer-track-data-grid{grid-template-columns:1fr}.customer-track-address{grid-column:auto}#trackingResultContainer .track-product-card{grid-template-columns:1fr}#trackingResultContainer .track-product-images{grid-template-columns:repeat(2,minmax(0,1fr))}#trackingResultContainer .track-product-img{height:180px}}
+
+/* ===== 3-section tracking actions ===== */
+.customer-track-actions-panel{
+  padding:16px;
+  border:1px solid #eadbd7;
+  border-radius:18px;
+  background:linear-gradient(160deg,#fffdf9 0%,#f8f0ea 100%);
+  box-shadow:0 7px 20px rgba(91,54,58,.05);
+}
+.customer-track-actions-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin-top:4px;
+}
+.ct-action-btn{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:92px;
+  padding:14px 10px;
+  border:0;
+  border-radius:14px;
+  color:#fff;
+  font-family:inherit;
+  font-weight:900;
+  cursor:pointer;
+  text-align:center;
+  transition:transform .15s,opacity .15s,box-shadow .15s;
+  box-shadow:0 8px 18px rgba(40,20,30,.12);
+}
+.ct-action-btn:not(.is-disabled):hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(40,20,30,.16)}
+.ct-action-btn.is-disabled,
+.ct-action-btn:disabled{
+  opacity:.42;
+  cursor:not-allowed;
+  filter:grayscale(.25);
+  box-shadow:none;
+  transform:none !important;
+}
+.ct-action-icon{font-size:22px;line-height:1}
+.ct-action-label{font-size:14px;line-height:1.45;font-weight:950}
+.ct-action-hint{font-size:11px;line-height:1.4;font-weight:700;opacity:.92}
+.ct-cancel-normal{background:linear-gradient(145deg,#c62828,#a92332)}
+.ct-cancel-exceptional{background:linear-gradient(145deg,#8b3f52,#6f3242)}
+.ct-exchange{background:linear-gradient(145deg,#b8860b,#a8790a)}
+.customer-track-actions-note{
+  margin-top:12px;
+  font-size:11.5px;
+  line-height:1.75;
+  color:#7a6a66;
+  text-align:center;
+}
+.msq-track-exchange-slot:empty{display:none}
+.msq-track-exchange-slot:not(:empty){margin-top:14px}
+#trackingResultContainer .msq-exceptional-cancel-panel,
+#trackingResultContainer .cancel-request-panel{display:none !important}
+@media(max-width:760px){
+  .customer-track-actions-grid{grid-template-columns:1fr;gap:10px}
+  .ct-action-btn{min-height:72px;padding:12px;flex-direction:row;justify-content:flex-start;gap:10px;text-align:right}
+  .ct-action-label{font-size:13.5px}
+  .ct-action-hint{font-size:10.5px}
+}
+@media(max-width:430px){
+  #trackingModal .track-modal-content{width:calc(100vw - 12px)!important;max-width:calc(100vw - 12px)!important;padding:12px!important}
+  .ct-action-btn{min-height:68px}
+}
+
 </style>
 
 
@@ -10031,6 +10135,100 @@ html body #adminOrdersBtn.show {
 </script>
 
 
+
+
+<script id="mysouq-track-actions-bind-v1">
+(function(){
+  if (window.__msqTrackActionsBound) return;
+  window.__msqTrackActionsBound = true;
+
+  function openExchangeForm(orderId){
+    var slot = document.getElementById('msqTrackExchangeSlot');
+    var box = document.getElementById('trackingResultContainer');
+    if (!box) return;
+    // Prefer existing exchange panel injectors
+    try {
+      if (typeof window.msqEnsureExchangePanel === 'function') window.msqEnsureExchangePanel();
+    } catch(e){}
+    var panel = box.querySelector('.msq-exchange-panel');
+    if (panel && slot && panel.parentElement !== slot) {
+      slot.appendChild(panel);
+    }
+    if (!panel && slot) {
+      // Build a compact exchange form matching the design
+      panel = document.createElement('section');
+      panel.className = 'msq-exchange-panel';
+      panel.innerHTML =
+        '<h4 style="margin:0 0 8px;color:#8a6a00;font-size:15px;font-weight:950">🔄 طلب الاستبدال والإرجاع (عيب مصنع)</h4>' +
+        '<p style="margin:0 0 10px;font-size:12px;line-height:1.75;color:#6a5a30">الاستبدال متاح فقط لعيب تصنيع. اشرح العيب وارفع صور واضحة للمنتج تُظهر العيب.</p>' +
+        '<textarea id="msqExReason" placeholder="اكتب وصف عيب المصنع بوضوح..." style="width:100%;min-height:70px;box-sizing:border-box;margin:0 0 8px;padding:10px;border:1px solid #e0c36a;border-radius:10px;font:inherit"></textarea>' +
+        '<input type="file" id="msqExPhotos" accept="image/*" multiple style="width:100%;margin:0 0 8px">' +
+        '<div class="msq-ex-previews" id="msqExPreviews" style="display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px"></div>' +
+        '<button type="button" class="msq-ex-send" id="msqExSendBtn" style="width:100%;min-height:46px;border:0;border-radius:12px;padding:11px;background:linear-gradient(135deg,#b8860b,#8a6a00);color:#fff;font-weight:900;cursor:pointer">إرسال طلب الاستبدال</button>' +
+        '<div id="msqExNote" style="font-size:11px;color:#7a6a40;margin-top:8px;line-height:1.6"></div>';
+      slot.appendChild(panel);
+      // Re-trigger feature pack hooks if present
+      try {
+        var ev = new Event('change');
+        // photos handled by existing listeners via MutationObserver in feature pack
+      } catch(e){}
+    }
+    if (panel) {
+      panel.style.display = 'block';
+      panel.scrollIntoView({behavior:'smooth', block:'center'});
+      var r = panel.querySelector('#msqExReason');
+      if (r) setTimeout(function(){ r.focus(); }, 200);
+    }
+  }
+
+  window.msqBindTrackActions = function(orderId, statusCode, statusLabel){
+    var box = document.getElementById('trackingResultContainer');
+    if (!box) return;
+    var id = String(orderId || '').trim().toUpperCase();
+    var code = Number(statusCode);
+    if (!Number.isFinite(code)) code = 0;
+    var label = String(statusLabel || '');
+
+    var normalBtn = box.querySelector('[data-action="normal-cancel"]');
+    var excBtn = box.querySelector('[data-action="exceptional-cancel"]');
+    var exBtn = box.querySelector('[data-action="exchange"]');
+
+    if (normalBtn) {
+      normalBtn.onclick = function(){
+        if (normalBtn.disabled) return;
+        if (typeof window.requestOrderCancellation === 'function') {
+          window.requestOrderCancellation(id);
+        } else {
+          alert('خدمة الإلغاء غير متاحة حاليًا');
+        }
+      };
+    }
+    if (excBtn) {
+      excBtn.onclick = function(){
+        if (excBtn.disabled) return;
+        // open exceptional cancel modal if available
+        try {
+          if (typeof window.msqOpenExceptionalCancel === 'function') {
+            window.msqOpenExceptionalCancel(id, label);
+            return;
+          }
+          if (typeof openModal === 'function') {
+            openModal(id, label);
+            return;
+          }
+        } catch(e){ console.warn(e); }
+        alert('تعذر فتح شاشة الإلغاء الاستثنائي. حدّث الصفحة وحاول مرة أخرى.');
+      };
+    }
+    if (exBtn) {
+      exBtn.onclick = function(){
+        if (exBtn.disabled) return;
+        openExchangeForm(id);
+      };
+    }
+  };
+})();
+</script>
 
 </body>
 </html>
@@ -18936,7 +19134,7 @@ m.querySelector('#ecReceipt').onchange=async function(){proofData='';var f=this.
 m.querySelector('#ecSubmit').onclick=submit;return m;
 }
 function updateModal(){var m=document.getElementById('msqExceptionalCancelModal');if(!m)return;m.querySelector('#ecSubmit').disabled=!(m.querySelector('#ecAgree').checked&&proofData&&activeOrder)}
-function openModal(id,status){var m=ensureModal();activeOrder={orderId:String(id).trim().toUpperCase(),orderStatus:String(status||'')};proofData='';m.querySelector('#ecAgree').checked=false;m.querySelector('#ecReceipt').value='';m.querySelector('#ecPreview').style.display='none';m.querySelector('#ecProof').classList.remove('show');m.querySelector('#ecSubmit').disabled=true;m.querySelector('#ecSubmit').textContent='متابعة طلب الإلغاء الاستثنائي';m.classList.add('open')}
+function openModal(id,status){var m=ensureModal();activeOrder={orderId:String(id).trim().toUpperCase(),orderStatus:String(status||'')};proofData='';m.querySelector('#ecAgree').checked=false;m.querySelector('#ecReceipt').value='';m.querySelector('#ecPreview').style.display='none';m.querySelector('#ecProof').classList.remove('show');m.querySelector('#ecSubmit').disabled=true;m.querySelector('#ecSubmit').textContent='متابعة طلب الإلغاء الاستثنائي';m.classList.add('open')};window.msqOpenExceptionalCancel=openModal;window.openExceptionalCancelModal=openModal;
 function trackedOrder(id){try{var o=window.__lastTrackedOrder;if(o&&String(o.orderId||'').toUpperCase()===id)return o;for(var k of ['ordersHistory','adminOrdersCache']){var a=window[k];if(Array.isArray(a)){var f=a.find(function(x){return String(x.orderId||'').trim().toUpperCase()===id});if(f)return f}}}catch(e){}return {}}
 async function submit(){var m=document.getElementById('msqExceptionalCancelModal');if(!activeOrder||!m.querySelector('#ecAgree').checked||!proofData){alert('يجب الموافقة ورفع صورة إثبات التحويل أولًا.');return}var d=dbref();if(!d){alert('خدمة الطلبات غير متاحة حاليًا.');return}var b=m.querySelector('#ecSubmit');b.disabled=true;b.textContent='جاري إرسال الطلب...';try{var id=activeOrder.orderId,dupe=await d.collection('exceptionalCancellationRequests').where('orderId','==',id).where('status','==','pending').limit(1).get();if(!dupe.empty){m.querySelector('#ecNote').textContent='يوجد طلب إلغاء استثنائي بالفعل بانتظار مراجعة الإدارة.';b.textContent='الطلب مسجل بالفعل';return}var o=trackedOrder(id),purpose='تحويل قيمة شحن مقابل إلغاء استثنائي',data={requestType:'exceptional-cancellation',orderId:id,customerName:String(o.name||o.customerName||''),customerPhone:String(o.phone||o.customerPhone||''),orderStatus:activeOrder.orderStatus,policyAccepted:true,policyText:'تحمّل قيمة الشحن فقط طبقًا للشروط والأحكام',transferNumber:TRANSFER_NUMBER,transferPurpose:purpose,transferProof:proofData,status:'pending',createdAt:window.firebase&&firebase.firestore&&firebase.firestore.FieldValue?firebase.firestore.FieldValue.serverTimestamp():new Date().toISOString(),createdAtIso:new Date().toISOString()};var ref=await d.collection('exceptionalCancellationRequests').add(data);await window.msqNotifyOrderIssue({type:'exceptional-cancellation',title:'طلب إلغاء استثنائي',orderId:id,customerName:data.customerName,customerPhone:data.customerPhone,orderStatus:data.orderStatus,transferNumber:TRANSFER_NUMBER,transferPurpose:purpose,policyAccepted:true,proofDataUrl:proofData,requestId:ref.id});m.querySelector('#ecNote').textContent='تم إرسال الطلب للإدارة، وهو بانتظار مراجعة إثبات التحويل. لم يتم إلغاء الطلب تلقائيًا.';b.textContent='تم إرسال الطلب ✓';var p=document.querySelector('#trackingResultContainer .msq-exceptional-cancel-panel');if(p){p.querySelector('button').disabled=true;p.querySelector('button').textContent='تم إرسال طلب الإلغاء الاستثنائي ✓';p.querySelector('.ec-inline-note').textContent='طلبك قيد مراجعة الإدارة.'}setTimeout(function(){m.classList.remove('open')},1600)}catch(e){console.error(e);b.disabled=false;b.textContent='متابعة طلب الإلغاء الاستثنائي';alert('تعذر الإرسال. تأكد من صلاحيات Firestore لمجموعة exceptionalCancellationRequests.')}}
 function injectButton(){
