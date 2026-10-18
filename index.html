@@ -18810,3 +18810,93 @@ button.brand-badge,
 }
 </style>
 
+
+
+<!-- My Souq: keep the brand and utility controls anchored during page swipes/scrolling.
+     CSS-only override: existing markup, event handlers, and features are preserved. -->
+<style id="mysouq-fixed-brand-and-utility-controls-v1">
+  html, body {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Brand logo */
+  html body .brand-badge {
+    position: fixed !important;
+    top: 10px !important;
+    right: 10px !important;
+    left: auto !important;
+    z-index: 1800 !important;
+    flex-shrink: 0 !important;
+    will-change: auto !important;
+  }
+
+  /* Cart + order tracking (and any existing top actions) */
+  html body .top-actions {
+    position: fixed !important;
+    top: 10px !important;
+    left: 10px !important;
+    right: auto !important;
+    z-index: 1790 !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    touch-action: pan-y !important;
+    overscroll-behavior: contain;
+  }
+
+  /* Terms & conditions floating control */
+  html body .msq-public-terms-trigger {
+    position: fixed !important;
+    top: 78px !important;
+    right: 10px !important;
+    left: auto !important;
+    z-index: 1780 !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    max-width: min(220px, calc(100vw - 20px)) !important;
+    touch-action: manipulation !important;
+  }
+
+  /* Do not let hover styling shift the fixed controls on desktop. */
+  html body .brand-badge:hover,
+  html body .top-actions > *:hover,
+  html body .msq-public-terms-trigger:hover {
+    translate: none;
+  }
+
+  @media (min-width: 768px) {
+    html body .brand-badge {
+      top: 25px !important;
+      right: 25px !important;
+    }
+    html body .top-actions {
+      top: 25px !important;
+      left: 20px !important;
+    }
+    html body .msq-public-terms-trigger {
+      top: 26px !important;
+      right: 130px !important;
+      left: auto !important;
+      max-width: 220px !important;
+    }
+  }
+
+  @media (max-width: 390px) {
+    html body .brand-badge {
+      top: 8px !important;
+      right: 8px !important;
+      width: 48px !important;
+      height: 48px !important;
+    }
+    html body .top-actions {
+      top: 8px !important;
+      left: 7px !important;
+      right: 62px !important;
+      max-width: none !important;
+    }
+    html body .msq-public-terms-trigger {
+      top: 62px !important;
+      right: 8px !important;
+      max-width: calc(100vw - 16px) !important;
+    }
+  }
+</style>
