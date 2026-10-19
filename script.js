@@ -290,8 +290,8 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   async function fetchProductMarkdown(fileName) {
     const encoded = fileName.split('/').map(encodeURIComponent).join('/');
     const urls = [
-      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261017e')}&_=${Date.now()}`,
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261017e')}&_=${Date.now()}`
+      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261019a')}&_=${Date.now()}`,
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261019a')}&_=${Date.now()}`
     ];
     for (let i = 0; i < urls.length; i++) {
       try {
@@ -3809,7 +3809,7 @@ ${itemsText || '-'}
     // تحديث Service Worker الحالي مع منع المتصفح من استخدام نسخة مخزنة من ملفه.
     // يظل دعم PWA موجوداً، لكن ملف العامل يُعاد فحصه مع كل إصدار جديد.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=20261017e', { updateViaCache: 'none' })
+      navigator.serviceWorker.register('./sw.js?v=20261019a', { updateViaCache: 'none' })
         .then(function(registration) {
           if (registration && typeof registration.update === 'function') {
             return registration.update().catch(function() {});
