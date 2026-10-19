@@ -347,3 +347,8 @@ header.mysouq-banner-carousel.lux-hero-full,
   .lux-main-nav-v3 { grid-template-columns: 1fr !important; }
   .lux-tools-v3 { width: 100% !important; justify-content: space-between !important; flex-wrap: wrap !important; }
 }
+
+/* Remove trust + leftover category strip permanently */
+.lux-trust,
+.lux-cats,
+.lux-search-wrap { display: none !important; height: 0 !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: 0 !important; }

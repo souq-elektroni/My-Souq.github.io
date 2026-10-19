@@ -7,16 +7,16 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="20261019h">
+  <meta name="msq-build" content="20261019i">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=20261019h">
-  <link rel="icon" href="favicon.svg?v=20261019h" type="image/svg+xml">
-  <link rel="icon" href="favicon.svg?v=20261019h" sizes="any">
-  <link rel="apple-touch-icon" href="favicon.svg?v=20261019h">
-  <link rel="shortcut icon" href="favicon.svg?v=20261019h">
+  <link rel="manifest" href="manifest.json?v=20261019i">
+  <link rel="icon" href="favicon.svg?v=20261019i" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=20261019i" sizes="any">
+  <link rel="apple-touch-icon" href="favicon.svg?v=20261019i">
+  <link rel="shortcut icon" href="favicon.svg?v=20261019i">
   <title>My Souq</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
@@ -2164,7 +2164,7 @@
 
   </style>
 
-  <link rel="stylesheet" href="styles.css?v=20261019h">
+  <link rel="stylesheet" href="styles.css?v=20261019i">
 
 
 <style id="my-souq-wow-layer">
@@ -3900,10 +3900,10 @@ body{
 body::before{
  content:""!important;position:fixed!important;inset:-8px!important;z-index:-1!important;
  pointer-events:none!important;
- background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261019h') center center/cover no-repeat!important;
+ background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261019i') center center/cover no-repeat!important;
  filter:blur(2px) saturate(.9)!important;transform:scale(1.025)!important;
 }
-body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261019h') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
+body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261019i') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
 /* Floating app badge and independent action buttons */
 .brand-badge{top:16px!important;right:16px!important;width:58px!important;height:58px!important;border-radius:19px!important;transform:rotate(3deg)!important;background:linear-gradient(145deg,#087f83,#36aaa9)!important;box-shadow:0 12px 30px rgba(8,127,131,.25),inset 0 1px 0 rgba(255,255,255,.75)!important;border:1px solid rgba(255,255,255,.8)!important}
 .brand-badge::before{inset:5px!important;border-radius:14px!important}
@@ -4018,7 +4018,7 @@ html.msq-version-checking { background: #f4e5d8; }
 <script id="mysouq-cache-bust-v4">
 (function(){
   'use strict';
-  var BUILD = '20261019h';
+  var BUILD = '20261019i';
   window.__MSQ_BUILD__ = BUILD;
   var key = 'msq_cache_refresh_' + BUILD;
   var root = document.documentElement;
@@ -4124,15 +4124,25 @@ html.msq-version-checking { background: #f4e5d8; }
 </script>
 
   <meta name="theme-color" content="#3d281c">
-  <link rel="stylesheet" href="luxury-theme.css?v=20261019h">
+  <link rel="stylesheet" href="luxury-theme.css?v=20261019i">
+
+<style id="lux-remove-unwanted-v1">
+/* permanently hide trust strip + any leftover category pills / search bars */
+.lux-trust,
+.lux-cats,
+.lux-search-wrap,
+body > .lux-cats,
+.msq-features-bar,
+.features-ticker,
+.trust-ticker { display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: 0 !important; }
+</style>
+
 </head>
+
 
 <body>
 
-
-<!-- ===== Exact luxury header (design match) ===== -->
-
-<!-- ===== Luxury header v3 ===== -->
+<!-- ===== Luxury header clean ===== -->
 <div class="lux-utility-bar">
   <div class="side">
     <span class="linkish">🛡️ دفع آمن</span>
@@ -4156,9 +4166,7 @@ html.msq-version-checking { background: #f4e5d8; }
   <div class="lux-tools lux-tools-v3">
     <div class="lux-filters-wrap" id="luxFiltersWrap">
       <button type="button" class="lux-filters-btn" id="luxFiltersBtn" aria-expanded="false" aria-controls="luxFiltersPanel" onclick="window.__luxToggleFilters&&window.__luxToggleFilters()">
-        <span class="lux-filters-icon" aria-hidden="true">
-          <span></span><span></span><span></span>
-        </span>
+        <span class="lux-filters-icon" aria-hidden="true"><span></span><span></span><span></span></span>
         <span>جميع الفلاتر</span>
       </button>
       <div class="lux-filters-panel" id="luxFiltersPanel" hidden>
@@ -4189,39 +4197,6 @@ html.msq-version-checking { background: #f4e5d8; }
       </div>
     </div>
 
-    <button type="button" class="lux-tool-btn" title="المفضلة" onclick="alert('قريبًا: المفضلة')">
-      <span class="ico">♡</span><span>المفضلة</span>
-    </button>
-    <button type="button" class="lux-tool-btn" title="حسابي" onclick="handleAdminButton()">
-      <span class="ico">👤</span><span>حسابي</span>
-    </button>
-    <button type="button" class="lux-tool-btn" title="السلة" onclick="openCartModal()">
-      <span class="badge" id="luxCartCount">0</span>
-      <span class="ico">🛒</span><span>سلة المشتريات</span>
-    </button>
-  </div>
-</div>
-
-    <div class="lux-brand-text">
-      <strong>My Souq</strong>
-      <small>STYLE FOR EVERYONE</small>
-    </div>
-  </div>
-
-  <nav class="lux-cats" aria-label="الأقسام">
-    <button type="button" class="active" data-lux-cat="الكل" onclick="window.__luxCat && window.__luxCat('الكل', this)">🏠 الرئيسية</button>
-    <button type="button" data-lux-cat="Mr & Mrs" onclick="window.__luxCat && window.__luxCat('Mr & Mrs', this)">👔 الرجال</button>
-    <button type="button" data-lux-cat="Mr & Mrs" onclick="window.__luxCat && window.__luxCat('Mr & Mrs', this)">👗 النساء</button>
-    <button type="button" data-lux-cat="Kids" onclick="window.__luxCat && window.__luxCat('Kids', this)">🧒 الأطفال</button>
-    <button type="button" data-lux-cat="Baby" onclick="window.__luxCat && window.__luxCat('Baby', this)">🍼 حديثي الولادة</button>
-  </nav>
-
-  <div class="lux-tools">
-    <div class="lux-search-wrap">
-      <input type="search" id="luxSearchInput" placeholder="ابحث عن منتج، فئة أو علامة تجارية..." aria-label="بحث"
-        oninput="var s=document.getElementById('searchInput'); if(s){s.value=this.value; if(typeof handleSearchAndFilter==='function') handleSearchAndFilter();}">
-      <span class="ico">🔍</span>
-    </div>
     <button type="button" class="lux-tool-btn" title="المفضلة" onclick="alert('قريبًا: المفضلة')">
       <span class="ico">♡</span><span>المفضلة</span>
     </button>
@@ -4281,7 +4256,7 @@ html.msq-version-checking { background: #f4e5d8; }
   
   <header class="mysouq-banner-carousel lux-hero-full" id="mysouqBannerCarousel" aria-label="بنر ماي سوق">
     <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/hero-full.webp?v=20261019h')" role="img" aria-label="أناقتك تبدأ من هنا - My Souq"></div>
+      <div class="banner-slide active" style="background-image:url('assets/hero-full.webp?v=20261019i')" role="img" aria-label="أناقتك تبدأ من هنا - My Souq"></div>
     </div>
     <button type="button" class="lux-hero-hit" onclick="document.getElementById('products-container')&&document.getElementById('products-container').scrollIntoView({behavior:'smooth'})" aria-label="تسوق الآن"></button>
   </header>
@@ -4293,40 +4268,35 @@ html.msq-version-checking { background: #f4e5d8; }
   <section class="lux-cat-section" aria-label="تسوق حسب الفئة">
     <div class="head"><h3>تسوق حسب الفئة</h3><i></i></div>
     <div class="lux-cat-grid lux-cat-grid-5">
-      <button type="button" class="lux-cat-card" data-key="men" style="background-image:url('assets/cat-men.webp?v=20261019h')" onclick="window.__luxCat&&window.__luxCat('Mr & Mrs')">
+      <button type="button" class="lux-cat-card" data-key="men" style="background-image:url('assets/cat-men.webp?v=20261019i')" onclick="window.__luxCat&&window.__luxCat('Mr & Mrs')">
         <div class="body"><div><strong>الرجال</strong><small>أناقة في كل تفصيلة</small></div><span class="arrow">←</span></div>
       </button>
-      <button type="button" class="lux-cat-card" data-key="women" style="background-image:url('assets/cat-women.webp?v=20261019h')" onclick="window.__luxCat&&window.__luxCat('Mr & Mrs')">
+      <button type="button" class="lux-cat-card" data-key="women" style="background-image:url('assets/cat-women.webp?v=20261019i')" onclick="window.__luxCat&&window.__luxCat('Mr & Mrs')">
         <div class="body"><div><strong>النساء</strong><small>إطلالتك سر أناقتك</small></div><span class="arrow">←</span></div>
       </button>
-      <button type="button" class="lux-cat-card" data-key="kids" style="background-image:url('assets/cat-kids.webp?v=20261019h')" onclick="window.__luxCat&&window.__luxCat('Kids')">
+      <button type="button" class="lux-cat-card" data-key="kids" style="background-image:url('assets/cat-kids.webp?v=20261019i')" onclick="window.__luxCat&&window.__luxCat('Kids')">
         <div class="body"><div><strong>الأطفال</strong><small>أزياء مميزة لكل الأعمار</small></div><span class="arrow">←</span></div>
       </button>
-      <button type="button" class="lux-cat-card" data-key="baby" style="background-image:url('assets/cat-baby.webp?v=20261019h')" onclick="window.__luxCat&&window.__luxCat('Baby')">
+      <button type="button" class="lux-cat-card" data-key="baby" style="background-image:url('assets/cat-baby.webp?v=20261019i')" onclick="window.__luxCat&&window.__luxCat('Baby')">
         <div class="body"><div><strong>حديثي الولادة</strong><small>كل ما يحتاجه صغيرك</small></div><span class="arrow">←</span></div>
       </button>
-      <button type="button" class="lux-cat-card lux-cat-offers" data-key="offers" style="background-image:url('assets/cat-offers.webp?v=20261019h')" onclick="window.__luxCat&&window.__luxCat('عروض')">
+      <button type="button" class="lux-cat-card lux-cat-offers" data-key="offers" style="background-image:url('assets/cat-offers.webp?v=20261019i')" onclick="window.__luxCat&&window.__luxCat('عروض')">
         <div class="body"><div><strong>العروض</strong><small>خصومات وقطع مميزة</small></div><span class="arrow">←</span></div>
       </button>
     </div>
   </section>
-
-  <div class="lux-trust" aria-label="مزايا المتجر">
-    <div class="item"><div class="ico">🛡️</div><div><strong>دفع آمن</strong><span>جميع طرق الدفع متاحة</span></div></div>
-    <div class="item"><div class="ico">🚚</div><div><strong>شحن سريع</strong><span>لجميع المحافظات</span></div></div>
-    <div class="item"><div class="ico">🏅</div><div><strong>جودة مضمونة</strong><span>منتجات أصلية 100%</span></div></div>
-    <div class="item"><div class="ico">🎧</div><div><strong>خدمة عملاء مميزة</strong><span>نحن دائمًا في خدمتك</span></div></div>
+<div><strong>دفع آمن</strong><span>جميع طرق الدفع متاحة</span></div></div>
+<div><strong>شحن سريع</strong><span>لجميع المحافظات</span></div></div>
+<div><strong>جودة مضمونة</strong><span>منتجات أصلية 100%</span></div></div>
+<div><strong>خدمة عملاء مميزة</strong><span>نحن دائمًا في خدمتك</span></div></div>
+  </div>
+<div><strong>شحن سريع</strong><span>لجميع المحافظات</span></div></div>
+<div><strong>جودة مضمونة</strong><span>منتجات أصلية 100%</span></div></div>
+<div><strong>خدمة عملاء مميزة</strong><span>نحن دائمًا في خدمتك</span></div></div>
   </div>
 
-    <div class="item"><div class="ico">🚚</div><div><strong>شحن سريع</strong><span>لجميع المحافظات</span></div></div>
-    <div class="item"><div class="ico">🏅</div><div><strong>جودة مضمونة</strong><span>منتجات أصلية 100%</span></div></div>
-    <div class="item"><div class="ico">🎧</div><div><strong>خدمة عملاء مميزة</strong><span>نحن دائمًا في خدمتك</span></div></div>
-  </div>
 
-    <div><b>🚚</b><div>شحن سريع<span>لجميع المحافظات</span></div></div>
-    <div><b>🏅</b><div>جودة مضمونة<span>منتجات أصلية 100%</span></div></div>
-    <div><b>🎧</b><div>خدمة عملاء<span>نحن دائمًا في خدمتك</span></div></div>
-  </div>
+</div>
 
   <div class="controls-wrapper lux-controls-hidden" aria-hidden="true">
 
@@ -5194,7 +5164,7 @@ html.msq-version-checking { background: #f4e5d8; }
   })();
   </script>
 
-  <script src="script.js?v=20261019h"></script>
+  <script src="script.js?v=20261019i"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -7833,11 +7803,11 @@ body{
 body::before{
   content:""!important;position:fixed!important;inset:-5px!important;z-index:-1!important;
   pointer-events:none!important;
-  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261019h') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261019i') center center/cover no-repeat!important;
   filter:blur(1.5px) saturate(.94)!important;transform:scale(1.015)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261019h') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261019i') center center/cover no-repeat!important;
   filter:blur(2px) saturate(.8)!important;
 }
 /* Restore the full banner artwork as a visible layer behind the original live logo/text. */
@@ -7941,14 +7911,14 @@ header p{max-width:54%!important}
     pointer-events:none;
     background:
       linear-gradient(135deg, rgba(245,238,226,.22), rgba(248,242,233,.16)),
-      url("assets/store-room.webp?v=20261019h") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261019i") center center / cover no-repeat;
     filter: blur(1.35px) saturate(.92);
     transform: scale(1.015);
   }
   body.dark-mode::before {
     background:
       linear-gradient(135deg, rgba(13,22,24,.66), rgba(16,25,27,.58)),
-      url("assets/store-room.webp?v=20261019h") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261019i") center center / cover no-repeat;
     filter: blur(1.7px) saturate(.78);
   }
 
@@ -8086,7 +8056,7 @@ body::before{
   transform:scale(1.025)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261019h') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261019i') center center/cover no-repeat!important;
   filter:blur(3.5px) saturate(.82)!important;
 }
 /* Hero keeps the full supplied banner art visible. */
@@ -12513,7 +12483,7 @@ body::before {
   pointer-events: none !important;
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261019h') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261019i') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   transform: scale(1.06) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
@@ -12521,7 +12491,7 @@ body::before {
 body.dark-mode::before {
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261019h') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261019i') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
 }
