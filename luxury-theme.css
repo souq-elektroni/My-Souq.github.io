@@ -458,3 +458,42 @@ header.mysouq-banner-carousel.lux-hero-with-copy,
   .lux-hero-copy-fixed .lux-hero-brandline { justify-content: center !important; }
   .lux-hero-copy-fixed p { margin-left: auto !important; margin-right: auto !important; max-width: none !important; }
 }
+
+
+/* My Souq banner refresh — use the supplied finished banner artwork as-is */
+#mysouqBannerCarousel.lux-hero-with-copy {
+  height: auto !important;
+  min-height: 0 !important;
+  aspect-ratio: 2048 / 706 !important;
+  background: #1b1009 !important;
+}
+#mysouqBannerCarousel.lux-hero-with-copy .banner-slides,
+#mysouqBannerCarousel.lux-hero-with-copy .banner-slide {
+  width: 100% !important;
+  height: 100% !important;
+}
+#mysouqBannerCarousel.lux-hero-with-copy .banner-slide {
+  background-position: center center !important;
+  background-size: 100% 100% !important;
+}
+#mysouqBannerCarousel.lux-hero-with-copy::after,
+#mysouqBannerCarousel.lux-hero-with-copy .lux-hero-copy-fixed {
+  display: none !important;
+}
+/* Keep category photos visible consistently; offers uses the same image treatment. */
+.lux-cat-card {
+  background-repeat: no-repeat !important;
+  background-size: cover !important;
+  background-position: center center !important;
+}
+.lux-cat-card[data-key="men"] { background-image: url("assets/cat-men.webp?v=20261019k") !important; }
+.lux-cat-card[data-key="women"] { background-image: url("assets/cat-women.webp?v=20261019k") !important; }
+.lux-cat-card[data-key="kids"] { background-image: url("assets/cat-kids.webp?v=20261019k") !important; }
+.lux-cat-card[data-key="baby"] { background-image: url("assets/cat-baby.webp?v=20261019k") !important; }
+.lux-cat-card[data-key="offers"] { background-image: url("assets/cat-offers.webp?v=20261019k") !important; }
+@media (max-width: 600px) {
+  #mysouqBannerCarousel.lux-hero-with-copy {
+    aspect-ratio: 2048 / 706 !important;
+    min-height: 0 !important;
+  }
+}
