@@ -6686,6 +6686,7 @@ window.addToCartAndContinue = function () {
       }
 
       var current = false;
+      var currentData = null;
       var readSucceeded = false;
       var maintenancePaths = [
         [MAINT_COLLECTION, MAINT_DOC],
@@ -6697,6 +6698,7 @@ window.addToCartAndContinue = function () {
           readSucceeded = true;
           if (snap.exists) {
             var savedMaintenance = snap.data() || {};
+            currentData = savedMaintenance;
             current = savedMaintenance.enabled === true || savedMaintenance.maintenance === true;
             break;
           }
@@ -6710,7 +6712,11 @@ window.addToCartAndContinue = function () {
       var next = !current;
       var payload = {
         enabled: next,
-        message: next ? 'سيعود المتجر للعمل فور انتهاء الصيانة.' : '',
+        maintenance: next,
+        message: next ? 'المتجر تحت الصيانة مؤقتًا. نعمل على تحسين الخدمة وسنعود قريبًا 💛' : '',
+        // Clear the scheduled end time when maintenance is manually switched off,
+        // so an old schedule cannot make the site appear to turn maintenance back on.
+        until: next ? ((typeof currentData !== 'undefined' && currentData && currentData.until) || '') : '',
         updatedAt: new Date().toISOString()
       };
 
@@ -10746,6 +10752,60 @@ button.msq-return-status-btn,button.msq-reject-ban-btn{
   .customer-track-actions-stack{display:flex !important;flex-direction:column !important}
 }
 </style>
+
+
+<style id="mysouq-safe-modal-chat-and-scroll-fix">
+/* عناصر أعلى الصفحة تتحرك مع التمرير بدل الثبات فوق كل المحتوى */
+.brand-badge,
+.top-actions {
+  position: absolute !important;
+}
+.brand-badge { top: 10px !important; }
+.top-actions { top: 8px !important; }
+@media (min-width: 768px) {
+  .brand-badge { top: 25px !important; }
+  .top-actions { top: 25px !important; }
+}
+/* لا يظهر زر الشات فوق أي نافذة أو طبقة منبثقة */
+body.msq-modal-open #msqSupportLauncher {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+</style>
+<script id="mysouq-modal-chat-and-scroll-fix">
+(function(){
+  'use strict';
+  if (window.__msqModalChatScrollFix) return;
+  window.__msqModalChatScrollFix = true;
+
+  function syncModalState(){
+    var openModal = !!document.querySelector(
+      '.modal-overlay.active, .modal-overlay[style*="display: flex"], ' +
+      '[role="dialog"].is-open, #msqPublicTermsModal.is-open, ' +
+      '#msqSupportPanel:not([hidden])'
+    );
+    document.body.classList.toggle('msq-modal-open', openModal);
+  }
+  function start(){
+    syncModalState();
+    if (window.MutationObserver) {
+      var observer = new MutationObserver(syncModalState);
+      observer.observe(document.body, {
+        subtree:true,
+        attributes:true,
+        attributeFilter:['class','style','hidden','aria-hidden']
+      });
+    }
+    document.addEventListener('click', function(){ setTimeout(syncModalState, 0); }, true);
+    document.addEventListener('keydown', function(e){
+      if(e.key === 'Escape') setTimeout(syncModalState, 0);
+    });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
+</script>
 
 </body>
 </html>
@@ -19501,7 +19561,13 @@ async function saveExchangeOutcome(btn, outcome){
         var payload = { enabled:true, maintenance:true, message:msg, until: untilVal ? new Date(untilVal).toISOString() : '', updatedAt: new Date().toISOString() };
         await db.collection('siteSettings').doc('maintenance').set(payload, { merge:true });
         if (typeof window.readMaintenanceMode === 'function') await window.readMaintenanceMode();
-        alert('تم تشغيل الصيانة المجدولة ✅');
+        else {
+          var overlay = document.getElementById('maintenanceModeOverlay');
+          var messageBox = document.getElementById('maintenanceModeMessage');
+          if (messageBox) messageBox.textContent = msg;
+          if (overlay && !((typeof isAdminMode !== 'undefined') && isAdminMode)) overlay.style.display = 'flex';
+        }
+        alert('تم حفظ وتشغيل وضع الصيانة المجدولة بنجاح ✅\nتم تفعيل الوضع الآن، وسيظهر إشعار الصيانة للزوار.');
       } catch(e) { alert('تعذر الحفظ'); }
     });
   }
