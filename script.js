@@ -942,11 +942,16 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       document.getElementById('maintenanceToggleBtn');
 
     if (overlay) {
-      // Do not override the authoritative admin-aware controller when it exists.
-      if (document.getElementById('maintenanceModeOverlay')) {
-        overlay.style.display = enabled ? 'flex' : 'none';
-      } else {
-        overlay.style.display = enabled ? 'flex' : 'none';
+      // Keep the maintenance screen hidden for authenticated administrators.
+      // The Firebase controller in index.html remains authoritative when present.
+      var adminViewing = false;
+      try {
+        adminViewing = typeof isAdminMode !== 'undefined' && !!isAdminMode;
+      } catch (e) {}
+      var shouldShowOverlay = !!enabled && !adminViewing;
+      overlay.style.display = shouldShowOverlay ? 'flex' : 'none';
+      if (document.body) {
+        document.body.style.overflow = shouldShowOverlay ? 'hidden' : '';
       }
     }
 
