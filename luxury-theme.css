@@ -497,3 +497,31 @@ header.mysouq-banner-carousel.lux-hero-with-copy,
     min-height: 0 !important;
   }
 }
+
+
+/* Hero height correction: keep the banner prominent without taking over the page */
+#mysouqBannerCarousel.lux-hero-with-copy {
+  height: clamp(250px, 31vw, 430px) !important;
+  min-height: 0 !important;
+  aspect-ratio: auto !important;
+  overflow: hidden !important;
+}
+#mysouqBannerCarousel.lux-hero-with-copy .banner-slides,
+#mysouqBannerCarousel.lux-hero-with-copy .banner-slide {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+#mysouqBannerCarousel.lux-hero-with-copy .banner-slide {
+  background-size: cover !important;
+  background-position: center center !important;
+}
+@media (max-width: 768px) {
+  #mysouqBannerCarousel.lux-hero-with-copy {
+    height: clamp(190px, 48vw, 300px) !important;
+  }
+}
+@media (max-width: 480px) {
+  #mysouqBannerCarousel.lux-hero-with-copy {
+    height: clamp(170px, 52vw, 235px) !important;
+  }
+}
