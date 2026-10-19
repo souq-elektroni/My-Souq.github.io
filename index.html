@@ -7,16 +7,16 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="20261019e">
+  <meta name="msq-build" content="20261019g">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=20261019e">
-  <link rel="icon" href="favicon.svg?v=20261019e" type="image/svg+xml">
-  <link rel="icon" href="favicon.svg?v=20261019e" sizes="any">
-  <link rel="apple-touch-icon" href="favicon.svg?v=20261019e">
-  <link rel="shortcut icon" href="favicon.svg?v=20261019e">
+  <link rel="manifest" href="manifest.json?v=20261019g">
+  <link rel="icon" href="favicon.svg?v=20261019g" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=20261019g" sizes="any">
+  <link rel="apple-touch-icon" href="favicon.svg?v=20261019g">
+  <link rel="shortcut icon" href="favicon.svg?v=20261019g">
   <title>My Souq</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
@@ -2164,7 +2164,7 @@
 
   </style>
 
-  <link rel="stylesheet" href="styles.css?v=20261019e">
+  <link rel="stylesheet" href="styles.css?v=20261019g">
 
 
 <style id="my-souq-wow-layer">
@@ -3900,10 +3900,10 @@ body{
 body::before{
  content:""!important;position:fixed!important;inset:-8px!important;z-index:-1!important;
  pointer-events:none!important;
- background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261019e') center center/cover no-repeat!important;
+ background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261019g') center center/cover no-repeat!important;
  filter:blur(2px) saturate(.9)!important;transform:scale(1.025)!important;
 }
-body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261019e') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
+body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261019g') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
 /* Floating app badge and independent action buttons */
 .brand-badge{top:16px!important;right:16px!important;width:58px!important;height:58px!important;border-radius:19px!important;transform:rotate(3deg)!important;background:linear-gradient(145deg,#087f83,#36aaa9)!important;box-shadow:0 12px 30px rgba(8,127,131,.25),inset 0 1px 0 rgba(255,255,255,.75)!important;border:1px solid rgba(255,255,255,.8)!important}
 .brand-badge::before{inset:5px!important;border-radius:14px!important}
@@ -4018,7 +4018,7 @@ html.msq-version-checking { background: #f4e5d8; }
 <script id="mysouq-cache-bust-v4">
 (function(){
   'use strict';
-  var BUILD = '20261019e';
+  var BUILD = '20261019g';
   window.__MSQ_BUILD__ = BUILD;
   var key = 'msq_cache_refresh_' + BUILD;
   var root = document.documentElement;
@@ -4124,90 +4124,59 @@ html.msq-version-checking { background: #f4e5d8; }
 </script>
 
   <meta name="theme-color" content="#3d281c">
-  <link rel="stylesheet" href="luxury-theme.css?v=20261019e">
+  <link rel="stylesheet" href="luxury-theme.css?v=20261019g">
 </head>
 
 <body>
 
-<!-- ===== Luxury boutique chrome (functions preserved) ===== -->
-<div class="lux-utility-bar" aria-label="شريط المزايا">
-  <div class="lux-util-right">
-    <span>🛡️ دفع آمن</span>
-    <span>🚚 شحن سريع لجميع المحافظات</span>
-    <span>✨ جودة مضمونة</span>
+
+<!-- ===== Exact luxury header (design match) ===== -->
+<div class="lux-utility-bar">
+  <div class="side">
+    <span class="linkish">🛡️ دفع آمن</span>
+    <span class="linkish">🚚 شحن سريع لجميع المحافظات</span>
   </div>
-  <div class="lux-util-right">
-    <span role="button" tabindex="0" onclick="openTrackingModal()" style="cursor:pointer">📦 تتبع الطلبات</span>
-    <span role="button" tabindex="0" onclick="document.getElementById('msqPublicTermsTrigger')&&document.getElementById('msqPublicTermsTrigger').click()" style="cursor:pointer">❓ مساعدة / الشروط</span>
+  <div class="side">
+    <button type="button" onclick="openTrackingModal()">📦 تتبع الطلبات</button>
+    <button type="button" onclick="var t=document.getElementById('msqPublicTermsTrigger'); if(t) t.click();">❓ مساعدة</button>
   </div>
 </div>
 
 <div class="lux-main-nav">
-  <div class="lux-logo" id="luxLogoBtn" title="My Souq">
-    <div class="lux-logo-mark">🛒</div>
-    <div>
-      My Souq
-      <em>Style for Everyone</em>
+  <div class="lux-brand" id="luxLogoBtn" title="My Souq">
+    <div class="lux-brand-icon">🛒</div>
+    <div class="lux-brand-text">
+      <strong>My Souq</strong>
+      <small>STYLE FOR EVERYONE</small>
     </div>
   </div>
 
-  <nav class="lux-nav-cats" aria-label="أقسام سريعة">
-    <button type="button" class="active" onclick="filterCategory('الكل', this);document.querySelectorAll('.lux-nav-cats button').forEach(b=>b.classList.remove('active'));this.classList.add('active')">الرئيسية</button>
-    <button type="button" onclick="filterCategory('Mr & Mrs', this);document.querySelectorAll('.lux-nav-cats button').forEach(b=>b.classList.remove('active'));this.classList.add('active')">الرجال / النساء</button>
-    <button type="button" onclick="filterCategory('Kids', this);document.querySelectorAll('.lux-nav-cats button').forEach(b=>b.classList.remove('active'));this.classList.add('active')">الأطفال</button>
-    <button type="button" onclick="filterCategory('Baby', this);document.querySelectorAll('.lux-nav-cats button').forEach(b=>b.classList.remove('active'));this.classList.add('active')">حديثي الولادة</button>
-    <button type="button" onclick="filterCategory('عروض', this);document.querySelectorAll('.lux-nav-cats button').forEach(b=>b.classList.remove('active'));this.classList.add('active')">العروض</button>
+  <nav class="lux-cats" aria-label="الأقسام">
+    <button type="button" class="active" data-lux-cat="الكل" onclick="window.__luxCat && window.__luxCat('الكل', this)">🏠 الرئيسية</button>
+    <button type="button" data-lux-cat="Mr & Mrs" onclick="window.__luxCat && window.__luxCat('Mr & Mrs', this)">👔 الرجال</button>
+    <button type="button" data-lux-cat="Mr & Mrs" onclick="window.__luxCat && window.__luxCat('Mr & Mrs', this)">👗 النساء</button>
+    <button type="button" data-lux-cat="Kids" onclick="window.__luxCat && window.__luxCat('Kids', this)">🧒 الأطفال</button>
+    <button type="button" data-lux-cat="Baby" onclick="window.__luxCat && window.__luxCat('Baby', this)">🍼 حديثي الولادة</button>
   </nav>
 
-  <div class="lux-nav-actions">
-    <input class="lux-search" type="search" placeholder="ابحث عن منتج، فئة أو علامة..." oninput="var s=document.getElementById('searchInput'); if(s){s.value=this.value; handleSearchAndFilter();}" aria-label="بحث">
-    <button type="button" class="lux-icon-btn" onclick="openTrackingModal()">🔍 تتبع</button>
-    <button type="button" class="lux-icon-btn" onclick="openCartModal()">🛒 السلة <span id="luxCartCount">0</span></button>
-    <button type="button" class="lux-icon-btn" id="luxAdminBtn" onclick="handleAdminButton()">📋 الطلبات</button>
+  <div class="lux-tools">
+    <div class="lux-search-wrap">
+      <input type="search" id="luxSearchInput" placeholder="ابحث عن منتج، فئة أو علامة تجارية..." aria-label="بحث"
+        oninput="var s=document.getElementById('searchInput'); if(s){s.value=this.value; if(typeof handleSearchAndFilter==='function') handleSearchAndFilter();}">
+      <span class="ico">🔍</span>
+    </div>
+    <button type="button" class="lux-tool-btn" title="المفضلة" onclick="alert('قريبًا: المفضلة')">
+      <span class="ico">♡</span><span>المفضلة</span>
+    </button>
+    <button type="button" class="lux-tool-btn" title="حسابي" onclick="handleAdminButton()">
+      <span class="ico">👤</span><span>حسابي</span>
+    </button>
+    <button type="button" class="lux-tool-btn" title="السلة" onclick="openCartModal()">
+      <span class="badge" id="luxCartCount">0</span>
+      <span class="ico">🛒</span><span>سلة المشتريات</span>
+    </button>
   </div>
 </div>
-
-
-  <div id="toastNotification">✓ تم إضافة المنتج إلى السلة بنجاح</div>
-
-
-<style id="mysouq-logo-longpress-no-select">
-/* Prevent text selection on the My Souq badge without changing its long-press admin shortcut. */
-.brand-badge{
-  -webkit-user-select:none!important;
-  -moz-user-select:none!important;
-  -ms-user-select:none!important;
-  user-select:none!important;
-  -webkit-touch-callout:none!important;
-  -webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;
-}
-.brand-badge *{
-  -webkit-user-select:none!important;
-  -moz-user-select:none!important;
-  -ms-user-select:none!important;
-  user-select:none!important;
-  -webkit-touch-callout:none!important;
-}
-</style>
-
-  <div class="brand-badge">
-    <span>MY</span>
-    <span>SOUQ</span>
-  </div>
-
-  <div class="top-actions">
-    <!-- تم إزالة الوضع الليلي وسمات الألوان حسب طلب المستخدم -->
-    <div class="admin-orders-trigger" id="adminOrdersBtn" onclick="handleAdminButton()">
-      📋 الطلبات
-    </div>
-    <div class="track-trigger" onclick="openTrackingModal()">
-      🔍 تتبع طلبك
-    </div>
-    <div class="cart-trigger" onclick="openCartModal()">
-      🛒 السلة <span class="cart-count" id="cartCount">0</span>
-    </div>
-  </div>
 
   <!-- تم استبدال أيقونة واتساب العائمة بمساعد الدعم؛ أزرار واتساب الخاصة بالمنتجات والطلبات محفوظة. -->
   <a
@@ -4260,17 +4229,24 @@ html.msq-version-checking { background: #f4e5d8; }
     </div>
     <p style="display:none!important" aria-hidden="true"></p>
 
-    <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261019e')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261019e')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261019e')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261019e')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
+        <div class="banner-slides">
+      <div class="banner-slide active" style="background-image:url('assets/hero-wardrobe.webp?v=20261019g')" role="img" aria-label="خزانة أزياء فاخرة - My Souq"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261019g')" role="img" aria-label="أناقة رجالي"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-beauty.webp?v=20261019g')" role="img" aria-label="أناقة نسائي"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261019g')" role="img" aria-label="أزياء أطفال"></div>
     </div>
 
     
     <div class="lux-hero-copy">
-      <div class="lux-kicker">كل ما تحتاجه من ملابس .. في مكان واحد</div>
-      <h2>أناقتك تبدأ من هنا</h2>
+      <div class="lux-hero-brandline">
+        <div class="mark">🛒</div>
+        <div class="txt">
+          <strong>My Souq</strong>
+          <em>Style for Everyone</em>
+        </div>
+      </div>
+      <div class="kicker">— كل ما تحتاجه من ملابس .. في مكان واحد</div>
+      <h2>أناقتك تبدأ<br>من هنا</h2>
       <p>تشكيلة واسعة من الملابس للرجال والنساء والأطفال وحديثي الولادة بأفضل جودة وأسعار مناسبة</p>
       <button type="button" class="lux-hero-cta" onclick="document.getElementById('products-container')&&document.getElementById('products-container').scrollIntoView({behavior:'smooth'})">تسوق الآن ←</button>
     </div>
@@ -4284,26 +4260,32 @@ html.msq-version-checking { background: #f4e5d8; }
   </header>
 
   
+  
   <section class="lux-cat-section" aria-label="تسوق حسب الفئة">
-    <h3>تسوق حسب الفئة</h3>
+    <div class="head"><h3>تسوق حسب الفئة</h3><i></i></div>
     <div class="lux-cat-grid">
-      <button type="button" class="lux-cat-card" data-cat="Mr & Mrs" onclick="filterCategory('Mr & Mrs', document.querySelector('[data-main-category=\'Mr & Mrs\']'))">
-        <div class="lux-cat-body"><div><strong>الرجال / النساء</strong><small>أناقة في كل تفصيلة</small></div><span class="lux-arrow">←</span></div>
+      <button type="button" class="lux-cat-card" data-key="men" onclick="window.__luxCat && window.__luxCat('Mr & Mrs')">
+        <div class="body"><div><strong>الرجال</strong><small>أناقة في كل تفصيلة</small></div><span class="arrow">←</span></div>
       </button>
-      <button type="button" class="lux-cat-card" data-cat="Kids" onclick="filterCategory('Kids', document.querySelector('[data-main-category=\'Kids\']'))">
-        <div class="lux-cat-body"><div><strong>الأطفال</strong><small>أزياء مميزة لكل الأعمار</small></div><span class="lux-arrow">←</span></div>
+      <button type="button" class="lux-cat-card" data-key="women" onclick="window.__luxCat && window.__luxCat('Mr & Mrs')">
+        <div class="body"><div><strong>النساء</strong><small>إطلالتك سر أناقتك</small></div><span class="arrow">←</span></div>
       </button>
-      <button type="button" class="lux-cat-card" data-cat="Baby" onclick="filterCategory('Baby', document.querySelector('[data-main-category=\'Baby\']'))">
-        <div class="lux-cat-body"><div><strong>حديثي الولادة</strong><small>كل ما يحتاجه صغيرك</small></div><span class="lux-arrow">←</span></div>
+      <button type="button" class="lux-cat-card" data-key="kids" onclick="window.__luxCat && window.__luxCat('Kids')">
+        <div class="body"><div><strong>الأطفال</strong><small>أزياء مميزة لكل الأعمار</small></div><span class="arrow">←</span></div>
       </button>
-      <button type="button" class="lux-cat-card" data-cat="عروض" onclick="filterCategory('عروض', document.querySelector('[data-main-category=\'عروض\']'))">
-        <div class="lux-cat-body"><div><strong>العروض</strong><small>خصومات وقطع مميزة</small></div><span class="lux-arrow">←</span></div>
+      <button type="button" class="lux-cat-card" data-key="baby" onclick="window.__luxCat && window.__luxCat('Baby')">
+        <div class="body"><div><strong>حديثي الولادة</strong><small>كل ما يحتاجه صغيرك</small></div><span class="arrow">←</span></div>
       </button>
     </div>
   </section>
 
   <div class="lux-trust" aria-label="مزايا المتجر">
-    <div><b>🛡️</b><div>دفع آمن<span>جميع طرق الدفع المتاحة</span></div></div>
+    <div class="item"><div class="ico">🛡️</div><div><strong>دفع آمن</strong><span>جميع طرق الدفع متاحة</span></div></div>
+    <div class="item"><div class="ico">🚚</div><div><strong>شحن سريع</strong><span>لجميع المحافظات</span></div></div>
+    <div class="item"><div class="ico">🏅</div><div><strong>جودة مضمونة</strong><span>منتجات أصلية 100%</span></div></div>
+    <div class="item"><div class="ico">🎧</div><div><strong>خدمة عملاء مميزة</strong><span>نحن دائمًا في خدمتك</span></div></div>
+  </div>
+
     <div><b>🚚</b><div>شحن سريع<span>لجميع المحافظات</span></div></div>
     <div><b>🏅</b><div>جودة مضمونة<span>منتجات أصلية 100%</span></div></div>
     <div><b>🎧</b><div>خدمة عملاء<span>نحن دائمًا في خدمتك</span></div></div>
@@ -5175,7 +5157,7 @@ html.msq-version-checking { background: #f4e5d8; }
   })();
   </script>
 
-  <script src="script.js?v=20261019e"></script>
+  <script src="script.js?v=20261019g"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -7814,11 +7796,11 @@ body{
 body::before{
   content:""!important;position:fixed!important;inset:-5px!important;z-index:-1!important;
   pointer-events:none!important;
-  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261019e') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261019g') center center/cover no-repeat!important;
   filter:blur(1.5px) saturate(.94)!important;transform:scale(1.015)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261019e') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261019g') center center/cover no-repeat!important;
   filter:blur(2px) saturate(.8)!important;
 }
 /* Restore the full banner artwork as a visible layer behind the original live logo/text. */
@@ -7922,14 +7904,14 @@ header p{max-width:54%!important}
     pointer-events:none;
     background:
       linear-gradient(135deg, rgba(245,238,226,.22), rgba(248,242,233,.16)),
-      url("assets/store-room.webp?v=20261019e") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261019g") center center / cover no-repeat;
     filter: blur(1.35px) saturate(.92);
     transform: scale(1.015);
   }
   body.dark-mode::before {
     background:
       linear-gradient(135deg, rgba(13,22,24,.66), rgba(16,25,27,.58)),
-      url("assets/store-room.webp?v=20261019e") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261019g") center center / cover no-repeat;
     filter: blur(1.7px) saturate(.78);
   }
 
@@ -8067,7 +8049,7 @@ body::before{
   transform:scale(1.025)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261019e') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261019g') center center/cover no-repeat!important;
   filter:blur(3.5px) saturate(.82)!important;
 }
 /* Hero keeps the full supplied banner art visible. */
@@ -10906,26 +10888,38 @@ body.msq-modal-open #msqSupportLauncher {
 </script>
 
 
-<script id="lux-cart-sync">
+
+
+
+<script id="lux-helpers-v2">
 (function(){
-  function sync(){
+  window.__luxCat = function(cat, btn){
     try{
-      var a=document.getElementById('cartCount');
-      var b=document.getElementById('luxCartCount');
-      if(a&&b) b.textContent=a.textContent||'0';
-    }catch(e){}
+      document.querySelectorAll('.lux-cats button').forEach(function(b){ b.classList.remove('active'); });
+      if(btn) btn.classList.add('active');
+      else {
+        var m = document.querySelector('.lux-cats button[data-lux-cat="'+cat+'"]');
+        if(m) m.classList.add('active');
+      }
+      var el = document.querySelector('[data-main-category="'+cat+'"]');
+      if(typeof filterCategory === 'function') filterCategory(cat, el || btn);
+      var grid = document.getElementById('products-container');
+      if(grid) grid.scrollIntoView({behavior:'smooth', block:'start'});
+    }catch(e){ console.warn(e); }
+  };
+  function syncCart(){
+    var a=document.getElementById('cartCount');
+    var b=document.getElementById('luxCartCount');
+    if(a&&b) b.textContent = a.textContent || '0';
   }
-  setInterval(sync, 500);
-  // mirror long-press on logo to brand-badge if script listens there
+  setInterval(syncCart, 400);
+  // proxy logo events to hidden brand-badge (admin long-press)
   var logo=document.getElementById('luxLogoBtn');
   var badge=document.querySelector('.brand-badge');
   if(logo&&badge){
     ['pointerdown','pointerup','pointerleave','touchstart','touchend','mousedown','mouseup','mouseleave','contextmenu'].forEach(function(ev){
       logo.addEventListener(ev, function(e){
-        try{
-          var t=new e.constructor(e.type, e);
-          badge.dispatchEvent(t);
-        }catch(err){}
+        try{ badge.dispatchEvent(new e.constructor(e.type, e)); }catch(err){}
       }, true);
     });
   }
@@ -12458,7 +12452,7 @@ body::before {
   pointer-events: none !important;
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261019e') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261019g') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   transform: scale(1.06) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
@@ -12466,7 +12460,7 @@ body::before {
 body.dark-mode::before {
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261019e') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261019g') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
 }

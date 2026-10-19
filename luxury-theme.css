@@ -1,599 +1,198 @@
-/* =========================================================
-   My Souq — Luxury Boutique Theme (Brown / Gold / Cream)
-   Visual redesign only — all existing IDs/handlers preserved
-   ========================================================= */
-
+/* My Souq — Exact luxury boutique look */
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
 
 :root {
-  --lux-bg: #f6f0e8;
-  --lux-bg-2: #efe6da;
-  --lux-card: #fffdf9;
-  --lux-ink: #2a1f18;
-  --lux-muted: #7a6558;
-  --lux-brown: #5c3d2e;
-  --lux-brown-deep: #3d281c;
+  --lux-bg: #f4ebe0;
+  --lux-card: #fffcf7;
+  --lux-ink: #2c211a;
+  --lux-muted: #8a7363;
+  --lux-brown: #4a3428;
+  --lux-brown-2: #3a281e;
+  --lux-brown-3: #5c4030;
   --lux-gold: #c9a227;
-  --lux-gold-soft: #e8d5a3;
-  --lux-gold-line: rgba(201, 162, 39, 0.45);
-  --lux-border: rgba(92, 61, 46, 0.14);
-  --lux-shadow: 0 14px 40px rgba(45, 28, 18, 0.12);
-  --lux-radius: 18px;
-
-  /* Map old theme tokens → luxury palette (keeps JS/CSS vars working) */
+  --lux-gold-2: #e4c56a;
+  --lux-gold-soft: #f0e0b0;
+  --lux-line: rgba(90, 60, 40, 0.12);
   --bg-cream: var(--lux-bg) !important;
   --card-cream: var(--lux-card) !important;
   --burgundy-soft: var(--lux-brown) !important;
-  --burgundy-hover: var(--lux-brown-deep) !important;
-  --pink-soft: #f3ebe1 !important;
+  --burgundy-hover: var(--lux-brown-2) !important;
+  --pink-soft: #f3e9dc !important;
   --pink-accent: var(--lux-gold-soft) !important;
   --text-dark: var(--lux-ink) !important;
   --text-muted: var(--lux-muted) !important;
-  --border-color: var(--lux-border) !important;
-  --bg-gradient: linear-gradient(180deg, #f8f2ea 0%, #f3ebe1 45%, #efe6da 100%) !important;
+  --border-color: var(--lux-line) !important;
+  --bg-gradient: var(--lux-bg) !important;
   --msq-primary: var(--lux-brown) !important;
-  --msq-primary-2: #8a6248 !important;
+  --msq-primary-2: var(--lux-brown-3) !important;
   --msq-rose: var(--lux-gold-soft) !important;
   --msq-cream: var(--lux-card) !important;
   --msq-ink: var(--lux-ink) !important;
   --msq-muted: var(--lux-muted) !important;
-  --msq-line: var(--lux-border) !important;
+  --msq-line: var(--lux-line) !important;
+}
+*{font-family:'Cairo',system-ui,sans-serif!important}
+html,body{background:var(--lux-bg)!important;color:var(--lux-ink)!important;margin:0!important;padding:0!important}
+body{padding-bottom:40px!important}
+body::before{display:none!important}
+
+body>.brand-badge,body>.top-actions,body>.msq-public-terms-trigger{
+  position:fixed!important;opacity:0!important;pointer-events:none!important;
+  width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;z-index:-1!important
 }
 
-html, body {
-  background: var(--lux-bg) !important;
-  color: var(--lux-ink) !important;
-  font-family: 'Cairo', system-ui, sans-serif !important;
+.lux-utility-bar{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;padding:9px 28px!important;background:#2f2119!important;color:#f3e6c8!important;font-size:12px!important;font-weight:700!important;direction:rtl!important}
+.lux-utility-bar .side{display:flex!important;align-items:center!important;gap:18px!important;flex-wrap:wrap!important}
+.lux-utility-bar button,.lux-utility-bar .linkish{all:unset!important;cursor:pointer!important;display:inline-flex!important;align-items:center!important;gap:6px!important;color:#f3e6c8!important;font-size:12px!important;font-weight:700!important}
+.lux-utility-bar button:hover,.lux-utility-bar .linkish:hover{color:var(--lux-gold-2)!important}
+
+.lux-main-nav{display:grid!important;grid-template-columns:auto 1fr auto!important;align-items:center!important;gap:16px!important;padding:12px 22px!important;background:linear-gradient(180deg,#4a3428 0%,#3b291f 100%)!important;border-bottom:2px solid rgba(201,162,39,.35)!important;direction:rtl!important;position:relative!important;z-index:100!important}
+.lux-brand{display:flex!important;align-items:center!important;gap:10px!important;color:#f6e7b8!important;cursor:pointer!important;user-select:none!important;min-width:max-content!important}
+.lux-brand-icon{width:46px!important;height:46px!important;border-radius:50%!important;border:1.5px solid var(--lux-gold)!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:22px!important;background:rgba(255,255,255,.06)!important}
+.lux-brand-text{line-height:1.15!important}
+.lux-brand-text strong{display:block!important;font-size:20px!important;font-weight:900!important;letter-spacing:.03em!important;color:#f6e7b8!important}
+.lux-brand-text small{display:block!important;font-size:10px!important;color:var(--lux-gold-soft)!important;letter-spacing:.14em!important;font-weight:700!important}
+.lux-cats{display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;flex-wrap:wrap!important}
+.lux-cats button{border:0!important;background:transparent!important;color:#f0e2c4!important;font-weight:800!important;font-size:13.5px!important;padding:8px 12px!important;border-radius:10px!important;cursor:pointer!important;display:inline-flex!important;align-items:center!important;gap:5px!important;transition:.18s ease!important}
+.lux-cats button:hover,.lux-cats button.active{background:rgba(201,162,39,.18)!important;color:#fff8e4!important}
+.lux-cats button.active{box-shadow:inset 0 -2px 0 var(--lux-gold)!important}
+.lux-tools{display:flex!important;align-items:center!important;gap:8px!important;justify-content:flex-start!important}
+.lux-search-wrap{position:relative!important;min-width:min(260px,36vw)!important}
+.lux-search-wrap input{width:100%!important;box-sizing:border-box!important;border:1px solid rgba(232,213,163,.28)!important;background:rgba(255,255,255,.08)!important;color:#fff8e6!important;border-radius:999px!important;padding:10px 40px 10px 14px!important;font-size:13px!important;outline:none!important}
+.lux-search-wrap input::placeholder{color:rgba(245,230,200,.6)!important}
+.lux-search-wrap .ico{position:absolute!important;left:12px!important;top:50%!important;transform:translateY(-50%)!important;color:var(--lux-gold-soft)!important;pointer-events:none!important;font-size:14px!important}
+.lux-tool-btn{border:0!important;background:transparent!important;color:#f3e6c8!important;cursor:pointer!important;min-width:44px!important;min-height:44px!important;border-radius:12px!important;display:inline-flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:2px!important;font-size:11px!important;font-weight:800!important;padding:4px 6px!important;transition:.18s ease!important;position:relative!important}
+.lux-tool-btn:hover{background:rgba(201,162,39,.16)!important}
+.lux-tool-btn .ico{font-size:18px!important;line-height:1!important}
+.lux-tool-btn .badge{position:absolute!important;top:2px!important;left:4px!important;background:var(--lux-gold)!important;color:#2a1c14!important;border-radius:999px!important;min-width:16px!important;height:16px!important;font-size:10px!important;font-weight:900!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:0 4px!important}
+
+header.mysouq-banner-carousel,#mysouqBannerCarousel{width:min(1200px,calc(100% - 28px))!important;margin:18px auto 0!important;height:clamp(300px,38vw,440px)!important;min-height:300px!important;border-radius:22px!important;overflow:hidden!important;position:relative!important;border:1px solid rgba(201,162,39,.28)!important;box-shadow:0 18px 50px rgba(40,24,14,.18)!important;background:#2a1c14!important}
+.banner-slides{height:100%!important}
+.banner-slide{background-size:cover!important;background-position:center right!important}
+#mysouqBannerCarousel::after{content:""!important;position:absolute!important;inset:0!important;background:linear-gradient(90deg,rgba(35,22,14,.12) 0%,rgba(35,22,14,.45) 48%,rgba(35,22,14,.78) 100%)!important;z-index:1!important;pointer-events:none!important}
+.lux-hero-copy{position:absolute!important;z-index:2!important;top:50%!important;right:5%!important;transform:translateY(-50%)!important;width:min(460px,90%)!important;color:#fff8ea!important;text-align:right!important}
+.lux-hero-brandline{display:flex!important;align-items:center!important;gap:12px!important;margin-bottom:14px!important}
+.lux-hero-brandline .mark{width:58px!important;height:58px!important;border-radius:50%!important;border:1.5px solid var(--lux-gold)!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:26px!important;background:rgba(255,255,255,.06)!important}
+.lux-hero-brandline .txt strong{display:block!important;font-size:18px!important;color:var(--lux-gold-soft)!important;font-weight:900!important}
+.lux-hero-brandline .txt em{display:block!important;font-style:italic!important;font-size:12px!important;color:rgba(240,224,176,.85)!important;font-weight:600!important}
+.lux-hero-copy .kicker{color:var(--lux-gold-2)!important;font-size:13px!important;font-weight:800!important;margin-bottom:8px!important}
+.lux-hero-copy h2{margin:0 0 10px!important;font-size:clamp(28px,4.6vw,44px)!important;line-height:1.22!important;font-weight:900!important;color:#fff8ea!important;text-shadow:0 8px 30px rgba(0,0,0,.35)!important}
+.lux-hero-copy p{margin:0 0 18px!important;font-size:14px!important;line-height:1.75!important;color:rgba(255,248,234,.9)!important;max-width:380px!important}
+.lux-hero-cta{border:0!important;border-radius:999px!important;padding:12px 26px!important;background:linear-gradient(135deg,#e4c56a,#c9a227)!important;color:#2a1c14!important;font-weight:900!important;font-size:15px!important;cursor:pointer!important;box-shadow:0 12px 28px rgba(201,162,39,.35)!important;display:inline-flex!important;align-items:center!important;gap:8px!important}
+.banner-dots{z-index:3!important;bottom:16px!important}
+
+.lux-cat-section{width:min(1200px,calc(100% - 28px))!important;margin:28px auto 10px!important}
+.lux-cat-section .head{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:10px!important;margin-bottom:14px!important}
+.lux-cat-section .head h3{margin:0!important;font-size:22px!important;font-weight:900!important;color:var(--lux-brown-2)!important}
+.lux-cat-section .head i{width:34px!important;height:2px!important;background:linear-gradient(90deg,var(--lux-gold),transparent)!important;border-radius:99px!important;display:inline-block!important}
+.lux-cat-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:14px!important}
+.lux-cat-card{position:relative!important;border:0!important;padding:0!important;min-height:180px!important;border-radius:18px!important;overflow:hidden!important;cursor:pointer!important;background-size:cover!important;background-position:center!important;box-shadow:0 12px 30px rgba(40,24,14,.12)!important;transition:transform .2s ease,box-shadow .2s ease!important;text-align:right!important;color:#fff!important}
+.lux-cat-card:hover{transform:translateY(-5px)!important;box-shadow:0 18px 40px rgba(40,24,14,.2)!important}
+.lux-cat-card::after{content:""!important;position:absolute!important;inset:0!important;background:linear-gradient(180deg,transparent 30%,rgba(25,14,8,.82) 100%)!important}
+.lux-cat-card .body{position:absolute!important;z-index:1!important;right:14px!important;left:14px!important;bottom:14px!important;display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:8px!important}
+.lux-cat-card strong{display:block!important;font-size:17px!important;font-weight:900!important}
+.lux-cat-card small{display:block!important;margin-top:3px!important;font-size:11.5px!important;opacity:.9!important;font-weight:700!important}
+.lux-cat-card .arrow{width:34px!important;height:34px!important;border-radius:50%!important;border:1px solid rgba(240,224,176,.45)!important;background:rgba(255,255,255,.12)!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:14px!important;flex-shrink:0!important}
+.lux-cat-card[data-key="men"]{background-image:url('assets/banner-men.webp')!important}
+.lux-cat-card[data-key="women"]{background-image:url('assets/banner-beauty.webp')!important}
+.lux-cat-card[data-key="kids"]{background-image:url('assets/banner-kids.webp')!important}
+.lux-cat-card[data-key="baby"]{background-image:url('assets/banner-baby.webp')!important}
+
+.lux-trust{width:min(1200px,calc(100% - 28px))!important;margin:18px auto 8px!important;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:0!important;background:rgba(255,252,247,.92)!important;border:1px solid var(--lux-line)!important;border-radius:16px!important;overflow:hidden!important;box-shadow:0 8px 24px rgba(40,24,14,.05)!important}
+.lux-trust .item{display:flex!important;align-items:center!important;gap:12px!important;padding:16px 14px!important;border-left:1px solid var(--lux-line)!important;color:var(--lux-brown-2)!important}
+.lux-trust .item:last-child{border-left:0!important}
+.lux-trust .item .ico{width:40px!important;height:40px!important;border-radius:50%!important;background:linear-gradient(135deg,#f3e6c8,#e8d5a3)!important;display:flex!important;align-items:center!important;justify-content:center!important;font-size:18px!important;flex-shrink:0!important}
+.lux-trust .item strong{display:block!important;font-size:13px!important;font-weight:900!important}
+.lux-trust .item span{display:block!important;font-size:11px!important;color:var(--lux-muted)!important;font-weight:700!important;margin-top:2px!important}
+
+.controls-wrapper{width:min(1200px,calc(100% - 28px))!important;margin:14px auto!important;background:rgba(255,252,247,.95)!important;border:1px solid var(--lux-line)!important;border-radius:16px!important;padding:12px!important;box-shadow:0 8px 22px rgba(40,24,14,.05)!important}
+.msq-category-nav .cat-btn,.categories-bar .cat-btn{background:#fffaf3!important;border:1px solid var(--lux-line)!important;color:var(--lux-brown-2)!important;border-radius:999px!important;font-weight:800!important}
+.msq-category-nav .cat-btn.active,.categories-bar .cat-btn.active{background:linear-gradient(135deg,var(--lux-brown),var(--lux-brown-3))!important;color:#fff8e6!important;border-color:transparent!important}
+.search-input,#sizeSelect,#sortSelect,#sharedSubcategorySelect{border:1px solid var(--lux-line)!important;border-radius:12px!important;background:#fff!important}
+.gallery-mode-btn{background:var(--lux-brown)!important;color:#fff8e6!important;border-radius:12px!important}
+.products-grid,#products-container{width:min(1200px,calc(100% - 28px))!important;margin:12px auto 48px!important;gap:16px!important}
+.product-card{background:var(--lux-card)!important;border:1px solid var(--lux-line)!important;border-radius:18px!important;box-shadow:0 10px 26px rgba(40,24,14,.07)!important;overflow:hidden!important}
+.product-card:hover{transform:translateY(-4px)!important;box-shadow:0 16px 34px rgba(40,24,14,.12)!important}
+.price-tag,.product-title{color:var(--lux-brown-2)!important}
+.add-cart-btn{background:linear-gradient(135deg,var(--lux-brown),var(--lux-brown-3))!important;color:#fff8e6!important;border-radius:12px!important}
+.modal-content,.terms-modal,.cart-modal,.tracking-modal{border-radius:20px!important;background:var(--lux-card)!important;border:1px solid var(--lux-line)!important}
+.call-float,.qr-toggle-fab,.back-to-top,.msq-fab-toggle{background:var(--lux-brown)!important;border-color:var(--lux-gold-soft)!important;color:#fff8e6!important}
+
+@media (max-width:980px){
+  .lux-main-nav{grid-template-columns:1fr!important;gap:10px!important}
+  .lux-cats{justify-content:flex-start!important;overflow-x:auto!important;flex-wrap:nowrap!important;width:100%!important}
+  .lux-cats button{white-space:nowrap!important}
+  .lux-tools{width:100%!important;justify-content:space-between!important}
+  .lux-search-wrap{flex:1!important;min-width:0!important}
+  .lux-cat-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .lux-trust{grid-template-columns:1fr 1fr!important}
+  .lux-trust .item{border-left:0!important;border-bottom:1px solid var(--lux-line)!important}
+}
+@media (max-width:600px){
+  .lux-utility-bar{padding:8px 12px!important;font-size:11px!important}
+  .lux-main-nav{padding:10px 12px!important}
+  header.mysouq-banner-carousel,#mysouqBannerCarousel{height:250px!important;min-height:250px!important;width:calc(100% - 16px)!important;margin-top:12px!important;border-radius:16px!important}
+  .lux-hero-copy{right:4%!important;left:4%!important;width:auto!important}
+  .lux-hero-copy h2{font-size:24px!important}
+  .lux-cat-card{min-height:150px!important}
 }
 
-body::before {
-  display: none !important; /* hide old store-room full-page blur layer */
-}
-
-/* ---------- Luxury top utility strip ---------- */
-.lux-utility-bar {
-  position: relative !important;
-  z-index: 50;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px 16px;
-  padding: 8px 18px;
-  background: linear-gradient(90deg, #2b1c14 0%, #3d281c 50%, #2b1c14 100%);
-  color: #f5e6c8;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-.lux-utility-bar span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  opacity: 0.95;
-}
-.lux-utility-bar .lux-util-right {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px 18px;
-}
-
-/* ---------- Main nav bar ---------- */
-.lux-main-nav {
-  position: relative !important;
-  z-index: 40;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  background: linear-gradient(180deg, #4a3224 0%, #3a261c 100%);
-  border-bottom: 1px solid var(--lux-gold-line);
-  box-shadow: 0 8px 28px rgba(30, 18, 10, 0.25);
-}
-.lux-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  color: #f3e2b0;
-  text-decoration: none;
-  font-weight: 900;
-  font-size: 20px;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  user-select: none;
-}
-.lux-logo-mark {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  border: 1.5px solid var(--lux-gold);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.06);
-  font-size: 18px;
-}
-.lux-logo em {
-  font-style: normal;
-  color: var(--lux-gold-soft);
-  font-weight: 700;
-  font-size: 11px;
-  display: block;
-  letter-spacing: 0.12em;
-  margin-top: -2px;
-}
-.lux-nav-cats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  align-items: center;
-}
-.lux-nav-cats button {
-  border: 0;
-  background: transparent;
-  color: #f0e2c6;
-  font: inherit;
-  font-weight: 800;
-  font-size: 13px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-.lux-nav-cats button:hover,
-.lux-nav-cats button.active {
-  background: rgba(201, 162, 39, 0.22);
-  color: #fff8e6;
-}
-.lux-nav-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-}
-.lux-nav-actions .lux-search {
-  min-width: min(220px, 42vw);
-  border: 1px solid rgba(232, 213, 163, 0.35);
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff8e6;
-  border-radius: 999px;
-  padding: 9px 14px;
-  font: inherit;
-  font-size: 13px;
-  outline: none;
-}
-.lux-nav-actions .lux-search::placeholder {
-  color: rgba(245, 230, 200, 0.65);
-}
-.lux-icon-btn {
-  border: 1px solid rgba(232, 213, 163, 0.35);
-  background: rgba(255, 255, 255, 0.08);
-  color: #f5e6c8;
-  border-radius: 999px;
-  min-height: 40px;
-  padding: 8px 14px;
-  font: inherit;
-  font-weight: 800;
-  font-size: 12px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  transition: 0.2s ease;
-}
-.lux-icon-btn:hover {
-  background: rgba(201, 162, 39, 0.25);
-  border-color: var(--lux-gold);
-  transform: translateY(-1px);
-}
-
-/* Hide old floating top chrome — functions moved into lux nav */
-body > .brand-badge,
-body > .top-actions {
-  /* keep in DOM for long-press / scripts, but visually integrate */
-  position: absolute !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  width: 1px !important;
-  height: 1px !important;
-  overflow: hidden !important;
-  clip: rect(0 0 0 0) !important;
-}
-
-/* brand-badge kept accessible via lux-logo long-press proxy in HTML */
-
-/* ---------- Hero / banner ---------- */
+/* ===== Hero wardrobe polish (exact composition) ===== */
 header.mysouq-banner-carousel,
 #mysouqBannerCarousel {
-  position: relative !important;
-  margin: 14px auto 8px !important;
-  width: min(1180px, calc(100% - 20px)) !important;
-  min-height: 280px !important;
-  height: clamp(260px, 42vw, 420px) !important;
-  border-radius: 22px !important;
-  overflow: hidden !important;
-  border: 1px solid var(--lux-gold-line) !important;
-  box-shadow: var(--lux-shadow) !important;
-  background: #2a1c14 !important;
+  height: clamp(320px, 40vw, 460px) !important;
+  min-height: 320px !important;
 }
-.banner-slides {
-  height: 100% !important;
-}
-.banner-slide {
+#mysouqBannerCarousel .banner-slide.active,
+#mysouqBannerCarousel .banner-slide {
+  background-position: left center !important;
   background-size: cover !important;
-  background-position: center !important;
-  filter: saturate(1.05) contrast(1.02);
 }
 #mysouqBannerCarousel::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(30, 18, 12, 0.72) 0%, rgba(30, 18, 12, 0.35) 45%, rgba(30, 18, 12, 0.15) 100%);
-  pointer-events: none;
-  z-index: 1;
+  background: linear-gradient(
+    90deg,
+    rgba(28, 18, 12, 0.05) 0%,
+    rgba(28, 18, 12, 0.25) 42%,
+    rgba(28, 18, 12, 0.72) 72%,
+    rgba(28, 18, 12, 0.88) 100%
+  ) !important;
 }
 .lux-hero-copy {
-  position: absolute;
-  z-index: 2;
-  top: 50%;
-  right: 6%;
-  transform: translateY(-50%);
-  max-width: min(420px, 88%);
-  color: #fff8e8;
-  text-align: right;
-  pointer-events: none;
-}
-.lux-hero-copy .lux-kicker {
-  color: var(--lux-gold-soft);
-  font-weight: 800;
-  font-size: 13px;
-  margin-bottom: 8px;
+  right: 4% !important;
+  max-width: min(440px, 92%) !important;
 }
 .lux-hero-copy h2 {
-  font-size: clamp(26px, 4.5vw, 40px);
-  line-height: 1.25;
-  font-weight: 900;
-  margin: 0 0 10px;
-  text-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+  font-size: clamp(30px, 5vw, 48px) !important;
+  letter-spacing: -0.02em !important;
 }
-.lux-hero-copy p {
-  font-size: 14px;
-  line-height: 1.7;
-  opacity: 0.92;
-  margin: 0 0 16px;
-}
+.lux-hero-copy h2 br { display: block; }
 .lux-hero-cta {
-  pointer-events: auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 0;
-  border-radius: 999px;
-  padding: 11px 20px;
-  background: linear-gradient(135deg, #d4b44a, #c9a227);
-  color: #2a1c14;
-  font: inherit;
-  font-weight: 900;
-  font-size: 14px;
-  cursor: pointer;
-  box-shadow: 0 10px 24px rgba(201, 162, 39, 0.35);
+  font-size: 15px !important;
+  padding: 13px 28px !important;
 }
-.banner-dots {
-  z-index: 3 !important;
-  bottom: 14px !important;
-}
-
-/* ---------- Category showcase cards ---------- */
-.lux-cat-section {
-  width: min(1180px, calc(100% - 20px));
-  margin: 22px auto 8px;
-}
-.lux-cat-section h3 {
-  text-align: right;
-  font-size: 22px;
-  font-weight: 900;
-  color: var(--lux-brown-deep);
-  margin: 0 0 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.lux-cat-section h3::before {
-  content: "";
-  width: 36px;
-  height: 3px;
-  border-radius: 99px;
-  background: linear-gradient(90deg, var(--lux-gold), transparent);
-}
-.lux-cat-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-}
-.lux-cat-card {
-  position: relative;
-  border: 0;
-  padding: 0;
-  border-radius: 18px;
-  overflow: hidden;
-  cursor: pointer;
-  min-height: 160px;
-  background: #2a1c14 center/cover no-repeat;
-  box-shadow: 0 10px 28px rgba(45, 28, 18, 0.14);
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
-  text-align: right;
-  font: inherit;
-  color: #fff;
-}
-.lux-cat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 36px rgba(45, 28, 18, 0.22);
-}
-.lux-cat-card::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, transparent 35%, rgba(25, 14, 8, 0.82) 100%);
-}
-.lux-cat-card .lux-cat-body {
-  position: absolute;
-  z-index: 1;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 8px;
-}
-.lux-cat-card strong {
-  display: block;
-  font-size: 16px;
-  font-weight: 900;
-}
-.lux-cat-card small {
-  display: block;
-  opacity: 0.88;
-  font-size: 11px;
-  font-weight: 700;
-  margin-top: 2px;
-}
-.lux-cat-card .lux-arrow {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(255, 248, 230, 0.16);
-  border: 1px solid rgba(232, 213, 163, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 14px;
-}
-
-/* Backgrounds for category cards (reuse site banners) */
-.lux-cat-card[data-cat="Mr & Mrs"] {
-  background-image: linear-gradient(180deg, transparent, rgba(0,0,0,.2)), url('assets/banner-men.webp');
-  background-size: cover;
-  background-position: center;
-}
-.lux-cat-card[data-cat="Kids"] {
-  background-image: linear-gradient(180deg, transparent, rgba(0,0,0,.15)), url('assets/banner-kids.webp');
-  background-size: cover;
-  background-position: center;
-}
-.lux-cat-card[data-cat="Baby"] {
-  background-image: linear-gradient(180deg, transparent, rgba(0,0,0,.15)), url('assets/banner-baby.webp');
-  background-size: cover;
-  background-position: center;
-}
-.lux-cat-card[data-cat="عروض"] {
-  background-image: linear-gradient(180deg, transparent, rgba(0,0,0,.2)), url('assets/banner-beauty.webp');
-  background-size: cover;
-  background-position: center;
-}
-
-/* ---------- Trust strip ---------- */
-.lux-trust {
-  width: min(1180px, calc(100% - 20px));
-  margin: 18px auto 6px;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  padding: 12px;
-  border-radius: 16px;
-  background: rgba(255, 253, 249, 0.85);
-  border: 1px solid var(--lux-border);
-  box-shadow: 0 8px 24px rgba(45, 28, 18, 0.06);
-}
-.lux-trust div {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  color: var(--lux-brown-deep);
-  font-weight: 800;
-  font-size: 12.5px;
-}
-.lux-trust b {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #f3e6c8, #e8d5a3);
-  color: var(--lux-brown-deep);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 15px;
-}
-.lux-trust span {
-  display: block;
-  font-weight: 700;
-  font-size: 11px;
-  color: var(--lux-muted);
-  margin-top: 1px;
-}
-
-/* ---------- Controls / filters ---------- */
-.controls-wrapper {
-  width: min(1180px, calc(100% - 20px)) !important;
-  margin: 12px auto !important;
-  background: rgba(255, 253, 249, 0.92) !important;
-  border: 1px solid var(--lux-border) !important;
-  border-radius: 18px !important;
-  padding: 12px !important;
-  box-shadow: 0 10px 28px rgba(45, 28, 18, 0.06) !important;
-}
-.msq-category-nav .cat-btn,
-.categories-bar .cat-btn {
-  background: #fffaf3 !important;
-  border: 1px solid var(--lux-border) !important;
-  color: var(--lux-brown-deep) !important;
-  border-radius: 999px !important;
-  font-weight: 800 !important;
-}
-.msq-category-nav .cat-btn.active,
-.categories-bar .cat-btn.active {
-  background: linear-gradient(135deg, var(--lux-brown), #6d4633) !important;
-  color: #fff8e6 !important;
-  border-color: transparent !important;
-  box-shadow: 0 8px 18px rgba(92, 61, 46, 0.25) !important;
-}
-.search-input,
-#sizeSelect,
-#sortSelect,
-#sharedSubcategorySelect {
-  border: 1px solid var(--lux-border) !important;
-  border-radius: 12px !important;
-  background: #fff !important;
-  color: var(--lux-ink) !important;
-}
-.gallery-mode-btn {
-  background: var(--lux-brown) !important;
-  color: #fff8e6 !important;
-  border-radius: 12px !important;
-}
-
-/* ---------- Products grid / cards ---------- */
-.products-grid,
-#products-container {
-  width: min(1180px, calc(100% - 20px)) !important;
-  margin: 10px auto 40px !important;
-  gap: 16px !important;
-}
-.product-card {
-  background: var(--lux-card) !important;
-  border: 1px solid var(--lux-border) !important;
-  border-radius: 18px !important;
-  overflow: hidden !important;
-  box-shadow: 0 10px 28px rgba(45, 28, 18, 0.08) !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
-}
-.product-card:hover {
-  transform: translateY(-4px) !important;
-  box-shadow: 0 16px 36px rgba(45, 28, 18, 0.14) !important;
-}
-.price-tag,
-.product-title {
-  color: var(--lux-brown-deep) !important;
-}
-.add-cart-btn,
-.direct-wa-btn {
-  border-radius: 12px !important;
-}
-.add-cart-btn {
-  background: linear-gradient(135deg, var(--lux-brown), #7a5238) !important;
-  color: #fff8e6 !important;
-}
-
-/* ---------- Modals ---------- */
-.modal-content,
-.terms-modal,
-.cart-modal,
-.tracking-modal {
-  border-radius: 20px !important;
-  border: 1px solid var(--lux-border) !important;
-  background: var(--lux-card) !important;
-}
-.terms-header,
-.cart-title,
-.success-title,
-.track-modal-title {
-  color: var(--lux-brown-deep) !important;
-}
-
-/* Terms trigger restyle */
-.msq-public-terms-trigger {
-  position: relative !important;
-  top: auto !important;
-  right: auto !important;
-  left: auto !important;
-  max-width: none !important;
-  background: linear-gradient(135deg, #fff8e9, #ead7b8) !important;
-  border-color: #d8b98c !important;
-  color: #573a30 !important;
-}
-
-/* Floating FABs — gold/brown */
-.call-float,
-.qr-toggle-fab,
-.back-to-top,
-.msq-fab-toggle {
-  background: var(--lux-brown) !important;
-  border-color: var(--lux-gold-soft) !important;
-  color: #fff8e6 !important;
-}
-
-/* Mobile */
-@media (max-width: 900px) {
-  .lux-cat-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .lux-trust {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+@media (max-width: 700px) {
+  #mysouqBannerCarousel::after {
+    background: linear-gradient(
+      180deg,
+      rgba(28, 18, 12, 0.15) 0%,
+      rgba(28, 18, 12, 0.55) 45%,
+      rgba(28, 18, 12, 0.88) 100%
+    ) !important;
   }
   .lux-hero-copy {
-    right: 4%;
-    left: 4%;
-    max-width: none;
+    right: 0 !important;
+    left: 0 !important;
+    top: auto !important;
+    bottom: 18px !important;
+    transform: none !important;
+    width: auto !important;
+    max-width: none !important;
+    padding: 0 16px !important;
+    text-align: center !important;
   }
-  .lux-nav-cats {
-    order: 3;
-    width: 100%;
-    justify-content: flex-start;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    padding-bottom: 2px;
-  }
-  .lux-nav-cats button {
-    white-space: nowrap;
-  }
-}
-@media (max-width: 600px) {
-  .lux-utility-bar {
-    justify-content: center;
-    font-size: 11px;
-    padding: 7px 10px;
-  }
-  .lux-main-nav {
-    padding: 10px 12px;
-  }
-  .lux-logo {
-    font-size: 17px;
-  }
-  .lux-cat-card {
-    min-height: 140px;
-  }
-  .lux-trust {
-    grid-template-columns: 1fr 1fr;
-  }
-  header.mysouq-banner-carousel,
-  #mysouqBannerCarousel {
-    min-height: 220px !important;
-    height: 240px !important;
-    border-radius: 16px !important;
+  .lux-hero-brandline { justify-content: center !important; }
+  .lux-hero-copy p { max-width: none !important; margin-left: auto !important; margin-right: auto !important; }
+  #mysouqBannerCarousel .banner-slide {
+    background-position: center center !important;
   }
 }
