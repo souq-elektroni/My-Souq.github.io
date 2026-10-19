@@ -352,3 +352,109 @@ header.mysouq-banner-carousel.lux-hero-full,
 .lux-trust,
 .lux-cats,
 .lux-search-wrap { display: none !important; height: 0 !important; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: 0 !important; }
+
+/* ===== Sharp hero with corrected Arabic copy (4K wardrobe) ===== */
+header.mysouq-banner-carousel.lux-hero-with-copy,
+#mysouqBannerCarousel.lux-hero-with-copy {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  height: clamp(280px, 38vw, 520px) !important;
+  min-height: 280px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+#mysouqBannerCarousel.lux-hero-with-copy .banner-slide {
+  background-position: right center !important;
+  background-size: cover !important;
+}
+#mysouqBannerCarousel.lux-hero-with-copy::after {
+  display: block !important;
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  pointer-events: none !important;
+  background: linear-gradient(
+    90deg,
+    rgba(28, 16, 10, 0.88) 0%,
+    rgba(28, 16, 10, 0.72) 28%,
+    rgba(28, 16, 10, 0.28) 55%,
+    rgba(28, 16, 10, 0.08) 100%
+  ) !important;
+}
+.lux-hero-copy-fixed {
+  position: absolute !important;
+  z-index: 2 !important;
+  top: 50% !important;
+  right: 5% !important;
+  transform: translateY(-50%) !important;
+  width: min(520px, 92%) !important;
+  text-align: right !important;
+  color: #fff8ea !important;
+  pointer-events: none !important;
+}
+.lux-hero-copy-fixed .lux-hero-cta {
+  pointer-events: auto !important;
+}
+.lux-hero-copy-fixed .kicker {
+  color: #e4c56a !important;
+  font-size: clamp(12px, 1.5vw, 15px) !important;
+  font-weight: 800 !important;
+  margin-bottom: 10px !important;
+  letter-spacing: 0.02em !important;
+}
+.lux-hero-copy-fixed h2 {
+  margin: 0 0 12px !important;
+  font-size: clamp(28px, 4.8vw, 52px) !important;
+  line-height: 1.2 !important;
+  font-weight: 900 !important;
+  color: #fff8ea !important;
+  text-shadow: 0 6px 24px rgba(0,0,0,.35) !important;
+}
+.lux-hero-copy-fixed p {
+  margin: 0 0 18px !important;
+  font-size: clamp(13px, 1.5vw, 16px) !important;
+  line-height: 1.75 !important;
+  color: rgba(255,248,234,.92) !important;
+  max-width: 420px !important;
+  font-weight: 600 !important;
+}
+.lux-hero-copy-fixed .lux-hero-brandline {
+  margin-bottom: 14px !important;
+}
+.lux-hero-copy-fixed .lux-hero-brandline .mark {
+  border-color: #c9a227 !important;
+}
+.lux-hero-copy-fixed .lux-hero-brandline strong {
+  color: #f0e0b0 !important;
+}
+@media (max-width: 700px) {
+  #mysouqBannerCarousel.lux-hero-with-copy {
+    height: clamp(320px, 88vw, 420px) !important;
+  }
+  #mysouqBannerCarousel.lux-hero-with-copy .banner-slide {
+    background-position: center center !important;
+  }
+  #mysouqBannerCarousel.lux-hero-with-copy::after {
+    background: linear-gradient(
+      180deg,
+      rgba(28,16,10,.2) 0%,
+      rgba(28,16,10,.55) 40%,
+      rgba(28,16,10,.88) 100%
+    ) !important;
+  }
+  .lux-hero-copy-fixed {
+    right: 0 !important;
+    left: 0 !important;
+    top: auto !important;
+    bottom: 20px !important;
+    transform: none !important;
+    width: auto !important;
+    padding: 0 16px !important;
+    text-align: center !important;
+  }
+  .lux-hero-copy-fixed .lux-hero-brandline { justify-content: center !important; }
+  .lux-hero-copy-fixed p { margin-left: auto !important; margin-right: auto !important; max-width: none !important; }
+}
