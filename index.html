@@ -7,16 +7,16 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="20261019c">
+  <meta name="msq-build" content="20261019d">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=20261019c">
-  <link rel="icon" href="favicon.svg?v=20261019c" type="image/svg+xml">
-  <link rel="icon" href="favicon.svg?v=20261019c" sizes="any">
-  <link rel="apple-touch-icon" href="favicon.svg?v=20261019c">
-  <link rel="shortcut icon" href="favicon.svg?v=20261019c">
+  <link rel="manifest" href="manifest.json?v=20261019d">
+  <link rel="icon" href="favicon.svg?v=20261019d" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=20261019d" sizes="any">
+  <link rel="apple-touch-icon" href="favicon.svg?v=20261019d">
+  <link rel="shortcut icon" href="favicon.svg?v=20261019d">
   <title>My Souq</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
@@ -123,7 +123,7 @@
     }
 
     .top-actions {
-      position: fixed;
+      position: absolute;
       top: 8px;
       left: 8px;
       z-index: 900;
@@ -2164,7 +2164,7 @@
 
   </style>
 
-  <link rel="stylesheet" href="styles.css?v=20261019c">
+  <link rel="stylesheet" href="styles.css?v=20261019d">
 
 
 <style id="my-souq-wow-layer">
@@ -3900,14 +3900,14 @@ body{
 body::before{
  content:""!important;position:fixed!important;inset:-8px!important;z-index:-1!important;
  pointer-events:none!important;
- background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261019c') center center/cover no-repeat!important;
+ background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261019d') center center/cover no-repeat!important;
  filter:blur(2px) saturate(.9)!important;transform:scale(1.025)!important;
 }
-body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261019c') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
+body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261019d') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
 /* Floating app badge and independent action buttons */
 .brand-badge{top:16px!important;right:16px!important;width:58px!important;height:58px!important;border-radius:19px!important;transform:rotate(3deg)!important;background:linear-gradient(145deg,#087f83,#36aaa9)!important;box-shadow:0 12px 30px rgba(8,127,131,.25),inset 0 1px 0 rgba(255,255,255,.75)!important;border:1px solid rgba(255,255,255,.8)!important}
 .brand-badge::before{inset:5px!important;border-radius:14px!important}
-.top-actions{position:fixed!important;top:18px!important;left:88px!important;right:auto!important;width:auto!important;max-width:calc(100vw - 160px)!important;display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:9px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;z-index:960!important}
+.top-actions{position: absolute!important;top:18px!important;left:88px!important;right:auto!important;width:auto!important;max-width:calc(100vw - 160px)!important;display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:9px!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;z-index:960!important}
 .top-actions>*{min-height:40px!important}
 .theme-toggle,.theme-palette-btn,.admin-orders-trigger,.track-trigger,.cart-trigger{border:1px solid rgba(255,255,255,.88)!important;border-radius:999px!important;background:rgba(248,253,252,.67)!important;color:#155b60!important;box-shadow:0 8px 24px rgba(29,74,75,.15),inset 0 1px 0 rgba(255,255,255,.95)!important;backdrop-filter:blur(18px) saturate(1.35)!important;-webkit-backdrop-filter:blur(18px) saturate(1.35)!important;transition:transform .22s ease,box-shadow .22s ease!important}
 .admin-orders-trigger,.track-trigger,.cart-trigger{padding:10px 15px!important;font-weight:900!important}
@@ -4018,7 +4018,7 @@ html.msq-version-checking { background: #f4e5d8; }
 <script id="mysouq-cache-bust-v4">
 (function(){
   'use strict';
-  var BUILD = '20261019c';
+  var BUILD = '20261019d';
   window.__MSQ_BUILD__ = BUILD;
   var key = 'msq_cache_refresh_' + BUILD;
   var root = document.documentElement;
@@ -4220,10 +4220,10 @@ html.msq-version-checking { background: #f4e5d8; }
     <p style="display:none!important" aria-hidden="true"></p>
 
     <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261019c')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261019c')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261019c')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261019c')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
+      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261019d')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261019d')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261019d')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261019d')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
     </div>
 
     <div class="banner-dots" role="tablist" aria-label="اختيار البانر">
@@ -5100,7 +5100,7 @@ html.msq-version-checking { background: #f4e5d8; }
   })();
   </script>
 
-  <script src="script.js?v=20261019c"></script>
+  <script src="script.js?v=20261019d"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -7739,11 +7739,11 @@ body{
 body::before{
   content:""!important;position:fixed!important;inset:-5px!important;z-index:-1!important;
   pointer-events:none!important;
-  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261019c') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261019d') center center/cover no-repeat!important;
   filter:blur(1.5px) saturate(.94)!important;transform:scale(1.015)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261019c') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261019d') center center/cover no-repeat!important;
   filter:blur(2px) saturate(.8)!important;
 }
 /* Restore the full banner artwork as a visible layer behind the original live logo/text. */
@@ -7769,7 +7769,7 @@ header>*{position:relative!important;z-index:1!important}
 header p{max-width:54%!important}
 /* Individual floating glass buttons: no enclosing opaque bar. */
 .top-actions{
-  position:fixed!important;top:16px!important;left:78px!important;right:auto!important;
+  position: absolute!important;top:16px!important;left:78px!important;right:auto!important;
   width:auto!important;max-width:calc(100vw - 150px)!important;display:flex!important;
   flex-direction:row!important;flex-wrap:wrap!important;align-items:center!important;gap:9px!important;
   padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;
@@ -7847,14 +7847,14 @@ header p{max-width:54%!important}
     pointer-events:none;
     background:
       linear-gradient(135deg, rgba(245,238,226,.22), rgba(248,242,233,.16)),
-      url("assets/store-room.webp?v=20261019c") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261019d") center center / cover no-repeat;
     filter: blur(1.35px) saturate(.92);
     transform: scale(1.015);
   }
   body.dark-mode::before {
     background:
       linear-gradient(135deg, rgba(13,22,24,.66), rgba(16,25,27,.58)),
-      url("assets/store-room.webp?v=20261019c") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261019d") center center / cover no-repeat;
     filter: blur(1.7px) saturate(.78);
   }
 
@@ -7948,7 +7948,7 @@ header p{max-width:54%!important}
       background-size:100% 100% !important;
     }
     .top-actions {
-      position:fixed !important;
+      position: absolute !important;
       top:7px !important;
       left:8px !important;
       right:8px !important;
@@ -7992,7 +7992,7 @@ body::before{
   transform:scale(1.025)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261019c') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261019d') center center/cover no-repeat!important;
   filter:blur(3.5px) saturate(.82)!important;
 }
 /* Hero keeps the full supplied banner art visible. */
@@ -8952,7 +8952,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
   </div>
 
   <style id="msq-public-book-terms-style">
-    .msq-public-terms-trigger{position:fixed;top:12px;right:82px;left:auto;z-index:899;display:flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid #d8b98c;border-radius:14px;background:linear-gradient(135deg,#fffaf0,#ead7b8);color:#573a30;box-shadow:0 5px 18px #56372b2b;font-size:11px;font-weight:900;cursor:pointer;max-width:calc(100vw - 190px)}
+    .msq-public-terms-trigger{position: absolute;top:12px;right:82px;left:auto;z-index:899;display:flex;align-items:center;gap:7px;padding:7px 11px;border:1px solid #d8b98c;border-radius:14px;background:linear-gradient(135deg,#fffaf0,#ead7b8);color:#573a30;box-shadow:0 5px 18px #56372b2b;font-size:11px;font-weight:900;cursor:pointer;max-width:calc(100vw - 190px)}
     .msq-public-terms-trigger:hover{transform:translateY(-2px);box-shadow:0 8px 20px #56372b38}
     .msq-book-icon{display:flex;align-items:center;flex-shrink:0;color:#8b3f52}
     .msq-public-terms-trigger span:last-child{white-space:normal;text-align:center;line-height:1.35}
@@ -10087,7 +10087,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 <!-- My Souq: final correction for top action buttons; keep one row without clipping -->
 <style id="mysouq-top-actions-final-fix">
 html body .top-actions {
-  position: fixed !important;
+  position: absolute !important;
   top: 12px !important;
   left: 8px !important;
   right: auto !important;
@@ -12356,7 +12356,7 @@ body::before {
   pointer-events: none !important;
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261019c') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261019d') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   transform: scale(1.06) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
@@ -12364,7 +12364,7 @@ body::before {
 body.dark-mode::before {
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261019c') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261019d') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
 }
@@ -12540,7 +12540,7 @@ header .brand-underline {
 
 /* ---- Top toolbar: cleaner layout (desktop + mobile) ---- */
 .top-actions {
-  position: fixed !important;
+  position: absolute !important;
   top: 12px !important;
   left: 12px !important;
   right: auto !important;
@@ -18097,7 +18097,7 @@ html[dir="rtl"] #productModal .modal-gallery-wrapper {
 <style id="mysouq-terms-final-v4">
 /* زر واحد جنب اللوجو — شمال الأزرار (سلة/تتبع) بعيدة */
 html body .msq-public-terms-trigger {
-  position: fixed !important;
+  position: absolute !important;
   top: 14px !important;
   right: 78px !important;
   left: auto !important;
@@ -19737,7 +19737,7 @@ button.brand-badge,
 
 /* Top action icons also stay fixed (cart / track / etc.) */
 .top-actions {
-  position: fixed !important;
+  position: absolute !important;
   top: 12px !important;
   left: 12px !important;
   right: auto !important;
@@ -19747,7 +19747,7 @@ button.brand-badge,
 
 /* Terms book button if present near logo */
 .msq-public-terms-trigger {
-  position: fixed !important;
+  position: absolute !important;
   z-index: 975 !important;
 }
 
@@ -19798,7 +19798,7 @@ button.brand-badge,
 
   /* Brand logo */
   html body .brand-badge {
-    position: fixed !important;
+    position: absolute !important;
     top: 10px !important;
     right: 10px !important;
     left: auto !important;
@@ -19809,7 +19809,7 @@ button.brand-badge,
 
   /* Cart + order tracking (and any existing top actions) */
   html body .top-actions {
-    position: fixed !important;
+    position: absolute !important;
     top: 10px !important;
     left: 10px !important;
     right: auto !important;
@@ -19822,7 +19822,7 @@ button.brand-badge,
 
   /* Terms & conditions floating control */
   html body .msq-public-terms-trigger {
-    position: fixed !important;
+    position: absolute !important;
     top: 78px !important;
     right: 10px !important;
     left: auto !important;
@@ -19991,26 +19991,28 @@ window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loadi
 </script>
 
 <style id="mysouq-top-icons-scroll-with-page">
-/* الأيقونات الأربعة في الأعلى تتحرك مع التمرير (مش ثابتة على الشاشة) */
-.brand-badge,
-.top-actions,
-.msq-public-terms-trigger {
+/* Force top icons to scroll with the page (override every earlier fixed rule) */
+html body .brand-badge,
+html body div.brand-badge,
+html body .top-actions,
+html body div.top-actions,
+html body .msq-public-terms-trigger,
+html body button.msq-public-terms-trigger {
   position: absolute !important;
 }
 
-/* الحفاظ على أماكنها في أعلى الصفحة عند التحميل */
-.brand-badge {
+html body .brand-badge {
   top: 16px !important;
   right: 16px !important;
   z-index: 960 !important;
 }
-.top-actions {
+html body .top-actions {
   top: 18px !important;
   left: 88px !important;
   right: auto !important;
   z-index: 960 !important;
 }
-.msq-public-terms-trigger {
+html body .msq-public-terms-trigger {
   top: 12px !important;
   right: 82px !important;
   left: auto !important;
@@ -20018,16 +20020,16 @@ window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loadi
 }
 
 @media (max-width: 600px) {
-  .brand-badge {
+  html body .brand-badge {
     top: 10px !important;
     right: 10px !important;
   }
-  .top-actions {
+  html body .top-actions {
     top: 12px !important;
     left: 8px !important;
     right: 56px !important;
   }
-  .msq-public-terms-trigger {
+  html body .msq-public-terms-trigger {
     top: 8px !important;
     right: 64px !important;
   }
