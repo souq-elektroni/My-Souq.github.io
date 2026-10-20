@@ -1232,74 +1232,108 @@
 
 
 <style id="my-souq-paired-designs-style">
-/* تخطيط حقلي صور الشكل أفقياً داخل سجل الشكل فقط */
-.msq-design-pair-fields {
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
-  gap:12px !important;
-  align-items:start !important;
-  min-width:0 !important;
-  width:100% !important;
+/* Sveltia design image fields: two equal columns */
+.msq-design-pair-fields{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  column-gap:16px!important;
+  row-gap:10px!important;
+  align-items:start!important;
+  width:100%!important;
+  min-width:0!important;
 }
-.msq-design-pair-fields > * {min-width:0 !important;max-width:100% !important;box-sizing:border-box !important;}
-.msq-design-pair-fields > :not(.msq-design-front-field):not(.msq-design-back-field) {grid-column:1 / -1 !important;}
-.msq-design-front-field,.msq-design-back-field {min-width:0 !important;width:auto !important;}
+.msq-design-pair-fields>*{min-width:0!important;max-width:100%!important;box-sizing:border-box!important;}
+.msq-design-front-field,.msq-design-back-field{grid-column:auto!important;width:100%!important;min-width:0!important;}
 .msq-design-front-field [role="button"],.msq-design-back-field [role="button"],
-.msq-design-front-field img,.msq-design-back-field img {max-width:100% !important;}
-@media(max-width:520px){.msq-design-pair-fields{gap:7px !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}
+.msq-design-front-field button,.msq-design-back-field button,
+.msq-design-front-field img,.msq-design-back-field img{max-width:100%!important;box-sizing:border-box!important;}
+@media(max-width:520px){
+ .msq-design-pair-fields{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important}
+}
 </style>
 <script id="my-souq-paired-designs-layout">
 (function(){
   'use strict';
   var FRONT='صورة الوش', BACK='صورة الضهر';
-  function labelMatches(el, name){
-    if(!el || !el.children) return false;
-    var t=(el.textContent||'').replace(/\s+/g,' ').trim();
-    return t===name || t===name+':' || t===name+' *';
+  function norm(s){return String(s||'').replace(/\\s+/g,' ').replace(/[:*]/g,'').trim();}
+  function visible(el){var r=el.getBoundingClientRect();return r.width>0&&r.height>0;}
+  function findLabels(name){
+    var all=Array.from(document.querySelectorAll('label,[role="label"],span,p,div'));
+    return all.filter(function(el){
+      if(!visible(el))return false;
+      var t=norm(el.innerText||el.textContent);
+      if(t!==name)return false;
+      /* Prefer the smallest exact-text node, not a whole card/container. */
+      return !Array.from(el.children||[]).some(function(c){return norm(c.innerText||c.textContent)===name;});
+    });
   }
-  function getLabels(name){
-    return Array.from(document.querySelectorAll('label,[role="label"],span,p,div'))
-      .filter(function(el){return labelMatches(el,name) && el.getBoundingClientRect().width>0;});
+  function hasUpload(el){
+    return !!el.querySelector('input[type="file"],[role="button"],button,[data-testid*="upload"],img');
   }
-  function fieldWrapper(label, name){
-    var node=label;
-    for(var i=0; node && i<9; i++,node=node.parentElement){
-      var text=(node.innerText||node.textContent||'');
-      if(text.indexOf(name)!==-1 && (/سحب|تصفح|لصق صورة|upload|drop/i.test(text) || node.querySelector('input[type="file"],[role="button"],img'))){
-        return node;
+  function getField(label,name){
+    var n=label, chosen=null;
+    for(var i=0;n&&i<10;i++,n=n.parentElement){
+      if(!n.parentElement)break;
+      var text=norm(n.innerText||n.textContent);
+      if(text.indexOf(name)===-1)continue;
+      if(hasUpload(n)){
+        var labels=Array.from(n.querySelectorAll('label,[role="label"],span,p,div')).filter(function(x){
+          return visible(x)&&norm(x.innerText||x.textContent)===FRONT||visible(x)&&norm(x.innerText||x.textContent)===BACK;
+        });
+        /* A field wrapper should contain only this target label. */
+        var unique=new Set(labels.map(function(x){return norm(x.innerText||x.textContent)}));
+        if(unique.size<=1){chosen=n;break;}
       }
     }
-    return label.parentElement && label.parentElement.parentElement || label.parentElement;
+    return chosen||label.parentElement;
   }
-  function branch(parent,node){var n=node;while(n&&n.parentElement&&n.parentElement!==parent)n=n.parentElement;return n&&n.parentElement===parent?n:null;}
-  function commonParent(a,b){var set=new Set();for(var n=a;n;n=n.parentElement)set.add(n);for(var m=b;m;m=m.parentElement)if(set.has(m))return m;return null;}
-  function arrange(front,back){
-    var fw=fieldWrapper(front,FRONT), bw=fieldWrapper(back,BACK);
-    if(!fw||!bw||fw===bw)return;
-    var common=commonParent(fw,bw); if(!common)return;
-    var fb=branch(common,fw), bb=branch(common,bw); if(!fb||!bb||fb===bb)return;
-    /* لا نلمس ترتيب React أو ننقل عناصره؛ ننسّق الحاوية المشتركة فقط */
-    common.classList.add('msq-design-pair-fields');
-    fb.classList.add('msq-design-front-field');
-    bb.classList.add('msq-design-back-field');
+  function topBranch(parent,node){
+    var n=node;
+    while(n&&n.parentElement&&n.parentElement!==parent)n=n.parentElement;
+    return n&&n.parentElement===parent?n:null;
+  }
+  function ancestors(n){var a=[];for(;n;n=n.parentElement)a.push(n);return a;}
+  function commonFor(a,b){
+    var aa=ancestors(a);
+    for(var i=0;i<aa.length;i++){
+      var p=aa[i], x=topBranch(p,a), y=topBranch(p,b);
+      if(x&&y&&x!==y)return {parent:p,left:x,right:y};
+    }
+    return null;
+  }
+  function arrange(frontLabel,backLabel){
+    var front=getField(frontLabel,FRONT), back=getField(backLabel,BACK);
+    if(!front||!back||front===back)return;
+    var pair=commonFor(front,back);
+    if(!pair)return;
+    /* Only apply to the nearest shared parent of the two field wrappers. */
+    pair.parent.classList.add('msq-design-pair-fields');
+    pair.left.classList.add('msq-design-front-field');
+    pair.right.classList.add('msq-design-back-field');
   }
   function run(){
-    var fronts=getLabels(FRONT), backs=getLabels(BACK);
+    var fronts=findLabels(FRONT), backs=findLabels(BACK);
     fronts.forEach(function(f){
-      var fr=f.getBoundingClientRect();
-      var best=backs.map(function(b){var r=b.getBoundingClientRect();return {el:b,score:Math.abs(r.top-fr.top)+Math.abs(r.left-fr.left)*0.08};})
-        .sort(function(a,b){return a.score-b.score;})[0];
-      if(best)arrange(f,best.el);
+      if(!backs.length)return;
+      var fr=f.getBoundingClientRect(), best=null, score=Infinity;
+      backs.forEach(function(b){
+        var r=b.getBoundingClientRect(), s=Math.abs(r.top-fr.top)+Math.abs(r.left-fr.left)*.04;
+        if(s<score){score=s;best=b;}
+      });
+      if(best)arrange(f,best);
     });
     document.querySelectorAll('button').forEach(function(btn){
-      var t=(btn.textContent||'').trim();
-      if(/إضافة.*ألبوم الأشكال|إضافة.*شكل.*ألبوم الأشكال/.test(t)&&!btn.dataset.msqLabelled){btn.dataset.msqLabelled='1';btn.textContent='＋ إضافة أشكال للكوليكشن';}
+      var t=norm(btn.textContent);
+      if(/إضافة.*ألبوم الأشكال|إضافة.*شكل.*ألبوم الأشكال/.test(t)&&!btn.dataset.msqLabelled){
+        btn.dataset.msqLabelled='1';btn.textContent='＋ إضافة أشكال للكوليكشن';
+      }
     });
   }
   var queued=false;
-  function schedule(){if(queued)return;queued=true;window.setTimeout(function(){queued=false;run();},180);}
+  function schedule(){if(queued)return;queued=true;window.setTimeout(function(){queued=false;run();},250);}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);else schedule();
   new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
+  window.addEventListener('resize',schedule);
 })();
 </script>
 
