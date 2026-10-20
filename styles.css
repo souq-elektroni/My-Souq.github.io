@@ -1092,3 +1092,33 @@ footer,
   color: #765f64 !important;
   text-shadow: none !important;
 }
+
+/* My Souq: عرض صور الوش والضهر جنب بعض في بطاقات المنتج والمعاينة */
+.msq-card-pair,
+.msq-modal-pair-images {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  width: 100%;
+  align-items: stretch;
+}
+.msq-card-pair { position: relative; }
+.msq-pair-thumb,
+.msq-modal-pair-images img {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  aspect-ratio: 3 / 4;
+  object-fit: contain !important;
+  border-radius: 8px;
+  background: #f8f5f2;
+}
+.msq-modal-pair-card { min-width: 0; }
+.msq-modal-pair-captions {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px;
+  text-align: center;
+}
+.msq-pair-label { grid-column: 1 / -1; text-align: center; }

@@ -1230,5 +1230,47 @@
 })();
 </script>
 
+
+<style id="my-souq-paired-designs-style">
+/* ألبوم الأشكال: خلي رفع الوش والضهر في صف واحد، وشيل الإطار الكبير غير الضروري */
+[data-testid*="list"], [class*="ListControl"] { min-width: 0; }
+.msq-design-pair-fields { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:12px !important; align-items:start !important; }
+.msq-design-pair-fields > * { min-width:0 !important; width:100% !important; box-sizing:border-box !important; }
+.msq-design-pair-fields img { max-width:100%; }
+@media(max-width:650px) { .msq-design-pair-fields { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:7px !important; } }
+</style>
+<script id="my-souq-paired-designs-layout">
+(function(){
+  'use strict';
+  function arrangePairedDesignFields(){
+    var labels=[...document.querySelectorAll('label,span,div,p')].filter(function(el){
+      if(el.children.length>3) return false;
+      var t=(el.textContent||'').trim();
+      return t==='صورة الوش'||t==='صورة الضهر';
+    });
+    labels.forEach(function(label){
+      var field=label;
+      for(var i=0;i<5&&field&&field.parentElement;i++){
+        if(field.querySelector && field.querySelector('input,button,[role="button"]')) break;
+        field=field.parentElement;
+      }
+      if(!field||!field.parentElement) return;
+      var parent=field.parentElement;
+      var sibling=[...parent.children].find(function(el){return el!==field&&((el.textContent||'').trim().includes('صورة الوش')||(el.textContent||'').trim().includes('صورة الضهر'));});
+      if(sibling){parent.classList.add('msq-design-pair-fields');}
+    });
+    /* نص زر الإضافة فقط، دون تغيير سلوك Sveltia */
+    document.querySelectorAll('button').forEach(function(btn){
+      var t=(btn.textContent||'').trim();
+      if(/إضافة.*ألبوم الأشكال|إضافة.*شكل.*ألبوم الأشكال/.test(t)) btn.textContent='＋ إضافة أشكال للكوليكشن';
+    });
+  }
+  var queued=false;
+  function schedule(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;arrangePairedDesignFields();});}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',schedule); else schedule();
+  new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
+})();
+</script>
+
 </body>
 </html>
