@@ -1232,41 +1232,64 @@
 
 
 <style id="my-souq-paired-designs-style">
-/* ألبوم الأشكال: خلي رفع الوش والضهر في صف واحد، وشيل الإطار الكبير غير الضروري */
-[data-testid*="list"], [class*="ListControl"] { min-width: 0; }
-.msq-design-pair-fields { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:12px !important; align-items:start !important; }
-.msq-design-pair-fields > * { min-width:0 !important; width:100% !important; box-sizing:border-box !important; }
-.msq-design-pair-fields img { max-width:100%; }
-@media(max-width:650px) { .msq-design-pair-fields { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:7px !important; } }
+/* ألبوم الأشكال: اجمع حقلي الصورة في صف واحد دون نقل عناصر React من مكانها */
+.msq-design-pair-fields {
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:12px !important;
+  align-items:start !important;
+  min-width:0 !important;
+  width:100% !important;
+}
+.msq-design-pair-fields > * { min-width:0 !important; width:auto !important; max-width:100% !important; box-sizing:border-box !important; }
+.msq-design-pair-fields img { max-width:100% !important; }
+@media(max-width:650px) {
+  .msq-design-pair-fields { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:7px !important; }
+}
 </style>
 <script id="my-souq-paired-designs-layout">
 (function(){
   'use strict';
-  function arrangePairedDesignFields(){
-    var labels=[...document.querySelectorAll('label,span,div,p')].filter(function(el){
-      if(el.children.length>3) return false;
-      var t=(el.textContent||'').trim();
-      return t==='صورة الوش'||t==='صورة الضهر';
+  var FRONT='صورة الوش', BACK='صورة الضهر';
+  function exactLabel(root, text){
+    return [...root.querySelectorAll('label,[role="label"],span,p,div')].filter(function(el){
+      return el.children.length < 3 && (el.textContent||'').trim()===text;
     });
-    labels.forEach(function(label){
-      var field=label;
-      for(var i=0;i<5&&field&&field.parentElement;i++){
-        if(field.querySelector && field.querySelector('input,button,[role="button"]')) break;
-        field=field.parentElement;
-      }
-      if(!field||!field.parentElement) return;
-      var parent=field.parentElement;
-      var sibling=[...parent.children].find(function(el){return el!==field&&((el.textContent||'').trim().includes('صورة الوش')||(el.textContent||'').trim().includes('صورة الضهر'));});
-      if(sibling){parent.classList.add('msq-design-pair-fields');}
+  }
+  function branchContaining(parent, node){
+    var cur=node;
+    while(cur && cur.parentElement && cur.parentElement!==parent) cur=cur.parentElement;
+    return cur && cur.parentElement===parent ? cur : null;
+  }
+  function arrangePair(frontLabel, backLabel){
+    if(!frontLabel || !backLabel) return;
+    var ancestors=new Set();
+    for(var a=frontLabel.parentElement;a;a=a.parentElement) ancestors.add(a);
+    var common=backLabel.parentElement;
+    while(common && !ancestors.has(common)) common=common.parentElement;
+    if(!common) return;
+    var f=branchContaining(common,frontLabel), b=branchContaining(common,backLabel);
+    if(!f || !b || f===b) return;
+    /* لا نطبق الشبكة على بطاقة المنتج كلها: اختر أقرب حاوية مشتركة لحقلي الرفع */
+    common.classList.add('msq-design-pair-fields');
+  }
+  function run(){
+    var fronts=exactLabel(document,FRONT), backs=exactLabel(document,BACK);
+    fronts.forEach(function(f){
+      var fRect=f.getBoundingClientRect();
+      var b=backs.map(function(x){return {el:x,dist:Math.abs(x.getBoundingClientRect().top-fRect.top)};})
+        .sort(function(x,y){return x.dist-y.dist;})[0];
+      if(b) arrangePair(f,b.el);
     });
-    /* نص زر الإضافة فقط، دون تغيير سلوك Sveltia */
     document.querySelectorAll('button').forEach(function(btn){
       var t=(btn.textContent||'').trim();
-      if(/إضافة.*ألبوم الأشكال|إضافة.*شكل.*ألبوم الأشكال/.test(t)) btn.textContent='＋ إضافة أشكال للكوليكشن';
+      if(/إضافة.*ألبوم الأشكال|إضافة.*شكل.*ألبوم الأشكال/.test(t) && !btn.dataset.msqLabelled){
+        btn.dataset.msqLabelled='1'; btn.textContent='＋ إضافة أشكال للكوليكشن';
+      }
     });
   }
   var queued=false;
-  function schedule(){if(queued)return;queued=true;requestAnimationFrame(function(){queued=false;arrangePairedDesignFields();});}
+  function schedule(){if(queued)return;queued=true;setTimeout(function(){queued=false;run();},120);}
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',schedule); else schedule();
   new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
 })();
