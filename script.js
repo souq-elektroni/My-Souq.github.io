@@ -233,7 +233,39 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
 
   async function listProductMarkdownFiles() {
-    // 1) jsDelivr (مستقر ومش بيتأثر بحد GitHub API)
+    // Source of truth = GitHub first. jsDelivr is only a fallback and can lag after deletes.
+    function clearProductNameCache() {
+      try { localStorage.removeItem('souqProductFileNames'); } catch (e) {}
+    }
+
+    // 1) GitHub Contents API (reflects Sveltia deletes immediately)
+    try {
+      const res = await fetch(
+        `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/products?ref=${encodeURIComponent(GITHUB_BRANCH)}&_=${Date.now()}`,
+        { cache: 'no-store', headers: { 'Accept': 'application/vnd.github+json' } }
+      );
+      if (res.status === 404) {
+        // Folder missing = no products (user deleted all)
+        clearProductNameCache();
+        return [];
+      }
+      if (res.ok) {
+        const files = await res.json();
+        if (Array.isArray(files)) {
+          const names = files
+            .filter(function (f) { return f && f.name && /\.(md|markdown)$/i.test(f.name); })
+            .map(function (f) { return f.name; });
+          if (!names.length) clearProductNameCache();
+          return names;
+        }
+      } else {
+        console.warn('GitHub contents status', res.status);
+      }
+    } catch (e2) {
+      console.warn('GitHub list failed', e2);
+    }
+
+    // 2) jsDelivr package listing (may be stale after deletes — use only if GitHub failed)
     try {
       const jd = await fetch(
         `https://data.jsdelivr.com/v1/packages/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}?_=${Date.now()}`,
@@ -252,36 +284,20 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
           });
         }
         walk(data.files || [], '');
-        if (names.length) return names;
+        // Do NOT treat empty as "fall through to cache" — return empty.
+        return names;
       }
     } catch (e) {
       console.warn('jsDelivr list failed', e);
     }
 
-    // 2) GitHub Contents API
-    try {
-      const res = await fetch(
-        `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/products?ref=${encodeURIComponent(GITHUB_BRANCH)}&_=${Date.now()}`,
-        { cache: 'no-store' }
-      );
-      if (res.ok) {
-        const files = await res.json();
-        if (Array.isArray(files)) {
-          return files
-            .filter(function (f) { return f && f.name && /\.(md|markdown)$/i.test(f.name); })
-            .map(function (f) { return f.name; });
-        }
-      } else {
-        console.warn('GitHub contents status', res.status);
-      }
-    } catch (e2) {
-      console.warn('GitHub list failed', e2);
-    }
-
-    // 3) كاش محلي من آخر تحميل ناجح
+    // 3) Last resort: local cache ONLY when network fully failed
     try {
       const cached = JSON.parse(localStorage.getItem('souqProductFileNames') || '[]');
-      if (Array.isArray(cached) && cached.length) return cached;
+      if (Array.isArray(cached) && cached.length) {
+        console.warn('Using local product filename cache (network unavailable)');
+        return cached;
+      }
     } catch (e3) {}
 
     return [];
@@ -289,9 +305,10 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   async function fetchProductMarkdown(fileName) {
     const encoded = fileName.split('/').map(encodeURIComponent).join('/');
+    // Prefer GitHub raw (fresh after Sveltia delete). jsDelivr CDN can lag for hours.
     const urls = [
-      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261019d')}&_=${Date.now()}`,
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261019d')}&_=${Date.now()}`
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?_=${Date.now()}`,
+      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?_=${Date.now()}`
     ];
     for (let i = 0; i < urls.length; i++) {
       try {
@@ -307,8 +324,11 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       const mdFiles = await listProductMarkdownFiles();
 
       if (!mdFiles.length) {
+        products = [];
+        try { localStorage.removeItem('souqProductFileNames'); } catch (e) {}
         productsGrid.innerHTML =
-          '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">لا توجد منتجات منشورة حالياً أو تعذر الاتصال بالمصدر.</p>';
+          '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">لا توجد منتجات منشورة حالياً.</p>';
+        try { if (typeof renderFeatured === 'function') renderFeatured(); } catch (e) {}
         return;
       }
 
