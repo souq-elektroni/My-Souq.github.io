@@ -4220,18 +4220,10 @@ html.msq-version-checking { background: #f4e5d8; }
     <p style="display:none!important" aria-hidden="true"></p>
 
     <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261020-e-gold2')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261020-e-gold2')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261020-e-gold2')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261020-e-gold2')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
+      <div class="banner-slide active" style="background-image:url('assets/banner-main.webp?v=20261020-solo')" role="img" aria-label="ماي سوق — كل ما تحتاجه بمكان واحد"></div>
     </div>
-
-    <div class="banner-dots" role="tablist" aria-label="اختيار البانر">
-      <button class="banner-dot active" data-index="0" aria-label="بانر 1" aria-selected="true"></button>
-      <button class="banner-dot" data-index="1" aria-label="بانر 2" aria-selected="false"></button>
-      <button class="banner-dot" data-index="2" aria-label="بانر 3" aria-selected="false"></button>
-      <button class="banner-dot" data-index="3" aria-label="بانر 4" aria-selected="false"></button>
-    </div>
+    <!-- single banner: no dots -->
+    <div class="banner-dots" role="tablist" aria-label="اختيار البانر" style="display:none!important"></div>
   </header>
 
   <div class="controls-wrapper">
@@ -21105,80 +21097,139 @@ html body.msq-tt-ready header .banner-slide {
 }
 </style>
 
+
 <style id="mysouq-cats-toolbar-segment-v1">
-/* Category segment: tight, no gaps, no emoji look */
+/* Categories on toolbar row — same chrome as cart/track, no loud colors */
 html body.msq-tt-ready .msq-category-nav,
 html body.msq-tt-ready .categories-bar.msq-category-nav {
+  display: none !important; /* moved into toolbar by JS */
+}
+/* When inside toolbar */
+html body.msq-tt-ready .msq-top-toolbar .msq-category-nav,
+html body.msq-tt-ready .msq-tt-cats {
   display: inline-flex !important;
   flex-wrap: nowrap !important;
-  gap: 0 !important;
+  gap: 4px !important;
   padding: 0 !important;
-  margin: 8px auto 10px !important;
-  justify-content: center !important;
-  align-items: stretch !important;
-  width: auto !important;
-  max-width: calc(100% - 16px) !important;
+  margin: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
   overflow-x: auto !important;
-  border-radius: 999px !important;
-  background: rgba(255,255,255,0.12) !important;
-  border: 1px solid rgba(255,255,255,0.18) !important;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12) !important;
+  max-width: min(42vw, 420px) !important;
+  scrollbar-width: none;
 }
-html body.msq-tt-ready .msq-category-nav .cat-btn,
-html body.msq-tt-ready .categories-bar .cat-btn {
+html body.msq-tt-ready .msq-tt-cats::-webkit-scrollbar { display: none; }
+html body.msq-tt-ready .msq-tt-cats .cat-btn {
   flex: 0 0 auto !important;
   margin: 0 !important;
-  min-height: 38px !important;
-  padding: 8px 16px !important;
-  border-radius: 0 !important;
-  border: 0 !important;
-  border-left: 1px solid rgba(255,255,255,0.14) !important;
-  background: rgba(255,255,255,0.92) !important;
-  color: #4a3038 !important;
-  font: 800 13px/1.2 'Cairo', sans-serif !important;
-  box-shadow: none !important;
+  min-height: 36px !important;
+  padding: 6px 12px !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(255,255,255,0.35) !important;
+  background: rgba(255,255,255,0.88) !important;
+  color: #3a2a30 !important;
+  font: 800 12px/1.2 'Cairo', sans-serif !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
   white-space: nowrap !important;
 }
-html body.msq-tt-ready .msq-category-nav .cat-btn:first-child {
-  border-left: 0 !important;
-  border-radius: 999px 0 0 999px !important;
+html body.msq-tt-ready .msq-tt-cats .cat-btn.active {
+  background: rgba(255,255,255,0.98) !important;
+  color: #2a1a20 !important;
+  border-color: rgba(255,255,255,0.7) !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.16) !important;
 }
-html body.msq-tt-ready .msq-category-nav .cat-btn:last-of-type,
-html body.msq-tt-ready .msq-category-nav .cat-btn.offer-tab {
-  /* last visual chip before hidden stock */
+/* Offers slightly different but still soft/toolbar-like */
+html body.msq-tt-ready .msq-tt-cats .cat-btn.offer-tab {
+  background: rgba(255,255,255,0.82) !important;
+  color: #5a4030 !important;
+  border-color: rgba(255, 220, 160, 0.55) !important;
 }
-html body.msq-tt-ready .msq-category-nav .cat-btn.active {
-  background: linear-gradient(145deg, #6d3a48, #9b5a6c) !important;
-  color: #fff !important;
-  z-index: 1 !important;
+html body.msq-tt-ready .msq-tt-cats .cat-btn.offer-tab.active {
+  background: rgba(255, 245, 220, 0.95) !important;
+  color: #4a3010 !important;
 }
-/* Offers = different color */
-html body.msq-tt-ready .msq-category-nav .cat-btn.offer-tab {
-  background: linear-gradient(145deg, #e8a317, #f0c14b) !important;
-  color: #3a2a10 !important;
-  font-weight: 900 !important;
-  border-radius: 0 999px 999px 0 !important;
-  border-left: 1px solid rgba(255,255,255,0.2) !important;
-}
-html body.msq-tt-ready .msq-category-nav .cat-btn.offer-tab.active {
-  background: linear-gradient(145deg, #c97800, #e8a317) !important;
-  color: #fff !important;
-}
-/* Hide stock from this row (still in filters sheet) */
-html body.msq-tt-ready .msq-category-nav .stock-avail,
-html body.msq-tt-ready .msq-category-nav .stock-out,
-html body.msq-tt-ready .msq-category-nav .cat-divider {
+html body.msq-tt-ready .msq-tt-cats .stock-avail,
+html body.msq-tt-ready .msq-tt-cats .stock-out,
+html body.msq-tt-ready .msq-tt-cats .cat-divider {
   display: none !important;
 }
-/* Make Mr & Mrs button last visible before offers order: الكل Kids Baby Mr العروض */
-html body.msq-tt-ready .msq-category-nav .cat-btn.msq-main-cat[data-main-category="Mr & Mrs"] {
-  border-radius: 0 !important;
-}
-@media (max-width: 600px) {
-  html body.msq-tt-ready .msq-category-nav .cat-btn {
-    min-height: 34px !important;
-    padding: 6px 11px !important;
-    font-size: 11.5px !important;
+@media (max-width: 700px) {
+  html body.msq-tt-ready .msq-tt-cats {
+    max-width: min(48vw, 200px) !important;
+    gap: 3px !important;
+  }
+  html body.msq-tt-ready .msq-tt-cats .cat-btn {
+    min-height: 32px !important;
+    padding: 5px 8px !important;
+    font-size: 10.5px !important;
   }
 }
 </style>
+
+
+<style id="mysouq-search-lower-v1">
+/* Search sits lower — under banner, not in the top chrome center */
+html body.msq-tt-ready .msq-top-toolbar .msq-tt-center {
+  display: none !important;
+}
+html body.msq-tt-ready .msq-search-lower-wrap {
+  display: flex !important;
+  justify-content: center !important;
+  width: min(720px, calc(100% - 24px)) !important;
+  margin: 10px auto 6px !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+html body.msq-tt-ready .msq-search-lower-wrap .msq-tt-search-wrap {
+  width: 100% !important;
+  max-width: 720px !important;
+}
+</style>
+
+<script id="mysouq-toolbar-cats-search-v1">
+(function(){
+  function $(s,r){return (r||document).querySelector(s)}
+  function place(){
+    var bar = $('#msqTopToolbar');
+    var cats = $('.msq-category-nav') || $('.categories-bar');
+    var searchWrap = bar && bar.querySelector('.msq-tt-search-wrap');
+    var header = $('#mysouqBannerCarousel') || $('header.mysouq-banner-carousel');
+    if(!bar) return;
+
+    // Move categories into toolbar (between left and right clusters)
+    if(cats && !bar.querySelector('.msq-tt-cats')){
+      var hold = document.createElement('div');
+      hold.className = 'msq-tt-cats';
+      // only main category buttons
+      var cloneNav = cats.cloneNode(true);
+      cloneNav.classList.add('msq-tt-cats');
+      cloneNav.style.display = 'inline-flex';
+      // use original buttons (keep handlers) — move original into toolbar
+      cats.classList.add('msq-tt-cats');
+      // insert before right cluster if exists
+      var right = bar.querySelector('.msq-tt-right');
+      var left = bar.querySelector('.msq-tt-left');
+      if(right) bar.insertBefore(cats, right);
+      else bar.appendChild(cats);
+    }
+
+    // Move search below banner
+    if(searchWrap && header && !document.querySelector('.msq-search-lower-wrap')){
+      var wrap = document.createElement('div');
+      wrap.className = 'msq-search-lower-wrap';
+      // move the search wrap node
+      wrap.appendChild(searchWrap);
+      if(header.nextSibling) header.parentNode.insertBefore(wrap, header.nextSibling);
+      else header.parentNode.appendChild(wrap);
+    }
+  }
+  function boot(){
+    place();
+    setTimeout(place, 200);
+    setTimeout(place, 800);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
