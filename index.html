@@ -20325,9 +20325,33 @@ html body .msq-public-terms-trigger {
 </style>
 
 
-<!-- ===== My Souq Top Toolbar Redesign v1 ===== -->
-<style id="mysouq-top-toolbar-redesign-v1">
-/* Reset conflicting absolute positions for the 4 icons — they live inside the toolbar now */
+
+<!-- ===== My Souq Top Toolbar Redesign v2: integrated into banner ===== -->
+<style id="mysouq-top-toolbar-redesign-v2">
+/* ===== Full-width banner ===== */
+html body.msq-tt-ready header.mysouq-banner-carousel,
+html body.msq-tt-ready header#mysouqBannerCarousel,
+html body.msq-tt-ready body > header {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  margin-top: 0 !important;
+  border-radius: 0 0 28px 28px !important;
+  min-height: clamp(220px, 42vw, 380px) !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  isolation: isolate !important;
+}
+html body.msq-tt-ready header .banner-slides,
+html body.msq-tt-ready header .banner-slide {
+  border-radius: 0 0 28px 28px !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: clamp(220px, 42vw, 380px) !important;
+}
+
+/* Hide free-floating absolute icons — they live inside the toolbar */
 html body.msq-tt-ready .brand-badge,
 html body.msq-tt-ready .top-actions,
 html body.msq-tt-ready .msq-public-terms-trigger {
@@ -20340,21 +20364,21 @@ html body.msq-tt-ready .msq-public-terms-trigger {
 }
 
 html body.msq-tt-ready .brand-badge {
-  width: 44px !important;
-  height: 44px !important;
-  min-width: 44px !important;
-  min-height: 44px !important;
-  font-size: 7.5px !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  min-height: 42px !important;
+  font-size: 7px !important;
   border-radius: 50% !important;
   flex-shrink: 0 !important;
-  z-index: 1 !important;
+  z-index: 2 !important;
 }
 
 html body.msq-tt-ready .msq-public-terms-trigger {
-  width: 44px !important;
-  height: 44px !important;
-  min-width: 44px !important;
-  max-width: 44px !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  max-width: 42px !important;
   padding: 0 !important;
   gap: 0 !important;
   border-radius: 50% !important;
@@ -20363,7 +20387,7 @@ html body.msq-tt-ready .msq-public-terms-trigger {
   align-items: center !important;
   justify-content: center !important;
   flex-shrink: 0 !important;
-  z-index: 1 !important;
+  z-index: 2 !important;
 }
 html body.msq-tt-ready .msq-public-terms-trigger .msq-terms-full,
 html body.msq-tt-ready .msq-public-terms-trigger .msq-terms-short,
@@ -20379,8 +20403,8 @@ html body.msq-tt-ready .msq-public-terms-trigger .msq-book-icon {
   justify-content: center !important;
 }
 html body.msq-tt-ready .msq-public-terms-trigger .msq-book-icon svg {
-  width: 22px !important;
-  height: 22px !important;
+  width: 20px !important;
+  height: 20px !important;
 }
 
 html body.msq-tt-ready .top-actions {
@@ -20394,114 +20418,147 @@ html body.msq-tt-ready .top-actions {
   background: transparent !important;
   box-shadow: none !important;
   border: 0 !important;
-  z-index: 1 !important;
+  z-index: 2 !important;
 }
 html body.msq-tt-ready .top-actions .cart-trigger,
 html body.msq-tt-ready .top-actions .track-trigger,
 html body.msq-tt-ready .top-actions .admin-orders-trigger {
-  min-height: 40px !important;
-  padding: 7px 12px !important;
-  font-size: 12px !important;
+  min-height: 38px !important;
+  padding: 6px 11px !important;
+  font-size: 11.5px !important;
   border-radius: 999px !important;
   white-space: nowrap !important;
+  background: rgba(255,255,255,0.92) !important;
+  color: #3a2a30 !important;
+  border: 1px solid rgba(255,255,255,0.7) !important;
+  box-shadow: 0 4px 14px rgba(20,12,16,0.12) !important;
 }
 
-/* The sticky top toolbar */
+/* Toolbar glued on top of banner */
 .msq-top-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 1200;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  box-sizing: border-box;
-  padding: 8px 10px;
-  background: rgba(28, 22, 26, 0.72);
-  backdrop-filter: blur(16px) saturate(1.2);
-  -webkit-backdrop-filter: blur(16px) saturate(1.2);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 8px 28px rgba(20,12,16,0.22);
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 20 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 10px 12px !important;
+  background: linear-gradient(180deg, rgba(20,14,18,0.55) 0%, rgba(20,14,18,0.28) 70%, transparent 100%) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  pointer-events: none; /* let clicks pass except on children */
 }
+.msq-top-toolbar > * {
+  pointer-events: auto;
+}
+
 .msq-tt-left,
 .msq-tt-right {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-shrink: 0 !important;
 }
 .msq-tt-center {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
+
+/* Search — no overlap with mic */
 .msq-tt-search-wrap {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 520px;
-  gap: 6px;
-  background: rgba(255,255,255,0.94);
-  border: 1px solid rgba(255,255,255,0.55);
-  border-radius: 999px;
-  padding: 4px 6px 4px 14px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-  box-sizing: border-box;
+  display: flex !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 480px !important;
+  gap: 0 !important;
+  background: rgba(255,255,255,0.95) !important;
+  border: 1px solid rgba(255,255,255,0.65) !important;
+  border-radius: 999px !important;
+  padding: 0 !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.14) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
-.msq-tt-search-wrap input {
-  flex: 1 1 auto;
-  min-width: 0;
+.msq-tt-search-wrap input,
+.msq-tt-search-wrap #searchInput,
+html body.msq-tt-ready #searchInput {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
   border: 0 !important;
   outline: none !important;
   background: transparent !important;
   box-shadow: none !important;
-  font: 700 14px/1.3 'Cairo', sans-serif !important;
+  font: 700 13.5px/1.3 'Cairo', sans-serif !important;
   color: #3a2a30 !important;
-  padding: 8px 4px !important;
-  height: auto !important;
-  min-height: 0 !important;
+  padding: 10px 8px 10px 14px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
 }
 .msq-tt-search-wrap input::placeholder {
   color: #9a7f88 !important;
   font-weight: 700 !important;
 }
-.msq-tt-voice {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border: 0;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #f3e6ea, #ead7df);
-  color: #5a3040;
-  font-size: 16px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.msq-tt-voice,
+html body.msq-tt-ready .voice-search-btn.msq-tt-voice,
+html body.msq-tt-ready #voiceSearchBtn {
+  flex: 0 0 40px !important;
+  width: 40px !important;
+  min-width: 40px !important;
+  max-width: 40px !important;
+  height: 40px !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: linear-gradient(145deg, #f3e6ea, #ead7df) !important;
+  color: #5a3040 !important;
+  font-size: 15px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: none !important;
+  position: static !important;
+  right: auto !important;
+  left: auto !important;
+  top: auto !important;
+  transform: none !important;
+  z-index: 1 !important;
 }
+
 .msq-tt-filters-btn {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 40px;
-  padding: 7px 12px;
-  border: 1px solid rgba(255,255,255,0.28);
-  border-radius: 999px;
-  background: linear-gradient(145deg, #c9a06a, #a67c4a);
-  color: #fffaf3;
-  font: 900 12px/1.2 'Cairo', sans-serif;
-  cursor: pointer;
-  box-shadow: 0 6px 16px rgba(120, 80, 30, 0.28);
-  white-space: nowrap;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  min-height: 38px !important;
+  padding: 6px 11px !important;
+  border: 1px solid rgba(255,255,255,0.35) !important;
+  border-radius: 999px !important;
+  background: linear-gradient(145deg, #c9a06a, #a67c4a) !important;
+  color: #fffaf3 !important;
+  font: 900 11.5px/1.2 'Cairo', sans-serif !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(120, 80, 30, 0.28) !important;
+  white-space: nowrap !important;
 }
 .msq-tt-filters-btn .msq-tt-bars {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  width: 14px;
+  width: 13px;
 }
 .msq-tt-filters-btn .msq-tt-bars span {
   display: block;
@@ -20513,11 +20570,10 @@ html body.msq-tt-ready .top-actions .admin-orders-trigger {
 .msq-tt-filters-btn .msq-tt-bars span:nth-child(2) { width: 75%; }
 .msq-tt-filters-btn .msq-tt-bars span:nth-child(3) { width: 50%; }
 .msq-tt-filters-btn.has-active {
-  background: linear-gradient(145deg, #8b3f52, #c46b82);
-  box-shadow: 0 6px 16px rgba(139, 63, 82, 0.35);
+  background: linear-gradient(145deg, #8b3f52, #c46b82) !important;
 }
 
-/* Filters sheet (bottom sheet / panel) */
+/* Filters sheet */
 .msq-filters-sheet-overlay {
   position: fixed;
   inset: 0;
@@ -20579,12 +20635,8 @@ html body.msq-tt-ready .top-actions .admin-orders-trigger {
   color: #7a5560;
   margin-bottom: 6px;
 }
-.msq-filter-field select,
-.msq-filter-field .msq-filter-actions {
-  width: 100%;
-  box-sizing: border-box;
-}
 .msq-filter-field select {
+  width: 100%;
   min-height: 44px;
   padding: 10px 12px;
   border-radius: 14px;
@@ -20593,6 +20645,7 @@ html body.msq-tt-ready .top-actions .admin-orders-trigger {
   font: 800 13px/1.3 'Cairo', sans-serif;
   color: #3a2a30;
   outline: none;
+  box-sizing: border-box;
 }
 .msq-filter-actions {
   display: flex;
@@ -20629,13 +20682,11 @@ html body.msq-tt-ready .top-actions .admin-orders-trigger {
   box-shadow: 0 10px 24px rgba(8,127,131,0.28);
 }
 
-/* Hide old free-floating search-sort row content visually when toolbar owns search;
-   keep selects in DOM for logic, moved into sheet */
 html body.msq-tt-ready .search-sort-box {
   display: none !important;
 }
 
-/* Professional category chips */
+/* Categories */
 html body.msq-tt-ready .msq-category-nav,
 html body.msq-tt-ready .categories-bar {
   display: flex !important;
@@ -20658,29 +20709,24 @@ html body.msq-tt-ready .categories-bar .cat-btn {
   border-radius: 999px !important;
   font: 800 13px/1.2 'Cairo', sans-serif !important;
   border: 1px solid rgba(255,255,255,0.55) !important;
-  background: rgba(255,255,255,0.82) !important;
+  background: rgba(255,255,255,0.88) !important;
   color: #4a3038 !important;
   box-shadow: 0 4px 14px rgba(40,20,28,0.08) !important;
   white-space: nowrap !important;
-  transition: transform .15s ease, box-shadow .15s ease, background .15s ease !important;
 }
-html body.msq-tt-ready .msq-category-nav .cat-btn.active,
-html body.msq-tt-ready .categories-bar .cat-btn.active {
+html body.msq-tt-ready .msq-category-nav .cat-btn.active {
   background: linear-gradient(145deg, #8b3f52, #c46b82) !important;
   color: #fff !important;
   border-color: transparent !important;
-  box-shadow: 0 8px 20px rgba(139,63,82,0.28) !important;
 }
 html body.msq-tt-ready .msq-category-nav .cat-btn.offer-tab {
   background: linear-gradient(145deg, #fff3e0, #ffe0b2) !important;
   color: #8a4b00 !important;
-  border-color: rgba(255,183,77,0.55) !important;
 }
 html body.msq-tt-ready .msq-category-nav .cat-btn.offer-tab.active {
   background: linear-gradient(145deg, #ef6c00, #ff9800) !important;
   color: #fff !important;
 }
-/* Stock buttons move into filters sheet — hide from category row */
 html body.msq-tt-ready .msq-category-nav .stock-avail,
 html body.msq-tt-ready .msq-category-nav .stock-out,
 html body.msq-tt-ready .msq-category-nav .cat-divider {
@@ -20688,19 +20734,14 @@ html body.msq-tt-ready .msq-category-nav .cat-divider {
 }
 
 html body.msq-tt-ready .controls-wrapper {
-  margin-top: 10px !important;
-  padding-top: 8px !important;
-}
-html body.msq-tt-ready header.mysouq-banner-carousel,
-html body.msq-tt-ready header {
   margin-top: 12px !important;
+  padding-top: 4px !important;
 }
 
-
-@media (max-width: 600px) {
+@media (max-width: 700px) {
   .msq-top-toolbar {
-    gap: 5px;
-    padding: 7px 8px;
+    gap: 5px !important;
+    padding: 8px 8px !important;
   }
   html body.msq-tt-ready .top-actions .cart-trigger,
   html body.msq-tt-ready .top-actions .track-trigger {
@@ -20710,53 +20751,62 @@ html body.msq-tt-ready header {
   }
   html body.msq-tt-ready .brand-badge,
   html body.msq-tt-ready .msq-public-terms-trigger {
-    width: 38px !important;
-    height: 38px !important;
-    min-width: 38px !important;
-    max-width: 38px !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
   }
   .msq-tt-filters-btn {
-    min-height: 34px;
-    padding: 5px 9px;
-    font-size: 10px;
-    gap: 5px;
+    min-height: 34px !important;
+    padding: 5px 8px !important;
+    font-size: 10px !important;
   }
   .msq-tt-filters-btn .msq-tt-label { display: none; }
-  .msq-tt-search-wrap {
-    padding: 3px 4px 3px 10px;
-  }
-  .msq-tt-search-wrap input {
+  .msq-tt-search-wrap input,
+  html body.msq-tt-ready #searchInput {
     font-size: 12px !important;
-    padding: 7px 2px !important;
-  }
-  .msq-tt-voice { width: 32px; height: 32px; font-size: 14px; }
-  html body.msq-tt-ready .msq-category-nav .cat-btn {
+    padding: 8px 6px 8px 10px !important;
+    height: 36px !important;
     min-height: 36px !important;
-    padding: 6px 12px !important;
-    font-size: 12px !important;
+  }
+  .msq-tt-voice,
+  html body.msq-tt-ready #voiceSearchBtn {
+    flex-basis: 36px !important;
+    width: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    height: 36px !important;
+    font-size: 14px !important;
+  }
+  html body.msq-tt-ready header.mysouq-banner-carousel {
+    min-height: clamp(180px, 48vw, 280px) !important;
+    border-radius: 0 0 22px 22px !important;
+  }
+  html body.msq-tt-ready header .banner-slides,
+  html body.msq-tt-ready header .banner-slide {
+    min-height: clamp(180px, 48vw, 280px) !important;
+    border-radius: 0 0 22px 22px !important;
   }
 }
 
 @media (min-width: 900px) {
-  .msq-top-toolbar {
-    padding: 10px 18px;
-    gap: 12px;
-  }
+  .msq-top-toolbar { padding: 12px 18px !important; gap: 10px !important; }
   html body.msq-tt-ready .brand-badge {
-    width: 52px !important;
-    height: 52px !important;
-    font-size: 9px !important;
-  }
-  html body.msq-tt-ready .msq-public-terms-trigger {
     width: 48px !important;
     height: 48px !important;
-    max-width: 48px !important;
+    font-size: 8px !important;
   }
-  .msq-tt-filters-btn { font-size: 13px; padding: 8px 14px; }
+  html body.msq-tt-ready .msq-public-terms-trigger {
+    width: 44px !important;
+    height: 44px !important;
+    max-width: 44px !important;
+  }
+  .msq-tt-search-wrap { max-width: 560px !important; }
+  .msq-tt-search-wrap input { font-size: 14.5px !important; }
 }
 </style>
 
-<script id="mysouq-top-toolbar-redesign-js">
+<script id="mysouq-top-toolbar-redesign-js-v2">
 (function () {
   function $(sel, root) { return (root || document).querySelector(sel); }
   function ready(fn) {
@@ -20776,13 +20826,15 @@ html body.msq-tt-ready header {
     var sortSelect = $('#sortSelect');
     var subSelect = $('#sharedSubcategorySelect');
     var galleryBtn = $('#galleryModeBtn');
+    var header = $('#mysouqBannerCarousel') || $('header.mysouq-banner-carousel') || $('body > header');
 
-    if (!brand || !topActions || !searchInput) return;
+    if (!brand || !topActions || !searchInput || !header) return;
 
     var bar = document.createElement('div');
     bar.id = 'msqTopToolbar';
     bar.className = 'msq-top-toolbar';
-    bar.setAttribute('role', 'banner');
+    bar.setAttribute('role', 'navigation');
+    bar.setAttribute('aria-label', 'شريط المتجر');
 
     var left = document.createElement('div');
     left.className = 'msq-tt-left';
@@ -20793,34 +20845,16 @@ html body.msq-tt-ready header {
     var right = document.createElement('div');
     right.className = 'msq-tt-right';
 
-    // Move cart/track into left
-    left.appendChild(topActions);
+    // Order for RTL pages: logo+terms+filters on one side, cart+track on the other
+    // Visual preference from user screenshot: logo/terms/filters | search | cart/track
+    // Put logo cluster in LEFT (DOM start = visual right in RTL), cart in RIGHT (visual left in RTL)
+    // Actually use logical order matching screenshot (LTR visual left to right):
+    // left: brand + terms + filters | center: search | right: cart + track
 
-    // Build search in center
-    var searchWrap = document.createElement('div');
-    searchWrap.className = 'msq-tt-search-wrap';
-    // Move the real input so handlers keep working
-    searchInput.classList.add('msq-tt-search-input');
-    searchInput.placeholder = 'ابحث عن منتج...';
-    searchWrap.appendChild(searchInput);
-    if (voiceBtn) {
-      voiceBtn.classList.add('msq-tt-voice');
-      searchWrap.appendChild(voiceBtn);
-    } else {
-      var v = document.createElement('button');
-      v.type = 'button';
-      v.className = 'msq-tt-voice';
-      v.textContent = '🎤';
-      v.title = 'بحث بالصوت';
-      v.onclick = function () {
-        if (typeof startVoiceSearch === 'function') startVoiceSearch();
-        else if (typeof window.startVoiceSearch === 'function') window.startVoiceSearch();
-      };
-      searchWrap.appendChild(v);
-    }
-    center.appendChild(searchWrap);
+    // Rebuild left cluster: brand, terms, filters
+    left.appendChild(brand);
+    if (terms) left.appendChild(terms);
 
-    // Filters button
     var filtersBtn = document.createElement('button');
     filtersBtn.type = 'button';
     filtersBtn.id = 'msqAllFiltersBtn';
@@ -20830,22 +20864,57 @@ html body.msq-tt-ready header {
       '<span class="msq-tt-label">جميع الفلاتر</span>';
     filtersBtn.setAttribute('aria-haspopup', 'dialog');
     filtersBtn.onclick = openFiltersSheet;
-    right.appendChild(filtersBtn);
+    left.appendChild(filtersBtn);
 
-    // Terms + logo on the right
-    if (terms) right.appendChild(terms);
-    right.appendChild(brand);
+    // Search center
+    var searchWrap = document.createElement('div');
+    searchWrap.className = 'msq-tt-search-wrap';
+    searchInput.classList.add('msq-tt-search-input');
+    searchInput.placeholder = 'ابحث عن منتج...';
+    // Ensure input is not position absolute from old CSS
+    searchInput.style.position = 'static';
+    searchInput.style.right = 'auto';
+    searchInput.style.left = 'auto';
+    searchWrap.appendChild(searchInput);
+    if (voiceBtn) {
+      voiceBtn.classList.add('msq-tt-voice');
+      voiceBtn.style.position = 'static';
+      voiceBtn.style.right = 'auto';
+      voiceBtn.style.left = 'auto';
+      searchWrap.appendChild(voiceBtn);
+    } else {
+      var v = document.createElement('button');
+      v.type = 'button';
+      v.className = 'msq-tt-voice';
+      v.id = 'voiceSearchBtn';
+      v.textContent = '🎤';
+      v.title = 'بحث بالصوت';
+      v.onclick = function () {
+        if (typeof window.startVoiceSearch === 'function') window.startVoiceSearch();
+      };
+      searchWrap.appendChild(v);
+    }
+    center.appendChild(searchWrap);
+
+    // Cart / track on the right
+    right.appendChild(topActions);
 
     bar.appendChild(left);
     bar.appendChild(center);
     bar.appendChild(right);
 
-    // Insert toolbar at top of body
-    document.body.insertBefore(bar, document.body.firstChild);
+    // Glue toolbar onto the banner
+    header.style.position = 'relative';
+    header.insertBefore(bar, header.firstChild);
+
     document.body.classList.add('msq-tt-ready');
 
-    // Build filters sheet once
-    buildFiltersSheet({ sizeSelect: sizeSelect, sortSelect: sortSelect, subSelect: subSelect, galleryBtn: galleryBtn });
+    buildFiltersSheet({
+      sizeSelect: sizeSelect,
+      sortSelect: sortSelect,
+      subSelect: subSelect,
+      galleryBtn: galleryBtn
+    });
   }
 
   function buildFiltersSheet(refs) {
@@ -20882,59 +20951,38 @@ html body.msq-tt-ready header {
     field('الترتيب', refs.sortSelect);
     field('نوع الملابس', refs.subSelect);
 
-    // Stock + gallery chips
     var actionsWrap = document.createElement('div');
     actionsWrap.className = 'msq-filter-field';
     actionsWrap.innerHTML = '<label>خيارات إضافية</label>';
     var actions = document.createElement('div');
     actions.className = 'msq-filter-actions';
 
-    var stockAvail = document.createElement('button');
-    stockAvail.type = 'button';
-    stockAvail.className = 'msq-filter-chip';
-    stockAvail.textContent = '🟢 متوفرة';
-    stockAvail.onclick = function () {
-      actions.querySelectorAll('.msq-filter-chip[data-stock]').forEach(function (b) { b.classList.remove('active'); });
-      stockAvail.classList.add('active');
-      if (typeof filterStock === 'function') filterStock('available', stockAvail);
-      else if (typeof window.filterStock === 'function') window.filterStock('available', stockAvail);
-      markFiltersActive();
-    };
-    stockAvail.setAttribute('data-stock', 'available');
+    function stockChip(label, status, active) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'msq-filter-chip' + (active ? ' active' : '');
+      b.textContent = label;
+      b.setAttribute('data-stock', status);
+      b.onclick = function () {
+        actions.querySelectorAll('.msq-filter-chip[data-stock]').forEach(function (x) { x.classList.remove('active'); });
+        b.classList.add('active');
+        if (status === 'all') {
+          try {
+            if (typeof currentStockFilter !== 'undefined') currentStockFilter = 'all';
+            window.currentStockFilter = 'all';
+          } catch (e) {}
+          if (typeof window.handleSearchAndFilter === 'function') window.handleSearchAndFilter();
+        } else if (typeof window.filterStock === 'function') {
+          window.filterStock(status, b);
+        }
+        markFiltersActive();
+      };
+      return b;
+    }
 
-    var stockOut = document.createElement('button');
-    stockOut.type = 'button';
-    stockOut.className = 'msq-filter-chip';
-    stockOut.textContent = '🔴 نفذت';
-    stockOut.onclick = function () {
-      actions.querySelectorAll('.msq-filter-chip[data-stock]').forEach(function (b) { b.classList.remove('active'); });
-      stockOut.classList.add('active');
-      if (typeof filterStock === 'function') filterStock('out', stockOut);
-      else if (typeof window.filterStock === 'function') window.filterStock('out', stockOut);
-      markFiltersActive();
-    };
-    stockOut.setAttribute('data-stock', 'out');
-
-    var stockAll = document.createElement('button');
-    stockAll.type = 'button';
-    stockAll.className = 'msq-filter-chip active';
-    stockAll.textContent = 'الكل (المخزون)';
-    stockAll.onclick = function () {
-      actions.querySelectorAll('.msq-filter-chip[data-stock]').forEach(function (b) { b.classList.remove('active'); });
-      stockAll.classList.add('active');
-      try {
-        if (typeof currentStockFilter !== 'undefined') currentStockFilter = 'all';
-        window.currentStockFilter = 'all';
-      } catch (e) {}
-      if (typeof handleSearchAndFilter === 'function') handleSearchAndFilter();
-      else if (typeof window.handleSearchAndFilter === 'function') window.handleSearchAndFilter();
-      markFiltersActive();
-    };
-    stockAll.setAttribute('data-stock', 'all');
-
-    actions.appendChild(stockAll);
-    actions.appendChild(stockAvail);
-    actions.appendChild(stockOut);
+    actions.appendChild(stockChip('الكل (المخزون)', 'all', true));
+    actions.appendChild(stockChip('🟢 متوفرة', 'available', false));
+    actions.appendChild(stockChip('🔴 نفذت', 'out', false));
 
     if (refs.galleryBtn) {
       refs.galleryBtn.classList.add('msq-filter-chip');
@@ -20954,10 +21002,8 @@ html body.msq-tt-ready header {
       if (e.target === overlay) closeFiltersSheet();
     });
 
-    // Keep filter button badge in sync when selects change
     [refs.sizeSelect, refs.sortSelect, refs.subSelect].forEach(function (sel) {
-      if (!sel) return;
-      sel.addEventListener('change', markFiltersActive);
+      if (sel) sel.addEventListener('change', markFiltersActive);
     });
   }
 
@@ -20992,9 +21038,8 @@ html body.msq-tt-ready header {
   window.msqCloseAllFilters = closeFiltersSheet;
 
   ready(function () {
-    // slight delay so other scripts finish injecting
-    setTimeout(buildToolbar, 50);
-    setTimeout(buildToolbar, 400);
+    setTimeout(buildToolbar, 40);
+    setTimeout(buildToolbar, 350);
     setTimeout(markFiltersActive, 500);
   });
 })();
