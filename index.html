@@ -6638,7 +6638,57 @@ window.addToCartAndContinue = function () {
       return null;
     }
 
-    function setMaintenanceOverlay(enabled, message) {
+    var _maintCountdownTimer = null;
+    var _maintAutoOffInFlight = false;
+
+    function formatRemaining(ms) {
+      if (ms <= 0) return 'انتهى الموعد';
+      var totalSec = Math.floor(ms / 1000);
+      var days = Math.floor(totalSec / 86400);
+      var hours = Math.floor((totalSec % 86400) / 3600);
+      var mins = Math.floor((totalSec % 3600) / 60);
+      var secs = totalSec % 60;
+      var parts = [];
+      if (days > 0) parts.push(days + ' يوم');
+      if (hours > 0 || days > 0) parts.push(hours + ' ساعة');
+      parts.push(mins + ' دقيقة');
+      parts.push(secs + ' ثانية');
+      return parts.join(' و ');
+    }
+
+    function clearMaintCountdown() {
+      if (_maintCountdownTimer) {
+        clearInterval(_maintCountdownTimer);
+        _maintCountdownTimer = null;
+      }
+      var untilEl = document.getElementById('maintenanceModeUntil');
+      if (untilEl) {
+        untilEl.style.display = 'none';
+        untilEl.textContent = '';
+      }
+    }
+
+    function startMaintCountdown(untilMs, message) {
+      clearMaintCountdown();
+      var untilEl = document.getElementById('maintenanceModeUntil');
+      if (!untilEl || !untilMs) return;
+
+      function tick() {
+        var left = untilMs - Date.now();
+        if (left <= 0) {
+          clearMaintCountdown();
+          // Force a re-read so auto-off can run
+          try { readMaintenanceMode(); } catch (e) {}
+          return;
+        }
+        untilEl.style.display = 'block';
+        untilEl.textContent = '⏳ العودة المتوقعة خلال: ' + formatRemaining(left);
+      }
+      tick();
+      _maintCountdownTimer = setInterval(tick, 1000);
+    }
+
+    function setMaintenanceOverlay(enabled, message, untilIso) {
       var overlay = document.getElementById('maintenanceModeOverlay');
       var msg = document.getElementById('maintenanceModeMessage');
       if (msg) msg.textContent = message || '';
@@ -6646,22 +6696,61 @@ window.addToCartAndContinue = function () {
       if (enabled && !isAdminNow()) {
         overlay.style.display = 'flex';
         document.body.style.overflow = 'hidden';
+        if (untilIso) {
+          var t = Date.parse(untilIso);
+          if (!isNaN(t)) startMaintCountdown(t, message);
+          else clearMaintCountdown();
+        } else {
+          clearMaintCountdown();
+        }
       } else {
         overlay.style.display = 'none';
         document.body.style.overflow = '';
+        clearMaintCountdown();
       }
     }
 
-    function updateMaintenanceAdminUi(enabled) {
+    function updateMaintenanceAdminUi(enabled, untilIso) {
       var status = document.getElementById('maintenanceAdminStatus');
       var btn = document.getElementById('maintenanceAdminToggle');
       if (status) {
-        status.textContent = enabled ? '🔴 الصيانة مفعّلة الآن' : '🟢 المتجر يعمل بشكل طبيعي';
+        var extra = '';
+        if (enabled && untilIso) {
+          var t = Date.parse(untilIso);
+          if (!isNaN(t) && t > Date.now()) {
+            extra = ' — ينتهي خلال ' + formatRemaining(t - Date.now());
+          } else if (!isNaN(t) && t <= Date.now()) {
+            extra = ' — الموعد انتهى (سيتم الإيقاف تلقائياً)';
+          }
+        }
+        status.textContent = (enabled ? '🔴 الصيانة مفعّلة الآن' : '🟢 المتجر يعمل بشكل طبيعي') + extra;
         status.style.color = enabled ? '#c62828' : '#2e7d32';
       }
       if (btn) {
         btn.textContent = enabled ? 'إيقاف الصيانة' : 'تشغيل الصيانة';
         btn.className = 'maintenance-toggle-btn ' + (enabled ? 'on' : 'off');
+      }
+    }
+
+    async function autoDisableExpiredMaintenance(db, data) {
+      if (_maintAutoOffInFlight) return false;
+      _maintAutoOffInFlight = true;
+      try {
+        var payload = {
+          enabled: false,
+          maintenance: false,
+          message: '',
+          until: '',
+          updatedAt: new Date().toISOString(),
+          autoDisabledAt: new Date().toISOString()
+        };
+        await db.collection(MAINT_COLLECTION).doc(MAINT_DOC).set(payload, { merge: true });
+        return true;
+      } catch (e) {
+        console.warn('تعذر إيقاف الصيانة تلقائياً بعد انتهاء الموعد', e);
+        return false;
+      } finally {
+        _maintAutoOffInFlight = false;
       }
     }
 
@@ -6688,8 +6777,23 @@ window.addToCartAndContinue = function () {
       // the administrator has switched maintenance OFF.
       var enabled = !!(data && (data.enabled === true || data.maintenance === true));
       var message = data && (data.message || data.notice) ? (data.message || data.notice) : 'سيعود المتجر للعمل فور انتهاء الصيانة.';
-      updateMaintenanceAdminUi(enabled);
-      setMaintenanceOverlay(enabled, message);
+      var untilIso = (data && data.until) ? String(data.until) : '';
+
+      // Auto-disable when scheduled end time has passed
+      if (enabled && untilIso && db) {
+        var untilMs = Date.parse(untilIso);
+        if (!isNaN(untilMs) && Date.now() >= untilMs) {
+          var ok = await autoDisableExpiredMaintenance(db, data);
+          if (ok) {
+            enabled = false;
+            untilIso = '';
+            message = '';
+          }
+        }
+      }
+
+      updateMaintenanceAdminUi(enabled, untilIso);
+      setMaintenanceOverlay(enabled, message, untilIso);
       return enabled;
     }
 
@@ -6992,7 +7096,7 @@ window.addToCartAndContinue = function () {
       var wrap = document.createElement('div');
       wrap.id = 'maintenanceAdminBox';
       wrap.className = 'maintenance-admin-box';
-      wrap.innerHTML = "      <div class=\"maintenance-admin-box\">\n        <div style=\"font-weight:900;color:var(--burgundy-soft);margin-bottom:7px;\">🛠️ وضع الصيانة</div>\n        <div class=\"maintenance-admin-row\">\n          <span id=\"maintenanceAdminStatus\" style=\"font-size:12px;font-weight:800;\">جاري قراءة الحالة...</span>\n          <button id=\"maintenanceAdminToggle\" type=\"button\" class=\"maintenance-toggle-btn off\" onclick=\"toggleMaintenanceMode()\">تشغيل الصيانة</button>\n        </div>\n        <div style=\"font-size:10.5px;color:var(--text-muted);margin-top:6px;\">عند تشغيله سيتم إخفاء المتجر عن العملاء، وتظل الإدارة متاحة.</div>\n      </div>";
+      wrap.innerHTML = "      <div class=\"maintenance-admin-box\">\n        <div style=\"font-weight:900;color:var(--burgundy-soft);margin-bottom:7px;\">🛠️ وضع الصيانة</div>\n        <div class=\"maintenance-admin-row\">\n          <span id=\"maintenanceAdminStatus\" style=\"font-size:12px;font-weight:800;\">جاري قراءة الحالة...</span>\n          <button id=\"maintenanceAdminToggle\" type=\"button\" class=\"maintenance-toggle-btn off\" onclick=\"toggleMaintenanceMode()\">تشغيل الصيانة</button>\n        </div>\n        <div style=\"font-size:10.5px;color:var(--text-muted);margin-top:6px;\">عند تشغيله سيتم إخفاء المتجر عن العملاء، وتظل الإدارة متاحة. إذا حدّدت موعداً للعودة، سيظهر عدّاد تنازلي ويُوقف الوضع تلقائياً عند انتهاء الوقت.</div>\n      </div>";
       var header = document.getElementById('adminOrdersHeader');
       if (header && header.parentNode) {
         header.parentNode.insertBefore(wrap, header.nextSibling);
@@ -18126,15 +18230,82 @@ html body .top-actions {
 
 @media (max-width: 767px) {
   html body .msq-public-terms-trigger {
-    top: 12px !important;
-    right: 64px !important;
-    padding: 6px 8px !important;
-    max-width: 110px !important;
+    top: 10px !important;
+    right: 58px !important;
+    padding: 5px 7px !important;
+    max-width: 42px !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    border-radius: 50% !important;
+    gap: 0 !important;
+    overflow: hidden !important;
   }
-  html body .msq-public-terms-trigger .msq-terms-full { display: none !important; }
-  html body .msq-public-terms-trigger .msq-terms-short { display: inline !important; }
+  html body .msq-public-terms-trigger .msq-terms-full,
+  html body .msq-public-terms-trigger .msq-terms-short,
+  html body .msq-public-terms-trigger .msq-terms-label,
+  html body .msq-public-terms-trigger > span:not(.msq-book-icon) {
+    display: none !important;
+  }
+  html body .msq-public-terms-trigger .msq-book-icon {
+    display: flex !important;
+    width: 100% !important;
+    height: 100% !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  html body .msq-public-terms-trigger .msq-book-icon svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+  html body .brand-badge {
+    top: 8px !important;
+    right: 8px !important;
+    width: 46px !important;
+    height: 46px !important;
+    font-size: 7px !important;
+    z-index: 990 !important;
+  }
   html body .top-actions {
-    max-width: calc(100vw - 180px) !important;
+    top: 8px !important;
+    left: 6px !important;
+    right: auto !important;
+    max-width: calc(100vw - 120px) !important;
+    gap: 4px !important;
+    flex-wrap: nowrap !important;
+    z-index: 970 !important;
+  }
+  html body .top-actions .cart-trigger,
+  html body .top-actions .track-trigger,
+  html body .top-actions .admin-orders-trigger {
+    padding: 5px 8px !important;
+    font-size: 10px !important;
+    min-height: 32px !important;
+    border-radius: 12px !important;
+    white-space: nowrap !important;
+  }
+}
+
+@media (max-width: 400px) {
+  html body .top-actions {
+    max-width: calc(100vw - 110px) !important;
+    gap: 3px !important;
+  }
+  html body .top-actions .cart-trigger,
+  html body .top-actions .track-trigger {
+    padding: 4px 6px !important;
+    font-size: 9px !important;
+  }
+  html body .msq-public-terms-trigger {
+    right: 54px !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+  }
+  html body .brand-badge {
+    width: 42px !important;
+    height: 42px !important;
   }
 }
 
