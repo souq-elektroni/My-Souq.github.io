@@ -4220,10 +4220,10 @@ html.msq-version-checking { background: #f4e5d8; }
     <p style="display:none!important" aria-hidden="true"></p>
 
     <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261020-gold-dark')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261020-gold-dark')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261020-gold-dark')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261020-gold-dark')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
+      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261020-e-gold2')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261020-e-gold2')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261020-e-gold2')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261020-e-gold2')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
     </div>
 
     <div class="banner-dots" role="tablist" aria-label="اختيار البانر">
@@ -4239,10 +4239,10 @@ html.msq-version-checking { background: #f4e5d8; }
     <!-- صف الفئات: أقسام ثم عروض ثم المخزون -->
     <div class="categories-bar categories-main msq-category-nav" aria-label="أقسام المتجر">
       <button class="cat-btn active" data-main-category="الكل" onclick="filterCategory('الكل', this)">الكل</button>
-      <button class="cat-btn msq-main-cat" data-main-category="Kids" onclick="filterCategory('Kids', this)">🧒🏻 Kids</button>
-      <button class="cat-btn msq-main-cat" data-main-category="Baby" onclick="filterCategory('Baby', this)">👶🏻 Baby</button>
-      <button class="cat-btn msq-main-cat" data-main-category="Mr & Mrs" onclick="filterCategory('Mr & Mrs', this)">👨🏻‍🤝‍👩🏻 Mr &amp; Mrs</button>
-      <button class="cat-btn offer-tab" data-main-category="عروض" onclick="filterCategory('عروض', this)">🔥 العروض 💥</button>
+      <button class="cat-btn msq-main-cat" data-main-category="Kids" onclick="filterCategory('Kids', this)">Kids</button>
+      <button class="cat-btn msq-main-cat" data-main-category="Baby" onclick="filterCategory('Baby', this)">Baby</button>
+      <button class="cat-btn msq-main-cat" data-main-category="Mr & Mrs" onclick="filterCategory('Mr & Mrs', this)">Mr &amp; Mrs</button>
+      <button class="cat-btn offer-tab" data-main-category="عروض" onclick="filterCategory('عروض', this)">العروض</button>
       <span class="cat-divider" aria-hidden="true"></span>
       <button class="cat-btn stock-avail" onclick="filterStock('available', this)">🟢 متوفرة</button>
       <button class="cat-btn stock-out" onclick="filterStock('out', this)">🔴 نفذت</button>
@@ -21067,40 +21067,118 @@ html body header .banner-slide {
 </style>
 
 <style id="mysouq-banner-compact-v1">
-/* Taller medium banner */
+/* Option E — large banner ~420-480px desktop */
 html body.msq-tt-ready header.mysouq-banner-carousel,
 html body.msq-tt-ready header#mysouqBannerCarousel,
 html body.msq-tt-ready body > header.mysouq-banner-carousel {
-  min-height: 240px !important;
-  max-height: 340px !important;
-  height: min(34vw, 340px) !important;
-  border-radius: 0 0 24px 24px !important;
+  min-height: 320px !important;
+  max-height: 480px !important;
+  height: min(42vw, 480px) !important;
+  border-radius: 0 0 26px 26px !important;
 }
 html body.msq-tt-ready header .banner-slides,
 html body.msq-tt-ready header .banner-slide {
   min-height: 100% !important;
-  max-height: 340px !important;
+  max-height: 480px !important;
   height: 100% !important;
-  background-position: 70% 40% !important;
+  background-position: 68% 38% !important;
   background-size: cover !important;
 }
 @media (max-width: 700px) {
   html body.msq-tt-ready header.mysouq-banner-carousel,
   html body.msq-tt-ready header#mysouqBannerCarousel {
-    min-height: 190px !important;
-    max-height: 250px !important;
-    height: min(48vw, 250px) !important;
+    min-height: 220px !important;
+    max-height: 300px !important;
+    height: min(55vw, 300px) !important;
   }
   html body.msq-tt-ready header .banner-slide {
-    background-position: 75% 36% !important;
+    background-position: 72% 35% !important;
   }
 }
 @media (min-width: 1100px) {
   html body.msq-tt-ready header.mysouq-banner-carousel,
   html body.msq-tt-ready header#mysouqBannerCarousel {
-    min-height: 280px !important;
-    max-height: 340px !important;
-    height: 310px !important;
+    min-height: 420px !important;
+    max-height: 480px !important;
+    height: 450px !important;
+  }
+}
+</style>
+
+<style id="mysouq-cats-toolbar-segment-v1">
+/* Category segment: tight, no gaps, no emoji look */
+html body.msq-tt-ready .msq-category-nav,
+html body.msq-tt-ready .categories-bar.msq-category-nav {
+  display: inline-flex !important;
+  flex-wrap: nowrap !important;
+  gap: 0 !important;
+  padding: 0 !important;
+  margin: 8px auto 10px !important;
+  justify-content: center !important;
+  align-items: stretch !important;
+  width: auto !important;
+  max-width: calc(100% - 16px) !important;
+  overflow-x: auto !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.12) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12) !important;
+}
+html body.msq-tt-ready .msq-category-nav .cat-btn,
+html body.msq-tt-ready .categories-bar .cat-btn {
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  min-height: 38px !important;
+  padding: 8px 16px !important;
+  border-radius: 0 !important;
+  border: 0 !important;
+  border-left: 1px solid rgba(255,255,255,0.14) !important;
+  background: rgba(255,255,255,0.92) !important;
+  color: #4a3038 !important;
+  font: 800 13px/1.2 'Cairo', sans-serif !important;
+  box-shadow: none !important;
+  white-space: nowrap !important;
+}
+html body.msq-tt-ready .msq-category-nav .cat-btn:first-child {
+  border-left: 0 !important;
+  border-radius: 999px 0 0 999px !important;
+}
+html body.msq-tt-ready .msq-category-nav .cat-btn:last-of-type,
+html body.msq-tt-ready .msq-category-nav .cat-btn.offer-tab {
+  /* last visual chip before hidden stock */
+}
+html body.msq-tt-ready .msq-category-nav .cat-btn.active {
+  background: linear-gradient(145deg, #6d3a48, #9b5a6c) !important;
+  color: #fff !important;
+  z-index: 1 !important;
+}
+/* Offers = different color */
+html body.msq-tt-ready .msq-category-nav .cat-btn.offer-tab {
+  background: linear-gradient(145deg, #e8a317, #f0c14b) !important;
+  color: #3a2a10 !important;
+  font-weight: 900 !important;
+  border-radius: 0 999px 999px 0 !important;
+  border-left: 1px solid rgba(255,255,255,0.2) !important;
+}
+html body.msq-tt-ready .msq-category-nav .cat-btn.offer-tab.active {
+  background: linear-gradient(145deg, #c97800, #e8a317) !important;
+  color: #fff !important;
+}
+/* Hide stock from this row (still in filters sheet) */
+html body.msq-tt-ready .msq-category-nav .stock-avail,
+html body.msq-tt-ready .msq-category-nav .stock-out,
+html body.msq-tt-ready .msq-category-nav .cat-divider {
+  display: none !important;
+}
+/* Make Mr & Mrs button last visible before offers order: الكل Kids Baby Mr العروض */
+html body.msq-tt-ready .msq-category-nav .cat-btn.msq-main-cat[data-main-category="Mr & Mrs"] {
+  border-radius: 0 !important;
+}
+@media (max-width: 600px) {
+  html body.msq-tt-ready .msq-category-nav .cat-btn {
+    min-height: 34px !important;
+    padding: 6px 11px !important;
+    font-size: 11.5px !important;
   }
 }
 </style>
