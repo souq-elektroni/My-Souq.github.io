@@ -4220,10 +4220,10 @@ html.msq-version-checking { background: #f4e5d8; }
     <p style="display:none!important" aria-hidden="true"></p>
 
     <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261019d')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261019d')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261019d')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261019d')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
+      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261020-brand')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261020-brand')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261020-brand')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261020-brand')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
     </div>
 
     <div class="banner-dots" role="tablist" aria-label="اختيار البانر">
@@ -12543,11 +12543,12 @@ header .banner-slide {
   transition: opacity 0.85s ease-in-out !important;
   z-index: 1 !important;
   border-radius: inherit !important;
-  /* Force sharp rendering */
+  /* High-quality photo rendering (avoid crisp-edges — it pixelates photos) */
   filter: none !important;
   -webkit-filter: none !important;
-  image-rendering: -webkit-optimize-contrast !important;
-  image-rendering: crisp-edges !important;
+  image-rendering: auto !important;
+  image-rendering: high-quality !important;
+  -ms-interpolation-mode: bicubic !important;
   transform: translateZ(0) !important;
   backface-visibility: hidden !important;
   -webkit-backface-visibility: hidden !important;
@@ -21044,3 +21045,14 @@ html body.msq-tt-ready .controls-wrapper {
   });
 })();
 </script>
+
+<style id="mysouq-banner-hq-v1">
+html body header .banner-slide {
+  image-rendering: auto !important;
+  image-rendering: high-quality !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  -webkit-backface-visibility: hidden !important;
+  backface-visibility: hidden !important;
+}
+</style>
