@@ -1232,65 +1232,73 @@
 
 
 <style id="my-souq-paired-designs-style">
-/* ألبوم الأشكال: اجمع حقلي الصورة في صف واحد دون نقل عناصر React من مكانها */
+/* تخطيط حقلي صور الشكل أفقياً داخل سجل الشكل فقط */
 .msq-design-pair-fields {
   display:grid !important;
-  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;
   gap:12px !important;
   align-items:start !important;
   min-width:0 !important;
   width:100% !important;
 }
-.msq-design-pair-fields > * { min-width:0 !important; width:auto !important; max-width:100% !important; box-sizing:border-box !important; }
-.msq-design-pair-fields img { max-width:100% !important; }
-@media(max-width:650px) {
-  .msq-design-pair-fields { grid-template-columns:repeat(2,minmax(0,1fr)) !important; gap:7px !important; }
-}
+.msq-design-pair-fields > * {min-width:0 !important;max-width:100% !important;box-sizing:border-box !important;}
+.msq-design-pair-fields > :not(.msq-design-front-field):not(.msq-design-back-field) {grid-column:1 / -1 !important;}
+.msq-design-front-field,.msq-design-back-field {min-width:0 !important;width:auto !important;}
+.msq-design-front-field [role="button"],.msq-design-back-field [role="button"],
+.msq-design-front-field img,.msq-design-back-field img {max-width:100% !important;}
+@media(max-width:520px){.msq-design-pair-fields{gap:7px !important;grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}
 </style>
 <script id="my-souq-paired-designs-layout">
 (function(){
   'use strict';
   var FRONT='صورة الوش', BACK='صورة الضهر';
-  function exactLabel(root, text){
-    return [...root.querySelectorAll('label,[role="label"],span,p,div')].filter(function(el){
-      return el.children.length < 3 && (el.textContent||'').trim()===text;
-    });
+  function labelMatches(el, name){
+    if(!el || !el.children) return false;
+    var t=(el.textContent||'').replace(/\s+/g,' ').trim();
+    return t===name || t===name+':' || t===name+' *';
   }
-  function branchContaining(parent, node){
-    var cur=node;
-    while(cur && cur.parentElement && cur.parentElement!==parent) cur=cur.parentElement;
-    return cur && cur.parentElement===parent ? cur : null;
+  function getLabels(name){
+    return Array.from(document.querySelectorAll('label,[role="label"],span,p,div'))
+      .filter(function(el){return labelMatches(el,name) && el.getBoundingClientRect().width>0;});
   }
-  function arrangePair(frontLabel, backLabel){
-    if(!frontLabel || !backLabel) return;
-    var ancestors=new Set();
-    for(var a=frontLabel.parentElement;a;a=a.parentElement) ancestors.add(a);
-    var common=backLabel.parentElement;
-    while(common && !ancestors.has(common)) common=common.parentElement;
-    if(!common) return;
-    var f=branchContaining(common,frontLabel), b=branchContaining(common,backLabel);
-    if(!f || !b || f===b) return;
-    /* لا نطبق الشبكة على بطاقة المنتج كلها: اختر أقرب حاوية مشتركة لحقلي الرفع */
+  function fieldWrapper(label, name){
+    var node=label;
+    for(var i=0; node && i<9; i++,node=node.parentElement){
+      var text=(node.innerText||node.textContent||'');
+      if(text.indexOf(name)!==-1 && (/سحب|تصفح|لصق صورة|upload|drop/i.test(text) || node.querySelector('input[type="file"],[role="button"],img'))){
+        return node;
+      }
+    }
+    return label.parentElement && label.parentElement.parentElement || label.parentElement;
+  }
+  function branch(parent,node){var n=node;while(n&&n.parentElement&&n.parentElement!==parent)n=n.parentElement;return n&&n.parentElement===parent?n:null;}
+  function commonParent(a,b){var set=new Set();for(var n=a;n;n=n.parentElement)set.add(n);for(var m=b;m;m=m.parentElement)if(set.has(m))return m;return null;}
+  function arrange(front,back){
+    var fw=fieldWrapper(front,FRONT), bw=fieldWrapper(back,BACK);
+    if(!fw||!bw||fw===bw)return;
+    var common=commonParent(fw,bw); if(!common)return;
+    var fb=branch(common,fw), bb=branch(common,bw); if(!fb||!bb||fb===bb)return;
+    /* لا نلمس ترتيب React أو ننقل عناصره؛ ننسّق الحاوية المشتركة فقط */
     common.classList.add('msq-design-pair-fields');
+    fb.classList.add('msq-design-front-field');
+    bb.classList.add('msq-design-back-field');
   }
   function run(){
-    var fronts=exactLabel(document,FRONT), backs=exactLabel(document,BACK);
+    var fronts=getLabels(FRONT), backs=getLabels(BACK);
     fronts.forEach(function(f){
-      var fRect=f.getBoundingClientRect();
-      var b=backs.map(function(x){return {el:x,dist:Math.abs(x.getBoundingClientRect().top-fRect.top)};})
-        .sort(function(x,y){return x.dist-y.dist;})[0];
-      if(b) arrangePair(f,b.el);
+      var fr=f.getBoundingClientRect();
+      var best=backs.map(function(b){var r=b.getBoundingClientRect();return {el:b,score:Math.abs(r.top-fr.top)+Math.abs(r.left-fr.left)*0.08};})
+        .sort(function(a,b){return a.score-b.score;})[0];
+      if(best)arrange(f,best.el);
     });
     document.querySelectorAll('button').forEach(function(btn){
       var t=(btn.textContent||'').trim();
-      if(/إضافة.*ألبوم الأشكال|إضافة.*شكل.*ألبوم الأشكال/.test(t) && !btn.dataset.msqLabelled){
-        btn.dataset.msqLabelled='1'; btn.textContent='＋ إضافة أشكال للكوليكشن';
-      }
+      if(/إضافة.*ألبوم الأشكال|إضافة.*شكل.*ألبوم الأشكال/.test(t)&&!btn.dataset.msqLabelled){btn.dataset.msqLabelled='1';btn.textContent='＋ إضافة أشكال للكوليكشن';}
     });
   }
   var queued=false;
-  function schedule(){if(queued)return;queued=true;setTimeout(function(){queued=false;run();},120);}
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',schedule); else schedule();
+  function schedule(){if(queued)return;queued=true;window.setTimeout(function(){queued=false;run();},180);}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',schedule);else schedule();
   new MutationObserver(schedule).observe(document.documentElement,{childList:true,subtree:true});
 })();
 </script>
