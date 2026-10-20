@@ -109,17 +109,14 @@ collections:
         required: true
 
       # الصور المزدوجة لكل شكل داخل الكوليكشن؛ الحقل القديم images يظل موجودًا للتوافق.
-      - label: "أشكال الكوليكشن — الوش والضهر لكل شكل"
+      - label: "ألبوم الأشكال — صورتان لكل شكل"
         name: "designs"
         widget: "list"
         required: false
-        summary: "{{fields.name}}"
+        summary: "شكل {{index}}"
+        collapsed: true
         add_to_top: false
         fields:
-          - label: "اسم الشكل / اللون (اختياري)"
-            name: "name"
-            widget: "string"
-            required: false
           - label: "صورة الوش"
             name: "front_image"
             widget: "image"
