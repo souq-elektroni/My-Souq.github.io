@@ -233,39 +233,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
 
   async function listProductMarkdownFiles() {
-    // Source of truth = GitHub first. jsDelivr is only a fallback and can lag after deletes.
-    function clearProductNameCache() {
-      try { localStorage.removeItem('souqProductFileNames'); } catch (e) {}
-    }
-
-    // 1) GitHub Contents API (reflects Sveltia deletes immediately)
-    try {
-      const res = await fetch(
-        `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/products?ref=${encodeURIComponent(GITHUB_BRANCH)}&_=${Date.now()}`,
-        { cache: 'no-store', headers: { 'Accept': 'application/vnd.github+json' } }
-      );
-      if (res.status === 404) {
-        // Folder missing = no products (user deleted all)
-        clearProductNameCache();
-        return [];
-      }
-      if (res.ok) {
-        const files = await res.json();
-        if (Array.isArray(files)) {
-          const names = files
-            .filter(function (f) { return f && f.name && /\.(md|markdown)$/i.test(f.name); })
-            .map(function (f) { return f.name; });
-          if (!names.length) clearProductNameCache();
-          return names;
-        }
-      } else {
-        console.warn('GitHub contents status', res.status);
-      }
-    } catch (e2) {
-      console.warn('GitHub list failed', e2);
-    }
-
-    // 2) jsDelivr package listing (may be stale after deletes — use only if GitHub failed)
+    // 1) jsDelivr (مستقر ومش بيتأثر بحد GitHub API)
     try {
       const jd = await fetch(
         `https://data.jsdelivr.com/v1/packages/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}?_=${Date.now()}`,
@@ -284,20 +252,36 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
           });
         }
         walk(data.files || [], '');
-        // Do NOT treat empty as "fall through to cache" — return empty.
-        return names;
+        if (names.length) return names;
       }
     } catch (e) {
       console.warn('jsDelivr list failed', e);
     }
 
-    // 3) Last resort: local cache ONLY when network fully failed
+    // 2) GitHub Contents API
+    try {
+      const res = await fetch(
+        `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/products?ref=${encodeURIComponent(GITHUB_BRANCH)}&_=${Date.now()}`,
+        { cache: 'no-store' }
+      );
+      if (res.ok) {
+        const files = await res.json();
+        if (Array.isArray(files)) {
+          return files
+            .filter(function (f) { return f && f.name && /\.(md|markdown)$/i.test(f.name); })
+            .map(function (f) { return f.name; });
+        }
+      } else {
+        console.warn('GitHub contents status', res.status);
+      }
+    } catch (e2) {
+      console.warn('GitHub list failed', e2);
+    }
+
+    // 3) كاش محلي من آخر تحميل ناجح
     try {
       const cached = JSON.parse(localStorage.getItem('souqProductFileNames') || '[]');
-      if (Array.isArray(cached) && cached.length) {
-        console.warn('Using local product filename cache (network unavailable)');
-        return cached;
-      }
+      if (Array.isArray(cached) && cached.length) return cached;
     } catch (e3) {}
 
     return [];
@@ -305,10 +289,9 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   async function fetchProductMarkdown(fileName) {
     const encoded = fileName.split('/').map(encodeURIComponent).join('/');
-    // Prefer GitHub raw (fresh after Sveltia delete). jsDelivr CDN can lag for hours.
     const urls = [
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?_=${Date.now()}`,
-      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?_=${Date.now()}`
+      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261019d')}&_=${Date.now()}`,
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261019d')}&_=${Date.now()}`
     ];
     for (let i = 0; i < urls.length; i++) {
       try {
@@ -324,11 +307,8 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       const mdFiles = await listProductMarkdownFiles();
 
       if (!mdFiles.length) {
-        products = [];
-        try { localStorage.removeItem('souqProductFileNames'); } catch (e) {}
         productsGrid.innerHTML =
-          '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">لا توجد منتجات منشورة حالياً.</p>';
-        try { if (typeof renderFeatured === 'function') renderFeatured(); } catch (e) {}
+          '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">لا توجد منتجات منشورة حالياً أو تعذر الاتصال بالمصدر.</p>';
         return;
       }
 
@@ -729,10 +709,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   function productCardHtml(p) {
     const albumCount = Array.isArray(p.images) ? p.images.length : 0;
     const firstImage = (p.images && p.images[0]) || p.image || 'https://via.placeholder.com/300?text=My+Souq';
-    const secondImage = (p.images && p.images[1]) || null;
-    const albumBadge = albumCount > 2
-      ? `<span class="msq-album-badge">▧ ألبوم · ${albumCount} صور</span>`
-      : (albumCount === 2 ? `<span class="msq-album-badge msq-dual-badge">وش · ظهر</span>` : '');
+    const secondImage = albumCount > 1 ? p.images[1] : '';
     // مهم لفلتر «نوع الملابس» في index.html (sharedSubcategorySelect)
     const escAttr = (v) => String(v ?? '')
       .replace(/&/g, '&amp;')
@@ -742,36 +719,34 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     const catAttr = escAttr(p.category || '');
     const subAttr = escAttr(p.subcategory || '');
     const titleAttr = escAttr(p.title || '');
-    // صورتين جنب بعض (وش/ظهر) لما يكون في صورتين على الأقل
-    const imageBlock = secondImage
-      ? `<div class="msq-dual-images" aria-label="وش وظهر المنتج">
-            <img class="product-image msq-dual-front" data-album-index="0" src="${firstImage}" alt="${titleAttr} — وش"
-              loading="lazy" decoding="async" width="150" height="300"
-              onerror="this.src='https://via.placeholder.com/150x300?text=Front'">
-            <img class="product-image msq-dual-back" data-album-index="1" src="${secondImage}" alt="${titleAttr} — ظهر"
-              loading="lazy" decoding="async" width="150" height="300"
-              onerror="this.src='https://via.placeholder.com/150x300?text=Back'">
-          </div>`
+    const imageMarkup = secondImage
+      ? `<div class="product-image-pair">
+           <img class="product-image product-image-front" src="${firstImage}" alt="${titleAttr} - الوش"
+             loading="lazy" decoding="async" width="300" height="300"
+             onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">
+           <img class="product-image product-image-back" src="${secondImage}" alt="${titleAttr} - الضهر"
+             loading="lazy" decoding="async" width="300" height="300"
+             onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">
+         </div>
+         <span class="msq-album-badge">الوش | الضهر</span>`
       : `<img class="product-image" data-album-index="0" src="${firstImage}" alt="${titleAttr}"
-              loading="lazy" decoding="async" fetchpriority="low"
-              width="300" height="300"
-              onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">`;
+             loading="lazy" decoding="async" fetchpriority="low" width="300" height="300"
+             onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">`;
     return `
-        <div class="product-card${secondImage ? ' msq-card-dual' : ''}" data-product-card-id="${p.id}"
+        <div class="product-card" data-product-card-id="${p.id}"
           data-category="${catAttr}"
           data-subcategory="${subAttr}"
           data-title="${titleAttr}"
           onclick="openProductModal(${p.id})">
-          <div class="image-container">
-            ${imageBlock}
-            ${albumBadge}
+          <div class="image-container${secondImage ? ' has-image-pair' : ''}">
+            ${imageMarkup}
           </div>
           <div class="product-details">
             <h3 class="product-title">${p.title}</h3>
             <div class="price-tag">
               ${getCardPriceHtml(p)}
             </div>
-            <div class="click-hint">${albumCount > 2 ? '↔ صور الكوليكشن · عرض التفاصيل 👈' : (albumCount === 2 ? 'وش وظهر · عرض التفاصيل 👈' : 'عرض التفاصيل 👈')}</div>
+            <div class="click-hint">${secondImage ? 'صورتا الوش والضهر · عرض التفاصيل 👈' : 'عرض التفاصيل 👈'}</div>
           </div>
         </div>`;
   }
@@ -793,7 +768,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     function rotateCard(card) {
       const productId = Number(card.getAttribute('data-product-card-id'));
       const product = products.find(function (item) { return Number(item.id) === productId; });
-      if (!product || !Array.isArray(product.images) || product.images.length < 2) return;
+      if (!product || !Array.isArray(product.images) || product.images.length < 2 || product.images.length === 2) return;
       const img = card.querySelector('.product-image');
       if (!img || !card.isConnected) return;
       if (card._msqRotating) return;

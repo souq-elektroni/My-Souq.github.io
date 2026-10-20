@@ -108,13 +108,13 @@ collections:
             value: "ملابس للخروج"
         required: true
 
-      - label: "صور الكوليكشن"
+      - label: "صور المنتج (الوش + الضهر — صورتان كحد أقصى)"
         name: "images"
         widget: "image"
         multiple: true
         required: true
         min: 1
-        max: 200
+        max: 2
         media_libraries:
           all:
             max_file_size: 52428800
