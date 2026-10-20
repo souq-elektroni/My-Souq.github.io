@@ -4220,7 +4220,7 @@ html.msq-version-checking { background: #f4e5d8; }
     <p style="display:none!important" aria-hidden="true"></p>
 
     <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/banner-main.webp?v=20261020-solo')" role="img" aria-label="ماي سوق — كل ما تحتاجه بمكان واحد"></div>
+      <div class="banner-slide active" style="background-image:url('assets/banner-main.webp?v=20261020-fullvis')" role="img" aria-label="ماي سوق — كل ما تحتاجه بمكان واحد"></div>
     </div>
     <!-- single banner: no dots -->
     <div class="banner-dots" role="tablist" aria-label="اختيار البانر" style="display:none!important"></div>
@@ -21058,44 +21058,7 @@ html body header .banner-slide {
 }
 </style>
 
-<style id="mysouq-banner-compact-v1">
-/* Option E — large banner ~420-480px desktop */
-html body.msq-tt-ready header.mysouq-banner-carousel,
-html body.msq-tt-ready header#mysouqBannerCarousel,
-html body.msq-tt-ready body > header.mysouq-banner-carousel {
-  min-height: 320px !important;
-  max-height: 480px !important;
-  height: min(42vw, 480px) !important;
-  border-radius: 0 0 26px 26px !important;
-}
-html body.msq-tt-ready header .banner-slides,
-html body.msq-tt-ready header .banner-slide {
-  min-height: 100% !important;
-  max-height: 480px !important;
-  height: 100% !important;
-  background-position: 68% 38% !important;
-  background-size: cover !important;
-}
-@media (max-width: 700px) {
-  html body.msq-tt-ready header.mysouq-banner-carousel,
-  html body.msq-tt-ready header#mysouqBannerCarousel {
-    min-height: 220px !important;
-    max-height: 300px !important;
-    height: min(55vw, 300px) !important;
-  }
-  html body.msq-tt-ready header .banner-slide {
-    background-position: 72% 35% !important;
-  }
-}
-@media (min-width: 1100px) {
-  html body.msq-tt-ready header.mysouq-banner-carousel,
-  html body.msq-tt-ready header#mysouqBannerCarousel {
-    min-height: 420px !important;
-    max-height: 480px !important;
-    height: 450px !important;
-  }
-}
-</style>
+<style id="mysouq-banner-compact-v1">/* superseded by layout-final-v3 */</style>
 
 
 <style id="mysouq-cats-toolbar-segment-v1">
@@ -21169,21 +21132,15 @@ html body.msq-tt-ready .msq-tt-cats .cat-divider {
 
 
 <style id="mysouq-search-lower-v1">
-/* Search sits lower — under banner, not in the top chrome center */
+/* Search stays in toolbar empty center — do NOT hide */
 html body.msq-tt-ready .msq-top-toolbar .msq-tt-center {
-  display: none !important;
+  display: flex !important;
+  flex: 1 1 auto !important;
+  justify-content: center !important;
+  min-width: 0 !important;
 }
 html body.msq-tt-ready .msq-search-lower-wrap {
-  display: flex !important;
-  justify-content: center !important;
-  width: min(720px, calc(100% - 24px)) !important;
-  margin: 10px auto 6px !important;
-  position: relative !important;
-  z-index: 5 !important;
-}
-html body.msq-tt-ready .msq-search-lower-wrap .msq-tt-search-wrap {
-  width: 100% !important;
-  max-width: 720px !important;
+  display: none !important;
 }
 </style>
 
@@ -21191,45 +21148,135 @@ html body.msq-tt-ready .msq-search-lower-wrap .msq-tt-search-wrap {
 (function(){
   function $(s,r){return (r||document).querySelector(s)}
   function place(){
-    var bar = $('#msqTopToolbar');
-    var cats = $('.msq-category-nav') || $('.categories-bar');
-    var searchWrap = bar && bar.querySelector('.msq-tt-search-wrap');
-    var header = $('#mysouqBannerCarousel') || $('header.mysouq-banner-carousel');
+    var bar = document.getElementById('msqTopToolbar') || document.querySelector('.msq-top-toolbar');
+    var cats = document.querySelector('.msq-category-nav') || document.querySelector('.categories-bar');
     if(!bar) return;
 
-    // Move categories into toolbar (between left and right clusters)
-    if(cats && !bar.querySelector('.msq-tt-cats')){
-      var hold = document.createElement('div');
-      hold.className = 'msq-tt-cats';
-      // only main category buttons
-      var cloneNav = cats.cloneNode(true);
-      cloneNav.classList.add('msq-tt-cats');
-      cloneNav.style.display = 'inline-flex';
-      // use original buttons (keep handlers) — move original into toolbar
+    // Categories into toolbar (before right cluster)
+    if(cats && !cats.classList.contains('msq-tt-cats')){
       cats.classList.add('msq-tt-cats');
-      // insert before right cluster if exists
       var right = bar.querySelector('.msq-tt-right');
-      var left = bar.querySelector('.msq-tt-left');
       if(right) bar.insertBefore(cats, right);
       else bar.appendChild(cats);
     }
 
-    // Move search below banner
-    if(searchWrap && header && !document.querySelector('.msq-search-lower-wrap')){
-      var wrap = document.createElement('div');
-      wrap.className = 'msq-search-lower-wrap';
-      // move the search wrap node
-      wrap.appendChild(searchWrap);
-      if(header.nextSibling) header.parentNode.insertBefore(wrap, header.nextSibling);
-      else header.parentNode.appendChild(wrap);
+    // Restore search into toolbar center if it was moved down
+    var lower = document.querySelector('.msq-search-lower-wrap');
+    var center = bar.querySelector('.msq-tt-center');
+    if(lower && center){
+      var sw = lower.querySelector('.msq-tt-search-wrap');
+      if(sw) center.appendChild(sw);
+      lower.remove();
     }
   }
-  function boot(){
-    place();
-    setTimeout(place, 200);
-    setTimeout(place, 800);
-  }
+  function boot(){ place(); setTimeout(place, 200); setTimeout(place, 900); }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();
 </script>
+
+<style id="mysouq-layout-final-v3">
+/* ===== 1) Toolbar SEPARATE from banner (own bar on top) ===== */
+html body.msq-tt-ready .msq-top-toolbar,
+html body.msq-tt-ready #msqTopToolbar {
+  position: sticky !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  z-index: 4000 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 12px !important;
+  box-sizing: border-box !important;
+  background: rgba(36, 28, 32, 0.82) !important;
+  backdrop-filter: blur(14px) saturate(1.15) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(1.15) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.12) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18) !important;
+  /* NOT absolute over banner */
+  inset: auto !important;
+  bottom: auto !important;
+  height: auto !important;
+  min-height: 52px !important;
+}
+
+html body.msq-tt-ready .msq-top-toolbar .msq-tt-center {
+  display: flex !important;
+  flex: 1 1 auto !important;
+  justify-content: center !important;
+  min-width: 120px !important;
+}
+html body.msq-tt-ready .msq-top-toolbar .msq-tt-search-wrap {
+  width: min(100%, 420px) !important;
+  max-width: 420px !important;
+}
+html body.msq-tt-ready .msq-top-toolbar .msq-tt-search {
+  width: 100% !important;
+}
+
+/* ===== 2) Banner FULL image visible (no crop) ===== */
+html body.msq-tt-ready header.mysouq-banner-carousel,
+html body.msq-tt-ready header#mysouqBannerCarousel {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  margin-top: 0 !important;
+  padding: 0 !important;
+  /* aspect ratio of banner-main.webp 2048x768 */
+  aspect-ratio: 2048 / 768 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+  background: #f7efe6 !important;
+}
+html body.msq-tt-ready header .banner-slides,
+html body.msq-tt-ready header .banner-slide {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+  background-position: center center !important;
+  background-color: #f7efe6 !important;
+}
+
+/* Kill older height clamps that crop the image */
+html body.msq-tt-ready header.mysouq-banner-carousel {
+  height: auto !important;
+}
+@media (max-width: 700px) {
+  html body.msq-tt-ready header.mysouq-banner-carousel,
+  html body.msq-tt-ready header#mysouqBannerCarousel {
+    aspect-ratio: 2048 / 768 !important;
+    max-height: none !important;
+  }
+  html body.msq-tt-ready .msq-top-toolbar .msq-tt-search-wrap {
+    max-width: 160px !important;
+  }
+  html body.msq-tt-ready .msq-tt-cats {
+    max-width: min(36vw, 150px) !important;
+  }
+}
+@media (min-width: 1100px) {
+  html body.msq-tt-ready .msq-top-toolbar .msq-tt-search-wrap {
+    max-width: 480px !important;
+  }
+}
+
+/* Hide legacy floating search/sort under banner if duplicated */
+html body.msq-tt-ready .search-sort-box {
+  display: none !important;
+}
+</style>
