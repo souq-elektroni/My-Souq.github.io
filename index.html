@@ -12473,7 +12473,7 @@ document.addEventListener('click', function(e){
   })();
   </script>
 
-  <script src="script.js?v=20261020-nocache"></script>
+  <script src="script.js?v=20261020-dual"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -18307,7 +18307,7 @@ body.msq-modal-open #msqSupportLauncher {
 })();
 </script>
 
-<script src="script.js?v=20261020-nocache"></script>
+<script src="script.js?v=20261020-dual"></script>
 
 <style id="msq-modern-shell-override">
 html body .msq-shell-toolbar{
@@ -18339,6 +18339,36 @@ html body .products-grid#products-container{
   gap:14px!important;
 }
 html body header.mysouq-banner-carousel{display:none!important}
+</style>
+
+
+<style id="msq-dual-card-css">
+/* Dual front/back product card */
+.product-card .image-container{position:relative;overflow:hidden}
+.product-card .msq-dual-images{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:2px!important;
+  width:100%!important;
+  height:100%!important;
+  aspect-ratio:1/1.05!important;
+  background:#f3ebe6;
+}
+.product-card .msq-dual-images img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center top!important;
+  display:block!important;
+  min-height:0!important;
+}
+.product-card.msq-card-dual .image-container{
+  aspect-ratio:1/1.05!important;
+}
+.msq-album-badge.msq-dual-badge{
+  background:rgba(90,48,60,0.78)!important;
+  font-size:10px!important;
+}
 </style>
 
 </body>

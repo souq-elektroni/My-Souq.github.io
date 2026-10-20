@@ -729,7 +729,10 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   function productCardHtml(p) {
     const albumCount = Array.isArray(p.images) ? p.images.length : 0;
     const firstImage = (p.images && p.images[0]) || p.image || 'https://via.placeholder.com/300?text=My+Souq';
-    const albumBadge = albumCount > 1 ? `<span class="msq-album-badge">▧ ألبوم · ${albumCount} صور</span>` : '';
+    const secondImage = (p.images && p.images[1]) || null;
+    const albumBadge = albumCount > 2
+      ? `<span class="msq-album-badge">▧ ألبوم · ${albumCount} صور</span>`
+      : (albumCount === 2 ? `<span class="msq-album-badge msq-dual-badge">وش · ظهر</span>` : '');
     // مهم لفلتر «نوع الملابس» في index.html (sharedSubcategorySelect)
     const escAttr = (v) => String(v ?? '')
       .replace(/&/g, '&amp;')
@@ -739,17 +742,28 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     const catAttr = escAttr(p.category || '');
     const subAttr = escAttr(p.subcategory || '');
     const titleAttr = escAttr(p.title || '');
+    // صورتين جنب بعض (وش/ظهر) لما يكون في صورتين على الأقل
+    const imageBlock = secondImage
+      ? `<div class="msq-dual-images" aria-label="وش وظهر المنتج">
+            <img class="product-image msq-dual-front" data-album-index="0" src="${firstImage}" alt="${titleAttr} — وش"
+              loading="lazy" decoding="async" width="150" height="300"
+              onerror="this.src='https://via.placeholder.com/150x300?text=Front'">
+            <img class="product-image msq-dual-back" data-album-index="1" src="${secondImage}" alt="${titleAttr} — ظهر"
+              loading="lazy" decoding="async" width="150" height="300"
+              onerror="this.src='https://via.placeholder.com/150x300?text=Back'">
+          </div>`
+      : `<img class="product-image" data-album-index="0" src="${firstImage}" alt="${titleAttr}"
+              loading="lazy" decoding="async" fetchpriority="low"
+              width="300" height="300"
+              onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">`;
     return `
-        <div class="product-card" data-product-card-id="${p.id}"
+        <div class="product-card${secondImage ? ' msq-card-dual' : ''}" data-product-card-id="${p.id}"
           data-category="${catAttr}"
           data-subcategory="${subAttr}"
           data-title="${titleAttr}"
           onclick="openProductModal(${p.id})">
           <div class="image-container">
-            <img class="product-image" data-album-index="0" src="${firstImage}" alt="${titleAttr}"
-              loading="lazy" decoding="async" fetchpriority="low"
-              width="300" height="300"
-              onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">
+            ${imageBlock}
             ${albumBadge}
           </div>
           <div class="product-details">
@@ -757,7 +771,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
             <div class="price-tag">
               ${getCardPriceHtml(p)}
             </div>
-            <div class="click-hint">${albumCount > 1 ? '↔ صور الكوليكشن · عرض التفاصيل 👈' : 'عرض التفاصيل 👈'}</div>
+            <div class="click-hint">${albumCount > 2 ? '↔ صور الكوليكشن · عرض التفاصيل 👈' : (albumCount === 2 ? 'وش وظهر · عرض التفاصيل 👈' : 'عرض التفاصيل 👈')}</div>
           </div>
         </div>`;
   }
