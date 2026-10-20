@@ -20172,37 +20172,830 @@ html body button.msq-public-terms-trigger {
   position: absolute !important;
 }
 
+/* Desktop / tablet defaults */
 html body .brand-badge {
   top: 16px !important;
   right: 16px !important;
-  z-index: 960 !important;
+  z-index: 980 !important;
 }
 html body .top-actions {
   top: 18px !important;
-  left: 88px !important;
+  left: 12px !important;
   right: auto !important;
-  z-index: 960 !important;
+  z-index: 970 !important;
+  max-width: min(420px, calc(100vw - 280px)) !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
 }
 html body .msq-public-terms-trigger {
-  top: 12px !important;
-  right: 82px !important;
+  top: 14px !important;
+  right: 90px !important;
   left: auto !important;
-  z-index: 959 !important;
+  z-index: 975 !important;
+  max-width: 200px !important;
+}
+</style>
+
+<style id="mysouq-mobile-header-no-overlap-v2">
+/* ===== Mobile header: NO overlap between logo / terms / cart / track ===== */
+@media (max-width: 767px) {
+  /* Logo — small circle, far right */
+  html body .brand-badge,
+  html body div.brand-badge {
+    position: absolute !important;
+    top: 8px !important;
+    right: 8px !important;
+    left: auto !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    min-height: 44px !important;
+    font-size: 7px !important;
+    z-index: 990 !important;
+    border-radius: 50% !important;
+  }
+
+  /* Terms — icon-only circle, left of logo (no text, no collision) */
+  html body .msq-public-terms-trigger,
+  html body button.msq-public-terms-trigger {
+    position: absolute !important;
+    top: 8px !important;
+    right: 56px !important;
+    left: auto !important;
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    padding: 0 !important;
+    gap: 0 !important;
+    border-radius: 50% !important;
+    overflow: hidden !important;
+    z-index: 985 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  html body .msq-public-terms-trigger .msq-terms-full,
+  html body .msq-public-terms-trigger .msq-terms-short,
+  html body .msq-public-terms-trigger .msq-terms-label,
+  html body .msq-public-terms-trigger > span:not(.msq-book-icon) {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    font-size: 0 !important;
+    opacity: 0 !important;
+  }
+  html body .msq-public-terms-trigger .msq-book-icon {
+    display: flex !important;
+    width: 100% !important;
+    height: 100% !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+  }
+  html body .msq-public-terms-trigger .msq-book-icon svg {
+    width: 22px !important;
+    height: 22px !important;
+  }
+
+  /* Cart + Track — left side, compact, never reach the right icons */
+  html body .top-actions,
+  html body div.top-actions {
+    position: absolute !important;
+    top: 8px !important;
+    left: 6px !important;
+    right: auto !important;
+    width: auto !important;
+    max-width: calc(100vw - 120px) !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 0 !important;
+    z-index: 970 !important;
+    overflow: visible !important;
+  }
+  html body .top-actions .cart-trigger,
+  html body .top-actions .track-trigger,
+  html body .top-actions .admin-orders-trigger,
+  html body .top-actions > * {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    min-height: 32px !important;
+    padding: 5px 8px !important;
+    font-size: 10px !important;
+    border-radius: 12px !important;
+    white-space: nowrap !important;
+    line-height: 1.2 !important;
+  }
 }
 
-@media (max-width: 600px) {
-  html body .brand-badge {
-    top: 10px !important;
-    right: 10px !important;
+@media (max-width: 400px) {
+  html body .brand-badge,
+  html body div.brand-badge {
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
   }
-  html body .top-actions {
-    top: 12px !important;
-    left: 8px !important;
-    right: 56px !important;
+  html body .msq-public-terms-trigger,
+  html body button.msq-public-terms-trigger {
+    right: 52px !important;
+    width: 40px !important;
+    height: 40px !important;
+    min-width: 40px !important;
+    max-width: 40px !important;
   }
-  html body .msq-public-terms-trigger {
-    top: 8px !important;
-    right: 64px !important;
+  html body .top-actions,
+  html body div.top-actions {
+    max-width: calc(100vw - 108px) !important;
+    gap: 3px !important;
+  }
+  html body .top-actions .cart-trigger,
+  html body .top-actions .track-trigger,
+  html body .top-actions > * {
+    padding: 4px 6px !important;
+    font-size: 9px !important;
+    min-height: 30px !important;
   }
 }
 </style>
+
+
+<!-- ===== My Souq Top Toolbar Redesign v1 ===== -->
+<style id="mysouq-top-toolbar-redesign-v1">
+/* Reset conflicting absolute positions for the 4 icons — they live inside the toolbar now */
+html body.msq-tt-ready .brand-badge,
+html body.msq-tt-ready .top-actions,
+html body.msq-tt-ready .msq-public-terms-trigger {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+html body.msq-tt-ready .brand-badge {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  font-size: 7.5px !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+  z-index: 1 !important;
+}
+
+html body.msq-tt-ready .msq-public-terms-trigger {
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  max-width: 44px !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  z-index: 1 !important;
+}
+html body.msq-tt-ready .msq-public-terms-trigger .msq-terms-full,
+html body.msq-tt-ready .msq-public-terms-trigger .msq-terms-short,
+html body.msq-tt-ready .msq-public-terms-trigger .msq-terms-label,
+html body.msq-tt-ready .msq-public-terms-trigger > span:not(.msq-book-icon) {
+  display: none !important;
+}
+html body.msq-tt-ready .msq-public-terms-trigger .msq-book-icon {
+  display: flex !important;
+  width: 100% !important;
+  height: 100% !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+html body.msq-tt-ready .msq-public-terms-trigger .msq-book-icon svg {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+html body.msq-tt-ready .top-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+  max-width: none !important;
+  width: auto !important;
+  padding: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  z-index: 1 !important;
+}
+html body.msq-tt-ready .top-actions .cart-trigger,
+html body.msq-tt-ready .top-actions .track-trigger,
+html body.msq-tt-ready .top-actions .admin-orders-trigger {
+  min-height: 40px !important;
+  padding: 7px 12px !important;
+  font-size: 12px !important;
+  border-radius: 999px !important;
+  white-space: nowrap !important;
+}
+
+/* The sticky top toolbar */
+.msq-top-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  background: rgba(28, 22, 26, 0.72);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 8px 28px rgba(20,12,16,0.22);
+}
+.msq-tt-left,
+.msq-tt-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.msq-tt-center {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.msq-tt-search-wrap {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 520px;
+  gap: 6px;
+  background: rgba(255,255,255,0.94);
+  border: 1px solid rgba(255,255,255,0.55);
+  border-radius: 999px;
+  padding: 4px 6px 4px 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  box-sizing: border-box;
+}
+.msq-tt-search-wrap input {
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0 !important;
+  outline: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  font: 700 14px/1.3 'Cairo', sans-serif !important;
+  color: #3a2a30 !important;
+  padding: 8px 4px !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+.msq-tt-search-wrap input::placeholder {
+  color: #9a7f88 !important;
+  font-weight: 700 !important;
+}
+.msq-tt-voice {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #f3e6ea, #ead7df);
+  color: #5a3040;
+  font-size: 16px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.msq-tt-filters-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 7px 12px;
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 999px;
+  background: linear-gradient(145deg, #c9a06a, #a67c4a);
+  color: #fffaf3;
+  font: 900 12px/1.2 'Cairo', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(120, 80, 30, 0.28);
+  white-space: nowrap;
+}
+.msq-tt-filters-btn .msq-tt-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 14px;
+}
+.msq-tt-filters-btn .msq-tt-bars span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: #fffaf3;
+}
+.msq-tt-filters-btn .msq-tt-bars span:nth-child(1) { width: 100%; }
+.msq-tt-filters-btn .msq-tt-bars span:nth-child(2) { width: 75%; }
+.msq-tt-filters-btn .msq-tt-bars span:nth-child(3) { width: 50%; }
+.msq-tt-filters-btn.has-active {
+  background: linear-gradient(145deg, #8b3f52, #c46b82);
+  box-shadow: 0 6px 16px rgba(139, 63, 82, 0.35);
+}
+
+/* Filters sheet (bottom sheet / panel) */
+.msq-filters-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50000;
+  background: rgba(18,14,16,0.45);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px;
+  box-sizing: border-box;
+}
+.msq-filters-sheet-overlay.open { display: flex; }
+.msq-filters-sheet {
+  width: min(520px, 100%);
+  max-height: min(82vh, 640px);
+  overflow: auto;
+  background: linear-gradient(180deg, #fffaf7 0%, #fff 40%, #f7f1f3 100%);
+  border-radius: 22px 22px 18px 18px;
+  box-shadow: 0 -12px 40px rgba(20,10,14,0.25);
+  padding: 16px 16px 20px;
+  box-sizing: border-box;
+  animation: msqSheetUp .28s ease;
+}
+@keyframes msqSheetUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.msq-filters-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.msq-filters-sheet-head h3 {
+  margin: 0;
+  font: 900 16px/1.3 'Cairo', sans-serif;
+  color: #5a3040;
+}
+.msq-filters-close {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: #f0e4e8;
+  color: #5a3040;
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.msq-filters-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.msq-filter-field label {
+  display: block;
+  font: 800 12px/1.3 'Cairo', sans-serif;
+  color: #7a5560;
+  margin-bottom: 6px;
+}
+.msq-filter-field select,
+.msq-filter-field .msq-filter-actions {
+  width: 100%;
+  box-sizing: border-box;
+}
+.msq-filter-field select {
+  min-height: 44px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(139,63,82,0.18);
+  background: #fff;
+  font: 800 13px/1.3 'Cairo', sans-serif;
+  color: #3a2a30;
+  outline: none;
+}
+.msq-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.msq-filter-chip {
+  flex: 1 1 calc(50% - 8px);
+  min-height: 42px;
+  border: 1px solid rgba(139,63,82,0.16);
+  border-radius: 14px;
+  background: #fff;
+  font: 800 12.5px/1.2 'Cairo', sans-serif;
+  color: #4a3038;
+  cursor: pointer;
+  padding: 8px 10px;
+}
+.msq-filter-chip.active {
+  background: linear-gradient(145deg, #8b3f52, #c46b82);
+  color: #fff;
+  border-color: transparent;
+  box-shadow: 0 6px 14px rgba(139,63,82,0.25);
+}
+.msq-filters-apply {
+  width: 100%;
+  margin-top: 6px;
+  min-height: 48px;
+  border: 0;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #087f83, #36aaa9);
+  color: #fff;
+  font: 900 15px/1.2 'Cairo', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(8,127,131,0.28);
+}
+
+/* Hide old free-floating search-sort row content visually when toolbar owns search;
+   keep selects in DOM for logic, moved into sheet */
+html body.msq-tt-ready .search-sort-box {
+  display: none !important;
+}
+
+/* Professional category chips */
+html body.msq-tt-ready .msq-category-nav,
+html body.msq-tt-ready .categories-bar {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 4px 2px 8px !important;
+  justify-content: flex-start !important;
+  grid-template-columns: none !important;
+}
+html body.msq-tt-ready .msq-category-nav::-webkit-scrollbar { display: none; }
+html body.msq-tt-ready .msq-category-nav .cat-btn,
+html body.msq-tt-ready .categories-bar .cat-btn {
+  flex: 0 0 auto !important;
+  min-height: 40px !important;
+  padding: 8px 16px !important;
+  border-radius: 999px !important;
+  font: 800 13px/1.2 'Cairo', sans-serif !important;
+  border: 1px solid rgba(255,255,255,0.55) !important;
+  background: rgba(255,255,255,0.82) !important;
+  color: #4a3038 !important;
+  box-shadow: 0 4px 14px rgba(40,20,28,0.08) !important;
+  white-space: nowrap !important;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease !important;
+}
+html body.msq-tt-ready .msq-category-nav .cat-btn.active,
+html body.msq-tt-ready .categories-bar .cat-btn.active {
+  background: linear-gradient(145deg, #8b3f52, #c46b82) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+  box-shadow: 0 8px 20px rgba(139,63,82,0.28) !important;
+}
+html body.msq-tt-ready .msq-category-nav .cat-btn.offer-tab {
+  background: linear-gradient(145deg, #fff3e0, #ffe0b2) !important;
+  color: #8a4b00 !important;
+  border-color: rgba(255,183,77,0.55) !important;
+}
+html body.msq-tt-ready .msq-category-nav .cat-btn.offer-tab.active {
+  background: linear-gradient(145deg, #ef6c00, #ff9800) !important;
+  color: #fff !important;
+}
+/* Stock buttons move into filters sheet — hide from category row */
+html body.msq-tt-ready .msq-category-nav .stock-avail,
+html body.msq-tt-ready .msq-category-nav .stock-out,
+html body.msq-tt-ready .msq-category-nav .cat-divider {
+  display: none !important;
+}
+
+html body.msq-tt-ready .controls-wrapper {
+  margin-top: 10px !important;
+  padding-top: 8px !important;
+}
+html body.msq-tt-ready header.mysouq-banner-carousel,
+html body.msq-tt-ready header {
+  margin-top: 12px !important;
+}
+
+
+@media (max-width: 600px) {
+  .msq-top-toolbar {
+    gap: 5px;
+    padding: 7px 8px;
+  }
+  html body.msq-tt-ready .top-actions .cart-trigger,
+  html body.msq-tt-ready .top-actions .track-trigger {
+    min-height: 34px !important;
+    padding: 5px 8px !important;
+    font-size: 10px !important;
+  }
+  html body.msq-tt-ready .brand-badge,
+  html body.msq-tt-ready .msq-public-terms-trigger {
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    max-width: 38px !important;
+  }
+  .msq-tt-filters-btn {
+    min-height: 34px;
+    padding: 5px 9px;
+    font-size: 10px;
+    gap: 5px;
+  }
+  .msq-tt-filters-btn .msq-tt-label { display: none; }
+  .msq-tt-search-wrap {
+    padding: 3px 4px 3px 10px;
+  }
+  .msq-tt-search-wrap input {
+    font-size: 12px !important;
+    padding: 7px 2px !important;
+  }
+  .msq-tt-voice { width: 32px; height: 32px; font-size: 14px; }
+  html body.msq-tt-ready .msq-category-nav .cat-btn {
+    min-height: 36px !important;
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .msq-top-toolbar {
+    padding: 10px 18px;
+    gap: 12px;
+  }
+  html body.msq-tt-ready .brand-badge {
+    width: 52px !important;
+    height: 52px !important;
+    font-size: 9px !important;
+  }
+  html body.msq-tt-ready .msq-public-terms-trigger {
+    width: 48px !important;
+    height: 48px !important;
+    max-width: 48px !important;
+  }
+  .msq-tt-filters-btn { font-size: 13px; padding: 8px 14px; }
+}
+</style>
+
+<script id="mysouq-top-toolbar-redesign-js">
+(function () {
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function ready(fn) {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+    else fn();
+  }
+
+  function buildToolbar() {
+    if (document.getElementById('msqTopToolbar')) return;
+
+    var brand = $('.brand-badge');
+    var topActions = $('.top-actions');
+    var terms = $('.msq-public-terms-trigger');
+    var searchInput = $('#searchInput');
+    var voiceBtn = $('#voiceSearchBtn');
+    var sizeSelect = $('#sizeSelect');
+    var sortSelect = $('#sortSelect');
+    var subSelect = $('#sharedSubcategorySelect');
+    var galleryBtn = $('#galleryModeBtn');
+
+    if (!brand || !topActions || !searchInput) return;
+
+    var bar = document.createElement('div');
+    bar.id = 'msqTopToolbar';
+    bar.className = 'msq-top-toolbar';
+    bar.setAttribute('role', 'banner');
+
+    var left = document.createElement('div');
+    left.className = 'msq-tt-left';
+
+    var center = document.createElement('div');
+    center.className = 'msq-tt-center';
+
+    var right = document.createElement('div');
+    right.className = 'msq-tt-right';
+
+    // Move cart/track into left
+    left.appendChild(topActions);
+
+    // Build search in center
+    var searchWrap = document.createElement('div');
+    searchWrap.className = 'msq-tt-search-wrap';
+    // Move the real input so handlers keep working
+    searchInput.classList.add('msq-tt-search-input');
+    searchInput.placeholder = 'ابحث عن منتج...';
+    searchWrap.appendChild(searchInput);
+    if (voiceBtn) {
+      voiceBtn.classList.add('msq-tt-voice');
+      searchWrap.appendChild(voiceBtn);
+    } else {
+      var v = document.createElement('button');
+      v.type = 'button';
+      v.className = 'msq-tt-voice';
+      v.textContent = '🎤';
+      v.title = 'بحث بالصوت';
+      v.onclick = function () {
+        if (typeof startVoiceSearch === 'function') startVoiceSearch();
+        else if (typeof window.startVoiceSearch === 'function') window.startVoiceSearch();
+      };
+      searchWrap.appendChild(v);
+    }
+    center.appendChild(searchWrap);
+
+    // Filters button
+    var filtersBtn = document.createElement('button');
+    filtersBtn.type = 'button';
+    filtersBtn.id = 'msqAllFiltersBtn';
+    filtersBtn.className = 'msq-tt-filters-btn';
+    filtersBtn.innerHTML =
+      '<span class="msq-tt-bars" aria-hidden="true"><span></span><span></span><span></span></span>' +
+      '<span class="msq-tt-label">جميع الفلاتر</span>';
+    filtersBtn.setAttribute('aria-haspopup', 'dialog');
+    filtersBtn.onclick = openFiltersSheet;
+    right.appendChild(filtersBtn);
+
+    // Terms + logo on the right
+    if (terms) right.appendChild(terms);
+    right.appendChild(brand);
+
+    bar.appendChild(left);
+    bar.appendChild(center);
+    bar.appendChild(right);
+
+    // Insert toolbar at top of body
+    document.body.insertBefore(bar, document.body.firstChild);
+    document.body.classList.add('msq-tt-ready');
+
+    // Build filters sheet once
+    buildFiltersSheet({ sizeSelect: sizeSelect, sortSelect: sortSelect, subSelect: subSelect, galleryBtn: galleryBtn });
+  }
+
+  function buildFiltersSheet(refs) {
+    if (document.getElementById('msqFiltersSheetOverlay')) return;
+
+    var overlay = document.createElement('div');
+    overlay.id = 'msqFiltersSheetOverlay';
+    overlay.className = 'msq-filters-sheet-overlay';
+    overlay.innerHTML =
+      '<div class="msq-filters-sheet" role="dialog" aria-modal="true" aria-labelledby="msqFiltersTitle">' +
+        '<div class="msq-filters-sheet-head">' +
+          '<h3 id="msqFiltersTitle">جميع الفلاتر</h3>' +
+          '<button type="button" class="msq-filters-close" id="msqFiltersClose" aria-label="إغلاق">×</button>' +
+        '</div>' +
+        '<div class="msq-filters-grid" id="msqFiltersGrid"></div>' +
+        '<button type="button" class="msq-filters-apply" id="msqFiltersApply">تطبيق الفلاتر</button>' +
+      '</div>';
+    document.body.appendChild(overlay);
+
+    var grid = $('#msqFiltersGrid', overlay);
+
+    function field(label, el) {
+      if (!el) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'msq-filter-field';
+      var lab = document.createElement('label');
+      lab.textContent = label;
+      wrap.appendChild(lab);
+      wrap.appendChild(el);
+      grid.appendChild(wrap);
+    }
+
+    field('المقاس', refs.sizeSelect);
+    field('الترتيب', refs.sortSelect);
+    field('نوع الملابس', refs.subSelect);
+
+    // Stock + gallery chips
+    var actionsWrap = document.createElement('div');
+    actionsWrap.className = 'msq-filter-field';
+    actionsWrap.innerHTML = '<label>خيارات إضافية</label>';
+    var actions = document.createElement('div');
+    actions.className = 'msq-filter-actions';
+
+    var stockAvail = document.createElement('button');
+    stockAvail.type = 'button';
+    stockAvail.className = 'msq-filter-chip';
+    stockAvail.textContent = '🟢 متوفرة';
+    stockAvail.onclick = function () {
+      actions.querySelectorAll('.msq-filter-chip[data-stock]').forEach(function (b) { b.classList.remove('active'); });
+      stockAvail.classList.add('active');
+      if (typeof filterStock === 'function') filterStock('available', stockAvail);
+      else if (typeof window.filterStock === 'function') window.filterStock('available', stockAvail);
+      markFiltersActive();
+    };
+    stockAvail.setAttribute('data-stock', 'available');
+
+    var stockOut = document.createElement('button');
+    stockOut.type = 'button';
+    stockOut.className = 'msq-filter-chip';
+    stockOut.textContent = '🔴 نفذت';
+    stockOut.onclick = function () {
+      actions.querySelectorAll('.msq-filter-chip[data-stock]').forEach(function (b) { b.classList.remove('active'); });
+      stockOut.classList.add('active');
+      if (typeof filterStock === 'function') filterStock('out', stockOut);
+      else if (typeof window.filterStock === 'function') window.filterStock('out', stockOut);
+      markFiltersActive();
+    };
+    stockOut.setAttribute('data-stock', 'out');
+
+    var stockAll = document.createElement('button');
+    stockAll.type = 'button';
+    stockAll.className = 'msq-filter-chip active';
+    stockAll.textContent = 'الكل (المخزون)';
+    stockAll.onclick = function () {
+      actions.querySelectorAll('.msq-filter-chip[data-stock]').forEach(function (b) { b.classList.remove('active'); });
+      stockAll.classList.add('active');
+      try {
+        if (typeof currentStockFilter !== 'undefined') currentStockFilter = 'all';
+        window.currentStockFilter = 'all';
+      } catch (e) {}
+      if (typeof handleSearchAndFilter === 'function') handleSearchAndFilter();
+      else if (typeof window.handleSearchAndFilter === 'function') window.handleSearchAndFilter();
+      markFiltersActive();
+    };
+    stockAll.setAttribute('data-stock', 'all');
+
+    actions.appendChild(stockAll);
+    actions.appendChild(stockAvail);
+    actions.appendChild(stockOut);
+
+    if (refs.galleryBtn) {
+      refs.galleryBtn.classList.add('msq-filter-chip');
+      refs.galleryBtn.style.flex = '1 1 100%';
+      actions.appendChild(refs.galleryBtn);
+    }
+
+    actionsWrap.appendChild(actions);
+    grid.appendChild(actionsWrap);
+
+    $('#msqFiltersClose', overlay).onclick = closeFiltersSheet;
+    $('#msqFiltersApply', overlay).onclick = function () {
+      markFiltersActive();
+      closeFiltersSheet();
+    };
+    overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) closeFiltersSheet();
+    });
+
+    // Keep filter button badge in sync when selects change
+    [refs.sizeSelect, refs.sortSelect, refs.subSelect].forEach(function (sel) {
+      if (!sel) return;
+      sel.addEventListener('change', markFiltersActive);
+    });
+  }
+
+  function openFiltersSheet() {
+    var overlay = $('#msqFiltersSheetOverlay');
+    if (overlay) overlay.classList.add('open');
+  }
+  function closeFiltersSheet() {
+    var overlay = $('#msqFiltersSheetOverlay');
+    if (overlay) overlay.classList.remove('open');
+  }
+
+  function markFiltersActive() {
+    var btn = $('#msqAllFiltersBtn');
+    if (!btn) return;
+    var sizeSelect = $('#sizeSelect');
+    var sortSelect = $('#sortSelect');
+    var subSelect = $('#sharedSubcategorySelect');
+    var galleryBtn = $('#galleryModeBtn');
+    var active = false;
+    if (sizeSelect && sizeSelect.value && sizeSelect.value !== 'الكل') active = true;
+    if (sortSelect && sortSelect.value && sortSelect.value !== 'default') active = true;
+    if (subSelect && subSelect.value) active = true;
+    if (galleryBtn && galleryBtn.classList.contains('active')) active = true;
+    try {
+      if (typeof currentStockFilter !== 'undefined' && currentStockFilter && currentStockFilter !== 'all') active = true;
+    } catch (e) {}
+    btn.classList.toggle('has-active', !!active);
+  }
+
+  window.msqOpenAllFilters = openFiltersSheet;
+  window.msqCloseAllFilters = closeFiltersSheet;
+
+  ready(function () {
+    // slight delay so other scripts finish injecting
+    setTimeout(buildToolbar, 50);
+    setTimeout(buildToolbar, 400);
+    setTimeout(markFiltersActive, 500);
+  });
+})();
+</script>
