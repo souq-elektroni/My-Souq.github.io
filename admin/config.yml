@@ -108,13 +108,72 @@ collections:
             value: "ملابس للخروج"
         required: true
 
-      - label: "صور المنتج (الوش + الضهر — صورتان كحد أقصى)"
+      # الصور المزدوجة لكل شكل داخل الكوليكشن؛ الحقل القديم images يظل موجودًا للتوافق.
+      - label: "أشكال الكوليكشن — الوش والضهر لكل شكل"
+        name: "designs"
+        widget: "list"
+        required: false
+        summary: "{{fields.name}}"
+        add_to_top: false
+        fields:
+          - label: "اسم الشكل / اللون (اختياري)"
+            name: "name"
+            widget: "string"
+            required: false
+          - label: "صورة الوش"
+            name: "front_image"
+            widget: "image"
+            required: false
+            media_libraries:
+              all:
+                max_file_size: 52428800
+                transformations:
+                  raster_image:
+                    format: webp
+                    quality: 75
+                    width: 1400
+                    height: 1400
+                  jpeg:
+                    format: webp
+                    quality: 75
+                    width: 1400
+                    height: 1400
+                  png:
+                    format: webp
+                    quality: 75
+                    width: 1400
+                    height: 1400
+          - label: "صورة الضهر"
+            name: "back_image"
+            widget: "image"
+            required: false
+            media_libraries:
+              all:
+                max_file_size: 52428800
+                transformations:
+                  raster_image:
+                    format: webp
+                    quality: 75
+                    width: 1400
+                    height: 1400
+                  jpeg:
+                    format: webp
+                    quality: 75
+                    width: 1400
+                    height: 1400
+                  png:
+                    format: webp
+                    quality: 75
+                    width: 1400
+                    height: 1400
+
+      - label: "صور الألبوم القديم (اختياري — للتوافق مع المنتجات السابقة)"
         name: "images"
         widget: "image"
         multiple: true
-        required: true
+        required: false
         min: 1
-        max: 2
+        max: 200
         media_libraries:
           all:
             max_file_size: 52428800

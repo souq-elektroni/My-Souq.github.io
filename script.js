@@ -436,6 +436,49 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       String(topLevel.images).replace(/^\[|\]$/g, '').split(',').forEach(v => pushImage(v));
     }
 
+    // Paired front/back images per design. Keep the original images album compatible.
+    const parsedDesigns = [];
+    let inDesigns = false;
+    let currentDesign = null;
+    const finishDesign = () => {
+      if (!currentDesign) return;
+      const front = fixImagePath(currentDesign.front_image);
+      const back = fixImagePath(currentDesign.back_image);
+      if (front || back) {
+        const design = { name: currentDesign.name || '', front_image: front || back, back_image: back || front };
+        parsedDesigns.push(design);
+        [design.front_image, design.back_image].forEach((url) => {
+          if (url && !allExtractedImages.includes(url)) allExtractedImages.push(url);
+        });
+      }
+      currentDesign = null;
+    };
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (/^designs:\s*$/.test(trimmed)) { inDesigns = true; continue; }
+      if (!inDesigns) continue;
+      if (/^[A-Za-z_][A-Za-z0-9_-]*:\s*/.test(line) && !/^\s+-/.test(line)) {
+        finishDesign(); inDesigns = false; continue;
+      }
+      if (trimmed.startsWith('-')) {
+        finishDesign();
+        currentDesign = { name: '', front_image: '', back_image: '' };
+        const first = trimmed.replace(/^-\s*/, '').match(/^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/);
+        if (first && Object.prototype.hasOwnProperty.call(currentDesign, first[1])) currentDesign[first[1]] = unquote(first[2]);
+        continue;
+      }
+      if (currentDesign) {
+        const field = trimmed.match(/^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/);
+        if (field && Object.prototype.hasOwnProperty.call(currentDesign, field[1])) currentDesign[field[1]] = unquote(field[2]);
+      }
+    }
+    finishDesign();
+    if (parsedDesigns.length) {
+      const pairedUrls = parsedDesigns.flatMap((design) => [design.front_image, design.back_image]).filter(Boolean);
+      const legacyUrls = allExtractedImages.filter((url) => !pairedUrls.includes(url));
+      allExtractedImages.splice(0, allExtractedImages.length, ...pairedUrls, ...legacyUrls);
+    }
+
     const defaultImg = 'https://via.placeholder.com/300?text=My+Souq';
     if (allExtractedImages.length === 0) allExtractedImages.push(defaultImg);
 
@@ -521,6 +564,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       stock: stockStatus,
       image: allExtractedImages[0],
       images: allExtractedImages,
+      designs: parsedDesigns,
       variants: parsedVariants,
       desc: parsedBody
     };
@@ -709,7 +753,11 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   function productCardHtml(p) {
     const albumCount = Array.isArray(p.images) ? p.images.length : 0;
     const firstImage = (p.images && p.images[0]) || p.image || 'https://via.placeholder.com/300?text=My+Souq';
-    const secondImage = albumCount > 1 ? p.images[1] : '';
+    const pairedDesigns = Array.isArray(p.designs) ? p.designs.filter(d => d && (d.front_image || d.back_image)) : [];
+    const albumBadge = pairedDesigns.length
+      ? `<span class="msq-album-badge">▧ ${pairedDesigns.length} أشكال · ${pairedDesigns.length * 2} صور</span>`
+      : (albumCount > 1 ? `<span class="msq-album-badge">▧ ألبوم · ${albumCount} صور</span>` : '');
+    const pairedCardHtml = pairedDesigns.length ? `<div class="msq-card-pair" aria-label="صور الوش والضهر">${[pairedDesigns[0].front_image, pairedDesigns[0].back_image].filter(Boolean).map((src, idx) => `<img class="msq-pair-thumb" src="${src}" alt="${idx === 0 ? 'وش المنتج' : 'ضهر المنتج'}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">`).join('')}<span class="msq-pair-label">وش · ضهر</span></div>` : '';
     // مهم لفلتر «نوع الملابس» في index.html (sharedSubcategorySelect)
     const escAttr = (v) => String(v ?? '')
       .replace(/&/g, '&amp;')
@@ -719,34 +767,25 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     const catAttr = escAttr(p.category || '');
     const subAttr = escAttr(p.subcategory || '');
     const titleAttr = escAttr(p.title || '');
-    const imageMarkup = secondImage
-      ? `<div class="product-image-pair">
-           <img class="product-image product-image-front" src="${firstImage}" alt="${titleAttr} - الوش"
-             loading="lazy" decoding="async" width="300" height="300"
-             onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">
-           <img class="product-image product-image-back" src="${secondImage}" alt="${titleAttr} - الضهر"
-             loading="lazy" decoding="async" width="300" height="300"
-             onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">
-         </div>
-         <span class="msq-album-badge">الوش | الضهر</span>`
-      : `<img class="product-image" data-album-index="0" src="${firstImage}" alt="${titleAttr}"
-             loading="lazy" decoding="async" fetchpriority="low" width="300" height="300"
-             onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">`;
     return `
         <div class="product-card" data-product-card-id="${p.id}"
           data-category="${catAttr}"
           data-subcategory="${subAttr}"
           data-title="${titleAttr}"
           onclick="openProductModal(${p.id})">
-          <div class="image-container${secondImage ? ' has-image-pair' : ''}">
-            ${imageMarkup}
+          <div class="image-container ${pairedDesigns.length ? 'msq-has-pair' : ''}">
+            ${pairedDesigns.length ? pairedCardHtml : `<img class="product-image" data-album-index="0" src="${firstImage}" alt="${titleAttr}"
+              loading="lazy" decoding="async" fetchpriority="low"
+              width="300" height="300"
+              onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">`}
+            ${albumBadge}
           </div>
           <div class="product-details">
             <h3 class="product-title">${p.title}</h3>
             <div class="price-tag">
               ${getCardPriceHtml(p)}
             </div>
-            <div class="click-hint">${secondImage ? 'صورتا الوش والضهر · عرض التفاصيل 👈' : 'عرض التفاصيل 👈'}</div>
+            <div class="click-hint">${albumCount > 1 ? '↔ صور الكوليكشن · عرض التفاصيل 👈' : 'عرض التفاصيل 👈'}</div>
           </div>
         </div>`;
   }
@@ -768,7 +807,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     function rotateCard(card) {
       const productId = Number(card.getAttribute('data-product-card-id'));
       const product = products.find(function (item) { return Number(item.id) === productId; });
-      if (!product || !Array.isArray(product.images) || product.images.length < 2 || product.images.length === 2) return;
+      if (!product || !Array.isArray(product.images) || product.images.length < 2) return;
       const img = card.querySelector('.product-image');
       if (!img || !card.isConnected) return;
       if (card._msqRotating) return;
@@ -1169,10 +1208,35 @@ ${selectedImage}
 
 
     galleryIndex = 0;
+    const pairedDesigns = Array.isArray(currentSelectedProduct.designs) ? currentSelectedProduct.designs.filter(d => d && (d.front_image || d.back_image)) : [];
+    const galleryWrapper = document.querySelector('#productModal .modal-gallery-wrapper');
+    let pairedGallery = document.getElementById('msqPairedGallery');
+    if (pairedGallery) pairedGallery.remove();
     if (modalImg) {
       modalImg.src = currentSelectedProduct.images[0];
       activeModalImage = currentSelectedProduct.images[0];
       modalImg.onclick = () => openZoom();
+      modalImg.style.display = pairedDesigns.length ? 'none' : '';
+    }
+    const nav = galleryWrapper ? galleryWrapper.querySelector('.gallery-nav') : null;
+    const thumbsWrap = document.getElementById('thumbsVerticalWrap');
+    if (pairedDesigns.length && galleryWrapper) {
+      if (nav) nav.style.display = 'none';
+      if (thumbsWrap) thumbsWrap.style.display = 'none';
+      pairedGallery = document.createElement('div');
+      pairedGallery.id = 'msqPairedGallery';
+      pairedGallery.className = 'msq-modal-paired-gallery';
+      pairedGallery.innerHTML = pairedDesigns.map((design, idx) => {
+        const label = String(design.name || `الشكل ${idx + 1}`).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        const front = design.front_image || design.back_image;
+        const back = design.back_image || design.front_image;
+        return `<section class="msq-modal-pair-card"><div class="msq-modal-pair-title">${label}</div><div class="msq-modal-pair-images"><img src="${front}" alt="${label} - الوش" loading="lazy"><img src="${back}" alt="${label} - الضهر" loading="lazy"></div><div class="msq-modal-pair-captions"><span>الوش</span><span>الضهر</span></div></section>`;
+      }).join('');
+      galleryWrapper.insertBefore(pairedGallery, modalImg);
+      activeModalImage = pairedDesigns[0].front_image || pairedDesigns[0].back_image || activeModalImage;
+    } else {
+      if (nav) nav.style.display = '';
+      if (thumbsWrap) thumbsWrap.style.display = '';
     }
     // رابط مباشر للمنتج في العنوان
     try {
@@ -1238,7 +1302,7 @@ ${selectedImage}
       thumbsContainer.innerHTML = '';
 
       if (
-        currentSelectedProduct.images.length > 1
+        currentSelectedProduct.images.length > 1 && !pairedDesigns.length
       ) {
 
         thumbsContainer.style.display =
