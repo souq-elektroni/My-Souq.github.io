@@ -1275,6 +1275,55 @@
     gap: 8px !important;
   }
 }
+
+/* إخفاء مسار الملف بجانب معاينة الصورة في ألبوم الأشكال */
+[data-key-path*=".front_image"] a[href*="/images/"],
+[data-key-path*=".back_image"] a[href*="/images/"],
+[data-key-path*=".front_image"] a[href*="images/"],
+[data-key-path*=".back_image"] a[href*="images/"],
+[data-typed-key-path*=".front_image"] a[href*="/images/"],
+[data-typed-key-path*=".back_image"] a[href*="/images/"],
+[data-key-path*=".front_image"] a[href$=".webp"],
+[data-key-path*=".back_image"] a[href$=".webp"],
+[data-key-path*=".front_image"] a[href$=".jpg"],
+[data-key-path*=".back_image"] a[href$=".jpg"],
+[data-key-path*=".front_image"] a[href$=".png"],
+[data-key-path*=".back_image"] a[href$=".png"],
+[data-key-path*=".front_image"] a[href$=".jpeg"],
+[data-key-path*=".back_image"] a[href$=".jpeg"] {
+  font-size: 0 !important;
+  color: transparent !important;
+  line-height: 0 !important;
+  overflow: hidden !important;
+  max-width: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: none !important;
+}
+
+/* بعض إصدارات Sveltia تعرض المسار كنص عادي مش رابط */
+[data-key-path*=".front_image"] [class*="path"],
+[data-key-path*=".back_image"] [class*="path"],
+[data-key-path*=".front_image"] [class*="filename"],
+[data-key-path*=".back_image"] [class*="filename"],
+[data-key-path*=".front_image"] [class*="url"],
+[data-key-path*=".back_image"] [class*="url"] {
+  display: none !important;
+}
+
+/* إخفاء أي نص طويل يشبه مسار صورة داخل حقل الصورة */
+.msq-hide-image-path {
+  display: none !important;
+  font-size: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+  position: absolute !important;
+  pointer-events: none !important;
+}
 </style>
 <script id="my-souq-paired-designs-layout-v8">
 (function () {
@@ -1377,6 +1426,45 @@
       if (match) {
         usedBack.add(match);
         pairFields(f, match);
+      }
+    });
+
+    
+    /* إخفاء نص مسار الصورة بجانب المصغّر */
+    fields.forEach(function (el) {
+      if (!isFront(el) && !isBack(el)) return;
+      var links = el.querySelectorAll("a");
+      for (var li = 0; li < links.length; li++) {
+        var a = links[li];
+        var href = a.getAttribute("href") || "";
+        var at = String(a.textContent || "").trim();
+        if (
+          /\/images\//.test(href) ||
+          /\/images\//.test(at) ||
+          /\.(webp|jpe?g|png|gif|svg)(\?|$)/i.test(href) ||
+          /\.(webp|jpe?g|png|gif|svg)(\?|$)/i.test(at) ||
+          /^\/?images\//i.test(at)
+        ) {
+          a.classList.add("msq-hide-image-path");
+          a.style.setProperty("display", "none", "important");
+        }
+      }
+      /* نص عادي فيه مسار */
+      var walkers = el.querySelectorAll("span, p, div, code, small");
+      for (var wi = 0; wi < walkers.length; wi++) {
+        var w = walkers[wi];
+        if (w.querySelector("img, button, input, a img")) continue;
+        var wt = String(w.textContent || "").trim();
+        if (
+          wt.length > 12 &&
+          (/\/images\//.test(wt) || /\.(webp|jpe?g|png)(\?|$)/i.test(wt) || /^\/?images\//i.test(wt)) &&
+          !w.querySelector("img")
+        ) {
+          /* لا تخفِ حاوية فيها صورة */
+          if (w.querySelector("img")) continue;
+          w.classList.add("msq-hide-image-path");
+          w.style.setProperty("display", "none", "important");
+        }
       }
     });
 
