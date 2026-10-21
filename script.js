@@ -291,8 +291,8 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   async function fetchProductMarkdown(fileName) {
     const encoded = fileName.split('/').map(encodeURIComponent).join('/');
     const urls = [
-      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021a')}&_=${Date.now()}`,
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021a')}&_=${Date.now()}`
+      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021b')}&_=${Date.now()}`,
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021b')}&_=${Date.now()}`
     ];
     for (let i = 0; i < urls.length; i++) {
       try {
@@ -828,7 +828,6 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       if (!designs.length) return;
       if (card._msqRotating) return;
       card._msqRotating = true;
-      pair.classList.add('msq-show-back');
       pair.classList.add('msq-pair-hover-active');
       let di = Number(card._msqDesignIndex) || 0;
 
@@ -897,7 +896,6 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       }
       const pair = card.querySelector('.msq-card-pair');
       if (pair) {
-        pair.classList.remove('msq-show-back');
         pair.classList.remove('msq-pair-hover-active');
       }
     }
@@ -1291,20 +1289,29 @@ ${selectedImage}
     if (pairedDesigns.length && galleryWrapper) {
       if (nav) nav.style.display = 'none';
       if (thumbsWrap) thumbsWrap.style.display = 'none';
+      if (modalImg) {
+        modalImg.style.display = 'none';
+        modalImg.classList.add('msq-hide-for-pair');
+      }
       pairedGallery = document.createElement('div');
       pairedGallery.id = 'msqPairedGallery';
       pairedGallery.className = 'msq-modal-paired-gallery';
+      pairedGallery.style.cssText = 'display:grid;width:100%;gap:12px;';
       pairedGallery.innerHTML = pairedDesigns.map((design, idx) => {
         const label = String(design.name || `الشكل ${idx + 1}`).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
         const front = design.front_image || design.back_image;
         const back = design.back_image || design.front_image;
         return `<section class="msq-modal-pair-card"><div class="msq-modal-pair-title">${label}</div><div class="msq-modal-pair-images"><img src="${front}" alt="${label} - الوش" loading="lazy"><img src="${back}" alt="${label} - الضهر" loading="lazy"></div><div class="msq-modal-pair-captions"><span>الوش</span><span>الضهر</span></div></section>`;
       }).join('');
-      galleryWrapper.insertBefore(pairedGallery, modalImg);
+      galleryWrapper.insertBefore(pairedGallery, modalImg || galleryWrapper.firstChild);
       activeModalImage = pairedDesigns[0].front_image || pairedDesigns[0].back_image || activeModalImage;
     } else {
       if (nav) nav.style.display = '';
       if (thumbsWrap) thumbsWrap.style.display = '';
+      if (modalImg) {
+        modalImg.style.display = '';
+        modalImg.classList.remove('msq-hide-for-pair');
+      }
     }
     // رابط مباشر للمنتج في العنوان
     try {
@@ -3964,7 +3971,7 @@ ${itemsText || '-'}
     // تحديث Service Worker الحالي مع منع المتصفح من استخدام نسخة مخزنة من ملفه.
     // يظل دعم PWA موجوداً، لكن ملف العامل يُعاد فحصه مع كل إصدار جديد.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=20261021a', { updateViaCache: 'none' })
+      navigator.serviceWorker.register('./sw.js?v=20261021b', { updateViaCache: 'none' })
         .then(function(registration) {
           if (!registration) return;
           // Force the browser to check for a newer SW file immediately.
