@@ -292,8 +292,8 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   async function fetchProductMarkdown(fileName) {
     const encoded = fileName.split('/').map(encodeURIComponent).join('/');
     const urls = [
-      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021j')}&_=${Date.now()}`,
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021j')}&_=${Date.now()}`
+      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021k')}&_=${Date.now()}`,
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021k')}&_=${Date.now()}`
     ];
     for (let i = 0; i < urls.length; i++) {
       try {
@@ -1364,6 +1364,24 @@ ${selectedImage}
           });
         }
       })();
+      // ترتيب ميزة جرب المنتج تحت الصور في وضع الكوليكشن
+      (function placeVtoPair() {
+        var vto = document.getElementById('virtualTryOnBox');
+        var gal = document.querySelector('#productModal .modal-gallery-wrapper');
+        if (vto && gal) {
+          vto.style.setProperty('width', '100%', 'important');
+          vto.style.setProperty('grid-column', '1 / -1', 'important');
+          vto.style.setProperty('margin', '10px 0 0', 'important');
+          vto.style.setProperty('box-sizing', 'border-box', 'important');
+          // انقلها لآخر المعرض لو مش هناك
+          if (vto.parentElement !== gal) {
+            gal.appendChild(vto);
+          } else {
+            gal.appendChild(vto);
+          }
+        }
+      })();
+
 
       if (nav) nav.style.display = 'none';
       if (thumbsWrap) thumbsWrap.style.display = 'none';
@@ -1456,6 +1474,74 @@ ${selectedImage}
           });
         }
       })();
+      // تخطيط نظام الصورة الواحدة — بدون فراغ جنب البيانات
+      (function forceSingleLayout() {
+        var body = document.querySelector('#productModal .modal-body');
+        var info = document.querySelector('#productModal .modal-info');
+        var gal = document.querySelector('#productModal .modal-gallery-wrapper');
+        var content = document.querySelector('#productModal .modal-content');
+        var modalImg = document.getElementById('modalImage');
+        if (content) {
+          content.style.setProperty('width', 'min(1180px, calc(100vw - 12px))', 'important');
+          content.style.setProperty('max-width', '1180px', 'important');
+        }
+        if (body) {
+          body.style.setProperty('display', 'grid', 'important');
+          body.style.setProperty('grid-template-columns', 'minmax(0, 1.35fr) minmax(300px, 380px)', 'important');
+          body.style.setProperty('gap', '14px', 'important');
+          body.style.setProperty('padding', '10px 12px', 'important');
+          body.style.setProperty('align-items', 'start', 'important');
+          body.style.setProperty('width', '100%', 'important');
+          body.style.setProperty('box-sizing', 'border-box', 'important');
+          body.style.setProperty('margin', '0', 'important');
+        }
+        if (gal) {
+          gal.style.setProperty('grid-column', '1', 'important');
+          gal.style.setProperty('width', '100%', 'important');
+          gal.style.setProperty('min-width', '0', 'important');
+          gal.style.setProperty('margin', '0', 'important');
+          gal.style.setProperty('padding', '0', 'important');
+          gal.style.setProperty('display', 'grid', 'important');
+          gal.style.setProperty('grid-template-columns', 'minmax(0,1fr) 72px', 'important');
+          gal.style.setProperty('gap', '10px', 'important');
+        }
+        if (info) {
+          info.style.setProperty('grid-column', '2', 'important');
+          info.style.setProperty('width', '100%', 'important');
+          info.style.setProperty('max-width', 'none', 'important');
+          info.style.setProperty('margin', '0', 'important');
+          info.style.setProperty('padding', '0', 'important');
+          info.style.setProperty('box-sizing', 'border-box', 'important');
+          info.style.setProperty('gap', '9px', 'important');
+          Array.prototype.forEach.call(info.children, function (ch) {
+            if (ch.classList && (ch.classList.contains('modal-back-btn') || ch.classList.contains('stock-badge'))) return;
+            ch.style.setProperty('width', '100%', 'important');
+            ch.style.setProperty('max-width', '100%', 'important');
+            ch.style.setProperty('box-sizing', 'border-box', 'important');
+            ch.style.setProperty('margin-left', '0', 'important');
+            ch.style.setProperty('margin-right', '0', 'important');
+          });
+        }
+        if (modalImg) {
+          modalImg.style.setProperty('width', '100%', 'important');
+          modalImg.style.setProperty('height', 'clamp(280px, 54vh, 560px)', 'important');
+          modalImg.style.setProperty('max-height', 'min(58vh, 560px)', 'important');
+          modalImg.style.setProperty('object-fit', 'contain', 'important');
+          modalImg.style.setProperty('object-position', 'center center', 'important');
+          modalImg.style.setProperty('background', '#f0ebe6', 'important');
+          modalImg.style.setProperty('border-radius', '14px', 'important');
+        }
+        // ميزة جرب المنتج — تحت المعرض بشكل مرتب
+        var vto = document.getElementById('virtualTryOnBox');
+        if (vto && gal) {
+          vto.style.setProperty('display', vto.style.display === 'none' ? 'none' : 'block', 'important');
+          vto.style.setProperty('width', '100%', 'important');
+          vto.style.setProperty('grid-column', '1 / -1', 'important');
+          vto.style.setProperty('margin', '8px 0 0', 'important');
+          vto.style.setProperty('box-sizing', 'border-box', 'important');
+        }
+      })();
+
 
       if (nav) nav.style.display = '';
       if (thumbsWrap) thumbsWrap.style.display = '';
@@ -4126,7 +4212,7 @@ ${itemsText || '-'}
     // تحديث Service Worker الحالي مع منع المتصفح من استخدام نسخة مخزنة من ملفه.
     // يظل دعم PWA موجوداً، لكن ملف العامل يُعاد فحصه مع كل إصدار جديد.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=20261021j', { updateViaCache: 'none' })
+      navigator.serviceWorker.register('./sw.js?v=20261021k', { updateViaCache: 'none' })
         .then(function(registration) {
           if (!registration) return;
           // Force the browser to check for a newer SW file immediately.
