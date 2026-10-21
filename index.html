@@ -20798,97 +20798,119 @@ body.dark-mode .msq-design-chip.is-active{background:#32282c!important;border-co
 
 
 
-<!-- My Souq image fit fix: appended overrides only; existing features preserved. -->
-
-<style id="msq-product-image-fit-final-v1">
-/* Final image-fit correction: no artificial minimum-height blocks around product photos. */
-#productModal .modal-gallery-wrapper,
-#productModal.msq-pair-mode .modal-gallery-wrapper,
-#productModal:not(.msq-pair-mode) .modal-gallery-wrapper{
-  min-height:0!important;
-  align-content:start!important;
-  overflow-x:hidden!important;
+<!-- My Souq: final image-fit correction (keeps all existing features) -->
+<style id="msq-final-image-fit-correction-v1">
+/* Both product photos: let each image keep its real aspect ratio instead of
+   forcing a tall fixed box that creates blank bands above/below the garment. */
+#productModal.msq-pair-mode .msq-pair-stage {
+  align-items: start !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+}
+#productModal.msq-pair-mode .msq-stage-side {
+  align-self: start !important;
+  align-items: stretch !important;
+  min-width: 0 !important;
+  height: auto !important;
+}
+#productModal.msq-pair-mode .msq-stage-side img,
+#productModal.msq-pair-mode .msq-stage-front,
+#productModal.msq-pair-mode .msq-stage-back {
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: min(58vh, 620px) !important;
+  aspect-ratio: auto !important;
+  object-fit: contain !important;
+  object-position: center top !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  flex: 0 1 auto !important;
+}
+#productModal.msq-pair-mode .msq-pair-stage {
+  padding: 8px !important;
+  gap: 8px !important;
+}
+#productModal.msq-pair-mode .msq-stage-side figcaption {
+  margin-top: 4px !important;
 }
 
-/* Single-photo gallery: keep the image's natural aspect ratio; never crop the garment. */
+/* Single-image gallery: image element follows its intrinsic dimensions. The
+   max-height limits the modal without stretching the image or adding bands. */
 #productModal:not(.msq-pair-mode) #modalImage,
-#productModal:not(.msq-pair-mode) .modal-img{
-  display:block!important;
-  width:100%!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height: min(68dvh, 680px)!important;
-  aspect-ratio:auto!important;
-  object-fit:contain!important;
-  object-position:center center!important;
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-  margin:0!important;
-  align-self:start!important;
+#productModal:not(.msq-pair-mode) .modal-img {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  max-height: min(66vh, 680px) !important;
+  aspect-ratio: auto !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  justify-self: center !important;
+  align-self: start !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  margin: 0 auto !important;
 }
-#productModal:not(.msq-pair-mode) .modal-gallery-wrapper{
-  grid-template-rows:minmax(0,auto) auto!important;
-  align-items:start!important;
+#productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
+  align-items: start !important;
+  align-content: start !important;
+  grid-template-rows: auto auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
+#productModal:not(.msq-pair-mode) .thumbs-vertical-wrap,
+#productModal:not(.msq-pair-mode) #thumbsVerticalWrap {
+  align-self: start !important;
+  max-height: min(66vh, 680px) !important;
 }
 
-/* Paired front/back gallery: both images share one height, with no forced blank top/bottom bands. */
-#productModal.msq-pair-mode .msq-pair-stage{
-  align-items:start!important;
-  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
-  height:auto!important;
-  min-height:0!important;
-  padding:6px!important;
-  gap:6px!important;
-  background:transparent!important;
+/* Preserve a dedicated try-on area; never overlay it on product photos. */
+#productModal #virtualTryOnBox {
+  position: relative !important;
+  z-index: 2 !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
 }
-#productModal.msq-pair-mode .msq-stage-side{
-  min-width:0!important;
-  height:auto!important;
-  min-height:0!important;
-  gap:4px!important;
+#productModal #vtoResultImg {
+  display: block;
+  max-width: 100% !important;
+  max-height: min(42vh, 420px) !important;
+  width: auto !important;
+  height: auto !important;
+  object-fit: contain !important;
+  margin-inline: auto !important;
 }
-#productModal.msq-pair-mode .msq-stage-side img{
-  display:block!important;
-  width:100%!important;
-  height:auto!important;
-  min-height:0!important;
-  max-height:min(68dvh, 680px)!important;
-  aspect-ratio:auto!important;
-  object-fit:contain!important;
-  object-position:center center!important;
-  background:transparent!important;
-  border:0!important;
-  box-shadow:none!important;
-  flex:0 1 auto!important;
-}
-#productModal.msq-pair-mode .msq-stage-side figcaption{margin:0!important;padding:2px 0!important}
 
-/* Keep virtual try-on in its own full-width area, separate from the product photo. */
-#productModal #virtualTryOnBox{
-  grid-area:tryon!important;
-  min-width:0!important;
-  max-width:100%!important;
-  height:auto!important;
-  max-height:none!important;
-  overflow:visible!important;
-}
-#productModal.msq-pair-mode #virtualTryOnBox,
-#productModal:not(.msq-pair-mode) #virtualTryOnBox{grid-column:1 / -1!important}
-
-@media(max-width:767px){
-  #productModal:not(.msq-pair-mode) #modalImage,
-  #productModal:not(.msq-pair-mode) .modal-img,
-  #productModal.msq-pair-mode .msq-stage-side img{
-    width:100%!important;
-    height:auto!important;
-    min-height:0!important;
-    max-height:58dvh!important;
-    object-fit:contain!important;
-    background:transparent!important;
+@media (max-width: 767px) {
+  #productModal.msq-pair-mode .msq-stage-side img,
+  #productModal.msq-pair-mode .msq-stage-front,
+  #productModal.msq-pair-mode .msq-stage-back {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: min(42vh, 360px) !important;
+    object-fit: contain !important;
+    object-position: center top !important;
   }
-  #productModal.msq-pair-mode .msq-pair-stage{gap:4px!important;padding:2px!important}
-  #productModal .modal-gallery-wrapper{max-height:none!important;overflow:visible!important}
+  #productModal:not(.msq-pair-mode) #modalImage,
+  #productModal:not(.msq-pair-mode) .modal-img {
+    width: auto !important;
+    height: auto !important;
+    max-width: 100% !important;
+    max-height: min(48vh, 420px) !important;
+    object-fit: contain !important;
+  }
+  #productModal.msq-pair-mode .msq-pair-stage {
+    padding: 5px !important;
+    gap: 5px !important;
+  }
 }
 </style>
-
