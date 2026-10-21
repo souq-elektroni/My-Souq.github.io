@@ -1341,7 +1341,7 @@ ${selectedImage}
         }
         if (body) {
           body.style.setProperty('display', 'grid', 'important');
-          body.style.setProperty('grid-template-columns', 'minmax(0, 1.4fr) minmax(300px, 380px)', 'important');
+          body.style.setProperty('grid-template-columns', 'minmax(0, 1fr) minmax(340px, 410px)', 'important');
           body.style.setProperty('gap', '14px', 'important');
           body.style.setProperty('padding', '10px 12px', 'important');
           body.style.setProperty('align-items', 'start', 'important');
@@ -1496,7 +1496,7 @@ ${selectedImage}
         }
         if (body) {
           body.style.setProperty('display', 'grid', 'important');
-          body.style.setProperty('grid-template-columns', 'minmax(0, 1.35fr) minmax(300px, 380px)', 'important');
+          body.style.setProperty('grid-template-columns', 'minmax(0, 1fr) minmax(340px, 410px)', 'important');
           body.style.setProperty('gap', '14px', 'important');
           body.style.setProperty('padding', '10px 12px', 'important');
           body.style.setProperty('align-items', 'start', 'important');
@@ -1511,7 +1511,7 @@ ${selectedImage}
           gal.style.setProperty('margin', '0', 'important');
           gal.style.setProperty('padding', '0', 'important');
           gal.style.setProperty('display', 'grid', 'important');
-          gal.style.setProperty('grid-template-columns', 'minmax(0,1fr) 72px', 'important');
+          gal.style.setProperty('grid-template-columns', 'minmax(0,1fr) 76px', 'important');
           gal.style.setProperty('gap', '10px', 'important');
         }
         if (info) {
@@ -1534,11 +1534,11 @@ ${selectedImage}
         if (modalImg) {
           modalImg.style.setProperty('display', 'block', 'important');
           modalImg.style.setProperty('width', '100%', 'important');
-          modalImg.style.setProperty('height', 'auto', 'important');
+          modalImg.style.setProperty('height', 'min(70vh, 720px)', 'important');
           modalImg.style.setProperty('min-width', '0', 'important');
           modalImg.style.setProperty('min-height', '0', 'important');
           modalImg.style.setProperty('max-width', '100%', 'important');
-          modalImg.style.setProperty('max-height', 'min(72vh, 740px)', 'important');
+          modalImg.style.setProperty('max-height', 'min(70vh, 720px)', 'important');
           modalImg.style.setProperty('object-fit', 'contain', 'important');
           modalImg.style.setProperty('object-position', 'center center', 'important');
           modalImg.style.setProperty('background', 'transparent', 'important');
