@@ -233,7 +233,28 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
 
   async function listProductMarkdownFiles() {
-    // 1) jsDelivr (مستقر ومش بيتأثر بحد GitHub API)
+    // 1) GitHub Contents API أولاً (أسماء عربية أدق)
+    try {
+      const res = await fetch(
+        `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/products?ref=${encodeURIComponent(GITHUB_BRANCH)}&_=${Date.now()}`,
+        { cache: 'no-store' }
+      );
+      if (res.ok) {
+        const files = await res.json();
+        if (Array.isArray(files)) {
+          const names = files
+            .filter(function (f) { return f && f.name && /\.(md|markdown)$/i.test(f.name); })
+            .map(function (f) { return f.name; });
+          if (names.length) return names;
+        }
+      } else {
+        console.warn('GitHub contents status', res.status);
+      }
+    } catch (e2) {
+      console.warn('GitHub list failed', e2);
+    }
+
+    // 2) jsDelivr fallback
     try {
       const jd = await fetch(
         `https://data.jsdelivr.com/v1/packages/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}?_=${Date.now()}`,
@@ -258,26 +279,6 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       console.warn('jsDelivr list failed', e);
     }
 
-    // 2) GitHub Contents API
-    try {
-      const res = await fetch(
-        `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/products?ref=${encodeURIComponent(GITHUB_BRANCH)}&_=${Date.now()}`,
-        { cache: 'no-store' }
-      );
-      if (res.ok) {
-        const files = await res.json();
-        if (Array.isArray(files)) {
-          return files
-            .filter(function (f) { return f && f.name && /\.(md|markdown)$/i.test(f.name); })
-            .map(function (f) { return f.name; });
-        }
-      } else {
-        console.warn('GitHub contents status', res.status);
-      }
-    } catch (e2) {
-      console.warn('GitHub list failed', e2);
-    }
-
     // 3) كاش محلي من آخر تحميل ناجح
     try {
       const cached = JSON.parse(localStorage.getItem('souqProductFileNames') || '[]');
@@ -290,8 +291,8 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   async function fetchProductMarkdown(fileName) {
     const encoded = fileName.split('/').map(encodeURIComponent).join('/');
     const urls = [
-      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261019d')}&_=${Date.now()}`,
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261019d')}&_=${Date.now()}`
+      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021a')}&_=${Date.now()}`,
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021a')}&_=${Date.now()}`
     ];
     for (let i = 0; i < urls.length; i++) {
       try {
@@ -757,8 +758,17 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     const albumBadge = pairedDesigns.length
       ? `<span class="msq-album-badge">▧ ${pairedDesigns.length} أشكال · ${pairedDesigns.length * 2} صور</span>`
       : (albumCount > 1 ? `<span class="msq-album-badge">▧ ألبوم · ${albumCount} صور</span>` : '');
-    const pairedCardHtml = pairedDesigns.length ? `<div class="msq-card-pair" aria-label="صور الوش والضهر">${[pairedDesigns[0].front_image, pairedDesigns[0].back_image].filter(Boolean).map((src, idx) => `<img class="msq-pair-thumb" src="${src}" alt="${idx === 0 ? 'وش المنتج' : 'ضهر المنتج'}" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">`).join('')}<span class="msq-pair-label">وش · ضهر</span></div>` : '';
-    // مهم لفلتر «نوع الملابس» في index.html (sharedSubcategorySelect)
+    let pairedCardHtml = '';
+    if (pairedDesigns.length) {
+      const front0 = pairedDesigns[0].front_image || pairedDesigns[0].back_image || firstImage;
+      const back0 = pairedDesigns[0].back_image || pairedDesigns[0].front_image || front0;
+      pairedCardHtml =
+        `<div class="msq-card-pair msq-card-pair-hover" aria-label="صور الوش والضهر" data-msq-pair="1">` +
+        `<img class="msq-pair-thumb msq-pair-front" src="${front0}" alt="وش المنتج" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">` +
+        `<img class="msq-pair-thumb msq-pair-back" src="${back0}" alt="ضهر المنتج" loading="lazy" decoding="async" onerror="this.style.visibility='hidden'">` +
+        `<span class="msq-pair-label">وش · ضهر</span>` +
+        `</div>`;
+    }
     const escAttr = (v) => String(v ?? '')
       .replace(/&/g, '&amp;')
       .replace(/"/g, '&quot;')
@@ -767,6 +777,9 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     const catAttr = escAttr(p.category || '');
     const subAttr = escAttr(p.subcategory || '');
     const titleAttr = escAttr(p.title || '');
+    const hint = pairedDesigns.length
+      ? '↔ مرّر للوش/الضهر · عرض التفاصيل 👈'
+      : (albumCount > 1 ? '↔ صور الكوليكشن · عرض التفاصيل 👈' : 'عرض التفاصيل 👈');
     return `
         <div class="product-card" data-product-card-id="${p.id}"
           data-category="${catAttr}"
@@ -785,7 +798,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
             <div class="price-tag">
               ${getCardPriceHtml(p)}
             </div>
-            <div class="click-hint">${albumCount > 1 ? '↔ صور الكوليكشن · عرض التفاصيل 👈' : 'عرض التفاصيل 👈'}</div>
+            <div class="click-hint">${hint}</div>
           </div>
         </div>`;
   }
@@ -799,15 +812,62 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     productsGrid.innerHTML = list.map(productCardHtml).join('');
   }
 
-  // تدوير صور الألبوم على الكارت فقط عند الوقوف (hover) أو اللمس — مش تلقائي
+  // تدوير صور الألبوم / تبديل وش↔ضهر على الكارت عند الوقوف أو اللمس — مش تلقائي
   function bindAlbumHoverRotate() {
     if (window.__MSQ_ALBUM_HOVER_BOUND__) return;
     window.__MSQ_ALBUM_HOVER_BOUND__ = true;
 
+    function rotatePairedCard(card, product) {
+      const pair = card.querySelector('.msq-card-pair');
+      const frontImg = card.querySelector('.msq-pair-front');
+      const backImg = card.querySelector('.msq-pair-back');
+      if (!pair || !frontImg || !backImg) return;
+      const designs = (product.designs || []).filter(function (d) {
+        return d && (d.front_image || d.back_image);
+      });
+      if (!designs.length) return;
+      if (card._msqRotating) return;
+      card._msqRotating = true;
+      pair.classList.add('msq-show-back');
+      pair.classList.add('msq-pair-hover-active');
+      let di = Number(card._msqDesignIndex) || 0;
+
+      function step() {
+        if (!card.isConnected || !card._msqRotating) return;
+        di = (di + 1) % designs.length;
+        card._msqDesignIndex = di;
+        const d = designs[di];
+        const f = d.front_image || d.back_image;
+        const b = d.back_image || d.front_image;
+        frontImg.classList.add('msq-swapping');
+        backImg.classList.add('msq-swapping');
+        window.setTimeout(function () {
+          if (!frontImg.isConnected || !card._msqRotating) return;
+          if (f) frontImg.src = f;
+          if (b) backImg.src = b;
+          frontImg.classList.remove('msq-swapping');
+          backImg.classList.remove('msq-swapping');
+        }, 120);
+        card._msqRotateTimer = window.setTimeout(step, 1600);
+      }
+      if (designs.length > 1) {
+        card._msqRotateTimer = window.setTimeout(step, 1400);
+      }
+    }
+
     function rotateCard(card) {
       const productId = Number(card.getAttribute('data-product-card-id'));
       const product = products.find(function (item) { return Number(item.id) === productId; });
-      if (!product || !Array.isArray(product.images) || product.images.length < 2) return;
+      if (!product) return;
+
+      if (Array.isArray(product.designs) && product.designs.some(function (d) {
+        return d && (d.front_image || d.back_image);
+      })) {
+        rotatePairedCard(card, product);
+        return;
+      }
+
+      if (!Array.isArray(product.images) || product.images.length < 2) return;
       const img = card.querySelector('.product-image');
       if (!img || !card.isConnected) return;
       if (card._msqRotating) return;
@@ -835,6 +895,11 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         clearTimeout(card._msqRotateTimer);
         card._msqRotateTimer = null;
       }
+      const pair = card.querySelector('.msq-card-pair');
+      if (pair) {
+        pair.classList.remove('msq-show-back');
+        pair.classList.remove('msq-pair-hover-active');
+      }
     }
 
     document.addEventListener('mouseover', function (e) {
@@ -851,11 +916,14 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     document.addEventListener('touchstart', function (e) {
       const card = e.target && e.target.closest && e.target.closest('#products-container [data-product-card-id]');
       if (!card) return;
-      // لمس الكارت يبدأ التدوير بلطف
+      if (card._msqRotating) {
+        stopCard(card);
+        return;
+      }
       rotateCard(card);
-      window.setTimeout(function () { stopCard(card); }, 5000);
     }, { passive: true, capture: true });
   }
+
   try { bindAlbumHoverRotate(); } catch (e) {}
 
   function buildSizeFilterButtons() {
@@ -1790,25 +1858,25 @@ ${selectedImage}
 
     else {
 
+      const pairDesigns = Array.isArray(currentSelectedProduct.designs)
+        ? currentSelectedProduct.designs.filter(function (d) { return d && (d.front_image || d.back_image); })
+        : [];
+      const frontImg = activeModalImage
+        || (pairDesigns[0] && (pairDesigns[0].front_image || pairDesigns[0].back_image))
+        || (currentSelectedProduct.images && currentSelectedProduct.images[0])
+        || '';
+      const backImg = (pairDesigns[0] && (pairDesigns[0].back_image || pairDesigns[0].front_image)) || '';
+
       cart.push({
-
         id: currentSelectedProduct.id,
-
-        title:
-          currentSelectedProduct.title,
-
-        price:
-          itemPrice,
-
-        image:
-          activeModalImage ||
-          currentSelectedProduct.images[0],
-
-        size:
-          selectedSize,
-
+        title: currentSelectedProduct.title,
+        price: itemPrice,
+        image: frontImg,
+        front_image: frontImg,
+        back_image: backImg !== frontImg ? backImg : '',
+        size: selectedSize,
+        color: selectedColor || '',
         qty: 1
-
       });
 
     }
@@ -2649,7 +2717,11 @@ function continueAfterOrderRecaptcha() {
         let itemText = `${index + 1}. ${i.title}\n- المقاس: ${i.size}`;
         if (i.color) itemText += `\n- اللون: ${i.color}`;
         itemText += `\n- السعر: ${i.price} ج.م (الكمية: ${i.qty})`;
-        if (i.image) itemText += `\n- رابط صورة المنتج: ${i.image}`;
+        const frontLink = i.front_image || i.image || '';
+        const backLink = i.back_image || '';
+        if (frontLink) itemText += `\n- رابط صورة الوش: ${frontLink}`;
+        if (backLink && backLink !== frontLink) itemText += `\n- رابط صورة الضهر: ${backLink}`;
+        else if (i.image && !frontLink) itemText += `\n- رابط صورة المنتج: ${i.image}`;
         return itemText;
       }).join('\n\n');
 
@@ -2697,6 +2769,14 @@ function continueAfterOrderRecaptcha() {
               const product = products.find(function (p) { return String(p.id) === String(item.id); });
               if (product && Array.isArray(product.images) && product.images[0]) imageUrl = product.images[0];
             }
+            let backUrl = item.back_image || '';
+            if (!backUrl && Array.isArray(products) && item.id != null) {
+              const product2 = products.find(function (p) { return String(p.id) === String(item.id); });
+              if (product2 && Array.isArray(product2.designs) && product2.designs[0]) {
+                backUrl = product2.designs[0].back_image || '';
+                if (!imageUrl) imageUrl = product2.designs[0].front_image || product2.designs[0].back_image || imageUrl;
+              }
+            }
             return {
               name: item.title || 'منتج',
               quantity: item.qty || 1,
@@ -2704,6 +2784,8 @@ function continueAfterOrderRecaptcha() {
               size: item.size || '-',
               color: item.color || '',
               image: imageUrl,
+              front_image: imageUrl,
+              back_image: backUrl,
               url: item.url || ''
             };
           });
@@ -3882,7 +3964,7 @@ ${itemsText || '-'}
     // تحديث Service Worker الحالي مع منع المتصفح من استخدام نسخة مخزنة من ملفه.
     // يظل دعم PWA موجوداً، لكن ملف العامل يُعاد فحصه مع كل إصدار جديد.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=20261019d', { updateViaCache: 'none' })
+      navigator.serviceWorker.register('./sw.js?v=20261021a', { updateViaCache: 'none' })
         .then(function(registration) {
           if (!registration) return;
           // Force the browser to check for a newer SW file immediately.
