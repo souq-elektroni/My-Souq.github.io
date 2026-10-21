@@ -1285,6 +1285,29 @@ ${selectedImage}
       try { el.remove(); } catch (e) {}
     });
 
+    // Reset layout-only inline styles left by the previously opened product.
+    // Collection products (front/back) use a paired layout; without this reset,
+    // those important inline styles can constrain the next single-image gallery.
+    (function resetPreviousProductGalleryLayout() {
+      if (productModalEl) productModalEl.classList.remove('msq-pair-mode');
+      var body = document.querySelector('#productModal .modal-body');
+      var info = document.querySelector('#productModal .modal-info');
+      var gal = document.querySelector('#productModal .modal-gallery-wrapper');
+      var content = document.querySelector('#productModal .modal-content');
+      var clear = function (el, props) {
+        if (!el) return;
+        props.forEach(function (prop) { el.style.removeProperty(prop); });
+      };
+      clear(content, ['width', 'max-width', 'max-height', 'overflow', 'display', 'flex-direction', 'border-radius']);
+      clear(body, ['display', 'grid-template-columns', 'grid-template-rows', 'grid-template-areas', 'gap', 'padding', 'align-items', 'width', 'max-width', 'max-height', 'overflow', 'overflow-y', 'box-sizing', 'margin']);
+      clear(gal, ['display', 'grid-column', 'grid-template-columns', 'grid-template-rows', 'grid-template-areas', 'gap', 'width', 'max-width', 'min-width', 'max-height', 'overflow', 'margin', 'padding', 'position', 'background']);
+      clear(info, ['display', 'grid-column', 'grid-template-columns', 'gap', 'width', 'max-width', 'min-width', 'max-height', 'overflow', 'overflow-y', 'margin', 'padding', 'box-sizing']);
+      clear(modalImg, ['grid-area', 'width', 'max-width', 'height', 'min-height', 'max-height', 'object-fit', 'object-position', 'background', 'border-radius', 'display', 'visibility', 'opacity', 'margin', 'box-sizing']);
+      if (info) Array.prototype.forEach.call(info.children, function (ch) {
+        clear(ch, ['width', 'max-width', 'margin-left', 'margin-right', 'box-sizing']);
+      });
+    })();
+
     if (modalImg) {
       modalImg.src = (currentSelectedProduct.images && currentSelectedProduct.images[0]) || '';
       activeModalImage = modalImg.src;
