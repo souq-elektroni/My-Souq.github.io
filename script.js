@@ -292,8 +292,8 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   async function fetchProductMarkdown(fileName) {
     const encoded = fileName.split('/').map(encodeURIComponent).join('/');
     const urls = [
-      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021g')}&_=${Date.now()}`,
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021g')}&_=${Date.now()}`
+      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021i')}&_=${Date.now()}`,
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021i')}&_=${Date.now()}`
     ];
     for (let i = 0; i < urls.length; i++) {
       try {
@@ -1318,6 +1318,53 @@ ${selectedImage}
 
     if (pairedDesigns.length && galleryWrapper) {
       if (productModalEl) productModalEl.classList.add('msq-pair-mode');
+      // تثبيت التخطيط حتى لا تُلغيه ستايلات قديمة
+      (function forcePairLayout() {
+        var body = document.querySelector('#productModal .modal-body');
+        var info = document.querySelector('#productModal .modal-info');
+        var gal = document.querySelector('#productModal .modal-gallery-wrapper');
+        var content = document.querySelector('#productModal .modal-content');
+        if (content) {
+          content.style.setProperty('width', 'min(1360px, calc(100vw - 10px))', 'important');
+          content.style.setProperty('max-width', '1360px', 'important');
+        }
+        if (body) {
+          body.style.setProperty('display', 'grid', 'important');
+          body.style.setProperty('grid-template-columns', 'minmax(0, 1.4fr) minmax(300px, 380px)', 'important');
+          body.style.setProperty('gap', '14px', 'important');
+          body.style.setProperty('padding', '10px 12px', 'important');
+          body.style.setProperty('align-items', 'start', 'important');
+          body.style.setProperty('width', '100%', 'important');
+          body.style.setProperty('box-sizing', 'border-box', 'important');
+          body.style.setProperty('margin', '0', 'important');
+        }
+        if (gal) {
+          gal.style.setProperty('grid-column', '1', 'important');
+          gal.style.setProperty('width', '100%', 'important');
+          gal.style.setProperty('min-width', '0', 'important');
+          gal.style.setProperty('margin', '0', 'important');
+          gal.style.setProperty('padding', '0', 'important');
+        }
+        if (info) {
+          info.style.setProperty('grid-column', '2', 'important');
+          info.style.setProperty('width', '100%', 'important');
+          info.style.setProperty('max-width', 'none', 'important');
+          info.style.setProperty('margin', '0', 'important');
+          info.style.setProperty('padding', '0', 'important');
+          info.style.setProperty('box-sizing', 'border-box', 'important');
+          info.style.setProperty('gap', '9px', 'important');
+          Array.prototype.forEach.call(info.children, function (ch) {
+            if (ch.classList && ch.classList.contains('modal-back-btn')) return;
+            if (ch.classList && ch.classList.contains('stock-badge')) return;
+            ch.style.setProperty('width', '100%', 'important');
+            ch.style.setProperty('max-width', '100%', 'important');
+            ch.style.setProperty('box-sizing', 'border-box', 'important');
+            ch.style.setProperty('margin-left', '0', 'important');
+            ch.style.setProperty('margin-right', '0', 'important');
+          });
+        }
+      })();
+
       if (nav) nav.style.display = 'none';
       if (thumbsWrap) thumbsWrap.style.display = 'none';
       if (modalImg) {
@@ -1380,6 +1427,36 @@ ${selectedImage}
       selectedDesignIndex = 0;
     } else {
       if (productModalEl) productModalEl.classList.remove('msq-pair-mode');
+      (function clearPairLayout() {
+        var body = document.querySelector('#productModal .modal-body');
+        var info = document.querySelector('#productModal .modal-info');
+        var gal = document.querySelector('#productModal .modal-gallery-wrapper');
+        var content = document.querySelector('#productModal .modal-content');
+        [body, info, gal, content].forEach(function (el) {
+          if (!el) return;
+          el.style.removeProperty('display');
+          el.style.removeProperty('grid-template-columns');
+          el.style.removeProperty('gap');
+          el.style.removeProperty('padding');
+          el.style.removeProperty('align-items');
+          el.style.removeProperty('width');
+          el.style.removeProperty('max-width');
+          el.style.removeProperty('min-width');
+          el.style.removeProperty('margin');
+          el.style.removeProperty('box-sizing');
+          el.style.removeProperty('grid-column');
+        });
+        if (info) {
+          Array.prototype.forEach.call(info.children, function (ch) {
+            ch.style.removeProperty('width');
+            ch.style.removeProperty('max-width');
+            ch.style.removeProperty('margin-left');
+            ch.style.removeProperty('margin-right');
+            ch.style.removeProperty('box-sizing');
+          });
+        }
+      })();
+
       if (nav) nav.style.display = '';
       if (thumbsWrap) thumbsWrap.style.display = '';
       if (modalImg) {
@@ -4049,7 +4126,7 @@ ${itemsText || '-'}
     // تحديث Service Worker الحالي مع منع المتصفح من استخدام نسخة مخزنة من ملفه.
     // يظل دعم PWA موجوداً، لكن ملف العامل يُعاد فحصه مع كل إصدار جديد.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=20261021g', { updateViaCache: 'none' })
+      navigator.serviceWorker.register('./sw.js?v=20261021i', { updateViaCache: 'none' })
         .then(function(registration) {
           if (!registration) return;
           // Force the browser to check for a newer SW file immediately.
