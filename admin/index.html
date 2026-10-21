@@ -1231,8 +1231,22 @@
 </script>
 
 
-<style id="my-souq-paired-designs-style-v7">
-/* ألبوم الأشكال: وش + ضهر جنب بعض بقوة */
+<style id="my-souq-paired-designs-style-v8">
+/*
+  Sveltia marks every field with data-key-path / data-field-type.
+  designs.N.front_image + designs.N.back_image → side by side.
+*/
+[data-key-path*=".front_image"],
+[data-key-path$=".front_image"],
+[data-key-path*=".back_image"],
+[data-key-path$=".back_image"],
+[data-typed-key-path*=".front_image"],
+[data-typed-key-path*=".back_image"] {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+}
+
+/* Parent of the two image fields: force 2-column grid via JS class */
 .msq-pair-grid {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
@@ -1240,22 +1254,21 @@
   align-items: start !important;
   width: 100% !important;
   max-width: 100% !important;
-  box-sizing: border-box !important;
 }
-.msq-pair-grid > .msq-pair-front,
-.msq-pair-grid > .msq-pair-back,
-.msq-pair-front,
-.msq-pair-back {
-  grid-column: auto !important;
-  grid-row: 1 !important;
+.msq-pair-grid > * {
   min-width: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
-  box-sizing: border-box !important;
   margin: 0 !important;
-  flex: 1 1 0 !important;
+  grid-row: 1 !important;
 }
-.msq-pair-grid * { box-sizing: border-box !important; max-width: 100%; }
+
+/* Fallback without JS: if Sveltia wraps both in a flex column, flatten */
+.msq-pair-grid {
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+}
+
 @media (max-width: 520px) {
   .msq-pair-grid {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
@@ -1263,127 +1276,50 @@
   }
 }
 </style>
-<script id="my-souq-paired-designs-layout-v7">
+<script id="my-souq-paired-designs-layout-v8">
 (function () {
   "use strict";
 
-  var FRONT = "صورة الوش";
-  var BACK = "صورة الضهر";
-
-  function norm(s) {
-    return String(s || "")
-      .replace(/[\u200f\u200e\u0640]/g, "")
-      .replace(/[\s:*\-–—]+/g, " ")
-      .trim();
+  function isFront(el) {
+    var k = el.getAttribute("data-key-path") || el.getAttribute("data-typed-key-path") || "";
+    return /\.front_image$/.test(k) || k === "front_image";
+  }
+  function isBack(el) {
+    var k = el.getAttribute("data-key-path") || el.getAttribute("data-typed-key-path") || "";
+    return /\.back_image$/.test(k) || k === "back_image";
   }
 
-  function txt(el) {
-    return norm(el && (el.innerText || el.textContent));
-  }
-
-  function visible(el) {
-    if (!el || !el.getBoundingClientRect) return false;
-    var r = el.getBoundingClientRect();
-    return r.width > 0 && r.height > 0;
-  }
-
-  function isLabel(el, name) {
-    if (!visible(el)) return false;
-    var t = txt(el);
-    return t === name || t.indexOf(name) === 0;
-  }
-
-  function collectLabels(name) {
-    var out = [];
-    var sel = "label, [role='label'], span, p, div, h3, h4, strong, legend";
-    var nodes = document.querySelectorAll(sel);
-    for (var i = 0; i < nodes.length; i++) {
-      var el = nodes[i];
-      if (!isLabel(el, name)) continue;
-      var kids = el.children || [];
-      var nested = false;
-      for (var k = 0; k < kids.length; k++) {
-        if (norm(kids[k].innerText || kids[k].textContent) === name) {
-          nested = true;
-          break;
-        }
-      }
-      if (!nested) out.push(el);
-    }
-    return out;
-  }
-
-  function fieldBlock(labelEl, name, other) {
-    var n = labelEl;
-    for (var i = 0; n && n !== document.body && i < 22; i++, n = n.parentElement) {
-      var t = txt(n);
-      if (t.indexOf(other) !== -1 && t.indexOf(name) === -1) return null;
-      var hasUpload =
-        !!n.querySelector(
-          'input[type="file"], [class*="drop"], [class*="upload"], [data-testid*="upload"], button, [role="button"]'
-        ) || /تصفح|لصق|اسحب|browse|upload|drop|ملف صورة/i.test(t);
-      if (t.indexOf(name) !== -1 && hasUpload) return n;
-    }
-    return null;
-  }
-
-  function branchOf(parent, node) {
+  function branch(parent, node) {
     while (node && node.parentElement !== parent) node = node.parentElement;
     return node && node.parentElement === parent ? node : null;
   }
 
-  function forceSideBySide(parent, a, b) {
+  function forceGrid(parent, a, b) {
+    if (!parent || !a || !b || a === b) return;
     parent.classList.add("msq-pair-grid");
-    a.classList.add("msq-pair-front");
-    b.classList.add("msq-pair-back");
     parent.style.setProperty("display", "grid", "important");
     parent.style.setProperty("grid-template-columns", "minmax(0,1fr) minmax(0,1fr)", "important");
     parent.style.setProperty("gap", "12px", "important");
     parent.style.setProperty("align-items", "start", "important");
     parent.style.setProperty("width", "100%", "important");
-    a.style.setProperty("grid-row", "1", "important");
-    b.style.setProperty("grid-row", "1", "important");
     a.style.setProperty("min-width", "0", "important");
     b.style.setProperty("min-width", "0", "important");
     a.style.setProperty("width", "100%", "important");
     b.style.setProperty("width", "100%", "important");
-    a.style.setProperty("max-width", "100%", "important");
-    b.style.setProperty("max-width", "100%", "important");
+    a.style.setProperty("grid-row", "1", "important");
+    b.style.setProperty("grid-row", "1", "important");
     a.style.setProperty("margin", "0", "important");
     b.style.setProperty("margin", "0", "important");
   }
 
-  function pair(frontLabel, backLabel) {
-    var fa = fieldBlock(frontLabel, FRONT, BACK);
-    var fb = fieldBlock(backLabel, BACK, FRONT);
-    if (!fa || !fb || fa === fb) return false;
-
-    var p = fa.parentElement;
+  function pairFields(frontEl, backEl) {
+    var p = frontEl.parentElement;
     var steps = 0;
-    while (p && p !== document.body && steps++ < 24) {
-      var x = branchOf(p, fa);
-      var y = branchOf(p, fb);
+    while (p && p !== document.body && steps++ < 20) {
+      var x = branch(p, frontEl);
+      var y = branch(p, backEl);
       if (x && y && x !== y) {
-        var xt = txt(x);
-        var yt = txt(y);
-        var okX = xt.indexOf(FRONT) !== -1 && xt.indexOf(BACK) === -1;
-        var okY = yt.indexOf(BACK) !== -1 && yt.indexOf(FRONT) === -1;
-        if (okX && okY) {
-          forceSideBySide(p, x, y);
-          return true;
-        }
-      }
-      p = p.parentElement;
-    }
-
-    /* fallback: لو الاتنين siblings تحت أب مشترك حتى لو الشروط أضعف */
-    p = fa.parentElement;
-    steps = 0;
-    while (p && p !== document.body && steps++ < 24) {
-      var x2 = branchOf(p, fa);
-      var y2 = branchOf(p, fb);
-      if (x2 && y2 && x2 !== y2) {
-        forceSideBySide(p, x2, y2);
+        forceGrid(p, x, y);
         return true;
       }
       p = p.parentElement;
@@ -1391,33 +1327,63 @@
     return false;
   }
 
-  function run() {
-    var fronts = collectLabels(FRONT);
-    var backs = collectLabels(BACK);
-    var used = new Set();
+  function designIndex(el) {
+    var k = el.getAttribute("data-key-path") || el.getAttribute("data-typed-key-path") || "";
+    var m = k.match(/designs\.(\d+)\./);
+    return m ? m[1] : null;
+  }
 
+  function run() {
+    var fields = document.querySelectorAll(
+      "[data-key-path], [data-typed-key-path]"
+    );
+    var fronts = [];
+    var backs = [];
+    for (var i = 0; i < fields.length; i++) {
+      var el = fields[i];
+      if (isFront(el)) fronts.push(el);
+      else if (isBack(el)) backs.push(el);
+    }
+
+    var usedBack = new Set();
     fronts.forEach(function (f) {
-      var fr = f.getBoundingClientRect();
-      var best = null;
-      var bestScore = Infinity;
-      backs.forEach(function (b) {
-        if (used.has(b)) return;
-        var br = b.getBoundingClientRect();
-        var score = Math.abs(br.top - fr.top) * 4 + Math.abs(br.left - fr.left) * 0.05;
-        if (score < bestScore) {
-          bestScore = score;
-          best = b;
+      var fi = designIndex(f);
+      var match = null;
+      for (var j = 0; j < backs.length; j++) {
+        var b = backs[j];
+        if (usedBack.has(b)) continue;
+        var bi = designIndex(b);
+        if (fi !== null && bi !== null && fi === bi) {
+          match = b;
+          break;
         }
-      });
-      if (best && bestScore < 600) {
-        used.add(best);
-        pair(f, best);
+      }
+      if (!match) {
+        /* fallback: nearest by vertical position */
+        var fr = f.getBoundingClientRect();
+        var best = null;
+        var bestScore = Infinity;
+        backs.forEach(function (b) {
+          if (usedBack.has(b)) return;
+          var br = b.getBoundingClientRect();
+          var sc = Math.abs(br.top - fr.top) * 3 + Math.abs(br.left - fr.left) * 0.05;
+          if (sc < bestScore) {
+            bestScore = sc;
+            best = b;
+          }
+        });
+        if (best && bestScore < 800) match = best;
+      }
+      if (match) {
+        usedBack.add(match);
+        pairFields(f, match);
       }
     });
 
+    /* زر الإضافة */
     document.querySelectorAll("button").forEach(function (btn) {
-      var t = txt(btn);
-      if ((/إضافة/.test(t) && /ألبوم|أشكال|شكل/.test(t)) || /add.*(design|item|entry)/i.test(t)) {
+      var t = String(btn.innerText || btn.textContent || "").replace(/\s+/g, " ").trim();
+      if (/إضافة/.test(t) && /ألبوم|أشكال|شكل|كوليكشن/.test(t)) {
         if (!btn.dataset.msqLabelled) {
           btn.dataset.msqLabelled = "1";
           btn.textContent = "＋ إضافة أشكال للكوليكشن";
@@ -1433,7 +1399,7 @@
     setTimeout(function () {
       queued = false;
       try { run(); } catch (e) {}
-    }, 150);
+    }, 120);
   }
 
   if (document.readyState === "loading") {
@@ -1445,12 +1411,13 @@
     new MutationObserver(schedule).observe(document.documentElement, {
       childList: true,
       subtree: true,
-      attributes: true
+      attributes: true,
+      attributeFilter: ["data-key-path", "data-typed-key-path", "class", "style"]
     });
   }
   window.addEventListener("resize", schedule);
   document.addEventListener("click", schedule, true);
-  setInterval(schedule, 2000);
+  setInterval(schedule, 1500);
 })();
 </script>
 
