@@ -979,15 +979,14 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   function filterStock(status, btn) {
     currentStockFilter = status;
-    // المخزون فلتر إضافي؛ لا تمسح تمييز القسم النشط بصرياً.
-    document.querySelectorAll('.stock-avail, .stock-out').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
     if (btn) btn.classList.add('active');
     handleSearchAndFilter();
   }
 
   function handleSearchAndFilter() {
     const query = document.getElementById('searchInput')
-      ? document.getElementById('searchInput').value.trim().toLowerCase()
+      ? document.getElementById('searchInput').value.toLowerCase()
       : '';
 
     // فلتر «نوع الملابس» المشترك من القائمة المنسدلة في الصفحة
@@ -1010,19 +1009,13 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         matchesCat = bestIds.includes(p.id);
       }
 
-      // نوع الملابس يطابق بيانات المنتج الظاهرة (الاسم والقسم والتصنيف الفرعي)
-      // من نفس مسار الفلترة، حتى يظل متوافقاً مع البحث وباقي الاختيارات.
-      const clothingText = [
-        p.title || '',
-        p.category || '',
-        p.subcategory || ''
-      ].join(' ').trim();
+      // تطابق نوع الملابس (ملابس للمنزل / ملابس للخروج)
       const pSub = String(p.subcategory || '').trim();
       const matchesSharedSub =
         !sharedSub ||
         pSub === sharedSub ||
-        (sharedSub === 'ملابس للمنزل' && /ملابس\s*للمنزل|للمنزل|home\s*wear|homewear|بيت/i.test(clothingText)) ||
-        (sharedSub === 'ملابس للخروج' && /ملابس\s*للخروج|للخروج|خروج|out\s*wear|outwear|outfit/i.test(clothingText));
+        (sharedSub === 'ملابس للمنزل' && /ملابس\s*للمنزل|للمنزل|home\s*wear|بيت/i.test(pSub)) ||
+        (sharedSub === 'ملابس للخروج' && /ملابس\s*للخروج|للخروج|خروج|out\s*wear/i.test(pSub));
 
       const matchesStock =
         currentStockFilter === 'all' ||
@@ -1037,21 +1030,17 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       return matchesCat && matchesSharedSub && matchesStock && matchesSearch && matchesSize;
     });
 
-    const sortVal = document.getElementById('sortSelect')
-      ? document.getElementById('sortSelect').value
-      : 'default';
-    if (sortVal === 'low-high') {
-      filtered.sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));
-    } else if (sortVal === 'high-low') {
-      filtered.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
-    }
-
     renderProducts(filtered);
   }
 
   function applySorting() {
-    // الترتيب يعيد تطبيق كل الفلاتر بدلاً من عرض كل المنتجات من جديد.
-    handleSearchAndFilter();
+    const sortVal = document.getElementById('sortSelect')
+      ? document.getElementById('sortSelect').value
+      : '';
+    let sorted = [...products];
+    if (sortVal === 'low-high') sorted.sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));
+    else if (sortVal === 'high-low') sorted.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
+    renderProducts(sorted);
   }
 
   // ===== Maintenance compatibility layer =====
@@ -1341,7 +1330,7 @@ ${selectedImage}
         }
         if (body) {
           body.style.setProperty('display', 'grid', 'important');
-          body.style.setProperty('grid-template-columns', 'minmax(0, 1fr) minmax(340px, 410px)', 'important');
+          body.style.setProperty('grid-template-columns', 'minmax(0, 1.4fr) minmax(300px, 380px)', 'important');
           body.style.setProperty('gap', '14px', 'important');
           body.style.setProperty('padding', '10px 12px', 'important');
           body.style.setProperty('align-items', 'start', 'important');
@@ -1378,16 +1367,18 @@ ${selectedImage}
       // ترتيب ميزة جرب المنتج تحت الصور في وضع الكوليكشن
       (function placeVtoPair() {
         var vto = document.getElementById('virtualTryOnBox');
-        var body = document.querySelector('#productModal .modal-body');
-        if (vto && body) {
+        var gal = document.querySelector('#productModal .modal-gallery-wrapper');
+        if (vto && gal) {
           vto.style.setProperty('width', '100%', 'important');
-          vto.style.setProperty('grid-area', 'auto', 'important');
           vto.style.setProperty('grid-column', '1 / -1', 'important');
-          vto.style.setProperty('grid-row', 'auto', 'important');
           vto.style.setProperty('margin', '10px 0 0', 'important');
           vto.style.setProperty('box-sizing', 'border-box', 'important');
-          // صف مستقل بعد المعرض وبيانات المنتج، وليس داخل مساحة الصور.
-          body.appendChild(vto);
+          // انقلها لآخر المعرض لو مش هناك
+          if (vto.parentElement !== gal) {
+            gal.appendChild(vto);
+          } else {
+            gal.appendChild(vto);
+          }
         }
       })();
 
@@ -1496,7 +1487,7 @@ ${selectedImage}
         }
         if (body) {
           body.style.setProperty('display', 'grid', 'important');
-          body.style.setProperty('grid-template-columns', 'minmax(0, 1fr) minmax(340px, 410px)', 'important');
+          body.style.setProperty('grid-template-columns', 'minmax(0, 1.35fr) minmax(300px, 380px)', 'important');
           body.style.setProperty('gap', '14px', 'important');
           body.style.setProperty('padding', '10px 12px', 'important');
           body.style.setProperty('align-items', 'start', 'important');
@@ -1511,7 +1502,7 @@ ${selectedImage}
           gal.style.setProperty('margin', '0', 'important');
           gal.style.setProperty('padding', '0', 'important');
           gal.style.setProperty('display', 'grid', 'important');
-          gal.style.setProperty('grid-template-columns', 'minmax(0,1fr) 76px', 'important');
+          gal.style.setProperty('grid-template-columns', 'minmax(0,1fr) 72px', 'important');
           gal.style.setProperty('gap', '10px', 'important');
         }
         if (info) {
@@ -1532,29 +1523,22 @@ ${selectedImage}
           });
         }
         if (modalImg) {
-          modalImg.style.setProperty('display', 'block', 'important');
           modalImg.style.setProperty('width', '100%', 'important');
-          modalImg.style.setProperty('height', 'min(70vh, 720px)', 'important');
-          modalImg.style.setProperty('min-width', '0', 'important');
-          modalImg.style.setProperty('min-height', '0', 'important');
-          modalImg.style.setProperty('max-width', '100%', 'important');
-          modalImg.style.setProperty('max-height', 'min(70vh, 720px)', 'important');
+          modalImg.style.setProperty('height', 'clamp(280px, 54vh, 560px)', 'important');
+          modalImg.style.setProperty('max-height', 'min(58vh, 560px)', 'important');
           modalImg.style.setProperty('object-fit', 'contain', 'important');
           modalImg.style.setProperty('object-position', 'center center', 'important');
-          modalImg.style.setProperty('background', 'transparent', 'important');
+          modalImg.style.setProperty('background', '#f0ebe6', 'important');
           modalImg.style.setProperty('border-radius', '14px', 'important');
-          modalImg.style.setProperty('margin', '0 auto', 'important');
         }
-        // ميزة جرب المنتج — صف مستقل أسفل الصور ومعلومات المنتج.
+        // ميزة جرب المنتج — تحت المعرض بشكل مرتب
         var vto = document.getElementById('virtualTryOnBox');
-        if (vto && body) {
+        if (vto && gal) {
+          vto.style.setProperty('display', vto.style.display === 'none' ? 'none' : 'block', 'important');
           vto.style.setProperty('width', '100%', 'important');
-          vto.style.setProperty('grid-area', 'auto', 'important');
           vto.style.setProperty('grid-column', '1 / -1', 'important');
-          vto.style.setProperty('grid-row', 'auto', 'important');
           vto.style.setProperty('margin', '8px 0 0', 'important');
           vto.style.setProperty('box-sizing', 'border-box', 'important');
-          body.appendChild(vto);
         }
       })();
 
