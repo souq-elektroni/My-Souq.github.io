@@ -7408,46 +7408,16 @@ html body #productModal .share-btn{order:4!important;}
 
 <script id="mysouq-shared-subcategory-filter">
 (function(){
-  let sharedSubcategoryValue = '';
   window.applySharedSubcategoryFilter = function(value){
-    sharedSubcategoryValue = value || '';
-    const grid = document.getElementById('products-container');
-    if(!grid) return;
-    const cards = Array.from(grid.querySelectorAll('.product-card'));
-    cards.forEach(function(card){
-      if(!sharedSubcategoryValue){ card.style.display = ''; return; }
-      const dataText = [
-        card.innerText || '',
-        card.getAttribute('data-category') || '',
-        card.getAttribute('data-subcategory') || '',
-        card.getAttribute('data-title') || ''
-      ].join(' ').toLowerCase();
-      const isHome = /ملابس\s*للمنزل|للمنزل|homewear|home wear|بيت/.test(dataText);
-      const isGoingOut = /ملابس\s*للخروج|للخروج|خروج|outwear|outfit/.test(dataText);
-      card.style.display = (sharedSubcategoryValue === 'ملابس للمنزل' ? isHome : isGoingOut) ? '' : 'none';
-    });
-    let empty = grid.querySelector('.shared-filter-empty');
-    const visible = cards.some(card => card.style.display !== 'none');
-    if(!visible && cards.length){
-      if(!empty){
-        empty = document.createElement('p');
-        empty.className = 'shared-filter-empty';
-        empty.style.cssText = 'grid-column:1/-1;text-align:center;padding:24px 12px;font-weight:800;color:var(--text-muted)';
-        grid.appendChild(empty);
-      }
-      empty.textContent = 'لا توجد منتجات ضمن هذا التصنيف في النتائج الحالية.';
-      empty.style.display = '';
-    } else if(empty){ empty.style.display = 'none'; }
+    const select = document.getElementById('sharedSubcategorySelect');
+    if (select && select.value !== String(value || '')) {
+      select.value = String(value || '');
+    }
+    // مصدر واحد للنتائج: يدمج نوع الملابس مع البحث والقسم والمقاس والمخزون والترتيب.
+    if (typeof window.handleSearchAndFilter === 'function') {
+      window.handleSearchAndFilter();
+    }
   };
-  // Keep the selected shared filter active when other controls rerender the product grid.
-  const grid = document.getElementById('products-container');
-  if(grid && window.MutationObserver){
-    new MutationObserver(function(){
-      if(!sharedSubcategoryValue) return;
-      const select = document.getElementById('sharedSubcategorySelect');
-      if(select && select.value) window.applySharedSubcategoryFilter(select.value);
-    }).observe(grid,{childList:true});
-  }
 })();
 </script>
 
@@ -20803,14 +20773,14 @@ body.dark-mode .msq-design-chip.is-active{background:#32282c!important;border-co
 /* Both product photos: let each image keep its real aspect ratio instead of
    forcing a tall fixed box that creates blank bands above/below the garment. */
 #productModal.msq-pair-mode .msq-pair-stage {
-  align-items: start !important;
+  align-items: stretch !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
   padding: 0 !important;
   background: transparent !important;
   border: 0 !important;
 }
 #productModal.msq-pair-mode .msq-stage-side {
-  align-self: start !important;
+  align-self: stretch !important;
   align-items: stretch !important;
   min-width: 0 !important;
   height: auto !important;
@@ -20820,12 +20790,12 @@ body.dark-mode .msq-design-chip.is-active{background:#32282c!important;border-co
 #productModal.msq-pair-mode .msq-stage-back {
   display: block !important;
   width: 100% !important;
-  height: auto !important;
-  min-height: 0 !important;
-  max-height: min(58vh, 620px) !important;
+  height: clamp(320px, 58vh, 620px) !important;
+  min-height: clamp(320px, 58vh, 620px) !important;
+  max-height: clamp(320px, 58vh, 620px) !important;
   aspect-ratio: auto !important;
   object-fit: contain !important;
-  object-position: center top !important;
+  object-position: center center !important;
   background: transparent !important;
   border: 0 !important;
   box-shadow: none !important;
@@ -20845,12 +20815,12 @@ body.dark-mode .msq-design-chip.is-active{background:#32282c!important;border-co
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
-  width: auto !important;
+  width: 100% !important;
   height: auto !important;
   min-width: 0 !important;
   min-height: 0 !important;
   max-width: 100% !important;
-  max-height: min(66vh, 680px) !important;
+  max-height: min(72vh, 740px) !important;
   aspect-ratio: auto !important;
   object-fit: contain !important;
   object-position: center center !important;
@@ -20904,15 +20874,15 @@ body.dark-mode .msq-design-chip.is-active{background:#32282c!important;border-co
   #productModal.msq-pair-mode .msq-stage-front,
   #productModal.msq-pair-mode .msq-stage-back {
     width: 100% !important;
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: min(42vh, 360px) !important;
+    height: clamp(220px, 36vh, 340px) !important;
+    min-height: clamp(220px, 36vh, 340px) !important;
+    max-height: clamp(220px, 36vh, 340px) !important;
     object-fit: contain !important;
-    object-position: center top !important;
+    object-position: center center !important;
   }
   #productModal:not(.msq-pair-mode) #modalImage,
   #productModal:not(.msq-pair-mode) .modal-img {
-    width: auto !important;
+    width: 100% !important;
     height: auto !important;
     max-width: 100% !important;
     max-height: min(48vh, 420px) !important;
