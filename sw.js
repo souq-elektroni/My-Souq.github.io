@@ -1,6 +1,6 @@
 /* My Souq Service Worker — network-first, aggressive old-cache purge */
-const CACHE_NAME = 'mysouq-v20261021b';
-const BUILD = '20261021b';
+const CACHE_NAME = 'mysouq-v20261021c';
+const BUILD = '20261021c';
 
 // Minimal app-shell only (used solely as offline fallback).
 const PRECACHE = [
