@@ -1367,18 +1367,16 @@ ${selectedImage}
       // ترتيب ميزة جرب المنتج تحت الصور في وضع الكوليكشن
       (function placeVtoPair() {
         var vto = document.getElementById('virtualTryOnBox');
-        var gal = document.querySelector('#productModal .modal-gallery-wrapper');
-        if (vto && gal) {
+        var body = document.querySelector('#productModal .modal-body');
+        if (vto && body) {
           vto.style.setProperty('width', '100%', 'important');
+          vto.style.setProperty('grid-area', 'auto', 'important');
           vto.style.setProperty('grid-column', '1 / -1', 'important');
+          vto.style.setProperty('grid-row', 'auto', 'important');
           vto.style.setProperty('margin', '10px 0 0', 'important');
           vto.style.setProperty('box-sizing', 'border-box', 'important');
-          // انقلها لآخر المعرض لو مش هناك
-          if (vto.parentElement !== gal) {
-            gal.appendChild(vto);
-          } else {
-            gal.appendChild(vto);
-          }
+          // صف مستقل بعد المعرض وبيانات المنتج، وليس داخل مساحة الصور.
+          body.appendChild(vto);
         }
       })();
 
@@ -1523,22 +1521,29 @@ ${selectedImage}
           });
         }
         if (modalImg) {
-          modalImg.style.setProperty('width', '100%', 'important');
-          modalImg.style.setProperty('height', 'clamp(280px, 54vh, 560px)', 'important');
-          modalImg.style.setProperty('max-height', 'min(58vh, 560px)', 'important');
+          modalImg.style.setProperty('display', 'block', 'important');
+          modalImg.style.setProperty('width', 'auto', 'important');
+          modalImg.style.setProperty('height', 'auto', 'important');
+          modalImg.style.setProperty('min-width', '0', 'important');
+          modalImg.style.setProperty('min-height', '0', 'important');
+          modalImg.style.setProperty('max-width', '100%', 'important');
+          modalImg.style.setProperty('max-height', 'min(66vh, 680px)', 'important');
           modalImg.style.setProperty('object-fit', 'contain', 'important');
           modalImg.style.setProperty('object-position', 'center center', 'important');
-          modalImg.style.setProperty('background', '#f0ebe6', 'important');
+          modalImg.style.setProperty('background', 'transparent', 'important');
           modalImg.style.setProperty('border-radius', '14px', 'important');
+          modalImg.style.setProperty('margin', '0 auto', 'important');
         }
-        // ميزة جرب المنتج — تحت المعرض بشكل مرتب
+        // ميزة جرب المنتج — صف مستقل أسفل الصور ومعلومات المنتج.
         var vto = document.getElementById('virtualTryOnBox');
-        if (vto && gal) {
-          vto.style.setProperty('display', vto.style.display === 'none' ? 'none' : 'block', 'important');
+        if (vto && body) {
           vto.style.setProperty('width', '100%', 'important');
+          vto.style.setProperty('grid-area', 'auto', 'important');
           vto.style.setProperty('grid-column', '1 / -1', 'important');
+          vto.style.setProperty('grid-row', 'auto', 'important');
           vto.style.setProperty('margin', '8px 0 0', 'important');
           vto.style.setProperty('box-sizing', 'border-box', 'important');
+          body.appendChild(vto);
         }
       })();
 

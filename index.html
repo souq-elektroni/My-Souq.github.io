@@ -20805,6 +20805,9 @@ body.dark-mode .msq-design-chip.is-active{background:#32282c!important;border-co
 #productModal.msq-pair-mode .msq-pair-stage {
   align-items: start !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: 0 !important;
 }
 #productModal.msq-pair-mode .msq-stage-side {
   align-self: start !important;
@@ -20829,7 +20832,6 @@ body.dark-mode .msq-design-chip.is-active{background:#32282c!important;border-co
   flex: 0 1 auto !important;
 }
 #productModal.msq-pair-mode .msq-pair-stage {
-  padding: 8px !important;
   gap: 8px !important;
 }
 #productModal.msq-pair-mode .msq-stage-side figcaption {
@@ -20872,20 +20874,28 @@ body.dark-mode .msq-design-chip.is-active{background:#32282c!important;border-co
   max-height: min(66vh, 680px) !important;
 }
 
-/* Preserve a dedicated try-on area; never overlay it on product photos. */
+/* Try-on is a full-width row of the modal, separate from product photos/details. */
 #productModal #virtualTryOnBox {
   position: relative !important;
   z-index: 2 !important;
+  grid-area: auto !important;
+  grid-column: 1 / -1 !important;
+  grid-row: auto !important;
+  justify-self: stretch !important;
+  align-self: start !important;
   max-width: 100% !important;
   min-width: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 #productModal #vtoResultImg {
   display: block;
-  max-width: 100% !important;
-  max-height: min(42vh, 420px) !important;
   width: auto !important;
   height: auto !important;
+  max-width: 100% !important;
+  max-height: min(68vh, 700px) !important;
   object-fit: contain !important;
+  object-position: center center !important;
   margin-inline: auto !important;
 }
 
@@ -20909,7 +20919,6 @@ body.dark-mode .msq-design-chip.is-active{background:#32282c!important;border-co
     object-fit: contain !important;
   }
   #productModal.msq-pair-mode .msq-pair-stage {
-    padding: 5px !important;
     gap: 5px !important;
   }
 }
