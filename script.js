@@ -292,8 +292,8 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   async function fetchProductMarkdown(fileName) {
     const encoded = fileName.split('/').map(encodeURIComponent).join('/');
     const urls = [
-      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021c')}&_=${Date.now()}`,
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021c')}&_=${Date.now()}`
+      `https://cdn.jsdelivr.net/gh/${GITHUB_USER}/${GITHUB_REPO}@${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021d')}&_=${Date.now()}`,
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products/${encoded}?msq_build=${encodeURIComponent(window.__MSQ_BUILD__ || '20261021d')}&_=${Date.now()}`
     ];
     for (let i = 0; i < urls.length; i++) {
       try {
@@ -1279,19 +1279,16 @@ ${selectedImage}
     const pairedDesigns = Array.isArray(currentSelectedProduct.designs)
       ? currentSelectedProduct.designs.filter(d => d && (d.front_image || d.back_image))
       : [];
+    const productModalEl = document.getElementById('productModal');
     const galleryWrapper = document.querySelector('#productModal .modal-gallery-wrapper');
-    let pairedGallery = document.getElementById('msqPairedGallery');
-    if (pairedGallery) pairedGallery.remove();
-    let designRail = document.getElementById('msqDesignRail');
-    if (designRail) designRail.remove();
+    document.querySelectorAll('#productModal .msq-stage-row, #msqPairedGallery, #msqDesignRail, #msqStageRow').forEach(function (el) {
+      try { el.remove(); } catch (e) {}
+    });
 
     if (modalImg) {
       modalImg.src = (currentSelectedProduct.images && currentSelectedProduct.images[0]) || '';
       activeModalImage = modalImg.src;
-      modalImg.onclick = () => openZoom();
-      modalImg.style.display = pairedDesigns.length ? 'none' : '';
-      if (pairedDesigns.length) modalImg.classList.add('msq-hide-for-pair');
-      else modalImg.classList.remove('msq-hide-for-pair');
+      modalImg.onclick = function () { openZoom(); };
     }
     const nav = galleryWrapper ? galleryWrapper.querySelector('.gallery-nav') : null;
     const thumbsWrap = document.getElementById('thumbsVerticalWrap');
@@ -1306,14 +1303,12 @@ ${selectedImage}
       const front = d.front_image || d.back_image || '';
       const back = d.back_image || d.front_image || '';
       activeModalImage = front || back;
-      const stage = document.getElementById('msqPairStage');
-      if (stage) {
-        const fImg = stage.querySelector('.msq-stage-front');
-        const bImg = stage.querySelector('.msq-stage-back');
-        if (fImg && front) fImg.src = front;
-        if (bImg && back) bImg.src = back;
-      }
-      document.querySelectorAll('#msqDesignRail .msq-design-chip').forEach(function (chip, ci) {
+      const fImg = document.querySelector('#msqPairStage .msq-stage-front');
+      const bImg = document.querySelector('#msqPairStage .msq-stage-back');
+      if (fImg && front) fImg.src = front;
+      if (bImg && back) bImg.src = back;
+      document.querySelectorAll('#msqDesignRail .msq-design-chip').forEach(function (chip) {
+        const ci = Number(chip.getAttribute('data-design-idx'));
         chip.classList.toggle('is-active', ci === i);
       });
       if (typeof updateDirectWhatsAppButton === 'function') {
@@ -1322,61 +1317,77 @@ ${selectedImage}
     };
 
     if (pairedDesigns.length && galleryWrapper) {
+      if (productModalEl) productModalEl.classList.add('msq-pair-mode');
       if (nav) nav.style.display = 'none';
       if (thumbsWrap) thumbsWrap.style.display = 'none';
+      if (modalImg) {
+        modalImg.style.setProperty('display', 'none', 'important');
+        modalImg.classList.add('msq-hide-for-pair');
+      }
 
-      pairedGallery = document.createElement('div');
-      pairedGallery.id = 'msqPairedGallery';
-      pairedGallery.className = 'msq-modal-paired-gallery msq-modal-stage-wrap';
       const d0 = pairedDesigns[0];
       const f0 = d0.front_image || d0.back_image || '';
       const b0 = d0.back_image || d0.front_image || '';
-      pairedGallery.innerHTML =
-        '<div id="msqPairStage" class="msq-pair-stage">' +
-          '<figure class="msq-stage-side">' +
-            '<img class="msq-stage-front" src="' + f0 + '" alt="وش المنتج" loading="eager">' +
-            '<figcaption>الوش</figcaption>' +
-          '</figure>' +
-          '<figure class="msq-stage-side">' +
-            '<img class="msq-stage-back" src="' + b0 + '" alt="ضهر المنتج" loading="eager">' +
-            '<figcaption>الضهر</figcaption>' +
-          '</figure>' +
-        '</div>';
-
-      designRail = document.createElement('div');
-      designRail.id = 'msqDesignRail';
-      designRail.className = 'msq-design-rail';
-      designRail.innerHTML = pairedDesigns.map(function (design, idx) {
-        const label = 'الشكل ' + (idx + 1);
-        const front = design.front_image || design.back_image || '';
-        const back = design.back_image || design.front_image || '';
-        return (
-          '<button type="button" class="msq-design-chip' + (idx === 0 ? ' is-active' : '') + '" data-design-idx="' + idx + '" onclick="selectProductDesign(' + idx + ')">' +
-            '<span class="msq-design-chip-title">' + label + '</span>' +
-            '<span class="msq-design-chip-thumbs">' +
-              (front ? '<img src="' + front + '" alt="">' : '') +
-              (back ? '<img src="' + back + '" alt="">' : '') +
-            '</span>' +
-            '<span class="msq-design-chip-sub">الوش / الضهر</span>' +
-          '</button>'
-        );
-      }).join('');
 
       const stageRow = document.createElement('div');
       stageRow.className = 'msq-stage-row';
-      stageRow.appendChild(pairedGallery);
-      stageRow.appendChild(designRail);
-      galleryWrapper.insertBefore(stageRow, modalImg || galleryWrapper.firstChild);
+      stageRow.id = 'msqStageRow';
+      stageRow.innerHTML =
+        '<div id="msqPairedGallery" class="msq-modal-stage-wrap">' +
+          '<div id="msqPairStage" class="msq-pair-stage">' +
+            '<figure class="msq-stage-side">' +
+              '<img class="msq-stage-front" src="' + f0 + '" alt="وش المنتج">' +
+              '<figcaption>الوش</figcaption>' +
+            '</figure>' +
+            '<figure class="msq-stage-side">' +
+              '<img class="msq-stage-back" src="' + b0 + '" alt="ضهر المنتج">' +
+              '<figcaption>الضهر</figcaption>' +
+            '</figure>' +
+          '</div>' +
+        '</div>' +
+        '<div id="msqDesignRail" class="msq-design-rail" role="listbox" aria-label="أشكال المنتج">' +
+          pairedDesigns.map(function (design, idx) {
+            const front = design.front_image || design.back_image || '';
+            const back = design.back_image || design.front_image || '';
+            return (
+              '<button type="button" role="option" class="msq-design-chip' + (idx === 0 ? ' is-active' : '') + '" data-design-idx="' + idx + '">' +
+                '<span class="msq-design-chip-title">الشكل ' + (idx + 1) + '</span>' +
+                '<span class="msq-design-chip-thumbs">' +
+                  (front ? '<img src="' + front + '" alt="" loading="lazy">' : '') +
+                  (back ? '<img src="' + back + '" alt="" loading="lazy">' : '') +
+                '</span>' +
+                '<span class="msq-design-chip-sub">الوش / الضهر</span>' +
+              '</button>'
+            );
+          }).join('') +
+        '</div>';
+
+      galleryWrapper.insertBefore(stageRow, galleryWrapper.firstChild);
+
+      stageRow.querySelectorAll('.msq-design-chip').forEach(function (chip) {
+        chip.addEventListener('click', function (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          window.selectProductDesign(chip.getAttribute('data-design-idx'));
+        });
+      });
+      const fImg0 = stageRow.querySelector('.msq-stage-front');
+      const bImg0 = stageRow.querySelector('.msq-stage-back');
+      if (fImg0) fImg0.addEventListener('click', function () { activeModalImage = fImg0.src; openZoom(); });
+      if (bImg0) bImg0.addEventListener('click', function () { activeModalImage = bImg0.src; openZoom(); });
+
       activeModalImage = f0 || b0;
       selectedDesignIndex = 0;
     } else {
+      if (productModalEl) productModalEl.classList.remove('msq-pair-mode');
       if (nav) nav.style.display = '';
       if (thumbsWrap) thumbsWrap.style.display = '';
       if (modalImg) {
-        modalImg.style.display = '';
+        modalImg.style.removeProperty('display');
         modalImg.classList.remove('msq-hide-for-pair');
       }
     }
+
     // رابط مباشر للمنتج في العنوان
     try {
       history.replaceState(null, '', '?product=' + id);
@@ -1834,14 +1845,13 @@ ${selectedImage}
   }
 
   function closeModal() {
-
-    document
-      .getElementById('productModal')
-      .classList.remove('active');
-
+    var pm = document.getElementById('productModal');
+    if (pm) {
+      pm.classList.remove('active');
+      pm.classList.remove('msq-pair-mode');
+    }
     // امسح ?product= من الرابط عشان الصفحة متتفتحش لوحدها بعد الريفرش
     clearProductQueryFromUrl();
-
   }
 
 
@@ -4039,7 +4049,7 @@ ${itemsText || '-'}
     // تحديث Service Worker الحالي مع منع المتصفح من استخدام نسخة مخزنة من ملفه.
     // يظل دعم PWA موجوداً، لكن ملف العامل يُعاد فحصه مع كل إصدار جديد.
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=20261021c', { updateViaCache: 'none' })
+      navigator.serviceWorker.register('./sw.js?v=20261021d', { updateViaCache: 'none' })
         .then(function(registration) {
           if (!registration) return;
           // Force the browser to check for a newer SW file immediately.
