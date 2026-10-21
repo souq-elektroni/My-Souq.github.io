@@ -20977,3 +20977,145 @@ html body #productModal.msq-pair-mode #msqPairStage img{
 }
 </style>
 
+<!-- My Souq gallery layout correction v1: final override; preserves existing features -->
+<style id="mysouq-gallery-layout-correction-v1">
+/* Keep product modal inside the viewport and prevent grid children from forcing overflow. */
+html body #productModal .modal-content {
+  box-sizing: border-box !important;
+  width: min(1320px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  max-height: 94vh !important;
+  overflow: auto !important;
+}
+html body #productModal .modal-body {
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+html body #productModal .modal-gallery-wrapper,
+html body #productModal .modal-info {
+  min-width: 0 !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Front/back pair: two equal columns, matching image boxes, full product visible. */
+html body #productModal.msq-pair-mode .modal-content {
+  width: min(1420px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+}
+html body #productModal.msq-pair-mode .modal-body {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 380px) !important;
+  align-items: start !important;
+  gap: 16px !important;
+}
+html body #productModal.msq-pair-mode .modal-gallery-wrapper {
+  width: 100% !important;
+  min-width: 0 !important;
+}
+html body #productModal.msq-pair-mode .msq-pair-stage,
+html body #productModal.msq-pair-mode #msqPairStage {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  grid-template-rows: auto !important;
+  align-items: start !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  padding: 8px !important;
+  box-sizing: border-box !important;
+}
+html body #productModal.msq-pair-mode .msq-stage-side {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+html body #productModal.msq-pair-mode .msq-stage-side img,
+html body #productModal.msq-pair-mode .msq-stage-front,
+html body #productModal.msq-pair-mode .msq-stage-back,
+html body #productModal.msq-pair-mode #msqPairStage img {
+  display: block !important;
+  width: 100% !important;
+  height: clamp(300px, 54vh, 560px) !important;
+  min-height: 0 !important;
+  max-height: 560px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+}
+html body #productModal.msq-pair-mode .msq-stage-side figcaption {
+  display: block !important;
+  min-height: 20px !important;
+  text-align: center !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Single-image products retain the thumbnail/gallery controls and fit the viewport. */
+html body #productModal:not(.msq-pair-mode) .modal-body {
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 380px) !important;
+}
+html body #productModal:not(.msq-pair-mode) .modal-img,
+html body #productModal:not(.msq-pair-mode) #modalImage {
+  width: 100% !important;
+  max-width: 100% !important;
+  height: clamp(300px, 58vh, 620px) !important;
+  min-height: 0 !important;
+  max-height: 620px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 767px) {
+  html body #productModal .modal-content,
+  html body #productModal.msq-pair-mode .modal-content {
+    width: calc(100vw - 12px) !important;
+    max-width: calc(100vw - 12px) !important;
+    max-height: 96vh !important;
+  }
+  html body #productModal .modal-body,
+  html body #productModal.msq-pair-mode .modal-body,
+  html body #productModal:not(.msq-pair-mode) .modal-body {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 10px !important;
+    padding: 8px !important;
+  }
+  html body #productModal.msq-pair-mode .msq-pair-stage,
+  html body #productModal.msq-pair-mode #msqPairStage {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    padding: 5px !important;
+  }
+  html body #productModal.msq-pair-mode .msq-stage-side img,
+  html body #productModal.msq-pair-mode .msq-stage-front,
+  html body #productModal.msq-pair-mode .msq-stage-back,
+  html body #productModal.msq-pair-mode #msqPairStage img {
+    height: clamp(180px, 31vh, 280px) !important;
+    min-height: 0 !important;
+    max-height: 280px !important;
+  }
+  html body #productModal:not(.msq-pair-mode) .modal-img,
+  html body #productModal:not(.msq-pair-mode) #modalImage {
+    height: clamp(240px, 45vh, 420px) !important;
+    min-height: 0 !important;
+    max-height: 420px !important;
+  }
+}
+@media (max-width: 360px) {
+  html body #productModal.msq-pair-mode .msq-stage-side img,
+  html body #productModal.msq-pair-mode .msq-stage-front,
+  html body #productModal.msq-pair-mode .msq-stage-back,
+  html body #productModal.msq-pair-mode #msqPairStage img {
+    height: 170px !important;
+    max-height: 170px !important;
+  }
+}
+</style>
+
