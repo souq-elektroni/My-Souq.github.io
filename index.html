@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<script id="mysouq-kill-cache-v8">
-/* مسح الكاش + إلغاء Service Worker فور فتح الصفحة — أوتوماتيك */
+<script id="mysouq-kill-cache-v9">
+/* علاج نهائي للكاش — Build: 202610222053x */
 (function () {
   'use strict';
-  var DONE_KEY = 'msq_cache_killed_v8';
+  var BUILD = '202610222053x';
+  var RELOAD_KEY = 'msq_reloaded_' + BUILD;
+  var BUILD_KEY = 'msq_active_build';
 
-  function wipe() {
+  function wipeAll() {
     var tasks = [];
     try {
       if ('serviceWorker' in navigator) {
         tasks.push(
           navigator.serviceWorker.getRegistrations().then(function (regs) {
-            return Promise.all(regs.map(function (r) {
-              return r.unregister();
+            return Promise.all((regs || []).map(function (r) {
+              return r.unregister().catch(function () {});
             }));
           }).catch(function () {})
         );
@@ -24,7 +26,9 @@
       if (window.caches && caches.keys) {
         tasks.push(
           caches.keys().then(function (keys) {
-            return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+            return Promise.all((keys || []).map(function (k) {
+              return caches.delete(k).catch(function () {});
+            }));
           }).catch(function () {})
         );
       }
@@ -32,34 +36,71 @@
     return Promise.all(tasks);
   }
 
-  // امسح دايمًا عند كل زيارة
-  wipe().then(function () {
-    // لو كان في SW مسيطر على الصفحة → إعادة تحميل مرة واحدة بعد الإلغاء
-    var needReload = false;
-    try {
-      if (navigator.serviceWorker && navigator.serviceWorker.controller) needReload = true;
-    } catch (e) {}
+  function hardReloadOnce() {
     var already = false;
-    try { already = sessionStorage.getItem(DONE_KEY) === '1'; } catch (e) {}
-    if (needReload && !already) {
-      try { sessionStorage.setItem(DONE_KEY, '1'); } catch (e) {}
+    try { already = sessionStorage.getItem(RELOAD_KEY) === '1'; } catch (e) {}
+    if (already) return;
+    try { sessionStorage.setItem(RELOAD_KEY, '1'); } catch (e) {}
+    try {
       var u = new URL(location.href);
-      // شيل باراميترات الكاش القديمة
-      u.searchParams.delete('msq_v');
-      u.searchParams.delete('msq-sw');
-      u.searchParams.delete('_msq');
-      u.searchParams.delete('_');
       u.searchParams.set('nocache', String(Date.now()));
+      u.searchParams.set('b', BUILD);
       location.replace(u.toString());
+    } catch (e) {
+      try { location.reload(true); } catch (e2) { location.reload(); }
+    }
+  }
+
+  function checkRemoteVersion() {
+    var url = 'version.json?t=' + Date.now() + '&b=' + encodeURIComponent(BUILD);
+    return fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache'
+      }
+    }).then(function (r) {
+      if (!r.ok) return null;
+      return r.json();
+    }).then(function (data) {
+      if (!data) return;
+      var remote = String(data.build || data.version || '').trim();
+      if (!remote) return;
+      var prev = '';
+      try { prev = String(localStorage.getItem(BUILD_KEY) || ''); } catch (e) {}
+      try { localStorage.setItem(BUILD_KEY, BUILD); } catch (e) {}
+      if (remote !== BUILD) {
+        hardReloadOnce();
+        return;
+      }
+      if (prev && prev !== BUILD) {
+        hardReloadOnce();
+      }
+    }).catch(function () {});
+  }
+
+  wipeAll().then(function () {
+    var controlled = false;
+    try {
+      controlled = !!(navigator.serviceWorker && navigator.serviceWorker.controller);
+    } catch (e) {}
+    if (controlled) {
+      hardReloadOnce();
       return;
     }
-    try { sessionStorage.removeItem(DONE_KEY); } catch (e) {}
-  }).catch(function () {});
-
-  // مع كل رجوع للتاب امسح تاني
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible') wipe();
+    checkRemoteVersion();
+  }).catch(function () {
+    checkRemoteVersion();
   });
+
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+      wipeAll();
+      checkRemoteVersion();
+    }
+  });
+
+  setInterval(function () { checkRemoteVersion(); }, 180000);
 })();
 </script>
 
@@ -69,16 +110,16 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="20261022k">
+  <meta name="msq-build" content="202610222053x">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=20261022h">
-  <link rel="icon" href="favicon.svg?v=20261022h" type="image/svg+xml">
-  <link rel="icon" href="favicon.svg?v=20261022h" sizes="any">
-  <link rel="apple-touch-icon" href="favicon.svg?v=20261022h">
-  <link rel="shortcut icon" href="favicon.svg?v=20261022h">
+  <link rel="manifest" href="manifest.json?v=202610222053x">
+  <link rel="icon" href="favicon.svg?v=202610222053x" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=202610222053x" sizes="any">
+  <link rel="apple-touch-icon" href="favicon.svg?v=202610222053x">
+  <link rel="shortcut icon" href="favicon.svg?v=202610222053x">
   <title>My Souq</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
@@ -2226,7 +2267,7 @@
 
   </style>
 
-  <link rel="stylesheet" href="styles.css?v=20261022h">
+  <link rel="stylesheet" href="styles.css?v=202610222053x">
 
 
 <style id="my-souq-wow-layer">
@@ -3962,10 +4003,10 @@ body{
 body::before{
  content:""!important;position:fixed!important;inset:-8px!important;z-index:-1!important;
  pointer-events:none!important;
- background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261022h') center center/cover no-repeat!important;
+ background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=202610222053x') center center/cover no-repeat!important;
  filter:blur(2px) saturate(.9)!important;transform:scale(1.025)!important;
 }
-body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261022h') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
+body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=202610222053x') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
 /* Floating app badge and independent action buttons */
 .brand-badge{top:16px!important;right:16px!important;width:58px!important;height:58px!important;border-radius:19px!important;transform:rotate(3deg)!important;background:linear-gradient(145deg,#087f83,#36aaa9)!important;box-shadow:0 12px 30px rgba(8,127,131,.25),inset 0 1px 0 rgba(255,255,255,.75)!important;border:1px solid rgba(255,255,255,.8)!important}
 .brand-badge::before{inset:5px!important;border-radius:14px!important}
@@ -4176,10 +4217,10 @@ html.msq-version-checking { background: #f4e5d8; }
     <p style="display:none!important" aria-hidden="true"></p>
 
     <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261022h')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261022h')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261022h')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261022h')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
+      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=202610222053x')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=202610222053x')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=202610222053x')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=202610222053x')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
     </div>
 
     <div class="banner-dots" role="tablist" aria-label="اختيار البانر">
@@ -5070,7 +5111,7 @@ html.msq-version-checking { background: #f4e5d8; }
   })();
   </script>
 
-  <script src="script.js?v=20261022k"></script>
+  <script src="script.js?v=202610222053x"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -7867,11 +7908,11 @@ body{
 body::before{
   content:""!important;position:fixed!important;inset:-5px!important;z-index:-1!important;
   pointer-events:none!important;
-  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261022h') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=202610222053x') center center/cover no-repeat!important;
   filter:blur(1.5px) saturate(.94)!important;transform:scale(1.015)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261022h') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=202610222053x') center center/cover no-repeat!important;
   filter:blur(2px) saturate(.8)!important;
 }
 /* Restore the full banner artwork as a visible layer behind the original live logo/text. */
@@ -7975,14 +8016,14 @@ header p{max-width:54%!important}
     pointer-events:none;
     background:
       linear-gradient(135deg, rgba(245,238,226,.22), rgba(248,242,233,.16)),
-      url("assets/store-room.webp?v=20261022h") center center / cover no-repeat;
+      url("assets/store-room.webp?v=202610222053x") center center / cover no-repeat;
     filter: blur(1.35px) saturate(.92);
     transform: scale(1.015);
   }
   body.dark-mode::before {
     background:
       linear-gradient(135deg, rgba(13,22,24,.66), rgba(16,25,27,.58)),
-      url("assets/store-room.webp?v=20261022h") center center / cover no-repeat;
+      url("assets/store-room.webp?v=202610222053x") center center / cover no-repeat;
     filter: blur(1.7px) saturate(.78);
   }
 
@@ -8120,7 +8161,7 @@ body::before{
   transform:scale(1.025)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261022h') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=202610222053x') center center/cover no-repeat!important;
   filter:blur(3.5px) saturate(.82)!important;
 }
 /* Hero keeps the full supplied banner art visible. */
@@ -13505,7 +13546,7 @@ body::before {
   pointer-events: none !important;
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261022h') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=202610222053x') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   transform: scale(1.06) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
@@ -13513,7 +13554,7 @@ body::before {
 body.dark-mode::before {
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261022h') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=202610222053x') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
 }

@@ -1,18 +1,14 @@
-مسح الكاش والتحديث — أوتوماتيك بالكامل
-=====================================
+علاج الكاش النهائي — My Souq
+Build: 202610222053x
 
-من غير ما تغيّر أي رقم إصدار بإيدك:
+عند فتح الموقع أوتوماتيك:
+1) إلغاء Service Worker
+2) مسح Cache Storage
+3) قراءة version.json بدون كاش
+4) لو النسخة أحدث → Reload مرة واحدة
 
-1) ارفع ملفاتك على GitHub عادي (push).
-2) GitHub Action اسمه "Auto version bump" هيحدّث version.json
-   ويملأ BUILD في sw.js / index.html / script.js لوحده.
-3) أول ما العميل يفتح الموقع:
-   - يمسح الكاش القديم
-   - لو لقى نسخة أحدث → Reload مرة واحدة أوتوماتيك
+بعد كل push لازم version.json يتغيّر (هذا الملف).
 
-لو Action مش مفعّل لسه:
-   Settings → Actions → Allow all actions
-   وفعّل Workflow permissions: Read and write
-
-الكشف عن التحديث يتم كمان من Last-Modified للصفحة نفسها
-حتى لو version.json ما اتغيّرش.
+لو العميل لسه على نسخة قديمة:
+افتح: https://موقعك/?nocache=1
+أو نافذة Incognito
