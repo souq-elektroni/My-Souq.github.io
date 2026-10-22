@@ -4220,6 +4220,12 @@ function continueAfterOrderRecaptcha() {
           orderId: String(o.orderId),
           statusCode: code,
           status: String(o.status || (ORDER_STATUSES[code] && ORDER_STATUSES[code].label) || 'تحت التنفيذ 📦'),
+          // Backfill the public tracking record for OLD orders too, using the
+          // admin-authorized orders list. Never copy phone or payment fields.
+          name: String(o.name || ''),
+          address: String(o.address || ''),
+          total: o.total == null ? '' : o.total,
+          items: Array.isArray(o.items) ? o.items : [],
           createdAt: o.createdAt || Date.now(),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
