@@ -4806,25 +4806,39 @@ html.msq-version-checking { background: #f4e5d8; }
       </div>
       <button type="button" id="trackingBackToAdminOrdersBtn" onclick="(function(){ if(typeof isAdminNow==='function' && isAdminNow()){ closeTrackingModal(); openAdminOrdersModal(); } else { closeTrackingModal(); } })()" style="display:none;width:100%;margin:0 0 12px;padding:11px 14px;border:1px solid rgba(255,255,255,.8);border-radius:12px;background:linear-gradient(135deg,#8b3f52,#b75b72);color:#fff;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 6px 16px rgba(100,35,55,.16)">⬅ رجوع لقائمة الطلبات في الإدارة</button>
       <p class="track-modal-hint">
-        أدخل رقم الطلب الخاص بك (مثال: MS-K7P2M9X4) لمعرفة أحدث مستجدات الطلب والمنتجات:
+        أدخل رقم الطلب ورقم الهاتف المسجّل في الطلب (للخصوصية) — مثال الطلب: MS-K7P2M9X4
       </p>
-      <div class="track-search-row">
-        <input
-          type="text"
-          id="trackInputId"
-          class="promo-input track-search-input"
-          placeholder="أدخل رقم الطلب هنا..."
-          autocomplete="off"
-          spellcheck="false"
-          style="text-transform:uppercase;"
-          oninput="this.value=this.value.replace(/\s+/g,'').toUpperCase()"
-        >
-        <button
-          class="promo-btn track-search-btn"
-          onclick="searchOrderTracking()"
-        >
-          بحث 🔍
-        </button>
+      <div class="track-search-fields">
+        <div class="track-search-row">
+          <input
+            type="text"
+            id="trackInputId"
+            class="promo-input track-search-input"
+            placeholder="رقم الطلب (مثال: MS-K7P2M9X4)"
+            autocomplete="off"
+            spellcheck="false"
+            style="text-transform:uppercase;"
+            oninput="this.value=this.value.replace(/\s+/g,'').toUpperCase()"
+          >
+        </div>
+        <div class="track-search-row">
+          <input
+            type="tel"
+            id="trackInputPhone"
+            class="promo-input track-search-input"
+            placeholder="رقم الهاتف المسجّل في الطلب (01xxxxxxxxx)"
+            autocomplete="tel"
+            inputmode="numeric"
+            maxlength="15"
+            oninput="this.value=this.value.replace(/[^0-9٠-٩۰-۹+]/g,'')"
+          >
+          <button
+            class="promo-btn track-search-btn"
+            onclick="searchOrderTracking()"
+          >
+            بحث 🔍
+          </button>
+        </div>
       </div>
       <div id="adminHint" style="display:none; font-size:12px; font-weight:800; color:#2e7d32; margin-bottom:8px;"></div>
       <div id="trackingResultContainer" class="tracking-result-box" style="display:none;">
@@ -5310,6 +5324,29 @@ html.msq-version-checking { background: #f4e5d8; }
         alert('يرجى إدخال رقم الطلب أولاً');
         return;
       }
+      var phoneInput = document.getElementById('trackInputPhone');
+      var rawPhone = phoneInput ? String(phoneInput.value || '').trim() : '';
+      var isAdminViewer = false;
+      try {
+        isAdminViewer = (typeof isAdminNow === 'function' && isAdminNow()) ||
+          (typeof isAdminMode !== 'undefined' && !!isAdminMode && typeof currentAdminUser !== 'undefined' && !!currentAdminUser);
+      } catch (_) { isAdminViewer = false; }
+      if (!isAdminViewer) {
+        if (!rawPhone) {
+          alert('للخصوصية: أدخل رقم الهاتف المسجّل في الطلب مع رقم الطلب.');
+          if (phoneInput) phoneInput.focus();
+          return;
+        }
+        var normPhone = (typeof normalizeEgyptianPhone === 'function')
+          ? normalizeEgyptianPhone(rawPhone)
+          : String(rawPhone).replace(/[٠-٩]/g, function(d){return String(d.charCodeAt(0)-1632);}).replace(/[\s-]/g,'');
+        if (typeof isValidEgyptianMobile === 'function' && !isValidEgyptianMobile(normPhone)) {
+          alert('أدخل رقم موبايل مصري صحيح (11 رقم يبدأ بـ 010 أو 011 أو 012 أو 015).');
+          if (phoneInput) phoneInput.focus();
+          return;
+        }
+        if (phoneInput) phoneInput.value = normPhone;
+      }
       // اعرض الرقم بالكابيتال للعميل
       if (searchInput) searchInput.value = searchId;
       if (!resultBox) return;
@@ -5362,6 +5399,40 @@ html.msq-version-checking { background: #f4e5d8; }
       var foundOrder = await findOrderFlexible(searchId);
 
       if (foundOrder) {
+        // تحقق الخصوصية: رقم الهاتف يجب أن يطابق الطلب (إلا للإدارة)
+        var isAdminViewer2 = false;
+        try {
+          isAdminViewer2 = (typeof isAdminNow === 'function' && isAdminNow()) ||
+            (typeof isAdminMode !== 'undefined' && !!isAdminMode && typeof currentAdminUser !== 'undefined' && !!currentAdminUser);
+        } catch (_) { isAdminViewer2 = false; }
+        if (!isAdminViewer2) {
+          var orderPhoneRaw = foundOrder.phone || foundOrder.customerPhone || foundOrder.mobile || foundOrder.whatsapp || '';
+          var orderPhone = (typeof normalizeEgyptianPhone === 'function')
+            ? normalizeEgyptianPhone(orderPhoneRaw)
+            : String(orderPhoneRaw).replace(/[\s-]/g, '');
+          var enteredPhoneEl = document.getElementById('trackInputPhone');
+          var enteredPhone = enteredPhoneEl ? String(enteredPhoneEl.value || '').trim() : '';
+          enteredPhone = (typeof normalizeEgyptianPhone === 'function')
+            ? normalizeEgyptianPhone(enteredPhone)
+            : enteredPhone.replace(/[\s-]/g, '');
+          // دعم مقارنة آخر 10 أرقام (لو أحد الطرفين فيه كود دولة)
+          function phoneTail(p) {
+            var d = String(p || '').replace(/\D/g, '');
+            if (d.indexOf('20') === 0 && d.length >= 12) d = d.slice(2);
+            if (d.charAt(0) === '0') { /* keep */ }
+            else if (d.length === 10) d = '0' + d;
+            return d.slice(-10);
+          }
+          if (!orderPhone || phoneTail(orderPhone) !== phoneTail(enteredPhone)) {
+            resultBox.innerHTML =
+              '<div style="text-align:center;padding:22px 16px;border-radius:16px;background:#fff5f5;border:1px solid #f0c4c4;color:#9b2c2c;font-weight:800;line-height:1.9;">' +
+                '❌ رقم الهاتف غير مطابق لبيانات هذا الطلب.<br>' +
+                '<span style="font-size:13px;font-weight:700;color:#7a4545;">تأكد من رقم الطلب ورقم الهاتف المسجّل عند إنشاء الطلب.</span>' +
+              '</div>';
+            return;
+          }
+        }
+
         var currentCode = typeof foundOrder.statusCode === 'number' ? foundOrder.statusCode : 0;
         if (currentCode === 4 || /رفض استلام وحظر/.test(String(foundOrder.status || foundOrder.statusLabel || ''))) {
           resultBox.innerHTML =
@@ -8543,7 +8614,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 
 <style id="mysouq-customer-tracking-redesign-v1">
 /* Customer-only order tracking: read-only, separated from admin status controls. */
-#trackingModal .track-modal-content{width:min(1480px,98.5vw)!important;max-width:1480px!important;max-height:96vh!important;overflow-y:auto!important;padding:clamp(16px,2.2vw,28px)!important;border-radius:24px!important;background:linear-gradient(145deg,rgba(255,251,247,.97),rgba(246,235,228,.96))!important}
+#trackingModal .track-modal-content{width:min(980px,96vw)!important;max-width:980px!important;max-height:92vh!important;overflow-y:auto!important;padding:clamp(14px,2vw,22px)!important;border-radius:22px!important;background:linear-gradient(145deg,rgba(255,251,247,.97),rgba(246,235,228,.96))!important}
 #trackingModal .track-modal-title{margin:0 44px 8px 0!important;text-align:right!important;font-size:clamp(19px,2.2vw,26px)!important}
 #trackingModal .track-modal-hint{font-size:12px!important;line-height:1.8!important;margin:0 0 12px!important;color:#79666a!important}
 #trackingModal .track-search-row{display:flex!important;gap:8px!important;align-items:stretch!important;margin-bottom:14px!important}
@@ -10809,7 +10880,7 @@ button.msq-return-status-btn,button.msq-reject-ban-btn{
 <style id="mysouq-force-actions-visible">
 .customer-track-columns-3{
   display:grid !important;
-  grid-template-columns:minmax(0,1.05fr) minmax(0,1.15fr) minmax(220px,.95fr) !important;
+  grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) minmax(200px,.9fr) !important;
 }
 .customer-track-actions-panel{
   display:flex !important;
@@ -11582,54 +11653,116 @@ body.dark-mode #productModal.msq-pair-mode .msq-stage-side img {
 
 
 <style id="mysouq-track-admin-details-widen-v1">
-/* نافذة تتبع الطلب — أوسع ومنسّقة ديسكتوب/موبايل */
+/* نافذة تتبع الطلب — حجم متوازن + صورة منتج أوضح + حقل هاتف */
 #trackingModal.modal-overlay{
-  padding: 10px !important;
+  padding: 12px !important;
   align-items: center !important;
 }
 #trackingModal .track-modal-content{
-  width: min(1480px, 98.5vw) !important;
-  max-width: 1480px !important;
-  max-height: 96vh !important;
-  padding: clamp(16px, 2.2vw, 28px) !important;
+  width: min(980px, 96vw) !important;
+  max-width: 980px !important;
+  max-height: 92vh !important;
+  padding: clamp(14px, 2vw, 22px) !important;
 }
 #trackingResultContainer{
-  padding: clamp(14px, 2vw, 24px) !important;
+  padding: clamp(12px, 1.8vw, 18px) !important;
 }
-/* شبكة بيانات أوضح على الشاشات العريضة */
-@media (min-width: 1100px){
-  .customer-track-data-grid{
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 12px !important;
-  }
+.track-search-fields{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.track-search-fields .track-search-row{
+  margin-bottom: 0 !important;
+}
+/* أعمدة أوضح بدون عرض مبالغ فيه */
+.customer-track-columns-3{
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(200px, .9fr) !important;
+  gap: 12px !important;
+}
+/* صورة المنتج أكبر وأوضح */
+#trackingResultContainer .track-product-card{
+  grid-template-columns: 1fr !important;
+  gap: 12px !important;
+}
+#trackingResultContainer .track-product-images{
+  grid-template-columns: 1fr !important;
+  max-width: 100% !important;
+}
+#trackingResultContainer .track-product-img-wrap{
+  min-height: 240px !important;
+  border-radius: 14px !important;
+  background: #faf6f2 !important;
+}
+#trackingResultContainer .track-product-img,
+.customer-track-products-panel .track-product-img{
+  width: 100% !important;
+  height: 240px !important;
+  max-height: 280px !important;
+  object-fit: contain !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+}
+#trackingResultContainer .track-product-name{
+  font-size: 15px !important;
+}
+@media (max-width: 980px){
   .customer-track-columns-3{
-    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.25fr) minmax(240px, .95fr) !important;
-    gap: 18px !important;
+    grid-template-columns: 1fr 1fr !important;
   }
-  .customer-track-col{
-    padding: 18px !important;
-  }
-  .customer-track-section-title{
-    font-size: 16px !important;
-  }
-  .customer-track-data strong{
-    font-size: 14px !important;
-  }
+  .customer-track-actions-panel{ grid-column: 1 / -1 !important; }
 }
 @media (max-width: 640px){
   #trackingModal .track-modal-content{
-    width: calc(100vw - 10px) !important;
-    max-width: calc(100vw - 10px) !important;
-    max-height: 96dvh !important;
+    width: calc(100vw - 12px) !important;
+    max-width: calc(100vw - 12px) !important;
+    max-height: 94dvh !important;
     padding: 12px !important;
     border-radius: 18px !important;
   }
-  #trackingResultContainer{
-    padding: 12px !important;
-    border-radius: 16px !important;
-  }
+  #trackingResultContainer{ padding: 12px !important; border-radius: 16px !important; }
+  .customer-track-columns-3{ grid-template-columns: 1fr !important; }
+  #trackingResultContainer .track-product-img-wrap{ min-height: 200px !important; }
+  #trackingResultContainer .track-product-img{ height: 200px !important; }
 }
 </style>
+
+
+<script id="mysouq-track-phone-ux">
+(function(){
+  function bindTrackEnter(){
+    ['trackInputId','trackInputPhone'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (!el || el.__trackEnterBound) return;
+      el.__trackEnterBound = true;
+      el.addEventListener('keydown', function(e){
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (typeof searchOrderTracking === 'function') searchOrderTracking();
+        }
+      });
+    });
+  }
+  var origOpen = window.openTrackingModal;
+  if (typeof origOpen === 'function' && !origOpen.__phoneUx) {
+    window.openTrackingModal = function(){
+      var r = origOpen.apply(this, arguments);
+      bindTrackEnter();
+      var phone = document.getElementById('trackInputPhone');
+      // لا نمسح رقم الطلب لو جاي من الإدارة، لكن نمسح الهاتف دائماً للخصوصية
+      if (phone) phone.value = '';
+      var box = document.getElementById('trackingResultContainer');
+      if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+      return r;
+    };
+    window.openTrackingModal.__phoneUx = true;
+  } else {
+    document.addEventListener('DOMContentLoaded', bindTrackEnter);
+    bindTrackEnter();
+  }
+})();
+</script>
 
 </body>
 </html>
