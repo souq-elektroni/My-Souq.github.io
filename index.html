@@ -5098,7 +5098,7 @@ html.msq-version-checking { background: #f4e5d8; }
   })();
   </script>
 
-  <script src="script.js?v=20261021i"></script>
+  <script src="script.js?v=20261022f"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -7405,47 +7405,20 @@ html body #productModal .share-btn{order:4!important;}
 
 
 <script id="mysouq-shared-subcategory-filter">
-(function(){
-  let sharedSubcategoryValue = '';
-  window.applySharedSubcategoryFilter = function(value){
-    sharedSubcategoryValue = value || '';
-    const grid = document.getElementById('products-container');
-    if(!grid) return;
-    const cards = Array.from(grid.querySelectorAll('.product-card'));
-    cards.forEach(function(card){
-      if(!sharedSubcategoryValue){ card.style.display = ''; return; }
-      const dataText = [
-        card.innerText || '',
-        card.getAttribute('data-category') || '',
-        card.getAttribute('data-subcategory') || '',
-        card.getAttribute('data-title') || ''
-      ].join(' ').toLowerCase();
-      const isHome = /ملابس\s*للمنزل|للمنزل|homewear|home wear|بيت/.test(dataText);
-      const isGoingOut = /ملابس\s*للخروج|للخروج|خروج|outwear|outfit/.test(dataText);
-      card.style.display = (sharedSubcategoryValue === 'ملابس للمنزل' ? isHome : isGoingOut) ? '' : 'none';
-    });
-    let empty = grid.querySelector('.shared-filter-empty');
-    const visible = cards.some(card => card.style.display !== 'none');
-    if(!visible && cards.length){
-      if(!empty){
-        empty = document.createElement('p');
-        empty.className = 'shared-filter-empty';
-        empty.style.cssText = 'grid-column:1/-1;text-align:center;padding:24px 12px;font-weight:800;color:var(--text-muted)';
-        grid.appendChild(empty);
-      }
-      empty.textContent = 'لا توجد منتجات ضمن هذا التصنيف في النتائج الحالية.';
-      empty.style.display = '';
-    } else if(empty){ empty.style.display = 'none'; }
+(function () {
+  // يوجّه الفلتر لدالة script.js الموحّدة (handleSearchAndFilter) بدل إخفاء الكروت يدويًا
+  window.applySharedSubcategoryFilter = function (value) {
+    var sel = document.getElementById('sharedSubcategorySelect');
+    if (sel && typeof value === 'string') sel.value = value;
+    if (typeof window.handleSearchAndFilter === 'function') {
+      window.handleSearchAndFilter();
+      return;
+    }
+    // احتياطي لو السكربت لسه محمّلش
+    setTimeout(function () {
+      if (typeof window.handleSearchAndFilter === 'function') window.handleSearchAndFilter();
+    }, 50);
   };
-  // Keep the selected shared filter active when other controls rerender the product grid.
-  const grid = document.getElementById('products-container');
-  if(grid && window.MutationObserver){
-    new MutationObserver(function(){
-      if(!sharedSubcategoryValue) return;
-      const select = document.getElementById('sharedSubcategorySelect');
-      if(select && select.value) window.applySharedSubcategoryFilter(select.value);
-    }).observe(grid,{childList:true});
-  }
 })();
 </script>
 

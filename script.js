@@ -954,95 +954,194 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     return;
   }
 
-  function filterCategory(cat, btn) {
-    currentCategory = cat;
-    currentSubcategory = "";
-    currentStockFilter = "all";
-    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.msq-subcategory').forEach(sel => sel.value = "");
+  function syncCategoryActiveUI(btn) {
+    document.querySelectorAll('.cat-btn').forEach(function (b) {
+      // أزرار المخزون لها حالة مستقلة
+      if (b.classList.contains('stock-avail') || b.classList.contains('stock-out')) return;
+      b.classList.remove('active');
+    });
+    if (btn && !btn.classList.contains('stock-avail') && !btn.classList.contains('stock-out')) {
+      btn.classList.add('active');
+    } else {
+      var main = document.querySelector('.cat-btn[data-main-category="' + String(currentCategory).replace(/"/g, '\\"') + '"]');
+      if (main) main.classList.add('active');
+      else if (currentCategory === 'الكل') {
+        var allBtn = document.querySelector('.cat-btn[data-main-category="الكل"]');
+        if (allBtn) allBtn.classList.add('active');
+      }
+    }
+  }
+
+  function syncStockActiveUI(btn) {
+    document.querySelectorAll('.cat-btn.stock-avail, .cat-btn.stock-out').forEach(function (b) {
+      b.classList.remove('active');
+    });
+    if (currentStockFilter === 'all') return;
     if (btn) btn.classList.add('active');
+    else {
+      var sel = document.querySelector(
+        currentStockFilter === 'out' ? '.cat-btn.stock-out' : '.cat-btn.stock-avail'
+      );
+      if (sel) sel.classList.add('active');
+    }
+  }
+
+  function filterCategory(cat, btn) {
+    currentCategory = cat || 'الكل';
+    currentSubcategory = '';
+    // إعادة المخزون للكل عند تغيير القسم (سلوك أوضح للعميل)
+    currentStockFilter = 'all';
+    document.querySelectorAll('.msq-subcategory').forEach(function (sel) { sel.value = ''; });
+    syncCategoryActiveUI(btn);
+    syncStockActiveUI(null);
     handleSearchAndFilter();
   }
 
   function filterSubcategory(cat, subcategory, selectEl) {
     currentCategory = cat;
-    currentSubcategory = subcategory || "";
-    currentStockFilter = "all";
-    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-    const mainButton = document.querySelector('.msq-main-cat[data-main-category="' + cat.replace(/"/g, '\\"') + '"]');
-    if (mainButton) mainButton.classList.add('active');
-    document.querySelectorAll('.msq-subcategory').forEach(sel => {
-      if (sel !== selectEl && sel.closest('.msq-category-group')?.querySelector('.msq-main-cat')?.dataset.mainCategory !== cat) sel.value = "";
+    currentSubcategory = subcategory || '';
+    currentStockFilter = 'all';
+    syncCategoryActiveUI(null);
+    var mainButton = document.querySelector('.msq-main-cat[data-main-category="' + String(cat).replace(/"/g, '\\"') + '"]');
+    if (mainButton) {
+      document.querySelectorAll('.cat-btn').forEach(function (b) {
+        if (b.classList.contains('stock-avail') || b.classList.contains('stock-out')) return;
+        b.classList.remove('active');
+      });
+      mainButton.classList.add('active');
+    }
+    document.querySelectorAll('.msq-subcategory').forEach(function (sel) {
+      if (sel !== selectEl) {
+        var groupCat = sel.closest('.msq-category-group') &&
+          sel.closest('.msq-category-group').querySelector('.msq-main-cat');
+        if (!groupCat || groupCat.dataset.mainCategory !== cat) sel.value = '';
+      }
     });
+    syncStockActiveUI(null);
     handleSearchAndFilter();
   }
 
   function filterStock(status, btn) {
-    currentStockFilter = status;
-    document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
+    // تبديل: لو ضغط نفس الفلتر تاني يرجع للكل
+    if (currentStockFilter === status) {
+      currentStockFilter = 'all';
+      syncStockActiveUI(null);
+    } else {
+      currentStockFilter = status || 'all';
+      syncStockActiveUI(btn);
+    }
     handleSearchAndFilter();
   }
 
-  function handleSearchAndFilter() {
-    const query = document.getElementById('searchInput')
-      ? document.getElementById('searchInput').value.toLowerCase()
-      : '';
+  function normalizeSubKey(s) {
+    return String(s || '')
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, ' ');
+  }
 
-    // فلتر «نوع الملابس» المشترك من القائمة المنسدلة في الصفحة
-    const sharedSubEl = document.getElementById('sharedSubcategorySelect');
-    const sharedSub = sharedSubEl ? String(sharedSubEl.value || '').trim() : '';
+  function matchesSharedSubcategory(pSub, sharedSub) {
+    if (!sharedSub) return true;
+    var sub = normalizeSubKey(pSub);
+    var want = normalizeSubKey(sharedSub);
+    if (!want) return true;
+    if (sub === want) return true;
+    if (want.indexOf('منزل') !== -1 || want.indexOf('home') !== -1) {
+      return /منزل|بيت|home\s*wear|homewear|lounge|pajama|بيجام|نوم/.test(sub);
+    }
+    if (want.indexOf('خروج') !== -1 || want.indexOf('out') !== -1) {
+      return /خروج|out\s*wear|outwear|casual|street|خارج/.test(sub);
+    }
+    return sub.indexOf(want) !== -1 || want.indexOf(sub) !== -1;
+  }
 
-    let filtered = products.filter(p => {
-      let matchesCat =
+  function getFilteredProducts() {
+    var query = '';
+    var searchEl = document.getElementById('searchInput');
+    if (searchEl) query = String(searchEl.value || '').trim().toLowerCase();
+
+    var sharedSubEl = document.getElementById('sharedSubcategorySelect');
+    var sharedSub = sharedSubEl ? String(sharedSubEl.value || '').trim() : '';
+
+    var newestIds = null;
+    var bestIds = null;
+    if (currentCategory === 'جديد') {
+      newestIds = products.slice().reverse().slice(0, 8).map(function (x) { return x.id; });
+    }
+    if (currentCategory === 'الأكثر مبيعاً') {
+      bestIds = products.slice()
+        .sort(function (a, b) { return (productSales[b.id] || 0) - (productSales[a.id] || 0); })
+        .slice(0, 8)
+        .map(function (x) { return x.id; });
+    }
+
+    return products.filter(function (p) {
+      var matchesCat =
         currentCategory === 'الكل' ||
         (currentCategory === 'عروض' && (p.category === 'عروض' || Number(p.oldPrice) > 0)) ||
-        (p.category === currentCategory &&
+        (String(p.category || '') === String(currentCategory) &&
           (!currentSubcategory || String(p.subcategory || '') === currentSubcategory));
 
-      if (currentCategory === 'جديد') {
-        const newestIds = [...products].slice().reverse().slice(0, 8).map(x => x.id);
-        matchesCat = newestIds.includes(p.id);
+      if (currentCategory === 'جديد' && newestIds) {
+        matchesCat = newestIds.indexOf(p.id) !== -1;
       }
-      if (currentCategory === 'الأكثر مبيعاً') {
-        const bestIds = [...products].sort((a, b) => (productSales[b.id] || 0) - (productSales[a.id] || 0)).slice(0, 8).map(x => x.id);
-        matchesCat = bestIds.includes(p.id);
+      if (currentCategory === 'الأكثر مبيعاً' && bestIds) {
+        matchesCat = bestIds.indexOf(p.id) !== -1;
       }
 
-      // تطابق نوع الملابس (ملابس للمنزل / ملابس للخروج)
-      const pSub = String(p.subcategory || '').trim();
-      const matchesSharedSub =
-        !sharedSub ||
-        pSub === sharedSub ||
-        (sharedSub === 'ملابس للمنزل' && /ملابس\s*للمنزل|للمنزل|home\s*wear|بيت/i.test(pSub)) ||
-        (sharedSub === 'ملابس للخروج' && /ملابس\s*للخروج|للخروج|خروج|out\s*wear/i.test(pSub));
+      var matchesSharedSub = matchesSharedSubcategory(p.subcategory, sharedSub);
 
-      const matchesStock =
+      var stockVal = String(p.stock || '').toLowerCase();
+      var matchesStock =
         currentStockFilter === 'all' ||
-        p.stock === currentStockFilter;
+        stockVal === String(currentStockFilter).toLowerCase() ||
+        (currentStockFilter === 'available' && (stockVal === 'available' || stockVal === 'in_stock' || stockVal === 'instock')) ||
+        (currentStockFilter === 'out' && (stockVal === 'out' || stockVal === 'out_of_stock' || stockVal === 'soldout'));
 
-      const matchesSearch = p.title.toLowerCase().includes(query);
+      var title = String(p.title || '').toLowerCase();
+      var desc = String(p.desc || p.description || '').toLowerCase();
+      var matchesSearch = !query || title.indexOf(query) !== -1 || desc.indexOf(query) !== -1;
 
-      const matchesSize =
-        currentSizeFilter === 'الكل' ||
-        (p.variants || []).some(v => v.size === currentSizeFilter);
+      var sizeWant = String(currentSizeFilter || 'الكل').trim();
+      var matchesSize =
+        sizeWant === 'الكل' ||
+        (p.variants || []).some(function (v) {
+          return String(v.size || '').trim() === sizeWant;
+        });
 
       return matchesCat && matchesSharedSub && matchesStock && matchesSearch && matchesSize;
     });
+  }
+
+  function handleSearchAndFilter() {
+    var filtered = getFilteredProducts();
+
+    // طبّق الترتيب الحالي إن وُجد
+    var sortEl = document.getElementById('sortSelect');
+    var sortVal = sortEl ? sortEl.value : 'default';
+    if (sortVal === 'low-high') {
+      filtered = filtered.slice().sort(function (a, b) {
+        return getEffectivePrice(a) - getEffectivePrice(b);
+      });
+    } else if (sortVal === 'high-low') {
+      filtered = filtered.slice().sort(function (a, b) {
+        return getEffectivePrice(b) - getEffectivePrice(a);
+      });
+    }
 
     renderProducts(filtered);
   }
 
   function applySorting() {
-    const sortVal = document.getElementById('sortSelect')
-      ? document.getElementById('sortSelect').value
-      : '';
-    let sorted = [...products];
-    if (sortVal === 'low-high') sorted.sort((a, b) => getEffectivePrice(a) - getEffectivePrice(b));
-    else if (sortVal === 'high-low') sorted.sort((a, b) => getEffectivePrice(b) - getEffectivePrice(a));
-    renderProducts(sorted);
+    // الترتيب يشتغل على النتائج المفلترة — مش يمسح الفلاتر
+    handleSearchAndFilter();
   }
 
+  function applySharedSubcategoryFilter(value) {
+    var sel = document.getElementById('sharedSubcategorySelect');
+    if (sel && typeof value === 'string') sel.value = value;
+    handleSearchAndFilter();
+  }
   // ===== Maintenance compatibility layer =====
   // The Firebase-backed maintenance controller in index.html is authoritative.
   // These legacy names are kept so any older callers do not break, but this
@@ -3120,6 +3219,15 @@ function continueAfterOrderRecaptcha() {
     window.finalizeOrder = finalizeOrder;
     window.notifyOwnerNewOrderTelegram = notifyOwnerNewOrderTelegram;
     window.buildTelegramOrderMessage = buildTelegramOrderMessage;
+    window.filterCategory = filterCategory;
+    window.filterStock = filterStock;
+    window.filterSize = filterSize;
+    window.filterSubcategory = filterSubcategory;
+    window.handleSearchAndFilter = handleSearchAndFilter;
+    window.applySorting = applySorting;
+    window.applySharedSubcategoryFilter = applySharedSubcategoryFilter;
+    window.buildSizeFilterButtons = buildSizeFilterButtons;
+    window.getFilteredProducts = getFilteredProducts;
   } catch (e) {}
 
   function closeSuccessModal() {
