@@ -1324,35 +1324,51 @@ ${selectedImage}
         var info = document.querySelector('#productModal .modal-info');
         var gal = document.querySelector('#productModal .modal-gallery-wrapper');
         var content = document.querySelector('#productModal .modal-content');
+        var isMobile = (typeof window.matchMedia === 'function')
+          ? window.matchMedia('(max-width: 767px)').matches
+          : (window.innerWidth <= 767);
         if (content) {
-          content.style.setProperty('width', 'min(1360px, calc(100vw - 10px))', 'important');
-          content.style.setProperty('max-width', '1360px', 'important');
+          if (isMobile) {
+            content.style.setProperty('width', 'calc(100vw - 6px)', 'important');
+            content.style.setProperty('max-width', '100vw', 'important');
+          } else {
+            content.style.setProperty('width', 'min(1360px, calc(100vw - 10px))', 'important');
+            content.style.setProperty('max-width', '1360px', 'important');
+          }
         }
         if (body) {
-          body.style.setProperty('display', 'grid', 'important');
-          body.style.setProperty('grid-template-columns', 'minmax(0, 1.4fr) minmax(300px, 380px)', 'important');
-          body.style.setProperty('gap', '14px', 'important');
-          body.style.setProperty('padding', '10px 12px', 'important');
-          body.style.setProperty('align-items', 'start', 'important');
+          if (isMobile) {
+            body.style.setProperty('display', 'flex', 'important');
+            body.style.setProperty('flex-direction', 'column', 'important');
+            body.style.removeProperty('grid-template-columns');
+            body.style.setProperty('gap', '8px', 'important');
+            body.style.setProperty('padding', '8px', 'important');
+          } else {
+            body.style.setProperty('display', 'grid', 'important');
+            body.style.setProperty('grid-template-columns', 'minmax(0, 1.35fr) minmax(300px, 360px)', 'important');
+            body.style.setProperty('gap', '14px', 'important');
+            body.style.setProperty('padding', '10px 12px', 'important');
+            body.style.setProperty('align-items', 'start', 'important');
+          }
           body.style.setProperty('width', '100%', 'important');
           body.style.setProperty('box-sizing', 'border-box', 'important');
           body.style.setProperty('margin', '0', 'important');
         }
         if (gal) {
-          gal.style.setProperty('grid-column', '1', 'important');
+          if (!isMobile) gal.style.setProperty('grid-column', '1', 'important');
+          else gal.style.removeProperty('grid-column');
           gal.style.setProperty('width', '100%', 'important');
           gal.style.setProperty('min-width', '0', 'important');
           gal.style.setProperty('margin', '0', 'important');
           gal.style.setProperty('padding', '0', 'important');
         }
         if (info) {
-          info.style.setProperty('grid-column', '2', 'important');
+          if (!isMobile) info.style.setProperty('grid-column', '2', 'important');
+          else info.style.removeProperty('grid-column');
           info.style.setProperty('width', '100%', 'important');
           info.style.setProperty('max-width', 'none', 'important');
           info.style.setProperty('margin', '0', 'important');
-          info.style.setProperty('padding', '0', 'important');
-          info.style.setProperty('box-sizing', 'border-box', 'important');
-          info.style.setProperty('gap', '9px', 'important');
+          info.style.setProperty('padding', isMobile ? '4px 2px 8px' : '0', 'important');
           Array.prototype.forEach.call(info.children, function (ch) {
             if (ch.classList && ch.classList.contains('modal-back-btn')) return;
             if (ch.classList && ch.classList.contains('stock-badge')) return;

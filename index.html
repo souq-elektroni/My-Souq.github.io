@@ -4328,32 +4328,28 @@ html.msq-version-checking { background: #f4e5d8; }
             <button type="button" onclick="galleryNext()" aria-label="التالي">›</button>
           </div>
 
-          <!-- Virtual Try-On (controlled by admin toggle) -->
-          <div id="virtualTryOnBox" style="display:none;margin:16px 0 8px;padding:16px;border-radius:16px;border:1px solid rgba(139,63,82,.16);background:linear-gradient(165deg,#fffafc 0%,#fff 55%,#f8f4f6 100%);box-shadow:0 8px 24px rgba(80,30,50,.06);">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-              <span style="font-size:18px;" aria-hidden="true">👕</span>
-              <div style="font-weight:900;color:var(--burgundy-soft);font-size:14.5px;letter-spacing:-.2px;">جرب المنتج عليك</div>
+          <!-- Virtual Try-On (controlled by admin toggle) — compact row -->
+          <div id="virtualTryOnBox" class="msq-vto-box" style="display:none;">
+            <div class="msq-vto-head">
+              <span aria-hidden="true">👕</span>
+              <span>جرب المنتج عليك</span>
             </div>
-            <div style="font-size:11.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">ارفع صورة كاملة للجسم بإضاءة كويسة، وهنشوف المنتج عليك بشكل تقريبي بالذكاء الاصطناعي.</div>
-
-            <input type="file" id="vtoPersonInput" accept="image/*" style="display:none;">
-            <label for="vtoPersonInput" id="vtoUploadLabel" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;width:100%;min-height:92px;margin-bottom:12px;padding:14px 12px;border-radius:14px;border:1.5px dashed rgba(139,63,82,.35);background:rgba(255,255,255,.85);cursor:pointer;transition:border-color .2s, background .2s, box-shadow .2s;box-sizing:border-box;">
-              <span style="width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#8b3f52,#c46b82);color:#fff;font-size:20px;box-shadow:0 6px 14px rgba(139,63,82,.22);">📷</span>
-              <span id="vtoUploadTitle" style="font-weight:900;font-size:13px;color:#5a3040;">اضغط لرفع صورتك</span>
-              <span id="vtoUploadHint" style="font-size:11px;color:var(--text-muted);text-align:center;line-height:1.35;">يفضل صورة كاملة للجسم · JPG أو PNG</span>
-            </label>
-
-            <label style="font-size:12px;font-weight:800;display:block;margin-bottom:5px;color:#5a3040;">نوع القطعة <span style="font-weight:700;color:var(--text-muted);font-size:11px;">(مهم لجودة النتيجة)</span></label>
-            <select id="vtoCategory" style="width:100%;margin-bottom:8px;padding:10px 12px;border-radius:12px;border:1px solid #e6ccd6;font-size:13px;background:#fff;color:#432b36;box-sizing:border-box;">
-              <option value="one-pieces">قطعة واحدة / طقم (حسب قدرة المحرك)</option>
-              <option value="tops">بلوزة / تيشيرت / جاكيت فقط</option>
-              <option value="bottoms">بنطلون / جيبة فقط</option>
-            </select>
-            <div style="font-size:10.5px;color:var(--text-muted);margin-bottom:12px;line-height:1.4;">اختَر الفئة الأقرب للصورة. قد لا يحافظ المحرك على تفاصيل الطقم المكوّن من قطعتين بدقة كاملة.</div>
-
-            <button type="button" id="vtoRunBtn" onclick="runVirtualTryOn()" style="width:100%;padding:12px 14px;border:none;border-radius:13px;background:linear-gradient(135deg,#7a3548,#b75b72);color:#fff;font-weight:900;font-size:14.5px;cursor:pointer;box-shadow:0 8px 18px rgba(100,35,55,.18);letter-spacing:-.2px;">✨ جرب دلوقتي</button>
-            <div id="vtoStatus" style="margin-top:10px;font-size:12.5px;font-weight:800;color:var(--text-muted);line-height:1.4;"></div>
-            <img id="vtoResultImg" alt="نتيجة تجربة الملابس" style="display:none;max-width:100%;margin-top:12px;border-radius:14px;border:1px solid #ead0dc;box-shadow:0 8px 20px rgba(40,20,28,.08);">
+            <div class="msq-vto-row">
+              <input type="file" id="vtoPersonInput" accept="image/*" style="display:none;">
+              <label for="vtoPersonInput" id="vtoUploadLabel" class="msq-vto-upload-sq" title="ارفع صورتك">
+                <span class="msq-vto-cam" aria-hidden="true">📷</span>
+                <span id="vtoUploadTitle" class="msq-vto-upload-txt">صورتك</span>
+                <span id="vtoUploadHint" class="msq-vto-upload-hint"></span>
+              </label>
+              <select id="vtoCategory" class="msq-vto-select" aria-label="نوع القطعة">
+                <option value="one-pieces">طقم / قطعة واحدة</option>
+                <option value="tops">بلوزة / تيشيرت</option>
+                <option value="bottoms">بنطلون / جيبة</option>
+              </select>
+              <button type="button" id="vtoRunBtn" class="msq-vto-btn" onclick="runVirtualTryOn()">✨ جرب</button>
+            </div>
+            <div id="vtoStatus" class="msq-vto-status"></div>
+            <img id="vtoResultImg" class="msq-vto-result" alt="نتيجة تجربة الملابس" style="display:none;">
           </div>
 
         </div>
@@ -9358,8 +9354,8 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
         var title = document.getElementById('vtoUploadTitle');
         var hint = document.getElementById('vtoUploadHint');
         var label = document.getElementById('vtoUploadLabel');
-        if (title) title.textContent = 'اضغط لرفع صورتك';
-        if (hint) hint.textContent = 'يفضل صورة كاملة للجسم · JPG أو PNG';
+        if (title) title.textContent = 'صورتك';
+        if (hint) hint.textContent = '';
         if (label) {
           label.style.borderColor = 'rgba(139,63,82,.35)';
           label.style.background = 'rgba(255,255,255,.85)';
@@ -9379,15 +9375,15 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
     input.addEventListener('change', function () {
       var f = input.files && input.files[0];
       if (f) {
-        if (title) title.textContent = 'تم اختيار الصورة ✓';
-        if (hint) hint.textContent = f.name.length > 34 ? (f.name.slice(0, 31) + '...') : f.name;
+        if (title) title.textContent = 'تم ✓';
+        if (hint) hint.textContent = '';
         if (label) {
           label.style.borderColor = 'rgba(46,125,50,.55)';
           label.style.background = 'rgba(232,245,233,.65)';
         }
       } else {
-        if (title) title.textContent = 'اضغط لرفع صورتك';
-        if (hint) hint.textContent = 'يفضل صورة كاملة للجسم · JPG أو PNG';
+        if (title) title.textContent = 'صورتك';
+        if (hint) hint.textContent = '';
         if (label) {
           label.style.borderColor = 'rgba(139,63,82,.35)';
           label.style.background = 'rgba(255,255,255,.85)';
@@ -10069,8 +10065,8 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
         var title = document.getElementById('vtoUploadTitle');
         var hint = document.getElementById('vtoUploadHint');
         var label = document.getElementById('vtoUploadLabel');
-        if (title) title.textContent = 'اضغط لرفع صورتك';
-        if (hint) hint.textContent = 'يفضل صورة كاملة للجسم · JPG أو PNG';
+        if (title) title.textContent = 'صورتك';
+        if (hint) hint.textContent = '';
         if (label) {
           label.style.borderColor = 'rgba(139,63,82,.35)';
           label.style.background = 'rgba(255,255,255,.85)';
@@ -10090,15 +10086,15 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
     input.addEventListener('change', function () {
       var f = input.files && input.files[0];
       if (f) {
-        if (title) title.textContent = 'تم اختيار الصورة ✓';
-        if (hint) hint.textContent = f.name.length > 34 ? (f.name.slice(0, 31) + '...') : f.name;
+        if (title) title.textContent = 'تم ✓';
+        if (hint) hint.textContent = '';
         if (label) {
           label.style.borderColor = 'rgba(46,125,50,.55)';
           label.style.background = 'rgba(232,245,233,.65)';
         }
       } else {
-        if (title) title.textContent = 'اضغط لرفع صورتك';
-        if (hint) hint.textContent = 'يفضل صورة كاملة للجسم · JPG أو PNG';
+        if (title) title.textContent = 'صورتك';
+        if (hint) hint.textContent = '';
         if (label) {
           label.style.borderColor = 'rgba(139,63,82,.35)';
           label.style.background = 'rgba(255,255,255,.85)';
@@ -10931,6 +10927,457 @@ body.msq-modal-open #msqSupportLauncher {
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
   else start();
+})();
+</script>
+
+
+<style id="msq-modal-polish-v2">
+/* ========== Virtual Try-On: compact single row ========== */
+.msq-vto-box,
+#virtualTryOnBox.msq-vto-box {
+  display: none;
+  margin: 10px 0 6px !important;
+  padding: 10px 12px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(139,63,82,.14) !important;
+  background: linear-gradient(165deg,#fffafc 0%,#fff 60%,#f8f4f6 100%) !important;
+  box-shadow: 0 4px 14px rgba(80,30,50,.05) !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+.msq-vto-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--burgundy-soft, #8b3f52);
+}
+.msq-vto-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  flex-wrap: nowrap !important;
+}
+.msq-vto-upload-sq,
+#vtoUploadLabel.msq-vto-upload-sq {
+  flex: 0 0 56px !important;
+  width: 56px !important;
+  height: 56px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  max-width: 56px !important;
+  margin: 0 !important;
+  padding: 4px !important;
+  border-radius: 12px !important;
+  border: 1.5px dashed rgba(139,63,82,.4) !important;
+  background: rgba(255,255,255,.9) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  transition: border-color .2s, background .2s !important;
+  overflow: hidden !important;
+}
+.msq-vto-cam { font-size: 18px; line-height: 1; }
+.msq-vto-upload-txt {
+  font-size: 9px !important;
+  font-weight: 800 !important;
+  color: #5a3040 !important;
+  text-align: center !important;
+  line-height: 1.15 !important;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.msq-vto-upload-hint { display: none !important; }
+.msq-vto-select,
+#vtoCategory.msq-vto-select {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 8px 10px !important;
+  border-radius: 11px !important;
+  border: 1px solid #e6ccd6 !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  background: #fff !important;
+  color: #432b36 !important;
+  box-sizing: border-box !important;
+  height: 44px !important;
+}
+.msq-vto-btn,
+#vtoRunBtn.msq-vto-btn {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 78px !important;
+  height: 44px !important;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  border: none !important;
+  border-radius: 11px !important;
+  background: linear-gradient(135deg,#7a3548,#b75b72) !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  font-size: 13px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(100,35,55,.16) !important;
+  white-space: nowrap !important;
+}
+.msq-vto-status,
+#vtoStatus.msq-vto-status {
+  margin-top: 8px !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  color: var(--text-muted) !important;
+  line-height: 1.4 !important;
+}
+.msq-vto-result,
+#vtoResultImg.msq-vto-result {
+  display: none;
+  max-width: 100% !important;
+  margin-top: 10px !important;
+  border-radius: 12px !important;
+  border: 1px solid #ead0dc !important;
+  box-shadow: 0 6px 16px rgba(40,20,28,.08) !important;
+}
+body.dark-mode .msq-vto-box {
+  background: linear-gradient(165deg,#2a2226,#241e21) !important;
+  border-color: rgba(255,255,255,.1) !important;
+}
+body.dark-mode .msq-vto-select { background:#1e1a1c !important; color:#f5ebe8 !important; border-color:rgba(255,255,255,.12) !important; }
+body.dark-mode .msq-vto-upload-sq { background:rgba(255,255,255,.06) !important; }
+
+/* ========== Single-image: cleaner vertical thumbs rail ========== */
+@media (min-width: 768px) {
+  #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
+    display: grid !important;
+    grid-template-columns: 1fr 78px !important;
+    grid-template-rows: 1fr auto !important;
+    grid-template-areas:
+      "main thumbs"
+      "nav nav" !important;
+    gap: 10px !important;
+    align-items: stretch !important;
+  }
+  html[dir="rtl"] #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
+    grid-template-columns: 78px 1fr !important;
+    grid-template-areas:
+      "thumbs main"
+      "nav nav" !important;
+  }
+  #productModal:not(.msq-pair-mode) .thumbs-vertical-wrap,
+  #productModal:not(.msq-pair-mode) #thumbsVerticalWrap {
+    grid-area: thumbs !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
+    width: 78px !important;
+    max-width: 78px !important;
+    height: 100% !important;
+    max-height: calc(94vh - 100px) !important;
+    padding: 4px 0 !important;
+    box-sizing: border-box !important;
+    background: rgba(247,241,234,.55) !important;
+    border-radius: 14px !important;
+    border: 1px solid rgba(201,161,132,.22) !important;
+  }
+  #productModal:not(.msq-pair-mode) .thumbs-swap-btn {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 28px !important;
+    height: 22px !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(139,63,82,.18) !important;
+    background: #fff !important;
+    color: #6b4450 !important;
+    font-size: 10px !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    flex-shrink: 0 !important;
+  }
+  #productModal:not(.msq-pair-mode) .thumbnails-bar,
+  #productModal:not(.msq-pair-mode) #thumbnailsContainer {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 7px !important;
+    width: 100% !important;
+    flex: 1 1 auto !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    padding: 2px 4px !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(139,63,82,.3) transparent !important;
+  }
+  #productModal:not(.msq-pair-mode) .thumbnails-bar img,
+  #productModal:not(.msq-pair-mode) #thumbnailsContainer img {
+    width: 58px !important;
+    height: 58px !important;
+    min-width: 58px !important;
+    min-height: 58px !important;
+    max-width: 58px !important;
+    object-fit: cover !important;
+    border-radius: 11px !important;
+    border: 2px solid transparent !important;
+    box-shadow: 0 2px 8px rgba(60,40,30,.08) !important;
+    cursor: pointer !important;
+    transition: border-color .18s, transform .18s, box-shadow .18s !important;
+    flex: 0 0 auto !important;
+    background: #fff !important;
+  }
+  #productModal:not(.msq-pair-mode) .thumbnails-bar img:hover,
+  #productModal:not(.msq-pair-mode) #thumbnailsContainer img:hover {
+    transform: scale(1.05) !important;
+    border-color: rgba(139,63,82,.35) !important;
+  }
+}
+
+/* ========== Pair mode: equal image frames + solid mobile ========== */
+.msq-pair-stage {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  width: 100% !important;
+  padding: 8px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(139,63,82,.10) !important;
+  background: #f0ebe6 !important;
+  box-sizing: border-box !important;
+  align-items: stretch !important;
+}
+.msq-stage-side {
+  margin: 0 !important;
+  min-width: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  height: 100% !important;
+}
+/* Same frame size for both images — no tall/short mismatch */
+.msq-stage-side img {
+  display: block !important;
+  width: 100% !important;
+  aspect-ratio: 3 / 4 !important;
+  height: auto !important;
+  max-height: min(58vh, 560px) !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  background: #e8e2dc !important;
+  border-radius: 12px !important;
+  cursor: zoom-in !important;
+}
+.msq-stage-side figcaption {
+  text-align: center !important;
+  font-size: 11.5px !important;
+  font-weight: 900 !important;
+  color: var(--burgundy-soft,#8b3f52) !important;
+  margin: 0 !important;
+  line-height: 1.2 !important;
+}
+.msq-stage-row {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.msq-design-rail {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  gap: 6px !important;
+  width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  padding: 2px 0 4px !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: thin !important;
+}
+
+@media (max-width: 767px) {
+  /* Pair modal: single column, no forced desktop columns from inline JS */
+  #productModal.msq-pair-mode .modal-content {
+    width: calc(100vw - 6px) !important;
+    max-width: 100vw !important;
+    max-height: 99vh !important;
+    border-radius: 16px !important;
+  }
+  #productModal.msq-pair-mode .modal-body {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+    gap: 8px !important;
+    padding: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+  }
+  #productModal.msq-pair-mode .modal-gallery-wrapper {
+    order: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    grid-column: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #productModal.msq-pair-mode .modal-info {
+    order: 2 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    grid-column: auto !important;
+    padding: 4px 2px 8px !important;
+    margin: 0 !important;
+  }
+  .msq-pair-stage {
+    gap: 6px !important;
+    padding: 6px !important;
+  }
+  .msq-stage-side img {
+    aspect-ratio: 3 / 4 !important;
+    max-height: 42vh !important;
+    height: auto !important;
+  }
+  .msq-design-chip {
+    width: 70px !important;
+    min-width: 70px !important;
+    padding: 4px !important;
+  }
+  .msq-design-chip-thumbs img {
+    height: 24px !important;
+  }
+  .msq-vto-row {
+    gap: 6px !important;
+  }
+  .msq-vto-upload-sq,
+  #vtoUploadLabel.msq-vto-upload-sq {
+    flex: 0 0 50px !important;
+    width: 50px !important;
+    height: 50px !important;
+    min-width: 50px !important;
+    min-height: 50px !important;
+    max-width: 50px !important;
+  }
+  .msq-vto-btn,
+  #vtoRunBtn.msq-vto-btn {
+    min-width: 68px !important;
+    padding: 0 10px !important;
+    font-size: 12px !important;
+  }
+  .msq-vto-select {
+    font-size: 11.5px !important;
+    padding: 6px 8px !important;
+    height: 42px !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .msq-stage-side img {
+    max-height: min(56vh, 580px) !important;
+  }
+}
+@media (min-width: 1100px) {
+  .msq-stage-side img {
+    max-height: min(58vh, 620px) !important;
+  }
+}
+</style>
+<script id="msq-pair-layout-fix-v2">
+(function () {
+  /* Override forcePairLayout so mobile never gets desktop 2-col inline styles */
+  function applyPairLayoutResponsive() {
+    var body = document.querySelector('#productModal .modal-body');
+    var info = document.querySelector('#productModal .modal-info');
+    var gal = document.querySelector('#productModal .modal-gallery-wrapper');
+    var content = document.querySelector('#productModal .modal-content');
+    var isMobile = window.matchMedia('(max-width: 767px)').matches;
+    if (!document.getElementById('productModal') || !document.getElementById('productModal').classList.contains('msq-pair-mode')) return;
+    if (content) {
+      if (isMobile) {
+        content.style.setProperty('width', 'calc(100vw - 6px)', 'important');
+        content.style.setProperty('max-width', '100vw', 'important');
+      } else {
+        content.style.setProperty('width', 'min(1360px, calc(100vw - 10px))', 'important');
+        content.style.setProperty('max-width', '1360px', 'important');
+      }
+    }
+    if (body) {
+      if (isMobile) {
+        body.style.setProperty('display', 'flex', 'important');
+        body.style.setProperty('flex-direction', 'column', 'important');
+        body.style.removeProperty('grid-template-columns');
+        body.style.setProperty('gap', '8px', 'important');
+        body.style.setProperty('padding', '8px', 'important');
+      } else {
+        body.style.setProperty('display', 'grid', 'important');
+        body.style.setProperty('grid-template-columns', 'minmax(0, 1.35fr) minmax(300px, 360px)', 'important');
+        body.style.setProperty('gap', '14px', 'important');
+        body.style.setProperty('padding', '10px 12px', 'important');
+        body.style.setProperty('align-items', 'start', 'important');
+      }
+      body.style.setProperty('width', '100%', 'important');
+      body.style.setProperty('box-sizing', 'border-box', 'important');
+      body.style.setProperty('margin', '0', 'important');
+    }
+    if (gal) {
+      gal.style.setProperty('width', '100%', 'important');
+      gal.style.setProperty('min-width', '0', 'important');
+      gal.style.setProperty('margin', '0', 'important');
+      gal.style.setProperty('padding', '0', 'important');
+      if (!isMobile) gal.style.setProperty('grid-column', '1', 'important');
+      else gal.style.removeProperty('grid-column');
+    }
+    if (info) {
+      info.style.setProperty('width', '100%', 'important');
+      info.style.setProperty('max-width', 'none', 'important');
+      info.style.setProperty('margin', '0', 'important');
+      if (!isMobile) {
+        info.style.setProperty('grid-column', '2', 'important');
+        info.style.setProperty('padding', '4px 2px 0', 'important');
+      } else {
+        info.style.removeProperty('grid-column');
+        info.style.setProperty('padding', '4px 2px 8px', 'important');
+      }
+    }
+  }
+  window.__msqApplyPairLayout = applyPairLayoutResponsive;
+  window.addEventListener('resize', function () {
+    try { applyPairLayoutResponsive(); } catch (e) {}
+  });
+  /* Patch openProductModal after it exists */
+  function patchOpen() {
+    if (typeof window.openProductModal !== 'function' || window.openProductModal._msqPairPatched) return;
+    var orig = window.openProductModal;
+    window.openProductModal = function () {
+      var r = orig.apply(this, arguments);
+      setTimeout(function () {
+        try { applyPairLayoutResponsive(); } catch (e) {}
+      }, 30);
+      setTimeout(function () {
+        try { applyPairLayoutResponsive(); } catch (e) {}
+      }, 120);
+      return r;
+    };
+    window.openProductModal._msqPairPatched = true;
+  }
+  patchOpen();
+  document.addEventListener('DOMContentLoaded', patchOpen);
+  setTimeout(patchOpen, 500);
+  setTimeout(patchOpen, 1500);
 })();
 </script>
 
