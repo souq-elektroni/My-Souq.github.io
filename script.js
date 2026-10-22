@@ -2810,201 +2810,317 @@ function continueAfterOrderRecaptcha() {
 
 
   /** إرسال بيانات الطلب المحفوظ إلى Telegram عبر Cloudflare Worker. */
+  const __msqTelegramSentIds = (typeof window !== 'undefined' && window.__msqTelegramSentIds)
+    ? window.__msqTelegramSentIds
+    : (window.__msqTelegramSentIds = new Set());
+
+  function buildTelegramOrderMessage(meta) {
+    const m = meta || {};
+    const lines = [];
+    lines.push('🛒 *طلب جديد — My Souq*');
+    lines.push('━━━━━━━━━━━━━━━━');
+    lines.push('🆔 *رقم الطلب:* `' + String(m.orderId || '-') + '`');
+    lines.push('👤 *الاسم:* ' + String(m.name || '-'));
+    lines.push('📱 *الهاتف:* `' + String(m.phone || '-') + '`');
+    lines.push('📍 *العنوان:*');
+    lines.push(String(m.address || '-'));
+    if (m.governorate) lines.push('🏛️ المحافظة: ' + String(m.governorate));
+    if (m.city) lines.push('🏙️ المدينة: ' + String(m.city));
+    if (m.detailedAddress) lines.push('🏠 تفصيلي: ' + String(m.detailedAddress));
+    lines.push('💳 *الدفع:* ' + String(m.payMethod || m.paymentMethod || '-'));
+    lines.push('💰 *الإجمالي:* ' + String(m.total || '-'));
+    lines.push('━━━━━━━━━━━━━━━━');
+    lines.push('🛍️ *المنتجات:*');
+    const items = Array.isArray(m.items) ? m.items : [];
+    if (!items.length) {
+      lines.push('— لا توجد منتجات —');
+    } else {
+      items.forEach(function (it, idx) {
+        const name = it.name || it.title || 'منتج';
+        const qty = it.quantity != null ? it.quantity : (it.qty != null ? it.qty : 1);
+        const price = it.price != null ? it.price : '-';
+        const size = it.size || '-';
+        const color = it.color ? (' | اللون: ' + it.color) : '';
+        lines.push('');
+        lines.push((idx + 1) + ') *' + name + '*');
+        lines.push('   المقاس: ' + size + color);
+        lines.push('   الكمية: ' + qty + ' | السعر: ' + price + ' ج.م');
+        const front = it.front_image || it.image || '';
+        const back = it.back_image || '';
+        if (front) lines.push('   🖼 الوش: ' + front);
+        if (back && back !== front) lines.push('   🖼 الضهر: ' + back);
+      });
+    }
+    lines.push('');
+    lines.push('⏰ ' + new Date().toLocaleString('ar-EG'));
+    return lines.join('\n');
+  }
+
   async function notifyOwnerNewOrderTelegram(orderMeta) {
     const meta = orderMeta || {};
+    const orderId = String(meta.orderId || '').trim();
+    if (orderId && __msqTelegramSentIds.has(orderId)) {
+      console.info('Telegram already notified for', orderId);
+      return true;
+    }
+    const message = buildTelegramOrderMessage(meta);
     const payload = {
       orderId: meta.orderId,
       name: meta.name,
       phone: meta.phone,
       address: meta.address,
-      paymentMethod: meta.payMethod,
+      governorate: meta.governorate || '',
+      city: meta.city || '',
+      detailedAddress: meta.detailedAddress || '',
+      paymentMethod: meta.payMethod || meta.paymentMethod,
+      payMethod: meta.payMethod || meta.paymentMethod,
       total: meta.total,
-      items: Array.isArray(meta.items) ? meta.items : []
+      items: Array.isArray(meta.items) ? meta.items : [],
+      // نص منسّق جاهز للعرض على تليجرام (لو الـ Worker يدعمه)
+      message: message,
+      text: message,
+      caption: message,
+      parse_mode: 'Markdown'
     };
     let lastError;
-    // Retry once for temporary mobile/network failures.
-    for (let attempt = 1; attempt <= 3; attempt++) {
+    // محاولتان فقط — أسرع، مع منع التكرار عبر orderId
+    for (let attempt = 1; attempt <= 2; attempt++) {
       try {
+        const controller = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+        const timer = controller ? setTimeout(function () { try { controller.abort(); } catch (e) {} }, 12000) : null;
         const response = await fetch(TELEGRAM_ORDER_WORKER_URL, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: controller ? controller.signal : undefined
         });
+        if (timer) clearTimeout(timer);
         if (!response.ok) {
-          const detail = await response.text().catch(() => '');
+          const detail = await response.text().catch(function () { return ''; });
           throw new Error('Telegram Worker HTTP ' + response.status + (detail ? ': ' + detail.slice(0, 180) : ''));
         }
-        const result = await response.json();
-        if (!result || result.ok !== true) throw new Error('Telegram Worker did not confirm delivery');
+        const result = await response.json().catch(function () { return { ok: true }; });
+        if (result && result.ok === false) throw new Error('Telegram Worker did not confirm delivery');
+        if (orderId) __msqTelegramSentIds.add(orderId);
         return true;
       } catch (error) {
         lastError = error;
         console.error('Telegram notification attempt ' + attempt + ' failed:', error);
-        if (attempt < 3) await new Promise(resolve => setTimeout(resolve, 1200 * attempt));
+        if (attempt < 2) await new Promise(function (resolve) { setTimeout(resolve, 700); });
       }
     }
     throw lastError || new Error('Telegram notification failed');
   }
 
-    async function finalizeOrder() {
-      const nameEl = document.getElementById('custName');
-      const phoneEl = document.getElementById('custPhone');
-      const name = nameEl ? nameEl.value.trim() : '';
-      const rawPhone = phoneEl ? phoneEl.value.trim() : '';
-      const phone = normalizeEgyptianPhone(rawPhone);
-      const shipping = getShippingAddress();
-      const address = shipping.full;
+  let __msqFinalizeInFlight = false;
+  let __msqFinalizeDoneIds = (window.__msqFinalizeDoneIds = window.__msqFinalizeDoneIds || new Set());
 
-      if (!name || !rawPhone || !shipping.governorate || !shipping.city || !shipping.detailed) {
-        alert('❌ رجاء إستكمال الحقول المطلوبه');
+  async function finalizeOrder() {
+    const confirmBtn = document.getElementById('confirmOrderFinalBtn') || document.querySelector('#confirmationModal .send-final-btn');
+    const setBtnBusy = function (busy, label) {
+      if (!confirmBtn) return;
+      confirmBtn.disabled = !!busy;
+      confirmBtn.style.opacity = busy ? '0.7' : '1';
+      confirmBtn.style.pointerEvents = busy ? 'none' : '';
+      if (label) confirmBtn.textContent = label;
+    };
+
+    // منع الضغط المزدوج / إرسال مرتين
+    if (__msqFinalizeInFlight) {
+      console.warn('finalizeOrder already in progress — ignored');
+      return;
+    }
+
+    const nameEl = document.getElementById('custName');
+    const phoneEl = document.getElementById('custPhone');
+    const name = nameEl ? nameEl.value.trim() : '';
+    const rawPhone = phoneEl ? phoneEl.value.trim() : '';
+    const phone = normalizeEgyptianPhone(rawPhone);
+    const shipping = getShippingAddress();
+    const address = shipping.full;
+
+    if (!name || !rawPhone || !shipping.governorate || !shipping.city || !shipping.detailed) {
+      alert('❌ رجاء إستكمال الحقول المطلوبه');
+      return;
+    }
+    if (!hasFourPartName(name)) {
+      alert('❌ ارجو إدخال الاسم رباعى');
+      if (nameEl) nameEl.focus();
+      return;
+    }
+
+    if (!isValidEgyptianMobile(phone)) {
+      alert('رقم الهاتف غير صحيح. يجب إدخال رقم موبايل مصري صحيح مكون من 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015.');
+      if (phoneEl) phoneEl.focus();
+      return;
+    }
+
+    if (!Array.isArray(cart) || cart.length === 0) {
+      alert('السلة فارغة، لا يمكن إتمام الطلب.');
+      return;
+    }
+
+    const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
+    const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
+
+    if (!generatedOrderId) generatedOrderId = generateStrongOrderId();
+    const thisOrderId = String(generatedOrderId);
+
+    if (__msqFinalizeDoneIds.has(thisOrderId)) {
+      console.warn('Order already finalized:', thisOrderId);
+      // أظهر شاشة النجاح لو الطلب اتسجّل قبل كده
+      const successId = document.getElementById('successOrderIdDisplay');
+      if (successId) successId.innerText = 'رقم طلبك هو: ' + thisOrderId;
+      const confirmationModal = document.getElementById('confirmationModal');
+      const successModal = document.getElementById('successModal');
+      if (confirmationModal) confirmationModal.classList.remove('active');
+      if (successModal) successModal.classList.add('active');
+      return;
+    }
+
+    __msqFinalizeInFlight = true;
+    setBtnBusy(true, 'جاري تأكيد الطلب...');
+
+    const totalText = document.getElementById('cartTotalPrice')?.innerText || '0 ج.م';
+
+    // GPS إن وجد
+    let addressForOrder = address;
+    try {
+      if (typeof window.mysouqGetDeliveryCoords === 'function') {
+        const coords = window.mysouqGetDeliveryCoords();
+        if (coords && coords.mapsUrl && addressForOrder.indexOf('maps.google.com') === -1) {
+          addressForOrder += '\n[موقع التوصيل GPS: ' + coords.lat + ', ' + coords.lon + ']\n🔗 الخريطة: ' + coords.mapsUrl;
+        }
+      }
+    } catch (e) {}
+
+    const newOrderRecord = {
+      orderId: thisOrderId,
+      name: name,
+      phone: phone,
+      address: addressForOrder,
+      payMethod: payMethod,
+      total: totalText,
+      items: cart.map(function (item) { return Object.assign({}, item); }),
+      governorate: shipping.governorate,
+      city: shipping.city,
+      detailedAddress: shipping.detailed,
+      statusCode: 0,
+      status: 'تحت التنفيذ 📦',
+      date: new Date().toLocaleDateString('ar-EG'),
+      createdAt: Date.now()
+    };
+
+    try { localStorage.removeItem('souqCustomerData'); } catch (_) {}
+
+    cart.forEach(function (item) {
+      productSales[item.id] = (productSales[item.id] || 0) + item.qty;
+    });
+    try { localStorage.setItem('souqProductSales', JSON.stringify(productSales)); } catch (_) {}
+
+    try {
+      setBtnBusy(true, 'جاري حفظ الطلب...');
+      const cloudSaved = await saveOrderToCloud(newOrderRecord);
+      if (!cloudSaved) {
+        alert('تعذر حفظ الطلب في Firebase. لم يتم إرسال الطلب. تأكد من إعداد Firestore وقواعد الوصول.');
+        __msqFinalizeInFlight = false;
+        setBtnBusy(false, 'تأكيد الطلب ✅');
         return;
       }
-      if (!hasFourPartName(name)) {
-        alert('❌ ارجو إدخال الاسم رباعى');
-        if (nameEl) nameEl.focus();
-        return;
-      }
 
-      if (!isValidEgyptianMobile(phone)) {
-        alert('رقم الهاتف غير صحيح. يجب إدخال رقم موبايل مصري صحيح مكون من 11 رقم ويبدأ بـ 010 أو 011 أو 012 أو 015.');
-        if (phoneEl) phoneEl.focus();
-        return;
-      }
+      __msqFinalizeDoneIds.add(thisOrderId);
 
-      if (!Array.isArray(cart) || cart.length === 0) {
-        alert('السلة فارغة، لا يمكن إتمام الطلب');
-        return;
-      }
+      // جهّز بيانات تليجرام قبل مسح السلة
+      const telegramItems = cart.map(function (item) {
+        let imageUrl = item.image || '';
+        if (!imageUrl && Array.isArray(products) && item.id != null) {
+          const product = products.find(function (p) { return String(p.id) === String(item.id); });
+          if (product && Array.isArray(product.images) && product.images[0]) imageUrl = product.images[0];
+        }
+        let backUrl = item.back_image || '';
+        if (!backUrl && Array.isArray(products) && item.id != null) {
+          const product2 = products.find(function (p) { return String(p.id) === String(item.id); });
+          if (product2 && Array.isArray(product2.designs) && product2.designs[0]) {
+            backUrl = product2.designs[0].back_image || '';
+            if (!imageUrl) imageUrl = product2.designs[0].front_image || product2.designs[0].back_image || imageUrl;
+          }
+        }
+        return {
+          name: item.title || 'منتج',
+          title: item.title || 'منتج',
+          quantity: item.qty || 1,
+          qty: item.qty || 1,
+          price: item.price == null ? '-' : item.price,
+          size: item.size || '-',
+          color: item.color || '',
+          image: imageUrl,
+          front_image: imageUrl,
+          back_image: backUrl,
+          url: item.url || ''
+        };
+      });
 
-      // Enforce explicit consent at the final submission point as well,
-      // even if a browser restores an old modal state or the function is called directly.
-      const termsCheckbox = document.getElementById('termsCheckbox');
-      if (!termsCheckbox || !termsCheckbox.checked) {
-        alert('يرجى قراءة الشروط والأحكام ووضع علامة الموافقة بنفسك قبل إتمام الطلب.');
-        const termsModal = document.getElementById('termsModal');
-        if (termsModal) termsModal.classList.add('active');
-        if (termsCheckbox) termsCheckbox.focus();
-        return;
-      }
-
-      const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
-      const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod'
-        ? 'الدفع عند الاستلام'
-        : 'Instapay';
-
-      const itemsText = cart.map((i, index) => {
-        let itemText = `${index + 1}. ${i.title}\n- المقاس: ${i.size}`;
-        if (i.color) itemText += `\n- اللون: ${i.color}`;
-        itemText += `\n- السعر: ${i.price} ج.م (الكمية: ${i.qty})`;
-        const frontLink = i.front_image || i.image || '';
-        const backLink = i.back_image || '';
-        if (frontLink) itemText += `\n- رابط صورة الوش: ${frontLink}`;
-        if (backLink && backLink !== frontLink) itemText += `\n- رابط صورة الضهر: ${backLink}`;
-        else if (i.image && !frontLink) itemText += `\n- رابط صورة المنتج: ${i.image}`;
-        return itemText;
-      }).join('\n\n');
-
-      const totalText = document.getElementById('cartTotalPrice')?.innerText || '0 ج.م';
-      if (!generatedOrderId) generatedOrderId = generateStrongOrderId();
-
-      const newOrderRecord = {
-        orderId: generatedOrderId,
-        name,
-        phone,
-        address,
-        payMethod,
-        total: totalText,
-        items: [...cart],
+      const telegramMeta = {
+        orderId: thisOrderId,
+        name: name,
+        phone: phone,
+        address: addressForOrder,
         governorate: shipping.governorate,
         city: shipping.city,
         detailedAddress: shipping.detailed,
-        statusCode: 0,
-        status: 'تحت التنفيذ 📦',
-        date: new Date().toLocaleDateString('ar-EG'),
-        createdAt: Date.now()
+        payMethod: payMethod,
+        paymentMethod: payMethod,
+        total: totalText,
+        items: telegramItems
       };
 
-      // لا تحفظ بيانات النموذج في المتصفح؛ تُحفظ تفاصيل الطلب نفسه في Firestore فقط.
-      try { localStorage.removeItem('souqCustomerData'); } catch (_) {}
+      // ===== أظهر النجاح فورًا بعد الحفظ — من غير ما نستنى تليجرام =====
+      const confirmationModal = document.getElementById('confirmationModal');
+      const paymentModal = document.getElementById('paymentModal');
+      const successModal = document.getElementById('successModal');
+      if (confirmationModal) confirmationModal.classList.remove('active');
+      if (paymentModal) paymentModal.classList.remove('active');
+      const successId = document.getElementById('successOrderIdDisplay');
+      if (successId) successId.innerText = 'رقم طلبك هو: ' + thisOrderId;
+      if (successModal) successModal.classList.add('active');
 
-      cart.forEach(item => {
-        productSales[item.id] = (productSales[item.id] || 0) + item.qty;
-      });
-      localStorage.setItem('souqProductSales', JSON.stringify(productSales));
-
+      // امسح السلة بعد الحفظ
+      cart = [];
       try {
-        const cloudSaved = await saveOrderToCloud(newOrderRecord);
-        if (!cloudSaved) {
-          alert('تعذر حفظ الطلب في Firebase. لم يتم إرسال الطلب عبر واتساب. تأكد من إعداد Firestore وقواعد الوصول.');
-          return;
-        }
+        localStorage.removeItem('souqCart');
+        localStorage.removeItem('souqCartItems');
+      } catch (_) {}
+      discountRate = 0;
+      generatedOrderId = '';
+      updateCartCount();
+      renderCartItems();
 
-        // إرسال إشعار تيليجرام بعد تأكيد نجاح حفظ الطلب في Firebase.
-        // فشل الإشعار لا يلغي الطلب المحفوظ ولا يمنع ظهور شاشة النجاح للعميل.
-        try {
-          const telegramItems = cart.map(function (item) {
-            let imageUrl = item.image || '';
-            if (!imageUrl && Array.isArray(products) && item.id != null) {
-              const product = products.find(function (p) { return String(p.id) === String(item.id); });
-              if (product && Array.isArray(product.images) && product.images[0]) imageUrl = product.images[0];
-            }
-            let backUrl = item.back_image || '';
-            if (!backUrl && Array.isArray(products) && item.id != null) {
-              const product2 = products.find(function (p) { return String(p.id) === String(item.id); });
-              if (product2 && Array.isArray(product2.designs) && product2.designs[0]) {
-                backUrl = product2.designs[0].back_image || '';
-                if (!imageUrl) imageUrl = product2.designs[0].front_image || product2.designs[0].back_image || imageUrl;
-              }
-            }
-            return {
-              name: item.title || 'منتج',
-              quantity: item.qty || 1,
-              price: item.price == null ? '-' : item.price,
-              size: item.size || '-',
-              color: item.color || '',
-              image: imageUrl,
-              front_image: imageUrl,
-              back_image: backUrl,
-              url: item.url || ''
-            };
+      setBtnBusy(false, 'تأكيد الطلب ✅');
+      __msqFinalizeInFlight = false;
+
+      // إرسال تليجرام في الخلفية (ما يبطّأش العميل) + منع التكرار
+      setTimeout(function () {
+        notifyOwnerNewOrderTelegram(telegramMeta)
+          .then(function () { console.info('Telegram order notification delivered:', thisOrderId); })
+          .catch(function (notifyErr) {
+            console.error('تعذر إرسال إشعار تيليجرام؛ الطلب محفوظ بالفعل:', notifyErr);
           });
-          await notifyOwnerNewOrderTelegram({
-            orderId: generatedOrderId,
-            name: name,
-            phone: phone,
-            address: address,
-            payMethod: payMethod,
-            total: totalText,
-            items: telegramItems
-          });
-          console.info('Telegram order notification delivered:', generatedOrderId);
-        } catch (notifyErr) {
-          console.error('تعذر إرسال إشعار تيليجرام؛ الطلب محفوظ بالفعل:', notifyErr);
-        }
+      }, 0);
 
-        const confirmationModal = document.getElementById('confirmationModal');
-        const paymentModal = document.getElementById('paymentModal');
-        const successModal = document.getElementById('successModal');
-        if (confirmationModal) confirmationModal.classList.remove('active');
-        if (paymentModal) paymentModal.classList.remove('active');
-        const successId = document.getElementById('successOrderIdDisplay');
-        if (successId) successId.innerText = `رقم طلبك هو: ${generatedOrderId}`;
-        if (successModal) successModal.classList.add('active');
-
-        // Clear the cart only after the order was saved; never persist cart contents between sessions.
-        cart = [];
-        try {
-          localStorage.removeItem('souqCart');
-          localStorage.removeItem('souqCartItems');
-        } catch (_) {}
-        discountRate = 0;
-        generatedOrderId = '';
-        updateCartCount();
-        renderCartItems();
-      } catch (error) {
-        console.error('خطأ أثناء حفظ الطلب:', error);
-        alert(`تعذر حفظ الطلب في النظام.\n\n${error.message || error}`);
-      }
+    } catch (error) {
+      console.error('خطأ أثناء حفظ الطلب:', error);
+      alert('تعذر حفظ الطلب في النظام.\n\n' + (error.message || error));
+      __msqFinalizeInFlight = false;
+      setBtnBusy(false, 'تأكيد الطلب ✅');
     }
+  }
+
+  // ضمان توفر الدوال عالميًا للـ wrappers في index.html
+  try {
+    window.finalizeOrder = finalizeOrder;
+    window.notifyOwnerNewOrderTelegram = notifyOwnerNewOrderTelegram;
+    window.buildTelegramOrderMessage = buildTelegramOrderMessage;
+  } catch (e) {}
 
   function closeSuccessModal() {
 

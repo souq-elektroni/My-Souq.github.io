@@ -4824,6 +4824,8 @@ html.msq-version-checking { background: #f4e5d8; }
         <!-- سيتم تعبئتها ديناميكياً -->
       </div>
       <button
+        type="button"
+        id="confirmOrderFinalBtn"
         class="send-final-btn"
         onclick="finalizeOrder()"
       >
@@ -11603,6 +11605,20 @@ body.dark-mode #productModal.msq-pair-mode .msq-pair-stage {
 body.dark-mode #productModal.msq-pair-mode .msq-stage-side img {
   background: #1e1a1c !important;
   border-color: rgba(255,255,255,.06) !important;
+}
+</style>
+
+
+<style id="msq-confirm-order-fast-v1">
+#confirmationModal .send-final-btn:disabled,
+#confirmOrderFinalBtn:disabled {
+  opacity: 0.72 !important;
+  pointer-events: none !important;
+  cursor: wait !important;
+  filter: saturate(0.85);
+}
+#confirmationModal .send-final-btn.is-busy {
+  position: relative;
 }
 </style>
 
