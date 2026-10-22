@@ -4363,44 +4363,26 @@ ${itemsText || '-'}
     loadCustomerData();
     loadRealProducts();
 
-    // تحديث Service Worker الحالي مع منع المتصفح من استخدام نسخة مخزنة من ملفه.
-    // يظل دعم PWA موجوداً، لكن ملف العامل يُعاد فحصه مع كل إصدار جديد.
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js?v=20261022h', { updateViaCache: 'none' })
-        .then(function(registration) {
-          if (!registration) return;
-          // Force the browser to check for a newer SW file immediately.
-          if (typeof registration.update === 'function') {
-            registration.update().catch(function() {});
-          }
-          // If a waiting worker exists, tell it to activate right away.
-          if (registration.waiting) {
-            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-          }
-          registration.addEventListener('updatefound', function() {
-            var newWorker = registration.installing;
-            if (!newWorker) return;
-            newWorker.addEventListener('statechange', function() {
-              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                newWorker.postMessage({ type: 'SKIP_WAITING' });
-              }
+    // تم إيقاف تسجيل Service Worker نهائيًا لمنع مشكلة الكاش.
+    // أي SW قديم يُلغى ويُمسح الكاش تلقائيًا.
+    (function killServiceWorkerAndCache() {
+      try {
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function (regs) {
+            regs.forEach(function (reg) {
+              try { reg.unregister(); } catch (e) {}
             });
-          });
-        })
-        .catch(function() {});
-
-      // When the new SW takes control, do a single clean reload (avoids showing mixed old/new assets).
-      var refreshing = false;
-      navigator.serviceWorker.addEventListener('controllerchange', function() {
-        if (refreshing) return;
-        refreshing = true;
-        try {
-          var u = new URL(location.href);
-          u.searchParams.set('msq-sw', String(Date.now()));
-          location.replace(u.href);
-        } catch (e) {
-          location.reload();
+          }).catch(function () {});
         }
-      });
-    }
+      } catch (e) {}
+      try {
+        if (window.caches && caches.keys) {
+          caches.keys().then(function (keys) {
+            keys.forEach(function (k) {
+              try { caches.delete(k); } catch (e) {}
+            });
+          }).catch(function () {});
+        }
+      } catch (e) {}
+    })();
   };

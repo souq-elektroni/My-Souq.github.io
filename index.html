@@ -1,13 +1,75 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<script id="mysouq-kill-cache-v8">
+/* مسح الكاش + إلغاء Service Worker فور فتح الصفحة — أوتوماتيك */
+(function () {
+  'use strict';
+  var DONE_KEY = 'msq_cache_killed_v8';
+
+  function wipe() {
+    var tasks = [];
+    try {
+      if ('serviceWorker' in navigator) {
+        tasks.push(
+          navigator.serviceWorker.getRegistrations().then(function (regs) {
+            return Promise.all(regs.map(function (r) {
+              return r.unregister();
+            }));
+          }).catch(function () {})
+        );
+      }
+    } catch (e) {}
+    try {
+      if (window.caches && caches.keys) {
+        tasks.push(
+          caches.keys().then(function (keys) {
+            return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+          }).catch(function () {})
+        );
+      }
+    } catch (e) {}
+    return Promise.all(tasks);
+  }
+
+  // امسح دايمًا عند كل زيارة
+  wipe().then(function () {
+    // لو كان في SW مسيطر على الصفحة → إعادة تحميل مرة واحدة بعد الإلغاء
+    var needReload = false;
+    try {
+      if (navigator.serviceWorker && navigator.serviceWorker.controller) needReload = true;
+    } catch (e) {}
+    var already = false;
+    try { already = sessionStorage.getItem(DONE_KEY) === '1'; } catch (e) {}
+    if (needReload && !already) {
+      try { sessionStorage.setItem(DONE_KEY, '1'); } catch (e) {}
+      var u = new URL(location.href);
+      // شيل باراميترات الكاش القديمة
+      u.searchParams.delete('msq_v');
+      u.searchParams.delete('msq-sw');
+      u.searchParams.delete('_msq');
+      u.searchParams.delete('_');
+      u.searchParams.set('nocache', String(Date.now()));
+      location.replace(u.toString());
+      return;
+    }
+    try { sessionStorage.removeItem(DONE_KEY); } catch (e) {}
+  }).catch(function () {});
+
+  // مع كل رجوع للتاب امسح تاني
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') wipe();
+  });
+})();
+</script>
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#8b3f52">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="20261022h">
+  <meta name="msq-build" content="20261022k">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -4015,177 +4077,7 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
 html.msq-version-checking body { visibility: hidden !important; }
 html.msq-version-checking { background: #f4e5d8; }
 </style>
-<script id="mysouq-auto-cache-clear-v7">
-(function () {
-  'use strict';
-  /* ============================================================
-     مسح كاش + تحديث أوتوماتيك بالكامل
-     - مفيش رقم إصدار لازم تتغيره بإيدك
-     - كل زيارة: تنظيف كاش قديم
-     - لو السيرفر فيه نسخة أحدث (version.json أو Last-Modified):
-       مسح كامل + إعادة تحميل مرة واحدة
-     ============================================================ */
-  var LOCAL_BUILD = (function () {
-    var meta = document.querySelector('meta[name="msq-build"]');
-    return meta ? String(meta.getAttribute('content') || '').trim() : '';
-  })();
-  window.__MSQ_BUILD__ = LOCAL_BUILD || String(Date.now());
 
-  var root = document.documentElement;
-  var revealed = false;
-  function reveal() {
-    if (revealed) return;
-    revealed = true;
-    try { root.classList.remove('msq-version-checking'); } catch (e) {}
-  }
-  try { root.classList.add('msq-version-checking'); } catch (e) {}
-  setTimeout(reveal, 2000);
-
-  function purgeAllCaches() {
-    var tasks = [];
-    try {
-      if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_ALL_CACHES' });
-        navigator.serviceWorker.controller.postMessage({ type: 'PURGE' });
-        navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-      }
-    } catch (e) {}
-    if (window.caches && caches.keys) {
-      tasks.push(
-        caches.keys().then(function (keys) {
-          return Promise.all(keys.map(function (n) { return caches.delete(n); }));
-        }).catch(function () {})
-      );
-    }
-    return Promise.all(tasks);
-  }
-
-  function softPurge() {
-    if (!window.caches || !caches.keys) return Promise.resolve();
-    return caches.keys().then(function (keys) {
-      return Promise.all(keys.map(function (name) {
-        // امسح كل كاش مش مطابق للإصدار المحلي الحالي
-        if (LOCAL_BUILD && name.indexOf(LOCAL_BUILD) === -1) return caches.delete(name);
-        if (!LOCAL_BUILD && /mysouq|souq/i.test(name)) return caches.delete(name);
-        return null;
-      }));
-    }).catch(function () {});
-  }
-
-  function hardReload(token) {
-    try { sessionStorage.setItem('msq_reload_token', token); } catch (e) {}
-    var u = new URL(location.href);
-    u.searchParams.set('_msq', String(Date.now()));
-    location.replace(u.toString());
-  }
-
-  function alreadyReloaded(token) {
-    try { return sessionStorage.getItem('msq_reload_token') === token; } catch (e) { return false; }
-  }
-
-  function fingerprintFromHeaders(res) {
-    if (!res) return '';
-    return String(res.headers.get('etag') || res.headers.get('last-modified') || res.headers.get('x-amz-meta-mtime') || '').trim();
-  }
-
-  function checkRemoteVersion() {
-    var nonce = String(Date.now());
-    var versionUrls = [
-      'https://raw.githubusercontent.com/souq-elektroni/My-Souq.github.io/main/version.json?_=' + nonce,
-      new URL('version.json?_=' + nonce, document.baseURI).href
-    ];
-    function fetchJson(i) {
-      if (i >= versionUrls.length) return Promise.reject();
-      return fetch(versionUrls[i], { cache: 'no-store', credentials: 'omit', mode: 'cors' })
-        .then(function (r) { if (!r.ok) throw new Error('x'); return r.json(); })
-        .catch(function () { return fetchJson(i + 1); });
-    }
-    return fetchJson(0).then(function (data) {
-      return String((data && (data.build || data.version)) || '').trim();
-    });
-  }
-
-  function checkFileFingerprint() {
-    // يكتشف التحديث حتى لو نسيت version.json — من تاريخ تعديل الصفحة نفسها
-    return fetch(location.pathname + (location.pathname.endsWith('/') ? '' : '') || './', {
-      method: 'HEAD',
-      cache: 'no-store',
-      credentials: 'omit'
-    }).then(function (res) {
-      return fingerprintFromHeaders(res);
-    }).catch(function () {
-      return fetch('./index.html', { method: 'HEAD', cache: 'no-store' })
-        .then(function (res) { return fingerprintFromHeaders(res); })
-        .catch(function () { return ''; });
-    });
-  }
-
-  // 1) تنظيف خفيف كل زيارة
-  softPurge();
-  try {
-    if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
-      navigator.serviceWorker.getRegistration().then(function (reg) {
-        if (reg && reg.update) reg.update();
-      });
-    }
-  } catch (e) {}
-
-  // 2) اكتشاف تحديث أوتوماتيك
-  Promise.all([
-    checkRemoteVersion().catch(function () { return ''; }),
-    checkFileFingerprint().catch(function () { return ''; })
-  ]).then(function (pair) {
-    var remoteBuild = pair[0] || '';
-    var fileFp = pair[1] || '';
-    var token = remoteBuild || fileFp || '';
-
-    // أ) version.json أحدث من الصفحة المحلية
-    if (remoteBuild && LOCAL_BUILD && remoteBuild !== LOCAL_BUILD) {
-      if (!alreadyReloaded(remoteBuild)) {
-        return purgeAllCaches().then(function () {
-          // unregister SW عشان ميرجعش الكاش القديم
-          var tasks = [];
-          if ('serviceWorker' in navigator) {
-            tasks.push(
-              navigator.serviceWorker.getRegistrations().then(function (regs) {
-                return Promise.all(regs.map(function (r) { return r.unregister(); }));
-              }).catch(function () {})
-            );
-          }
-          return Promise.all(tasks).then(function () { hardReload(remoteBuild); });
-        });
-      }
-    }
-
-    // ب) تغيّر Last-Modified / ETag للصفحة (تحديث اترفع من غير ما تلمس رقم)
-    if (fileFp) {
-      var prevFp = '';
-      try { prevFp = localStorage.getItem('msq_page_fp') || ''; } catch (e) {}
-      if (prevFp && prevFp !== fileFp && !alreadyReloaded('fp:' + fileFp)) {
-        try { localStorage.setItem('msq_page_fp', fileFp); } catch (e) {}
-        return purgeAllCaches().then(function () { hardReload('fp:' + fileFp); });
-      }
-      try { localStorage.setItem('msq_page_fp', fileFp); } catch (e) {}
-    }
-
-    reveal();
-  }).catch(function () { reveal(); });
-
-  // 3) رجوع للتاب → نظّف + حدّث SW
-  document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible') {
-      softPurge();
-      try {
-        if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
-          navigator.serviceWorker.getRegistration().then(function (reg) {
-            if (reg && reg.update) reg.update();
-          });
-        }
-      } catch (e) {}
-    }
-  });
-})();
-</script>
 
 </head>
 
@@ -5162,7 +5054,7 @@ html.msq-version-checking { background: #f4e5d8; }
   })();
   </script>
 
-  <script src="script.js?v=20261022h"></script>
+  <script src="script.js?v=20261022k"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
