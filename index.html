@@ -4841,6 +4841,7 @@ html.msq-version-checking { background: #f4e5d8; }
         </div>
       </div>
       <div id="adminHint" style="display:none; font-size:12px; font-weight:800; color:#2e7d32; margin-bottom:8px;"></div>
+      <div id="trackFaultHost"></div>
       <div id="trackingResultContainer" class="tracking-result-box" style="display:none;">
         <!-- نتيجة التتبع -->
       </div>
@@ -5321,14 +5322,14 @@ html.msq-version-checking { background: #f4e5d8; }
       var searchId = normalizeOrderIdInput(rawId);
       var resultBox = document.getElementById('trackingResultContainer');
       if (!searchId) {
-        alert('يرجى إدخال رقم الطلب أولاً');
+        if (typeof showTrackFault === 'function') showTrackFault('يرجى إدخال رقم الطلب أولاً.', 'Fault'); else alert('يرجى إدخال رقم الطلب أولاً');
         return;
       }
       var phoneInput = document.getElementById('trackInputPhone');
       var rawPhone = phoneInput ? String(phoneInput.value || '').trim() : '';
       // إلزامي للجميع (عميل وإدارة) عند الاستعلام من نافذة التتبع — للخصوصية
       if (!rawPhone) {
-        alert('للخصوصية: لازم تدخل رقم الهاتف المسجّل في الطلب مع رقم الطلب.');
+        if (typeof showTrackFault === 'function') showTrackFault('للخصوصية: لازم تدخل رقم الهاتف المسجّل في الطلب مع رقم الطلب.', 'Fault'); else alert('للخصوصية: لازم تدخل رقم الهاتف المسجّل في الطلب مع رقم الطلب.');
         if (phoneInput) phoneInput.focus();
         return;
       }
@@ -5336,7 +5337,7 @@ html.msq-version-checking { background: #f4e5d8; }
         ? normalizeEgyptianPhone(rawPhone)
         : String(rawPhone).replace(/[٠-٩]/g, function(d){return String(d.charCodeAt(0)-1632);}).replace(/[\s-]/g,'');
       if (typeof isValidEgyptianMobile === 'function' && !isValidEgyptianMobile(normPhone)) {
-        alert('أدخل رقم موبايل مصري صحيح (11 رقم يبدأ بـ 010 أو 011 أو 012 أو 015).');
+        if (typeof showTrackFault === 'function') showTrackFault('أدخل رقم موبايل مصري صحيح (11 رقم يبدأ بـ 010 أو 011 أو 012 أو 015).', 'Fault'); else alert('أدخل رقم موبايل مصري صحيح (11 رقم يبدأ بـ 010 أو 011 أو 012 أو 015).');
         if (phoneInput) phoneInput.focus();
         return;
       }
@@ -5346,6 +5347,7 @@ html.msq-version-checking { background: #f4e5d8; }
       if (!resultBox) return;
 
       resultBox.style.display = 'block';
+      if (typeof clearTrackFault === 'function') clearTrackFault();
       resultBox.innerHTML = '<div style="text-align:center;padding:14px;font-weight:800;color:var(--text-muted);">جاري البحث...</div>';
 
       // Privacy-first cancellation lookup: if a cancellation receipt exists, show ONLY the confirmation sentence.
@@ -5417,11 +5419,14 @@ html.msq-version-checking { background: #f4e5d8; }
           return;
         }
         if (!orderPhone || phoneTail(orderPhone) !== phoneTail(enteredPhone)) {
-          resultBox.innerHTML =
-            '<div style="text-align:center;padding:22px 16px;border-radius:16px;background:#fff5f5;border:1px solid #f0c4c4;color:#9b2c2c;font-weight:800;line-height:1.9;">' +
-              '❌ رقم الهاتف غير مطابق لبيانات هذا الطلب.<br>' +
-              '<span style="font-size:13px;font-weight:700;color:#7a4545;">تأكد من رقم الطلب ورقم الهاتف المسجّل عند إنشاء الطلب.</span>' +
-            '</div>';
+          resultBox.style.display = 'none';
+          resultBox.innerHTML = '';
+          if (typeof showTrackFault === 'function') {
+            showTrackFault('للخصوصية: رقم الهاتف غير مطابق لبيانات هذا الطلب. تأكد من رقم الطلب ورقم الهاتف المسجّل عند إنشاء الطلب.', 'Fault');
+          } else {
+            resultBox.style.display = 'block';
+            resultBox.innerHTML = '<div style="text-align:center;padding:22px 16px;border-radius:16px;background:#fff5f5;border:1px solid #f0c4c4;color:#9b2c2c;font-weight:800;line-height:1.9;">❌ رقم الهاتف غير مطابق لبيانات هذا الطلب.</div>';
+          }
           return;
         }
 
@@ -11798,7 +11803,7 @@ html body #trackInputPhone{
       var phoneInput = document.getElementById('trackInputPhone');
       var raw = phoneInput ? String(phoneInput.value || '').trim() : '';
       if (!raw) {
-        alert('للخصوصية: لازم تدخل رقم الهاتف المسجّل في الطلب مع رقم الطلب.');
+        if (typeof showTrackFault === 'function') showTrackFault('للخصوصية: لازم تدخل رقم الهاتف المسجّل في الطلب مع رقم الطلب.', 'Fault'); else alert('للخصوصية: لازم تدخل رقم الهاتف المسجّل في الطلب مع رقم الطلب.');
         if (phoneInput) phoneInput.focus();
         return;
       }
@@ -11821,6 +11826,98 @@ html body #trackInputPhone{
   setTimeout(install, 500);
   setTimeout(install, 2000);
   document.addEventListener('DOMContentLoaded', install);
+})();
+</script>
+
+
+<style id="mysouq-track-fault-ui">
+#trackingModal .msq-fault-box{
+  display:flex;align-items:flex-start;gap:12px;
+  margin:0 0 14px;padding:14px 16px;
+  border-radius:16px;
+  background:linear-gradient(145deg,#fff6f6,#ffecec);
+  border:1px solid #f0c4c4;
+  box-shadow:0 10px 28px rgba(140,40,50,.10);
+  animation:msqFaultIn .28s ease;
+}
+@keyframes msqFaultIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+#trackingModal .msq-fault-icon{
+  flex:0 0 auto;width:40px;height:40px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#c62828,#8e1520);color:#fff;
+  font-size:18px;font-weight:900;
+}
+#trackingModal .msq-fault-body{min-width:0;flex:1}
+#trackingModal .msq-fault-title{
+  margin:0 0 4px;font-size:16px;font-weight:950;color:#9b1c1c;
+  letter-spacing:.02em;
+}
+#trackingModal .msq-fault-msg{
+  margin:0;font-size:13.5px;line-height:1.8;font-weight:750;color:#6e3a3a;
+}
+#trackingModal .msq-fault-close{
+  border:0;background:transparent;color:#a06060;cursor:pointer;
+  font-size:18px;line-height:1;padding:2px 6px;border-radius:8px;
+}
+#trackingModal .msq-fault-close:hover{background:rgba(0,0,0,.05)}
+</style>
+<script id="mysouq-track-fault-helper">
+(function(){
+  function ensureFaultHost(){
+    var modal = document.getElementById('trackingModal');
+    if (!modal) return null;
+    var host = document.getElementById('trackFaultHost');
+    if (host) return host;
+    host = document.createElement('div');
+    host.id = 'trackFaultHost';
+    var result = document.getElementById('trackingResultContainer');
+    if (result && result.parentNode) {
+      result.parentNode.insertBefore(host, result);
+    } else {
+      var content = modal.querySelector('.track-modal-content') || modal.querySelector('.modal-content');
+      if (content) content.appendChild(host);
+    }
+    return host;
+  }
+  window.clearTrackFault = function(){
+    var host = document.getElementById('trackFaultHost');
+    if (host) host.innerHTML = '';
+  };
+  window.showTrackFault = function(message, title){
+    var host = ensureFaultHost();
+    var msg = String(message || 'حدث خطأ.');
+    var ttl = String(title || 'Fault');
+    if (!host) {
+      try { alert(ttl + '\n' + msg); } catch(e) {}
+      return;
+    }
+    host.innerHTML = '';
+    var box = document.createElement('div');
+    box.className = 'msq-fault-box';
+    box.setAttribute('role', 'alert');
+    box.innerHTML =
+      '<div class="msq-fault-icon">!</div>' +
+      '<div class="msq-fault-body">' +
+        '<div class="msq-fault-title"></div>' +
+        '<p class="msq-fault-msg"></p>' +
+      '</div>';
+    box.querySelector('.msq-fault-title').textContent = ttl;
+    box.querySelector('.msq-fault-msg').textContent = msg;
+    var closeBtn = document.createElement('button');
+    closeBtn.type = 'button';
+    closeBtn.className = 'msq-fault-close';
+    closeBtn.setAttribute('aria-label', 'إغلاق');
+    closeBtn.textContent = '×';
+    closeBtn.addEventListener('click', function(){ window.clearTrackFault(); });
+    box.appendChild(closeBtn);
+    host.appendChild(box);
+    var resultBox = document.getElementById('trackingResultContainer');
+    if (resultBox) {
+      resultBox.style.display = 'none';
+      resultBox.innerHTML = '';
+    }
+    try { host.scrollIntoView({behavior:'smooth', block:'nearest'}); } catch(e) {}
+  };
 })();
 </script>
 
