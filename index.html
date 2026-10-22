@@ -4878,9 +4878,10 @@ html.msq-version-checking { background: #f4e5d8; }
 
   <!-- Admin Order Details Modal -->
   <div class="modal-overlay" id="adminOrderDetailsModal" style="z-index:1400;">
-    <div class="modal-content track-modal-content">
+    <div class="modal-content track-modal-content admin-order-details-content">
       <button class="close-btn" onclick="closeAdminOrderDetails()">✕</button>
       <div class="terms-header track-modal-title">🧾 تفاصيل الطلب</div>
+      <button type="button" id="adminDetailsBackToAdminBtn" onclick="backToAdminOrdersFromDetails()" class="admin-details-back-btn">⬅ العودة الى شاشة الاداره</button>
       <div id="adminOrderDetailsBody" class="tracking-result-box" style="display:block;">
         <!-- تعبئة ديناميكية -->
       </div>
@@ -5538,8 +5539,27 @@ html.msq-version-checking { background: #f4e5d8; }
 
     /* ===== Admin: تفاصيل الطلب + زر في قائمة الإدارة ===== */
     window.closeAdminOrderDetails = function () {
+      // إغلاق التفاصيل والعودة لشاشة الإدارة (نفس سلوك زر الرجوع)
+      if (typeof window.backToAdminOrdersFromDetails === 'function') {
+        window.backToAdminOrdersFromDetails();
+        return;
+      }
       var m = document.getElementById('adminOrderDetailsModal');
       if (m) m.classList.remove('active');
+      var orders = document.getElementById('adminOrdersModal');
+      if (orders) orders.classList.add('active');
+    };
+
+    window.backToAdminOrdersFromDetails = function () {
+      var details = document.getElementById('adminOrderDetailsModal');
+      if (details) details.classList.remove('active');
+      var orders = document.getElementById('adminOrdersModal');
+      if (orders) {
+        orders.classList.add('active');
+        orders.style.zIndex = orders.style.zIndex || '1300';
+      } else if (typeof openAdminOrdersModal === 'function') {
+        openAdminOrdersModal();
+      }
     };
 
     window.showAdminOrderDetails = function (orderId) {
@@ -5557,24 +5577,33 @@ html.msq-version-checking { background: #f4e5d8; }
       if (!body) return;
 
       body.innerHTML =
-        '<div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:10px;font-size:14.5px;">📋 بيانات الطلب</div>' +
-        '<div class="track-meta-grid">' +
-          '<div class="track-meta-item"><strong>🆔 رقم الطلب</strong><span>' + escapeHtml(o.orderId || '-') + '</span></div>' +
-          '<div class="track-meta-item"><strong>👤 اسم العميل</strong><span>' + escapeHtml(o.name || '-') + '</span></div>' +
-          '<div class="track-meta-item"><strong>📱 الواتساب</strong><span>' + escapeHtml(o.phone || '-') + '</span></div>' +
-          '<div class="track-meta-item"><strong>💰 الإجمالي</strong><span>' + escapeHtml(o.total || '-') + '</span></div>' +
-          '<div class="track-meta-item"><strong>📅 التاريخ</strong><span>' + escapeHtml(o.date || '-') + '</span></div>' +
-          '<div class="track-meta-item"><strong>💳 الدفع</strong><span>' + escapeHtml(o.payMethod || '-') + '</span></div>' +
-        '</div>' +
-        '<div class="track-meta-item" style="margin-bottom:12px;"><strong>📍 العنوان</strong><span>' + escapeHtml(o.address || '-') + '</span></div>' +
-        '<div class="track-products-title">🛍️ المنتجات (' + items.length + ')</div>' +
-        buildTrackItemsHtml(items) +
-        '<div class="track-status-banner" style="background:' + st.color + '18;border:1px solid ' + st.color + '40;color:' + st.color + ';">' +
-          'الحالة الحالية: ' + escapeHtml(st.label) +
+        '<div class="admin-details-shell">' +
+          '<div class="admin-details-section-title">📋 بيانات الطلب</div>' +
+          '<div class="track-meta-grid admin-details-meta-grid">' +
+            '<div class="track-meta-item"><strong>🆔 رقم الطلب</strong><span>' + escapeHtml(o.orderId || '-') + '</span></div>' +
+            '<div class="track-meta-item"><strong>👤 اسم العميل</strong><span>' + escapeHtml(o.name || '-') + '</span></div>' +
+            '<div class="track-meta-item"><strong>📱 الواتساب</strong><span>' + escapeHtml(o.phone || '-') + '</span></div>' +
+            '<div class="track-meta-item"><strong>💰 الإجمالي</strong><span>' + escapeHtml(o.total || '-') + '</span></div>' +
+            '<div class="track-meta-item"><strong>📅 التاريخ</strong><span>' + escapeHtml(o.date || '-') + '</span></div>' +
+            '<div class="track-meta-item"><strong>💳 الدفع</strong><span>' + escapeHtml(o.payMethod || '-') + '</span></div>' +
+          '</div>' +
+          '<div class="track-meta-item admin-details-address"><strong>📍 العنوان</strong><span>' + escapeHtml(o.address || '-') + '</span></div>' +
+          '<div class="track-products-title">🛍️ المنتجات (' + items.length + ')</div>' +
+          buildTrackItemsHtml(items) +
+          '<div class="track-status-banner" style="background:' + st.color + '18;border:1px solid ' + st.color + '40;color:' + st.color + ';">' +
+            'الحالة الحالية: ' + escapeHtml(st.label) +
+          '</div>' +
         '</div>';
 
+      // أخفِ شاشة الإدارة وأظهر نافذة التفاصيل فقط
+      var ordersModal = document.getElementById('adminOrdersModal');
+      if (ordersModal) ordersModal.classList.remove('active');
+
       var modal = document.getElementById('adminOrderDetailsModal');
-      if (modal) modal.classList.add('active');
+      if (modal) {
+        modal.classList.add('active');
+        modal.style.zIndex = '1400';
+      }
     };
 
     window.filterAdminOrders = function () {
@@ -8514,7 +8543,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 
 <style id="mysouq-customer-tracking-redesign-v1">
 /* Customer-only order tracking: read-only, separated from admin status controls. */
-#trackingModal .track-modal-content{width:min(1180px,98vw)!important;max-width:1180px!important;max-height:94vh!important;overflow-y:auto!important;padding:clamp(14px,2vw,24px)!important;border-radius:24px!important;background:linear-gradient(145deg,rgba(255,251,247,.97),rgba(246,235,228,.96))!important}
+#trackingModal .track-modal-content{width:min(1480px,98.5vw)!important;max-width:1480px!important;max-height:96vh!important;overflow-y:auto!important;padding:clamp(16px,2.2vw,28px)!important;border-radius:24px!important;background:linear-gradient(145deg,rgba(255,251,247,.97),rgba(246,235,228,.96))!important}
 #trackingModal .track-modal-title{margin:0 44px 8px 0!important;text-align:right!important;font-size:clamp(19px,2.2vw,26px)!important}
 #trackingModal .track-modal-hint{font-size:12px!important;line-height:1.8!important;margin:0 0 12px!important;color:#79666a!important}
 #trackingModal .track-search-row{display:flex!important;gap:8px!important;align-items:stretch!important;margin-bottom:14px!important}
@@ -11551,6 +11580,57 @@ body.dark-mode #productModal.msq-pair-mode .msq-stage-side img {
 }
 </style>
 
+
+<style id="mysouq-track-admin-details-widen-v1">
+/* نافذة تتبع الطلب — أوسع ومنسّقة ديسكتوب/موبايل */
+#trackingModal.modal-overlay{
+  padding: 10px !important;
+  align-items: center !important;
+}
+#trackingModal .track-modal-content{
+  width: min(1480px, 98.5vw) !important;
+  max-width: 1480px !important;
+  max-height: 96vh !important;
+  padding: clamp(16px, 2.2vw, 28px) !important;
+}
+#trackingResultContainer{
+  padding: clamp(14px, 2vw, 24px) !important;
+}
+/* شبكة بيانات أوضح على الشاشات العريضة */
+@media (min-width: 1100px){
+  .customer-track-data-grid{
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+  }
+  .customer-track-columns-3{
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.25fr) minmax(240px, .95fr) !important;
+    gap: 18px !important;
+  }
+  .customer-track-col{
+    padding: 18px !important;
+  }
+  .customer-track-section-title{
+    font-size: 16px !important;
+  }
+  .customer-track-data strong{
+    font-size: 14px !important;
+  }
+}
+@media (max-width: 640px){
+  #trackingModal .track-modal-content{
+    width: calc(100vw - 10px) !important;
+    max-width: calc(100vw - 10px) !important;
+    max-height: 96dvh !important;
+    padding: 12px !important;
+    border-radius: 18px !important;
+  }
+  #trackingResultContainer{
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+}
+</style>
+
 </body>
 </html>
 
@@ -12966,16 +13046,74 @@ body.dark-mode #adminOrdersModal .order-card-admin{
   background: linear-gradient(135deg, #1565c0, #0d47a1) !important;
 }
 
-/* Admin order details modal */
-#adminOrderDetailsModal .modal-content{
-  width: min(720px, calc(100vw - 24px)) !important;
-  max-width: 720px !important;
+/* Admin order details modal — wider + professional */
+#adminOrderDetailsModal .modal-content,
+#adminOrderDetailsModal .admin-order-details-content{
+  width: min(1100px, calc(100vw - 20px)) !important;
+  max-width: 1100px !important;
+  max-height: 94vh !important;
+  overflow-y: auto !important;
   border-radius: 22px !important;
-  padding: 18px !important;
+  padding: clamp(16px, 2vw, 26px) !important;
+  background: linear-gradient(145deg, rgba(255,251,247,.98), rgba(246,235,228,.97)) !important;
 }
 #adminOrderDetailsModal #adminOrderDetailsBody{
-  font-size: 13.5px !important;
+  font-size: 14px !important;
   line-height: 1.85 !important;
+  padding: clamp(12px, 1.8vw, 20px) !important;
+  border: 1px solid rgba(255,255,255,.85) !important;
+  border-radius: 18px !important;
+  background: rgba(255,255,255,.7) !important;
+  box-shadow: 0 10px 28px rgba(82,47,51,.07) !important;
+}
+.admin-details-back-btn{
+  display: block !important;
+  width: 100% !important;
+  margin: 0 0 14px !important;
+  padding: 12px 16px !important;
+  border: 1px solid rgba(255,255,255,.8) !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #2e7d32, #1b5e20) !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  font-size: 14.5px !important;
+  cursor: pointer !important;
+  box-shadow: 0 6px 16px rgba(46,125,50,.2) !important;
+  text-align: center !important;
+}
+.admin-details-back-btn:hover{
+  filter: brightness(1.05);
+}
+.admin-details-section-title{
+  font-weight: 950;
+  color: var(--burgundy-soft, #8b3f52);
+  margin-bottom: 12px;
+  font-size: 15.5px;
+}
+.admin-details-meta-grid{
+  display: grid !important;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  gap: 10px !important;
+  margin-bottom: 12px !important;
+}
+.admin-details-address{
+  margin-bottom: 14px !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  background: #fff !important;
+  border: 1px solid #eadbd7 !important;
+}
+@media (max-width: 900px){
+  .admin-details-meta-grid{ grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+@media (max-width: 560px){
+  .admin-details-meta-grid{ grid-template-columns: 1fr !important; }
+  #adminOrderDetailsModal .modal-content{
+    width: 100% !important;
+    max-width: 100vw !important;
+    border-radius: 18px 18px 0 0 !important;
+    max-height: 96dvh !important;
+  }
 }
 
 /* Mobile comfort */
