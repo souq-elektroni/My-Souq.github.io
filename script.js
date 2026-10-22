@@ -77,13 +77,18 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
-      // Public tracking contains status only; customer details stay in /orders.
+      // Customer tracking reads this single document by its unpredictable order ID.
+      // Keep only the fields needed by the tracking screen; never include phone/payment data.
       try {
         const initialCode = Number.isInteger(localRecord.statusCode) ? localRecord.statusCode : 0;
         await db.collection('orderTracking').doc(normalizedId).set({
           orderId: normalizedId,
           statusCode: initialCode,
           status: String(localRecord.status || 'تحت التنفيذ 📦'),
+          name: String(localRecord.name || ''),
+          address: String(localRecord.address || ''),
+          total: localRecord.total == null ? '' : localRecord.total,
+          items: Array.isArray(localRecord.items) ? localRecord.items : [],
           createdAt: localRecord.createdAt || Date.now(),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -162,13 +167,20 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       });
 
-      // Keep public tracking status synchronized without exposing order details.
-      await db.collection('orderTracking').doc(normalizedId).set({
+      // Keep tracking status and the minimum details needed by the customer view synchronized.
+      const trackingPatch = {
         orderId: normalizedId,
         statusCode: nextCode,
         status: String(newLabel || ''),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
+      };
+      if (order) {
+        trackingPatch.name = String(order.name || '');
+        trackingPatch.address = String(order.address || '');
+        trackingPatch.total = order.total == null ? '' : order.total;
+        trackingPatch.items = Array.isArray(order.items) ? order.items : [];
+      }
+      await db.collection('orderTracking').doc(normalizedId).set(trackingPatch, { merge: true });
 
       if (order) {
         order.statusCode = nextCode;
