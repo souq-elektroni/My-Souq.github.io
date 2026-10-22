@@ -1,0 +1,18 @@
+مسح الكاش والتحديث — أوتوماتيك بالكامل
+=====================================
+
+من غير ما تغيّر أي رقم إصدار بإيدك:
+
+1) ارفع ملفاتك على GitHub عادي (push).
+2) GitHub Action اسمه "Auto version bump" هيحدّث version.json
+   ويملأ BUILD في sw.js / index.html / script.js لوحده.
+3) أول ما العميل يفتح الموقع:
+   - يمسح الكاش القديم
+   - لو لقى نسخة أحدث → Reload مرة واحدة أوتوماتيك
+
+لو Action مش مفعّل لسه:
+   Settings → Actions → Allow all actions
+   وفعّل Workflow permissions: Read and write
+
+الكشف عن التحديث يتم كمان من Last-Modified للصفحة نفسها
+حتى لو version.json ما اتغيّرش.

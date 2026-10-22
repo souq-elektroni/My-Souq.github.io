@@ -7,16 +7,16 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="20261021i">
+  <meta name="msq-build" content="20261022h">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=20261021i">
-  <link rel="icon" href="favicon.svg?v=20261021i" type="image/svg+xml">
-  <link rel="icon" href="favicon.svg?v=20261021i" sizes="any">
-  <link rel="apple-touch-icon" href="favicon.svg?v=20261021i">
-  <link rel="shortcut icon" href="favicon.svg?v=20261021i">
+  <link rel="manifest" href="manifest.json?v=20261022h">
+  <link rel="icon" href="favicon.svg?v=20261022h" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=20261022h" sizes="any">
+  <link rel="apple-touch-icon" href="favicon.svg?v=20261022h">
+  <link rel="shortcut icon" href="favicon.svg?v=20261022h">
   <title>My Souq</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
@@ -2164,7 +2164,7 @@
 
   </style>
 
-  <link rel="stylesheet" href="styles.css?v=20261021i">
+  <link rel="stylesheet" href="styles.css?v=20261022h">
 
 
 <style id="my-souq-wow-layer">
@@ -3900,10 +3900,10 @@ body{
 body::before{
  content:""!important;position:fixed!important;inset:-8px!important;z-index:-1!important;
  pointer-events:none!important;
- background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261021i') center center/cover no-repeat!important;
+ background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=20261022h') center center/cover no-repeat!important;
  filter:blur(2px) saturate(.9)!important;transform:scale(1.025)!important;
 }
-body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261021i') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
+body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=20261022h') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
 /* Floating app badge and independent action buttons */
 .brand-badge{top:16px!important;right:16px!important;width:58px!important;height:58px!important;border-radius:19px!important;transform:rotate(3deg)!important;background:linear-gradient(145deg,#087f83,#36aaa9)!important;box-shadow:0 12px 30px rgba(8,127,131,.25),inset 0 1px 0 rgba(255,255,255,.75)!important;border:1px solid rgba(255,255,255,.8)!important}
 .brand-badge::before{inset:5px!important;border-radius:14px!important}
@@ -4015,111 +4015,175 @@ body.dark-mode .product-card{background:rgba(18,35,37,.78)!important;border-colo
 html.msq-version-checking body { visibility: hidden !important; }
 html.msq-version-checking { background: #f4e5d8; }
 </style>
-<script id="mysouq-cache-bust-v4">
-(function(){
+<script id="mysouq-auto-cache-clear-v7">
+(function () {
   'use strict';
-  var BUILD = '20261021i';
-  window.__MSQ_BUILD__ = BUILD;
-  var key = 'msq_cache_refresh_' + BUILD;
+  /* ============================================================
+     مسح كاش + تحديث أوتوماتيك بالكامل
+     - مفيش رقم إصدار لازم تتغيره بإيدك
+     - كل زيارة: تنظيف كاش قديم
+     - لو السيرفر فيه نسخة أحدث (version.json أو Last-Modified):
+       مسح كامل + إعادة تحميل مرة واحدة
+     ============================================================ */
+  var LOCAL_BUILD = (function () {
+    var meta = document.querySelector('meta[name="msq-build"]');
+    return meta ? String(meta.getAttribute('content') || '').trim() : '';
+  })();
+  window.__MSQ_BUILD__ = LOCAL_BUILD || String(Date.now());
+
   var root = document.documentElement;
   var revealed = false;
-  function reveal(){
+  function reveal() {
     if (revealed) return;
     revealed = true;
-    try { root.classList.remove('msq-version-checking'); } catch(e) {}
+    try { root.classList.remove('msq-version-checking'); } catch (e) {}
   }
-  try { root.classList.add('msq-version-checking'); } catch(e) {}
-  // Never leave the page hidden if the version endpoint is temporarily unavailable.
-  var revealTimer = setTimeout(reveal, 3500);
+  try { root.classList.add('msq-version-checking'); } catch (e) {}
+  setTimeout(reveal, 2000);
 
-  function clearOldShellCaches(){
+  function purgeAllCaches() {
     var tasks = [];
-    // 1) Tell any controlling SW to clear its caches & skipWaiting
     try {
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {
         navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_ALL_CACHES' });
+        navigator.serviceWorker.controller.postMessage({ type: 'PURGE' });
         navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
       }
-    } catch(e) {}
-    // 2) Unregister every Service Worker that belongs to this app
-    try {
-      if ('serviceWorker' in navigator) {
-        tasks.push(navigator.serviceWorker.getRegistrations().then(function(regs){
-          var appBase = new URL('./', location.href);
-          return Promise.all(regs.filter(function(reg){
-            try {
-              var scope = new URL(reg.scope);
-              return scope.origin === appBase.origin && scope.pathname.indexOf(appBase.pathname) === 0;
-            } catch(e) { return false; }
-          }).map(function(reg){ return reg.unregister(); }));
-        }).catch(function(){}));
-      }
-    } catch(e) {}
-    // 3) Delete every Cache Storage entry that looks like it belongs to My Souq
-    try {
-      if (window.caches && typeof window.caches.keys === 'function') {
-        tasks.push(window.caches.keys().then(function(keys){
-          return Promise.all(keys.filter(function(name){
-            return /mysouq|souq/i.test(name);
-          }).map(function(name){ return window.caches.delete(name); }));
-        }).catch(function(){}));
-      }
-    } catch(e) {}
+    } catch (e) {}
+    if (window.caches && caches.keys) {
+      tasks.push(
+        caches.keys().then(function (keys) {
+          return Promise.all(keys.map(function (n) { return caches.delete(n); }));
+        }).catch(function () {})
+      );
+    }
     return Promise.all(tasks);
   }
 
-  try {
-    var meta = document.querySelector('meta[name="msq-build"]');
-    var localBuild = meta ? String(meta.getAttribute('content') || '').trim() : BUILD;
-    // Read the version from GitHub's raw origin first, outside this site's Service Worker scope.
-    // This prevents an old service worker from returning a stale version.json response.
+  function softPurge() {
+    if (!window.caches || !caches.keys) return Promise.resolve();
+    return caches.keys().then(function (keys) {
+      return Promise.all(keys.map(function (name) {
+        // امسح كل كاش مش مطابق للإصدار المحلي الحالي
+        if (LOCAL_BUILD && name.indexOf(LOCAL_BUILD) === -1) return caches.delete(name);
+        if (!LOCAL_BUILD && /mysouq|souq/i.test(name)) return caches.delete(name);
+        return null;
+      }));
+    }).catch(function () {});
+  }
+
+  function hardReload(token) {
+    try { sessionStorage.setItem('msq_reload_token', token); } catch (e) {}
+    var u = new URL(location.href);
+    u.searchParams.set('_msq', String(Date.now()));
+    location.replace(u.toString());
+  }
+
+  function alreadyReloaded(token) {
+    try { return sessionStorage.getItem('msq_reload_token') === token; } catch (e) { return false; }
+  }
+
+  function fingerprintFromHeaders(res) {
+    if (!res) return '';
+    return String(res.headers.get('etag') || res.headers.get('last-modified') || res.headers.get('x-amz-meta-mtime') || '').trim();
+  }
+
+  function checkRemoteVersion() {
     var nonce = String(Date.now());
     var versionUrls = [
       'https://raw.githubusercontent.com/souq-elektroni/My-Souq.github.io/main/version.json?_=' + nonce,
       new URL('version.json?_=' + nonce, document.baseURI).href
     ];
-    function readRemoteVersion(index){
-      if (index >= versionUrls.length) return Promise.reject(new Error('version file unavailable'));
-      return fetch(versionUrls[index], {cache:'no-store', credentials:'omit', mode:'cors'})
-        .then(function(res){ if(!res.ok) throw new Error('version file unavailable'); return res.json(); })
-        .catch(function(){ return readRemoteVersion(index + 1); });
+    function fetchJson(i) {
+      if (i >= versionUrls.length) return Promise.reject();
+      return fetch(versionUrls[i], { cache: 'no-store', credentials: 'omit', mode: 'cors' })
+        .then(function (r) { if (!r.ok) throw new Error('x'); return r.json(); })
+        .catch(function () { return fetchJson(i + 1); });
     }
-    readRemoteVersion(0)
-      .then(function(data){
-        var remoteBuild = String(data && data.build || '').trim();
-        if (!remoteBuild || remoteBuild === localBuild) {
-          try { sessionStorage.removeItem(key); } catch(e) {}
-          clearTimeout(revealTimer);
-          reveal();
-          return;
-        }
-        var alreadyTried = false;
-        try { alreadyTried = sessionStorage.getItem(key) === remoteBuild; } catch(e) {}
-        if (alreadyTried) {
-          // Even if we already tried once, still force a hard clear + reload once more
-          // (handles rare cases where the previous reload still got a cached shell).
-          clearOldShellCaches().then(function(){
-            clearTimeout(revealTimer);
-            reveal();
-          });
-          return;
-        }
-        try { sessionStorage.setItem(key, remoteBuild); } catch(e) {}
-        clearOldShellCaches().then(function(){
-          var target = new URL(location.href);
-          target.searchParams.set('msq-refresh', remoteBuild + '-' + Date.now());
-          // Keep the old shell hidden while the browser requests the current published HTML.
-          location.replace(target.href);
-        });
-      })
-      .catch(function(){
-        clearTimeout(revealTimer);
-        reveal();
-      });
-  } catch(e) {
-    clearTimeout(revealTimer);
-    reveal();
+    return fetchJson(0).then(function (data) {
+      return String((data && (data.build || data.version)) || '').trim();
+    });
   }
+
+  function checkFileFingerprint() {
+    // يكتشف التحديث حتى لو نسيت version.json — من تاريخ تعديل الصفحة نفسها
+    return fetch(location.pathname + (location.pathname.endsWith('/') ? '' : '') || './', {
+      method: 'HEAD',
+      cache: 'no-store',
+      credentials: 'omit'
+    }).then(function (res) {
+      return fingerprintFromHeaders(res);
+    }).catch(function () {
+      return fetch('./index.html', { method: 'HEAD', cache: 'no-store' })
+        .then(function (res) { return fingerprintFromHeaders(res); })
+        .catch(function () { return ''; });
+    });
+  }
+
+  // 1) تنظيف خفيف كل زيارة
+  softPurge();
+  try {
+    if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+      navigator.serviceWorker.getRegistration().then(function (reg) {
+        if (reg && reg.update) reg.update();
+      });
+    }
+  } catch (e) {}
+
+  // 2) اكتشاف تحديث أوتوماتيك
+  Promise.all([
+    checkRemoteVersion().catch(function () { return ''; }),
+    checkFileFingerprint().catch(function () { return ''; })
+  ]).then(function (pair) {
+    var remoteBuild = pair[0] || '';
+    var fileFp = pair[1] || '';
+    var token = remoteBuild || fileFp || '';
+
+    // أ) version.json أحدث من الصفحة المحلية
+    if (remoteBuild && LOCAL_BUILD && remoteBuild !== LOCAL_BUILD) {
+      if (!alreadyReloaded(remoteBuild)) {
+        return purgeAllCaches().then(function () {
+          // unregister SW عشان ميرجعش الكاش القديم
+          var tasks = [];
+          if ('serviceWorker' in navigator) {
+            tasks.push(
+              navigator.serviceWorker.getRegistrations().then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+              }).catch(function () {})
+            );
+          }
+          return Promise.all(tasks).then(function () { hardReload(remoteBuild); });
+        });
+      }
+    }
+
+    // ب) تغيّر Last-Modified / ETag للصفحة (تحديث اترفع من غير ما تلمس رقم)
+    if (fileFp) {
+      var prevFp = '';
+      try { prevFp = localStorage.getItem('msq_page_fp') || ''; } catch (e) {}
+      if (prevFp && prevFp !== fileFp && !alreadyReloaded('fp:' + fileFp)) {
+        try { localStorage.setItem('msq_page_fp', fileFp); } catch (e) {}
+        return purgeAllCaches().then(function () { hardReload('fp:' + fileFp); });
+      }
+      try { localStorage.setItem('msq_page_fp', fileFp); } catch (e) {}
+    }
+
+    reveal();
+  }).catch(function () { reveal(); });
+
+  // 3) رجوع للتاب → نظّف + حدّث SW
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible') {
+      softPurge();
+      try {
+        if (navigator.serviceWorker && navigator.serviceWorker.getRegistration) {
+          navigator.serviceWorker.getRegistration().then(function (reg) {
+            if (reg && reg.update) reg.update();
+          });
+        }
+      } catch (e) {}
+    }
+  });
 })();
 </script>
 
@@ -4220,10 +4284,10 @@ html.msq-version-checking { background: #f4e5d8; }
     <p style="display:none!important" aria-hidden="true"></p>
 
     <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261021i')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261021i')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261021i')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261021i')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
+      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=20261022h')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=20261022h')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=20261022h')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=20261022h')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
     </div>
 
     <div class="banner-dots" role="tablist" aria-label="اختيار البانر">
@@ -5098,7 +5162,7 @@ html.msq-version-checking { background: #f4e5d8; }
   })();
   </script>
 
-  <script src="script.js?v=20261022f"></script>
+  <script src="script.js?v=20261022h"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -7814,11 +7878,11 @@ body{
 body::before{
   content:""!important;position:fixed!important;inset:-5px!important;z-index:-1!important;
   pointer-events:none!important;
-  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261021i') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=20261022h') center center/cover no-repeat!important;
   filter:blur(1.5px) saturate(.94)!important;transform:scale(1.015)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261021i') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=20261022h') center center/cover no-repeat!important;
   filter:blur(2px) saturate(.8)!important;
 }
 /* Restore the full banner artwork as a visible layer behind the original live logo/text. */
@@ -7922,14 +7986,14 @@ header p{max-width:54%!important}
     pointer-events:none;
     background:
       linear-gradient(135deg, rgba(245,238,226,.22), rgba(248,242,233,.16)),
-      url("assets/store-room.webp?v=20261021i") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261022h") center center / cover no-repeat;
     filter: blur(1.35px) saturate(.92);
     transform: scale(1.015);
   }
   body.dark-mode::before {
     background:
       linear-gradient(135deg, rgba(13,22,24,.66), rgba(16,25,27,.58)),
-      url("assets/store-room.webp?v=20261021i") center center / cover no-repeat;
+      url("assets/store-room.webp?v=20261022h") center center / cover no-repeat;
     filter: blur(1.7px) saturate(.78);
   }
 
@@ -8067,7 +8131,7 @@ body::before{
   transform:scale(1.025)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261021i') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=20261022h') center center/cover no-repeat!important;
   filter:blur(3.5px) saturate(.82)!important;
 }
 /* Hero keeps the full supplied banner art visible. */
@@ -13121,7 +13185,7 @@ body::before {
   pointer-events: none !important;
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261021i') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261022h') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   transform: scale(1.06) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
@@ -13129,7 +13193,7 @@ body::before {
 body.dark-mode::before {
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=20261021i') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=20261022h') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
 }

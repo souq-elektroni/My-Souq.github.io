@@ -1,126 +1,95 @@
-/* My Souq Service Worker — network-first, aggressive old-cache purge */
-const CACHE_NAME = 'mysouq-v20261021i';
-const BUILD = '20261021i';
+/* My Souq SW — auto-purge old caches, network-only for critical files */
+const BUILD = '20261022h';
+const CACHE_NAME = 'mysouq-v' + BUILD;
 
-// Minimal app-shell only (used solely as offline fallback).
-const PRECACHE = [
-  './manifest.json?v=' + BUILD,
-  './styles.css?v=' + BUILD,
-  './favicon.svg?v=' + BUILD
-];
-
-self.addEventListener('install', (event) => {
-  // Activate the new worker immediately — do not wait for old tabs to close.
+self.addEventListener('install', function (event) {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE).catch(() => {}))
+    caches.open(CACHE_NAME).then(function (cache) {
+      return cache.addAll([
+        './manifest.json?v=' + BUILD,
+        './favicon.svg?v=' + BUILD
+      ]).catch(function () {});
+    })
   );
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', function (event) {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
-        keys
-          // Delete every previous My Souq cache (any version).
-          .filter((key) => key !== CACHE_NAME && /mysouq|souq/i.test(key))
-          .map((key) => caches.delete(key))
-      )
-    ).then(() => self.clients.claim())
+    caches.keys().then(function (keys) {
+      return Promise.all(
+        keys.map(function (key) {
+          if (key !== CACHE_NAME) return caches.delete(key);
+        })
+      );
+    }).then(function () {
+      return self.clients.claim();
+    })
   );
 });
 
-self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
-  }
-  if (event.data && event.data.type === 'CLEAR_ALL_CACHES') {
+self.addEventListener('message', function (event) {
+  var data = event.data || {};
+  if (data.type === 'SKIP_WAITING') self.skipWaiting();
+  if (data.type === 'CLEAR_ALL_CACHES' || data.type === 'PURGE') {
     event.waitUntil(
-      caches.keys().then((keys) =>
-        Promise.all(keys.filter((k) => /mysouq|souq/i.test(k)).map((k) => caches.delete(k)))
-      )
+      caches.keys().then(function (keys) {
+        return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+      })
     );
   }
 });
 
-self.addEventListener('fetch', (event) => {
-  const req = event.request;
+function networkOnly(req) {
+  return fetch(req, { cache: 'no-store' });
+}
+
+self.addEventListener('fetch', function (event) {
+  var req = event.request;
   if (req.method !== 'GET') return;
 
-  const url = new URL(req.url);
-  const sameOrigin = url.origin === self.location.origin;
+  var url = new URL(req.url);
+  var sameOrigin = url.origin === self.location.origin;
+  var path = url.pathname;
 
-  // Never let the SW interfere with the version check file.
-  if (url.pathname.endsWith('/version.json') || url.pathname.endsWith('version.json')) {
-    event.respondWith(fetch(req, { cache: 'no-store' }));
-    return;
-  }
+  // Always network for version + critical app files
+  var critical =
+    /version\.json$/i.test(path) ||
+    /\/(index\.html)?$/i.test(path) ||
+    /index\.html$/i.test(path) ||
+    /script\.js$/i.test(path) ||
+    /styles\.css$/i.test(path) ||
+    /sw\.js$/i.test(path);
 
-  // HTML / navigation: pure network-first, NEVER write HTML into cache.
-  // This guarantees that after a deploy the next visit always gets the latest HTML.
-  const isHTML =
+  var isHTML =
     req.mode === 'navigate' ||
-    (req.headers.get('accept') || '').includes('text/html') ||
-    /\.html?$/i.test(url.pathname) ||
-    url.pathname.endsWith('/') ||
-    url.pathname.endsWith('/My-Souq.github.io');
+    (req.headers.get('accept') || '').indexOf('text/html') !== -1 ||
+    /\.html?$/i.test(path) ||
+    path.endsWith('/');
 
-  if (isHTML) {
+  if (critical || isHTML) {
     event.respondWith(
-      fetch(req, { cache: 'no-store' })
-        .then((res) => res)
-        .catch(() =>
-          caches.match('./index.html').then((cached) => cached || Response.error())
-        )
+      networkOnly(req).catch(function () {
+        return caches.match(req).then(function (c) { return c || Response.error(); });
+      })
     );
     return;
   }
 
-  // Images: network-first (no-store). Cache only as offline fallback.
-  if (req.destination === 'image' || /\.(png|jpg|jpeg|webp|gif|svg)$/i.test(url.pathname)) {
-    if (!(sameOrigin || req.destination === 'image')) return;
-    event.respondWith(
-      fetch(req, { cache: 'no-store' })
-        .then((res) => {
-          if (res && (res.ok || res.type === 'opaque')) {
-            const copy = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
-          }
-          return res;
-        })
-        .catch(() => caches.match(req).then((cached) => cached || Response.error()))
-    );
-    return;
-  }
+  if (!sameOrigin) return;
 
-  // CSS / JS: network-first with offline fallback.
-  if (/\.(css|js)$/i.test(url.pathname)) {
-    event.respondWith(
-      fetch(req, { cache: 'no-store' })
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
-          }
-          return res;
-        })
-        .catch(() => caches.match(req).then((cached) => cached || Response.error()))
-    );
-    return;
-  }
-
-  // Everything else (json, fonts, etc.): try network, fall back to cache if offline.
-  if (sameOrigin) {
-    event.respondWith(
-      fetch(req, { cache: 'no-store' })
-        .then((res) => {
-          if (res && res.ok) {
-            const copy = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
-          }
-          return res;
-        })
-        .catch(() => caches.match(req).then((cached) => cached || Response.error()))
-    );
-  }
+  // Other assets: network-first, cache only as offline fallback
+  event.respondWith(
+    networkOnly(req)
+      .then(function (res) {
+        if (res && res.ok) {
+          var copy = res.clone();
+          caches.open(CACHE_NAME).then(function (c) { c.put(req, copy); }).catch(function () {});
+        }
+        return res;
+      })
+      .catch(function () {
+        return caches.match(req).then(function (c) { return c || Response.error(); });
+      })
+  );
 });
