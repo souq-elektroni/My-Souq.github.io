@@ -1,4 +1,4 @@
-/* MSQ_BUILD 20261023173424CACHEKILL */
+/* MSQ_BUILD 202610231742fav */
 let products = [];
   let cart = []; // Cart is session-only; do not restore prior cart contents from localStorage.
 try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItems"); } catch (_) {}
@@ -801,6 +801,11 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
           data-title="${titleAttr}"
           onclick="openProductModal(${p.id})">
           <div class="image-container ${pairedDesigns.length ? 'msq-has-pair' : ''}">
+            <button type="button" class="msq-fav-btn" data-fav-id="${p.id}"
+              aria-label="أضف للمفضلة" title="المفضلة"
+              onclick="event.preventDefault();event.stopPropagation();if(window.msqToggleFavorite)window.msqToggleFavorite(${p.id},this);">
+              <span class="msq-fav-icon" aria-hidden="true">♡</span>
+            </button>
             ${pairedDesigns.length ? pairedCardHtml : `<img class="product-image" data-album-index="0" src="${firstImage}" alt="${titleAttr}"
               loading="lazy" decoding="async" fetchpriority="low"
               width="300" height="300"
@@ -824,6 +829,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       return;
     }
     productsGrid.innerHTML = list.map(productCardHtml).join('');
+    try { if (typeof window.msqSyncFavoriteHearts === 'function') window.msqSyncFavoriteHearts(); } catch (e) {}
   }
 
   // تدوير صور الألبوم / تبديل وش↔ضهر على الكارت عند الوقوف أو اللمس — مش تلقائي
