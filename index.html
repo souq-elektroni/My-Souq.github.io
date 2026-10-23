@@ -155,7 +155,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202610231758maint">
+  <meta name="msq-build" content="202610231804sharehist">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#8b3f52">
@@ -165,11 +165,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=202610231758maint">
-  <link rel="icon" href="favicon.svg?v=202610231758maint" type="image/svg+xml">
-  <link rel="icon" href="favicon.svg?v=202610231758maint" sizes="any">
-  <link rel="apple-touch-icon" href="favicon.svg?v=202610231758maint">
-  <link rel="shortcut icon" href="favicon.svg?v=202610231758maint">
+  <link rel="manifest" href="manifest.json?v=202610231804sharehist">
+  <link rel="icon" href="favicon.svg?v=202610231804sharehist" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=202610231804sharehist" sizes="any">
+  <link rel="apple-touch-icon" href="favicon.svg?v=202610231804sharehist">
+  <link rel="shortcut icon" href="favicon.svg?v=202610231804sharehist">
   <title>My Souq</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
@@ -2317,7 +2317,7 @@
 
   </style>
 
-  <link rel="stylesheet" href="styles.css?v=202610231758maint">
+  <link rel="stylesheet" href="styles.css?v=202610231804sharehist">
 
 
 <style id="my-souq-wow-layer">
@@ -4053,10 +4053,10 @@ body{
 body::before{
  content:""!important;position:fixed!important;inset:-8px!important;z-index:-1!important;
  pointer-events:none!important;
- background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=202610231758maint') center center/cover no-repeat!important;
+ background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=202610231804sharehist') center center/cover no-repeat!important;
  filter:blur(2px) saturate(.9)!important;transform:scale(1.025)!important;
 }
-body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=202610231758maint') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
+body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=202610231804sharehist') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
 /* Floating app badge and independent action buttons */
 .brand-badge{top:16px!important;right:16px!important;width:58px!important;height:58px!important;border-radius:19px!important;transform:rotate(3deg)!important;background:linear-gradient(145deg,#087f83,#36aaa9)!important;box-shadow:0 12px 30px rgba(8,127,131,.25),inset 0 1px 0 rgba(255,255,255,.75)!important;border:1px solid rgba(255,255,255,.8)!important}
 .brand-badge::before{inset:5px!important;border-radius:14px!important}
@@ -4270,10 +4270,10 @@ html.msq-version-checking { background: #f4e5d8; }
     <p style="display:none!important" aria-hidden="true"></p>
 
     <div class="banner-slides">
-      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=202610231758maint')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=202610231758maint')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=202610231758maint')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
-      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=202610231758maint')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
+      <div class="banner-slide active" style="background-image:url('assets/banner-beauty.webp?v=202610231804sharehist')" role="img" aria-label="أناقة ماي سوق - عالم الجمال والأزياء"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-baby.webp?v=202610231804sharehist')" role="img" aria-label="ركن حضانة دافئ من ماي سوق"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-men.webp?v=202610231804sharehist')" role="img" aria-label="أناقة هادئة وتسوق مريح"></div>
+      <div class="banner-slide" style="background-image:url('assets/banner-kids.webp?v=202610231804sharehist')" role="img" aria-label="أزياء أطفال أنيق وتسوق عصري"></div>
     </div>
 
     <div class="banner-dots" role="tablist" aria-label="اختيار البانر">
@@ -4932,6 +4932,20 @@ html.msq-version-checking { background: #f4e5d8; }
           >
             بحث 🔍
           </button>
+
+      <button type="button" id="msqOrderHistoryBtn" class="msq-order-history-btn" onclick="if(window.msqOpenOrderHistoryPanel)window.msqOpenOrderHistoryPanel()">
+        📋 سجل الطلبات
+      </button>
+      <div id="msqOrderHistoryPanel" class="msq-order-history-panel" hidden>
+        <div class="msq-oh-title">سجل الطلبات</div>
+        <p class="msq-oh-hint">رجاءً إدخال رقم الهاتف للاطلاع على كافة طلباتك</p>
+        <div class="msq-oh-row">
+          <input type="tel" id="msqHistoryPhone" class="promo-input" placeholder="01xxxxxxxxx" inputmode="numeric" autocomplete="tel">
+          <button type="button" id="msqHistoryGoBtn" class="msq-oh-go" onclick="if(window.msqLookupOrderHistory)window.msqLookupOrderHistory()">GO</button>
+        </div>
+        <div id="msqHistoryResults" class="msq-oh-results"></div>
+      </div>
+
         </div>
       </div>
       <div id="adminHint" style="display:none; font-size:12px; font-weight:800; color:#2e7d32; margin-bottom:8px;"></div>
@@ -5164,7 +5178,7 @@ html.msq-version-checking { background: #f4e5d8; }
   })();
   </script>
 
-  <script src="script.js?v=202610231758maint"></script>
+  <script src="script.js?v=202610231804sharehist"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -8099,11 +8113,11 @@ body{
 body::before{
   content:""!important;position:fixed!important;inset:-5px!important;z-index:-1!important;
   pointer-events:none!important;
-  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=202610231758maint') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=202610231804sharehist') center center/cover no-repeat!important;
   filter:blur(1.5px) saturate(.94)!important;transform:scale(1.015)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=202610231758maint') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=202610231804sharehist') center center/cover no-repeat!important;
   filter:blur(2px) saturate(.8)!important;
 }
 /* Restore the full banner artwork as a visible layer behind the original live logo/text. */
@@ -8207,14 +8221,14 @@ header p{max-width:54%!important}
     pointer-events:none;
     background:
       linear-gradient(135deg, rgba(245,238,226,.22), rgba(248,242,233,.16)),
-      url("assets/store-room.webp?v=202610231758maint") center center / cover no-repeat;
+      url("assets/store-room.webp?v=202610231804sharehist") center center / cover no-repeat;
     filter: blur(1.35px) saturate(.92);
     transform: scale(1.015);
   }
   body.dark-mode::before {
     background:
       linear-gradient(135deg, rgba(13,22,24,.66), rgba(16,25,27,.58)),
-      url("assets/store-room.webp?v=202610231758maint") center center / cover no-repeat;
+      url("assets/store-room.webp?v=202610231804sharehist") center center / cover no-repeat;
     filter: blur(1.7px) saturate(.78);
   }
 
@@ -8352,7 +8366,7 @@ body::before{
   transform:scale(1.025)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=202610231758maint') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=202610231804sharehist') center center/cover no-repeat!important;
   filter:blur(3.5px) saturate(.82)!important;
 }
 /* Hero keeps the full supplied banner art visible. */
@@ -13689,6 +13703,441 @@ body.dark-mode #msqFavBanner {
 }
 </style>
 
+
+<style id="mysouq-share-history-feature-v1">
+/* ===== مشاركة المنتج ===== */
+#msqShareSheet {
+  position: fixed;
+  inset: 0;
+  z-index: 120000;
+  background: rgba(20,12,16,.55);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 12px;
+}
+#msqShareSheet.open { display: flex; }
+.msq-share-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fffaf8;
+  border-radius: 18px 18px 14px 14px;
+  padding: 16px;
+  box-shadow: 0 -8px 40px rgba(0,0,0,.2);
+  animation: msqShareUp .25s ease;
+}
+@keyframes msqShareUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.msq-share-card h4 {
+  margin: 0 0 6px;
+  font-size: 16px;
+  font-weight: 900;
+  color: #6d3242;
+}
+.msq-share-card .msq-share-preview {
+  font-size: 12px;
+  color: #666;
+  margin: 0 0 12px;
+  line-height: 1.55;
+  word-break: break-all;
+}
+.msq-share-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.msq-share-actions button {
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 10px;
+  font-weight: 900;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.msq-share-wa { background: #25d366; color: #fff; }
+.msq-share-fb { background: #1877f2; color: #fff; }
+.msq-share-copy { background: #f3e6ea; color: #6d3242; grid-column: 1 / -1; }
+.msq-share-native { background: #2c3e50; color: #fff; grid-column: 1 / -1; }
+.msq-share-close {
+  margin-top: 10px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: #888;
+  font-weight: 800;
+  padding: 8px;
+  cursor: pointer;
+  font-family: inherit;
+}
+body.dark-mode .msq-share-card { background: #1e2a2c; }
+body.dark-mode .msq-share-card h4 { color: #ffc8d4; }
+
+/* ===== سجل الطلبات في التتبع ===== */
+.msq-order-history-btn {
+  display: block;
+  width: 100%;
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e0c4cc;
+  background: linear-gradient(135deg, #fff5f7, #fdecef);
+  color: #7a3040;
+  font-weight: 900;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 14px rgba(120,40,60,.08);
+}
+.msq-order-history-btn:hover {
+  transform: translateY(-1px);
+}
+.msq-order-history-panel {
+  margin-top: 12px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 1px solid #e8d0d6;
+  background: #fffafb;
+}
+.msq-order-history-panel[hidden] { display: none !important; }
+.msq-oh-title {
+  font-weight: 900;
+  font-size: 15px;
+  color: #6d3242;
+  margin: 0 0 6px;
+}
+.msq-oh-hint {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 1.65;
+  color: #7a5a62;
+  font-weight: 700;
+}
+.msq-oh-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+.msq-oh-row input {
+  flex: 1;
+  min-width: 0;
+}
+.msq-oh-go {
+  flex: 0 0 auto;
+  min-width: 64px;
+  border: 0;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #8b3f52, #6f3242);
+  color: #fff;
+  font-weight: 900;
+  font-size: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0 14px;
+}
+.msq-oh-results {
+  margin-top: 12px;
+}
+.msq-oh-card {
+  border: 1px solid #ead0d6;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  background: #fff;
+}
+.msq-oh-card .msq-oh-line {
+  font-size: 13px;
+  font-weight: 800;
+  color: #3a2a2e;
+  margin: 3px 0;
+  line-height: 1.5;
+}
+.msq-oh-card .msq-oh-id {
+  color: #8b3f52;
+  font-weight: 900;
+}
+.msq-oh-copy {
+  margin-top: 8px;
+  width: 100%;
+  border: 1px solid #8b3f52;
+  background: #fff5f7;
+  color: #8b3f52;
+  border-radius: 10px;
+  padding: 8px;
+  font-weight: 900;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.msq-oh-empty, .msq-oh-loading, .msq-oh-error {
+  text-align: center;
+  padding: 14px 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #777;
+}
+.msq-oh-error { color: #c62828; }
+body.dark-mode .msq-order-history-panel { background: #1a2426; border-color: #3a4548; }
+body.dark-mode .msq-oh-card { background: #152022; border-color: #3a4548; }
+body.dark-mode .msq-oh-card .msq-oh-line { color: #e8f0f0; }
+</style>
+
+<script id="mysouq-share-history-feature-v1">
+(function () {
+  'use strict';
+
+  /* ---------- مشاركة المنتج ---------- */
+  var _sharePayload = null;
+
+  function ensureShareSheet() {
+    if (document.getElementById('msqShareSheet')) return;
+    var el = document.createElement('div');
+    el.id = 'msqShareSheet';
+    el.innerHTML =
+      '<div class="msq-share-card" role="dialog" aria-label="مشاركة المنتج">' +
+        '<h4>مشاركة المنتج</h4>' +
+        '<p class="msq-share-preview" id="msqSharePreview"></p>' +
+        '<div class="msq-share-actions">' +
+          '<button type="button" class="msq-share-wa" id="msqShareWa">واتساب</button>' +
+          '<button type="button" class="msq-share-fb" id="msqShareFb">فيسبوك</button>' +
+          '<button type="button" class="msq-share-copy" id="msqShareCopy">نسخ الرابط</button>' +
+          '<button type="button" class="msq-share-native" id="msqShareNative">مشاركة أخرى...</button>' +
+        '</div>' +
+        '<button type="button" class="msq-share-close" id="msqShareClose">إغلاق</button>' +
+      '</div>';
+    document.body.appendChild(el);
+    el.addEventListener('click', function (e) {
+      if (e.target === el) closeShare();
+    });
+    document.getElementById('msqShareClose').onclick = closeShare;
+    document.getElementById('msqShareWa').onclick = function () {
+      if (!_sharePayload) return;
+      var msg = encodeURIComponent(_sharePayload.text || (_sharePayload.title + '\\n' + _sharePayload.url));
+      window.open('https://wa.me/?text=' + msg, '_blank', 'noopener');
+    };
+    document.getElementById('msqShareFb').onclick = function () {
+      if (!_sharePayload) return;
+      var u = encodeURIComponent(_sharePayload.url);
+      window.open('https://www.facebook.com/sharer/sharer.php?u=' + u, '_blank', 'noopener');
+    };
+    document.getElementById('msqShareCopy').onclick = function () {
+      if (!_sharePayload) return;
+      var t = _sharePayload.text || _sharePayload.url;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(t).then(function () {
+          alert('تم نسخ رابط المنتج ✅');
+        }).catch(function () { prompt('انسخ الرابط:', _sharePayload.url); });
+      } else {
+        prompt('انسخ الرابط:', _sharePayload.url);
+      }
+    };
+    document.getElementById('msqShareNative').onclick = function () {
+      if (!_sharePayload) return;
+      if (navigator.share) {
+        navigator.share({
+          title: _sharePayload.title,
+          text: _sharePayload.text,
+          url: _sharePayload.url
+        }).catch(function () {});
+      } else {
+        alert('المشاركة الأصلية غير متاحة على هذا الجهاز — استخدم واتساب أو نسخ الرابط');
+      }
+    };
+  }
+
+  function closeShare() {
+    var el = document.getElementById('msqShareSheet');
+    if (el) el.classList.remove('open');
+  }
+
+  window.msqOpenShareSheet = function (payload) {
+    ensureShareSheet();
+    _sharePayload = payload || {};
+    var prev = document.getElementById('msqSharePreview');
+    if (prev) prev.textContent = (_sharePayload.title || '') + ' — ' + (_sharePayload.url || '');
+    document.getElementById('msqShareSheet').classList.add('open');
+  };
+
+  /* ---------- سجل الطلبات برقم الهاتف ---------- */
+  function normPhone(v) {
+    if (typeof normalizeEgyptianPhone === 'function') return normalizeEgyptianPhone(v);
+    var s = String(v || '').replace(/\\D/g, '');
+    if (s.indexOf('20') === 0 && s.length >= 12) s = '0' + s.slice(2);
+    return s;
+  }
+
+  window.msqOpenOrderHistoryPanel = function () {
+    var panel = document.getElementById('msqOrderHistoryPanel');
+    if (!panel) return;
+    var open = panel.hasAttribute('hidden');
+    if (open) panel.removeAttribute('hidden');
+    else panel.setAttribute('hidden', '');
+    if (open) {
+      var inp = document.getElementById('msqHistoryPhone');
+      if (inp) setTimeout(function () { inp.focus(); }, 100);
+    }
+  };
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function collectLocalByPhone(phone) {
+    var out = [];
+    var seen = {};
+    function add(o) {
+      if (!o) return;
+      var id = String(o.orderId || '').trim().toUpperCase();
+      if (!id || seen[id]) return;
+      var p = normPhone(o.phone || o.customerPhone || '');
+      if (p !== phone) return;
+      seen[id] = true;
+      out.push({
+        orderId: id,
+        name: o.name || o.customerName || '-',
+        phone: p || phone
+      });
+    }
+    try {
+      if (typeof ordersHistory !== 'undefined' && Array.isArray(ordersHistory)) {
+        ordersHistory.forEach(add);
+      }
+    } catch (e) {}
+    try {
+      var raw = localStorage.getItem('souqOrdersHistory');
+      if (raw) {
+        var arr = JSON.parse(raw);
+        if (Array.isArray(arr)) arr.forEach(add);
+      }
+    } catch (e) {}
+    return out;
+  }
+
+  async function collectCloudByPhone(phone) {
+    var out = [];
+    var seen = {};
+    function add(o) {
+      if (!o) return;
+      var id = String(o.orderId || '').trim().toUpperCase();
+      if (!id || seen[id]) return;
+      seen[id] = true;
+      out.push({
+        orderId: id,
+        name: o.name || o.customerName || '-',
+        phone: normPhone(o.phone || o.customerPhone || phone) || phone
+      });
+    }
+    try {
+      var dbRef = null;
+      try {
+        if (typeof db !== 'undefined' && db) dbRef = db;
+        else if (typeof firebase !== 'undefined' && firebase.firestore) dbRef = firebase.firestore();
+      } catch (e) {}
+      if (!dbRef) return out;
+
+      // محاولة 1: orders بالهاتف
+      try {
+        var q1 = await dbRef.collection('orders').where('phone', '==', phone).limit(30).get();
+        q1.forEach(function (doc) {
+          var d = doc.data() || {};
+          add(Object.assign({}, d, { orderId: d.orderId || doc.id }));
+        });
+      } catch (e) {
+        console.warn('orders phone query', e);
+      }
+
+      // محاولة 2: orderTracking.phoneNorm (للطلبات الجديدة)
+      try {
+        var q2 = await dbRef.collection('orderTracking').where('phoneNorm', '==', phone).limit(30).get();
+        q2.forEach(function (doc) {
+          var d = doc.data() || {};
+          add(Object.assign({}, d, { orderId: d.orderId || doc.id, phone: phone }));
+        });
+      } catch (e) {
+        console.warn('orderTracking phoneNorm query', e);
+      }
+    } catch (e) {
+      console.warn('cloud history', e);
+    }
+    return out;
+  }
+
+  function renderHistoryCards(list, box) {
+    if (!list.length) {
+      box.innerHTML = '<div class="msq-oh-empty">لا توجد طلبات مسجّلة على هذا الرقم</div>';
+      return;
+    }
+    box.innerHTML = list.map(function (o) {
+      var id = escapeHtml(o.orderId);
+      return (
+        '<div class="msq-oh-card">' +
+          '<div class="msq-oh-line msq-oh-id">🆔 ' + id + '</div>' +
+          '<div class="msq-oh-line">👤 ' + escapeHtml(o.name) + '</div>' +
+          '<div class="msq-oh-line">📱 ' + escapeHtml(o.phone) + '</div>' +
+          '<button type="button" class="msq-oh-copy" data-copy-id="' + id + '">📋 نسخ رقم الطلب</button>' +
+        '</div>'
+      );
+    }).join('');
+    box.querySelectorAll('.msq-oh-copy').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-copy-id') || '';
+        if (!id) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(id).then(function () {
+            btn.textContent = '✓ تم النسخ';
+            setTimeout(function () { btn.textContent = '📋 نسخ رقم الطلب'; }, 1500);
+          }).catch(function () {
+            prompt('انسخ رقم الطلب:', id);
+          });
+        } else {
+          prompt('انسخ رقم الطلب:', id);
+        }
+      });
+    });
+  }
+
+  window.msqLookupOrderHistory = async function () {
+    var inp = document.getElementById('msqHistoryPhone');
+    var box = document.getElementById('msqHistoryResults');
+    if (!inp || !box) return;
+    var phone = normPhone(inp.value);
+    if (!phone || phone.length < 10) {
+      box.innerHTML = '<div class="msq-oh-error">أدخل رقم هاتف صحيح (مثال: 01xxxxxxxxx)</div>';
+      return;
+    }
+    box.innerHTML = '<div class="msq-oh-loading">جاري البحث...</div>';
+    var local = collectLocalByPhone(phone);
+    var cloud = [];
+    try {
+      cloud = await collectCloudByPhone(phone);
+    } catch (e) {}
+    var merged = [];
+    var seen = {};
+    local.concat(cloud).forEach(function (o) {
+      var id = String(o.orderId || '').toUpperCase();
+      if (!id || seen[id]) return;
+      seen[id] = true;
+      merged.push(o);
+    });
+    renderHistoryCards(merged, box);
+  };
+
+  // Enter على حقل الهاتف
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && e.target && e.target.id === 'msqHistoryPhone') {
+      e.preventDefault();
+      if (window.msqLookupOrderHistory) window.msqLookupOrderHistory();
+    }
+  });
+})();
+</script>
+
 </body>
 </html>
 
@@ -15273,7 +15722,7 @@ body::before {
   pointer-events: none !important;
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=202610231758maint') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=202610231804sharehist') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   transform: scale(1.06) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
@@ -15281,7 +15730,7 @@ body::before {
 body.dark-mode::before {
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=202610231758maint') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=202610231804sharehist') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
 }

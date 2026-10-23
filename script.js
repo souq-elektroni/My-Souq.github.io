@@ -1,4 +1,4 @@
-/* MSQ_BUILD 202610231742fav */
+/* MSQ_BUILD 202610231804sharehist */
 let products = [];
   let cart = []; // Cart is session-only; do not restore prior cart contents from localStorage.
 try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItems"); } catch (_) {}
@@ -88,6 +88,10 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
           status: String(localRecord.status || 'تحت التنفيذ 📦'),
           name: String(localRecord.name || ''),
           address: String(localRecord.address || ''),
+          // phoneNorm فقط للمطابقة الآمنة في سجل الطلبات — مش الرقم الكامل الظاهر للعامة
+          phoneNorm: (typeof normalizeEgyptianPhone === 'function')
+            ? normalizeEgyptianPhone(localRecord.phone || '')
+            : String(localRecord.phone || '').replace(/\D/g, ''),
           total: localRecord.total == null ? '' : localRecord.total,
           items: Array.isArray(localRecord.items) ? localRecord.items : [],
           createdAt: localRecord.createdAt || Date.now(),
@@ -4142,6 +4146,16 @@ function continueAfterOrderRecaptcha() {
         ? Number(shareVar.price)
         : (Number(currentSelectedProduct.price) || getEffectivePrice(currentSelectedProduct) || 0);
     const text = currentSelectedProduct.title + ' — ' + sharePrice + ' ج.م\n' + url;
+    // لو في قائمة مشاركة مخصّصة (واتساب/فيسبوك) استخدمها
+    if (typeof window.msqOpenShareSheet === 'function') {
+      window.msqOpenShareSheet({
+        title: currentSelectedProduct.title || 'منتج My Souq',
+        text: text,
+        url: url,
+        price: sharePrice
+      });
+      return;
+    }
     if (navigator.share) {
       navigator.share({ title: currentSelectedProduct.title, text: text, url: url }).catch(() => {});
     } else if (navigator.clipboard) {
