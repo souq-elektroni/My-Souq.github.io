@@ -4936,15 +4936,6 @@ html.msq-version-checking { background: #f4e5d8; }
       <button type="button" id="msqOrderHistoryBtn" class="msq-order-history-btn" onclick="if(window.msqOpenOrderHistoryPanel)window.msqOpenOrderHistoryPanel()">
         📋 سجل الطلبات
       </button>
-      <div id="msqOrderHistoryPanel" class="msq-order-history-panel" hidden>
-        <div class="msq-oh-title">سجل الطلبات</div>
-        <p class="msq-oh-hint">رجاءً إدخال رقم الهاتف للاطلاع على كافة طلباتك</p>
-        <div class="msq-oh-row">
-          <input type="tel" id="msqHistoryPhone" class="promo-input" placeholder="01xxxxxxxxx" inputmode="numeric" autocomplete="tel">
-          <button type="button" id="msqHistoryGoBtn" class="msq-oh-go" onclick="if(window.msqLookupOrderHistory)window.msqLookupOrderHistory()">GO</button>
-        </div>
-        <div id="msqHistoryResults" class="msq-oh-results"></div>
-      </div>
 
         </div>
       </div>
@@ -4959,6 +4950,32 @@ html.msq-version-checking { background: #f4e5d8; }
   <!-- Zoom Image Overlay -->
   <div class="zoom-overlay" id="zoomOverlay" onclick="closeZoom()">
     <img id="zoomImage" src="" alt="zoom">
+  </div>
+
+
+  <!-- Order History Modal (مستقل عن نافذة التتبع) -->
+  <div class="modal-overlay" id="msqOrderHistoryModal" style="display:none;z-index:1200;">
+    <div class="modal-content msq-oh-modal-content" style="max-width:340px;width:min(92vw,340px);padding:16px 14px;">
+      <button type="button" class="close-btn" onclick="if(window.msqCloseOrderHistoryModal)window.msqCloseOrderHistoryModal()">✕</button>
+      <div class="msq-oh-title" style="font-size:16px;margin-bottom:8px;">📋 سجل الطلبات</div>
+
+      <div id="msqOhLoginView">
+        <p class="msq-oh-hint">أدخل رقم الهاتف ثم اضغط دخول لعرض طلباتك</p>
+        <div class="msq-oh-row">
+          <input type="tel" id="msqHistoryPhone" class="promo-input" placeholder="01xxxxxxxxx" inputmode="numeric" autocomplete="tel" maxlength="15">
+          <button type="button" id="msqHistoryGoBtn" class="msq-oh-go" onclick="if(window.msqLookupOrderHistory)window.msqLookupOrderHistory()">دخول</button>
+        </div>
+        <div id="msqHistoryLoginMsg" class="msq-oh-error" style="display:none;margin-top:8px;"></div>
+      </div>
+
+      <div id="msqOhResultsView" style="display:none;">
+        <div class="msq-oh-session-bar">
+          <span id="msqOhSessionPhone" class="msq-oh-session-phone"></span>
+          <button type="button" id="msqOhLogoutBtn" class="msq-oh-logout" onclick="if(window.msqLogoutOrderHistory)window.msqLogoutOrderHistory()">تسجيل خروج</button>
+        </div>
+        <div id="msqHistoryResults" class="msq-oh-results msq-oh-list"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Admin Login Modal -->
@@ -9010,7 +9027,8 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
   function liftModal(id) {
     var modal = document.getElementById(id);
     if (!modal) return null;
-    modal.style.zIndex = '10002';
+    // يجب أن تكون أعلى من غطاء الصيانة (999999) حتى تظهر نافذة اليوزر/الباسورد فوقها
+    modal.style.zIndex = '1000001';
     modal.style.pointerEvents = 'auto';
     return modal;
   }
@@ -9035,7 +9053,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
       } else if (ordersModal) {
         ordersModal.classList.add('active');
       }
-      if (ordersModal) ordersModal.style.zIndex = '10002';
+      if (ordersModal) ordersModal.style.zIndex = '1000001';
       return;
     }
 
@@ -9047,7 +9065,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 
     // نافذة الدخول تكون فوق غطاء الصيانة حتى يستطيع العميل رؤية الحقول والتفاعل معها.
     if (loginModal) {
-      loginModal.style.zIndex = '10002';
+      loginModal.style.zIndex = '1000001';
       loginModal.style.pointerEvents = 'auto';
       loginModal.classList.add('active');
     }
@@ -13799,7 +13817,7 @@ body.dark-mode #msqFavBanner {
 body.dark-mode .msq-share-card { background: #1e2a2c; }
 body.dark-mode .msq-share-card h4 { color: #ffc8d4; }
 
-/* ===== سجل الطلبات في التتبع ===== */
+/* ===== سجل الطلبات — نافذة مستقلة ===== */
 .msq-order-history-btn {
   display: block;
   width: 100%;
@@ -13818,19 +13836,35 @@ body.dark-mode .msq-share-card h4 { color: #ffc8d4; }
 .msq-order-history-btn:hover {
   transform: translateY(-1px);
 }
-.msq-order-history-panel {
-  margin-top: 12px;
-  padding: 14px;
-  border-radius: 14px;
-  border: 1px solid #e8d0d6;
-  background: #fffafb;
+#msqOrderHistoryModal.modal-overlay {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  background: rgba(22, 12, 18, .55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
-.msq-order-history-panel[hidden] { display: none !important; }
+#msqOrderHistoryModal.active,
+#msqOrderHistoryModal[style*="display: flex"],
+#msqOrderHistoryModal[style*="display:flex"] {
+  display: flex !important;
+}
+.msq-oh-modal-content {
+  position: relative;
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,.7) !important;
+  background: linear-gradient(135deg, rgba(255,255,255,.95), rgba(255,246,248,.92)) !important;
+  box-shadow: 0 18px 48px rgba(60,20,35,.22) !important;
+  max-height: 80vh;
+  overflow: auto;
+}
 .msq-oh-title {
   font-weight: 900;
   font-size: 15px;
   color: #6d3242;
   margin: 0 0 6px;
+  text-align: center;
 }
 .msq-oh-hint {
   margin: 0 0 10px;
@@ -13838,6 +13872,7 @@ body.dark-mode .msq-share-card h4 { color: #ffc8d4; }
   line-height: 1.65;
   color: #7a5a62;
   font-weight: 700;
+  text-align: center;
 }
 .msq-oh-row {
   display: flex;
@@ -13847,10 +13882,17 @@ body.dark-mode .msq-share-card h4 { color: #ffc8d4; }
 .msq-oh-row input {
   flex: 1;
   min-width: 0;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #e0c4cc;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  box-sizing: border-box;
 }
 .msq-oh-go {
   flex: 0 0 auto;
-  min-width: 64px;
+  min-width: 72px;
   border: 0;
   border-radius: 10px;
   background: linear-gradient(135deg, #8b3f52, #6f3242);
@@ -13861,37 +13903,89 @@ body.dark-mode .msq-share-card h4 { color: #ffc8d4; }
   font-family: inherit;
   padding: 0 14px;
 }
-.msq-oh-results {
-  margin-top: 12px;
+.msq-oh-session-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f8eef1;
+  border: 1px solid #ead0d6;
 }
-.msq-oh-card {
+.msq-oh-session-phone {
+  font-size: 13px;
+  font-weight: 900;
+  color: #6d3242;
+  direction: ltr;
+  unicode-bidi: embed;
+}
+.msq-oh-logout {
+  border: 0;
+  border-radius: 8px;
+  background: #c62828;
+  color: #fff;
+  font-weight: 900;
+  font-size: 12px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+/* قائمة بسيطة عمودية — على قد البيانات، مش واسعة */
+.msq-oh-results.msq-oh-list {
+  margin-top: 0;
+  max-height: min(52vh, 320px);
+  overflow-y: auto;
+  overflow-x: hidden;
   border: 1px solid #ead0d6;
   border-radius: 12px;
-  padding: 12px;
-  margin-bottom: 8px;
   background: #fff;
+  width: 100%;
+  box-sizing: border-box;
 }
-.msq-oh-card .msq-oh-line {
+.msq-oh-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0e0e4;
   font-size: 13px;
   font-weight: 800;
   color: #3a2a2e;
-  margin: 3px 0;
-  line-height: 1.5;
+  line-height: 1.4;
 }
-.msq-oh-card .msq-oh-id {
+.msq-oh-list-item:last-child {
+  border-bottom: 0;
+}
+.msq-oh-list-id {
   color: #8b3f52;
   font-weight: 900;
+  direction: ltr;
+  unicode-bidi: embed;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.msq-oh-copy {
-  margin-top: 8px;
-  width: 100%;
+.msq-oh-list-meta {
+  font-size: 11px;
+  font-weight: 700;
+  color: #7a5a62;
+  white-space: nowrap;
+}
+.msq-oh-list-copy {
+  flex: 0 0 auto;
   border: 1px solid #8b3f52;
   background: #fff5f7;
   color: #8b3f52;
-  border-radius: 10px;
-  padding: 8px;
+  border-radius: 8px;
+  padding: 5px 8px;
   font-weight: 900;
-  font-size: 12px;
+  font-size: 11px;
   cursor: pointer;
   font-family: inherit;
 }
@@ -13903,9 +13997,15 @@ body.dark-mode .msq-share-card h4 { color: #ffc8d4; }
   color: #777;
 }
 .msq-oh-error { color: #c62828; }
-body.dark-mode .msq-order-history-panel { background: #1a2426; border-color: #3a4548; }
-body.dark-mode .msq-oh-card { background: #152022; border-color: #3a4548; }
-body.dark-mode .msq-oh-card .msq-oh-line { color: #e8f0f0; }
+body.dark-mode .msq-oh-modal-content {
+  background: linear-gradient(135deg, #1a2426, #152022) !important;
+  border-color: #3a4548 !important;
+}
+body.dark-mode .msq-oh-session-bar { background: #152022; border-color: #3a4548; }
+body.dark-mode .msq-oh-results.msq-oh-list { background: #152022; border-color: #3a4548; }
+body.dark-mode .msq-oh-list-item { border-color: #2a3538; color: #e8f0f0; }
+body.dark-mode .msq-oh-list-id { color: #ffb0c0; }
+body.dark-mode .msq-oh-title { color: #ffc8d4; }
 </style>
 
 <script id="mysouq-share-history-feature-v1">
@@ -13992,15 +14092,68 @@ body.dark-mode .msq-oh-card .msq-oh-line { color: #e8f0f0; }
     return s;
   }
 
+  var _msqOhSessionPhone = '';
+
+  window.msqCloseOrderHistoryModal = function () {
+    var modal = document.getElementById('msqOrderHistoryModal');
+    if (!modal) return;
+    modal.classList.remove('active');
+    modal.style.display = 'none';
+  };
+
+  // إغلاق بالضغط خارج المحتوى
+  document.addEventListener('click', function (e) {
+    var modal = document.getElementById('msqOrderHistoryModal');
+    if (!modal || modal.style.display === 'none' || !modal.classList.contains('active')) return;
+    if (e.target === modal) window.msqCloseOrderHistoryModal();
+  });
+
+  window.msqLogoutOrderHistory = function () {
+    _msqOhSessionPhone = '';
+    try { sessionStorage.removeItem('msqOhPhone'); } catch (e) {}
+    var loginView = document.getElementById('msqOhLoginView');
+    var resultsView = document.getElementById('msqOhResultsView');
+    var box = document.getElementById('msqHistoryResults');
+    var inp = document.getElementById('msqHistoryPhone');
+    var msg = document.getElementById('msqHistoryLoginMsg');
+    if (loginView) loginView.style.display = '';
+    if (resultsView) resultsView.style.display = 'none';
+    if (box) box.innerHTML = '';
+    if (inp) { inp.value = ''; setTimeout(function () { inp.focus(); }, 50); }
+    if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
+  };
+
   window.msqOpenOrderHistoryPanel = function () {
-    var panel = document.getElementById('msqOrderHistoryPanel');
-    if (!panel) return;
-    var open = panel.hasAttribute('hidden');
-    if (open) panel.removeAttribute('hidden');
-    else panel.setAttribute('hidden', '');
-    if (open) {
+    // أغلق نافذة التتبع وافتح نافذة سجل الطلبات المستقلة
+    try {
+      if (typeof closeTrackingModal === 'function') closeTrackingModal();
+      else {
+        var tm = document.getElementById('trackingModal');
+        if (tm) tm.classList.remove('active');
+      }
+    } catch (e) {}
+
+    var modal = document.getElementById('msqOrderHistoryModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+
+    var saved = '';
+    try { saved = sessionStorage.getItem('msqOhPhone') || ''; } catch (e) {}
+    if (saved && saved.length >= 10) {
+      _msqOhSessionPhone = saved;
+      var loginView = document.getElementById('msqOhLoginView');
+      var resultsView = document.getElementById('msqOhResultsView');
+      var phoneLabel = document.getElementById('msqOhSessionPhone');
+      if (loginView) loginView.style.display = 'none';
+      if (resultsView) resultsView.style.display = '';
+      if (phoneLabel) phoneLabel.textContent = '📱 ' + saved;
+      // إعادة تحميل القائمة
       var inp = document.getElementById('msqHistoryPhone');
-      if (inp) setTimeout(function () { inp.focus(); }, 100);
+      if (inp) inp.value = saved;
+      if (window.msqLookupOrderHistory) window.msqLookupOrderHistory(true);
+    } else {
+      window.msqLogoutOrderHistory();
     }
   };
 
@@ -14097,25 +14250,27 @@ body.dark-mode .msq-oh-card .msq-oh-line { color: #e8f0f0; }
       box.innerHTML = '<div class="msq-oh-empty">لا توجد طلبات مسجّلة على هذا الرقم</div>';
       return;
     }
+    // قائمة بسيطة عمودية (up/down) — على قد البيانات
     box.innerHTML = list.map(function (o) {
       var id = escapeHtml(o.orderId);
+      var name = escapeHtml(o.name || '');
+      var shortName = name.length > 14 ? name.slice(0, 14) + '…' : name;
       return (
-        '<div class="msq-oh-card">' +
-          '<div class="msq-oh-line msq-oh-id">🆔 ' + id + '</div>' +
-          '<div class="msq-oh-line">👤 ' + escapeHtml(o.name) + '</div>' +
-          '<div class="msq-oh-line">📱 ' + escapeHtml(o.phone) + '</div>' +
-          '<button type="button" class="msq-oh-copy" data-copy-id="' + id + '">📋 نسخ رقم الطلب</button>' +
+        '<div class="msq-oh-list-item">' +
+          '<span class="msq-oh-list-id" title="' + id + '">' + id + '</span>' +
+          (shortName && shortName !== '-' ? '<span class="msq-oh-list-meta">' + shortName + '</span>' : '') +
+          '<button type="button" class="msq-oh-list-copy" data-copy-id="' + id + '">نسخ</button>' +
         '</div>'
       );
     }).join('');
-    box.querySelectorAll('.msq-oh-copy').forEach(function (btn) {
+    box.querySelectorAll('.msq-oh-list-copy').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var id = btn.getAttribute('data-copy-id') || '';
         if (!id) return;
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(id).then(function () {
-            btn.textContent = '✓ تم النسخ';
-            setTimeout(function () { btn.textContent = '📋 نسخ رقم الطلب'; }, 1500);
+            btn.textContent = '✓';
+            setTimeout(function () { btn.textContent = 'نسخ'; }, 1200);
           }).catch(function () {
             prompt('انسخ رقم الطلب:', id);
           });
@@ -14126,15 +14281,34 @@ body.dark-mode .msq-oh-card .msq-oh-line { color: #e8f0f0; }
     });
   }
 
-  window.msqLookupOrderHistory = async function () {
+  window.msqLookupOrderHistory = async function (fromSession) {
     var inp = document.getElementById('msqHistoryPhone');
     var box = document.getElementById('msqHistoryResults');
+    var msg = document.getElementById('msqHistoryLoginMsg');
     if (!inp || !box) return;
-    var phone = normPhone(inp.value);
+    var phone = normPhone(inp.value || _msqOhSessionPhone || '');
     if (!phone || phone.length < 10) {
-      box.innerHTML = '<div class="msq-oh-error">أدخل رقم هاتف صحيح (مثال: 01xxxxxxxxx)</div>';
+      if (msg) {
+        msg.style.display = 'block';
+        msg.textContent = 'أدخل رقم هاتف صحيح (مثال: 01xxxxxxxxx)';
+      } else {
+        box.innerHTML = '<div class="msq-oh-error">أدخل رقم هاتف صحيح (مثال: 01xxxxxxxxx)</div>';
+      }
       return;
     }
+    if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
+
+    // إظهار شاشة النتائج
+    var loginView = document.getElementById('msqOhLoginView');
+    var resultsView = document.getElementById('msqOhResultsView');
+    var phoneLabel = document.getElementById('msqOhSessionPhone');
+    if (loginView) loginView.style.display = 'none';
+    if (resultsView) resultsView.style.display = '';
+    if (phoneLabel) phoneLabel.textContent = '📱 ' + phone;
+
+    _msqOhSessionPhone = phone;
+    try { sessionStorage.setItem('msqOhPhone', phone); } catch (e) {}
+
     box.innerHTML = '<div class="msq-oh-loading">جاري البحث...</div>';
     var local = collectLocalByPhone(phone);
     var cloud = [];
@@ -14293,6 +14467,25 @@ html.msq-maintenance-lock body > *:not(#maintenanceModeOverlay):not(#adminLoginM
 </script>
 
 
+
+<style id="mysouq-maint-login-zfix-v1">
+/* نافذة دخول الإدارة دائماً فوق شاشة الصيانة */
+#maintenanceModeOverlay {
+  z-index: 999999 !important;
+}
+#adminLoginModal,
+#adminLoginModal.active,
+#adminOrdersModal,
+#adminOrdersModal.active {
+  z-index: 1000001 !important;
+  pointer-events: auto !important;
+}
+html.msq-maintenance-lock #adminLoginModal,
+html.msq-maintenance-lock #adminOrdersModal {
+  z-index: 1000001 !important;
+  pointer-events: auto !important;
+}
+</style>
 <style id="mysouq-maint-secret-entry-v1">
 /* إخفاء زر دخول الإدارة من شاشة الصيانة */
 #maintenanceModeOverlay button[onclick*="handleMaintenanceAdminEntry"],
