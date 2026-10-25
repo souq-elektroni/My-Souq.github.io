@@ -1681,8 +1681,272 @@
 
     document.getElementById("msq-import-start").addEventListener("click", function () {
       if (!__msqImportParsedRows.length) return;
-      alert("الخطوة الجاية: كتابة المنتجات على GitHub.\nحاليًا تمت القراءة والمعاينة بنجاح (" + __msqImportParsedRows.length + " منتج).\nاضغط «كمّل» في المحادثة عشان نضيف الكتابة الفعلية.");
+      startGitHubImport(__msqImportParsedRows);
     });
+  }
+
+  /* ---------- الخطوة 3: الكتابة على GitHub ---------- */
+  var GITHUB_REPO = "souq-elektroni/My-Souq.github.io";
+  var GITHUB_BRANCH = "main";
+  var PRODUCTS_PATH = "products";
+
+  function findStoredGitHubToken() {
+    try {
+      var keys = Object.keys(localStorage);
+      for (var i = 0; i < keys.length; i++) {
+        var k = keys[i];
+        var v = localStorage.getItem(k);
+        if (!v) continue;
+        if (/^(ghp_|github_pat_|gho_|ghu_)/.test(v.trim())) return v.trim();
+        if (v.charAt(0) === "{" || v.charAt(0) === "[") {
+          try {
+            var obj = JSON.parse(v);
+            var token = digToken(obj);
+            if (token) return token;
+          } catch (e) {}
+        }
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function digToken(obj, depth) {
+    if (depth == null) depth = 0;
+    if (depth > 6 || obj == null) return null;
+    if (typeof obj === "string" && /^(ghp_|github_pat_|gho_|ghu_)/.test(obj)) return obj;
+    if (typeof obj !== "object") return null;
+    if (obj.token && typeof obj.token === "string" && obj.token.length > 20) return obj.token;
+    if (obj.access_token && typeof obj.access_token === "string") return obj.access_token;
+    if (obj.accessToken && typeof obj.accessToken === "string") return obj.accessToken;
+    var keys = Object.keys(obj);
+    for (var i = 0; i < keys.length; i++) {
+      var found = digToken(obj[keys[i]], depth + 1);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  function askForToken() {
+    var t = window.prompt(
+      "لم يتم العثور على توكن GitHub من جلسة Sveltia.\n\nالصق Personal Access Token (صلاحية repo أو Contents: Read and write):\n\nيمكنك إنشاؤه من:\nGitHub → Settings → Developer settings → Personal access tokens",
+      ""
+    );
+    if (t) t = t.trim();
+    return t || null;
+  }
+
+  function slugifyTitle(title) {
+    var map = {
+      "ا": "a", "أ": "a", "إ": "i", "آ": "a", "ب": "b", "ت": "t", "ث": "th",
+      "ج": "j", "ح": "h", "خ": "kh", "د": "d", "ذ": "dh", "ر": "r", "ز": "z",
+      "س": "s", "ش": "sh", "ص": "s", "ض": "d", "ط": "t", "ظ": "z", "ع": "a",
+      "غ": "gh", "ف": "f", "ق": "q", "ك": "k", "ل": "l", "م": "m", "ن": "n",
+      "ه": "h", "و": "w", "ي": "y", "ى": "a", "ة": "h", "ء": "", "ؤ": "w",
+      "ئ": "y", "ً": "", "ٌ": "", "ٍ": "", "َ": "", "ُ": "", "ِ": "", "ّ": "", "ْ": ""
+    };
+    var s = String(title || "").trim();
+    var out = "";
+    for (var i = 0; i < s.length; i++) {
+      var ch = s.charAt(i);
+      if (map[ch] !== undefined) out += map[ch];
+      else if (/[a-zA-Z0-9]/.test(ch)) out += ch.toLowerCase();
+      else if (/\s|-|_/.test(ch)) out += "-";
+    }
+    out = out.replace(/-+/g, "-").replace(/^-|-$/g, "");
+    if (!out) out = "product-" + Date.now();
+    return out;
+  }
+
+  function buildMarkdown(row) {
+    var variants = parseSizesText(row.sizes);
+    var lines = ["---"];
+    lines.push("title: " + yamlQuote(row.title));
+    lines.push("category: " + yamlQuote(row.category || "Kids"));
+    lines.push("subcategory: " + yamlQuote(row.subcategory || "ملابس للمنزل"));
+    lines.push("designs: []");
+    lines.push("images: []");
+    lines.push("price: " + (parseInt(row.price, 10) || 0));
+    if (row.oldPrice != null && row.oldPrice !== "") {
+      lines.push("oldPrice: " + parseInt(row.oldPrice, 10));
+    } else {
+      lines.push("oldPrice: null");
+    }
+    lines.push("stock: " + (row.stock || "available"));
+    if (variants.length) {
+      lines.push("variants:");
+      variants.forEach(function (v) {
+        lines.push("  - size: " + yamlQuote(v.size));
+        lines.push("    color: " + yamlQuote(v.color || ""));
+        lines.push("    price: null");
+        lines.push("    quantity: " + (v.quantity || 0));
+        lines.push("    pants_length: " + yamlQuote(v.pants_length || ""));
+        lines.push("    tshirt_length: " + yamlQuote(v.tshirt_length || ""));
+        lines.push("    tshirt_width: " + yamlQuote(v.tshirt_width || ""));
+        lines.push("    extra_piece: " + yamlQuote(v.extra_piece || ""));
+        lines.push("    status: " + (v.status || "available"));
+      });
+    } else {
+      lines.push("variants: []");
+    }
+    lines.push("---");
+    lines.push("");
+    if (row.body) lines.push(String(row.body).trim());
+    lines.push("");
+    return lines.join("\n");
+  }
+
+  function yamlQuote(val) {
+    var s = String(val == null ? "" : val);
+    if (/[:#\[\]{},&*?|>!%@`]/.test(s) || /^\s|\s$/.test(s) || s === "" || /[\n\r]/.test(s)) {
+      return JSON.stringify(s);
+    }
+    return s;
+  }
+
+  function utf8ToBase64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  function githubApi(path, token, options) {
+    options = options || {};
+    return fetch("https://api.github.com" + path, {
+      method: options.method || "GET",
+      headers: {
+        Accept: "application/vnd.github+json",
+        Authorization: "Bearer " + token,
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Content-Type": "application/json"
+      },
+      body: options.body ? JSON.stringify(options.body) : undefined
+    }).then(function (res) {
+      return res.json().then(function (data) {
+        if (!res.ok) {
+          var msg = (data && data.message) || ("HTTP " + res.status);
+          var err = new Error(msg);
+          err.status = res.status;
+          err.data = data;
+          throw err;
+        }
+        return data;
+      });
+    });
+  }
+
+  function createOrUpdateFile(token, path, content, message) {
+    var apiPath = "/repos/" + GITHUB_REPO + "/contents/" + path;
+    return githubApi(apiPath + "?ref=" + GITHUB_BRANCH, token)
+      .then(function (existing) {
+        return githubApi(apiPath, token, {
+          method: "PUT",
+          body: {
+            message: message,
+            content: utf8ToBase64(content),
+            branch: GITHUB_BRANCH,
+            sha: existing.sha
+          }
+        });
+      })
+      .catch(function (err) {
+        if (err.status === 404) {
+          return githubApi(apiPath, token, {
+            method: "PUT",
+            body: {
+              message: message,
+              content: utf8ToBase64(content),
+              branch: GITHUB_BRANCH
+            }
+          });
+        }
+        throw err;
+      });
+  }
+
+  function setImportProgress(done, total, text) {
+    var statusEl = document.getElementById("msq-import-status");
+    var startBtn = document.getElementById("msq-import-start");
+    if (statusEl) statusEl.textContent = text || ("جاري الاستيراد... " + done + " / " + total);
+    if (startBtn) {
+      startBtn.disabled = true;
+      startBtn.textContent = text || ("جاري الاستيراد... " + done + " / " + total);
+    }
+  }
+
+  function startGitHubImport(rows) {
+    var token = findStoredGitHubToken();
+    if (!token) token = askForToken();
+    if (!token) {
+      alert("لم يتم توفير توكن. تم إلغاء الاستيراد.");
+      return;
+    }
+
+    var startBtn = document.getElementById("msq-import-start");
+    var statusEl = document.getElementById("msq-import-status");
+    startBtn.disabled = true;
+    setImportProgress(0, rows.length, "التحقق من التوكن...");
+
+    githubApi("/user", token)
+      .then(function (user) {
+        setImportProgress(0, rows.length, "تم الدخول باسم: " + (user.login || "user") + " — بدء الكتابة...");
+        return runImportQueue(token, rows);
+      })
+      .then(function (result) {
+        var msg =
+          "تم الاستيراد.\n" +
+          "أُضيف/حُدّث: " + result.ok + "\n" +
+          "فشل: " + result.fail +
+          (result.errors.length ? "\n\nأخطاء:\n- " + result.errors.slice(0, 5).join("\n- ") : "");
+        if (statusEl) statusEl.textContent = "انتهى: نجاح " + result.ok + " · فشل " + result.fail;
+        if (startBtn) {
+          startBtn.disabled = false;
+          startBtn.textContent = "بدء الاستيراد (" + rows.length + ")";
+        }
+        alert(msg + "\n\nحدّث صفحة لوحة الإدارة بعد قليل عشان تشوف المنتجات الجديدة.");
+      })
+      .catch(function (err) {
+        console.error(err);
+        if (statusEl) statusEl.textContent = "فشل: " + (err.message || err);
+        if (startBtn) {
+          startBtn.disabled = false;
+          startBtn.textContent = "بدء الاستيراد (" + rows.length + ")";
+        }
+        alert("فشل الاستيراد: " + (err.message || err) + "\n\nتأكد إن التوكن صالح وفيه صلاحية الكتابة على الريبو.");
+      });
+  }
+
+  function runImportQueue(token, rows) {
+    var ok = 0;
+    var fail = 0;
+    var errors = [];
+    var i = 0;
+
+    function next() {
+      if (i >= rows.length) {
+        return Promise.resolve({ ok: ok, fail: fail, errors: errors });
+      }
+      var row = rows[i];
+      var idx = i + 1;
+      i += 1;
+      var slug = slugifyTitle(row.title);
+      var path = PRODUCTS_PATH + "/" + slug + ".md";
+      var content = buildMarkdown(row);
+      var message = "import: " + row.title;
+
+      setImportProgress(idx - 1, rows.length, "كتابة (" + idx + "/" + rows.length + "): " + row.title);
+
+      return createOrUpdateFile(token, path, content, message)
+        .then(function () {
+          ok += 1;
+          return new Promise(function (r) { setTimeout(r, 350); });
+        })
+        .catch(function (err) {
+          fail += 1;
+          errors.push(row.title + ": " + (err.message || err));
+          return new Promise(function (r) { setTimeout(r, 200); });
+        })
+        .then(next);
+    }
+
+    return next();
   }
 
   function start() {
