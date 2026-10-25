@@ -480,6 +480,58 @@
     opacity: 0.55;
     cursor: not-allowed;
   }
+  .msq-import-box-wide {
+    width: min(860px, 100%);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .msq-import-box-wide .msq-import-body {
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+  }
+  .msq-import-preview {
+    margin-top: 14px;
+  }
+  .msq-import-preview-meta {
+    font-size: 13px;
+    color: #0f766e;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .msq-import-empty {
+    color: #b45309;
+    font-size: 13px;
+  }
+  .msq-import-table-wrap {
+    overflow: auto;
+    max-height: 320px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+  }
+  .msq-import-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .msq-import-table th,
+  .msq-import-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    text-align: right;
+    white-space: nowrap;
+  }
+  .msq-import-table th {
+    background: #f8fafc;
+    position: sticky;
+    top: 0;
+    font-weight: 800;
+    color: #334155;
+  }
+  .msq-import-table tr:hover td {
+    background: #f0fdfa;
+  }
 </style>
 
   </head>
@@ -1337,9 +1389,232 @@
     document.body.appendChild(workspace);
     document.body.appendChild(wrap);
 
-    /* ===== زر الاستيراد: نافذة بسيطة فقط في هذه المرحلة ===== */
+    /* ===== زر الاستيراد ===== */
     importBtn.addEventListener("click", function () {
       openImportModal();
+    });
+  }
+
+  /* ---------- استيراد Excel / CSV: قراءة + معاينة (الخطوة 2) ---------- */
+  var __msqImportParsedRows = [];
+
+  function ensureSheetJS(callback) {
+    if (window.XLSX) {
+      callback();
+      return;
+    }
+    var s = document.createElement("script");
+    s.src = "https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js";
+    s.onload = function () { callback(); };
+    s.onerror = function () {
+      alert("تعذر تحميل مكتبة قراءة Excel. تحقق من الاتصال بالإنترنت وحاول مرة أخرى.");
+    };
+    document.head.appendChild(s);
+  }
+
+  function normalizeHeader(h) {
+    return String(h || "")
+      .replace(/\u200f|\u200e/g, "")
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, " ");
+  }
+
+  /* خريطة أسماء الأعمدة المحتملة → المفتاح الداخلي */
+  var HEADER_MAP = {
+    "title": "title",
+    "اسم المنتج": "title",
+    "اسم": "title",
+    "المنتج": "title",
+    "name": "title",
+    "product": "title",
+    "category": "category",
+    "القسم": "category",
+    "القسم الرئيسي": "category",
+    "subcategory": "subcategory",
+    "نوع الملابس": "subcategory",
+    "النوع": "subcategory",
+    "price": "price",
+    "السعر": "price",
+    "السعر الأساسي": "price",
+    "oldprice": "oldPrice",
+    "old price": "oldPrice",
+    "السعر القديم": "oldPrice",
+    "قبل الخصم": "oldPrice",
+    "stock": "stock",
+    "المخزون": "stock",
+    "حالة المخزون": "stock",
+    "sizes": "sizes",
+    "المقاسات": "sizes",
+    "variants": "sizes",
+    "body": "body",
+    "الوصف": "body",
+    "تفاصيل": "body",
+    "description": "body"
+  };
+
+  function mapRow(raw) {
+    var out = {
+      title: "",
+      category: "Kids",
+      subcategory: "ملابس للمنزل",
+      price: 0,
+      oldPrice: null,
+      stock: "available",
+      sizes: "",
+      body: "",
+      _raw: raw
+    };
+    Object.keys(raw).forEach(function (k) {
+      var key = HEADER_MAP[normalizeHeader(k)];
+      if (!key) return;
+      var val = raw[k];
+      if (val === undefined || val === null) return;
+      val = String(val).trim();
+      if (key === "price" || key === "oldPrice") {
+        var n = parseInt(val.replace(/[^\d]/g, ""), 10);
+        out[key] = isNaN(n) ? (key === "oldPrice" ? null : 0) : n;
+      } else if (key === "stock") {
+        var s = val.toLowerCase();
+        if (/نفد|out|غير متوفر|unavailable/.test(s)) out.stock = "out";
+        else if (/قليل|low|محدود/.test(s)) out.stock = "low";
+        else out.stock = "available";
+      } else if (key === "category") {
+        if (/baby|بيبي|رضع/i.test(val)) out.category = "Baby";
+        else if (/mr|mrs|رجالي|حريمي|رجال|نساء/i.test(val)) out.category = "Mr & Mrs";
+        else if (/عرض|عروض|offer/i.test(val)) out.category = "عروض";
+        else out.category = "Kids";
+      } else {
+        out[key] = val;
+      }
+    });
+    return out;
+  }
+
+  function parseSizesText(text) {
+    if (!text) return [];
+    /* صيغة متوقعة: 2 سنة:39x33 | 4 سنة:45x37  أو 2 سنة,4 سنة,6 سنة */
+    var parts = String(text).split(/[|،,;]+/).map(function (p) { return p.trim(); }).filter(Boolean);
+    var variants = [];
+    parts.forEach(function (p) {
+      var m = p.match(/^(.+?)(?::|：)\s*(.*)$/);
+      var size = m ? m[1].trim() : p;
+      var dims = m ? m[2].trim() : "";
+      var length = "", width = "";
+      if (dims) {
+        var dm = dims.match(/(\d+)\s*[x×*]\s*(\d+)/i);
+        if (dm) {
+          length = dm[1];
+          width = dm[2];
+        } else if (/^\d+$/.test(dims)) {
+          length = dims;
+        }
+      }
+      variants.push({
+        size: size,
+        color: "",
+        price: null,
+        quantity: 0,
+        pants_length: "",
+        tshirt_length: length,
+        tshirt_width: width,
+        extra_piece: "",
+        status: "available"
+      });
+    });
+    return variants;
+  }
+
+  function renderImportPreview(rows) {
+    var box = document.getElementById("msq-import-preview");
+    if (!box) return;
+    if (!rows.length) {
+      box.innerHTML = '<p class="msq-import-empty">لم يتم العثور على صفوف صالحة في الملف.</p>';
+      return;
+    }
+    var html = [
+      '<div class="msq-import-preview-meta">تم قراءة <strong>' + rows.length + '</strong> منتج. راجع البيانات قبل الاستيراد.</div>',
+      '<div class="msq-import-table-wrap"><table class="msq-import-table"><thead><tr>',
+      '<th>#</th><th>اسم المنتج</th><th>القسم</th><th>النوع</th><th>السعر</th><th>القديم</th><th>المخزون</th><th>المقاسات</th>',
+      '</tr></thead><tbody>'
+    ];
+    rows.forEach(function (r, i) {
+      var sizesCount = parseSizesText(r.sizes).length;
+      html.push(
+        "<tr>" +
+        "<td>" + (i + 1) + "</td>" +
+        "<td>" + escapeHtml(r.title || "—") + "</td>" +
+        "<td>" + escapeHtml(r.category) + "</td>" +
+        "<td>" + escapeHtml(r.subcategory) + "</td>" +
+        "<td>" + (r.price || "—") + "</td>" +
+        "<td>" + (r.oldPrice != null ? r.oldPrice : "—") + "</td>" +
+        "<td>" + (r.stock === "out" ? "نفد" : r.stock === "low" ? "قليل" : "متوفر") + "</td>" +
+        "<td>" + (sizesCount ? sizesCount + " مقاس" : "—") + "</td>" +
+        "</tr>"
+      );
+    });
+    html.push("</tbody></table></div>");
+    box.innerHTML = html.join("");
+  }
+
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function handleImportFile(file) {
+    var statusEl = document.getElementById("msq-import-status");
+    var startBtn = document.getElementById("msq-import-start");
+    var nameEl = document.getElementById("msq-import-file-name");
+    __msqImportParsedRows = [];
+    startBtn.disabled = true;
+    startBtn.textContent = "جاري القراءة...";
+    statusEl.textContent = "جاري قراءة الملف...";
+    nameEl.textContent = "الملف: " + file.name + " (" + Math.round(file.size / 1024) + " ك.ب)";
+
+    ensureSheetJS(function () {
+      var reader = new FileReader();
+      reader.onload = function (ev) {
+        try {
+          var data = new Uint8Array(ev.target.result);
+          var wb = window.XLSX.read(data, { type: "array" });
+          var sheetName = wb.SheetNames[0];
+          var sheet = wb.Sheets[sheetName];
+          var json = window.XLSX.utils.sheet_to_json(sheet, { defval: "" });
+          if (!json.length) {
+            statusEl.textContent = "الملف فاضي أو مفيش صفوف بيانات.";
+            startBtn.textContent = "بدء الاستيراد";
+            renderImportPreview([]);
+            return;
+          }
+          var rows = json.map(mapRow).filter(function (r) {
+            return r.title && String(r.title).trim().length > 0;
+          });
+          __msqImportParsedRows = rows;
+          renderImportPreview(rows);
+          if (rows.length) {
+            statusEl.textContent = "جاهز للاستيراد — " + rows.length + " منتج.";
+            startBtn.disabled = false;
+            startBtn.textContent = "بدء الاستيراد (" + rows.length + ")";
+          } else {
+            statusEl.textContent = "مفيش صفوف فيها اسم منتج صالح.";
+            startBtn.textContent = "بدء الاستيراد";
+          }
+        } catch (err) {
+          console.error(err);
+          statusEl.textContent = "حصل خطأ أثناء قراءة الملف. تأكد إنه Excel أو CSV سليم.";
+          startBtn.textContent = "بدء الاستيراد";
+          renderImportPreview([]);
+        }
+      };
+      reader.onerror = function () {
+        statusEl.textContent = "تعذر قراءة الملف من الجهاز.";
+        startBtn.textContent = "بدء الاستيراد";
+      };
+      reader.readAsArrayBuffer(file);
     });
   }
 
@@ -1356,23 +1631,24 @@
     overlay.setAttribute("aria-label", "استيراد منتجات من Excel أو CSV");
 
     overlay.innerHTML = [
-      '<div class="msq-import-box">',
+      '<div class="msq-import-box msq-import-box-wide">',
       '  <div class="msq-import-head">',
       '    <strong>📥 استيراد منتجات من Excel / CSV</strong>',
       '    <button type="button" id="msq-import-close" title="إغلاق">×</button>',
       '  </div>',
       '  <div class="msq-import-body">',
-      '    <p class="msq-import-note">ارفع ملف Excel (.xlsx) أو CSV يحتوي على المنتجات. في المرحلة القادمة سنضيف قراءة الملف ومعاينته ثم كتابته على GitHub.</p>',
+      '    <p class="msq-import-note">ارفع ملف Excel أو CSV. الأعمدة المدعومة: <b>اسم المنتج</b>، القسم، نوع الملابس، السعر، السعر القديم، المخزون، المقاسات، الوصف.</p>',
       '    <label class="msq-import-file-label">',
       '      <input type="file" id="msq-import-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" />',
       '      <span>اختر الملف من جهازك</span>',
       '    </label>',
       '    <div id="msq-import-file-name" class="msq-import-file-name"></div>',
       '    <div id="msq-import-status" class="msq-import-status"></div>',
+      '    <div id="msq-import-preview" class="msq-import-preview"></div>',
       '  </div>',
       '  <div class="msq-import-foot">',
       '    <button type="button" id="msq-import-cancel">إلغاء</button>',
-      '    <button type="button" id="msq-import-start" disabled>بدء الاستيراد (قريبًا)</button>',
+      '    <button type="button" id="msq-import-start" disabled>بدء الاستيراد</button>',
       '  </div>',
       '</div>'
     ].join("");
@@ -1391,16 +1667,21 @@
 
     document.getElementById("msq-import-file").addEventListener("change", function (e) {
       var file = e.target.files && e.target.files[0];
-      var nameEl = document.getElementById("msq-import-file-name");
-      var startBtn = document.getElementById("msq-import-start");
       if (file) {
-        nameEl.textContent = "الملف المختار: " + file.name + " (" + Math.round(file.size / 1024) + " ك.ب)";
-        startBtn.disabled = false;
-        startBtn.textContent = "بدء الاستيراد (قريبًا)";
+        handleImportFile(file);
       } else {
-        nameEl.textContent = "";
-        startBtn.disabled = true;
+        document.getElementById("msq-import-file-name").textContent = "";
+        document.getElementById("msq-import-status").textContent = "";
+        document.getElementById("msq-import-preview").innerHTML = "";
+        document.getElementById("msq-import-start").disabled = true;
+        document.getElementById("msq-import-start").textContent = "بدء الاستيراد";
+        __msqImportParsedRows = [];
       }
+    });
+
+    document.getElementById("msq-import-start").addEventListener("click", function () {
+      if (!__msqImportParsedRows.length) return;
+      alert("الخطوة الجاية: كتابة المنتجات على GitHub.\nحاليًا تمت القراءة والمعاينة بنجاح (" + __msqImportParsedRows.length + " منتج).\nاضغط «كمّل» في المحادثة عشان نضيف الكتابة الفعلية.");
     });
   }
 
