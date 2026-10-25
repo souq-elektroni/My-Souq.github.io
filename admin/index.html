@@ -532,6 +532,65 @@
   .msq-import-table tr:hover td {
     background: #f0fdfa;
   }
+  .msq-import-tools {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .msq-import-file-label-half {
+    flex: 1;
+    min-width: 180px;
+  }
+  .msq-import-names-label {
+    border-color: #0ea5e9;
+    color: #0369a1;
+  }
+  .msq-import-names-label:hover {
+    border-color: #0284c7;
+    background: #f0f9ff;
+  }
+  .msq-names-box {
+    margin-top: 12px;
+    border: 1px solid #bae6fd;
+    border-radius: 12px;
+    background: #f0f9ff;
+    padding: 10px;
+  }
+  .msq-names-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+  }
+  .msq-names-head strong {
+    font-size: 12px;
+    color: #0369a1;
+  }
+  #msq-names-copy {
+    border: 0;
+    border-radius: 8px;
+    background: #0284c7;
+    color: #fff;
+    padding: 6px 12px;
+    font-weight: 800;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .msq-names-text {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #7dd3fc;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-family: ui-monospace, monospace;
+    font-size: 12px;
+    direction: ltr;
+    text-align: left;
+    resize: vertical;
+    background: #fff;
+  }
 </style>
 
   </head>
@@ -1447,11 +1506,33 @@
     "sizes": "sizes",
     "المقاسات": "sizes",
     "variants": "sizes",
+    "images": "images",
+    "الصور": "images",
+    "صور": "images",
+    "image": "images",
     "body": "body",
     "الوصف": "body",
     "تفاصيل": "body",
     "description": "body"
   };
+
+  function parseImagesText(text) {
+    if (!text) return [];
+    return String(text)
+      .split(/[\n\r,;|]+/)
+      .map(function (s) { return s.trim(); })
+      .filter(Boolean)
+      .map(function (s) {
+        /* لو الرابط أو المسار كامل، خذ اسم الملف فقط للعرض، والمسار كما هو للتخزين */
+        var m = s.match(/([^\/\\]+\.(webp|jpe?g|png|gif|svg))$/i);
+        var name = m ? m[1] : s;
+        var path = s;
+        if (!/^https?:\/\//i.test(s) && s.indexOf("/images/") !== 0) {
+          path = "/images/products/" + name.replace(/^\/+/, "");
+        }
+        return { name: name, path: path };
+      });
+  }
 
   function mapRow(raw) {
     var out = {
@@ -1462,6 +1543,7 @@
       oldPrice: null,
       stock: "available",
       sizes: "",
+      images: "",
       body: "",
       _raw: raw
     };
@@ -1535,11 +1617,12 @@
     var html = [
       '<div class="msq-import-preview-meta">تم قراءة <strong>' + rows.length + '</strong> منتج. راجع البيانات قبل الاستيراد.</div>',
       '<div class="msq-import-table-wrap"><table class="msq-import-table"><thead><tr>',
-      '<th>#</th><th>اسم المنتج</th><th>القسم</th><th>النوع</th><th>السعر</th><th>القديم</th><th>المخزون</th><th>المقاسات</th>',
+      '<th>#</th><th>اسم المنتج</th><th>القسم</th><th>النوع</th><th>السعر</th><th>القديم</th><th>المخزون</th><th>المقاسات</th><th>الصور</th>',
       '</tr></thead><tbody>'
     ];
     rows.forEach(function (r, i) {
       var sizesCount = parseSizesText(r.sizes).length;
+      var imgsCount = parseImagesText(r.images).length;
       html.push(
         "<tr>" +
         "<td>" + (i + 1) + "</td>" +
@@ -1550,6 +1633,7 @@
         "<td>" + (r.oldPrice != null ? r.oldPrice : "—") + "</td>" +
         "<td>" + (r.stock === "out" ? "نفد" : r.stock === "low" ? "قليل" : "متوفر") + "</td>" +
         "<td>" + (sizesCount ? sizesCount + " مقاس" : "—") + "</td>" +
+        "<td>" + (imgsCount ? imgsCount + " صورة" : "—") + "</td>" +
         "</tr>"
       );
     });
@@ -1637,12 +1721,25 @@
       '    <button type="button" id="msq-import-close" title="إغلاق">×</button>',
       '  </div>',
       '  <div class="msq-import-body">',
-      '    <p class="msq-import-note">ارفع ملف Excel أو CSV. الأعمدة المدعومة: <b>اسم المنتج</b>، القسم، نوع الملابس، السعر، السعر القديم، المخزون، المقاسات، الوصف.</p>',
-      '    <label class="msq-import-file-label">',
-      '      <input type="file" id="msq-import-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" />',
-      '      <span>اختر الملف من جهازك</span>',
-      '    </label>',
+      '    <p class="msq-import-note">ارفع ملف Excel أو CSV. الأعمدة: <b>اسم المنتج</b>، القسم، نوع الملابس، السعر، السعر القديم، المخزون، المقاسات، <b>الصور</b>، الوصف.</p>',
+      '    <div class="msq-import-tools">',
+      '      <label class="msq-import-file-label msq-import-file-label-half">',
+      '        <input type="file" id="msq-import-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" />',
+      '        <span>📄 اختر ملف Excel / CSV</span>',
+      '      </label>',
+      '      <label class="msq-import-file-label msq-import-file-label-half msq-import-names-label">',
+      '        <input type="file" id="msq-names-file" accept="image/*,.webp,.jpg,.jpeg,.png,.gif" multiple />',
+      '        <span>🖼️ أداة أسماء الصور (نسخ)</span>',
+      '      </label>',
+      '    </div>',
       '    <div id="msq-import-file-name" class="msq-import-file-name"></div>',
+      '    <div id="msq-names-box" class="msq-names-box" style="display:none">',
+      '      <div class="msq-names-head">',
+      '        <strong>أسماء الملفات (كل اسم في سطر) — انسخها لعمود الصور</strong>',
+      '        <button type="button" id="msq-names-copy">نسخ الكل</button>',
+      '      </div>',
+      '      <textarea id="msq-names-text" class="msq-names-text" readonly rows="6"></textarea>',
+      '    </div>',
       '    <div id="msq-import-status" class="msq-import-status"></div>',
       '    <div id="msq-import-preview" class="msq-import-preview"></div>',
       '  </div>',
@@ -1676,6 +1773,45 @@
         document.getElementById("msq-import-start").disabled = true;
         document.getElementById("msq-import-start").textContent = "بدء الاستيراد";
         __msqImportParsedRows = [];
+      }
+    });
+
+    document.getElementById("msq-names-file").addEventListener("change", function (e) {
+      var files = e.target.files;
+      var box = document.getElementById("msq-names-box");
+      var ta = document.getElementById("msq-names-text");
+      if (!files || !files.length) {
+        box.style.display = "none";
+        ta.value = "";
+        return;
+      }
+      var names = [];
+      for (var i = 0; i < files.length; i++) {
+        names.push(files[i].name);
+      }
+      names.sort(function (a, b) {
+        return a.localeCompare(b, "ar", { numeric: true, sensitivity: "base" });
+      });
+      ta.value = names.join("\n");
+      box.style.display = "block";
+    });
+
+    document.getElementById("msq-names-copy").addEventListener("click", function () {
+      var ta = document.getElementById("msq-names-text");
+      if (!ta.value) return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(ta.value).then(function () {
+          var btn = document.getElementById("msq-names-copy");
+          var old = btn.textContent;
+          btn.textContent = "تم النسخ ✓";
+          setTimeout(function () { btn.textContent = old; }, 1500);
+        }).catch(function () {
+          ta.select();
+          document.execCommand("copy");
+        });
+      } else {
+        ta.select();
+        document.execCommand("copy");
       }
     });
 
@@ -1759,12 +1895,20 @@
 
   function buildMarkdown(row) {
     var variants = parseSizesText(row.sizes);
+    var images = parseImagesText(row.images);
     var lines = ["---"];
     lines.push("title: " + yamlQuote(row.title));
     lines.push("category: " + yamlQuote(row.category || "Kids"));
     lines.push("subcategory: " + yamlQuote(row.subcategory || "ملابس للمنزل"));
     lines.push("designs: []");
-    lines.push("images: []");
+    if (images.length) {
+      lines.push("images:");
+      images.forEach(function (img) {
+        lines.push("  - " + img.path);
+      });
+    } else {
+      lines.push("images: []");
+    }
     lines.push("price: " + (parseInt(row.price, 10) || 0));
     if (row.oldPrice != null && row.oldPrice !== "") {
       lines.push("oldPrice: " + parseInt(row.oldPrice, 10));
