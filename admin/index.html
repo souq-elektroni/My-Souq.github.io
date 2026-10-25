@@ -279,6 +279,10 @@
     background: #229ED9;
     color: #fff;
   }
+  #my-souq-import-btn {
+    background: #0f766e;
+    color: #fff;
+  }
   #my-souq-preview-btn {
     background: #5b6472;
     color: #fff;
@@ -363,6 +367,118 @@
       padding: 7px 9px;
       font-size: 11px;
     }
+  }
+
+  /* ===== نافذة استيراد Excel / CSV ===== */
+  #my-souq-import-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483640;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.55);
+    padding: 16px;
+    direction: rtl;
+    font-family: Arial, sans-serif;
+  }
+  .msq-import-box {
+    width: min(520px, 100%);
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.25);
+    overflow: hidden;
+  }
+  .msq-import-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .msq-import-head strong {
+    font-size: 15px;
+    color: #0f766e;
+  }
+  #msq-import-close {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: #eef2f6;
+    color: #334155;
+    font-size: 20px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .msq-import-body {
+    padding: 18px 16px;
+  }
+  .msq-import-note {
+    margin: 0 0 14px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #475569;
+  }
+  .msq-import-file-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 52px;
+    border: 2px dashed #94a3b8;
+    border-radius: 12px;
+    background: #f8fafc;
+    cursor: pointer;
+    font-weight: 700;
+    color: #0f766e;
+    transition: border-color .15s, background .15s;
+  }
+  .msq-import-file-label:hover {
+    border-color: #0f766e;
+    background: #f0fdfa;
+  }
+  .msq-import-file-label input {
+    display: none;
+  }
+  .msq-import-file-name {
+    margin-top: 10px;
+    font-size: 13px;
+    color: #334155;
+    font-weight: 600;
+  }
+  .msq-import-status {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #64748b;
+  }
+  .msq-import-foot {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 12px 16px;
+    border-top: 1px solid #e5e7eb;
+    background: #f8fafc;
+  }
+  .msq-import-foot button {
+    border: 0;
+    border-radius: 10px;
+    padding: 9px 14px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  #msq-import-cancel {
+    background: #e2e8f0;
+    color: #334155;
+  }
+  #msq-import-start {
+    background: #0f766e;
+    color: #fff;
+  }
+  #msq-import-start:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
   }
 </style>
 
@@ -840,6 +956,13 @@
     telegram.title = "فتح Telegram Web الأصلي";
     telegram.setAttribute("aria-pressed", "false");
 
+    var importBtn = document.createElement("button");
+    importBtn.id = "my-souq-import-btn";
+    importBtn.type = "button";
+    importBtn.textContent = "📥 استيراد Excel / CSV";
+    importBtn.title = "استيراد منتجات بشكل جماعي من ملف Excel أو CSV";
+    importBtn.setAttribute("aria-pressed", "false");
+
     var preview = document.createElement("button");
     preview.id = "my-souq-preview-btn";
     preview.type = "button";
@@ -1208,10 +1331,77 @@
     });
 
     wrap.appendChild(telegram);
+    wrap.appendChild(importBtn);
     wrap.appendChild(preview);
     wrap.appendChild(logout);
     document.body.appendChild(workspace);
     document.body.appendChild(wrap);
+
+    /* ===== زر الاستيراد: نافذة بسيطة فقط في هذه المرحلة ===== */
+    importBtn.addEventListener("click", function () {
+      openImportModal();
+    });
+  }
+
+  function openImportModal() {
+    if (document.getElementById("my-souq-import-modal")) {
+      document.getElementById("my-souq-import-modal").style.display = "flex";
+      return;
+    }
+
+    var overlay = document.createElement("div");
+    overlay.id = "my-souq-import-modal";
+    overlay.setAttribute("role", "dialog");
+    overlay.setAttribute("aria-modal", "true");
+    overlay.setAttribute("aria-label", "استيراد منتجات من Excel أو CSV");
+
+    overlay.innerHTML = [
+      '<div class="msq-import-box">',
+      '  <div class="msq-import-head">',
+      '    <strong>📥 استيراد منتجات من Excel / CSV</strong>',
+      '    <button type="button" id="msq-import-close" title="إغلاق">×</button>',
+      '  </div>',
+      '  <div class="msq-import-body">',
+      '    <p class="msq-import-note">ارفع ملف Excel (.xlsx) أو CSV يحتوي على المنتجات. في المرحلة القادمة سنضيف قراءة الملف ومعاينته ثم كتابته على GitHub.</p>',
+      '    <label class="msq-import-file-label">',
+      '      <input type="file" id="msq-import-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" />',
+      '      <span>اختر الملف من جهازك</span>',
+      '    </label>',
+      '    <div id="msq-import-file-name" class="msq-import-file-name"></div>',
+      '    <div id="msq-import-status" class="msq-import-status"></div>',
+      '  </div>',
+      '  <div class="msq-import-foot">',
+      '    <button type="button" id="msq-import-cancel">إلغاء</button>',
+      '    <button type="button" id="msq-import-start" disabled>بدء الاستيراد (قريبًا)</button>',
+      '  </div>',
+      '</div>'
+    ].join("");
+
+    document.body.appendChild(overlay);
+
+    function closeModal() {
+      overlay.style.display = "none";
+    }
+
+    document.getElementById("msq-import-close").addEventListener("click", closeModal);
+    document.getElementById("msq-import-cancel").addEventListener("click", closeModal);
+    overlay.addEventListener("click", function (e) {
+      if (e.target === overlay) closeModal();
+    });
+
+    document.getElementById("msq-import-file").addEventListener("change", function (e) {
+      var file = e.target.files && e.target.files[0];
+      var nameEl = document.getElementById("msq-import-file-name");
+      var startBtn = document.getElementById("msq-import-start");
+      if (file) {
+        nameEl.textContent = "الملف المختار: " + file.name + " (" + Math.round(file.size / 1024) + " ك.ب)";
+        startBtn.disabled = false;
+        startBtn.textContent = "بدء الاستيراد (قريبًا)";
+      } else {
+        nameEl.textContent = "";
+        startBtn.disabled = true;
+      }
+    });
   }
 
   function start() {
