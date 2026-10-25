@@ -1456,6 +1456,8 @@
 
   /* ---------- استيراد Excel / CSV: قراءة + معاينة (الخطوة 2) ---------- */
   var __msqImportParsedRows = [];
+  /* ملفات الصور المختارة من الجهاز: الاسم → File */
+  var __msqImportImageFiles = {};
 
   function ensureSheetJS(callback) {
     if (window.XLSX) {
@@ -1721,7 +1723,7 @@
       '    <button type="button" id="msq-import-close" title="إغلاق">×</button>',
       '  </div>',
       '  <div class="msq-import-body">',
-      '    <p class="msq-import-note">ارفع ملف Excel أو CSV. الأعمدة: <b>اسم المنتج</b>، القسم، نوع الملابس، السعر، السعر القديم، المخزون، المقاسات، <b>الصور</b>، الوصف.</p>',
+      '    <p class="msq-import-note">1) اختر صور الكوليكشن من جهازك (هتترفع تلقائي).<br>2) انسخ أسماءها لعمود <b>الصور</b> في الإكسل.<br>3) ارفع ملف Excel. الأعمدة: اسم المنتج، القسم، نوع الملابس، السعر، السعر القديم، المخزون، المقاسات، الصور، الوصف.</p>',
       '    <div class="msq-import-tools">',
       '      <label class="msq-import-file-label msq-import-file-label-half">',
       '        <input type="file" id="msq-import-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" />',
@@ -1729,14 +1731,14 @@
       '      </label>',
       '      <label class="msq-import-file-label msq-import-file-label-half msq-import-names-label">',
       '        <input type="file" id="msq-names-file" accept="image/*,.webp,.jpg,.jpeg,.png,.gif" multiple />',
-      '        <span>🖼️ أداة أسماء الصور (نسخ)</span>',
+      '        <span>🖼️ اختر صور الكوليكشن من جهازك</span>',
       '      </label>',
       '    </div>',
       '    <div id="msq-import-file-name" class="msq-import-file-name"></div>',
       '    <div id="msq-names-box" class="msq-names-box" style="display:none">',
       '      <div class="msq-names-head">',
-      '        <strong>أسماء الملفات (كل اسم في سطر) — انسخها لعمود الصور</strong>',
-      '        <button type="button" id="msq-names-copy">نسخ الكل</button>',
+      '        <strong>الصور المختارة — هتترفع مع الاستيراد · انسخ الأسماء لعمود الصور</strong>',
+      '        <button type="button" id="msq-names-copy">نسخ الأسماء</button>',
       '      </div>',
       '      <textarea id="msq-names-text" class="msq-names-text" readonly rows="6"></textarea>',
       '    </div>',
@@ -1780,6 +1782,7 @@
       var files = e.target.files;
       var box = document.getElementById("msq-names-box");
       var ta = document.getElementById("msq-names-text");
+      __msqImportImageFiles = {};
       if (!files || !files.length) {
         box.style.display = "none";
         ta.value = "";
@@ -1787,13 +1790,21 @@
       }
       var names = [];
       for (var i = 0; i < files.length; i++) {
-        names.push(files[i].name);
+        var f = files[i];
+        names.push(f.name);
+        __msqImportImageFiles[f.name] = f;
+        /* أيضًا بالمفتاح بدون مسافات زائدة وبحالة صغيرة للمطابقة المرنة */
+        __msqImportImageFiles[f.name.toLowerCase()] = f;
       }
       names.sort(function (a, b) {
         return a.localeCompare(b, "ar", { numeric: true, sensitivity: "base" });
       });
       ta.value = names.join("\n");
       box.style.display = "block";
+      var statusEl = document.getElementById("msq-import-status");
+      if (statusEl) {
+        statusEl.textContent = "تم اختيار " + names.length + " صورة — هتترفع مع الاستيراد وتتنسخ أسماؤها تحت.";
+      }
     });
 
     document.getElementById("msq-names-copy").addEventListener("click", function () {
@@ -2015,6 +2026,141 @@
     }
   }
 
+  function fileToBase64(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () {
+        var result = reader.result || "";
+        var base64 = String(result).split(",")[1] || "";
+        resolve(base64);
+      };
+      reader.onerror = function () {
+        reject(new Error("تعذر قراءة الملف: " + file.name));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function collectNeededImageNames(rows) {
+    var set = {};
+    rows.forEach(function (row) {
+      parseImagesText(row.images).forEach(function (img) {
+        set[img.name] = true;
+        set[img.name.toLowerCase()] = true;
+      });
+    });
+    return set;
+  }
+
+  function resolveImageFile(name) {
+    if (!name) return null;
+    if (__msqImportImageFiles[name]) return __msqImportImageFiles[name];
+    if (__msqImportImageFiles[name.toLowerCase()]) return __msqImportImageFiles[name.toLowerCase()];
+    /* مطابقة جزئية: لو الاسم في الإكسل بدون امتداد */
+    var keys = Object.keys(__msqImportImageFiles);
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
+      if (k === name || k.toLowerCase() === name.toLowerCase()) return __msqImportImageFiles[k];
+      if (k.replace(/\.[^.]+$/, "").toLowerCase() === name.replace(/\.[^.]+$/, "").toLowerCase()) {
+        return __msqImportImageFiles[k];
+      }
+    }
+    return null;
+  }
+
+  function uploadOneImage(token, file) {
+    var path = "images/products/" + file.name;
+    return fileToBase64(file).then(function (content) {
+      return createOrUpdateBinaryFile(token, path, content, "upload image: " + file.name);
+    });
+  }
+
+  function createOrUpdateBinaryFile(token, path, base64Content, message) {
+    var apiPath = "/repos/" + GITHUB_REPO + "/contents/" + path;
+    return githubApi(apiPath + "?ref=" + GITHUB_BRANCH, token)
+      .then(function (existing) {
+        return githubApi(apiPath, token, {
+          method: "PUT",
+          body: {
+            message: message,
+            content: base64Content,
+            branch: GITHUB_BRANCH,
+            sha: existing.sha
+          }
+        });
+      })
+      .catch(function (err) {
+        if (err.status === 404) {
+          return githubApi(apiPath, token, {
+            method: "PUT",
+            body: {
+              message: message,
+              content: base64Content,
+              branch: GITHUB_BRANCH
+            }
+          });
+        }
+        throw err;
+      });
+  }
+
+  function uploadImagesForRows(token, rows) {
+    var needed = collectNeededImageNames(rows);
+    var toUpload = [];
+    var seen = {};
+    Object.keys(needed).forEach(function (name) {
+      var file = resolveImageFile(name);
+      if (file && !seen[file.name]) {
+        seen[file.name] = true;
+        toUpload.push(file);
+      }
+    });
+
+    /* لو مفيش أسماء في الإكسل لكن في صور مختارة، ارفع كل الصور المختارة */
+    if (!toUpload.length) {
+      Object.keys(__msqImportImageFiles).forEach(function (k) {
+        var f = __msqImportImageFiles[k];
+        if (f && f.name && !seen[f.name]) {
+          seen[f.name] = true;
+          toUpload.push(f);
+        }
+      });
+    }
+
+    if (!toUpload.length) {
+      return Promise.resolve({ ok: 0, fail: 0, errors: [], skipped: true });
+    }
+
+    var ok = 0;
+    var fail = 0;
+    var errors = [];
+    var i = 0;
+
+    function next() {
+      if (i >= toUpload.length) {
+        return Promise.resolve({ ok: ok, fail: fail, errors: errors, skipped: false });
+      }
+      var file = toUpload[i];
+      var idx = i + 1;
+      i += 1;
+      setImportProgress(idx - 1, toUpload.length, "رفع صورة (" + idx + "/" + toUpload.length + "): " + file.name);
+
+      return uploadOneImage(token, file)
+        .then(function () {
+          ok += 1;
+          return new Promise(function (r) { setTimeout(r, 400); });
+        })
+        .catch(function (err) {
+          fail += 1;
+          errors.push(file.name + ": " + (err.message || err));
+          return new Promise(function (r) { setTimeout(r, 200); });
+        })
+        .then(next);
+    }
+
+    return next();
+  }
+
   function startGitHubImport(rows) {
     var token = findStoredGitHubToken();
     if (!token) token = askForToken();
@@ -2028,23 +2174,38 @@
     startBtn.disabled = true;
     setImportProgress(0, rows.length, "التحقق من التوكن...");
 
+    var imgResult = { ok: 0, fail: 0, errors: [] };
+
     githubApi("/user", token)
       .then(function (user) {
-        setImportProgress(0, rows.length, "تم الدخول باسم: " + (user.login || "user") + " — بدء الكتابة...");
+        setImportProgress(0, rows.length, "تم الدخول باسم: " + (user.login || "user"));
+        return uploadImagesForRows(token, rows);
+      })
+      .then(function (imagesOutcome) {
+        imgResult = imagesOutcome || imgResult;
+        setImportProgress(0, rows.length, "تم رفع الصور — بدء كتابة المنتجات...");
         return runImportQueue(token, rows);
       })
       .then(function (result) {
         var msg =
           "تم الاستيراد.\n" +
-          "أُضيف/حُدّث: " + result.ok + "\n" +
-          "فشل: " + result.fail +
-          (result.errors.length ? "\n\nأخطاء:\n- " + result.errors.slice(0, 5).join("\n- ") : "");
-        if (statusEl) statusEl.textContent = "انتهى: نجاح " + result.ok + " · فشل " + result.fail;
+          "صور مرفوعة: " + (imgResult.ok || 0) + (imgResult.fail ? " · فشل صور: " + imgResult.fail : "") + "\n" +
+          "منتجات أُضيفت/حُدّثت: " + result.ok + "\n" +
+          "فشل منتجات: " + result.fail;
+        var allErrors = (imgResult.errors || []).concat(result.errors || []);
+        if (allErrors.length) {
+          msg += "\n\nأخطاء:\n- " + allErrors.slice(0, 8).join("\n- ");
+        }
+        if (statusEl) {
+          statusEl.textContent =
+            "انتهى: صور " + (imgResult.ok || 0) + " · منتجات " + result.ok +
+            " · فشل " + ((imgResult.fail || 0) + result.fail);
+        }
         if (startBtn) {
           startBtn.disabled = false;
           startBtn.textContent = "بدء الاستيراد (" + rows.length + ")";
         }
-        alert(msg + "\n\nحدّث صفحة لوحة الإدارة بعد قليل عشان تشوف المنتجات الجديدة.");
+        alert(msg + "\n\nحدّث صفحة لوحة الإدارة بعد قليل عشان تشوف المنتجات والصور.");
       })
       .catch(function (err) {
         console.error(err);
@@ -2075,7 +2236,7 @@
       var content = buildMarkdown(row);
       var message = "import: " + row.title;
 
-      setImportProgress(idx - 1, rows.length, "كتابة (" + idx + "/" + rows.length + "): " + row.title);
+      setImportProgress(idx - 1, rows.length, "كتابة منتج (" + idx + "/" + rows.length + "): " + row.title);
 
       return createOrUpdateFile(token, path, content, message)
         .then(function () {
