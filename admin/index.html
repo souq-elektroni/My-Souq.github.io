@@ -1704,6 +1704,111 @@
     try { localStorage.setItem(MSQ_SHEET_KEY, (url || "").trim()); } catch (e) {}
   }
 
+  var MSQ_ONEDRIVE_KEY = "my-souq-onedrive-sheet-url";
+
+  function getSavedOneDriveUrl() {
+    try { return (localStorage.getItem(MSQ_ONEDRIVE_KEY) || "").trim(); } catch (e) { return ""; }
+  }
+
+  function setSavedOneDriveUrl(url) {
+    try { localStorage.setItem(MSQ_ONEDRIVE_KEY, (url || "").trim()); } catch (e) {}
+  }
+
+  function isOneDriveShareUrl(url) {
+    if (!url) return false;
+    var u = String(url).toLowerCase();
+    return (
+      u.indexOf("1drv.ms") !== -1 ||
+      u.indexOf("onedrive.live.com") !== -1 ||
+      u.indexOf("onedrive.com") !== -1 ||
+      u.indexOf("sharepoint.com") !== -1 ||
+      u.indexOf("office.com") !== -1 ||
+      u.indexOf("my.microsoftpersonalcontent.com") !== -1
+    );
+  }
+
+  /* تحويل رابط مشاركة OneDrive لرابط تحميل عبر API العام */
+  function oneDriveShareContentUrl(shareUrl) {
+    var url = String(shareUrl || "").trim();
+    if (!url) return null;
+    /* base64url للرابط كامل */
+    var b64 = btoa(unescape(encodeURIComponent(url)))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/g, "");
+    return "https://api.onedrive.com/v1.0/shares/u!" + b64 + "/root/content";
+  }
+
+  function productsFromSheetObjects(objects) {
+    var flatRows = objects.map(mapRow).filter(function (r) {
+      return r.title && String(r.title).trim().length > 0;
+    });
+    return groupRowsIntoProducts(flatRows);
+  }
+
+  function importFromOneDrive(shareUrl) {
+    var statusEl = document.getElementById("msq-import-status") || document.getElementById("msq-sheet-status");
+    if (statusEl) statusEl.textContent = "جاري جلب الملف من OneDrive...";
+
+    var contentUrl = oneDriveShareContentUrl(shareUrl);
+    if (!contentUrl) {
+      alert("رابط OneDrive غير صالح.");
+      return;
+    }
+
+    ensureSheetJS(function () {
+      fetch(contentUrl, { credentials: "omit", redirect: "follow" })
+        .then(function (res) {
+          if (!res.ok) {
+            throw new Error(
+              "HTTP " + res.status +
+              " — تأكد أن الملف مشارك «أي شخص لديه الرابط» وأنه ملف Excel أو CSV"
+            );
+          }
+          var ctype = (res.headers.get("content-type") || "").toLowerCase();
+          if (ctype.indexOf("text/") === 0 || ctype.indexOf("csv") !== -1) {
+            return res.text().then(function (text) {
+              return { kind: "csv", text: text };
+            });
+          }
+          return res.arrayBuffer().then(function (buf) {
+            return { kind: "bin", buf: buf };
+          });
+        })
+        .then(function (payload) {
+          var objects = [];
+          if (payload.kind === "csv") {
+            objects = csvRowsToObjects(parseCsvText(payload.text));
+          } else {
+            var wb = window.XLSX.read(payload.buf, { type: "array" });
+            var sheetName = wb.SheetNames[0];
+            var sheet = wb.Sheets[sheetName];
+            objects = window.XLSX.utils.sheet_to_json(sheet, { defval: "" });
+          }
+          var products = productsFromSheetObjects(objects);
+          if (!products.length) {
+            if (statusEl) statusEl.textContent = "مفيش منتجات صالحة في ملف OneDrive.";
+            alert("الملف فاضي أو العناوين غير مطابقة. استخدم قالب الاستيراد.");
+            return;
+          }
+          if (statusEl) {
+            statusEl.textContent = "تم قراءة " + products.length + " منتج من OneDrive — جاري الاستيراد...";
+          }
+          __msqImportParsedRows = products;
+          startGitHubImport(products);
+        })
+        .catch(function (err) {
+          console.error(err);
+          if (statusEl) statusEl.textContent = "فشل OneDrive: " + (err.message || err);
+          alert(
+            "تعذر القراءة من OneDrive.\n\n" +
+            (err.message || err) +
+            "\n\nتأكد من:\n1) مشاركة الملف: أي شخص لديه الرابط\n2) الملف Excel أو CSV\n3) الرابط هو رابط المشاركة وليس رابط المجلد فقط"
+          );
+        });
+    });
+  }
+
   function extractGoogleSheetId(url) {
     if (!url) return null;
     var m = String(url).match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
@@ -2351,10 +2456,13 @@
       existing.style.display = "flex";
       var urlInp = document.getElementById("msq-sheet-url");
       if (urlInp) urlInp.value = getSavedSheetUrl();
+      var odInp = document.getElementById("msq-onedrive-url");
+      if (odInp) odInp.value = getSavedOneDriveUrl();
       return;
     }
 
     var savedSheet = getSavedSheetUrl();
+    var savedOneDrive = getSavedOneDriveUrl();
     var overlay = document.createElement("div");
     overlay.id = "my-souq-import-modal";
     overlay.setAttribute("role", "dialog");
@@ -2393,18 +2501,26 @@
       '    </div>',
 
       '    <div class="msq-import-section">',
-      '      <div class="msq-import-section-title">2️⃣ البيانات — شيت Google (مستحسن)</div>',
+      '      <div class="msq-import-section-title">2️⃣ البيانات من الشبكة</div>',
       '      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">',
-      '        <button type="button" id="msq-open-sheet" class="msq-btn-green">فتح الشيت الثابت</button>',
       '        <a href="MySouq-Import-Template.csv" download class="msq-btn-link">قالب CSV</a>',
       '        <a href="MySouq-Import-Template.xlsx" download class="msq-btn-link">قالب Excel</a>',
       '      </div>',
-      '      <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px;color:#166534">رابط شيت Google</label>',
-      '      <input id="msq-sheet-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/...." style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #86efac;border-radius:10px;font-size:12px;direction:ltr;text-align:left;margin-bottom:8px" />',
-      '      <div style="display:flex;gap:8px;flex-wrap:wrap">',
-      '        <button type="button" id="msq-sheet-save" class="msq-btn-teal">حفظ وربط الشيت</button>',
-      '        <button type="button" id="msq-sheet-import" class="msq-btn-blue">استيراد من شيت Google</button>',
+      '      <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px;color:#0b5fff">🔗 رابط OneDrive (Excel)</label>',
+      '      <input id="msq-onedrive-url" type="url" placeholder="https://1drv.ms/... أو رابط مشاركة OneDrive" style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #93c5fd;border-radius:10px;font-size:12px;direction:ltr;text-align:left;margin-bottom:6px" />',
+      '      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">',
+      '        <button type="button" id="msq-onedrive-save" class="msq-btn-teal">حفظ رابط OneDrive</button>',
+      '        <button type="button" id="msq-onedrive-open" class="msq-btn-green">فتح على OneDrive</button>',
+      '        <button type="button" id="msq-onedrive-import" class="msq-btn-blue">استيراد من OneDrive</button>',
       '      </div>',
+      '      <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px;color:#166534">أو رابط Google Sheets</label>',
+      '      <input id="msq-sheet-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/...." style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #86efac;border-radius:10px;font-size:12px;direction:ltr;text-align:left;margin-bottom:6px" />',
+      '      <div style="display:flex;gap:8px;flex-wrap:wrap">',
+      '        <button type="button" id="msq-sheet-save" class="msq-btn-teal">حفظ رابط Google</button>',
+      '        <button type="button" id="msq-open-sheet" class="msq-btn-green">فتح Google</button>',
+      '        <button type="button" id="msq-sheet-import" class="msq-btn-blue">استيراد من Google</button>',
+      '      </div>',
+      '      <p style="margin:8px 0 0;font-size:11px;color:#64748b;line-height:1.5">OneDrive: ارفع الشيت → مشاركة → أي شخص لديه الرابط → انسخ الرابط هنا. لازم يكون ملف Excel/CSV.</p>',
       '    </div>',
 
       '    <div class="msq-import-section">',
@@ -2429,6 +2545,8 @@
     document.body.appendChild(overlay);
     var urlInput = document.getElementById("msq-sheet-url");
     urlInput.value = savedSheet;
+    var odInput = document.getElementById("msq-onedrive-url");
+    if (odInput) odInput.value = savedOneDrive || "";
 
     function closeModal() {
       overlay.style.display = "none";
@@ -2440,6 +2558,39 @@
       if (e.target === overlay) closeModal();
     });
 
+    document.getElementById("msq-onedrive-save").addEventListener("click", function () {
+      var v = (odInput.value || "").trim();
+      if (v && !isOneDriveShareUrl(v)) {
+        document.getElementById("msq-import-status").textContent =
+          "رابط OneDrive غير واضح. استخدم رابط المشاركة (1drv.ms أو onedrive.live.com).";
+        return;
+      }
+      setSavedOneDriveUrl(v);
+      document.getElementById("msq-import-status").textContent = v
+        ? "تم ربط OneDrive ✓"
+        : "تم مسح رابط OneDrive.";
+    });
+
+    document.getElementById("msq-onedrive-open").addEventListener("click", function () {
+      var v = (odInput.value || "").trim() || getSavedOneDriveUrl();
+      if (!v) {
+        document.getElementById("msq-import-status").textContent = "الصق رابط OneDrive أولاً.";
+        return;
+      }
+      setSavedOneDriveUrl(v);
+      window.open(v, "_blank", "noopener,noreferrer");
+    });
+
+    document.getElementById("msq-onedrive-import").addEventListener("click", function () {
+      var v = (odInput.value || "").trim() || getSavedOneDriveUrl();
+      if (!v) {
+        document.getElementById("msq-import-status").textContent = "الصق رابط OneDrive واحفظه أولاً.";
+        return;
+      }
+      setSavedOneDriveUrl(v);
+      importFromOneDrive(v);
+    });
+
     document.getElementById("msq-sheet-save").addEventListener("click", function () {
       var v = (urlInput.value || "").trim();
       if (v && !extractGoogleSheetId(v)) {
@@ -2448,8 +2599,8 @@
       }
       setSavedSheetUrl(v);
       document.getElementById("msq-import-status").textContent = v
-        ? "تم ربط الشيت ✓ — هيتفتح بنفس الرابط كل مرة."
-        : "تم مسح الربط.";
+        ? "تم ربط Google ✓"
+        : "تم مسح ربط Google.";
     });
 
     document.getElementById("msq-open-sheet").addEventListener("click", function () {
@@ -2458,14 +2609,14 @@
         setSavedSheetUrl(v);
         window.open(v, "_blank", "noopener,noreferrer");
       } else {
-        document.getElementById("msq-import-status").textContent = "احفظ رابط الشيت أولاً.";
+        document.getElementById("msq-import-status").textContent = "احفظ رابط Google أولاً.";
       }
     });
 
     document.getElementById("msq-sheet-import").addEventListener("click", function () {
       var v = (urlInput.value || "").trim() || getSavedSheetUrl();
       if (!v || !extractGoogleSheetId(v)) {
-        document.getElementById("msq-import-status").textContent = "الصق رابط الشيت واحفظه أولاً.";
+        document.getElementById("msq-import-status").textContent = "الصق رابط Google واحفظه أولاً.";
         return;
       }
       setSavedSheetUrl(v);
