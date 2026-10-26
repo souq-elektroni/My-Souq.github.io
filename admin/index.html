@@ -747,21 +747,64 @@
   }
   .msq-thumb-x {
     position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 20px;
-    height: 20px;
+    top: 3px;
+    right: 3px;
+    left: auto;
+    width: 24px;
+    height: 24px;
     border: 0;
     border-radius: 50%;
-    background: rgba(185, 28, 28, 0.92);
+    background: #dc2626;
     color: #fff;
-    font-size: 12px;
-    font-weight: 800;
+    font-size: 14px;
+    font-weight: 900;
     cursor: pointer;
-    line-height: 1;
+    line-height: 24px;
     padding: 0;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,.25);
+    z-index: 2;
   }
   .msq-thumb-x:hover { background: #991b1b; }
+  .msq-thumb-list {
+    list-style: none;
+    margin: 0 0 8px;
+    padding: 0;
+    max-height: 140px;
+    overflow-y: auto;
+    direction: ltr;
+    background: #fff;
+    border: 1px solid #e0f2fe;
+    border-radius: 8px;
+  }
+  .msq-thumb-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 5px 8px;
+    border-bottom: 1px solid #e0f2fe;
+    font-size: 11px;
+    font-family: ui-monospace, monospace;
+  }
+  .msq-thumb-list li:last-child { border-bottom: 0; }
+  .msq-thumb-list li span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .msq-thumb-list li button {
+    border: 0;
+    background: #fef2f2;
+    color: #b91c1c;
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .msq-thumb-list li button:hover { background: #fee2e2; }
 </style>
 
   </head>
@@ -2343,6 +2386,7 @@
       '          </div>',
       '        </div>',
       '        <div id="msq-thumbs" class="msq-thumbs"></div>',
+      '        <ul id="msq-thumb-list" class="msq-thumb-list"></ul>',
       '        <textarea id="msq-names-text" class="msq-names-text" readonly rows="4"></textarea>',
       '        <p style="margin:6px 0 0;font-size:11px;color:#0369a1;line-height:1.5">معاينة الصور فوق. الأسماء WebP للصقها في الشيت. الضغط عند الرفع: حد أقصى تقريبًا 1000px وجودة مضغوطة.</p>',
       '      </div>',
@@ -2561,36 +2605,57 @@
 
   function renderImportThumbs(files) {
     var thumbs = document.getElementById("msq-thumbs");
-    if (!thumbs) return;
-    thumbs.innerHTML = "";
+    var list = document.getElementById("msq-thumb-list");
+    if (thumbs) thumbs.innerHTML = "";
+    if (list) list.innerHTML = "";
+    if (!files || !files.length) return;
+
     files.forEach(function (f) {
       var webpName = toWebpFileName(f.name);
-      var card = document.createElement("div");
-      card.className = "msq-thumb";
-      var img = document.createElement("img");
-      img.alt = webpName;
-      img.src = URL.createObjectURL(f);
-      img.onload = function () {
-        /* نسيب الـ URL لحد المسح — هيتنضف مع clear */
-      };
-      var cap = document.createElement("div");
-      cap.className = "msq-thumb-name";
-      cap.textContent = webpName;
-      var x = document.createElement("button");
-      x.type = "button";
-      x.className = "msq-thumb-x";
-      x.title = "حذف هذه الصورة";
-      x.textContent = "×";
-      x.addEventListener("click", function (ev) {
-        ev.preventDefault();
-        ev.stopPropagation();
-        try { URL.revokeObjectURL(img.src); } catch (e) {}
-        removeOneImportImage(f.name);
-      });
-      card.appendChild(img);
-      card.appendChild(cap);
-      card.appendChild(x);
-      thumbs.appendChild(card);
+
+      if (thumbs) {
+        var card = document.createElement("div");
+        card.className = "msq-thumb";
+        var img = document.createElement("img");
+        img.alt = webpName;
+        img.src = URL.createObjectURL(f);
+        var cap = document.createElement("div");
+        cap.className = "msq-thumb-name";
+        cap.textContent = webpName;
+        var x = document.createElement("button");
+        x.type = "button";
+        x.className = "msq-thumb-x";
+        x.title = "حذف هذه الصورة";
+        x.setAttribute("aria-label", "حذف " + webpName);
+        x.textContent = "×";
+        x.addEventListener("click", function (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+          try { URL.revokeObjectURL(img.src); } catch (e) {}
+          removeOneImportImage(f.name);
+        });
+        card.appendChild(img);
+        card.appendChild(cap);
+        card.appendChild(x);
+        thumbs.appendChild(card);
+      }
+
+      if (list) {
+        var li = document.createElement("li");
+        var span = document.createElement("span");
+        span.textContent = webpName;
+        span.title = webpName;
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "حذف";
+        btn.title = "حذف هذه الصورة فقط";
+        btn.addEventListener("click", function () {
+          removeOneImportImage(f.name);
+        });
+        li.appendChild(span);
+        li.appendChild(btn);
+        list.appendChild(li);
+      }
     });
   }
 
@@ -2602,6 +2667,8 @@
       });
       thumbs.innerHTML = "";
     }
+    var list = document.getElementById("msq-thumb-list");
+    if (list) list.innerHTML = "";
     __msqImportImageFiles = {};
     __msqImageSavedNames = {};
     var input = document.getElementById("msq-names-file");
