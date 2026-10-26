@@ -1727,16 +1727,58 @@
     );
   }
 
-  /* تحويل رابط مشاركة OneDrive لرابط تحميل عبر API العام */
-  function oneDriveShareContentUrl(shareUrl) {
+  function oneDriveShareToken(shareUrl) {
     var url = String(shareUrl || "").trim();
-    if (!url) return null;
-    /* base64url للرابط كامل */
-    var b64 = btoa(unescape(encodeURIComponent(url)))
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/g, "");
-    return "https://api.onedrive.com/v1.0/shares/u!" + b64 + "/root/content";
+    var binary = "";
+    try {
+      var bytes = new TextEncoder().encode(url);
+      for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+    } catch (e) {
+      binary = unescape(encodeURIComponent(url));
+    }
+    return (
+      "u!" +
+      btoa(binary)
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/g, "")
+    );
+  }
+
+  /* عدة صيغ محتملة لرابط التحميل من مشاركة OneDrive */
+  function buildOneDriveCandidateUrls(shareUrl) {
+    var url = String(shareUrl || "").trim();
+    var list = [];
+    var token = oneDriveShareToken(url);
+    list.push("https://api.onedrive.com/v1.0/shares/" + token + "/root/content");
+    list.push("https://api.onedrive.com/v1.0/shares/" + token + "/root/content?prefer=download");
+
+    /* روابط كلاسيكية فيها resid + authkey */
+    if (/authkey=/i.test(url) && /resid=/i.test(url)) {
+      try {
+        var u = new URL(url.replace(/^https?:\/\/1drv\.ms\//i, "https://onedrive.live.com/"));
+        var resid = u.searchParams.get("resid") || "";
+        var authkey = u.searchParams.get("authkey") || "";
+        var cid = u.searchParams.get("cid") || "";
+        if (resid && authkey) {
+          var q = "resid=" + encodeURIComponent(resid) + "&authkey=" + encodeURIComponent(authkey);
+          if (cid) q = "cid=" + encodeURIComponent(cid) + "&" + q;
+          list.push("https://onedrive.live.com/download?" + q);
+        }
+      } catch (e) {}
+    }
+
+    /* تحويل redir → download */
+    if (/\/redir\?/i.test(url)) {
+      list.push(url.replace(/\/redir\?/i, "/download?"));
+    }
+
+    /* بعض روابط 1drv.ms تقبل ?download=1 */
+    if (/1drv\.ms/i.test(url) && url.indexOf("download=") === -1) {
+      list.push(url + (url.indexOf("?") >= 0 ? "&" : "?") + "download=1");
+    }
+
+    return list;
   }
 
   function productsFromSheetObjects(objects) {
@@ -1746,45 +1788,64 @@
     return groupRowsIntoProducts(flatRows);
   }
 
+  function parseWorkbookPayload(payload) {
+    if (payload.kind === "csv") {
+      return csvRowsToObjects(parseCsvText(payload.text));
+    }
+    var wb = window.XLSX.read(payload.buf, { type: "array" });
+    var sheet = wb.Sheets[wb.SheetNames[0]];
+    return window.XLSX.utils.sheet_to_json(sheet, { defval: "" });
+  }
+
+  function fetchAsSheetPayload(url) {
+    return fetch(url, { credentials: "omit", redirect: "follow" }).then(function (res) {
+      if (!res.ok) {
+        var err = new Error("HTTP " + res.status);
+        err.status = res.status;
+        err.url = url;
+        throw err;
+      }
+      var ctype = (res.headers.get("content-type") || "").toLowerCase();
+      if (ctype.indexOf("text/") === 0 || ctype.indexOf("csv") !== -1) {
+        return res.text().then(function (text) {
+          return { kind: "csv", text: text };
+        });
+      }
+      return res.arrayBuffer().then(function (buf) {
+        if (!buf || !buf.byteLength) {
+          var err2 = new Error("HTTP empty body");
+          err2.status = 204;
+          throw err2;
+        }
+        return { kind: "bin", buf: buf };
+      });
+    });
+  }
+
+  function tryFetchOneDriveCandidates(urls, idx) {
+    if (idx >= urls.length) {
+      return Promise.reject(new Error("HTTP 401"));
+    }
+    return fetchAsSheetPayload(urls[idx]).catch(function (err) {
+      console.warn("OneDrive candidate failed", urls[idx], err && err.message);
+      return tryFetchOneDriveCandidates(urls, idx + 1);
+    });
+  }
+
   function importFromOneDrive(shareUrl) {
     var statusEl = document.getElementById("msq-import-status") || document.getElementById("msq-sheet-status");
     if (statusEl) statusEl.textContent = "جاري جلب الملف من OneDrive...";
 
-    var contentUrl = oneDriveShareContentUrl(shareUrl);
-    if (!contentUrl) {
+    var candidates = buildOneDriveCandidateUrls(shareUrl);
+    if (!candidates.length) {
       alert("رابط OneDrive غير صالح.");
       return;
     }
 
     ensureSheetJS(function () {
-      fetch(contentUrl, { credentials: "omit", redirect: "follow" })
-        .then(function (res) {
-          if (!res.ok) {
-            throw new Error(
-              "HTTP " + res.status +
-              " — تأكد أن الملف مشارك «أي شخص لديه الرابط» وأنه ملف Excel أو CSV"
-            );
-          }
-          var ctype = (res.headers.get("content-type") || "").toLowerCase();
-          if (ctype.indexOf("text/") === 0 || ctype.indexOf("csv") !== -1) {
-            return res.text().then(function (text) {
-              return { kind: "csv", text: text };
-            });
-          }
-          return res.arrayBuffer().then(function (buf) {
-            return { kind: "bin", buf: buf };
-          });
-        })
+      tryFetchOneDriveCandidates(candidates, 0)
         .then(function (payload) {
-          var objects = [];
-          if (payload.kind === "csv") {
-            objects = csvRowsToObjects(parseCsvText(payload.text));
-          } else {
-            var wb = window.XLSX.read(payload.buf, { type: "array" });
-            var sheetName = wb.SheetNames[0];
-            var sheet = wb.Sheets[sheetName];
-            objects = window.XLSX.utils.sheet_to_json(sheet, { defval: "" });
-          }
+          var objects = parseWorkbookPayload(payload);
           var products = productsFromSheetObjects(objects);
           if (!products.length) {
             if (statusEl) statusEl.textContent = "مفيش منتجات صالحة في ملف OneDrive.";
@@ -1801,9 +1862,15 @@
           console.error(err);
           if (statusEl) statusEl.textContent = "فشل OneDrive: " + (err.message || err);
           alert(
-            "تعذر القراءة من OneDrive.\n\n" +
-            (err.message || err) +
-            "\n\nتأكد من:\n1) مشاركة الملف: أي شخص لديه الرابط\n2) الملف Excel أو CSV\n3) الرابط هو رابط المشاركة وليس رابط المجلد فقط"
+            "تعذر القراءة من OneDrive (غالبًا 401 = الرابط مش مفتوح للجميع).\n\n" +
+            "اعمل الآتي بالترتيب:\n" +
+            "1) افتح الملف على OneDrive\n" +
+            "2) مشاركة → الإعدادات → «أي شخص» (مش «أشخاص معيّنون»)\n" +
+            "3) الصلاحية: يمكن العرض\n" +
+            "4) انسخ رابط المشاركة الجديد والصقه هنا\n" +
+            "5) لازم يكون رابط الملف نفسه مش المجلد\n\n" +
+            "بديل أسهل وأثبت: ارفع نفس الشيت على Google Sheets واستورد من Google.\n" +
+            "أو: نزّل الملف من OneDrive واستخدم «رفع من الجهاز»."
           );
         });
     });
