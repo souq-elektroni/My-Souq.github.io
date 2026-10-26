@@ -689,13 +689,14 @@
   .msq-btn-delete {
     flex-shrink: 0;
     border: 1px solid #fecaca;
-    border-radius: 12px;
+    border-radius: 8px;
     background: #fef2f2;
     color: #b91c1c;
-    padding: 0 14px;
-    min-height: 44px;
+    padding: 6px 12px;
+    min-height: 0;
+    height: auto;
     font-weight: 800;
-    font-size: 13px;
+    font-size: 12px;
     cursor: pointer;
     white-space: nowrap;
   }
@@ -2328,19 +2329,17 @@
 
       '    <div class="msq-import-section">',
       '      <div class="msq-import-section-title">1️⃣ صور الكوليكشن (من جهازك — حتى لو JPG من تليجرام)</div>',
-      '      <div class="msq-images-row">',
-      '        <label class="msq-import-file-label msq-import-names-label msq-images-pick">',
-      '          <input type="file" id="msq-names-file" accept="image/*,.webp,.jpg,.jpeg,.png,.gif" multiple />',
-      '          <span>🖼️ اختر صور الكوليكشن يا مدير</span>',
-      '        </label>',
-      '        <button type="button" id="msq-names-clear" class="msq-btn-delete" title="مسح كل الصور المختارة">🗑️ حذف</button>',
-      '      </div>',
+      '      <label class="msq-import-file-label msq-import-names-label">',
+      '        <input type="file" id="msq-names-file" accept="image/*,.webp,.jpg,.jpeg,.png,.gif" multiple />',
+      '        <span>🖼️ اختر صور الكوليكشن يا مدير</span>',
+      '      </label>',
       '      <div id="msq-names-box" class="msq-names-box" style="display:none">',
       '        <div class="msq-names-head">',
-      '          <strong>أسماء WebP (للشيت) — مش JPG</strong>',
-      '          <div style="display:flex;gap:6px;flex-wrap:wrap">',
-      '            <button type="button" id="msq-names-copy">نسخ الأسماء WebP</button>',
-      '            <button type="button" id="msq-names-download" class="msq-btn-secondary">تحميل الصور WebP على الجهاز</button>',
+      '          <strong>الصور المختارة (WebP)</strong>',
+      '          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">',
+      '            <button type="button" id="msq-names-copy">نسخ الأسماء</button>',
+      '            <button type="button" id="msq-names-download" class="msq-btn-secondary">تحميل WebP</button>',
+      '            <button type="button" id="msq-names-clear" class="msq-btn-delete" title="مسح كل الصور المختارة">🗑️ حذف الكل</button>',
       '          </div>',
       '        </div>',
       '        <div id="msq-thumbs" class="msq-thumbs"></div>',
