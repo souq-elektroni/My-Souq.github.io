@@ -642,6 +642,40 @@
     resize: vertical;
     background: #fff;
   }
+  .msq-import-section {
+    margin: 12px 0;
+    padding: 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+  }
+  .msq-import-section-title {
+    font-weight: 800;
+    font-size: 13px;
+    color: #0f766e;
+    margin-bottom: 10px;
+  }
+  .msq-btn-green, .msq-btn-teal, .msq-btn-blue, .msq-btn-secondary, .msq-btn-link {
+    border: 0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-weight: 800;
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+  .msq-btn-green { background: #16a34a; color: #fff; }
+  .msq-btn-teal { background: #0f766e; color: #fff; }
+  .msq-btn-blue { background: #1d4ed8; color: #fff; }
+  .msq-btn-secondary { background: #0284c7; color: #fff; }
+  .msq-btn-link {
+    background: #fff;
+    color: #0f766e;
+    border: 1px solid #99f6e4;
+  }
+  #msq-names-download { background: #0284c7; color: #fff; border: 0; border-radius: 8px; padding: 6px 12px; font-weight: 800; font-size: 12px; cursor: pointer; }
 </style>
 
   </head>
@@ -1121,16 +1155,18 @@
     var importBtn = document.createElement("button");
     importBtn.id = "my-souq-import-btn";
     importBtn.type = "button";
-    importBtn.textContent = "📥 استيراد";
-    importBtn.title = "استيراد منتجات بشكل جماعي من ملف Excel أو CSV";
+    importBtn.textContent = "📥 استيراد جوجل";
+    importBtn.title = "استيراد من شيت Google أو ملف على الجهاز + صور الكوليكشن";
     importBtn.setAttribute("aria-pressed", "false");
 
+    /* زر الشيت القديم اتشال — كله اتدمج في «استيراد جوجل» */
     var excelBtn = document.createElement("button");
     excelBtn.id = "my-souq-excel-btn";
     excelBtn.type = "button";
     excelBtn.textContent = "📗 شيت";
-    excelBtn.title = "فتح شيت Google على الشبكة وإضافة المنتجات ثم الاستيراد مباشرة";
+    excelBtn.title = "فتح شيت Google المرتبط";
     excelBtn.setAttribute("aria-pressed", "false");
+    excelBtn.style.display = "none";
 
     var preview = document.createElement("button");
     preview.id = "my-souq-preview-btn";
@@ -2181,54 +2217,86 @@
   }
 
   function openImportModal() {
-    if (document.getElementById("my-souq-import-modal")) {
-      document.getElementById("my-souq-import-modal").style.display = "flex";
+    var existing = document.getElementById("my-souq-import-modal");
+    if (existing) {
+      existing.style.display = "flex";
+      var urlInp = document.getElementById("msq-sheet-url");
+      if (urlInp) urlInp.value = getSavedSheetUrl();
       return;
     }
 
+    var savedSheet = getSavedSheetUrl();
     var overlay = document.createElement("div");
     overlay.id = "my-souq-import-modal";
     overlay.setAttribute("role", "dialog");
     overlay.setAttribute("aria-modal", "true");
-    overlay.setAttribute("aria-label", "استيراد منتجات من Excel أو CSV");
+    overlay.setAttribute("aria-label", "استيراد جوجل");
 
     overlay.innerHTML = [
       '<div class="msq-import-box msq-import-box-wide">',
       '  <div class="msq-import-head">',
-      '    <strong>📥 استيراد منتجات من Excel / CSV</strong>',
+      '    <strong>📥 استيراد جوجل</strong>',
       '    <button type="button" id="msq-import-close" title="إغلاق">×</button>',
       '  </div>',
       '  <div class="msq-import-body">',
-      '    <p class="msq-import-note">الأفضل: استخدم زر <b>شيت Google</b> في الشريط أعلاه — الشيت على الشبكة والاستيراد منه مباشرة.<br>أو ارفع ملف Excel/CSV من جهازك هنا كخيار احتياطي + الصور.</p>',
-      '    <div class="msq-import-tools">',
-      '      <label class="msq-import-file-label msq-import-file-label-half">',
-      '        <input type="file" id="msq-import-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" />',
-      '        <span>📄 رفع ملف Excel / CSV (احتياطي)</span>',
-      '      </label>',
-      '      <label class="msq-import-file-label msq-import-file-label-half msq-import-names-label">',
+      '    <p class="msq-import-note">نافذة واحدة: صور الكوليكشن + بيانات من <b>شيت Google</b> أو ملف على الجهاز.</p>',
+
+      '    <div class="msq-import-section">',
+      '      <div class="msq-import-section-title">1️⃣ صور الكوليكشن (من جهازك — حتى لو JPG من تليجرام)</div>',
+      '      <label class="msq-import-file-label msq-import-names-label">',
       '        <input type="file" id="msq-names-file" accept="image/*,.webp,.jpg,.jpeg,.png,.gif" multiple />',
-      '        <span>🖼️ اختر صور الكوليكشن من جهازك</span>',
+      '        <span>🖼️ اختر صور الكوليكشن يا مدير</span>',
       '      </label>',
-      '    </div>',
-      '    <div id="msq-import-file-name" class="msq-import-file-name"></div>',
-      '    <div id="msq-names-box" class="msq-names-box" style="display:none">',
-      '      <div class="msq-names-head">',
-      '        <strong>الصور المختارة — هتترفع مع الاستيراد · انسخ الأسماء لعمود الصور</strong>',
-      '        <button type="button" id="msq-names-copy">نسخ الأسماء</button>',
+      '      <div id="msq-names-box" class="msq-names-box" style="display:none">',
+      '        <div class="msq-names-head">',
+      '          <strong>أسماء WebP (للشيت) — مش JPG</strong>',
+      '          <div style="display:flex;gap:6px;flex-wrap:wrap">',
+      '            <button type="button" id="msq-names-copy">نسخ الأسماء WebP</button>',
+      '            <button type="button" id="msq-names-download" class="msq-btn-secondary">تحميل الصور WebP على الجهاز</button>',
+      '          </div>',
+      '        </div>',
+      '        <textarea id="msq-names-text" class="msq-names-text" readonly rows="5"></textarea>',
+      '        <p style="margin:6px 0 0;font-size:11px;color:#0369a1;line-height:1.5">الصق الأسماء دي في عمود الصور في الشيت. تقدر كمان تحمّل الملفات WebP على جهازك عشان الأسماء تطابق الملفات.</p>',
       '      </div>',
-      '      <textarea id="msq-names-text" class="msq-names-text" readonly rows="6"></textarea>',
       '    </div>',
+
+      '    <div class="msq-import-section">',
+      '      <div class="msq-import-section-title">2️⃣ البيانات — شيت Google (مستحسن)</div>',
+      '      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">',
+      '        <button type="button" id="msq-open-sheet" class="msq-btn-green">فتح الشيت الثابت</button>',
+      '        <a href="MySouq-Import-Template.csv" download class="msq-btn-link">قالب CSV</a>',
+      '        <a href="MySouq-Import-Template.xlsx" download class="msq-btn-link">قالب Excel</a>',
+      '      </div>',
+      '      <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px;color:#166534">رابط شيت Google</label>',
+      '      <input id="msq-sheet-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/...." style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #86efac;border-radius:10px;font-size:12px;direction:ltr;text-align:left;margin-bottom:8px" />',
+      '      <div style="display:flex;gap:8px;flex-wrap:wrap">',
+      '        <button type="button" id="msq-sheet-save" class="msq-btn-teal">حفظ وربط الشيت</button>',
+      '        <button type="button" id="msq-sheet-import" class="msq-btn-blue">استيراد من شيت Google</button>',
+      '      </div>',
+      '    </div>',
+
+      '    <div class="msq-import-section">',
+      '      <div class="msq-import-section-title">أو — ملف على الجهاز</div>',
+      '      <label class="msq-import-file-label">',
+      '        <input type="file" id="msq-import-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" />',
+      '        <span>📄 رفع Excel / CSV من الجهاز</span>',
+      '      </label>',
+      '      <div id="msq-import-file-name" class="msq-import-file-name"></div>',
+      '    </div>',
+
       '    <div id="msq-import-status" class="msq-import-status"></div>',
       '    <div id="msq-import-preview" class="msq-import-preview"></div>',
       '  </div>',
       '  <div class="msq-import-foot">',
-      '    <button type="button" id="msq-import-cancel">إلغاء</button>',
-      '    <button type="button" id="msq-import-start" disabled>بدء الاستيراد</button>',
+      '    <button type="button" id="msq-import-cancel">إغلاق</button>',
+      '    <button type="button" id="msq-import-start" disabled>بدء الاستيراد (من الملف)</button>',
       '  </div>',
       '</div>'
     ].join("");
 
     document.body.appendChild(overlay);
+    var urlInput = document.getElementById("msq-sheet-url");
+    urlInput.value = savedSheet;
 
     function closeModal() {
       overlay.style.display = "none";
@@ -2240,6 +2308,38 @@
       if (e.target === overlay) closeModal();
     });
 
+    document.getElementById("msq-sheet-save").addEventListener("click", function () {
+      var v = (urlInput.value || "").trim();
+      if (v && !extractGoogleSheetId(v)) {
+        document.getElementById("msq-import-status").textContent = "رابط Google Sheets غير صالح.";
+        return;
+      }
+      setSavedSheetUrl(v);
+      document.getElementById("msq-import-status").textContent = v
+        ? "تم ربط الشيت ✓ — هيتفتح بنفس الرابط كل مرة."
+        : "تم مسح الربط.";
+    });
+
+    document.getElementById("msq-open-sheet").addEventListener("click", function () {
+      var v = (urlInput.value || "").trim() || getSavedSheetUrl();
+      if (v && extractGoogleSheetId(v)) {
+        setSavedSheetUrl(v);
+        window.open(v, "_blank", "noopener,noreferrer");
+      } else {
+        document.getElementById("msq-import-status").textContent = "احفظ رابط الشيت أولاً.";
+      }
+    });
+
+    document.getElementById("msq-sheet-import").addEventListener("click", function () {
+      var v = (urlInput.value || "").trim() || getSavedSheetUrl();
+      if (!v || !extractGoogleSheetId(v)) {
+        document.getElementById("msq-import-status").textContent = "الصق رابط الشيت واحفظه أولاً.";
+        return;
+      }
+      setSavedSheetUrl(v);
+      importFromGoogleSheet(v);
+    });
+
     document.getElementById("msq-import-file").addEventListener("change", function (e) {
       var file = e.target.files && e.target.files[0];
       if (file) {
@@ -2249,7 +2349,7 @@
         document.getElementById("msq-import-status").textContent = "";
         document.getElementById("msq-import-preview").innerHTML = "";
         document.getElementById("msq-import-start").disabled = true;
-        document.getElementById("msq-import-start").textContent = "بدء الاستيراد";
+        document.getElementById("msq-import-start").textContent = "بدء الاستيراد (من الملف)";
         __msqImportParsedRows = [];
       }
     });
@@ -2259,28 +2359,32 @@
       var box = document.getElementById("msq-names-box");
       var ta = document.getElementById("msq-names-text");
       __msqImportImageFiles = {};
+      __msqImageSavedNames = {};
       if (!files || !files.length) {
         box.style.display = "none";
         ta.value = "";
         return;
       }
-      var names = [];
+      var webpNames = [];
       for (var i = 0; i < files.length; i++) {
         var f = files[i];
-        names.push(f.name);
+        var webpName = toWebpFileName(f.name);
+        webpNames.push(webpName);
         __msqImportImageFiles[f.name] = f;
-        /* أيضًا بالمفتاح بدون مسافات زائدة وبحالة صغيرة للمطابقة المرنة */
         __msqImportImageFiles[f.name.toLowerCase()] = f;
+        __msqImportImageFiles[webpName] = f;
+        __msqImportImageFiles[webpName.toLowerCase()] = f;
+        __msqImageSavedNames[f.name] = webpName;
+        __msqImageSavedNames[f.name.toLowerCase()] = webpName;
+        __msqImageSavedNames[webpName] = webpName;
       }
-      names.sort(function (a, b) {
+      webpNames.sort(function (a, b) {
         return a.localeCompare(b, "ar", { numeric: true, sensitivity: "base" });
       });
-      ta.value = names.join("\n");
+      ta.value = webpNames.join("\n");
       box.style.display = "block";
-      var statusEl = document.getElementById("msq-import-status");
-      if (statusEl) {
-        statusEl.textContent = "تم اختيار " + names.length + " صورة — هتترفع مع الاستيراد وتتنسخ أسماؤها تحت.";
-      }
+      document.getElementById("msq-import-status").textContent =
+        "تم اختيار " + webpNames.length + " صورة — الأسماء معروضة بصيغة WebP للصقها في الشيت.";
     });
 
     document.getElementById("msq-names-copy").addEventListener("click", function () {
@@ -2302,10 +2406,65 @@
       }
     });
 
+    document.getElementById("msq-names-download").addEventListener("click", function () {
+      downloadSelectedImagesAsWebp();
+    });
+
     document.getElementById("msq-import-start").addEventListener("click", function () {
       if (!__msqImportParsedRows.length) return;
       startGitHubImport(__msqImportParsedRows);
     });
+  }
+
+  function downloadSelectedImagesAsWebp() {
+    var keys = Object.keys(__msqImportImageFiles);
+    var files = [];
+    var seen = {};
+    keys.forEach(function (k) {
+      var f = __msqImportImageFiles[k];
+      if (f && f.name && !seen[f.name]) {
+        seen[f.name] = true;
+        files.push(f);
+      }
+    });
+    if (!files.length) {
+      alert("اختَر الصور أولاً.");
+      return;
+    }
+    var statusEl = document.getElementById("msq-import-status");
+    if (statusEl) statusEl.textContent = "جاري تحويل الصور إلى WebP وتحميلها...";
+
+    var i = 0;
+    function next() {
+      if (i >= files.length) {
+        if (statusEl) {
+          statusEl.textContent = "تم تحميل " + files.length + " صورة WebP على جهازك. الصق الأسماء في الشيت.";
+        }
+        return;
+      }
+      var file = files[i++];
+      convertImageFileToWebp(file, 0.82)
+        .then(function (converted) {
+          var bin = atob(converted.base64);
+          var arr = new Uint8Array(bin.length);
+          for (var j = 0; j < bin.length; j++) arr[j] = bin.charCodeAt(j);
+          var blob = new Blob([arr], { type: "image/webp" });
+          var url = URL.createObjectURL(blob);
+          var a = document.createElement("a");
+          a.href = url;
+          a.download = converted.name;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+          return new Promise(function (r) { setTimeout(r, 350); });
+        })
+        .catch(function (err) {
+          console.error(err);
+        })
+        .then(next);
+    }
+    next();
   }
 
   /* ---------- الخطوة 3: الكتابة على GitHub ---------- */
