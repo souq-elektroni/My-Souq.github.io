@@ -1510,10 +1510,24 @@
     "sizes": "sizes",
     "المقاسات": "sizes",
     "مقاسات": "sizes",
-    "مقاس": "sizes",
-    "المقاس": "sizes",
+    "مقاس": "size",
+    "المقاس": "size",
     "variants": "sizes",
-    "size": "sizes",
+    "size": "size",
+    "طول البنطلون": "pants_length",
+    "pants_length": "pants_length",
+    "بنطلون": "pants_length",
+    "عرض التيشيرت": "tshirt_width",
+    "عرض التيشرت": "tshirt_width",
+    "tshirt_width": "tshirt_width",
+    "طول التيشيرت": "tshirt_length",
+    "طول التيشرت": "tshirt_length",
+    "tshirt_length": "tshirt_length",
+    "القطعة الإضافية": "extra_piece",
+    "القطعه الاضافيه": "extra_piece",
+    "قطعة إضافية": "extra_piece",
+    "extra_piece": "extra_piece",
+    "extra": "extra_piece",
     "images": "images",
     "الصور": "images",
     "صور": "images",
@@ -1561,7 +1575,12 @@
       price: 0,
       oldPrice: null,
       stock: "available",
+      size: "",
       sizes: "",
+      pants_length: "",
+      tshirt_width: "",
+      tshirt_length: "",
+      extra_piece: "",
       images: "",
       body: "",
       _raw: raw
@@ -1590,6 +1609,71 @@
       }
     });
     return out;
+  }
+
+  /* تجميع صفوف الإكسل: نفس اسم المنتج = منتج واحد بعدة مقاسات */
+  function groupRowsIntoProducts(flatRows) {
+    var order = [];
+    var map = {};
+    flatRows.forEach(function (row) {
+      var title = String(row.title || "").trim();
+      if (!title) return;
+      if (!map[title]) {
+        map[title] = {
+          title: title,
+          category: row.category || "Kids",
+          subcategory: row.subcategory || "ملابس للمنزل",
+          price: row.price || 0,
+          oldPrice: row.oldPrice,
+          stock: row.stock || "available",
+          images: row.images || "",
+          body: row.body || "",
+          sizes: row.sizes || "",
+          variantRows: []
+        };
+        order.push(title);
+      }
+      var prod = map[title];
+      /* خذ أول قيم غير فارغة للحقول العامة */
+      if (!prod.images && row.images) prod.images = row.images;
+      if (!prod.body && row.body) prod.body = row.body;
+      if ((!prod.price || prod.price === 0) && row.price) prod.price = row.price;
+      if (prod.oldPrice == null && row.oldPrice != null) prod.oldPrice = row.oldPrice;
+      if (row.category) prod.category = row.category;
+      if (row.subcategory) prod.subcategory = row.subcategory;
+      if (row.stock) prod.stock = row.stock;
+      if (row.sizes) prod.sizes = row.sizes;
+
+      var sizeLabel = normalizeSizeLabel(row.size || "");
+      /* دعم العمود القديم «المقاسات» لو مفيش عمود مقاس منفصل */
+      if (!sizeLabel && row.sizes) {
+        /* هتتعالج لاحقًا من parseSizesText */
+        return;
+      }
+      if (!sizeLabel) return;
+
+      prod.variantRows.push({
+        size: sizeLabel,
+        color: "",
+        price: null,
+        quantity: 0,
+        pants_length: row.pants_length || "",
+        tshirt_length: row.tshirt_length || "",
+        tshirt_width: row.tshirt_width || "",
+        extra_piece: row.extra_piece || "",
+        status: "available"
+      });
+    });
+
+    return order.map(function (title) {
+      var p = map[title];
+      /* لو مفيش صفوف مقاس منفصلة لكن في عمود المقاسات المختصر القديم */
+      if (!p.variantRows.length && p.sizes) {
+        p.variantRows = parseSizesText(p.sizes);
+      }
+      p.variants = p.variantRows;
+      return p;
+    });
   }
 
   function normalizeSizeLabel(raw) {
@@ -1723,8 +1807,9 @@
       '</tr></thead><tbody>'
     ];
     rows.forEach(function (r, i) {
-      var sizesCount = parseSizesText(r.sizes).length;
+      var sizesCount = (r.variants && r.variants.length) || parseSizesText(r.sizes).length || 0;
       var imgsCount = parseImagesText(r.images).length;
+      var sizePreview = (r.variants || []).map(function (v) { return v.size; }).filter(Boolean).slice(0, 6).join("، ");
       html.push(
         "<tr>" +
         "<td>" + (i + 1) + "</td>" +
@@ -1734,7 +1819,7 @@
         "<td>" + (r.price || "—") + "</td>" +
         "<td>" + (r.oldPrice != null ? r.oldPrice : "—") + "</td>" +
         "<td>" + (r.stock === "out" ? "نفد" : r.stock === "low" ? "قليل" : "متوفر") + "</td>" +
-        "<td>" + (sizesCount ? sizesCount + " مقاس" : "—") + "</td>" +
+        "<td title=\"" + escapeHtml(sizePreview) + "\">" + (sizesCount ? sizesCount + " مقاس" : "—") + "</td>" +
         "<td>" + (imgsCount ? imgsCount + " صورة" : "—") + "</td>" +
         "</tr>"
       );
@@ -1776,13 +1861,17 @@
             renderImportPreview([]);
             return;
           }
-          var rows = json.map(mapRow).filter(function (r) {
+          var flatRows = json.map(mapRow).filter(function (r) {
             return r.title && String(r.title).trim().length > 0;
           });
+          var rows = groupRowsIntoProducts(flatRows);
           __msqImportParsedRows = rows;
           renderImportPreview(rows);
           if (rows.length) {
-            statusEl.textContent = "جاهز للاستيراد — " + rows.length + " منتج.";
+            var varCount = rows.reduce(function (n, p) {
+              return n + ((p.variants && p.variants.length) || 0);
+            }, 0);
+            statusEl.textContent = "جاهز للاستيراد — " + rows.length + " منتج / " + varCount + " مقاس.";
             startBtn.disabled = false;
             startBtn.textContent = "بدء الاستيراد (" + rows.length + ")";
           } else {
@@ -2005,7 +2094,9 @@
   }
 
   function buildMarkdown(row) {
-    var variants = parseSizesText(row.sizes);
+    var variants = (row.variants && row.variants.length)
+      ? row.variants
+      : parseSizesText(row.sizes);
     var images = parseImagesText(row.images);
     var lines = ["---"];
     lines.push("title: " + yamlQuote(row.title));
