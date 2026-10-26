@@ -676,6 +676,91 @@
     border: 1px solid #99f6e4;
   }
   #msq-names-download { background: #0284c7; color: #fff; border: 0; border-radius: 8px; padding: 6px 12px; font-weight: 800; font-size: 12px; cursor: pointer; }
+  .msq-images-row {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    direction: rtl;
+  }
+  .msq-images-pick {
+    flex: 1;
+    min-width: 0;
+  }
+  .msq-btn-delete {
+    flex-shrink: 0;
+    border: 1px solid #fecaca;
+    border-radius: 12px;
+    background: #fef2f2;
+    color: #b91c1c;
+    padding: 0 14px;
+    min-height: 44px;
+    font-weight: 800;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .msq-btn-delete:hover {
+    background: #fee2e2;
+    border-color: #f87171;
+  }
+  .msq-thumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 8px 0 10px;
+    max-height: 220px;
+    overflow-y: auto;
+    direction: rtl;
+  }
+  .msq-thumb {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #bae6fd;
+    background: #e0f2fe;
+    flex-shrink: 0;
+  }
+  .msq-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .msq-thumb-name {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.72);
+    color: #fff;
+    font-size: 8px;
+    line-height: 1.2;
+    padding: 2px 3px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    direction: ltr;
+  }
+  .msq-thumb-x {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(185, 28, 28, 0.92);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+  }
+  .msq-thumb-x:hover { background: #991b1b; }
 </style>
 
   </head>
@@ -2243,10 +2328,13 @@
 
       '    <div class="msq-import-section">',
       '      <div class="msq-import-section-title">1️⃣ صور الكوليكشن (من جهازك — حتى لو JPG من تليجرام)</div>',
-      '      <label class="msq-import-file-label msq-import-names-label">',
-      '        <input type="file" id="msq-names-file" accept="image/*,.webp,.jpg,.jpeg,.png,.gif" multiple />',
-      '        <span>🖼️ اختر صور الكوليكشن يا مدير</span>',
-      '      </label>',
+      '      <div class="msq-images-row">',
+      '        <label class="msq-import-file-label msq-import-names-label msq-images-pick">',
+      '          <input type="file" id="msq-names-file" accept="image/*,.webp,.jpg,.jpeg,.png,.gif" multiple />',
+      '          <span>🖼️ اختر صور الكوليكشن يا مدير</span>',
+      '        </label>',
+      '        <button type="button" id="msq-names-clear" class="msq-btn-delete" title="مسح كل الصور المختارة">🗑️ حذف</button>',
+      '      </div>',
       '      <div id="msq-names-box" class="msq-names-box" style="display:none">',
       '        <div class="msq-names-head">',
       '          <strong>أسماء WebP (للشيت) — مش JPG</strong>',
@@ -2255,8 +2343,9 @@
       '            <button type="button" id="msq-names-download" class="msq-btn-secondary">تحميل الصور WebP على الجهاز</button>',
       '          </div>',
       '        </div>',
-      '        <textarea id="msq-names-text" class="msq-names-text" readonly rows="5"></textarea>',
-      '        <p style="margin:6px 0 0;font-size:11px;color:#0369a1;line-height:1.5">الصق الأسماء دي في عمود الصور في الشيت. تقدر كمان تحمّل الملفات WebP على جهازك عشان الأسماء تطابق الملفات.</p>',
+      '        <div id="msq-thumbs" class="msq-thumbs"></div>',
+      '        <textarea id="msq-names-text" class="msq-names-text" readonly rows="4"></textarea>',
+      '        <p style="margin:6px 0 0;font-size:11px;color:#0369a1;line-height:1.5">معاينة الصور فوق. الأسماء WebP للصقها في الشيت. الضغط عند الرفع: حد أقصى تقريبًا 1000px وجودة مضغوطة.</p>',
       '      </div>',
       '    </div>',
 
@@ -2356,35 +2445,16 @@
 
     document.getElementById("msq-names-file").addEventListener("change", function (e) {
       var files = e.target.files;
-      var box = document.getElementById("msq-names-box");
-      var ta = document.getElementById("msq-names-text");
-      __msqImportImageFiles = {};
-      __msqImageSavedNames = {};
       if (!files || !files.length) {
-        box.style.display = "none";
-        ta.value = "";
+        clearSelectedImportImages();
         return;
       }
-      var webpNames = [];
-      for (var i = 0; i < files.length; i++) {
-        var f = files[i];
-        var webpName = toWebpFileName(f.name);
-        webpNames.push(webpName);
-        __msqImportImageFiles[f.name] = f;
-        __msqImportImageFiles[f.name.toLowerCase()] = f;
-        __msqImportImageFiles[webpName] = f;
-        __msqImportImageFiles[webpName.toLowerCase()] = f;
-        __msqImageSavedNames[f.name] = webpName;
-        __msqImageSavedNames[f.name.toLowerCase()] = webpName;
-        __msqImageSavedNames[webpName] = webpName;
-      }
-      webpNames.sort(function (a, b) {
-        return a.localeCompare(b, "ar", { numeric: true, sensitivity: "base" });
-      });
-      ta.value = webpNames.join("\n");
-      box.style.display = "block";
-      document.getElementById("msq-import-status").textContent =
-        "تم اختيار " + webpNames.length + " صورة — الأسماء معروضة بصيغة WebP للصقها في الشيت.";
+      /* إضافة للصور الحالية (مش استبدال كامل لو حابب — هنا استبدال من الـ input) */
+      __msqImportImageFiles = {};
+      __msqImageSavedNames = {};
+      var list = [];
+      for (var i = 0; i < files.length; i++) list.push(files[i]);
+      registerImportImageFiles(list);
     });
 
     document.getElementById("msq-names-copy").addEventListener("click", function () {
@@ -2410,10 +2480,139 @@
       downloadSelectedImagesAsWebp();
     });
 
+    document.getElementById("msq-names-clear").addEventListener("click", function () {
+      clearSelectedImportImages();
+    });
+
     document.getElementById("msq-import-start").addEventListener("click", function () {
       if (!__msqImportParsedRows.length) return;
       startGitHubImport(__msqImportParsedRows);
     });
+  }
+
+  function getUniqueImportFiles() {
+    var seen = {};
+    var list = [];
+    Object.keys(__msqImportImageFiles).forEach(function (k) {
+      var f = __msqImportImageFiles[k];
+      if (f && f.name && !seen[f.name]) {
+        seen[f.name] = true;
+        list.push(f);
+      }
+    });
+    return list;
+  }
+
+  function registerImportImageFiles(fileList) {
+    fileList.forEach(function (f) {
+      if (!f || !f.name) return;
+      var webpName = toWebpFileName(f.name);
+      __msqImportImageFiles[f.name] = f;
+      __msqImportImageFiles[f.name.toLowerCase()] = f;
+      __msqImportImageFiles[webpName] = f;
+      __msqImportImageFiles[webpName.toLowerCase()] = f;
+      __msqImageSavedNames[f.name] = webpName;
+      __msqImageSavedNames[f.name.toLowerCase()] = webpName;
+      __msqImageSavedNames[webpName] = webpName;
+    });
+    refreshImportImagesUI();
+  }
+
+  function removeOneImportImage(originalName) {
+    var webpName = toWebpFileName(originalName);
+    delete __msqImportImageFiles[originalName];
+    delete __msqImportImageFiles[String(originalName).toLowerCase()];
+    delete __msqImportImageFiles[webpName];
+    delete __msqImportImageFiles[webpName.toLowerCase()];
+    delete __msqImageSavedNames[originalName];
+    delete __msqImageSavedNames[String(originalName).toLowerCase()];
+    delete __msqImageSavedNames[webpName];
+    var input = document.getElementById("msq-names-file");
+    if (input) input.value = "";
+    refreshImportImagesUI();
+  }
+
+  function refreshImportImagesUI() {
+    var box = document.getElementById("msq-names-box");
+    var ta = document.getElementById("msq-names-text");
+    var thumbs = document.getElementById("msq-thumbs");
+    var statusEl = document.getElementById("msq-import-status");
+    var files = getUniqueImportFiles();
+
+    if (!files.length) {
+      if (box) box.style.display = "none";
+      if (ta) ta.value = "";
+      if (thumbs) thumbs.innerHTML = "";
+      if (statusEl) statusEl.textContent = "مفيش صور مختارة.";
+      return;
+    }
+
+    var webpNames = files.map(function (f) { return toWebpFileName(f.name); });
+    webpNames.sort(function (a, b) {
+      return a.localeCompare(b, "ar", { numeric: true, sensitivity: "base" });
+    });
+    if (ta) ta.value = webpNames.join("\n");
+    if (box) box.style.display = "block";
+    renderImportThumbs(files);
+    if (statusEl) {
+      statusEl.textContent =
+        "تم اختيار " + files.length + " صورة — راجع المعاينة. الأسماء WebP جاهزة للنسخ.";
+    }
+  }
+
+  function renderImportThumbs(files) {
+    var thumbs = document.getElementById("msq-thumbs");
+    if (!thumbs) return;
+    thumbs.innerHTML = "";
+    files.forEach(function (f) {
+      var webpName = toWebpFileName(f.name);
+      var card = document.createElement("div");
+      card.className = "msq-thumb";
+      var img = document.createElement("img");
+      img.alt = webpName;
+      img.src = URL.createObjectURL(f);
+      img.onload = function () {
+        /* نسيب الـ URL لحد المسح — هيتنضف مع clear */
+      };
+      var cap = document.createElement("div");
+      cap.className = "msq-thumb-name";
+      cap.textContent = webpName;
+      var x = document.createElement("button");
+      x.type = "button";
+      x.className = "msq-thumb-x";
+      x.title = "حذف هذه الصورة";
+      x.textContent = "×";
+      x.addEventListener("click", function (ev) {
+        ev.preventDefault();
+        ev.stopPropagation();
+        try { URL.revokeObjectURL(img.src); } catch (e) {}
+        removeOneImportImage(f.name);
+      });
+      card.appendChild(img);
+      card.appendChild(cap);
+      card.appendChild(x);
+      thumbs.appendChild(card);
+    });
+  }
+
+  function clearSelectedImportImages() {
+    var thumbs = document.getElementById("msq-thumbs");
+    if (thumbs) {
+      thumbs.querySelectorAll("img").forEach(function (img) {
+        try { URL.revokeObjectURL(img.src); } catch (e) {}
+      });
+      thumbs.innerHTML = "";
+    }
+    __msqImportImageFiles = {};
+    __msqImageSavedNames = {};
+    var input = document.getElementById("msq-names-file");
+    if (input) input.value = "";
+    var box = document.getElementById("msq-names-box");
+    var ta = document.getElementById("msq-names-text");
+    if (box) box.style.display = "none";
+    if (ta) ta.value = "";
+    var statusEl = document.getElementById("msq-import-status");
+    if (statusEl) statusEl.textContent = "تم مسح الصور المختارة — اختَر صور جديدة لو حابب.";
   }
 
   function downloadSelectedImagesAsWebp() {
@@ -2443,7 +2642,7 @@
         return;
       }
       var file = files[i++];
-      convertImageFileToWebp(file, 0.82)
+      convertImageFileToWebp(file)
         .then(function (converted) {
           var bin = atob(converted.base64);
           var arr = new Uint8Array(bin.length);
@@ -2687,49 +2886,75 @@
       .replace(/^-|-$/g, "") + ".webp";
   }
 
-  /* تحويل أي صورة إلى WebP عبر Canvas قبل الرفع */
+  /*
+    تحويل أي صورة إلى WebP مضغوط قبل الرفع/التحميل
+    - أقصى ضلع: 1000px
+    - جودة تبدأ من ~0.72 وتنزل لو الملف كبير
+    - هدف الحجم ≈ 200KB لكل صورة
+  */
   function convertImageFileToWebp(file, quality) {
-    quality = quality == null ? 0.82 : quality;
-    return new Promise(function (resolve, reject) {
-      /* لو الملف WebP بالفعل ومش محتاجين إعادة ترميز كبيرة */
-      if (/\.webp$/i.test(file.name) && file.type === "image/webp") {
-        fileToBase64(file).then(function (b64) {
-          resolve({ name: file.name, base64: b64 });
-        }).catch(reject);
-        return;
-      }
+    var startQuality = quality == null ? 0.72 : quality;
+    var maxSide = 1000;
+    var maxBytes = 200 * 1024;
 
+    return new Promise(function (resolve, reject) {
       var url = URL.createObjectURL(file);
       var img = new Image();
       img.onload = function () {
         try {
-          var maxSide = 1400;
-          var w = img.naturalWidth || img.width;
-          var h = img.naturalHeight || img.height;
-          var scale = 1;
-          if (w > maxSide || h > maxSide) {
-            scale = maxSide / Math.max(w, h);
+          var w0 = img.naturalWidth || img.width || 1;
+          var h0 = img.naturalHeight || img.height || 1;
+
+          function encode(side, q) {
+            var scale = 1;
+            if (w0 > side || h0 > side) scale = side / Math.max(w0, h0);
+            var cw = Math.max(1, Math.round(w0 * scale));
+            var ch = Math.max(1, Math.round(h0 * scale));
+            var canvas = document.createElement("canvas");
+            canvas.width = cw;
+            canvas.height = ch;
+            var ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, cw, ch);
+            ctx.drawImage(img, 0, 0, cw, ch);
+            var dataUrl = canvas.toDataURL("image/webp", q);
+            if (!dataUrl || dataUrl.indexOf("image/webp") === -1) return null;
+            var base64 = dataUrl.split(",")[1] || "";
+            var bytes = Math.floor((base64.length * 3) / 4);
+            return { base64: base64, bytes: bytes, w: cw, h: ch };
           }
-          var cw = Math.max(1, Math.round(w * scale));
-          var ch = Math.max(1, Math.round(h * scale));
-          var canvas = document.createElement("canvas");
-          canvas.width = cw;
-          canvas.height = ch;
-          var ctx = canvas.getContext("2d");
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, cw, ch);
-          ctx.drawImage(img, 0, 0, cw, ch);
-          var dataUrl = canvas.toDataURL("image/webp", quality);
-          URL.revokeObjectURL(url);
-          if (!dataUrl || dataUrl.indexOf("image/webp") === -1) {
-            /* المتصفح لا يدعم WebP export → ارفع الأصل */
+
+          var side = maxSide;
+          var q = startQuality;
+          var best = encode(side, q);
+
+          if (!best) {
+            URL.revokeObjectURL(url);
             fileToBase64(file).then(function (b64) {
               resolve({ name: file.name, base64: b64 });
             }).catch(reject);
             return;
           }
-          var base64 = dataUrl.split(",")[1] || "";
-          resolve({ name: toWebpFileName(file.name), base64: base64 });
+
+          /* لو لسه كبير: صغّر الضلع والجودة تدريجيًا */
+          var guard = 0;
+          while (best.bytes > maxBytes && guard < 6) {
+            guard += 1;
+            if (side > 700) side = Math.round(side * 0.85);
+            else q = Math.max(0.45, q - 0.08);
+            var next = encode(side, q);
+            if (!next) break;
+            best = next;
+          }
+
+          URL.revokeObjectURL(url);
+          resolve({
+            name: toWebpFileName(file.name),
+            base64: best.base64,
+            bytes: best.bytes,
+            width: best.w,
+            height: best.h
+          });
         } catch (err) {
           URL.revokeObjectURL(url);
           reject(err);
@@ -2771,7 +2996,7 @@
   }
 
   function uploadOneImage(token, file) {
-    return convertImageFileToWebp(file, 0.82).then(function (converted) {
+    return convertImageFileToWebp(file).then(function (converted) {
       var path = "images/products/" + converted.name;
       return createOrUpdateBinaryFile(
         token,
