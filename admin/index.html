@@ -1458,6 +1458,8 @@
   var __msqImportParsedRows = [];
   /* ملفات الصور المختارة من الجهاز: الاسم → File */
   var __msqImportImageFiles = {};
+  /* بعد التحويل لـ WebP: الاسم الأصلي → الاسم المحفوظ */
+  var __msqImageSavedNames = {};
 
   function ensureSheetJS(callback) {
     if (window.XLSX) {
@@ -1507,7 +1509,11 @@
     "حالة المخزون": "stock",
     "sizes": "sizes",
     "المقاسات": "sizes",
+    "مقاسات": "sizes",
+    "مقاس": "sizes",
+    "المقاس": "sizes",
     "variants": "sizes",
+    "size": "sizes",
     "images": "images",
     "الصور": "images",
     "صور": "images",
@@ -1525,14 +1531,25 @@
       .map(function (s) { return s.trim(); })
       .filter(Boolean)
       .map(function (s) {
-        /* لو الرابط أو المسار كامل، خذ اسم الملف فقط للعرض، والمسار كما هو للتخزين */
         var m = s.match(/([^\/\\]+\.(webp|jpe?g|png|gif|svg))$/i);
-        var name = m ? m[1] : s;
-        var path = s;
-        if (!/^https?:\/\//i.test(s) && s.indexOf("/images/") !== 0) {
-          path = "/images/products/" + name.replace(/^\/+/, "");
+        var name = m ? m[1] : s.replace(/^.*[\/\\]/, "");
+        /* لو اتحولت لـ WebP أثناء الرفع، استخدم الاسم النهائي */
+        var saved =
+          __msqImageSavedNames[name] ||
+          __msqImageSavedNames[name.toLowerCase()] ||
+          null;
+        var finalName = saved || toWebpFileName(name);
+        /* لو المستخدم كاتب رابط خارجي، سيبه */
+        if (/^https?:\/\//i.test(s)) {
+          return { name: name, path: s };
         }
-        return { name: name, path: path };
+        if (s.indexOf("/images/") === 0) {
+          /* حدّث الامتداد لـ webp لو كان محلي */
+          var localPath = s.replace(/\.(jpe?g|png|gif)$/i, ".webp");
+          if (saved) localPath = "/images/products/" + saved;
+          return { name: finalName, path: localPath };
+        }
+        return { name: finalName, path: "/images/products/" + finalName };
       });
   }
 
@@ -1575,33 +1592,116 @@
     return out;
   }
 
+  function normalizeSizeLabel(raw) {
+    var s = String(raw || "").trim();
+    if (!s) return "";
+
+    /* أرقام عربية → إنجليزية */
+    s = s.replace(/[٠-٩]/g, function (d) {
+      return String("٠١٢٣٤٥٦٧٨٩".indexOf(d));
+    });
+    s = s.replace(/\s+/g, " ").trim();
+
+    /* مقاس موحد */
+    if (/^(مقاس\s*)?موحد$/i.test(s) || /one\s*size|free\s*size|^os$/i.test(s)) {
+      return "مقاس موحد";
+    }
+
+    /* مقاسات عادية: XS S M L XL XXL 2XL 3XL 4XL */
+    if (/^(x{0,3}s|x{0,3}m|x{0,3}l|\d+xl|xxl|xxxl)$/i.test(s)) {
+      return s.toUpperCase().replace(/\s+/g, "");
+    }
+
+    /* بالشهور: 0M 3M 6M 12M أو 6 شهر / 12 شهور */
+    if (/^\d+\s*m$/i.test(s)) {
+      return s.toUpperCase().replace(/\s+/g, "");
+    }
+    var monthAr = s.match(/^(\d+)\s*(شهر|أشهر|اشهر|شهور)$/i);
+    if (monthAr) {
+      return monthAr[1] + "M";
+    }
+
+    /* بالسنين: 2 سنة / 4 سنين / 6 سنوات / 2y */
+    var year = s.match(/^(\d+)\s*(سنة|سنين|سنوات|سنه|y|yr|year|years)$/i);
+    if (year) {
+      return year[1] + " سنة";
+    }
+
+    /* رقم لوحده من 1 إلى 16 → سنين (كوليكشن أطفال) */
+    if (/^\d+$/.test(s)) {
+      var n = parseInt(s, 10);
+      if (n >= 1 && n <= 16) return n + " سنة";
+      return s;
+    }
+
+    /* أي صيغة أخرى تُحفظ كما هي */
+    return s;
+  }
+
   function parseSizesText(text) {
     if (!text) return [];
-    /* صيغة متوقعة: 2 سنة:39x33 | 4 سنة:45x37  أو 2 سنة,4 سنة,6 سنة */
-    var parts = String(text).split(/[|،,;]+/).map(function (p) { return p.trim(); }).filter(Boolean);
+    /*
+      أنواع المقاسات (الفصل: | أو ، أو , أو ; أو سطر جديد):
+
+      1) سنين:   2 سنة | 4 سنة | 6 سنة     أو    2 | 4 | 6
+      2) شهور:   0M | 3M | 6M | 12M | 18M | 24M     أو    6 شهر
+      3) عادي:   S | M | L | XL | 2XL | 3XL | XXL
+      4) مع أبعاد بعد : 
+         2:48x32x38 | 4:55x33x42
+         XL:70x52
+         6M:40x28
+    */
+    var parts = String(text)
+      .split(/[|،,;\n\r]+/)
+      .map(function (p) { return p.trim(); })
+      .filter(Boolean);
+
     var variants = [];
     parts.forEach(function (p) {
       var m = p.match(/^(.+?)(?::|：)\s*(.*)$/);
-      var size = m ? m[1].trim() : p;
+      var sizeRaw = m ? m[1].trim() : p;
       var dims = m ? m[2].trim() : "";
-      var length = "", width = "";
+
+      /* لو اللي بعد : مش أبعاد رقمية، اعتبر السطر كله اسم مقاس */
+      if (dims && !/^[\d.\s x×*\-]+$/i.test(dims)) {
+        sizeRaw = p;
+        dims = "";
+      }
+
+      var size = normalizeSizeLabel(sizeRaw);
+      if (!size) return;
+
+      var pants = "";
+      var tLength = "";
+      var tWidth = "";
+
       if (dims) {
-        var dm = dims.match(/(\d+)\s*[x×*]\s*(\d+)/i);
-        if (dm) {
-          length = dm[1];
-          width = dm[2];
-        } else if (/^\d+$/.test(dims)) {
-          length = dims;
+        var triple = dims.match(
+          /(\d+(?:\.\d+)?)\s*[x×*]\s*(\d+(?:\.\d+)?)\s*[x×*]\s*(\d+(?:\.\d+)?)/i
+        );
+        if (triple) {
+          pants = triple[1];
+          tWidth = triple[2];
+          tLength = triple[3];
+        } else {
+          var dm = dims.match(/(\d+(?:\.\d+)?)\s*[x×*]\s*(\d+(?:\.\d+)?)/i);
+          if (dm) {
+            tLength = dm[1];
+            tWidth = dm[2];
+          } else if (/^\d+(?:\.\d+)?$/.test(dims)) {
+            tLength = dims;
+          }
         }
       }
+
       variants.push({
         size: size,
         color: "",
         price: null,
         quantity: 0,
-        pants_length: "",
-        tshirt_length: length,
-        tshirt_width: width,
+        pants_length: pants,
+        tshirt_length: tLength,
+        tshirt_width: tWidth,
         extra_piece: "",
         status: "available"
       });
@@ -1930,14 +2030,15 @@
     if (variants.length) {
       lines.push("variants:");
       variants.forEach(function (v) {
-        lines.push("  - size: " + yamlQuote(v.size));
-        lines.push("    color: " + yamlQuote(v.color || ""));
+        /* نضع size بين علامات اقتباس دائمًا عشان الأرقام زي 4 متتبقاش number في YAML */
+        lines.push("  - size: " + JSON.stringify(String(v.size || "")));
+        lines.push("    color: " + JSON.stringify(String(v.color || "")));
         lines.push("    price: null");
-        lines.push("    quantity: " + (v.quantity || 0));
-        lines.push("    pants_length: " + yamlQuote(v.pants_length || ""));
-        lines.push("    tshirt_length: " + yamlQuote(v.tshirt_length || ""));
-        lines.push("    tshirt_width: " + yamlQuote(v.tshirt_width || ""));
-        lines.push("    extra_piece: " + yamlQuote(v.extra_piece || ""));
+        lines.push("    quantity: " + (parseInt(v.quantity, 10) || 0));
+        lines.push("    pants_length: " + JSON.stringify(String(v.pants_length || "")));
+        lines.push("    tshirt_length: " + JSON.stringify(String(v.tshirt_length || "")));
+        lines.push("    tshirt_width: " + JSON.stringify(String(v.tshirt_width || "")));
+        lines.push("    extra_piece: " + JSON.stringify(String(v.extra_piece || "")));
         lines.push("    status: " + (v.status || "available"));
       });
     } else {
@@ -2041,6 +2142,70 @@
     });
   }
 
+  function toWebpFileName(name) {
+    return String(name || "image")
+      .replace(/\.[^.]+$/, "")
+      .replace(/[^\w\u0600-\u06FF\-]+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "") + ".webp";
+  }
+
+  /* تحويل أي صورة إلى WebP عبر Canvas قبل الرفع */
+  function convertImageFileToWebp(file, quality) {
+    quality = quality == null ? 0.82 : quality;
+    return new Promise(function (resolve, reject) {
+      /* لو الملف WebP بالفعل ومش محتاجين إعادة ترميز كبيرة */
+      if (/\.webp$/i.test(file.name) && file.type === "image/webp") {
+        fileToBase64(file).then(function (b64) {
+          resolve({ name: file.name, base64: b64 });
+        }).catch(reject);
+        return;
+      }
+
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        try {
+          var maxSide = 1400;
+          var w = img.naturalWidth || img.width;
+          var h = img.naturalHeight || img.height;
+          var scale = 1;
+          if (w > maxSide || h > maxSide) {
+            scale = maxSide / Math.max(w, h);
+          }
+          var cw = Math.max(1, Math.round(w * scale));
+          var ch = Math.max(1, Math.round(h * scale));
+          var canvas = document.createElement("canvas");
+          canvas.width = cw;
+          canvas.height = ch;
+          var ctx = canvas.getContext("2d");
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, cw, ch);
+          ctx.drawImage(img, 0, 0, cw, ch);
+          var dataUrl = canvas.toDataURL("image/webp", quality);
+          URL.revokeObjectURL(url);
+          if (!dataUrl || dataUrl.indexOf("image/webp") === -1) {
+            /* المتصفح لا يدعم WebP export → ارفع الأصل */
+            fileToBase64(file).then(function (b64) {
+              resolve({ name: file.name, base64: b64 });
+            }).catch(reject);
+            return;
+          }
+          var base64 = dataUrl.split(",")[1] || "";
+          resolve({ name: toWebpFileName(file.name), base64: base64 });
+        } catch (err) {
+          URL.revokeObjectURL(url);
+          reject(err);
+        }
+      };
+      img.onerror = function () {
+        URL.revokeObjectURL(url);
+        reject(new Error("تعذر فتح الصورة: " + file.name));
+      };
+      img.src = url;
+    });
+  }
+
   function collectNeededImageNames(rows) {
     var set = {};
     rows.forEach(function (row) {
@@ -2069,9 +2234,16 @@
   }
 
   function uploadOneImage(token, file) {
-    var path = "images/products/" + file.name;
-    return fileToBase64(file).then(function (content) {
-      return createOrUpdateBinaryFile(token, path, content, "upload image: " + file.name);
+    return convertImageFileToWebp(file, 0.82).then(function (converted) {
+      var path = "images/products/" + converted.name;
+      return createOrUpdateBinaryFile(
+        token,
+        path,
+        converted.base64,
+        "upload image: " + converted.name
+      ).then(function (res) {
+        return { originalName: file.name, savedName: converted.name, path: "/" + path, res: res };
+      });
     });
   }
 
@@ -2146,8 +2318,13 @@
       setImportProgress(idx - 1, toUpload.length, "رفع صورة (" + idx + "/" + toUpload.length + "): " + file.name);
 
       return uploadOneImage(token, file)
-        .then(function () {
+        .then(function (info) {
           ok += 1;
+          if (info && info.originalName && info.savedName) {
+            __msqImageSavedNames[info.originalName] = info.savedName;
+            __msqImageSavedNames[info.originalName.toLowerCase()] = info.savedName;
+            __msqImageSavedNames[info.savedName] = info.savedName;
+          }
           return new Promise(function (r) { setTimeout(r, 400); });
         })
         .catch(function (err) {
@@ -2175,6 +2352,7 @@
     setImportProgress(0, rows.length, "التحقق من التوكن...");
 
     var imgResult = { ok: 0, fail: 0, errors: [] };
+    __msqImageSavedNames = {};
 
     githubApi("/user", token)
       .then(function (user) {
