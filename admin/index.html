@@ -248,32 +248,54 @@
 
   
 <style id="my-souq-admin-tools-style">
+  /* شريط أدوات جانبي أعلى اليسار — بعيد عن البحث وعن نصوص Sveltia */
   #my-souq-admin-tools {
     position: fixed;
     top: 10px;
-    left: 50%;
+    left: 12px;
     right: auto;
-    transform: translateX(-50%);
+    transform: none;
     z-index: 2147483000;
     display: flex;
-    gap: 8px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
     direction: rtl;
     font-family: Arial, sans-serif;
+    max-width: min(420px, calc(100vw - 24px));
+    padding: 6px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 0 8px 28px rgba(15, 23, 42, 0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
-  #my-souq-admin-tools button {
+  #my-souq-admin-tools button,
+  #my-souq-admin-tools a#my-souq-excel-btn {
     border: 0;
     border-radius: 10px;
-    min-height: 40px;
-    padding: 8px 13px;
+    min-height: 34px;
+    padding: 6px 11px;
     cursor: pointer;
     font-weight: 800;
-    font-size: 13px;
-    box-shadow: 0 4px 14px rgba(0,0,0,.12);
-    transition: transform .12s ease, filter .12s ease;
+    font-size: 12px;
+    line-height: 1.2;
+    box-shadow: none;
+    transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+    white-space: nowrap;
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
-  #my-souq-admin-tools button:hover {
+  #my-souq-admin-tools button:hover,
+  #my-souq-admin-tools a#my-souq-excel-btn:hover {
     transform: translateY(-1px);
     filter: brightness(.97);
+    box-shadow: 0 2px 8px rgba(0,0,0,.1);
   }
   #my-souq-telegram-btn {
     background: #229ED9;
@@ -282,6 +304,10 @@
   #my-souq-import-btn {
     background: #0f766e;
     color: #fff;
+  }
+  #my-souq-excel-btn {
+    background: #16a34a !important;
+    color: #fff !important;
   }
   #my-souq-preview-btn {
     background: #5b6472;
@@ -355,16 +381,20 @@
   }
   @media (max-width: 700px) {
     #my-souq-admin-tools {
-      top: 8px;
+      top: auto;
+      bottom: 12px;
       left: 50%;
       right: auto;
       transform: translateX(-50%);
-      gap: 6px;
+      gap: 5px;
       max-width: calc(100vw - 16px);
+      justify-content: center;
+      padding: 5px;
     }
-    #my-souq-admin-tools button {
-      min-height: 36px;
-      padding: 7px 9px;
+    #my-souq-admin-tools button,
+    #my-souq-admin-tools a#my-souq-excel-btn {
+      min-height: 32px;
+      padding: 5px 9px;
       font-size: 11px;
     }
   }
@@ -548,6 +578,20 @@
   .msq-import-names-label:hover {
     border-color: #0284c7;
     background: #f0f9ff;
+  }
+  .msq-template-btn {
+    border-color: #16a34a !important;
+    color: #166534 !important;
+    background: #f0fdf4 !important;
+    text-decoration: none !important;
+  }
+  .msq-template-btn:hover {
+    border-color: #15803d !important;
+    background: #dcfce7 !important;
+  }
+  #my-souq-excel-btn {
+    background: #16a34a;
+    color: #fff;
   }
   .msq-names-box {
     margin-top: 12px;
@@ -1074,6 +1118,14 @@
     importBtn.title = "استيراد منتجات بشكل جماعي من ملف Excel أو CSV";
     importBtn.setAttribute("aria-pressed", "false");
 
+    var excelBtn = document.createElement("a");
+    excelBtn.id = "my-souq-excel-btn";
+    excelBtn.href = "MySouq-Import-Template.xlsx";
+    excelBtn.setAttribute("download", "MySouq-Import-Template.xlsx");
+    excelBtn.textContent = "📗 شيت الإكسل";
+    excelBtn.title = "تحميل شيت الاستيراد الرسمي من الموقع (على الشبكة)";
+    /* التنسيق من CSS الشريط — بدون ستايل إنلاين يغطي البحث */
+
     var preview = document.createElement("button");
     preview.id = "my-souq-preview-btn";
     preview.type = "button";
@@ -1442,6 +1494,7 @@
     });
 
     wrap.appendChild(telegram);
+    wrap.appendChild(excelBtn);
     wrap.appendChild(importBtn);
     wrap.appendChild(preview);
     wrap.appendChild(logout);
@@ -1912,11 +1965,14 @@
       '    <button type="button" id="msq-import-close" title="إغلاق">×</button>',
       '  </div>',
       '  <div class="msq-import-body">',
-      '    <p class="msq-import-note">1) اختر صور الكوليكشن من جهازك (هتترفع تلقائي).<br>2) انسخ أسماءها لعمود <b>الصور</b> في الإكسل.<br>3) ارفع ملف Excel. الأعمدة: اسم المنتج، القسم، نوع الملابس، السعر، السعر القديم، المخزون، المقاسات، الصور، الوصف.</p>',
+      '    <p class="msq-import-note">الشيت الرسمي متاح <b>من الموقع على الشبكة</b> (مش من الهارد).<br>1) حمّل الشيت من الزر الأخضر → عبّه (كل صف = مقاس) → 2) اختر الصور → 3) ارفع ملف Excel.</p>',
       '    <div class="msq-import-tools">',
+      '      <a class="msq-import-file-label msq-import-file-label-half msq-template-btn" id="msq-template-download" href="MySouq-Import-Template.xlsx" download="MySouq-Import-Template.xlsx">',
+      '        <span>📗 تحميل شيت الإكسل (من الموقع)</span>',
+      '      </a>',
       '      <label class="msq-import-file-label msq-import-file-label-half">',
       '        <input type="file" id="msq-import-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" />',
-      '        <span>📄 اختر ملف Excel / CSV</span>',
+      '        <span>📄 رفع ملف Excel للاستيراد</span>',
       '      </label>',
       '      <label class="msq-import-file-label msq-import-file-label-half msq-import-names-label">',
       '        <input type="file" id="msq-names-file" accept="image/*,.webp,.jpg,.jpeg,.png,.gif" multiple />',
