@@ -2819,10 +2819,52 @@
     return list;
   }
 
-  function registerImportImageFiles(fileList) {
-    fileList.forEach(function (f) {
+  /* بادئة فريدة لكل دفعة: تاريخ+وقت بالثواني + رمز عشوائي */
+  var __msqImageBatchPrefix = "";
+
+  function makeImageBatchPrefix() {
+    var d = new Date();
+    function p(n) { return n < 10 ? "0" + n : String(n); }
+    var stamp =
+      d.getFullYear() +
+      p(d.getMonth() + 1) +
+      p(d.getDate()) +
+      "-" +
+      p(d.getHours()) +
+      p(d.getMinutes()) +
+      p(d.getSeconds());
+    var rand = Math.random().toString(36).slice(2, 6);
+    return "p-" + stamp + "-" + rand;
+  }
+
+  function orderedWebpName(index, prefix) {
+    return (prefix || __msqImageBatchPrefix || "p") + "-" + (index + 1) + ".webp";
+  }
+
+  /* ترتيب ثابت: حسب اسم الملف الأصلي */
+  function sortImportFiles(files) {
+    return files.slice().sort(function (a, b) {
+      return String(a.name || "").localeCompare(String(b.name || ""), "en", {
+        numeric: true,
+        sensitivity: "base"
+      });
+    });
+  }
+
+  function rebuildImportImageMaps(files, keepPrefix) {
+    __msqImportImageFiles = {};
+    __msqImageSavedNames = {};
+    if (!files || !files.length) {
+      __msqImageBatchPrefix = "";
+      return [];
+    }
+    if (!keepPrefix || !__msqImageBatchPrefix) {
+      __msqImageBatchPrefix = makeImageBatchPrefix();
+    }
+    var ordered = sortImportFiles(files);
+    ordered.forEach(function (f, idx) {
       if (!f || !f.name) return;
-      var webpName = toWebpFileName(f.name);
+      var webpName = orderedWebpName(idx, __msqImageBatchPrefix);
       __msqImportImageFiles[f.name] = f;
       __msqImportImageFiles[f.name.toLowerCase()] = f;
       __msqImportImageFiles[webpName] = f;
@@ -2831,21 +2873,38 @@
       __msqImageSavedNames[f.name.toLowerCase()] = webpName;
       __msqImageSavedNames[webpName] = webpName;
     });
+    return ordered;
+  }
+
+  function registerImportImageFiles(fileList) {
+    var existing = getUniqueImportFiles();
+    var merged = existing.slice();
+    var seen = {};
+    existing.forEach(function (f) { seen[f.name] = true; });
+    fileList.forEach(function (f) {
+      if (!f || !f.name || seen[f.name]) return;
+      seen[f.name] = true;
+      merged.push(f);
+    });
+    /* دفعة جديدة بالكامل → بادئة جديدة؛ إضافة لدفعة موجودة → نفس البادئة */
+    rebuildImportImageMaps(merged, existing.length > 0);
     refreshImportImagesUI();
   }
 
   function removeOneImportImage(originalName) {
-    var webpName = toWebpFileName(originalName);
-    delete __msqImportImageFiles[originalName];
-    delete __msqImportImageFiles[String(originalName).toLowerCase()];
-    delete __msqImportImageFiles[webpName];
-    delete __msqImportImageFiles[webpName.toLowerCase()];
-    delete __msqImageSavedNames[originalName];
-    delete __msqImageSavedNames[String(originalName).toLowerCase()];
-    delete __msqImageSavedNames[webpName];
+    var files = getUniqueImportFiles().filter(function (f) {
+      return f.name !== originalName;
+    });
+    rebuildImportImageMaps(files, true);
     var input = document.getElementById("msq-names-file");
     if (input) input.value = "";
     refreshImportImagesUI();
+  }
+
+  function getOrderedWebpNames(files) {
+    return sortImportFiles(files).map(function (f, idx) {
+      return __msqImageSavedNames[f.name] || orderedWebpName(idx);
+    });
   }
 
   function refreshImportImagesUI() {
@@ -2865,17 +2924,15 @@
       return;
     }
 
-    var webpNames = files.map(function (f) { return toWebpFileName(f.name); });
-    webpNames.sort(function (a, b) {
-      return a.localeCompare(b, "ar", { numeric: true, sensitivity: "base" });
-    });
+    var ordered = sortImportFiles(files);
+    var webpNames = getOrderedWebpNames(ordered);
     if (ta) ta.value = webpNames.join("\n");
     if (box) box.style.display = "block";
-    if (countEl) countEl.textContent = "الصور المختارة · " + files.length;
-    renderImportThumbs(files);
+    if (countEl) countEl.textContent = "الصور المختارة · " + ordered.length;
+    renderImportThumbs(ordered);
     if (statusEl) {
       statusEl.textContent =
-        "تم اختيار " + files.length + " صورة — راجع المعاينة. الأسماء WebP جاهزة للنسخ.";
+        "تم اختيار " + ordered.length + " صورة — أسماء فريدة لكل دفعة (تاريخ+وقت+رمز).";
     }
   }
 
@@ -2921,8 +2978,8 @@
     if (list) list.innerHTML = "";
     if (!files || !files.length) return;
 
-    files.forEach(function (f) {
-      var webpName = toWebpFileName(f.name);
+    files.forEach(function (f, idx) {
+      var webpName = __msqImageSavedNames[f.name] || orderedWebpName(idx);
 
       if (thumbs) {
         var card = document.createElement("div");
@@ -2982,6 +3039,7 @@
     if (list) list.innerHTML = "";
     __msqImportImageFiles = {};
     __msqImageSavedNames = {};
+    __msqImageBatchPrefix = "";
     var input = document.getElementById("msq-names-file");
     if (input) input.value = "";
     var box = document.getElementById("msq-names-box");
@@ -3021,6 +3079,10 @@
       var file = files[i++];
       convertImageFileToWebp(file)
         .then(function (converted) {
+          var forced =
+            __msqImageSavedNames[file.name] ||
+            __msqImageSavedNames[String(file.name).toLowerCase()];
+          if (forced) converted.name = forced;
           var bin = atob(converted.base64);
           var arr = new Uint8Array(bin.length);
           for (var j = 0; j < bin.length; j++) arr[j] = bin.charCodeAt(j);
@@ -3374,6 +3436,10 @@
 
   function uploadOneImage(token, file) {
     return convertImageFileToWebp(file).then(function (converted) {
+      var forced =
+        __msqImageSavedNames[file.name] ||
+        __msqImageSavedNames[String(file.name).toLowerCase()];
+      if (forced) converted.name = forced;
       var path = "images/products/" + converted.name;
       return createOrUpdateBinaryFile(
         token,
