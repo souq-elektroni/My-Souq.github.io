@@ -246,6 +246,14 @@ collections:
             value: "out"
         default: "available"
 
+      # إخفاء المنتج من المتجر مؤقتًا بدون حذفه
+      - label: "إخفاء المنتج مؤقتًا"
+        name: "hidden"
+        widget: "boolean"
+        default: false
+        required: false
+        hint: "فعّله لإخفاء المنتج من المتجر بدون حذفه، وأطفئه ليظهر من جديد."
+
       - label: "جدول المقاسات"
         name: "variants"
         widget: "size-table"
