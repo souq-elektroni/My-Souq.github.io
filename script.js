@@ -48,6 +48,13 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       if (!firebase.apps.length) {
         firebase.initializeApp(FIREBASE_CONFIG);
       }
+      // App Check (Fraud Defense / reCAPTCHA Enterprise)
+      try {
+        firebase.appCheck().activate('6LfaUwMuAAAAAPAnJN9jbTaWVvGZ8uRa6m0HMGDI', true);
+        console.log('App Check مفعّل ✅');
+      } catch (appCheckErr) {
+        console.warn('App Check لم يكتمل:', appCheckErr);
+      }
       db = firebase.firestore();
       firebaseReady = true;
         firebase.auth().onAuthStateChanged(user => {
