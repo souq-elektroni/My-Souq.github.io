@@ -11,7 +11,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
      (Project settings → Your apps → SDK setup and configuration)
   ====================================== */
   const FIREBASE_CONFIG = {
-    apiKey: "AIzaSyCGSFAnYRmauxCAa7HmyVenPWIy-KJHsxg",
+    apiKey: "AIzaSyD9M29F0mLh0f8wMOAxULvlq7Ccr7hMMgQ",
     authDomain: "my-souq0.firebaseapp.com",
     projectId: "my-souq0",
     storageBucket: "my-souq0.firebasestorage.app",
@@ -37,6 +37,13 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       }
       if (!firebase.apps.length) {
         firebase.initializeApp(FIREBASE_CONFIG);
+      }
+      // App Check (Fraud Defense / reCAPTCHA Enterprise)
+      try {
+        firebase.appCheck().activate("6LfaUwMuAAAAAPAnJN9jbTaWVvGZ8uRa6m0HMGDI", true);
+        console.log("App Check مفعّل ✅");
+      } catch (appCheckErr) {
+        console.warn("App Check لم يكتمل:", appCheckErr);
       }
       db = firebase.firestore();
       firebaseReady = true;
