@@ -518,8 +518,8 @@
     cursor: not-allowed;
   }
   .msq-import-box-wide {
-    width: min(860px, 100%);
-    max-height: 90vh;
+    width: min(980px, 96vw);
+    max-height: 92vh;
     display: flex;
     flex-direction: column;
   }
@@ -527,6 +527,69 @@
     overflow-y: auto;
     flex: 1;
     min-height: 0;
+  }
+  .msq-import-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    align-items: stretch;
+    direction: rtl;
+  }
+  .msq-import-pane {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+  .msq-import-pane .msq-import-section {
+    flex: 1;
+    margin: 0;
+  }
+  .msq-sheet-dropzone {
+    position: relative;
+    border: 2px dashed #94a3b8;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    min-height: 110px;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+    overflow: hidden;
+  }
+  .msq-sheet-dropzone:hover,
+  .msq-sheet-dropzone.is-dragover {
+    border-color: #0f766e;
+    background: linear-gradient(180deg, #f0fdfa 0%, #ccfbf1 100%);
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  }
+  .msq-sheet-dropzone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
+  .msq-sheet-drop-inner {
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 18px 12px;
+    gap: 4px;
+  }
+  .msq-sheet-drop-icon { font-size: 26px; line-height: 1; }
+  .msq-sheet-drop-title { font-weight: 800; font-size: 13px; color: #0f172a; }
+  .msq-sheet-drop-sub { font-size: 11px; color: #64748b; }
+  .msq-import-footer-status {
+    margin-top: 12px;
+  }
+  @media (max-width: 800px) {
+    .msq-import-split {
+      grid-template-columns: 1fr;
+    }
   }
   .msq-import-preview {
     margin-top: 14px;
@@ -2633,61 +2696,70 @@
       '    <button type="button" id="msq-import-close" title="إغلاق">×</button>',
       '  </div>',
       '  <div class="msq-import-body">',
-      '    <p class="msq-import-note">صور الكوليكشن من جهازك + بيانات من <b>Google Sheets</b> أو ملف Excel على الجهاز.</p>',
+      '    <p class="msq-import-note">يمين: صور الكوليكشن · يسار: بيانات المنتجات (Google أو ملف Excel)</p>',
+      '    <div class="msq-import-split">',
 
-      '    <div class="msq-import-section msq-images-section">',
-      '      <div class="msq-import-section-title">1️⃣ صور الكوليكشن</div>',
-      '      <div id="msq-dropzone" class="msq-dropzone">',
-      '        <input type="file" id="msq-names-file" accept="image/*,.webp,.jpg,.jpeg,.png,.gif" multiple />',
-      '        <div class="msq-dropzone-inner">',
-      '          <div class="msq-dropzone-icon">📷</div>',
-      '          <div class="msq-dropzone-title">اسحب الصور هنا أو اضغط للاختيار</div>',
-      '          <div class="msq-dropzone-sub">JPG · PNG · WebP من تليجرام أو الجهاز — تتحول تلقائي لـ WebP</div>',
-      '        </div>',
-      '      </div>',
-      '      <div id="msq-names-box" class="msq-names-box" style="display:none">',
-      '        <div class="msq-names-head">',
-      '          <strong id="msq-images-count">الصور المختارة</strong>',
-      '          <div class="msq-names-actions">',
-      '            <button type="button" id="msq-names-copy" class="msq-btn-sm msq-btn-primary">نسخ الأسماء</button>',
-      '            <button type="button" id="msq-names-download" class="msq-btn-sm msq-btn-secondary">تحميل WebP</button>',
-      '            <button type="button" id="msq-names-clear" class="msq-btn-sm msq-btn-delete" title="مسح الكل">حذف الكل</button>',
+      '      <div class="msq-import-pane msq-pane-images">',
+      '        <div class="msq-import-section msq-images-section">',
+      '          <div class="msq-import-section-title">📷 صور الكوليكشن</div>',
+      '          <div id="msq-dropzone" class="msq-dropzone">',
+      '            <input type="file" id="msq-names-file" accept="image/*,.webp,.jpg,.jpeg,.png,.gif" multiple />',
+      '            <div class="msq-dropzone-inner">',
+      '              <div class="msq-dropzone-icon">📷</div>',
+      '              <div class="msq-dropzone-title">اسحب الصور هنا أو اضغط للاختيار</div>',
+      '              <div class="msq-dropzone-sub">JPG · PNG · WebP — تتحول تلقائي لـ WebP بأسماء فريدة</div>',
+      '            </div>',
+      '          </div>',
+      '          <div id="msq-names-box" class="msq-names-box" style="display:none">',
+      '            <div class="msq-names-head">',
+      '              <strong id="msq-images-count">الصور المختارة</strong>',
+      '              <div class="msq-names-actions">',
+      '                <button type="button" id="msq-names-copy" class="msq-btn-sm msq-btn-primary">نسخ الأسماء</button>',
+      '                <button type="button" id="msq-names-download" class="msq-btn-sm msq-btn-secondary">تحميل WebP</button>',
+      '                <button type="button" id="msq-names-clear" class="msq-btn-sm msq-btn-delete" title="مسح الكل">حذف الكل</button>',
+      '              </div>',
+      '            </div>',
+      '            <div id="msq-thumbs" class="msq-thumbs"></div>',
+      '            <div class="msq-names-footer">',
+      '              <label class="msq-names-label">أسماء WebP (للصق في الشيت)</label>',
+      '              <textarea id="msq-names-text" class="msq-names-text" readonly rows="4"></textarea>',
+      '            </div>',
       '          </div>',
       '        </div>',
-      '        <div id="msq-thumbs" class="msq-thumbs"></div>',
-      '        <div class="msq-names-footer">',
-      '          <label class="msq-names-label">أسماء WebP (للصق في الشيت)</label>',
-      '          <textarea id="msq-names-text" class="msq-names-text" readonly rows="3"></textarea>',
+      '      </div>',
+
+      '      <div class="msq-import-pane msq-pane-data">',
+      '        <div class="msq-import-section">',
+      '          <div class="msq-import-section-title">📊 بيانات المنتجات</div>',
+      '          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">',
+      '            <a href="MySouq-Import-Template.csv" download class="msq-btn-link">قالب CSV</a>',
+      '            <a href="MySouq-Import-Template.xlsx" download class="msq-btn-link">قالب Excel</a>',
+      '          </div>',
+      '          <label class="msq-field-label">رابط Google Sheets</label>',
+      '          <input id="msq-sheet-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/...." class="msq-field-input msq-field-google" />',
+      '          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;margin-bottom:14px">',
+      '            <button type="button" id="msq-sheet-save" class="msq-btn-teal">حفظ الرابط</button>',
+      '            <button type="button" id="msq-open-sheet" class="msq-btn-green">فتح الشيت</button>',
+      '            <button type="button" id="msq-sheet-import" class="msq-btn-blue">استيراد من Google</button>',
+      '          </div>',
+      '          <div class="msq-import-section-title" style="margin-top:4px">أو ملف Excel / CSV</div>',
+      '          <div id="msq-sheet-dropzone" class="msq-sheet-dropzone">',
+      '            <input type="file" id="msq-import-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" />',
+      '            <div class="msq-sheet-drop-inner">',
+      '              <div class="msq-sheet-drop-icon">📄</div>',
+      '              <div class="msq-sheet-drop-title">اسحب ملف Excel / CSV هنا أو اضغط للاختيار</div>',
+      '              <div class="msq-sheet-drop-sub">من الجهاز بعد التحميل من تليجرام</div>',
+      '            </div>',
+      '          </div>',
+      '          <div id="msq-import-file-name" class="msq-import-file-name"></div>',
       '        </div>',
       '      </div>',
-      '    </div>',
 
-      '    <div class="msq-import-section">',
-      '      <div class="msq-import-section-title">2️⃣ بيانات المنتجات — Google Sheets</div>',
-      '      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">',
-      '        <a href="MySouq-Import-Template.csv" download class="msq-btn-link">قالب CSV</a>',
-      '        <a href="MySouq-Import-Template.xlsx" download class="msq-btn-link">قالب Excel</a>',
-      '      </div>',
-      '      <label class="msq-field-label">رابط Google Sheets</label>',
-      '      <input id="msq-sheet-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/...." class="msq-field-input msq-field-google" />',
-      '      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">',
-      '        <button type="button" id="msq-sheet-save" class="msq-btn-teal">حفظ الرابط</button>',
-      '        <button type="button" id="msq-open-sheet" class="msq-btn-green">فتح الشيت</button>',
-      '        <button type="button" id="msq-sheet-import" class="msq-btn-blue">استيراد من Google</button>',
-      '      </div>',
       '    </div>',
-
-      '    <div class="msq-import-section">',
-      '      <div class="msq-import-section-title">أو — ملف Excel / CSV من الجهاز</div>',
-      '      <label class="msq-import-file-label">',
-      '        <input type="file" id="msq-import-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" />',
-      '        <span>📄 اختيار ملف Excel أو CSV</span>',
-      '      </label>',
-      '      <div id="msq-import-file-name" class="msq-import-file-name"></div>',
+      '    <div class="msq-import-footer-status">',
+      '      <div id="msq-import-status" class="msq-import-status"></div>',
+      '      <div id="msq-import-preview" class="msq-import-preview"></div>',
       '    </div>',
-
-      '    <div id="msq-import-status" class="msq-import-status"></div>',
-      '    <div id="msq-import-preview" class="msq-import-preview"></div>',
       '  </div>',
       '  <div class="msq-import-foot">',
       '    <button type="button" id="msq-import-cancel">إغلاق</button>',
@@ -2710,8 +2782,9 @@
       if (e.target === overlay) closeModal();
     });
 
-    /* منطقة سحب وإفلات الصور */
+    /* منطقة سحب وإفلات الصور + ملف Excel */
     setupImageDropzone();
+    setupSheetDropzone();
 
     document.getElementById("msq-sheet-save").addEventListener("click", function () {
       var v = (urlInput.value || "").trim();
@@ -2967,7 +3040,45 @@
       if (!list.length) return;
       __msqImportImageFiles = {};
       __msqImageSavedNames = {};
+      __msqImageBatchPrefix = "";
       registerImportImageFiles(list);
+    });
+  }
+
+  function setupSheetDropzone() {
+    var zone = document.getElementById("msq-sheet-dropzone");
+    if (!zone) return;
+    ["dragenter", "dragover"].forEach(function (evt) {
+      zone.addEventListener(evt, function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        zone.classList.add("is-dragover");
+      });
+    });
+    ["dragleave", "drop"].forEach(function (evt) {
+      zone.addEventListener(evt, function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        zone.classList.remove("is-dragover");
+      });
+    });
+    zone.addEventListener("drop", function (e) {
+      var dt = e.dataTransfer;
+      if (!dt || !dt.files || !dt.files.length) return;
+      var file = null;
+      for (var i = 0; i < dt.files.length; i++) {
+        var f = dt.files[i];
+        if (/\.(xlsx|xls|csv)$/i.test(f.name) || /sheet|excel|csv/i.test(f.type || "")) {
+          file = f;
+          break;
+        }
+      }
+      if (!file) {
+        var statusEl = document.getElementById("msq-import-status");
+        if (statusEl) statusEl.textContent = "اختَر ملف Excel أو CSV فقط.";
+        return;
+      }
+      handleImportFile(file);
     });
   }
 
