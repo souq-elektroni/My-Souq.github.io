@@ -1,4 +1,14 @@
 /* MSQ_BUILD 202610231804sharehist */
+/* MSQ_SECURITY: escape helper + admin identity (added in security pass) */
+const MSQ_ADMIN_EMAIL = 'aali78@mysouq.com';
+function msqEsc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function msqIsAdminUser(u) {
+  return !!(u && u.email && String(u.email).toLowerCase() === MSQ_ADMIN_EMAIL);
+}
 let products = [];
   let cart = []; // Cart is session-only; do not restore prior cart contents from localStorage.
 try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItems"); } catch (_) {}
@@ -42,7 +52,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       firebaseReady = true;
         firebase.auth().onAuthStateChanged(user => {
           // تسجيل دخول الإدارة فقط يتم بحساب البريد الإلكتروني.
-          if (user && user.email) {
+          if (msqIsAdminUser(user)) {
           currentAdminUser = user;
           isAdminMode = true;
           } else {
@@ -2905,16 +2915,16 @@ function continueAfterOrderRecaptcha() {
     const summaryBox = document.getElementById('confirmationSummaryContent');
     summaryBox.innerHTML = `
       <div style="font-weight:900; color:var(--burgundy-soft); font-size:13px; border-bottom:2px solid var(--pink-accent); padding-bottom:4px;">
-        🆔 رقم الطلب المؤقت: ${generatedOrderId}
+        🆔 رقم الطلب المؤقت: ${msqEsc(generatedOrderId)}
       </div>
       <div style="display:grid; grid-template-columns:1fr; gap:2px; font-size:12.5px;">
-        <div><strong>الاسم:</strong> ${name}</div>
-        <div><strong>رقم التليفون:</strong> ${phone}</div>
+        <div><strong>الاسم:</strong> ${msqEsc(name)}</div>
+        <div><strong>رقم التليفون:</strong> ${msqEsc(phone)}</div>
       </div>
-      <div style="font-size:12.5px;"><strong>المحافظة:</strong> ${shipping.governorate}</div>
-      <div style="font-size:12.5px;"><strong>المدينة:</strong> ${shipping.city}</div>
-      <div style="font-size:12.5px;"><strong>العنوان التفصيلي:</strong> ${shipping.detailed}</div>
-      <div style="font-size:12.5px;"><strong>طريقة الدفع:</strong> ${payMethod}</div>
+      <div style="font-size:12.5px;"><strong>المحافظة:</strong> ${msqEsc(shipping.governorate)}</div>
+      <div style="font-size:12.5px;"><strong>المدينة:</strong> ${msqEsc(shipping.city)}</div>
+      <div style="font-size:12.5px;"><strong>العنوان التفصيلي:</strong> ${msqEsc(shipping.detailed)}</div>
+      <div style="font-size:12.5px;"><strong>طريقة الدفع:</strong> ${msqEsc(payMethod)}</div>
       <div style="margin-top:2px; font-weight:bold; color:var(--burgundy-soft); font-size:12.5px;">المنتجات المختارة:</div>
       ${productsHtml}
       <div style="font-size:14px; font-weight:900; color:var(--burgundy-soft); margin-top:3px; border-top:2px solid var(--pink-accent); padding-top:5px; display:flex; justify-content:space-between;">
@@ -3312,6 +3322,11 @@ function continueAfterOrderRecaptcha() {
     if (!email || !password) { if (message) message.textContent = 'اكتب البريد وكلمة المرور'; return; }
     try {
       const result = await firebase.auth().signInWithEmailAndPassword(email, password);
+      if (!msqIsAdminUser(result.user)) {
+        await firebase.auth().signOut();
+        if (message) message.textContent = 'هذا الحساب ليس حساب الإدارة';
+        return;
+      }
       currentAdminUser = result.user;
       isAdminMode = true;
       closeAdminLogin();
@@ -4287,16 +4302,16 @@ function continueAfterOrderRecaptcha() {
     box.innerHTML = list.map(o => {
       const code = typeof o.statusCode === 'number' ? o.statusCode : 0;
       const st = ORDER_STATUSES[code] || ORDER_STATUSES[0];
-      const safeId = (o.orderId || '').replace(/'/g, "\\'");
+      const safeId = String(o.orderId || '').replace(/[^A-Za-z0-9_-]/g, '');
       const btns = ORDER_STATUSES.map(s => `
         <button style="border-color:${s.color};background:${code===s.code?s.color:'white'};color:${code===s.code?'white':s.color};"
           onclick="updateOrderStatusFromAdmin('${safeId}', ${s.code})">${s.label}</button>
       `).join('');
       return `
         <div class="order-card-admin">
-          <div class="oid">🆔 ${o.orderId || '-'}</div>
-          <div>👤 ${o.name || '-'} | 📱 ${o.phone || '-'}</div>
-          <div>💰 ${o.total || '-'} | 📅 ${o.date || '-'}</div>
+          <div class="oid">🆔 ${msqEsc(o.orderId || '-')}</div>
+          <div>👤 ${msqEsc(o.name || '-')} | 📱 ${msqEsc(o.phone || '-')}</div>
+          <div>💰 ${msqEsc(o.total || '-')} | 📅 ${msqEsc(o.date || '-')}</div>
           <div style="margin-top:4px;font-weight:800;color:${st.color};">الحالة: ${st.label}</div>
           <div class="status-btns-mini">${btns}</div>
           <button
