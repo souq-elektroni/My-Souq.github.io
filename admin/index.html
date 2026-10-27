@@ -600,47 +600,135 @@
     background: #16a34a;
     color: #fff;
   }
+  .msq-dropzone {
+    position: relative;
+    border: 2px dashed #94a3b8;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    min-height: 120px;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease, box-shadow .15s ease;
+    overflow: hidden;
+  }
+  .msq-dropzone:hover,
+  .msq-dropzone.is-dragover {
+    border-color: #0f766e;
+    background: linear-gradient(180deg, #f0fdfa 0%, #ccfbf1 100%);
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  }
+  .msq-dropzone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+  }
+  .msq-dropzone-inner {
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 22px 16px;
+    gap: 6px;
+  }
+  .msq-dropzone-icon {
+    font-size: 28px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .msq-dropzone-title {
+    font-weight: 800;
+    font-size: 14px;
+    color: #0f172a;
+  }
+  .msq-dropzone-sub {
+    font-size: 12px;
+    color: #64748b;
+    line-height: 1.5;
+    max-width: 360px;
+  }
   .msq-names-box {
     margin-top: 12px;
-    border: 1px solid #bae6fd;
-    border-radius: 12px;
-    background: #f0f9ff;
-    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    padding: 12px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
   }
   .msq-names-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     flex-wrap: wrap;
   }
   .msq-names-head strong {
-    font-size: 12px;
-    color: #0369a1;
+    font-size: 13px;
+    color: #0f172a;
   }
-  #msq-names-copy {
+  .msq-names-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .msq-btn-sm {
     border: 0;
     border-radius: 8px;
-    background: #0284c7;
-    color: #fff;
-    padding: 6px 12px;
+    padding: 6px 11px;
     font-weight: 800;
     font-size: 12px;
     cursor: pointer;
+    line-height: 1.2;
+  }
+  .msq-btn-primary { background: #0f766e; color: #fff; }
+  .msq-btn-primary:hover { filter: brightness(0.95); }
+  .msq-names-footer { margin-top: 10px; }
+  .msq-names-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 4px;
   }
   .msq-names-text {
     width: 100%;
     box-sizing: border-box;
-    border: 1px solid #7dd3fc;
-    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
     padding: 8px 10px;
     font-family: ui-monospace, monospace;
     font-size: 12px;
     direction: ltr;
     text-align: left;
     resize: vertical;
-    background: #fff;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+  .msq-field-label {
+    display: block;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 4px;
+    color: #166534;
+  }
+  .msq-field-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 9px 11px;
+    border: 1px solid #86efac;
+    border-radius: 10px;
+    font-size: 12px;
+    direction: ltr;
+    text-align: left;
+  }
+  .msq-field-google {
+    border-color: #86efac;
   }
   .msq-import-section {
     margin: 12px 0;
@@ -700,6 +788,9 @@
     cursor: pointer;
     white-space: nowrap;
   }
+  .msq-btn-sm.msq-btn-delete {
+    padding: 6px 11px;
+  }
   .msq-btn-delete:hover {
     background: #fee2e2;
     border-color: #f87171;
@@ -707,21 +798,23 @@
   .msq-thumbs {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    margin: 8px 0 10px;
-    max-height: 220px;
+    gap: 10px;
+    margin: 0 0 4px;
+    max-height: 240px;
     overflow-y: auto;
     direction: rtl;
+    padding: 2px;
   }
   .msq-thumb {
     position: relative;
-    width: 72px;
-    height: 72px;
-    border-radius: 10px;
+    width: 88px;
+    height: 88px;
+    border-radius: 12px;
     overflow: hidden;
-    border: 1px solid #bae6fd;
-    background: #e0f2fe;
+    border: 1px solid #e2e8f0;
+    background: #f1f5f9;
     flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
   }
   .msq-thumb img {
     width: 100%;
@@ -2523,13 +2616,10 @@
       existing.style.display = "flex";
       var urlInp = document.getElementById("msq-sheet-url");
       if (urlInp) urlInp.value = getSavedSheetUrl();
-      var odInp = document.getElementById("msq-onedrive-url");
-      if (odInp) odInp.value = getSavedOneDriveUrl();
       return;
     }
 
     var savedSheet = getSavedSheetUrl();
-    var savedOneDrive = getSavedOneDriveUrl();
     var overlay = document.createElement("div");
     overlay.id = "my-souq-import-modal";
     overlay.setAttribute("role", "dialog");
@@ -2543,58 +2633,55 @@
       '    <button type="button" id="msq-import-close" title="إغلاق">×</button>',
       '  </div>',
       '  <div class="msq-import-body">',
-      '    <p class="msq-import-note">نافذة واحدة: صور الكوليكشن + بيانات من <b>شيت Google</b> أو ملف على الجهاز.</p>',
+      '    <p class="msq-import-note">صور الكوليكشن من جهازك + بيانات من <b>Google Sheets</b> أو ملف Excel على الجهاز.</p>',
 
-      '    <div class="msq-import-section">',
-      '      <div class="msq-import-section-title">1️⃣ صور الكوليكشن (من جهازك — حتى لو JPG من تليجرام)</div>',
-      '      <label class="msq-import-file-label msq-import-names-label">',
+      '    <div class="msq-import-section msq-images-section">',
+      '      <div class="msq-import-section-title">1️⃣ صور الكوليكشن</div>',
+      '      <div id="msq-dropzone" class="msq-dropzone">',
       '        <input type="file" id="msq-names-file" accept="image/*,.webp,.jpg,.jpeg,.png,.gif" multiple />',
-      '        <span>🖼️ اختر صور الكوليكشن يا مدير</span>',
-      '      </label>',
+      '        <div class="msq-dropzone-inner">',
+      '          <div class="msq-dropzone-icon">📷</div>',
+      '          <div class="msq-dropzone-title">اسحب الصور هنا أو اضغط للاختيار</div>',
+      '          <div class="msq-dropzone-sub">JPG · PNG · WebP من تليجرام أو الجهاز — تتحول تلقائي لـ WebP</div>',
+      '        </div>',
+      '      </div>',
       '      <div id="msq-names-box" class="msq-names-box" style="display:none">',
       '        <div class="msq-names-head">',
-      '          <strong>الصور المختارة (WebP)</strong>',
-      '          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">',
-      '            <button type="button" id="msq-names-copy">نسخ الأسماء</button>',
-      '            <button type="button" id="msq-names-download" class="msq-btn-secondary">تحميل WebP</button>',
-      '            <button type="button" id="msq-names-clear" class="msq-btn-delete" title="مسح كل الصور المختارة">🗑️ حذف الكل</button>',
+      '          <strong id="msq-images-count">الصور المختارة</strong>',
+      '          <div class="msq-names-actions">',
+      '            <button type="button" id="msq-names-copy" class="msq-btn-sm msq-btn-primary">نسخ الأسماء</button>',
+      '            <button type="button" id="msq-names-download" class="msq-btn-sm msq-btn-secondary">تحميل WebP</button>',
+      '            <button type="button" id="msq-names-clear" class="msq-btn-sm msq-btn-delete" title="مسح الكل">حذف الكل</button>',
       '          </div>',
       '        </div>',
       '        <div id="msq-thumbs" class="msq-thumbs"></div>',
-      '        <ul id="msq-thumb-list" class="msq-thumb-list"></ul>',
-      '        <textarea id="msq-names-text" class="msq-names-text" readonly rows="4"></textarea>',
-      '        <p style="margin:6px 0 0;font-size:11px;color:#0369a1;line-height:1.5">معاينة الصور فوق. الأسماء WebP للصقها في الشيت. الضغط عند الرفع: حد أقصى تقريبًا 1000px وجودة مضغوطة.</p>',
+      '        <div class="msq-names-footer">',
+      '          <label class="msq-names-label">أسماء WebP (للصق في الشيت)</label>',
+      '          <textarea id="msq-names-text" class="msq-names-text" readonly rows="3"></textarea>',
+      '        </div>',
       '      </div>',
       '    </div>',
 
       '    <div class="msq-import-section">',
-      '      <div class="msq-import-section-title">2️⃣ البيانات من الشبكة</div>',
+      '      <div class="msq-import-section-title">2️⃣ بيانات المنتجات — Google Sheets</div>',
       '      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">',
       '        <a href="MySouq-Import-Template.csv" download class="msq-btn-link">قالب CSV</a>',
       '        <a href="MySouq-Import-Template.xlsx" download class="msq-btn-link">قالب Excel</a>',
       '      </div>',
-      '      <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px;color:#0b5fff">🔗 رابط OneDrive (Excel)</label>',
-      '      <input id="msq-onedrive-url" type="url" placeholder="https://1drv.ms/... أو رابط مشاركة OneDrive" style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #93c5fd;border-radius:10px;font-size:12px;direction:ltr;text-align:left;margin-bottom:6px" />',
-      '      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">',
-      '        <button type="button" id="msq-onedrive-save" class="msq-btn-teal">حفظ رابط OneDrive</button>',
-      '        <button type="button" id="msq-onedrive-open" class="msq-btn-green">فتح على OneDrive</button>',
-      '        <button type="button" id="msq-onedrive-import" class="msq-btn-blue">استيراد من OneDrive</button>',
-      '      </div>',
-      '      <label style="display:block;font-weight:700;font-size:12px;margin-bottom:4px;color:#166534">أو رابط Google Sheets</label>',
-      '      <input id="msq-sheet-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/...." style="width:100%;box-sizing:border-box;padding:9px 11px;border:1px solid #86efac;border-radius:10px;font-size:12px;direction:ltr;text-align:left;margin-bottom:6px" />',
-      '      <div style="display:flex;gap:8px;flex-wrap:wrap">',
-      '        <button type="button" id="msq-sheet-save" class="msq-btn-teal">حفظ رابط Google</button>',
-      '        <button type="button" id="msq-open-sheet" class="msq-btn-green">فتح Google</button>',
+      '      <label class="msq-field-label">رابط Google Sheets</label>',
+      '      <input id="msq-sheet-url" type="url" placeholder="https://docs.google.com/spreadsheets/d/...." class="msq-field-input msq-field-google" />',
+      '      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">',
+      '        <button type="button" id="msq-sheet-save" class="msq-btn-teal">حفظ الرابط</button>',
+      '        <button type="button" id="msq-open-sheet" class="msq-btn-green">فتح الشيت</button>',
       '        <button type="button" id="msq-sheet-import" class="msq-btn-blue">استيراد من Google</button>',
       '      </div>',
-      '      <p style="margin:8px 0 0;font-size:11px;color:#64748b;line-height:1.5">OneDrive: ارفع الشيت → مشاركة → أي شخص لديه الرابط → انسخ الرابط هنا. لازم يكون ملف Excel/CSV.</p>',
       '    </div>',
 
       '    <div class="msq-import-section">',
-      '      <div class="msq-import-section-title">أو — ملف على الجهاز</div>',
+      '      <div class="msq-import-section-title">أو — ملف Excel / CSV من الجهاز</div>',
       '      <label class="msq-import-file-label">',
       '        <input type="file" id="msq-import-file" accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv" />',
-      '        <span>📄 رفع Excel / CSV من الجهاز</span>',
+      '        <span>📄 اختيار ملف Excel أو CSV</span>',
       '      </label>',
       '      <div id="msq-import-file-name" class="msq-import-file-name"></div>',
       '    </div>',
@@ -2612,8 +2699,6 @@
     document.body.appendChild(overlay);
     var urlInput = document.getElementById("msq-sheet-url");
     urlInput.value = savedSheet;
-    var odInput = document.getElementById("msq-onedrive-url");
-    if (odInput) odInput.value = savedOneDrive || "";
 
     function closeModal() {
       overlay.style.display = "none";
@@ -2625,38 +2710,8 @@
       if (e.target === overlay) closeModal();
     });
 
-    document.getElementById("msq-onedrive-save").addEventListener("click", function () {
-      var v = (odInput.value || "").trim();
-      if (v && !isOneDriveShareUrl(v)) {
-        document.getElementById("msq-import-status").textContent =
-          "رابط OneDrive غير واضح. استخدم رابط المشاركة (1drv.ms أو onedrive.live.com).";
-        return;
-      }
-      setSavedOneDriveUrl(v);
-      document.getElementById("msq-import-status").textContent = v
-        ? "تم ربط OneDrive ✓"
-        : "تم مسح رابط OneDrive.";
-    });
-
-    document.getElementById("msq-onedrive-open").addEventListener("click", function () {
-      var v = (odInput.value || "").trim() || getSavedOneDriveUrl();
-      if (!v) {
-        document.getElementById("msq-import-status").textContent = "الصق رابط OneDrive أولاً.";
-        return;
-      }
-      setSavedOneDriveUrl(v);
-      window.open(v, "_blank", "noopener,noreferrer");
-    });
-
-    document.getElementById("msq-onedrive-import").addEventListener("click", function () {
-      var v = (odInput.value || "").trim() || getSavedOneDriveUrl();
-      if (!v) {
-        document.getElementById("msq-import-status").textContent = "الصق رابط OneDrive واحفظه أولاً.";
-        return;
-      }
-      setSavedOneDriveUrl(v);
-      importFromOneDrive(v);
-    });
+    /* منطقة سحب وإفلات الصور */
+    setupImageDropzone();
 
     document.getElementById("msq-sheet-save").addEventListener("click", function () {
       var v = (urlInput.value || "").trim();
@@ -2797,6 +2852,7 @@
     var box = document.getElementById("msq-names-box");
     var ta = document.getElementById("msq-names-text");
     var thumbs = document.getElementById("msq-thumbs");
+    var countEl = document.getElementById("msq-images-count");
     var statusEl = document.getElementById("msq-import-status");
     var files = getUniqueImportFiles();
 
@@ -2804,6 +2860,7 @@
       if (box) box.style.display = "none";
       if (ta) ta.value = "";
       if (thumbs) thumbs.innerHTML = "";
+      if (countEl) countEl.textContent = "الصور المختارة";
       if (statusEl) statusEl.textContent = "مفيش صور مختارة.";
       return;
     }
@@ -2814,11 +2871,47 @@
     });
     if (ta) ta.value = webpNames.join("\n");
     if (box) box.style.display = "block";
+    if (countEl) countEl.textContent = "الصور المختارة · " + files.length;
     renderImportThumbs(files);
     if (statusEl) {
       statusEl.textContent =
         "تم اختيار " + files.length + " صورة — راجع المعاينة. الأسماء WebP جاهزة للنسخ.";
     }
+  }
+
+  function setupImageDropzone() {
+    var zone = document.getElementById("msq-dropzone");
+    var input = document.getElementById("msq-names-file");
+    if (!zone || !input) return;
+
+    ["dragenter", "dragover"].forEach(function (evt) {
+      zone.addEventListener(evt, function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        zone.classList.add("is-dragover");
+      });
+    });
+    ["dragleave", "drop"].forEach(function (evt) {
+      zone.addEventListener(evt, function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        zone.classList.remove("is-dragover");
+      });
+    });
+    zone.addEventListener("drop", function (e) {
+      var dt = e.dataTransfer;
+      if (!dt || !dt.files || !dt.files.length) return;
+      var list = [];
+      for (var i = 0; i < dt.files.length; i++) {
+        if (/^image\//i.test(dt.files[i].type) || /\.(jpe?g|png|gif|webp)$/i.test(dt.files[i].name)) {
+          list.push(dt.files[i]);
+        }
+      }
+      if (!list.length) return;
+      __msqImportImageFiles = {};
+      __msqImageSavedNames = {};
+      registerImportImageFiles(list);
+    });
   }
 
   function renderImportThumbs(files) {
