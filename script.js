@@ -395,6 +395,9 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       if (m) topLevel[m[1]] = scalar(m[2]);
     }
 
+    // المنتج المخفي مؤقتًا من لوحة الإدارة (hidden: true) لا يظهر في المتجر
+    if (topLevel.hidden === true) return null;
+
     const title = String(topLevel.title ?? 'منتج جديد');
     const price = Number(topLevel.price) || 0;
     const oldPrice = Number(topLevel.oldPrice) || 0;
