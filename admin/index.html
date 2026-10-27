@@ -315,6 +315,10 @@
     background: #229ED9;
     color: #fff;
   }
+  #my-souq-telegram-app-btn {
+    background: #1b7fb5;
+    color: #fff;
+  }
   #my-souq-import-btn {
     background: #0f766e;
     color: #fff;
@@ -1423,6 +1427,7 @@
   "use strict";
 
   var TELEGRAM_WEB_URL = "https://web.telegram.org/";
+  var TELEGRAM_APP_URL = "tg://"; // يفتح تطبيق تيليجرام المثبت على الجهاز
 
   function findSveltiaToolsHost() {
     var selectors = [
@@ -1510,6 +1515,12 @@
     telegram.textContent = "✈️ تيليجرام";
     telegram.title = "فتح Telegram Web الأصلي";
     telegram.setAttribute("aria-pressed", "false");
+
+    var telegramApp = document.createElement("button");
+    telegramApp.id = "my-souq-telegram-app-btn";
+    telegramApp.type = "button";
+    telegramApp.textContent = "📲 تطبيق تيليجرام";
+    telegramApp.title = "فتح تطبيق تيليجرام المثبت على جهازك";
 
     var importBtn = document.createElement("button");
     importBtn.id = "my-souq-import-btn";
@@ -1733,6 +1744,15 @@
     }
 
     telegram.addEventListener("click", showTelegram);
+    telegramApp.addEventListener("click", function () {
+      /* يفتح تطبيق تيليجرام عبر بروتوكول tg:// — المتصفح قد يسأل مرة "فتح Telegram؟" */
+      var a = document.createElement("a");
+      a.href = TELEGRAM_APP_URL;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function () { if (a.parentNode) a.parentNode.removeChild(a); }, 500);
+    });
     preview.addEventListener("click", showPreview);
     workspaceClose.addEventListener("click", closeWorkspace);
     previewHelp.querySelector("#my-souq-preview-return").addEventListener("click", closeWorkspace);
@@ -1895,6 +1915,7 @@
     });
 
     wrap.appendChild(telegram);
+    wrap.appendChild(telegramApp);
     wrap.appendChild(excelBtn);
     wrap.appendChild(importBtn);
     wrap.appendChild(preview);
