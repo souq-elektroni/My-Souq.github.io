@@ -1366,3 +1366,71 @@ footer,
     padding: 7px 5px;
   }
 }
+
+
+/* ===== Size chart: full width under product columns + wider modal ===== */
+html body #productModal .modal-content {
+  width: min(1200px, calc(100vw - 24px)) !important;
+  max-width: 1200px !important;
+  max-height: 96vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+html body #productModal .modal-body {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.95fr) !important;
+  align-items: start !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+html body #productModal #msqSizeHelper,
+html body #productModal .msq-size-helper {
+  grid-column: 1 / -1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  display: none; /* JS toggles to block */
+  margin-top: 4px !important;
+  box-sizing: border-box !important;
+  writing-mode: horizontal-tb !important;
+  direction: rtl !important;
+  flex: none !important;
+  position: relative !important;
+  float: none !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+html body #productModal #msqSizeHelper[style*="block"],
+html body #productModal .msq-size-helper[style*="display: block"] {
+  display: block !important;
+}
+html body #productModal .msq-size-chart-wrap {
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+}
+html body #productModal .msq-size-chart {
+  width: 100% !important;
+  min-width: 320px !important;
+  table-layout: auto !important;
+}
+html body #productModal .msq-size-chart th,
+html body #productModal .msq-size-chart td {
+  white-space: nowrap !important;
+  padding: 10px 12px !important;
+  font-size: 13px !important;
+}
+html body #productModal .modal-gallery-wrapper {
+  overflow: visible !important;
+  max-height: none !important;
+}
+@media (max-width: 768px) {
+  html body #productModal .modal-body {
+    grid-template-columns: 1fr !important;
+  }
+  html body #productModal #msqSizeHelper {
+    grid-column: 1 !important;
+    order: 2 !important;
+  }
+}

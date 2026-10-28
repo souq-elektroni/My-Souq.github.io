@@ -447,30 +447,7 @@
             <div id="vtoStatus" class="msq-vto-status"></div>
             <img id="vtoResultImg" class="msq-vto-result" alt="نتيجة تجربة الملابس" style="display:none;">
           </div>
-
-          <!-- ===== جدول المقاسات تحت صور المنتج ===== -->
-          <div id="msqSizeHelper" class="msq-size-helper" style="display:none;">
-            <div class="msq-size-section-title">📏 جدول المقاسات <span class="msq-size-unit">(بالسنتيمتر)</span></div>
-            <div id="msqSizeChartWrap" class="msq-size-chart-wrap">
-              <table id="msqSizeChart" class="msq-size-chart">
-                <thead>
-                  <tr id="msqSizeChartHead"></tr>
-                </thead>
-                <tbody id="msqSizeChartBody"></tbody>
-              </table>
-            </div>
-            <div id="msqAgeCalcBox" class="msq-age-calc" style="display:none;">
-              <label class="msq-age-label">🧮 مش عارف المقاس؟ احسب حسب عمر الطفل</label>
-              <div class="msq-age-row">
-                <input type="number" id="msqChildAge" min="1" max="16" step="1" placeholder="العمر بالسنوات" inputmode="numeric" />
-                <button type="button" id="msqCalcSizeBtn">اقترح المقاس</button>
-              </div>
-              <div id="msqAgeResult" class="msq-age-result"></div>
-            </div>
-          </div>
-          <!-- ===== نهاية جدول المقاسات ===== -->
-
-        </div>
+</div>
 
         <div class="modal-info">
 
@@ -589,6 +566,28 @@
           <p class="multi-design-hint">تقدر تجمع أكثر من شكل في السلة، وبعدها تبعتهم كلهم في طلب واتساب واحد مع روابط صور كل شكل.</p></div>
 
       </div>
+
+          <!-- ===== جدول المقاسات — عرض كامل تحت محتوى المنتج ===== -->
+          <div id="msqSizeHelper" class="msq-size-helper" style="display:none;">
+            <div class="msq-size-section-title">📏 جدول المقاسات <span class="msq-size-unit">(بالسنتيمتر)</span></div>
+            <div id="msqSizeChartWrap" class="msq-size-chart-wrap">
+              <table id="msqSizeChart" class="msq-size-chart">
+                <thead>
+                  <tr id="msqSizeChartHead"></tr>
+                </thead>
+                <tbody id="msqSizeChartBody"></tbody>
+              </table>
+            </div>
+            <div id="msqAgeCalcBox" class="msq-age-calc" style="display:none;">
+              <label class="msq-age-label">🧮 مش عارف المقاس؟ احسب حسب عمر الطفل</label>
+              <div class="msq-age-row">
+                <input type="number" id="msqChildAge" min="1" max="16" step="1" placeholder="العمر بالسنوات" inputmode="numeric" />
+                <button type="button" id="msqCalcSizeBtn">اقترح المقاس</button>
+              </div>
+              <div id="msqAgeResult" class="msq-age-result"></div>
+            </div>
+          </div>
+          <!-- ===== نهاية جدول المقاسات ===== -->
 
     </div>
 
