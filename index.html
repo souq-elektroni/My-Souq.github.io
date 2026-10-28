@@ -183,6 +183,55 @@
   <meta name="twitter:title" content="My Souq — ماي سوق">
   <meta name="twitter:description" content="ملابس أطفال ونساء ورجال بأجود الخامات.">
   <title>My Souq — ماي سوق | ملابس أطفال ونساء ورجال</title>
+
+  <!-- ===== Meta Pixel + GA4 (ضع المعرفات هنا) ===== -->
+  <script>
+    window.MSQ_META_PIXEL_ID = ''; // مثال: '123456789012345'
+    window.MSQ_GA4_ID = '';        // مثال: 'G-XXXXXXXXXX'
+  </script>
+  <script>
+  (function(){
+    var pixelId = window.MSQ_META_PIXEL_ID;
+    var ga4Id = window.MSQ_GA4_ID;
+    if (pixelId) {
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
+      (window, document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', pixelId);
+      fbq('track', 'PageView');
+    }
+    if (ga4Id) {
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(ga4Id);
+      document.head.appendChild(s);
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      window.gtag = gtag;
+      gtag('js', new Date());
+      gtag('config', ga4Id);
+    }
+    window.msqTrackEvent = function(name, params) {
+      try {
+        if (window.fbq && pixelId) {
+          if (name === 'Purchase') fbq('track', 'Purchase', params || {});
+          else if (name === 'AddToCart') fbq('track', 'AddToCart', params || {});
+          else if (name === 'ViewContent') fbq('track', 'ViewContent', params || {});
+          else fbq('trackCustom', name, params || {});
+        }
+      } catch (e) {}
+      try {
+        if (window.gtag && ga4Id) {
+          gtag('event', name === 'Purchase' ? 'purchase' : (name === 'AddToCart' ? 'add_to_cart' : name.toLowerCase()), params || {});
+        }
+      } catch (e2) {}
+    };
+  })();
+  </script>
+  <!-- ===== نهاية التتبع ===== -->
+
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -342,6 +391,10 @@
       <span class="cat-divider" aria-hidden="true"></span>
       <button class="cat-btn stock-avail" onclick="filterStock('available', this)">🟢 متوفرة</button>
       <button class="cat-btn stock-out" onclick="filterStock('out', this)">🔴 نفذت</button>
+      <span class="cat-divider" aria-hidden="true"></span>
+      <button type="button" class="cat-btn msq-gender-btn active" data-gender="all" onclick="filterGender('all', this)">الكل 👤</button>
+      <button type="button" class="cat-btn msq-gender-btn" data-gender="male" onclick="filterGender('male', this)">رجالي / أولادي 👦</button>
+      <button type="button" class="cat-btn msq-gender-btn" data-gender="female" onclick="filterGender('female', this)">نسائي / بناتي 👧</button>
     </div>
 
     <!-- صف البحث والترتيب منفصل بوضوح -->
@@ -422,30 +475,6 @@
             <button type="button" onclick="galleryPrev()" aria-label="السابق">‹</button>
             <button type="button" onclick="openZoom()" aria-label="تكبير">🔍</button>
             <button type="button" onclick="galleryNext()" aria-label="التالي">›</button>
-          </div>
-
-          <!-- Virtual Try-On (controlled by admin toggle) — compact row -->
-          <div id="virtualTryOnBox" class="msq-vto-box" style="display:none;">
-            <div class="msq-vto-head">
-              <span aria-hidden="true">👕</span>
-              <span>جرب المنتج عليك</span>
-            </div>
-            <div class="msq-vto-row">
-              <input type="file" id="vtoPersonInput" accept="image/*" style="display:none;">
-              <label for="vtoPersonInput" id="vtoUploadLabel" class="msq-vto-upload-sq" title="ارفع صورتك">
-                <span class="msq-vto-cam" aria-hidden="true">📷</span>
-                <span id="vtoUploadTitle" class="msq-vto-upload-txt">صورتك</span>
-                <span id="vtoUploadHint" class="msq-vto-upload-hint"></span>
-              </label>
-              <select id="vtoCategory" class="msq-vto-select" aria-label="نوع القطعة">
-                <option value="one-pieces">طقم / قطعة واحدة</option>
-                <option value="tops">بلوزة / تيشيرت</option>
-                <option value="bottoms">بنطلون / جيبة</option>
-              </select>
-              <button type="button" id="vtoRunBtn" class="msq-vto-btn" onclick="runVirtualTryOn()">✨ جرب</button>
-            </div>
-            <div id="vtoStatus" class="msq-vto-status"></div>
-            <img id="vtoResultImg" class="msq-vto-result" alt="نتيجة تجربة الملابس" style="display:none;">
           </div>
 </div>
 
@@ -3245,6 +3274,18 @@ window.addToCartAndContinue = function () {
           '<input type="text" id="maintenanceMessageInput" class="msq-maint-input" placeholder="مثال: نرجع الساعة 8 مساءً إن شاء الله">' +
           '<div id="maintenanceAdminCountdown" class="msq-maint-admin-cd" style="display:none;"></div>' +
           '<div style="font-size:10.5px;color:var(--text-muted);margin-top:8px;line-height:1.65;">عند التشغيل: المتجر يختفي عن العملاء ويظهر عدّاد الرجوع. عند انتهاء الموعد يتوقف الوضع تلقائيًا. الإدارة تفضل تقدر تدخل.</div>' +
+        '</div>' +
+        '<div class="msq-promo-admin" id="msqPromoAdminBox" style="margin-top:16px;padding-top:14px;border-top:1px dashed #e0cfc0;">' +
+          '<div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:8px;font-size:14px;">🏷️ أكواد الخصم</div>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+            '<label style="font-size:11px;font-weight:700;display:flex;flex-direction:column;gap:4px;">الكود<input id="msqPromoCode" class="msq-maint-input" placeholder="مثال: SOUQ10" style="text-transform:uppercase;"></label>' +
+            '<label style="font-size:11px;font-weight:700;display:flex;flex-direction:column;gap:4px;">النوع<select id="msqPromoType" class="msq-maint-input"><option value="percent">نسبة %</option><option value="fixed">مبلغ ثابت ج.م</option></select></label>' +
+            '<label style="font-size:11px;font-weight:700;display:flex;flex-direction:column;gap:4px;">القيمة<input id="msqPromoValue" type="number" min="1" class="msq-maint-input" placeholder="10"></label>' +
+            '<label style="font-size:11px;font-weight:700;display:flex;flex-direction:column;gap:4px;">حد الطلبات (اختياري)<input id="msqPromoMaxUses" type="number" min="1" class="msq-maint-input" placeholder="مثال: 50"></label>' +
+            '<label style="font-size:11px;font-weight:700;display:flex;flex-direction:column;gap:4px;grid-column:1/-1;">ينتهي في (تاريخ ووقت)<input id="msqPromoExpires" type="datetime-local" class="msq-maint-input"></label>' +
+          '</div>' +
+          '<button type="button" id="msqPromoSaveBtn" onclick="msqSavePromoCode()" style="margin-top:10px;width:100%;padding:10px;border:0;border-radius:10px;background:linear-gradient(135deg,#8b3f52,#6d3142);color:#fff;font-weight:900;cursor:pointer;">💾 حفظ / تحديث الكود</button>' +
+          '<div id="msqPromoList" style="margin-top:12px;font-size:12px;"></div>' +
         '</div>';
       var header = document.getElementById('adminOrdersHeader');
       if (header && header.parentNode) {
@@ -3253,7 +3294,109 @@ window.addToCartAndContinue = function () {
         logout.parentNode.insertBefore(wrap, logout.nextSibling);
       }
       readMaintenanceMode();
+      try { if (typeof msqLoadPromoCodes === 'function') msqLoadPromoCodes(); } catch (e) {}
     }
+
+    async function msqSavePromoCode() {
+      try {
+        if (typeof firebase === 'undefined' || !firebase.apps.length) { alert('Firebase غير متاح'); return; }
+        var db = firebase.firestore();
+        var code = (document.getElementById('msqPromoCode').value || '').trim().toUpperCase();
+        var type = (document.getElementById('msqPromoType').value || 'percent');
+        var value = Number(document.getElementById('msqPromoValue').value);
+        var maxUsesRaw = document.getElementById('msqPromoMaxUses').value;
+        var maxUses = maxUsesRaw === '' ? null : Number(maxUsesRaw);
+        var expRaw = document.getElementById('msqPromoExpires').value;
+        if (!code || !/^[A-Z0-9_-]{3,24}$/.test(code)) { alert('اكتب كود صالح (حروف/أرقام، 3–24)'); return; }
+        if (!value || value <= 0) { alert('أدخل قيمة خصم صحيحة'); return; }
+        if (type === 'percent' && value > 90) { alert('النسبة بحد أقصى 90%'); return; }
+        var payload = {
+          code: code,
+          type: type,
+          value: value,
+          maxUses: (maxUses != null && !isNaN(maxUses)) ? maxUses : null,
+          usedCount: firebase.firestore.FieldValue.increment(0),
+          enabled: true,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if (expRaw) {
+          payload.expiresAt = firebase.firestore.Timestamp.fromDate(new Date(expRaw));
+        } else {
+          payload.expiresAt = null;
+        }
+        var ref = db.collection('promoCodes').doc(code);
+        var existing = await ref.get();
+        if (!existing.exists) {
+          payload.usedCount = 0;
+          payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        }
+        await ref.set(payload, { merge: true });
+        alert('تم حفظ كود الخصم ✅');
+        document.getElementById('msqPromoCode').value = '';
+        document.getElementById('msqPromoValue').value = '';
+        document.getElementById('msqPromoMaxUses').value = '';
+        document.getElementById('msqPromoExpires').value = '';
+        msqLoadPromoCodes();
+      } catch (e) {
+        console.error(e);
+        alert('تعذر حفظ الكود: ' + (e && e.message ? e.message : e));
+      }
+    }
+    window.msqSavePromoCode = msqSavePromoCode;
+
+    async function msqLoadPromoCodes() {
+      var list = document.getElementById('msqPromoList');
+      if (!list) return;
+      list.innerHTML = 'جاري تحميل الأكواد...';
+      try {
+        if (typeof firebase === 'undefined' || !firebase.apps.length) { list.textContent = 'Firebase غير متاح'; return; }
+        var db = firebase.firestore();
+        var snap = await db.collection('promoCodes').orderBy('updatedAt', 'desc').limit(30).get();
+        if (snap.empty) { list.innerHTML = '<div style="color:#8a6d62;">لا توجد أكواد بعد.</div>'; return; }
+        var html = '';
+        snap.forEach(function (doc) {
+          var d = doc.data() || {};
+          var exp = '';
+          if (d.expiresAt) {
+            try { exp = (d.expiresAt.toDate ? d.expiresAt.toDate() : new Date(d.expiresAt)).toLocaleString('ar-EG'); } catch (e) { exp = ''; }
+          }
+          var used = Number(d.usedCount || 0);
+          var maxU = d.maxUses != null ? d.maxUses : '∞';
+          var on = d.enabled !== false;
+          // auto status note
+          var status = on ? '🟢 مفعّل' : '🔴 متوقف';
+          html += '<div style="border:1px solid #edd9cb;border-radius:10px;padding:8px 10px;margin-bottom:8px;background:#fff;">' +
+            '<div style="font-weight:900;color:#6d3142;">' + (d.code || doc.id) + ' — ' + (d.type === 'fixed' ? (d.value + ' ج.م') : (d.value + '%')) + '</div>' +
+            '<div style="font-size:11px;color:#6a4e48;margin-top:3px;">' + status + ' · استخدام: ' + used + ' / ' + maxU + (exp ? (' · ينتهي: ' + exp) : '') + '</div>' +
+            '<div style="margin-top:6px;display:flex;gap:6px;">' +
+              '<button type="button" data-code="' + doc.id + '" class="msq-promo-toggle" style="flex:1;padding:6px;border:0;border-radius:8px;background:#f0e4da;font-weight:800;cursor:pointer;">' + (on ? 'إيقاف' : 'تفعيل') + '</button>' +
+              '<button type="button" data-code="' + doc.id + '" class="msq-promo-del" style="flex:1;padding:6px;border:0;border-radius:8px;background:#ffebee;color:#c62828;font-weight:800;cursor:pointer;">حذف</button>' +
+            '</div></div>';
+        });
+        list.innerHTML = html;
+        list.querySelectorAll('.msq-promo-toggle').forEach(function (btn) {
+          btn.onclick = async function () {
+            var code = btn.getAttribute('data-code');
+            var ref = db.collection('promoCodes').doc(code);
+            var s = await ref.get();
+            var cur = s.exists && s.data() && s.data().enabled !== false;
+            await ref.set({ enabled: !cur, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+            msqLoadPromoCodes();
+          };
+        });
+        list.querySelectorAll('.msq-promo-del').forEach(function (btn) {
+          btn.onclick = async function () {
+            if (!confirm('حذف الكود؟')) return;
+            await db.collection('promoCodes').doc(btn.getAttribute('data-code')).delete();
+            msqLoadPromoCodes();
+          };
+        });
+      } catch (e) {
+        console.error(e);
+        list.innerHTML = '<div style="color:#c62828;">تعذر التحميل — أضف فهرس updatedAt على promoCodes إن لزم.</div>';
+      }
+    }
+    window.msqLoadPromoCodes = msqLoadPromoCodes;
 
     function enhanceAdminOrderRenderer() {
       if (typeof window.filterAdminOrders !== 'function' || window.filterAdminOrders.__cancelEnhanced) return;
@@ -4241,542 +4384,6 @@ window.addToCartAndContinue = function () {
       }
     });
   </script>
-
-<script id="mysouq-virtual-tryon-feature">
-/* ===== My Souq: Virtual Try-On (FASHN VTON free) + Admin Toggle =====
-   - Toggle lives inside admin orders modal (same access as maintenance)
-   - Flag stored in Firestore: settings/features.virtual_tryon_enabled
-   - Does not remove or alter any existing feature
-*/
-(function () {
-  var VTO_COLLECTION = 'settings';
-  var VTO_DOC = 'features';
-  var VTO_LOCAL_KEY = 'mysouq_vto_enabled';
-  var vtoEnabledCache = null;
-  if (typeof window.__mysouqVtoEnabled === 'undefined') window.__mysouqVtoEnabled = null;
-
-  function isAdminNow() {
-    try { return typeof isAdminMode !== 'undefined' && !!isAdminMode; } catch (e) { return false; }
-  }
-
-  function getDb() {
-    try {
-      if (typeof db !== 'undefined' && db) return db;
-      if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
-        return firebase.firestore();
-      }
-    } catch (e) {}
-    return null;
-  }
-
-  async function readVtoEnabled() {
-    var enabled = false;
-    var dbRef = getDb();
-    if (dbRef) {
-      try {
-        var snap = await dbRef.collection(VTO_COLLECTION).doc(VTO_DOC).get();
-        if (snap.exists) {
-          var data = snap.data() || {};
-          enabled = data.virtual_tryon_enabled === true;
-        }
-      } catch (e) {
-        console.warn('VTO read failed:', e);
-      }
-    }
-    if (!dbRef) {
-      try {
-        var local = JSON.parse(localStorage.getItem(VTO_LOCAL_KEY) || 'null');
-        if (local && typeof local.enabled === 'boolean') enabled = local.enabled;
-      } catch (e) {}
-    }
-    vtoEnabledCache = enabled;
-    // Shared state prevents duplicate feature modules from disagreeing about activation.
-    window.__mysouqVtoEnabled = enabled;
-    updateVtoAdminUi(enabled);
-    syncVtoBoxVisibility();
-    return enabled;
-  }
-
-  function updateVtoAdminUi(enabled) {
-    var status = document.getElementById('vtoAdminStatus');
-    var btn = document.getElementById('vtoAdminToggle');
-    if (status) {
-      status.textContent = enabled ? '🟢 ميزة تجربة الملابس مفعّلة' : '🔴 ميزة تجربة الملابس متوقفة';
-    }
-    if (btn) {
-      btn.textContent = enabled ? 'إيقاف تجربة الملابس' : 'تشغيل تجربة الملابس';
-      btn.className = 'maintenance-toggle-btn ' + (enabled ? 'on' : 'off');
-    }
-  }
-
-  function syncVtoBoxVisibility() {
-    var box = document.getElementById('virtualTryOnBox');
-    if (!box) return;
-    var on = vtoEnabledCache === true;
-    box.style.display = on ? 'block' : 'none';
-    if (on) box.classList.add('vto-visible');
-    else box.classList.remove('vto-visible');
-  }
-
-  window.toggleVirtualTryOn = async function () {
-    if (!isAdminNow()) {
-      alert('يجب تسجيل الدخول كمسؤول أولاً.');
-      return;
-    }
-    var dbRef = getDb();
-    if (!dbRef) {
-      alert('Firebase غير متاح حالياً.');
-      return;
-    }
-    var current = false;
-    try {
-      var snap = await dbRef.collection(VTO_COLLECTION).doc(VTO_DOC).get();
-      if (snap.exists) current = !!(snap.data() || {}).virtual_tryon_enabled;
-    } catch (e) {}
-    var next = !current;
-    var payload = {
-      virtual_tryon_enabled: next,
-      updatedAt: new Date().toISOString()
-    };
-    try {
-      await dbRef.collection(VTO_COLLECTION).doc(VTO_DOC).set(payload, { merge: true });
-    } catch (e) {
-      alert('تعذر حفظ إعداد تجربة الملابس على السحابة.\nتأكد من قواعد Firestore.\n' + (e && e.message ? e.message : ''));
-      return;
-    }
-    try { localStorage.setItem(VTO_LOCAL_KEY, JSON.stringify({ enabled: next })); } catch (e) {}
-    vtoEnabledCache = next;
-    window.__mysouqVtoEnabled = next;
-    updateVtoAdminUi(next);
-    syncVtoBoxVisibility();
-    alert(next ? 'تم تشغيل ميزة تجربة الملابس ✅' : 'تم إيقاف ميزة تجربة الملابس ✅');
-  };
-
-  function injectVtoAdminControl() {
-    if (document.getElementById('vtoAdminBox')) return;
-    var modal = document.getElementById('adminOrdersModal');
-    if (!modal) return;
-    var after = document.getElementById('maintenanceAdminBox');
-    var logout = document.getElementById('adminLogoutBtn');
-    var wrap = document.createElement('div');
-    wrap.id = 'vtoAdminBox';
-    wrap.className = 'maintenance-admin-box';
-    wrap.style.marginTop = '8px';
-    wrap.innerHTML =
-      '<div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:7px;">👕 تجربة الملابس (Virtual Try-On)</div>' +
-      '<div class="maintenance-admin-row">' +
-      '  <span id="vtoAdminStatus" style="font-size:12px;font-weight:800;">جاري قراءة الحالة...</span>' +
-      '  <button id="vtoAdminToggle" type="button" class="maintenance-toggle-btn off" onclick="toggleVirtualTryOn()">تشغيل تجربة الملابس</button>' +
-      '</div>' +
-      '<div style="font-size:10.5px;color:var(--text-muted);margin-top:6px;">عند تشغيله يظهر زر «جرب المنتج عليك» داخل تفاصيل المنتج للعملاء.</div>';
-    if (after && after.parentNode) {
-      after.parentNode.insertBefore(wrap, after.nextSibling);
-    } else if (logout && logout.parentNode) {
-      logout.parentNode.insertBefore(wrap, logout.nextSibling);
-    } else {
-      var header = document.getElementById('adminOrdersHeader');
-      if (header && header.parentNode) header.parentNode.insertBefore(wrap, header.nextSibling);
-    }
-    readVtoEnabled();
-  }
-
-  // Re-inject when admin modal opens
-  function watchAdminModal() {
-    var modal = document.getElementById('adminOrdersModal');
-    if (!modal) return;
-    var obs = new MutationObserver(function () {
-      if (modal.classList.contains('active')) {
-        injectVtoAdminControl();
-        readVtoEnabled();
-      }
-    });
-    obs.observe(modal, { attributes: true, attributeFilter: ['class'] });
-  }
-
-  // When product modal opens, refresh visibility
-  function watchProductModal() {
-    var modal = document.getElementById('productModal');
-    if (!modal) return;
-    var obs = new MutationObserver(function () {
-      if (modal.classList.contains('active') || modal.style.display === 'flex') {
-        if (vtoEnabledCache === null) readVtoEnabled();
-        else syncVtoBoxVisibility();
-        // reset result UI
-        var status = document.getElementById('vtoStatus');
-        var img = document.getElementById('vtoResultImg');
-        var input = document.getElementById('vtoPersonInput');
-        if (status) status.textContent = '';
-        if (img) { img.style.display = 'none'; img.removeAttribute('src'); }
-        if (input) input.value = '';
-        try {
-          var catEl = document.getElementById('vtoCategory');
-          if (catEl) {
-            delete catEl.dataset.userTouched;
-            var p = (typeof currentSelectedProduct !== 'undefined') ? currentSelectedProduct : null;
-            var t = String(((p && (p.title || p.name || p.productName)) || '') + ' ' + ((p && p.desc) || '')).toLowerCase();
-            if (/طقم|set|pajamas|بيجام|بدلة|اوفرول|أوفرول|فستان/.test(t)) catEl.value = 'one-pieces';
-            else if (/بنطلون|جيبة|pants|skirt/.test(t)) catEl.value = 'bottoms';
-            else catEl.value = 'one-pieces';
-          }
-        } catch (e) {}
-        var title = document.getElementById('vtoUploadTitle');
-        var hint = document.getElementById('vtoUploadHint');
-        var label = document.getElementById('vtoUploadLabel');
-        if (title) title.textContent = 'صورتك';
-        if (hint) hint.textContent = '';
-        if (label) {
-          label.style.borderColor = 'rgba(139,63,82,.35)';
-          label.style.background = 'rgba(255,255,255,.85)';
-        }
-      }
-    });
-    obs.observe(modal, { attributes: true, attributeFilter: ['class', 'style'] });
-  }
-
-  function bindVtoUploadUi() {
-    var input = document.getElementById('vtoPersonInput');
-    var title = document.getElementById('vtoUploadTitle');
-    var hint = document.getElementById('vtoUploadHint');
-    var label = document.getElementById('vtoUploadLabel');
-    if (!input || input._vtoBound) return;
-    input._vtoBound = true;
-    input.addEventListener('change', function () {
-      var f = input.files && input.files[0];
-      if (f) {
-        if (title) title.textContent = 'تم ✓';
-        if (hint) hint.textContent = '';
-        if (label) {
-          label.style.borderColor = 'rgba(46,125,50,.55)';
-          label.style.background = 'rgba(232,245,233,.65)';
-        }
-      } else {
-        if (title) title.textContent = 'صورتك';
-        if (hint) hint.textContent = '';
-        if (label) {
-          label.style.borderColor = 'rgba(139,63,82,.35)';
-          label.style.background = 'rgba(255,255,255,.85)';
-        }
-      }
-    });
-  }
-
-  // Hook openProductModal if available
-  function hookOpenProductModal() {
-    if (typeof window.openProductModal !== 'function' || window.openProductModal._vtoHooked) return;
-    var orig = window.openProductModal;
-    window.openProductModal = function () {
-      var r = orig.apply(this, arguments);
-      setTimeout(function () {
-        if (vtoEnabledCache === null) readVtoEnabled();
-        else syncVtoBoxVisibility();
-      }, 50);
-      return r;
-    };
-    window.openProductModal._vtoHooked = true;
-  }
-
-  // ===== Image preprocessing helpers =====
-  function loadImageFromBlob(blob) {
-    return new Promise(function (resolve, reject) {
-      var url = URL.createObjectURL(blob);
-      var img = new Image();
-      img.onload = function () {
-        URL.revokeObjectURL(url);
-        resolve(img);
-      };
-      img.onerror = function () {
-        URL.revokeObjectURL(url);
-        reject(new Error('تعذر قراءة الصورة'));
-      };
-      img.src = url;
-    });
-  }
-
-  function canvasToJpegBlob(canvas, quality) {
-    return new Promise(function (resolve) {
-      canvas.toBlob(function (b) {
-        resolve(b || null);
-      }, 'image/jpeg', quality == null ? 0.92 : quality);
-    });
-  }
-
-  // Resize long side to maxSide, mild contrast/brightness normalize, output JPEG
-  async function preprocessImageBlob(blob, maxSide, opts) {
-    opts = opts || {};
-    maxSide = maxSide || 1024;
-    var img = await loadImageFromBlob(blob);
-    var w = img.naturalWidth || img.width;
-    var h = img.naturalHeight || img.height;
-    if (!w || !h) throw new Error('أبعاد الصورة غير صالحة');
-
-    var scale = 1;
-    var long = Math.max(w, h);
-    if (long > maxSide) scale = maxSide / long;
-    // also upscale very small images a bit for the model
-    if (long < 480) scale = Math.min(1.5, 640 / long);
-
-    var nw = Math.max(1, Math.round(w * scale));
-    var nh = Math.max(1, Math.round(h * scale));
-    // keep even dimensions
-    if (nw % 2) nw -= 1;
-    if (nh % 2) nh -= 1;
-
-    var canvas = document.createElement('canvas');
-    canvas.width = nw;
-    canvas.height = nh;
-    var ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(img, 0, 0, nw, nh);
-
-    // mild normalization to reduce over-bright results
-    try {
-      var id = ctx.getImageData(0, 0, nw, nh);
-      var d = id.data;
-      var sum = 0, count = nw * nh;
-      for (var i = 0; i < d.length; i += 4) {
-        sum += 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
-      }
-      var mean = sum / count;
-      // target mid-gray ~118; pull slightly toward it if very bright/dark
-      var target = 118;
-      var factor = 1;
-      if (mean > 160) factor = 0.92;
-      else if (mean > 145) factor = 0.96;
-      else if (mean < 70) factor = 1.08;
-      else if (mean < 90) factor = 1.04;
-      if (factor !== 1) {
-        for (var j = 0; j < d.length; j += 4) {
-          d[j] = Math.min(255, Math.max(0, d[j] * factor));
-          d[j + 1] = Math.min(255, Math.max(0, d[j + 1] * factor));
-          d[j + 2] = Math.min(255, Math.max(0, d[j + 2] * factor));
-        }
-        ctx.putImageData(id, 0, 0);
-      }
-    } catch (e) {
-      // ignore getImageData failures (security)
-    }
-
-    var out = await canvasToJpegBlob(canvas, opts.quality != null ? opts.quality : 0.92);
-    if (!out) throw new Error('فشل تجهيز الصورة');
-    // name helps some APIs
-    try { out = new File([out], opts.filename || 'image.jpg', { type: 'image/jpeg' }); } catch (e) {}
-    return out;
-  }
-
-  async function blobFromUrl(url) {
-    var gRes = await fetch(url, { mode: 'cors' }).catch(function () { return null; });
-    if (gRes && gRes.ok) return await gRes.blob();
-    return await new Promise(function (resolve, reject) {
-      var im = new Image();
-      im.crossOrigin = 'anonymous';
-      im.onload = function () {
-        try {
-          var c = document.createElement('canvas');
-          c.width = im.naturalWidth;
-          c.height = im.naturalHeight;
-          c.getContext('2d').drawImage(im, 0, 0);
-          c.toBlob(function (b) { b ? resolve(b) : reject(new Error('blob fail')); }, 'image/jpeg', 0.92);
-        } catch (err) { reject(err); }
-      };
-      im.onerror = function () { reject(new Error('image load fail')); };
-      im.src = url;
-    });
-  }
-
-  function extractResultUrl(result) {
-    if (!result || !result.data) return null;
-    var d0 = result.data[0];
-    if (typeof d0 === 'string') return d0;
-    if (d0 && d0.url) return d0.url;
-    if (Array.isArray(d0) && d0[0]) return (typeof d0[0] === 'string' ? d0[0] : (d0[0] && d0[0].url));
-    // some spaces return { path, url } deeper
-    if (result.data && result.data.length > 1) {
-      for (var i = 0; i < result.data.length; i++) {
-        var x = result.data[i];
-        if (typeof x === 'string' && /^https?:/.test(x)) return x;
-        if (x && x.url) return x.url;
-      }
-    }
-    return null;
-  }
-
-  async function callFashnTryOn(client, personFile, garmentFile, category, photoType, timesteps, guidance, seed) {
-    return client.predict('/try_on', {
-      person_image: personFile,
-      garment_image: garmentFile,
-      category: category,
-      garment_photo_type: photoType,
-      num_timesteps: timesteps,
-      guidance_scale: guidance,
-      seed: seed,
-      segmentation_free: true
-    });
-  }
-
-  window.runVirtualTryOnImproved = async function () {
-    // The admin UI and try-on executor were initialized by duplicate closures in older builds.
-    // Reuse their shared flag and re-check Firestore before declaring the feature disabled.
-    if (vtoEnabledCache !== true && window.__mysouqVtoEnabled === true) {
-      vtoEnabledCache = true;
-    }
-    if (vtoEnabledCache !== true) {
-      try { await readVtoEnabled(); } catch (e) {}
-      if (vtoEnabledCache !== true && window.__mysouqVtoEnabled === true) {
-        vtoEnabledCache = true;
-      }
-    }
-    if (vtoEnabledCache !== true) {
-      alert('تعذر التأكد من حالة تجربة الملابس الآن. حدّث الصفحة وحاول مرة أخرى.');
-      return;
-    }
-    var personInput = document.getElementById('vtoPersonInput');
-    var categoryEl = document.getElementById('vtoCategory');
-    var statusEl = document.getElementById('vtoStatus');
-    var resultImg = document.getElementById('vtoResultImg');
-    var btn = document.getElementById('vtoRunBtn');
-    if (!personInput || !personInput.files || !personInput.files[0]) {
-      if (statusEl) statusEl.textContent = 'من فضلك ارفع صورتك أولاً';
-      return;
-    }
-    var garmentUrl = null;
-    try {
-      if (typeof currentSelectedProduct !== 'undefined' && currentSelectedProduct) {
-        garmentUrl = (currentSelectedProduct.images && currentSelectedProduct.images[0]) || currentSelectedProduct.image || null;
-      }
-      var modalImg = document.getElementById('modalImage');
-      if (!garmentUrl && modalImg && modalImg.src) garmentUrl = modalImg.src;
-    } catch (e) {}
-    if (!garmentUrl) {
-      if (statusEl) statusEl.textContent = 'تعذر تحديد صورة المنتج';
-      return;
-    }
-
-    if (btn) btn.disabled = true;
-    if (statusEl) statusEl.textContent = 'جاري تجهيز الصور...';
-    if (resultImg) { resultImg.style.display = 'none'; resultImg.removeAttribute('src'); }
-
-    try {
-      var personRaw = personInput.files[0];
-      var garmentRaw = await blobFromUrl(garmentUrl);
-      if (!garmentRaw) throw new Error('تعذر تحميل صورة المنتج. جرب صورة منتج من نفس الموقع.');
-
-      // Preprocess both images
-      if (statusEl) statusEl.textContent = 'جاري تحسين الصور قبل الإرسال...';
-      var personFile = await preprocessImageBlob(personRaw, 1024, { filename: 'person.jpg', quality: 0.92 });
-      var garmentFile = await preprocessImageBlob(garmentRaw, 1024, { filename: 'garment.jpg', quality: 0.93 });
-
-      // احترم الفئة التي اختارها المستخدم؛ لا نخمن نوع القطعة من اسم المنتج.
-      var category = (categoryEl && categoryEl.value) || 'one-pieces';
-
-      if (statusEl) statusEl.textContent = 'المحاولة 1 من 2... قد تستغرق 30–60 ثانية';
-
-      var mod = await import('https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js');
-      var Client = mod.Client;
-      var client = await Client.connect('fashn-ai/fashn-vton-1.5');
-
-      // Attempt 1: flat-lay + mild guidance (better lighting preservation)
-      var imageUrl = null;
-      var lastErr = null;
-      function isQuotaError(e) {
-        var m = e && (e.message || String(e)) || '';
-        return /ZeroGPU|exceeded your ZeroGPU|runs limit|quota|429|rate limit/i.test(m);
-      }
-
-      try {
-        var result1 = await callFashnTryOn(client, personFile, garmentFile, category, 'flat-lay', 50, 1.8, 42);
-        imageUrl = extractResultUrl(result1);
-      } catch (e1) {
-        lastErr = e1;
-        console.warn('VTO attempt 1 failed:', e1);
-      }
-
-      // Attempt 2 only if not a quota error (retries burn more free quota)
-      if (!imageUrl && !isQuotaError(lastErr)) {
-        if (statusEl) statusEl.textContent = 'المحاولة 1 لم تنجح — جاري المحاولة 2 بإعدادات مختلفة...';
-        try {
-          var result2 = await callFashnTryOn(client, personFile, garmentFile, category, 'model', 50, 2.2, 123);
-          imageUrl = extractResultUrl(result2);
-        } catch (e2) {
-          lastErr = e2;
-          console.warn('VTO attempt 2 failed:', e2);
-        }
-      }
-
-      if (!imageUrl && !isQuotaError(lastErr) && category === 'one-pieces') {
-        if (statusEl) statusEl.textContent = 'محاولة أخيرة بإعداد بديل...';
-        try {
-          var result3 = await callFashnTryOn(client, personFile, garmentFile, 'one-pieces', 'flat-lay', 40, 2.0, 7);
-          imageUrl = extractResultUrl(result3);
-        } catch (e3) {
-          lastErr = e3;
-          console.warn('VTO attempt 3 failed:', e3);
-        }
-      }
-
-      if (imageUrl) {
-        if (resultImg) {
-          resultImg.src = imageUrl;
-          resultImg.style.display = 'block';
-        }
-        if (statusEl) statusEl.textContent = 'تم بنجاح ✅';
-      } else {
-        if (statusEl) statusEl.textContent = lastErr ? humanizeVtoError(lastErr) : 'تعذر الحصول على نتيجة بعد عدة محاولات. جرّب لاحقاً إذا السيرفر مشغول.';
-      }
-    } catch (err) {
-      console.error('VTO error:', err);
-      if (statusEl) statusEl.textContent = humanizeVtoError(err);
-    } finally {
-      if (btn) btn.disabled = false;
-    }
-  };
-
-  function humanizeVtoError(err) {
-    var msg = (err && (err.message || err.toString())) ? String(err.message || err) : '';
-    if (/ZeroGPU|exceeded your ZeroGPU|HF ZeroGPU|runs limit/i.test(msg) || /huggingface\.co\/settings\/tokens/i.test(msg)) {
-      return 'السيرفر المجاني خلص حصته دلوقتي (حد Hugging Face). حاول بعد ساعة أو غداً، أو سجّل حساب مجاني على Hugging Face عشان تزود الحصة.';
-    }
-    if (/quota|rate limit|429|too many/i.test(msg)) {
-      return 'السيرفر مشغول أو الحصة خلصت مؤقتاً. حاول بعد شوية.';
-    }
-    if (/Failed to fetch|NetworkError|network/i.test(msg)) {
-      return 'مشكلة في الاتصال. تأكد من الإنترنت وحاول تاني.';
-    }
-    if (msg) return 'خطأ: ' + msg;
-    return 'حاول مرة أخرى بعد قليل (قد يكون السيرفر مشغول)';
-  }
-
-  function boot() {
-      try { if (typeof window.hookAuthFunctions === 'function') window.hookAuthFunctions(); } catch (e) {}
-      try { if (typeof window.syncAdminOrdersButton === 'function') window.syncAdminOrdersButton(); } catch (e) {}
-      try { if (typeof window.closeAdminModalsIfNeeded === 'function') window.closeAdminModalsIfNeeded(); } catch (e) {}
-      try { if (typeof window.bindSecretAdminEntry === 'function') window.bindSecretAdminEntry(); } catch (e) {}
-    }
-
-    boot();
-    var tries = 0;
-    var t = setInterval(function () {
-      tries++;
-      boot();
-      if (tries >= 40) clearInterval(t);
-    }, 200);
-
-    setInterval(function () {
-      try { if (typeof window.syncAdminOrdersButton === 'function') window.syncAdminOrdersButton(); } catch (e) {}
-      try {
-        var admin = false;
-        try { admin = typeof isAdminMode !== 'undefined' && !!isAdminMode; } catch (x) {}
-        if (!admin && typeof window.closeAdminModalsIfNeeded === 'function') window.closeAdminModalsIfNeeded();
-      } catch (e) {}
-    }, 3000);
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', boot);
-    }
-  })();
-  </script>
-
-
 <!-- removed duplicate style:msq-actions-2x2-fix -->
 
 
@@ -7408,7 +7015,7 @@ window.addToCartAndContinue = function () {
       '<button type="button" data-tab="cancel">🔔 طلبات إلغاء <span id="msqCancelBadge">0</span></button>'+
       '<button type="button" data-tab="open">📋 قائمة الطلبات المفتوحة</button>'+
       '<button type="button" data-tab="delivered">✅ الطلبات تم توريدها</button>'+
-      '<button type="button" data-tab="maintenance">🛠️ وضع الصيانة</button>';
+      '<button type="button" data-tab="maintenance">🧩 أخرى</button>';
     var paneWrap=document.createElement('div');paneWrap.id='msqAdminTabContent';
     var list=document.getElementById('adminOrdersList');
     var search=document.getElementById('adminOrderSearch');

@@ -242,9 +242,44 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   let currentCategory = "الكل";
   let currentSubcategory = "";
   let currentStockFilter = "all";
+  let currentGenderFilter = "all";
   let currentSizeFilter = "الكل";
   let galleryIndex = 0;
   let productSales = JSON.parse(localStorage.getItem("souqProductSales") || "{}");
+
+  
+  function detectProductGender(p) {
+    var text = [
+      p.title, p.desc, p.description, p.category, p.subcategory,
+      p.gender, p.sex
+    ].map(function (x) { return String(x || ''); }).join(' ').toLowerCase();
+
+    // Arabic + English signals
+    var femaleKeys = ['بنات', 'بناتي', 'نسائي', 'حريمي', 'حريمي', 'girl', 'women', 'woman', 'female', 'ladies', 'mrs'];
+    var maleKeys = ['اولاد', 'أولاد', 'اولادي', 'أولادي', 'رجالي', 'رجالى', 'ولادي', 'boy', 'men', 'man', 'male', 'mr'];
+
+    var f = femaleKeys.some(function (k) { return text.indexOf(k) !== -1; });
+    var m = maleKeys.some(function (k) { return text.indexOf(k) !== -1; });
+    if (f && !m) return 'female';
+    if (m && !f) return 'male';
+    // designs / image filenames sometimes include girl/boy
+    var imgs = (p.images || []).concat(
+      (p.designs || []).map(function (d) { return (d.front_image || '') + ' ' + (d.back_image || ''); })
+    ).join(' ').toLowerCase();
+    if (/girl|بنات|بناتي|women|female/.test(imgs) && !/boy|اولاد|أولاد|men|male/.test(imgs)) return 'female';
+    if (/boy|اولاد|أولاد|men|male|ولادي/.test(imgs) && !/girl|بنات|بناتي|women|female/.test(imgs)) return 'male';
+    return 'unisex';
+  }
+
+  function filterGender(gender, btn) {
+    currentGenderFilter = gender || 'all';
+    document.querySelectorAll('.msq-gender-btn').forEach(function (b) {
+      b.classList.toggle('active', b === btn || b.getAttribute('data-gender') === currentGenderFilter);
+    });
+    handleSearchAndFilter();
+  }
+  window.filterGender = filterGender;
+
 
   let selectedSize = null;
   let selectedVariantStatus = "available";
@@ -1209,7 +1244,13 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
           return String(v.size || '').trim() === sizeWant;
         });
 
-      return matchesCat && matchesSharedSub && matchesStock && matchesSearch && matchesSize;
+      var g = detectProductGender(p);
+      var matchesGender =
+        currentGenderFilter === 'all' ||
+        g === currentGenderFilter ||
+        g === 'unisex';
+
+      return matchesCat && matchesSharedSub && matchesStock && matchesSearch && matchesSize && matchesGender;
     });
   }
 
@@ -1454,6 +1495,13 @@ ${selectedImage}
 
 
   function openProductModal(id) {
+    try {
+      if (typeof window.msqTrackEvent === 'function') {
+        var pTrack = products.find(function (x) { return x.id === id; });
+        if (pTrack) window.msqTrackEvent('ViewContent', { content_name: pTrack.title, content_ids: [pTrack.id], value: pTrack.price, currency: 'EGP' });
+      }
+    } catch (e) {}
+
 
     currentSelectedProduct =
       products.find(p => p.id === id);
@@ -2748,38 +2796,79 @@ ${selectedImage}
       0
     );
     let total = subtotal * (1 - discountRate);
-    currentCartTotal = Math.round(total); // store trusted numeric value
+    if (appliedPromoCode && appliedPromoCode.type === 'fixed') {
+      total = Math.max(0, subtotal - Number(appliedPromoCode.value || 0));
+    }
+    currentCartTotal = Math.round(total);
     const el = document.getElementById('cartTotalPrice');
     if (el) el.innerText = currentCartTotal + ' ج.م';
   }
 
 
-  function applyPromoCode() {
+  async function applyPromoCode() {
     const inputEl = document.getElementById('promoInput');
     const code = (inputEl ? inputEl.value : '').trim().toUpperCase();
-    // أكواد مؤقتة (لاحقاً تُحمّل من لوحة الإدارة / Firestore)
-    const PROMO_CODES = {
-      'SOUQ10': { type: 'percent', value: 10, label: 'خصم 10%' }
-    };
-    const promo = PROMO_CODES[code];
-    if (promo) {
-      if (promo.type === 'percent') {
-        discountRate = promo.value / 100;
-      } else if (promo.type === 'fixed') {
-        // سيتم دعم المبلغ الثابت لاحقاً
+    if (!code) {
+      alert('اكتب كود الخصم أولاً');
+      return;
+    }
+    try {
+      if (!firebaseReady || !db) {
+        alert('التعقب السحابي غير متاح حالياً — جرّب بعد قليل');
+        return;
+      }
+      const snap = await db.collection('promoCodes').doc(code).get();
+      if (!snap.exists) {
+        appliedPromoCode = null;
+        discountRate = 0;
+        updateTotalPrice();
+        alert('كود الخصم غير صحيح');
+        return;
+      }
+      const promo = snap.data() || {};
+      if (promo.enabled === false) {
+        alert('كود الخصم غير مفعّل');
+        return;
+      }
+      if (promo.expiresAt) {
+        var exp = promo.expiresAt.toDate ? promo.expiresAt.toDate() : new Date(promo.expiresAt);
+        if (exp && !isNaN(exp.getTime()) && Date.now() > exp.getTime()) {
+          try { await db.collection('promoCodes').doc(code).set({ enabled: false }, { merge: true }); } catch (e) {}
+          alert('انتهت صلاحية كود الخصم');
+          return;
+        }
+      }
+      var used = Number(promo.usedCount || 0);
+      var maxUses = promo.maxUses != null && promo.maxUses !== '' ? Number(promo.maxUses) : null;
+      if (maxUses != null && !isNaN(maxUses) && used >= maxUses) {
+        try { await db.collection('promoCodes').doc(code).set({ enabled: false }, { merge: true }); } catch (e) {}
+        alert('تم استنفاد الحد الأقصى لاستخدام هذا الكود');
+        return;
+      }
+
+      var type = promo.type === 'fixed' ? 'fixed' : 'percent';
+      var value = Number(promo.value) || 0;
+      if (type === 'percent') {
+        discountRate = Math.min(Math.max(value / 100, 0), 1);
+      } else {
         discountRate = 0;
       }
-      appliedPromoCode = { code: code, type: promo.type, value: promo.value, label: promo.label };
-      alert('تم تطبيق ' + promo.label + ' بنجاح!');
+      var label = type === 'percent' ? ('خصم ' + value + '%') : ('خصم ' + value + ' ج.م');
+      appliedPromoCode = {
+        code: code,
+        type: type,
+        value: value,
+        label: label,
+        maxUses: maxUses,
+        usedCount: used
+      };
+      alert('تم تطبيق ' + label + ' بنجاح!');
       updateTotalPrice();
-    } else {
-      appliedPromoCode = null;
-      discountRate = 0;
-      alert('كود الخصم غير صحيح');
-      updateTotalPrice();
+    } catch (err) {
+      console.error(err);
+      alert('تعذر التحقق من كود الخصم');
     }
   }
-
 
 // ===== Phone validation =====
 function toWesternDigits(value) {
@@ -3257,6 +3346,25 @@ function continueAfterOrderRecaptcha() {
     return lines.join('\n');
   }
 
+  async function msqIncrementPromoUsage(code) {
+    if (!code || !firebaseReady || !db) return;
+    try {
+      var ref = db.collection('promoCodes').doc(String(code).toUpperCase());
+      await db.runTransaction(async function (tx) {
+        var snap = await tx.get(ref);
+        if (!snap.exists) return;
+        var d = snap.data() || {};
+        var used = Number(d.usedCount || 0) + 1;
+        var maxUses = d.maxUses != null && d.maxUses !== '' ? Number(d.maxUses) : null;
+        var patch = { usedCount: used, lastUsedAt: firebase.firestore.FieldValue.serverTimestamp() };
+        if (maxUses != null && !isNaN(maxUses) && used >= maxUses) {
+          patch.enabled = false;
+        }
+        tx.set(ref, patch, { merge: true });
+      });
+    } catch (e) { console.warn('promo usage increment failed', e); }
+  }
+
   async function notifyOwnerNewOrderTelegram(orderMeta) {
     const meta = orderMeta || {};
     const orderId = String(meta.orderId || '').trim();
@@ -3489,13 +3597,30 @@ function continueAfterOrderRecaptcha() {
       if (successId) successId.innerText = 'رقم طلبك هو: ' + thisOrderId;
       if (successModal) successModal.classList.add('active');
 
+      try {
+        if (appliedPromoCode && appliedPromoCode.code) {
+          msqIncrementPromoUsage(appliedPromoCode.code);
+        }
+      } catch (ePromo) {}
+      try {
+        if (typeof window.msqTrackEvent === 'function') {
+          window.msqTrackEvent('Purchase', {
+            value: currentCartTotal,
+            currency: 'EGP',
+            content_ids: (cart || []).map(function (i) { return i.id; }),
+            num_items: (cart || []).reduce(function (s, i) { return s + Number(i.qty || 1); }, 0)
+          });
+        }
+      } catch (eTrack) {}
+      discountRate = 0;
+      appliedPromoCode = null;
+
       // امسح السلة بعد الحفظ
       cart = [];
       try {
         localStorage.removeItem('souqCart');
         localStorage.removeItem('souqCartItems');
       } catch (_) {}
-      discountRate = 0;
       generatedOrderId = '';
       updateCartCount();
       renderCartItems();
