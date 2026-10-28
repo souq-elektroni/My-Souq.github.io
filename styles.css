@@ -1705,3 +1705,61 @@ html body #productModal .msq-size-chart-wrap {
     grid-column: 1 / -1 !important;
   }
 }
+
+
+/* ===== السعر جنب اسم المنتج داخل مربع أحمر ===== */
+#productModal .msq-title-price-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+  margin-bottom: 4px;
+}
+#productModal .msq-title-price-row .modal-title {
+  flex: 1 1 auto;
+  margin: 0 !important;
+  min-width: 0;
+}
+#productModal .msq-price-badge,
+#productModal #modalPrice.msq-price-badge {
+  flex: 0 0 auto;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  margin: 0 !important;
+  padding: 8px 14px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(135deg, #c62828 0%, #8e1520 100%) !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  font-size: 18px !important;
+  line-height: 1.2 !important;
+  box-shadow: 0 4px 14px rgba(198, 40, 40, 0.28) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  white-space: nowrap;
+  min-width: 72px;
+  text-align: center;
+}
+#productModal .msq-price-badge .modal-price-main,
+#productModal #modalPrice .modal-price-main {
+  color: #fff !important;
+  font-weight: 900 !important;
+  font-size: inherit !important;
+}
+#productModal .msq-price-badge small,
+#productModal #modalPrice small {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+/* أخفِ أي بقايا لصندوق الأبعاد القديم */
+#productModal #dimensionsContainer,
+#productModal .dimensions-box {
+  display: none !important;
+}
+@media (max-width: 480px) {
+  #productModal .msq-price-badge,
+  #productModal #modalPrice.msq-price-badge {
+    font-size: 16px !important;
+    padding: 7px 12px !important;
+  }
+}
