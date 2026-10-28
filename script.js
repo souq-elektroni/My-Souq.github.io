@@ -2114,6 +2114,136 @@ ${selectedImage}
 
     }
 
+
+    // ===== جدول المقاسات + حاسبة العمر =====
+    (function initSizeHelper() {
+      var helper = document.getElementById('msqSizeHelper');
+      var chartBody = document.getElementById('msqSizeChartBody');
+      var chartWrap = document.getElementById('msqSizeChartWrap');
+            var calcBtn = document.getElementById('msqCalcSizeBtn');
+      var ageInput = document.getElementById('msqChildAge');
+      var resultEl = document.getElementById('msqAgeResult');
+      if (!helper || !currentSelectedProduct) return;
+
+      var variants = currentSelectedProduct.variants || [];
+      var isKids = String(currentSelectedProduct.category || '').toLowerCase().indexOf('kid') !== -1
+        || variants.some(function (v) { return /\d+\s*سنة/.test(String(v.size || '')); });
+
+      if (!isKids || !variants.length) {
+        helper.style.display = 'none';
+        return;
+      }
+      helper.style.display = 'block';
+      if (resultEl) resultEl.innerHTML = '';
+      if (ageInput) ageInput.value = '';
+      // الجدول ظاهر دائماً في صفحة المنتج
+      if (chartWrap) chartWrap.style.display = 'block';
+
+      function parseAgeFromSize(label) {
+        var m = String(label || '').match(/(\d+)\s*سنة/);
+        return m ? parseInt(m[1], 10) : null;
+      }
+
+      function hasAnyDims(v) {
+        return !!(v.pants_length || v.tshirt_length || v.tshirt_width || v.extra_piece);
+      }
+
+      // بناء الجدول
+      if (chartBody) {
+        chartBody.innerHTML = '';
+        variants.forEach(function (v) {
+          var tr = document.createElement('tr');
+          tr.dataset.size = v.size;
+          tr.innerHTML =
+            '<td><strong>' + (v.size || '-') + '</strong></td>' +
+            '<td>' + (v.pants_length || '—') + '</td>' +
+            '<td>' + (v.tshirt_length || '—') + '</td>' +
+            '<td>' + (v.tshirt_width || '—') + '</td>' +
+            '<td>' + (v.extra_piece || '—') + '</td>';
+          tr.addEventListener('click', function () {
+            // اختار المقاس من الجدول
+            var sizeBtns = document.querySelectorAll('#sizesContainer > div');
+            sizeBtns.forEach(function (b) {
+              if ((b.textContent || '').trim().indexOf(v.size) !== -1) {
+                b.click();
+              }
+            });
+            // تمييز الصف
+            chartBody.querySelectorAll('tr').forEach(function (r) { r.classList.remove('msq-row-selected'); });
+            tr.classList.add('msq-row-selected');
+          });
+          chartBody.appendChild(tr);
+        });
+      }
+
+      function recommendSize(age) {
+        // أقرب مقاس عمري متاح
+        var best = null, bestDiff = 999;
+        variants.forEach(function (v) {
+          var a = parseAgeFromSize(v.size);
+          if (a == null) return;
+          var diff = Math.abs(a - age);
+          // تفضيل المقاس الأكبر قليلاً لو التعادل (نمو الطفل)
+          if (diff < bestDiff || (diff === bestDiff && a >= age && best && parseAgeFromSize(best.size) < a)) {
+            bestDiff = diff;
+            best = v;
+          }
+        });
+        return best;
+      }
+
+      if (calcBtn) {
+        calcBtn.onclick = function () {
+          var age = parseInt(ageInput && ageInput.value, 10);
+          if (!age || age < 1 || age > 16) {
+            if (resultEl) resultEl.innerHTML = '<span class="msq-suggest-warn">أدخل عمر الطفل من 1 إلى 16 سنة</span>';
+            return;
+          }
+          var rec = recommendSize(age);
+          if (!rec) {
+            if (resultEl) resultEl.innerHTML = '<span class="msq-suggest-warn">مفيش مقاسات عمرية متاحة لهذا المنتج</span>';
+            return;
+          }
+          var ageLabel = parseAgeFromSize(rec.size);
+          var note = '';
+          if (ageLabel != null && ageLabel < age) {
+            note = ' <span class="msq-suggest-warn">(يفضّل تجربه أو اختيار المقاس الأكبر لو متاح)</span>';
+          } else if (ageLabel != null && ageLabel > age) {
+            note = ' <span style="color:#1565c0;">(مقاس أوسع شوية — مناسب للنمو)</span>';
+          }
+          if (resultEl) {
+            resultEl.innerHTML = '<span class="msq-suggest-ok">✅ المقاس المقترح: <strong>' + rec.size + '</strong></span>' + note;
+          }
+          // ميّز الصف المقترح في الجدول
+          if (chartBody) {
+            chartBody.querySelectorAll('tr').forEach(function (r) {
+              r.classList.remove('msq-row-recommended', 'msq-row-selected');
+              if (r.dataset.size === rec.size) {
+                r.classList.add('msq-row-recommended', 'msq-row-selected');
+              }
+            });
+          }
+          // اختار المقاس تلقائي
+          var sizeBtns = document.querySelectorAll('#sizesContainer > div');
+          sizeBtns.forEach(function (b) {
+            if ((b.textContent || '').trim().indexOf(rec.size) !== -1) {
+              b.click();
+            }
+          });
+        };
+      }
+
+      // Enter key on age input
+      if (ageInput) {
+        ageInput.onkeydown = function (e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            if (calcBtn) calcBtn.click();
+          }
+        };
+      }
+    })();
+
     updateDirectWhatsAppButton();
     injectModalPolishStyles();
     bindModalImageSwipe();

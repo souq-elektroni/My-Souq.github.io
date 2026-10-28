@@ -1122,3 +1122,68 @@ footer,
   text-align: center;
 }
 .msq-pair-label { grid-column: 1 / -1; text-align: center; }
+
+
+/* ===== My Souq: Interactive Size Chart + Age Calculator ===== */
+.msq-size-helper {
+  background: linear-gradient(135deg, #fdf8f4 0%, #f8efe8 100%);
+  border: 1.5px solid var(--border-color, #e8d5c8);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.msq-size-chart {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 280px;
+}
+.msq-size-chart th {
+  background: var(--burgundy-soft, #8b3f52);
+  color: #fff;
+  padding: 8px 6px;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+}
+.msq-size-chart td {
+  padding: 7px 6px;
+  text-align: center;
+  border-bottom: 1px solid #edd9cb;
+  font-weight: 600;
+  color: var(--text-dark, #3d2b2b);
+}
+.msq-size-chart tr:nth-child(even) td {
+  background: rgba(255,255,255,0.55);
+}
+.msq-size-chart tr.msq-row-recommended td {
+  background: #e8f5e9 !important;
+  font-weight: 900;
+  color: #2e7d32;
+}
+.msq-size-chart tr.msq-row-selected td {
+  background: var(--pink-soft, #fce4ec) !important;
+  outline: 2px solid var(--burgundy-soft, #8b3f52);
+}
+.msq-size-chart tr {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.msq-size-chart tr:hover td {
+  background: #fff3e0;
+}
+#msqAgeResult .msq-suggest-ok {
+  color: #2e7d32;
+}
+#msqAgeResult .msq-suggest-warn {
+  color: #e65100;
+}
+
+.msq-size-section-title {
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--burgundy-soft, #8b3f52);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
