@@ -186,8 +186,8 @@
 
   <!-- ===== Meta Pixel + GA4 (ضع المعرفات هنا) ===== -->
   <script>
-    window.MSQ_META_PIXEL_ID = ''; // مثال: '123456789012345'
-    window.MSQ_GA4_ID = '';        // مثال: 'G-XXXXXXXXXX'
+    window.MSQ_META_PIXEL_ID = '2564703864025582';
+    window.MSQ_GA4_ID = 'G-R11Z1VRYTZ';
   </script>
   <script>
   (function(){
@@ -3286,6 +3286,25 @@ window.addToCartAndContinue = function () {
           '</div>' +
           '<button type="button" id="msqPromoSaveBtn" onclick="msqSavePromoCode()" style="margin-top:10px;width:100%;padding:10px;border:0;border-radius:10px;background:linear-gradient(135deg,#8b3f52,#6d3142);color:#fff;font-weight:900;cursor:pointer;">💾 حفظ / تحديث الكود</button>' +
           '<div id="msqPromoList" style="margin-top:12px;font-size:12px;"></div>' +
+        '</div>' +
+        '<div class="msq-stats-admin" id="msqStatsAdminBox" style="margin-top:16px;padding-top:14px;border-top:1px dashed #e0cfc0;">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">' +
+            '<div style="font-weight:900;color:var(--burgundy-soft);font-size:14px;">📊 إحصائيات الزيارات</div>' +
+            '<button type="button" onclick="msqLoadAdminStats()" style="padding:6px 10px;border:0;border-radius:8px;background:#f0e4da;font-weight:800;font-size:11px;cursor:pointer;">تحديث</button>' +
+          '</div>' +
+          '<div id="msqStatsSummary" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">' +
+            '<div style="background:#fff;border:1px solid #edd9cb;border-radius:10px;padding:10px;text-align:center;">' +
+              '<div style="font-size:11px;color:#8a6d62;font-weight:700;">زيارات اليوم</div>' +
+              '<div id="msqStatToday" style="font-size:22px;font-weight:900;color:#6d3142;">—</div>' +
+            '</div>' +
+            '<div style="background:#fff;border:1px solid #edd9cb;border-radius:10px;padding:10px;text-align:center;">' +
+              '<div style="font-size:11px;color:#8a6d62;font-weight:700;">آخر 7 أيام</div>' +
+              '<div id="msqStatWeek" style="font-size:22px;font-weight:900;color:#6d3142;">—</div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="font-weight:800;font-size:12px;color:#6d3142;margin-bottom:6px;">🔥 الأكثر مشاهدة</div>' +
+          '<div id="msqStatsTopProducts" style="font-size:12px;color:#6a4e48;">جاري التحميل...</div>' +
+          '<div style="font-size:10.5px;color:#8a6d62;margin-top:8px;line-height:1.55;">الزيارة تُحسب مرة واحدة لكل جلسة متصفح في اليوم. التفاصيل الكاملة تبقى في GA4 و Meta.</div>' +
         '</div>';
       var header = document.getElementById('adminOrdersHeader');
       if (header && header.parentNode) {
@@ -3295,6 +3314,7 @@ window.addToCartAndContinue = function () {
       }
       readMaintenanceMode();
       try { if (typeof msqLoadPromoCodes === 'function') msqLoadPromoCodes(); } catch (e) {}
+      try { if (typeof msqLoadAdminStats === 'function') msqLoadAdminStats(); } catch (e2) {}
     }
 
     async function msqSavePromoCode() {
@@ -3397,6 +3417,74 @@ window.addToCartAndContinue = function () {
       }
     }
     window.msqLoadPromoCodes = msqLoadPromoCodes;
+
+    async function msqLoadAdminStats() {
+      var todayEl = document.getElementById('msqStatToday');
+      var weekEl = document.getElementById('msqStatWeek');
+      var topEl = document.getElementById('msqStatsTopProducts');
+      if (!todayEl && !weekEl && !topEl) return;
+      try {
+        if (typeof firebase === 'undefined' || !firebase.apps.length) {
+          if (topEl) topEl.textContent = 'Firebase غير متاح';
+          return;
+        }
+        var db = firebase.firestore();
+        function dayKey(offset) {
+          var d = new Date();
+          d.setDate(d.getDate() + (offset || 0));
+          var y = d.getFullYear();
+          var m = String(d.getMonth() + 1).padStart(2, '0');
+          var day = String(d.getDate()).padStart(2, '0');
+          return y + '-' + m + '-' + day;
+        }
+        var today = dayKey(0);
+        var days = [];
+        for (var i = 0; i < 7; i++) days.push(dayKey(-i));
+
+        var todayCount = 0;
+        var weekCount = 0;
+        // قراءة أيام الأسبوع (مستندات منفصلة)
+        await Promise.all(days.map(async function (dk) {
+          try {
+            var snap = await db.collection('visitStats').doc(dk).get();
+            var n = snap.exists ? Number((snap.data() || {}).visits || 0) : 0;
+            if (dk === today) todayCount = n;
+            weekCount += n;
+          } catch (e) {}
+        }));
+        if (todayEl) todayEl.textContent = String(todayCount);
+        if (weekEl) weekEl.textContent = String(weekCount);
+
+        if (topEl) {
+          topEl.innerHTML = 'جاري تحميل المنتجات...';
+          try {
+            var pv = await db.collection('productViews').orderBy('views', 'desc').limit(8).get();
+            if (pv.empty) {
+              topEl.innerHTML = '<div style="color:#8a6d62;">لا توجد مشاهدات منتجات بعد.</div>';
+            } else {
+              var h = '<div style="display:flex;flex-direction:column;gap:6px;">';
+              pv.forEach(function (doc) {
+                var d = doc.data() || {};
+                h += '<div style="display:flex;justify-content:space-between;gap:8px;background:#fff;border:1px solid #edd9cb;border-radius:8px;padding:7px 9px;">' +
+                  '<span style="font-weight:800;color:#3d2b2b;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' +
+                  (d.title || d.productId || doc.id) + '</span>' +
+                  '<span style="font-weight:900;color:#8b3f52;flex:0 0 auto;">' + Number(d.views || 0) + '</span></div>';
+              });
+              h += '</div>';
+              topEl.innerHTML = h;
+            }
+          } catch (eTop) {
+            console.warn(eTop);
+            topEl.innerHTML = '<div style="color:#c62828;">تعذر تحميل الأكثر مشاهدة (قد يحتاج فهرس views).</div>';
+          }
+        }
+      } catch (e) {
+        console.error(e);
+        if (topEl) topEl.textContent = 'تعذر تحميل الإحصائيات';
+      }
+    }
+    window.msqLoadAdminStats = msqLoadAdminStats;
+
 
     function enhanceAdminOrderRenderer() {
       if (typeof window.filterAdminOrders !== 'function' || window.filterAdminOrders.__cancelEnhanced) return;

@@ -1498,7 +1498,10 @@ ${selectedImage}
     try {
       if (typeof window.msqTrackEvent === 'function') {
         var pTrack = products.find(function (x) { return x.id === id; });
-        if (pTrack) window.msqTrackEvent('ViewContent', { content_name: pTrack.title, content_ids: [pTrack.id], value: pTrack.price, currency: 'EGP' });
+        if (pTrack) {
+          window.msqTrackEvent('ViewContent', { content_name: pTrack.title, content_ids: [pTrack.id], value: pTrack.price, currency: 'EGP' });
+          try { msqLogProductView(pTrack); } catch (eV) {}
+        }
       }
     } catch (e) {}
 
@@ -3345,6 +3348,87 @@ function continueAfterOrderRecaptcha() {
     lines.push('⏰ ' + new Date().toLocaleString('ar-EG'));
     return lines.join('\n');
   }
+
+  
+  // ===== إحصائيات زيارات داخلية (لوحة الإدارة) =====
+  function msqTodayKey() {
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = String(d.getMonth() + 1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  async function msqLogSiteVisit() {
+    try {
+      if (!firebaseReady || !db) return;
+      var key = 'msq_visit_' + msqTodayKey();
+      if (sessionStorage.getItem(key)) return;
+      sessionStorage.setItem(key, '1');
+      var day = msqTodayKey();
+      var ref = db.collection('visitStats').doc(day);
+      await db.runTransaction(async function (tx) {
+        var snap = await tx.get(ref);
+        if (!snap.exists) {
+          tx.set(ref, {
+            date: day,
+            visits: 1,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } else {
+          tx.update(ref, {
+            visits: firebase.firestore.FieldValue.increment(1),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      });
+    } catch (e) {
+      console.warn('visit log failed', e);
+    }
+  }
+
+  async function msqLogProductView(product) {
+    try {
+      if (!firebaseReady || !db || !product || !product.id) return;
+      var id = String(product.id).replace(/[^A-Za-z0-9_-]/g, '_').slice(0, 40);
+      if (!id) return;
+      var ref = db.collection('productViews').doc(id);
+      await db.runTransaction(async function (tx) {
+        var snap = await tx.get(ref);
+        if (!snap.exists) {
+          tx.set(ref, {
+            productId: product.id,
+            title: String(product.title || product.id).slice(0, 120),
+            views: 1,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } else {
+          tx.update(ref, {
+            views: firebase.firestore.FieldValue.increment(1),
+            title: String(product.title || product.id).slice(0, 120),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+      });
+    } catch (e) {
+      console.warn('product view log failed', e);
+    }
+  }
+
+  // بعد جاهزية Firebase سجّل زيارة الجلسة مرة واحدة
+  (function msqScheduleVisitLog() {
+    var tries = 0;
+    var t = setInterval(function () {
+      tries++;
+      if (firebaseReady && db) {
+        clearInterval(t);
+        msqLogSiteVisit();
+      } else if (tries > 40) {
+        clearInterval(t);
+      }
+    }, 500);
+  })();
+
 
   async function msqIncrementPromoUsage(code) {
     if (!code || !firebaseReady || !db) return;
