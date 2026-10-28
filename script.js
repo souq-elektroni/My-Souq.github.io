@@ -2120,10 +2120,10 @@ ${selectedImage}
       var helper = document.getElementById('msqSizeHelper');
       var chartBody = document.getElementById('msqSizeChartBody');
       var chartHead = document.getElementById('msqSizeChartHead');
-      var chartWrap = document.getElementById('msqSizeChartWrap');
-      var ageBox = document.getElementById('msqAgeCalcBox');
       var calcBtn = document.getElementById('msqCalcSizeBtn');
       var ageInput = document.getElementById('msqChildAge');
+      var lenInput = document.getElementById('msqMeasLength');
+      var widthInput = document.getElementById('msqMeasWidth');
       var resultEl = document.getElementById('msqAgeResult');
       if (!helper || !currentSelectedProduct) return;
 
@@ -2136,8 +2136,11 @@ ${selectedImage}
       function hasVal(v) {
         return v != null && String(v).trim() !== '' && String(v).trim() !== '-';
       }
+      function num(v) {
+        var n = parseFloat(String(v).replace(/[^\d.]/g, ''));
+        return isNaN(n) ? null : n;
+      }
 
-      // أعمدة ديناميكية: اعرض فقط اللي فيه بيانات
       var cols = [
         { key: 'size', label: 'المقاس', always: true },
         { key: 'pants_length', label: 'طول البنطلون' },
@@ -2149,8 +2152,6 @@ ${selectedImage}
         if (c.always) return true;
         return variants.some(function (v) { return hasVal(v[c.key]); });
       });
-
-      // لو مفيش أي أبعاد غير المقاس → أخفِ الجدول
       var hasDims = activeCols.some(function (c) { return c.key !== 'size'; });
       if (!hasDims) {
         helper.style.display = 'none';
@@ -2160,12 +2161,9 @@ ${selectedImage}
       helper.style.display = 'block';
       if (resultEl) resultEl.innerHTML = '';
       if (ageInput) ageInput.value = '';
+      if (lenInput) lenInput.value = '';
+      if (widthInput) widthInput.value = '';
 
-      var isKids = String(currentSelectedProduct.category || '').toLowerCase().indexOf('kid') !== -1
-        || variants.some(function (v) { return /\d+\s*سنة/.test(String(v.size || '')); });
-      if (ageBox) ageBox.style.display = isKids ? 'block' : 'none';
-
-      // رأس الجدول
       if (chartHead) {
         chartHead.innerHTML = activeCols.map(function (c) {
           return '<th>' + c.label + '</th>';
@@ -2179,37 +2177,34 @@ ${selectedImage}
         });
       }
 
-      // بناء الصفوف
+      function selectSize(size) {
+        var sizeBtns = document.querySelectorAll('#sizesContainer > div');
+        sizeBtns.forEach(function (b) {
+          if ((b.textContent || '').trim().indexOf(size) !== -1) b.click();
+        });
+        highlightRow(size);
+      }
+
       if (chartBody) {
         chartBody.innerHTML = '';
         variants.forEach(function (v) {
           var tr = document.createElement('tr');
           tr.dataset.size = v.size;
           tr.innerHTML = activeCols.map(function (c) {
-            var val = c.key === 'size' ? ('<strong>' + (v.size || '-') + '</strong>') : (hasVal(v[c.key]) ? v[c.key] : '—');
+            var val = c.key === 'size'
+              ? ('<strong>' + (v.size || '-') + '</strong>')
+              : (hasVal(v[c.key]) ? v[c.key] : '—');
             return '<td>' + val + '</td>';
           }).join('');
-          tr.addEventListener('click', function () {
-            var sizeBtns = document.querySelectorAll('#sizesContainer > div');
-            sizeBtns.forEach(function (b) {
-              if ((b.textContent || '').trim().indexOf(v.size) !== -1) b.click();
-            });
-            highlightRow(v.size);
-          });
+          tr.addEventListener('click', function () { selectSize(v.size); });
           chartBody.appendChild(tr);
         });
-        // لو فيه مقاس مختار مسبقاً
-        if (typeof selectedSize !== 'undefined' && selectedSize) {
-          highlightRow(selectedSize);
-        }
+        if (typeof selectedSize !== 'undefined' && selectedSize) highlightRow(selectedSize);
       }
 
-      // ربط تمييز الجدول مع أزرار المقاس
-      var sizeBtns = document.querySelectorAll('#sizesContainer > div');
-      sizeBtns.forEach(function (b) {
+      document.querySelectorAll('#sizesContainer > div').forEach(function (b) {
         b.addEventListener('click', function () {
           var t = (b.textContent || '').trim();
-          // استخرج اسم المقاس من الزر
           variants.forEach(function (v) {
             if (t.indexOf(v.size) !== -1) highlightRow(v.size);
           });
@@ -2221,14 +2216,61 @@ ${selectedImage}
         return m ? parseInt(m[1], 10) : null;
       }
 
-      function recommendSize(age) {
-        var best = null, bestDiff = 999;
+      // مقاسات حروف → عمر تقريبي للاقتراح فقط
+      var letterAgeMap = { 'XS': 12, 'S': 16, 'M': 22, 'L': 28, 'XL': 35, '2XL': 40, 'XXL': 40, '3XL': 45, 'XXXL': 45 };
+
+      function sizeAgeHint(v) {
+        var a = parseAgeFromSize(v.size);
+        if (a != null) return a;
+        var key = String(v.size || '').trim().toUpperCase();
+        return letterAgeMap[key] != null ? letterAgeMap[key] : null;
+      }
+
+      function recommend(age, measLen, measWidth) {
+        // نمو مستقبلي: نفضّل مقاس أكبر شوية (حوالي +5% على المقاسات أو درجة عمر أعلى)
+        var growthLen = measLen != null ? measLen * 1.04 : null;
+        var growthWidth = measWidth != null ? measWidth * 1.03 : null;
+        var targetAge = age != null ? age + (age <= 14 ? 0.6 : 0) : null;
+
+        var best = null;
+        var bestScore = Infinity;
+
         variants.forEach(function (v) {
-          var a = parseAgeFromSize(v.size);
-          if (a == null) return;
-          var diff = Math.abs(a - age);
-          if (diff < bestDiff || (diff === bestDiff && a >= age && best && parseAgeFromSize(best.size) < a)) {
-            bestDiff = diff;
+          var score = 0;
+          var weights = 0;
+
+          if (targetAge != null) {
+            var sa = sizeAgeHint(v);
+            if (sa != null) {
+              // عقوبة أخف لو المقاس أكبر (نمو)، وأقوى لو أصغر
+              var diff = sa - targetAge;
+              score += (diff >= 0 ? diff * 1.1 : Math.abs(diff) * 2.2) * 3;
+              weights += 3;
+            }
+          }
+
+          if (growthLen != null) {
+            var vl = num(v.tshirt_length) || num(v.pants_length);
+            if (vl != null) {
+              var d = vl - growthLen;
+              score += (d >= 0 ? d * 0.9 : Math.abs(d) * 2.0) * 2;
+              weights += 2;
+            }
+          }
+
+          if (growthWidth != null) {
+            var vw = num(v.tshirt_width);
+            if (vw != null) {
+              var dw = vw - growthWidth;
+              score += (dw >= 0 ? dw * 0.9 : Math.abs(dw) * 2.0) * 2;
+              weights += 2;
+            }
+          }
+
+          if (weights === 0) return;
+          score = score / weights;
+          if (score < bestScore) {
+            bestScore = score;
             best = v;
           }
         });
@@ -2237,46 +2279,55 @@ ${selectedImage}
 
       if (calcBtn) {
         calcBtn.onclick = function () {
-          var age = parseInt(ageInput && ageInput.value, 10);
-          if (!age || age < 1 || age > 16) {
-            if (resultEl) resultEl.innerHTML = '<span class="msq-suggest-warn">أدخل عمر الطفل من 1 إلى 16 سنة</span>';
+          var age = ageInput && ageInput.value ? parseInt(ageInput.value, 10) : null;
+          var mLen = lenInput && lenInput.value ? parseFloat(lenInput.value) : null;
+          var mWidth = widthInput && widthInput.value ? parseFloat(widthInput.value) : null;
+
+          if ((age == null || isNaN(age)) && (mLen == null || isNaN(mLen)) && (mWidth == null || isNaN(mWidth))) {
+            if (resultEl) resultEl.innerHTML = '<span class="msq-suggest-warn">أدخل العمر أو قياسات بالسنتيمتر (أو الاتنين)</span>';
             return;
           }
-          var rec = recommendSize(age);
+          if (age != null && (age < 1 || age > 80)) {
+            if (resultEl) resultEl.innerHTML = '<span class="msq-suggest-warn">العمر يكون بين 1 و 80 سنة</span>';
+            return;
+          }
+
+          var rec = recommend(
+            age != null && !isNaN(age) ? age : null,
+            mLen != null && !isNaN(mLen) ? mLen : null,
+            mWidth != null && !isNaN(mWidth) ? mWidth : null
+          );
+
           if (!rec) {
-            if (resultEl) resultEl.innerHTML = '<span class="msq-suggest-warn">مفيش مقاسات عمرية متاحة</span>';
+            if (resultEl) resultEl.innerHTML = '<span class="msq-suggest-warn">تعذر الاقتراح — جرّب إدخال الطول أو العرض بالسنتيمتر</span>';
             return;
           }
-          var ageLabel = parseAgeFromSize(rec.size);
-          var note = '';
-          if (ageLabel != null && ageLabel < age) {
-            note = ' <span class="msq-suggest-warn">(يفضّل المقاس الأكبر لو متاح)</span>';
-          } else if (ageLabel != null && ageLabel > age) {
-            note = ' <span class="msq-suggest-info">(مقاس أوسع شوية — مناسب للنمو)</span>';
-          }
-          if (resultEl) {
-            resultEl.innerHTML = '<span class="msq-suggest-ok">✅ المقاس المقترح: <strong>' + rec.size + '</strong></span>' + note;
-          }
+
+          var bits = ['<span class="msq-suggest-ok">✅ المقاس المقترح: <strong>' + rec.size + '</strong></span>'];
+          bits.push('<span class="msq-suggest-info">مراعاة مساحة بسيطة للنمو والراحة</span>');
+          if (resultEl) resultEl.innerHTML = bits.join(' · ');
+
           if (chartBody) {
             chartBody.querySelectorAll('tr').forEach(function (r) {
               r.classList.toggle('msq-row-recommended', r.dataset.size === rec.size);
             });
           }
-          highlightRow(rec.size);
-          sizeBtns.forEach(function (b) {
-            if ((b.textContent || '').trim().indexOf(rec.size) !== -1) b.click();
-          });
+          selectSize(rec.size);
         };
       }
 
-      if (ageInput) {
-        ageInput.onkeydown = function (e) {
+      function enterSubmit(el) {
+        if (!el) return;
+        el.onkeydown = function (e) {
           if (e.key === 'Enter') {
             e.preventDefault();
             if (calcBtn) calcBtn.click();
           }
         };
       }
+      enterSubmit(ageInput);
+      enterSubmit(lenInput);
+      enterSubmit(widthInput);
     })();
 
     updateDirectWhatsAppButton();

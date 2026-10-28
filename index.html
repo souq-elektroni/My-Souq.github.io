@@ -481,6 +481,47 @@
             ></div>
 
           </div>
+
+          <!-- ===== قسم المقاسات الاحترافي ===== -->
+          <section id="msqSizeHelper" class="msq-size-panel" style="display:none;" aria-label="جدول وحاسبة المقاسات">
+            <div class="msq-size-panel-head">
+              <span class="msq-size-panel-icon" aria-hidden="true">📏</span>
+              <div>
+                <div class="msq-size-panel-title">دليل المقاسات</div>
+                <div class="msq-size-panel-sub">اختَر من الجدول أو خلّينا نقترحلك المقاس المناسب</div>
+              </div>
+            </div>
+
+            <div id="msqSizeChartWrap" class="msq-size-chart-wrap">
+              <table id="msqSizeChart" class="msq-size-chart">
+                <thead><tr id="msqSizeChartHead"></tr></thead>
+                <tbody id="msqSizeChartBody"></tbody>
+              </table>
+            </div>
+
+            <div class="msq-size-calc">
+              <div class="msq-size-calc-title">🧮 اقتراح المقاس الذكي</div>
+              <div class="msq-size-calc-grid">
+                <label class="msq-field">
+                  <span>العمر (سنة)</span>
+                  <input type="number" id="msqChildAge" min="1" max="80" step="1" placeholder="مثال: 5 أو 28" inputmode="numeric" />
+                </label>
+                <label class="msq-field">
+                  <span>الطول / طول القطعة (سم) <em>اختياري</em></span>
+                  <input type="number" id="msqMeasLength" min="20" max="200" step="1" placeholder="مثال: 45" inputmode="numeric" />
+                </label>
+                <label class="msq-field">
+                  <span>العرض (سم) <em>اختياري</em></span>
+                  <input type="number" id="msqMeasWidth" min="15" max="120" step="1" placeholder="مثال: 35" inputmode="numeric" />
+                </label>
+                <button type="button" id="msqCalcSizeBtn" class="msq-calc-btn">اقترح المقاس</button>
+              </div>
+              <p class="msq-size-calc-hint">لو هتقيس: طول التيشرت من الكتف لتحت، والعرض من تحت الإبط. الاقتراح يراعي مساحة بسيطة للنمو والراحة.</p>
+              <div id="msqAgeResult" class="msq-age-result" role="status"></div>
+            </div>
+          </section>
+          <!-- ===== نهاية قسم المقاسات ===== -->
+
 <div
             class="modal-price"
             id="modalPrice"
@@ -566,30 +607,7 @@
           <p class="multi-design-hint">تقدر تجمع أكثر من شكل في السلة، وبعدها تبعتهم كلهم في طلب واتساب واحد مع روابط صور كل شكل.</p></div>
 
       </div>
-
-          <!-- ===== جدول المقاسات — عرض كامل تحت محتوى المنتج ===== -->
-          <div id="msqSizeHelper" class="msq-size-helper" style="display:none;">
-            <div class="msq-size-section-title">📏 جدول المقاسات <span class="msq-size-unit">(بالسنتيمتر)</span></div>
-            <div id="msqSizeChartWrap" class="msq-size-chart-wrap">
-              <table id="msqSizeChart" class="msq-size-chart">
-                <thead>
-                  <tr id="msqSizeChartHead"></tr>
-                </thead>
-                <tbody id="msqSizeChartBody"></tbody>
-              </table>
-            </div>
-            <div id="msqAgeCalcBox" class="msq-age-calc" style="display:none;">
-              <label class="msq-age-label">🧮 مش عارف المقاس؟ احسب حسب عمر الطفل</label>
-              <div class="msq-age-row">
-                <input type="number" id="msqChildAge" min="1" max="16" step="1" placeholder="العمر بالسنوات" inputmode="numeric" />
-                <button type="button" id="msqCalcSizeBtn">اقترح المقاس</button>
-              </div>
-              <div id="msqAgeResult" class="msq-age-result"></div>
-            </div>
-          </div>
-          <!-- ===== نهاية جدول المقاسات ===== -->
-
-    </div>
+</div>
 
   </div>
 
