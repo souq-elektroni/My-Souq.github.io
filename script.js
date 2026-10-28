@@ -2119,71 +2119,114 @@ ${selectedImage}
     (function initSizeHelper() {
       var helper = document.getElementById('msqSizeHelper');
       var chartBody = document.getElementById('msqSizeChartBody');
+      var chartHead = document.getElementById('msqSizeChartHead');
       var chartWrap = document.getElementById('msqSizeChartWrap');
-            var calcBtn = document.getElementById('msqCalcSizeBtn');
+      var ageBox = document.getElementById('msqAgeCalcBox');
+      var calcBtn = document.getElementById('msqCalcSizeBtn');
       var ageInput = document.getElementById('msqChildAge');
       var resultEl = document.getElementById('msqAgeResult');
       if (!helper || !currentSelectedProduct) return;
 
       var variants = currentSelectedProduct.variants || [];
-      var isKids = String(currentSelectedProduct.category || '').toLowerCase().indexOf('kid') !== -1
-        || variants.some(function (v) { return /\d+\s*سنة/.test(String(v.size || '')); });
-
-      if (!isKids || !variants.length) {
+      if (!variants.length) {
         helper.style.display = 'none';
         return;
       }
+
+      function hasVal(v) {
+        return v != null && String(v).trim() !== '' && String(v).trim() !== '-';
+      }
+
+      // أعمدة ديناميكية: اعرض فقط اللي فيه بيانات
+      var cols = [
+        { key: 'size', label: 'المقاس', always: true },
+        { key: 'pants_length', label: 'طول البنطلون' },
+        { key: 'tshirt_length', label: 'طول التيشرت' },
+        { key: 'tshirt_width', label: 'عرض التيشرت' },
+        { key: 'extra_piece', label: 'قطعة إضافية' }
+      ];
+      var activeCols = cols.filter(function (c) {
+        if (c.always) return true;
+        return variants.some(function (v) { return hasVal(v[c.key]); });
+      });
+
+      // لو مفيش أي أبعاد غير المقاس → أخفِ الجدول
+      var hasDims = activeCols.some(function (c) { return c.key !== 'size'; });
+      if (!hasDims) {
+        helper.style.display = 'none';
+        return;
+      }
+
       helper.style.display = 'block';
       if (resultEl) resultEl.innerHTML = '';
       if (ageInput) ageInput.value = '';
-      // الجدول ظاهر دائماً في صفحة المنتج
-      if (chartWrap) chartWrap.style.display = 'block';
+
+      var isKids = String(currentSelectedProduct.category || '').toLowerCase().indexOf('kid') !== -1
+        || variants.some(function (v) { return /\d+\s*سنة/.test(String(v.size || '')); });
+      if (ageBox) ageBox.style.display = isKids ? 'block' : 'none';
+
+      // رأس الجدول
+      if (chartHead) {
+        chartHead.innerHTML = activeCols.map(function (c) {
+          return '<th>' + c.label + '</th>';
+        }).join('');
+      }
+
+      function highlightRow(size) {
+        if (!chartBody) return;
+        chartBody.querySelectorAll('tr').forEach(function (r) {
+          r.classList.toggle('msq-row-selected', r.dataset.size === size);
+        });
+      }
+
+      // بناء الصفوف
+      if (chartBody) {
+        chartBody.innerHTML = '';
+        variants.forEach(function (v) {
+          var tr = document.createElement('tr');
+          tr.dataset.size = v.size;
+          tr.innerHTML = activeCols.map(function (c) {
+            var val = c.key === 'size' ? ('<strong>' + (v.size || '-') + '</strong>') : (hasVal(v[c.key]) ? v[c.key] : '—');
+            return '<td>' + val + '</td>';
+          }).join('');
+          tr.addEventListener('click', function () {
+            var sizeBtns = document.querySelectorAll('#sizesContainer > div');
+            sizeBtns.forEach(function (b) {
+              if ((b.textContent || '').trim().indexOf(v.size) !== -1) b.click();
+            });
+            highlightRow(v.size);
+          });
+          chartBody.appendChild(tr);
+        });
+        // لو فيه مقاس مختار مسبقاً
+        if (typeof selectedSize !== 'undefined' && selectedSize) {
+          highlightRow(selectedSize);
+        }
+      }
+
+      // ربط تمييز الجدول مع أزرار المقاس
+      var sizeBtns = document.querySelectorAll('#sizesContainer > div');
+      sizeBtns.forEach(function (b) {
+        b.addEventListener('click', function () {
+          var t = (b.textContent || '').trim();
+          // استخرج اسم المقاس من الزر
+          variants.forEach(function (v) {
+            if (t.indexOf(v.size) !== -1) highlightRow(v.size);
+          });
+        });
+      });
 
       function parseAgeFromSize(label) {
         var m = String(label || '').match(/(\d+)\s*سنة/);
         return m ? parseInt(m[1], 10) : null;
       }
 
-      function hasAnyDims(v) {
-        return !!(v.pants_length || v.tshirt_length || v.tshirt_width || v.extra_piece);
-      }
-
-      // بناء الجدول
-      if (chartBody) {
-        chartBody.innerHTML = '';
-        variants.forEach(function (v) {
-          var tr = document.createElement('tr');
-          tr.dataset.size = v.size;
-          tr.innerHTML =
-            '<td><strong>' + (v.size || '-') + '</strong></td>' +
-            '<td>' + (v.pants_length || '—') + '</td>' +
-            '<td>' + (v.tshirt_length || '—') + '</td>' +
-            '<td>' + (v.tshirt_width || '—') + '</td>' +
-            '<td>' + (v.extra_piece || '—') + '</td>';
-          tr.addEventListener('click', function () {
-            // اختار المقاس من الجدول
-            var sizeBtns = document.querySelectorAll('#sizesContainer > div');
-            sizeBtns.forEach(function (b) {
-              if ((b.textContent || '').trim().indexOf(v.size) !== -1) {
-                b.click();
-              }
-            });
-            // تمييز الصف
-            chartBody.querySelectorAll('tr').forEach(function (r) { r.classList.remove('msq-row-selected'); });
-            tr.classList.add('msq-row-selected');
-          });
-          chartBody.appendChild(tr);
-        });
-      }
-
       function recommendSize(age) {
-        // أقرب مقاس عمري متاح
         var best = null, bestDiff = 999;
         variants.forEach(function (v) {
           var a = parseAgeFromSize(v.size);
           if (a == null) return;
           var diff = Math.abs(a - age);
-          // تفضيل المقاس الأكبر قليلاً لو التعادل (نمو الطفل)
           if (diff < bestDiff || (diff === bestDiff && a >= age && best && parseAgeFromSize(best.size) < a)) {
             bestDiff = diff;
             best = v;
@@ -2201,39 +2244,31 @@ ${selectedImage}
           }
           var rec = recommendSize(age);
           if (!rec) {
-            if (resultEl) resultEl.innerHTML = '<span class="msq-suggest-warn">مفيش مقاسات عمرية متاحة لهذا المنتج</span>';
+            if (resultEl) resultEl.innerHTML = '<span class="msq-suggest-warn">مفيش مقاسات عمرية متاحة</span>';
             return;
           }
           var ageLabel = parseAgeFromSize(rec.size);
           var note = '';
           if (ageLabel != null && ageLabel < age) {
-            note = ' <span class="msq-suggest-warn">(يفضّل تجربه أو اختيار المقاس الأكبر لو متاح)</span>';
+            note = ' <span class="msq-suggest-warn">(يفضّل المقاس الأكبر لو متاح)</span>';
           } else if (ageLabel != null && ageLabel > age) {
-            note = ' <span style="color:#1565c0;">(مقاس أوسع شوية — مناسب للنمو)</span>';
+            note = ' <span class="msq-suggest-info">(مقاس أوسع شوية — مناسب للنمو)</span>';
           }
           if (resultEl) {
             resultEl.innerHTML = '<span class="msq-suggest-ok">✅ المقاس المقترح: <strong>' + rec.size + '</strong></span>' + note;
           }
-          // ميّز الصف المقترح في الجدول
           if (chartBody) {
             chartBody.querySelectorAll('tr').forEach(function (r) {
-              r.classList.remove('msq-row-recommended', 'msq-row-selected');
-              if (r.dataset.size === rec.size) {
-                r.classList.add('msq-row-recommended', 'msq-row-selected');
-              }
+              r.classList.toggle('msq-row-recommended', r.dataset.size === rec.size);
             });
           }
-          // اختار المقاس تلقائي
-          var sizeBtns = document.querySelectorAll('#sizesContainer > div');
+          highlightRow(rec.size);
           sizeBtns.forEach(function (b) {
-            if ((b.textContent || '').trim().indexOf(rec.size) !== -1) {
-              b.click();
-            }
+            if ((b.textContent || '').trim().indexOf(rec.size) !== -1) b.click();
           });
         };
       }
 
-      // Enter key on age input
       if (ageInput) {
         ageInput.onkeydown = function (e) {
           if (e.key === 'Enter') {

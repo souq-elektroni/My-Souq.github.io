@@ -1187,3 +1187,182 @@ footer,
   align-items: center;
   gap: 6px;
 }
+
+
+/* ===== My Souq: Size Chart under gallery — professional ===== */
+#productModal .modal-gallery-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+#productModal .msq-size-helper {
+  background: linear-gradient(160deg, #fffdfb 0%, #faf3ec 100%);
+  border: 1px solid #e8d5c8;
+  border-radius: 14px;
+  padding: 12px 12px 14px;
+  box-shadow: 0 2px 10px rgba(128, 61, 72, 0.06);
+  width: 100%;
+  box-sizing: border-box;
+}
+#productModal .msq-size-section-title {
+  font-weight: 900;
+  font-size: 13px;
+  color: var(--burgundy-soft, #8b3f52);
+  margin-bottom: 10px;
+  letter-spacing: 0.01em;
+}
+#productModal .msq-size-unit {
+  font-weight: 600;
+  font-size: 11px;
+  color: #9a7a6c;
+}
+#productModal .msq-size-chart-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 10px;
+}
+#productModal .msq-size-chart {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 12px;
+  min-width: 240px;
+}
+#productModal .msq-size-chart thead th {
+  background: linear-gradient(135deg, #8b3f52 0%, #6d3142 100%);
+  color: #fff;
+  padding: 9px 8px;
+  font-weight: 800;
+  text-align: center;
+  white-space: nowrap;
+  font-size: 11.5px;
+}
+#productModal .msq-size-chart thead th:first-child {
+  border-radius: 10px 0 0 0;
+}
+#productModal .msq-size-chart thead th:last-child {
+  border-radius: 0 10px 0 0;
+}
+#productModal .msq-size-chart td {
+  padding: 8px 7px;
+  text-align: center;
+  border-bottom: 1px solid #f0e0d4;
+  font-weight: 600;
+  color: #3d2b2b;
+  background: #fff;
+  transition: background 0.15s, color 0.15s;
+}
+#productModal .msq-size-chart tbody tr:last-child td {
+  border-bottom: none;
+}
+#productModal .msq-size-chart tbody tr:last-child td:first-child {
+  border-radius: 0 0 0 10px;
+}
+#productModal .msq-size-chart tbody tr:last-child td:last-child {
+  border-radius: 0 0 10px 0;
+}
+#productModal .msq-size-chart tbody tr {
+  cursor: pointer;
+}
+#productModal .msq-size-chart tbody tr:hover td {
+  background: #fff8f0;
+}
+/* الصف المختار = أخضر واضح */
+#productModal .msq-size-chart tr.msq-row-selected td {
+  background: #e8f5e9 !important;
+  color: #1b5e20;
+  font-weight: 900;
+}
+#productModal .msq-size-chart tr.msq-row-selected td:first-child {
+  box-shadow: inset 3px 0 0 #2e7d32;
+}
+#productModal .msq-size-chart tr.msq-row-recommended td {
+  background: #e3f2fd !important;
+}
+#productModal .msq-size-chart tr.msq-row-recommended.msq-row-selected td {
+  background: #e8f5e9 !important;
+}
+#productModal .msq-age-calc {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed #e0cfc0;
+}
+#productModal .msq-age-label {
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--burgundy-soft, #8b3f52);
+  display: block;
+  margin-bottom: 6px;
+}
+#productModal .msq-age-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+#productModal .msq-age-row input {
+  width: 130px;
+  padding: 8px 10px;
+  border: 1.5px solid #e0cfc0;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+  background: #fff;
+}
+#productModal .msq-age-row button {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #8b3f52, #6d3142);
+  color: #fff;
+  font-weight: 800;
+  font-size: 12.5px;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(109, 49, 66, 0.25);
+}
+#productModal .msq-age-row button:hover {
+  filter: brightness(1.05);
+}
+#productModal .msq-age-result {
+  margin-top: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.5;
+  min-height: 18px;
+}
+#productModal .msq-suggest-ok { color: #2e7d32; }
+#productModal .msq-suggest-warn { color: #e65100; }
+#productModal .msq-suggest-info { color: #1565c0; }
+
+/* توسيع نافذة المنتج بالطول */
+#productModal .modal-content {
+  max-height: 96vh !important;
+  overflow-y: auto !important;
+}
+#productModal .modal-body {
+  max-height: none !important;
+  align-items: flex-start !important;
+}
+#productModal.msq-pair-mode .modal-gallery-wrapper {
+  max-height: none !important;
+}
+@media (min-width: 900px) {
+  #productModal .modal-content {
+    max-width: min(1100px, 96vw) !important;
+  }
+  #productModal .msq-size-helper {
+    max-width: 100%;
+  }
+}
+@media (max-width: 700px) {
+  #productModal .msq-size-helper {
+    padding: 10px;
+  }
+  #productModal .msq-size-chart {
+    font-size: 11px;
+  }
+  #productModal .msq-size-chart thead th,
+  #productModal .msq-size-chart td {
+    padding: 7px 5px;
+  }
+}
