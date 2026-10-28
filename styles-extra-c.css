@@ -1,4 +1,4 @@
-/* My Souq - inline styles extracted from index.html (order preserved). Build 202610271200cleanup */
+/* My Souq - inline styles extracted from index.html (order preserved). Build 202610281300tracking */
 /* ===== mysouq-logo-longpress-no-select ===== */
 /* Prevent text selection on the My Souq badge without changing its long-press admin shortcut. */
 .brand-badge{
@@ -350,11 +350,11 @@ body{
 body::before{
   content:""!important;position:fixed!important;inset:-5px!important;z-index:-1!important;
   pointer-events:none!important;
-  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=202610271200cleanup') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(245,238,228,.18),rgba(248,242,233,.12)),url('assets/store-room.webp?v=202610281300tracking') center center/cover no-repeat!important;
   filter:blur(1.5px) saturate(.94)!important;transform:scale(1.015)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=202610271200cleanup') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(14,25,28,.60),rgba(16,27,29,.48)),url('assets/store-room.webp?v=202610281300tracking') center center/cover no-repeat!important;
   filter:blur(2px) saturate(.8)!important;
 }
 /* Restore the full banner artwork as a visible layer behind the original live logo/text. */
@@ -454,14 +454,14 @@ html, body { min-height:100%; }
     pointer-events:none;
     background:
       linear-gradient(135deg, rgba(245,238,226,.22), rgba(248,242,233,.16)),
-      url("assets/store-room.webp?v=202610271200cleanup") center center / cover no-repeat;
+      url("assets/store-room.webp?v=202610281300tracking") center center / cover no-repeat;
     filter: blur(1.35px) saturate(.92);
     transform: scale(1.015);
   }
   body.dark-mode::before {
     background:
       linear-gradient(135deg, rgba(13,22,24,.66), rgba(16,25,27,.58)),
-      url("assets/store-room.webp?v=202610271200cleanup") center center / cover no-repeat;
+      url("assets/store-room.webp?v=202610281300tracking") center center / cover no-repeat;
     filter: blur(1.7px) saturate(.78);
   }
 
@@ -597,7 +597,7 @@ body::before{
   transform:scale(1.025)!important;
 }
 body.dark-mode::before{
-  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=202610271200cleanup') center center/cover no-repeat!important;
+  background:linear-gradient(135deg,rgba(8,19,22,.54),rgba(11,25,27,.43)),url('assets/store-room.webp?v=202610281300tracking') center center/cover no-repeat!important;
   filter:blur(3.5px) saturate(.82)!important;
 }
 /* Hero keeps the full supplied banner art visible. */
@@ -4955,7 +4955,7 @@ body::before {
   pointer-events: none !important;
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=202610271200cleanup') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=202610281300tracking') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   transform: scale(1.06) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
@@ -4963,7 +4963,7 @@ body::before {
 body.dark-mode::before {
   background:
     linear-gradient(135deg, rgba(245, 238, 228, 0.22), rgba(248, 242, 233, 0.14)),
-    url('assets/store-room.webp?v=202610271200cleanup') center center / cover no-repeat !important;
+    url('assets/store-room.webp?v=202610281300tracking') center center / cover no-repeat !important;
   filter: blur(9px) saturate(0.92) brightness(1.02) !important;
   -webkit-filter: blur(9px) saturate(0.92) brightness(1.02) !important;
 }

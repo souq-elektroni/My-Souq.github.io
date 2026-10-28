@@ -1,4 +1,4 @@
-/* My Souq - inline styles extracted from index.html (order preserved). Build 202610271200cleanup */
+/* My Souq - inline styles extracted from index.html (order preserved). Build 202610281300tracking */
 /* ===== my-souq-wow-layer ===== */
 :root{
  --msq-primary:#8b3f52;--msq-primary-2:#b75b72;--msq-rose:#f2d6dd;
@@ -1720,10 +1720,10 @@ body{
 body::before{
  content:""!important;position:fixed!important;inset:-8px!important;z-index:-1!important;
  pointer-events:none!important;
- background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=202610271200cleanup') center center/cover no-repeat!important;
+ background:linear-gradient(135deg,rgba(245,239,230,.38),rgba(247,241,232,.28)),url('assets/store-room.webp?v=202610281300tracking') center center/cover no-repeat!important;
  filter:blur(2px) saturate(.9)!important;transform:scale(1.025)!important;
 }
-body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=202610271200cleanup') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
+body.dark-mode::before{background:linear-gradient(135deg,rgba(14,25,28,.68),rgba(16,27,29,.58)),url('assets/store-room.webp?v=202610281300tracking') center center/cover no-repeat!important;filter:blur(3px) saturate(.75)!important}
 /* Floating app badge and independent action buttons */
 .brand-badge{top:16px!important;right:16px!important;width:58px!important;height:58px!important;border-radius:19px!important;transform:rotate(3deg)!important;background:linear-gradient(145deg,#087f83,#36aaa9)!important;box-shadow:0 12px 30px rgba(8,127,131,.25),inset 0 1px 0 rgba(255,255,255,.75)!important;border:1px solid rgba(255,255,255,.8)!important}
 .brand-badge::before{inset:5px!important;border-radius:14px!important}

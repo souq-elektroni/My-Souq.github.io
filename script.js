@@ -116,11 +116,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
           statusCode: initialCode,
           status: String(localRecord.status || 'تحت التنفيذ 📦'),
           name: String(localRecord.name || ''),
-          address: String(localRecord.address || ''),
-          // phoneNorm فقط للمطابقة الآمنة في سجل الطلبات — مش الرقم الكامل الظاهر للعامة
-          phoneNorm: (typeof normalizeEgyptianPhone === 'function')
-            ? normalizeEgyptianPhone(localRecord.phone || '')
-            : String(localRecord.phone || '').replace(/\D/g, ''),
+          // لا عنوان ولا تليفون هنا: المستند ده يقدر يقراه أي حد معاه رقم الطلب
           total: localRecord.total == null ? '' : localRecord.total,
           items: Array.isArray(localRecord.items) ? localRecord.items : [],
           createdAt: localRecord.createdAt || Date.now(),
@@ -206,11 +202,13 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         orderId: normalizedId,
         statusCode: nextCode,
         status: String(newLabel || ''),
+        // تنظيف: شيل أي عنوان/تليفون قديم من المستند العام
+        address: firebase.firestore.FieldValue.delete(),
+        phoneNorm: firebase.firestore.FieldValue.delete(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       };
       if (order) {
         trackingPatch.name = String(order.name || '');
-        trackingPatch.address = String(order.address || '');
         trackingPatch.total = order.total == null ? '' : order.total;
         trackingPatch.items = Array.isArray(order.items) ? order.items : [];
       }
@@ -4309,7 +4307,9 @@ function continueAfterOrderRecaptcha() {
           // Backfill the public tracking record for OLD orders too, using the
           // admin-authorized orders list. Never copy phone or payment fields.
           name: String(o.name || ''),
-          address: String(o.address || ''),
+          // تنظيف تلقائي للطلبات القديمة: حذف العنوان والتليفون من المستند العام
+          address: firebase.firestore.FieldValue.delete(),
+          phoneNorm: firebase.firestore.FieldValue.delete(),
           total: o.total == null ? '' : o.total,
           items: Array.isArray(o.items) ? o.items : [],
           createdAt: o.createdAt || Date.now(),
