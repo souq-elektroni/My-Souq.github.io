@@ -72,7 +72,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
           // isTokenAutoRefreshEnabled = true, but do NOT enforce yet (false)
           // غيّر لـ true فقط بعد ما تضيف دومين github.io في reCAPTCHA Enterprise وتفعّل App Check في Firebase Console
           firebase.appCheck().activate(
-            new firebase.appCheck.ReCaptchaEnterpriseProvider("6LfaUwMuAAAAAPAnJN9jbTaWVvGZ8uRa6m0HMGDI"),
+            new firebase.appCheck.ReCaptchaEnterpriseProvider("6LeeqAQuAAAAAN2wG_X5CmKtHapIkNxgfHZ6jA0E"),
             false  // monitor mode — يمنع 403 Forbidden spam
           );
           console.info("App Check (monitor mode)");
