@@ -115,10 +115,34 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         return false;
       }
 
-      await db.collection('orders').doc(normalizedId).set({
-        ...localRecord,
+      // حقول مسموحة فقط حسب قواعد Firestore (يتجنب permission-denied)
+      const allowed = {
+        orderId: normalizedId,
+        name: String(localRecord.name || ''),
+        phone: String(localRecord.phone || ''),
+        address: String(localRecord.address || ''),
+        payMethod: String(localRecord.payMethod || ''),
+        total: (typeof localRecord.total === 'number' && !isNaN(localRecord.total))
+          ? localRecord.total
+          : (Number(localRecord.total) || 0),
+        totalDisplay: localRecord.totalDisplay != null ? String(localRecord.totalDisplay) : (String(localRecord.total || '') + ' ج.م'),
+        items: Array.isArray(localRecord.items) ? localRecord.items : [],
+        governorate: String(localRecord.governorate || ''),
+        city: String(localRecord.city || ''),
+        detailedAddress: String(localRecord.detailedAddress || ''),
+        statusCode: 0,
+        status: String(localRecord.status || 'تحت التنفيذ 📦'),
+        date: String(localRecord.date || ''),
+        createdAt: localRecord.createdAt || Date.now(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
+      };
+      if (localRecord.promoCode) {
+        allowed.promoCode = String(localRecord.promoCode).toUpperCase().slice(0, 24);
+      }
+      if (localRecord.promoDiscount) {
+        allowed.promoDiscount = String(localRecord.promoDiscount).slice(0, 80);
+      }
+      await db.collection('orders').doc(normalizedId).set(allowed);
 
       // Customer tracking reads this single document by its unpredictable order ID.
       // Keep only the fields needed by the tracking screen; never include phone/payment data.
@@ -3077,7 +3101,8 @@ function continueAfterOrderRecaptcha() {
       const ship = getShippingAddress();
       const proceedBtn = document.getElementById('proceedBtn');
       if (!nameEl || !phoneEl || !proceedBtn) return;
-      const valid = hasFourPartName(nameEl.value) && isValidEgyptianMobile(normalizeEgyptianPhone(phoneEl.value)) && ship.governorate && ship.city && ship.detailed && cart.length > 0;
+      const gpsOk = (typeof msqHasDeliveryGps === 'function') ? msqHasDeliveryGps() : false;
+      const valid = hasFourPartName(nameEl.value) && isValidEgyptianMobile(normalizeEgyptianPhone(phoneEl.value)) && ship.governorate && ship.city && ship.detailed && cart.length > 0 && gpsOk;
       proceedBtn.style.display = valid ? 'block' : 'none';
     }
 
@@ -3105,6 +3130,14 @@ function continueAfterOrderRecaptcha() {
         return;
       }
       if (cart.length === 0) { alert('السلة فارغة.'); return; }
+      if (typeof msqHasDeliveryGps === 'function' && !msqHasDeliveryGps()) {
+        alert('📍 رجاء تسجيل الموقع (اللوكيشن) على الخريطة أو عبر GPS قبل المتابعة.');
+        try {
+          var st = document.getElementById('mysouqMapStatus');
+          if (st && st.scrollIntoView) st.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch (e) {}
+        return;
+      }
       closeCartModal();
       openOrderRecaptchaModal();
     }
@@ -3508,6 +3541,21 @@ function continueAfterOrderRecaptcha() {
   let __msqFinalizeInFlight = false;
   let __msqFinalizeDoneIds = (window.__msqFinalizeDoneIds = window.__msqFinalizeDoneIds || new Set());
 
+  
+  function msqHasDeliveryGps() {
+    try {
+      if (typeof window.mysouqGetDeliveryCoords !== 'function') return false;
+      var c = window.mysouqGetDeliveryCoords();
+      if (!c) return false;
+      var lat = Number(c.lat);
+      var lon = Number(c.lon);
+      return !isNaN(lat) && !isNaN(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
+    } catch (e) {
+      return false;
+    }
+  }
+  window.msqHasDeliveryGps = msqHasDeliveryGps;
+
   async function finalizeOrder() {
     const confirmBtn = document.getElementById('confirmOrderFinalBtn') || document.querySelector('#confirmationModal .send-final-btn');
     const setBtnBusy = function (busy, label) {
@@ -3550,6 +3598,15 @@ function continueAfterOrderRecaptcha() {
 
     if (!Array.isArray(cart) || cart.length === 0) {
       alert('السلة فارغة، لا يمكن إتمام الطلب.');
+      return;
+    }
+
+    if (!msqHasDeliveryGps()) {
+      alert('📍 رجاء تسجيل الموقع (اللوكيشن) على الخريطة أو عبر GPS قبل إتمام الطلب.');
+      try {
+        var mapBox = document.getElementById('mysouqMap') || document.getElementById('mysouqMapStatus');
+        if (mapBox && mapBox.scrollIntoView) mapBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (e) {}
       return;
     }
 

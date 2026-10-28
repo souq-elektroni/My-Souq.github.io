@@ -6599,6 +6599,16 @@ window.addToCartAndContinue = function () {
     try{
       if(typeof window.mysouqAddressIsValid==='function' && !window.mysouqAddressIsValid()) return false;
     }catch(e){}
+    // إلزامي: تسجيل الموقع الجغرافي
+    try{
+      if(typeof window.msqHasDeliveryGps==='function'){
+        if(!window.msqHasDeliveryGps()) return false;
+      } else {
+        var la=document.getElementById('mysouqLatitude');
+        var lo=document.getElementById('mysouqLongitude');
+        if(!la || !lo || !String(la.value||'').trim() || !String(lo.value||'').trim()) return false;
+      }
+    }catch(e2){ return false; }
     return true;
   }
   function syncProceed(){
@@ -6646,7 +6656,7 @@ window.addToCartAndContinue = function () {
     }
   }
   function bindFields(){
-    ['custName','custPhone','custGovernorate','custCity','custDetailedAddress'].forEach(function(id){
+    ['custName','custPhone','custGovernorate','custCity','custDetailedAddress','mysouqLatitude','mysouqLongitude'].forEach(function(id){
       var el=document.getElementById(id);
       if(!el || el._msqProceedBound) return;
       el._msqProceedBound=true;
