@@ -157,12 +157,13 @@
   <meta http-equiv="Expires" content="0">
   <meta name="msq-build" content="202610281300tracking">
 
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
   <link rel="manifest" href="manifest.json?v=202610281300tracking">
@@ -170,7 +171,18 @@
   <link rel="icon" href="favicon.svg?v=202610281300tracking" sizes="any">
   <link rel="apple-touch-icon" href="favicon.svg?v=202610281300tracking">
   <link rel="shortcut icon" href="favicon.svg?v=202610281300tracking">
-  <title>My Souq</title>
+    <meta name="description" content="ماي سوق — ملابس أطفال ونساء ورجال بأجود الخامات وأسعار مناسبة. توصيل لكل المحافظات.">
+  <meta name="keywords" content="ماي سوق, ملابس أطفال, ملابس أولادي, ملابس بناتي, تسوق أونلاين, مصر">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="My Souq — ماي سوق">
+  <meta property="og:description" content="ملابس أطفال ونساء ورجال بأجود الخامات. تسوق أونلاين مع توصيل لكل المحافظات.">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="ar_EG">
+  <meta property="og:site_name" content="My Souq">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="My Souq — ماي سوق">
+  <meta name="twitter:description" content="ملابس أطفال ونساء ورجال بأجود الخامات.">
+  <title>My Souq — ماي سوق | ملابس أطفال ونساء ورجال</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <!-- Firebase (للطلبات عبر الإنترنت من أي جهاز) -->
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
@@ -4789,94 +4801,6 @@ window.addToCartAndContinue = function () {
 <!-- removed duplicate script:mysouq-dependent-egypt-address-v1 -->
 
 
-<!-- My Souq delivery map and GPS; adds location without replacing existing checkout logic. -->
-<!-- removed duplicate style:mysouq-delivery-map-styles -->
-
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script id="mysouq-delivery-map-script">
-(function(){
-  var mapEl=document.getElementById('mysouqDeliveryMap');
-  if(!mapEl || typeof L==='undefined'){return;}
-  // Prevent double init (duplicate script copies on page)
-  if(mapEl._leaflet_id){return;}
-  var map=L.map(mapEl,{scrollWheelZoom:false}).setView([26.8206,30.8025],6);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
-  var marker=null, latInput=document.getElementById('mysouqLatitude'), lonInput=document.getElementById('mysouqLongitude'), status=document.getElementById('mysouqMapStatus');
-  function setLocation(lat,lon,source){
-    lat=Number(lat);lon=Number(lon);if(!Number.isFinite(lat)||!Number.isFinite(lon)||lat < -90||lat > 90||lon < -180||lon > 180)return;
-    latInput.value=lat.toFixed(6);lonInput.value=lon.toFixed(6);
-    if(marker){marker.setLatLng([lat,lon]);}else{marker=L.marker([lat,lon],{draggable:true}).addTo(map);marker.on('dragend',function(){var p=marker.getLatLng();setLocation(p.lat,p.lng,'تم تعديل الموقع يدويًا');});}
-    map.setView([lat,lon],16);status.textContent=source+': '+lat.toFixed(6)+', '+lon.toFixed(6)+' — سيتم إرفاق الإحداثيات بالعنوان عند إرسال الطلب.';
-    var detail=document.getElementById('custDetailedAddress');if(detail && typeof window.checkFormCompletion==='function')window.checkFormCompletion();
-    setTimeout(function(){ try{ map.invalidateSize({animate:false}); }catch(e){} }, 50);
-    setTimeout(function(){ try{ map.invalidateSize({animate:false}); }catch(e){} }, 250);
-  }
-  map.on('click',function(e){setLocation(e.latlng.lat,e.latlng.lng,'تم تحديد الموقع على الخريطة');});
-  document.getElementById('mysouqLocateMeBtn').addEventListener('click',function(){
-    if(!navigator.geolocation){status.textContent='المتصفح لا يدعم تحديد الموقع. اضغط على الخريطة لتحديده يدويًا.';return;}
-    status.textContent='جارٍ تحديد موقعك… اسمح للمتصفح بالوصول إلى الموقع إذا طُلب منك ذلك.';
-    navigator.geolocation.getCurrentPosition(function(pos){setLocation(pos.coords.latitude,pos.coords.longitude,'تم تحديد موقعك عبر GPS');},function(err){var msg=err.code===1?'لم تسمح بالوصول للموقع. يمكنك اختيار المكان يدويًا على الخريطة.':err.code===2?'تعذر تحديد الموقع الحالي. جرّب تشغيل GPS أو اختر المكان يدويًا.':'انتهت مهلة تحديد الموقع. جرّب مرة أخرى أو اختر المكان يدويًا.';status.textContent=msg;},{enableHighAccuracy:true,timeout:15000,maximumAge:0});
-  });
-  document.getElementById('mysouqClearMapBtn').addEventListener('click',function(){if(marker){map.removeLayer(marker);marker=null;}latInput.value='';lonInput.value='';status.textContent='تم مسح الموقع. يمكنك اختيار مكان على الخريطة أو استخدام GPS.';});
-  // Include coordinates in the existing address field so current order-save/admin display flows retain them.
-  var form=document.getElementById('customerFormBox');
-  if(form){form.addEventListener('submit',function(){appendCoordinates();},true);}
-  function appendCoordinates(){
-    var lat=latInput.value,lon=lonInput.value,detail=document.getElementById('custDetailedAddress');if(!detail||!lat||!lon)return;
-    // Strip any previous GPS block (coordinates and/or map link)
-    var base=detail.value
-      .replace(/\n?\n?\[موقع التوصيل GPS:[^\]]*\]/g,'')
-      .replace(/\n?🔗\s*الخريطة:\s*https?:\/\/\S+/g,'')
-      .replace(/\n?https?:\/\/(?:www\.)?(?:google\.[^\/]+\/maps|maps\.google\.[^\/]+|maps\.app\.goo\.gl)\S*/gi,'')
-      .trim();
-    var mapsUrl='https://maps.google.com/?q='+encodeURIComponent(lat+','+lon);
-    var line='[موقع التوصيل GPS: '+lat+', '+lon+']\n🔗 الخريطة: '+mapsUrl;
-    if(base.indexOf(lat)===-1 || base.indexOf('maps.google.com')===-1){
-      detail.value=(base?base+'\n\n':'')+line;
-    }
-  }
-  window.mysouqGetDeliveryCoords=function(){
-    var lat=latInput&&latInput.value, lon=lonInput&&lonInput.value;
-    if(!lat||!lon)return null;
-    return {lat:lat, lon:lon, mapsUrl:'https://maps.google.com/?q='+encodeURIComponent(lat+','+lon)};
-  };
-  // Existing checkout may call finalizeOrder directly rather than submit the form.
-  if(typeof window.finalizeOrder==='function'){var originalFinalize=window.finalizeOrder;window.finalizeOrder=async function(){appendCoordinates();return originalFinalize.apply(this,arguments);};}
-  function refreshDeliveryMap(){
-    try{
-      map.invalidateSize({animate:false});
-      var lat=latInput&&latInput.value, lon=lonInput&&lonInput.value;
-      if(lat&&lon){
-        map.setView([Number(lat),Number(lon)], map.getZoom()||16);
-      }
-    }catch(e){}
-  }
-  window.mysouqRefreshDeliveryMap = refreshDeliveryMap;
-  window.mysouqDeliveryMapInstance = map;
-
-  setTimeout(refreshDeliveryMap, 350);
-  window.addEventListener('resize', refreshDeliveryMap);
-
-  // When cart modal becomes visible, Leaflet must recalculate size
-  // (map was initialized while the modal was hidden → gray/empty tiles).
-  var cartModal = document.getElementById('cartModal');
-  if(cartModal && window.MutationObserver){
-    new MutationObserver(function(){
-      if(cartModal.classList.contains('active')){
-        setTimeout(refreshDeliveryMap, 80);
-        setTimeout(refreshDeliveryMap, 280);
-        setTimeout(refreshDeliveryMap, 600);
-      }
-    }).observe(cartModal, {attributes:true, attributeFilter:['class']});
-  }
-  // Also refresh when user scrolls the cart body (layout can settle late)
-  if(cartModal){
-    cartModal.addEventListener('transitionend', function(){
-      if(cartModal.classList.contains('active')) refreshDeliveryMap();
-    });
-  }
-})();
-</script>
 
 
 
@@ -4909,297 +4833,6 @@ window.addToCartAndContinue = function () {
 
 
 <!-- My Souq: mobile-only product order modal polish. Existing behavior and desktop layout remain unchanged. -->
-
-<!-- removed duplicate style:mysouq-mobile-product-modal-polish-v1 -->
-
-
-
-
-<!-- removed duplicate style:mysouq-customer-tracking-redesign-v1 -->
-
-
-
-
-<!-- removed duplicate script:mysouq-maintenance-admin-entry-fix -->
-
-
-
-
-<!-- removed duplicate style:mysouq-open-orders-status-filters-style -->
-
-
-<!-- removed duplicate script:mysouq-open-orders-status-filters-script -->
-
-
-
-
-<!-- removed duplicate style:mysouq-admin-five-tabs-and-delivered-actions -->
-
-
-
-<script id="mysouq-virtual-tryon-feature">
-/* ===== My Souq: Virtual Try-On (FASHN VTON free) + Admin Toggle =====
-   - Toggle lives inside admin orders modal (same access as maintenance)
-   - Flag stored in Firestore: settings/features.virtual_tryon_enabled
-   - Does not remove or alter any existing feature
-*/
-(function () {
-  var VTO_COLLECTION = 'settings';
-  var VTO_DOC = 'features';
-  var VTO_LOCAL_KEY = 'mysouq_vto_enabled';
-  var vtoEnabledCache = null;
-  if (typeof window.__mysouqVtoEnabled === 'undefined') window.__mysouqVtoEnabled = null;
-
-  function isAdminNow() {
-    try { return typeof isAdminMode !== 'undefined' && !!isAdminMode; } catch (e) { return false; }
-  }
-
-  function getDb() {
-    try {
-      if (typeof db !== 'undefined' && db) return db;
-      if (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length) {
-        return firebase.firestore();
-      }
-    } catch (e) {}
-    return null;
-  }
-
-  async function readVtoEnabled() {
-    var enabled = false;
-    var dbRef = getDb();
-    if (dbRef) {
-      try {
-        var snap = await dbRef.collection(VTO_COLLECTION).doc(VTO_DOC).get();
-        if (snap.exists) {
-          var data = snap.data() || {};
-          enabled = data.virtual_tryon_enabled === true;
-        }
-      } catch (e) {
-        console.warn('VTO read failed:', e);
-      }
-    }
-    if (!dbRef) {
-      try {
-        var local = JSON.parse(localStorage.getItem(VTO_LOCAL_KEY) || 'null');
-        if (local && typeof local.enabled === 'boolean') enabled = local.enabled;
-      } catch (e) {}
-    }
-    vtoEnabledCache = enabled;
-    // Shared state prevents duplicate feature modules from disagreeing about activation.
-    window.__mysouqVtoEnabled = enabled;
-    updateVtoAdminUi(enabled);
-    syncVtoBoxVisibility();
-    return enabled;
-  }
-
-  function updateVtoAdminUi(enabled) {
-    var status = document.getElementById('vtoAdminStatus');
-    var btn = document.getElementById('vtoAdminToggle');
-    if (status) {
-      status.textContent = enabled ? '🟢 ميزة تجربة الملابس مفعّلة' : '🔴 ميزة تجربة الملابس متوقفة';
-    }
-    if (btn) {
-      btn.textContent = enabled ? 'إيقاف تجربة الملابس' : 'تشغيل تجربة الملابس';
-      btn.className = 'maintenance-toggle-btn ' + (enabled ? 'on' : 'off');
-    }
-  }
-
-  function syncVtoBoxVisibility() {
-    var box = document.getElementById('virtualTryOnBox');
-    if (!box) return;
-    var on = vtoEnabledCache === true;
-    box.style.display = on ? 'block' : 'none';
-  }
-
-  window.toggleVirtualTryOn = async function () {
-    if (!isAdminNow()) {
-      alert('يجب تسجيل الدخول كمسؤول أولاً.');
-      return;
-    }
-    var dbRef = getDb();
-    if (!dbRef) {
-      alert('Firebase غير متاح حالياً.');
-      return;
-    }
-    var current = false;
-    try {
-      var snap = await dbRef.collection(VTO_COLLECTION).doc(VTO_DOC).get();
-      if (snap.exists) current = !!(snap.data() || {}).virtual_tryon_enabled;
-    } catch (e) {}
-    var next = !current;
-    var payload = {
-      virtual_tryon_enabled: next,
-      updatedAt: new Date().toISOString()
-    };
-    try {
-      await dbRef.collection(VTO_COLLECTION).doc(VTO_DOC).set(payload, { merge: true });
-    } catch (e) {
-      alert('تعذر حفظ إعداد تجربة الملابس على السحابة.\nتأكد من قواعد Firestore.\n' + (e && e.message ? e.message : ''));
-      return;
-    }
-    try { localStorage.setItem(VTO_LOCAL_KEY, JSON.stringify({ enabled: next })); } catch (e) {}
-    vtoEnabledCache = next;
-    window.__mysouqVtoEnabled = next;
-    updateVtoAdminUi(next);
-    syncVtoBoxVisibility();
-    alert(next ? 'تم تشغيل ميزة تجربة الملابس ✅' : 'تم إيقاف ميزة تجربة الملابس ✅');
-  };
-
-  function injectVtoAdminControl() {
-    if (document.getElementById('vtoAdminBox')) return;
-    var modal = document.getElementById('adminOrdersModal');
-    if (!modal) return;
-    var after = document.getElementById('maintenanceAdminBox');
-    var logout = document.getElementById('adminLogoutBtn');
-    var wrap = document.createElement('div');
-    wrap.id = 'vtoAdminBox';
-    wrap.className = 'maintenance-admin-box';
-    wrap.style.marginTop = '8px';
-    wrap.innerHTML =
-      '<div style="font-weight:900;color:var(--burgundy-soft);margin-bottom:7px;">👕 تجربة الملابس (Virtual Try-On)</div>' +
-      '<div class="maintenance-admin-row">' +
-      '  <span id="vtoAdminStatus" style="font-size:12px;font-weight:800;">جاري قراءة الحالة...</span>' +
-      '  <button id="vtoAdminToggle" type="button" class="maintenance-toggle-btn off" onclick="toggleVirtualTryOn()">تشغيل تجربة الملابس</button>' +
-      '</div>' +
-      '<div style="font-size:10.5px;color:var(--text-muted);margin-top:6px;">عند تشغيله يظهر زر «جرب المنتج عليك» داخل تفاصيل المنتج للعملاء.</div>';
-    if (after && after.parentNode) {
-      after.parentNode.insertBefore(wrap, after.nextSibling);
-    } else if (logout && logout.parentNode) {
-      logout.parentNode.insertBefore(wrap, logout.nextSibling);
-    } else {
-      var header = document.getElementById('adminOrdersHeader');
-      if (header && header.parentNode) header.parentNode.insertBefore(wrap, header.nextSibling);
-    }
-    readVtoEnabled();
-  }
-
-  // Re-inject when admin modal opens
-  function watchAdminModal() {
-    var modal = document.getElementById('adminOrdersModal');
-    if (!modal) return;
-    var obs = new MutationObserver(function () {
-      if (modal.classList.contains('active')) {
-        injectVtoAdminControl();
-        readVtoEnabled();
-      }
-    });
-    obs.observe(modal, { attributes: true, attributeFilter: ['class'] });
-  }
-
-  // When product modal opens, refresh visibility
-  function watchProductModal() {
-    var modal = document.getElementById('productModal');
-    if (!modal) return;
-    var obs = new MutationObserver(function () {
-      if (modal.classList.contains('active') || modal.style.display === 'flex') {
-        if (vtoEnabledCache === null) readVtoEnabled();
-        else syncVtoBoxVisibility();
-        // reset result UI
-        var status = document.getElementById('vtoStatus');
-        var img = document.getElementById('vtoResultImg');
-        var input = document.getElementById('vtoPersonInput');
-        if (status) status.textContent = '';
-        if (img) { img.style.display = 'none'; img.removeAttribute('src'); }
-        if (input) input.value = '';
-        try {
-          var catEl = document.getElementById('vtoCategory');
-          if (catEl) {
-            delete catEl.dataset.userTouched;
-            var p = (typeof currentSelectedProduct !== 'undefined') ? currentSelectedProduct : null;
-            var t = String(((p && (p.title || p.name || p.productName)) || '') + ' ' + ((p && p.desc) || '')).toLowerCase();
-            if (/طقم|set|pajamas|بيجام|بدلة|اوفرول|أوفرول|فستان/.test(t)) catEl.value = 'one-pieces';
-            else if (/بنطلون|جيبة|pants|skirt/.test(t)) catEl.value = 'bottoms';
-            else catEl.value = 'one-pieces';
-          }
-        } catch (e) {}
-        var title = document.getElementById('vtoUploadTitle');
-        var hint = document.getElementById('vtoUploadHint');
-        var label = document.getElementById('vtoUploadLabel');
-        if (title) title.textContent = 'صورتك';
-        if (hint) hint.textContent = '';
-        if (label) {
-          label.style.borderColor = 'rgba(139,63,82,.35)';
-          label.style.background = 'rgba(255,255,255,.85)';
-        }
-      }
-    });
-    obs.observe(modal, { attributes: true, attributeFilter: ['class', 'style'] });
-  }
-
-  function bindVtoUploadUi() {
-    var input = document.getElementById('vtoPersonInput');
-    var title = document.getElementById('vtoUploadTitle');
-    var hint = document.getElementById('vtoUploadHint');
-    var label = document.getElementById('vtoUploadLabel');
-    if (!input || input._vtoBound) return;
-    input._vtoBound = true;
-    input.addEventListener('change', function () {
-      var f = input.files && input.files[0];
-      if (f) {
-        if (title) title.textContent = 'تم ✓';
-        if (hint) hint.textContent = '';
-        if (label) {
-          label.style.borderColor = 'rgba(46,125,50,.55)';
-          label.style.background = 'rgba(232,245,233,.65)';
-        }
-      } else {
-        if (title) title.textContent = 'صورتك';
-        if (hint) hint.textContent = '';
-        if (label) {
-          label.style.borderColor = 'rgba(139,63,82,.35)';
-          label.style.background = 'rgba(255,255,255,.85)';
-        }
-      }
-    });
-  }
-
-  // Hook openProductModal if available
-  function hookOpenProductModal() {
-    if (typeof window.openProductModal !== 'function' || window.openProductModal._vtoHooked) return;
-    var orig = window.openProductModal;
-    window.openProductModal = function () {
-      var r = orig.apply(this, arguments);
-      setTimeout(function () {
-        if (vtoEnabledCache === null) readVtoEnabled();
-        else syncVtoBoxVisibility();
-      }, 50);
-      return r;
-    };
-    window.openProductModal._vtoHooked = true;
-  }
-
-  window.runVirtualTryOn = function () {
-    // استخدم التنفيذ المحسّن الوحيد لتجنب استبداله بتعريف قديم.
-    return window.runVirtualTryOnImproved();
-  };
-
-  function boot() {
-    watchAdminModal();
-    watchProductModal();
-    hookOpenProductModal();
-    bindVtoUploadUi();
-    try {
-      var cat = document.getElementById('vtoCategory');
-      if (cat && !cat._vtoTouchedBound) {
-        cat._vtoTouchedBound = true;
-        cat.addEventListener('change', function () { cat.dataset.userTouched = '1'; });
-      }
-    } catch (e) {}
-    // initial read
-    setTimeout(readVtoEnabled, 800);
-    setTimeout(injectVtoAdminControl, 1200);
-    // retry hook in case script.js loads later
-    setTimeout(hookOpenProductModal, 2000);
-    setTimeout(bindVtoUploadUi, 1500);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
-})();
-</script>
 
 
 

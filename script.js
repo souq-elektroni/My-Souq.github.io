@@ -1,6 +1,11 @@
 /* MSQ_BUILD 202610231804sharehist */
 /* MSQ_SECURITY: escape helper + admin identity */
 const MSQ_ADMIN_EMAIL = 'aali78@mysouq.com';
+function msqEscapeMarkdown(v) {
+  // escape special Markdown chars for Telegram parse_mode Markdown
+  return String(v == null ? '' : v)
+    .replace(/([_*\[\]`])/g, '\\$1');
+}
 function msqEsc(v) {
   return String(v == null ? '' : v)
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -64,16 +69,16 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       // App Check (reCAPTCHA Enterprise) - لا يوقف الموقع لو الملف أو المفتاح فيه مشكلة
       try {
         if (firebase.appCheck && firebase.appCheck.ReCaptchaEnterpriseProvider) {
+          // isTokenAutoRefreshEnabled = true, but do NOT enforce yet (false)
+          // غيّر لـ true فقط بعد ما تضيف دومين github.io في reCAPTCHA Enterprise وتفعّل App Check في Firebase Console
           firebase.appCheck().activate(
             new firebase.appCheck.ReCaptchaEnterpriseProvider("6LfaUwMuAAAAAPAnJN9jbTaWVvGZ8uRa6m0HMGDI"),
-            true
+            false  // monitor mode — يمنع 403 Forbidden spam
           );
-          console.log("App Check مفعّل ✅");
-        } else {
-          console.warn("App Check: ملف firebase-app-check-compat.js غير محمّل");
+          console.info("App Check (monitor mode)");
         }
       } catch (appCheckErr) {
-        console.warn("App Check لم يكتمل:", appCheckErr);
+        // silent — App Check optional for github pages until configured
       }
       db = firebase.firestore();
       firebaseReady = true;
@@ -249,6 +254,8 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   let activeModalImage = '';
   let selectedDesignIndex = 0;
   let discountRate = 0;
+  let currentCartTotal = 0; // numeric total (never trust DOM text)
+  let appliedPromoCode = null; // {code, type, value} when applied
   let generatedOrderId = '';
 
   /* إشعار طلبات My Souq عبر Telegram Worker؛ لا تضع Bot Token داخل هذا الملف. */
@@ -262,15 +269,23 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   const productsGrid = document.getElementById("products-container");
   const cartCount = document.getElementById("cartCount");
 
-  /* رقم طلب قصير + قوي + مضمون عدم التكرار (مثال: MS-K7P2M9X4) */
+  /* رقم طلب قصير + قوي + آمن (crypto.getRandomValues) + يضمن عدم التكرار */
   function generateStrongOrderId() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // بدون حروف متشابهة
+    function randomChar() {
+      if (window.crypto && window.crypto.getRandomValues) {
+        const arr = new Uint32Array(1);
+        window.crypto.getRandomValues(arr);
+        return chars.charAt(arr[0] % chars.length);
+      }
+      return chars.charAt(Math.floor(Math.random() * chars.length));
+    }
     let id = '';
     let attempts = 0;
     do {
       id = 'MS-';
       for (let i = 0; i < 8; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
+        id += randomChar();
       }
       attempts++;
     } while (
@@ -2512,56 +2527,41 @@ ${selectedImage}
 
 
   function updateTotalPrice() {
-
-    let subtotal =
-      cart.reduce(
-        (sum, item) =>
-          sum + (item.price * item.qty),
-        0
-      );
-
-
-    let total =
-      subtotal * (1 - discountRate);
-
-
-    document
-      .getElementById('cartTotalPrice')
-      .innerText =
-      total.toFixed(0) + ' ج.م';
-
+    let subtotal = cart.reduce(
+      (sum, item) => sum + (Number(item.price) * Number(item.qty)),
+      0
+    );
+    let total = subtotal * (1 - discountRate);
+    currentCartTotal = Math.round(total); // store trusted numeric value
+    const el = document.getElementById('cartTotalPrice');
+    if (el) el.innerText = currentCartTotal + ' ج.م';
   }
 
 
   function applyPromoCode() {
-
-    const code =
-      document
-        .getElementById('promoInput')
-        .value
-        .trim();
-
-
-    if (code === 'SOUQ10') {
-
-      discountRate = 0.10;
-
-      alert(
-        'تم تطبيق خصم 10% بنجاح!'
-      );
-
+    const inputEl = document.getElementById('promoInput');
+    const code = (inputEl ? inputEl.value : '').trim().toUpperCase();
+    // أكواد مؤقتة (لاحقاً تُحمّل من لوحة الإدارة / Firestore)
+    const PROMO_CODES = {
+      'SOUQ10': { type: 'percent', value: 10, label: 'خصم 10%' }
+    };
+    const promo = PROMO_CODES[code];
+    if (promo) {
+      if (promo.type === 'percent') {
+        discountRate = promo.value / 100;
+      } else if (promo.type === 'fixed') {
+        // سيتم دعم المبلغ الثابت لاحقاً
+        discountRate = 0;
+      }
+      appliedPromoCode = { code: code, type: promo.type, value: promo.value, label: promo.label };
+      alert('تم تطبيق ' + promo.label + ' بنجاح!');
       updateTotalPrice();
-
+    } else {
+      appliedPromoCode = null;
+      discountRate = 0;
+      alert('كود الخصم غير صحيح');
+      updateTotalPrice();
     }
-
-    else {
-
-      alert(
-        'كود الخصم غير صحيح'
-      );
-
-    }
-
   }
 
 
@@ -2943,7 +2943,8 @@ function continueAfterOrderRecaptcha() {
     const phone = document.getElementById('custPhone').value.trim();
     const shipping = getShippingAddress();
     const address = shipping.full;
-    const totalText = document.getElementById('cartTotalPrice').innerText;
+    const totalText = (typeof currentCartTotal === 'number' ? currentCartTotal : 0) + ' ج.م';
+    const totalNumeric = typeof currentCartTotal === 'number' ? currentCartTotal : 0;
     
     const selectedPayRadio = document.querySelector('input[name="payMethod"]:checked');
     const payMethod = selectedPayRadio && selectedPayRadio.value === 'cod' ? 'الدفع عند الاستلام' : 'Instapay';
@@ -3004,13 +3005,13 @@ function continueAfterOrderRecaptcha() {
     lines.push('🛒 *طلب جديد — My Souq*');
     lines.push('━━━━━━━━━━━━━━━━');
     lines.push('🆔 *رقم الطلب:* `' + String(m.orderId || '-') + '`');
-    lines.push('👤 *الاسم:* ' + String(m.name || '-'));
+    lines.push('👤 *الاسم:* ' + msqEscapeMarkdown(m.name || '-'));
     lines.push('📱 *الهاتف:* `' + String(m.phone || '-') + '`');
     lines.push('📍 *العنوان:*');
-    lines.push(String(m.address || '-'));
-    if (m.governorate) lines.push('🏛️ المحافظة: ' + String(m.governorate));
-    if (m.city) lines.push('🏙️ المدينة: ' + String(m.city));
-    if (m.detailedAddress) lines.push('🏠 تفصيلي: ' + String(m.detailedAddress));
+    lines.push(msqEscapeMarkdown(m.address || '-'));
+    if (m.governorate) lines.push('🏛️ المحافظة: ' + msqEscapeMarkdown(m.governorate));
+    if (m.city) lines.push('🏙️ المدينة: ' + msqEscapeMarkdown(m.city));
+    if (m.detailedAddress) lines.push('🏠 تفصيلي: ' + msqEscapeMarkdown(m.detailedAddress));
     lines.push('💳 *الدفع:* ' + String(m.payMethod || m.paymentMethod || '-'));
     lines.push('💰 *الإجمالي:* ' + String(m.total || '-'));
     lines.push('━━━━━━━━━━━━━━━━');
@@ -3020,7 +3021,7 @@ function continueAfterOrderRecaptcha() {
       lines.push('— لا توجد منتجات —');
     } else {
       items.forEach(function (it, idx) {
-        const name = it.name || it.title || 'منتج';
+        const name = msqEscapeMarkdown(it.name || it.title || 'منتج');
         const qty = it.quantity != null ? it.quantity : (it.qty != null ? it.qty : 1);
         const price = it.price != null ? it.price : '-';
         const size = it.size || '-';
@@ -3165,7 +3166,8 @@ function continueAfterOrderRecaptcha() {
     __msqFinalizeInFlight = true;
     setBtnBusy(true, 'جاري تأكيد الطلب...');
 
-    const totalText = document.getElementById('cartTotalPrice')?.innerText || '0 ج.م';
+    const totalNumeric = typeof currentCartTotal === 'number' ? currentCartTotal : 0;
+    const totalText = totalNumeric + ' ج.م';
 
     // GPS إن وجد
     let addressForOrder = address;
@@ -3184,7 +3186,10 @@ function continueAfterOrderRecaptcha() {
       phone: phone,
       address: addressForOrder,
       payMethod: payMethod,
-      total: totalText,
+      total: totalNumeric,          // رقم حقيقي للتقارير
+      totalDisplay: totalText,      // نص للعرض فقط
+      promoCode: appliedPromoCode ? appliedPromoCode.code : null,
+      promoDiscount: appliedPromoCode ? appliedPromoCode.label : null,
       items: cart.map(function (item) { return Object.assign({}, item); }),
       governorate: shipping.governorate,
       city: shipping.city,
