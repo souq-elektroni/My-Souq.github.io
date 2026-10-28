@@ -9,6 +9,14 @@ function msqEsc(v) {
 function msqIsAdminUser(u) {
   return !!(u && u.email && String(u.email).toLowerCase() === MSQ_ADMIN_EMAIL);
 }
+
+/* صورة بديلة محلية (SVG) — بدل via.placeholder.com اللي وقفت. بدون علامات اقتباس مفردة عشان تنفع داخل onerror. */
+const MSQ_PLACEHOLDER_IMG = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="300" viewBox="0 0 300 300">' +
+  '<rect width="300" height="300" fill="#f5efe9"/>' +
+  '<text x="150" y="160" font-family="Arial,sans-serif" font-size="30" font-weight="bold" fill="#7a1f3d" text-anchor="middle">My Souq</text>' +
+  '</svg>'
+);
 let products = [];
   let cart = []; // Cart is session-only; do not restore prior cart contents from localStorage.
 try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItems"); } catch (_) {}
@@ -552,7 +560,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       allExtractedImages.splice(0, allExtractedImages.length, ...pairedUrls, ...legacyUrls);
     }
 
-    const defaultImg = 'https://via.placeholder.com/300?text=My+Souq';
+    const defaultImg = MSQ_PLACEHOLDER_IMG;
     if (allExtractedImages.length === 0) allExtractedImages.push(defaultImg);
 
     // New Sveltia variants list: size/color/price/quantity/dimensions/status.
@@ -825,7 +833,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   function productCardHtml(p) {
     const albumCount = Array.isArray(p.images) ? p.images.length : 0;
-    const firstImage = (p.images && p.images[0]) || p.image || 'https://via.placeholder.com/300?text=My+Souq';
+    const firstImage = (p.images && p.images[0]) || p.image || MSQ_PLACEHOLDER_IMG;
     const pairedDesigns = Array.isArray(p.designs) ? p.designs.filter(d => d && (d.front_image || d.back_image)) : [];
     const albumBadge = pairedDesigns.length
       ? `<span class="msq-album-badge">▧ ${pairedDesigns.length} أشكال · ${pairedDesigns.length * 2} صور</span>`
@@ -867,7 +875,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
             ${pairedDesigns.length ? pairedCardHtml : `<img class="product-image" data-album-index="0" src="${firstImage}" alt="${titleAttr}"
               loading="lazy" decoding="async" fetchpriority="low"
               width="300" height="300"
-              onerror="this.src='https://via.placeholder.com/300?text=My+Souq'">`}
+              onerror="this.onerror=null;this.src='${MSQ_PLACEHOLDER_IMG}'">`}
             ${albumBadge}
           </div>
           <div class="product-details">

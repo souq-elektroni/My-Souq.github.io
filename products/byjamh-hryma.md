@@ -4,13 +4,13 @@ category: "Mr & Mrs"
 subcategory: ملابس للمنزل
 designs: []
 images:
-  - /images/products/p-20261027-204022-m8u2-1.webp
-  - /images/products/p-20261027-204022-m8u2-2.webp
-  - /images/products/p-20261027-204022-m8u2-3.webp
-  - /images/products/p-20261027-204022-m8u2-4.webp
-  - /images/products/p-20261027-204022-m8u2-5.webp
-  - /images/products/p-20261027-204022-m8u2-6.webp
-  - /images/products/p-20261027-204022-m8u2-7.webp
+  - /images/products/photo_2026-10-27_20-34-24.webp
+  - /images/products/photo_2026-10-27_20-34-35.webp
+  - /images/products/photo_2026-10-27_20-34-41.webp
+  - /images/products/photo_2026-10-27_20-34-47.webp
+  - /images/products/photo_2026-10-27_20-34-56.webp
+  - /images/products/photo_2026-10-27_20-35-04.webp
+  - /images/products/photo_2026-10-27_20-35-14.webp
 price: 800
 oldPrice: null
 stock: available
