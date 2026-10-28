@@ -1624,3 +1624,84 @@ html body #productModal .modal-info {
     font-size: 11px;
   }
 }
+
+
+/* ===== توسيع نافذة المنتج لاستيعاب دليل المقاسات بالكامل ===== */
+@media (min-width: 900px) {
+  html body #productModal .modal-content {
+    width: min(1280px, calc(100vw - 32px)) !important;
+    max-width: 1280px !important;
+    max-height: 96vh !important;
+  }
+  html body #productModal .modal-body {
+    grid-template-columns: minmax(420px, 1.05fr) minmax(0, 1.15fr) !important;
+    gap: 28px !important;
+    align-items: start !important;
+    padding: 22px 26px 24px !important;
+  }
+  /* عمود المعلومات (اللي فيه الجدول) أوسع */
+  html body #productModal .modal-info {
+    min-width: 400px !important;
+    max-width: none !important;
+  }
+  html body #productModal .modal-gallery-wrapper {
+    min-width: 0 !important;
+  }
+}
+
+@media (min-width: 1100px) {
+  html body #productModal .modal-content {
+    width: min(1360px, calc(100vw - 40px)) !important;
+    max-width: 1360px !important;
+  }
+  html body #productModal .modal-body {
+    grid-template-columns: minmax(460px, 1fr) minmax(0, 1.2fr) !important;
+    gap: 32px !important;
+  }
+  html body #productModal .modal-info {
+    min-width: 440px !important;
+  }
+}
+
+/* الجدول يملأ العرض من غير سكرول أفقي */
+html body #productModal .msq-size-panel {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+html body #productModal .msq-size-chart-wrap {
+  overflow-x: visible !important;
+  overflow: visible !important;
+  width: 100% !important;
+}
+html body #productModal .msq-size-chart {
+  width: 100% !important;
+  min-width: 0 !important;
+  table-layout: fixed !important;
+}
+html body #productModal .msq-size-chart thead th,
+html body #productModal .msq-size-chart td {
+  padding: 9px 6px !important;
+  font-size: 12.5px !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow: hidden !important;
+}
+/* أخفِ أي scrollbar ظاهر على الجدول */
+html body #productModal .msq-size-chart-wrap::-webkit-scrollbar {
+  display: none !important;
+  height: 0 !important;
+}
+html body #productModal .msq-size-chart-wrap {
+  scrollbar-width: none !important;
+}
+
+/* الحاسبة في صف واحد أو اتنين منظمين على الشاشات الواسعة */
+@media (min-width: 900px) {
+  html body #productModal .msq-size-calc-grid {
+    grid-template-columns: 1fr 1fr 1fr !important;
+    gap: 10px !important;
+  }
+  html body #productModal .msq-calc-btn {
+    grid-column: 1 / -1 !important;
+  }
+}
