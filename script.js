@@ -350,9 +350,33 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     return null;
   }
 
+  // تحميل كل المنتجات من ملف واحد products.json (يتبني تلقائياً من GitHub Actions).
+  // بنجرب raw.githubusercontent الأول لأنه بيتحدّث فور الحفظ، وبعده نسخة الموقع. لو فشل الاتنين نرجع للطريقة القديمة.
+  async function loadProductsBundle() {
+    const bust = Math.floor(Date.now() / 60000);
+    const urls = [
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products.json?t=${bust}`,
+      `products.json?t=${bust}`
+    ];
+    for (let i = 0; i < urls.length; i++) {
+      try {
+        const r = await fetch(urls[i], { cache: 'no-store' });
+        if (!r.ok) continue;
+        const data = await r.json();
+        if (!data || !Array.isArray(data.files)) continue;
+        const files = data.files.filter(f => f && typeof f.name === 'string' && typeof f.text === 'string');
+        if (files.length) return files;
+      } catch (e) {}
+    }
+    return null;
+  }
+
   async function loadRealProducts() {
     try {
-      const mdFiles = await listProductMarkdownFiles();
+      const bundle = await loadProductsBundle();
+      const bundleTexts = {};
+      if (bundle) bundle.forEach(f => { bundleTexts[f.name] = f.text; });
+      const mdFiles = bundle ? bundle.map(f => f.name) : await listProductMarkdownFiles();
 
       if (!mdFiles.length) {
         productsGrid.innerHTML =
@@ -366,7 +390,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
       products = [];
       for (let i = 0; i < mdFiles.length; i++) {
-        const text = await fetchProductMarkdown(mdFiles[i]);
+        const text = bundle ? bundleTexts[mdFiles[i]] : await fetchProductMarkdown(mdFiles[i]);
         if (!text) continue;
         const productData = parseMarkdown(text, i + 1);
         if (productData) products.push(productData);
@@ -3554,7 +3578,7 @@ function continueAfterOrderRecaptcha() {
     if (!style) {
       style = document.createElement('style');
       style.id = 'msq-modal-polish-css';
-      document.head.appendChild(style);
+      (function(){ var x = document.getElementById('msq-extra-css'); if (x && x.parentNode) x.parentNode.insertBefore(style, x); else document.head.appendChild(style); })();
     }
     style.textContent = [
       '/* ===== نافذة تفاصيل: ديسكتوب ثابت + موبايل مضبوط ===== */',
@@ -3840,7 +3864,7 @@ function continueAfterOrderRecaptcha() {
     if (!style) {
       style = document.createElement('style');
       style.id = 'msq-mobile-layout-polish-css';
-      document.head.appendChild(style);
+      (function(){ var x = document.getElementById('msq-extra-css'); if (x && x.parentNode) x.parentNode.insertBefore(style, x); else document.head.appendChild(style); })();
     }
     style.textContent = [
       '/* ===== فلاتر: صف أفقي قابل للتمرير (موبايل + ديسكتوب) ===== */',

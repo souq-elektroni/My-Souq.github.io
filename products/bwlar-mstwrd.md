@@ -4,16 +4,16 @@ category: Kids
 subcategory: ملابس للمنزل
 designs: []
 images:
-  - /images/products/photo_2026-10-25_19-21-05.jpg
-  - /images/products/photo_2026-10-25_19-21-21.jpg
-  - /images/products/photo_2026-10-25_19-21-31.jpg
-  - /images/products/photo_2026-10-25_19-21-37.jpg
-  - /images/products/photo_2026-10-25_19-21-44.jpg
-  - /images/products/photo_2026-10-25_19-21-51.jpg
-  - /images/products/photo_2026-10-25_19-21-58.jpg
-  - /images/products/photo_2026-10-25_19-22-04.jpg
-  - /images/products/photo_2026-10-25_19-22-11.jpg
-  - /images/products/photo_2026-10-25_19-22-17.jpg
+  - /images/products/photo_2026-10-25_19-21-05.webp
+  - /images/products/photo_2026-10-25_19-21-21.webp
+  - /images/products/photo_2026-10-25_19-21-31.webp
+  - /images/products/photo_2026-10-25_19-21-37.webp
+  - /images/products/photo_2026-10-25_19-21-44.webp
+  - /images/products/photo_2026-10-25_19-21-51.webp
+  - /images/products/photo_2026-10-25_19-21-58.webp
+  - /images/products/photo_2026-10-25_19-22-04.webp
+  - /images/products/photo_2026-10-25_19-22-11.webp
+  - /images/products/photo_2026-10-25_19-22-17.webp
 price: 360
 oldPrice: null
 stock: available
