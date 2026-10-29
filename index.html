@@ -4325,14 +4325,16 @@ window.addToCartAndContinue = function () {
 
   function installFilter(){
     if (installed || typeof window.filterAdminOrders !== 'function') return;
+    if (window.filterAdminOrders.__msqOpenStatusFilter) { installed = true; return; }
     var previous = window.filterAdminOrders;
     var wrapped = function(){
-      if (selectedStatus === null) return previous.apply(this, arguments);
-
-      var cache = getCache();
-      // لا نعرض الطلبات التي تم توريدها في قائمة الطلبات المفتوحة.
+      var cache = getCache().slice();
+      // قائمة مفتوحة = غير المورّدة وغير الملغاة (statusCode 0/1/2)
       var filtered = cache.filter(function(order){
-        return getCode(order) === selectedStatus;
+        var code = getCode(order);
+        if (code >= 3) return false;
+        if (selectedStatus === null) return true;
+        return code === selectedStatus;
       });
       try {
         if (typeof adminOrdersCache !== 'undefined') adminOrdersCache = filtered;
@@ -6435,6 +6437,32 @@ window.addToCartAndContinue = function () {
     var obs = new MutationObserver(function () { hideBtn(); });
     obs.observe(document.documentElement, { childList: true, subtree: true });
   } catch (e) {}
+})();
+</script>
+
+
+<script id="msqAdminSearchFetchHook">
+(function(){
+  function bind(){
+    var inp = document.getElementById('adminOrderSearch');
+    if (!inp || inp._msqFetchBound) return;
+    inp._msqFetchBound = true;
+    var t = null;
+    inp.addEventListener('input', function(){
+      clearTimeout(t);
+      t = setTimeout(function(){
+        var q = String(inp.value || '').trim();
+        if (q.length >= 6 && typeof loadAllOrdersAdmin === 'function') {
+          loadAllOrdersAdmin();
+        } else if (typeof filterAdminOrders === 'function') {
+          filterAdminOrders();
+        }
+      }, 400);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
+  setInterval(bind, 2000);
 })();
 </script>
 

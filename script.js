@@ -4746,24 +4746,109 @@ function continueAfterOrderRecaptcha() {
 
   async function loadAllOrdersAdmin() {
     const box = document.getElementById('adminOrdersList');
-    box.innerHTML = '<p style="text-align:center;color:var(--text-muted);">جاري تحميل الطلبات...</p>';
+    if (box) box.innerHTML = '<p style="text-align:center;color:var(--text-muted);">جاري تحميل الطلبات...</p>';
 
     let list = [];
     let cloudOrdersReadSucceeded = false;
-    if (firebaseReady && db) {
-      try {
-        const snap = await db.collection('orders').orderBy('createdAt', 'desc').limit(150).get();
-        snap.forEach(doc => list.push(doc.data()));
-        cloudOrdersReadSucceeded = true;
-      } catch (e) {
-        try {
-          const snap2 = await db.collection('orders').limit(150).get();
-          snap2.forEach(doc => list.push(doc.data()));
-          list.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-          cloudOrdersReadSucceeded = true;
-        } catch (e2) { console.error(e2); }
+    const byId = new Map();
+
+    function upsert(raw, source) {
+      if (!raw) return;
+      const id = String(raw.orderId || raw.id || '').trim();
+      if (!id) return;
+      const prev = byId.get(id.toUpperCase()) || {};
+      const merged = Object.assign({}, prev, raw, { orderId: id });
+      // لا تمسح بيانات كاملة بنسخة تتبع ناقصة
+      if (source === 'tracking') {
+        if (!merged.name && prev.name) merged.name = prev.name;
+        if (!merged.phone && prev.phone) merged.phone = prev.phone;
+        if (!merged.address && prev.address) merged.address = prev.address;
+        if ((!merged.items || !merged.items.length) && prev.items) merged.items = prev.items;
       }
+      if (typeof merged.statusCode !== 'number' || isNaN(merged.statusCode)) {
+        const n = Number(merged.statusCode);
+        if (Number.isFinite(n)) merged.statusCode = n;
+        else merged.statusCode = 0;
+      }
+      byId.set(id.toUpperCase(), merged);
     }
+
+    if (firebaseReady && db) {
+      // 1) طلبات orders بعدة استراتيجيات
+      const tryQueries = [
+        function () { return db.collection('orders').orderBy('createdAt', 'desc').limit(300).get(); },
+        function () { return db.collection('orders').orderBy('createdAt', 'desc').limit(150).get(); },
+        function () { return db.collection('orders').limit(300).get(); }
+      ];
+      for (let qi = 0; qi < tryQueries.length; qi++) {
+        try {
+          const snap = await tryQueries[qi]();
+          snap.forEach(function (doc) {
+            const d = doc.data() || {};
+            if (!d.orderId) d.orderId = doc.id;
+            upsert(d, 'orders');
+          });
+          cloudOrdersReadSucceeded = true;
+          break;
+        } catch (e) {
+          console.warn('orders query failed', qi, e);
+        }
+      }
+
+      // 2) دمج orderTracking (لو طلب اتحفظ في التتبع ومش ظاهر في orders أو العكس)
+      try {
+        let tSnap = null;
+        try {
+          tSnap = await db.collection('orderTracking').orderBy('createdAt', 'desc').limit(300).get();
+        } catch (eT1) {
+          tSnap = await db.collection('orderTracking').limit(300).get();
+        }
+        if (tSnap) {
+          tSnap.forEach(function (doc) {
+            const d = doc.data() || {};
+            if (!d.orderId) d.orderId = doc.id;
+            // سجّل التتبع كمصدر احتياطي للإدارة
+            upsert(d, 'tracking');
+          });
+          cloudOrdersReadSucceeded = true;
+        }
+      } catch (eTrack) {
+        console.warn('orderTracking admin merge failed', eTrack);
+      }
+
+      // 3) لو البحث فيه رقم طلب محدد — اجلبه مباشرة حتى لو خارج الـ limit
+      try {
+        const q = (document.getElementById('adminOrderSearch') && document.getElementById('adminOrderSearch').value || '').trim();
+        if (q && /^[A-Za-z0-9_-]{4,40}$/.test(q)) {
+          const oid = q.toUpperCase().startsWith('MS-') ? q : q;
+          try {
+            const one = await db.collection('orders').doc(oid).get();
+            if (one.exists) {
+              const d = one.data() || {};
+              if (!d.orderId) d.orderId = one.id;
+              upsert(d, 'orders');
+              cloudOrdersReadSucceeded = true;
+            }
+          } catch (eOne) {}
+          try {
+            const oneT = await db.collection('orderTracking').doc(oid).get();
+            if (oneT.exists) {
+              const d = oneT.data() || {};
+              if (!d.orderId) d.orderId = oneT.id;
+              upsert(d, 'tracking');
+              cloudOrdersReadSucceeded = true;
+            }
+          } catch (eOneT) {}
+        }
+      } catch (eSearch) {}
+    }
+
+    list = Array.from(byId.values());
+    list.sort(function (a, b) {
+      const ca = Number(a.createdAt) || 0;
+      const cb = Number(b.createdAt) || 0;
+      return cb - ca;
+    });
 
     // A successful cloud read is authoritative, even when empty. Never resurrect
     // deleted orders from the browser's old souqOrdersHistory cache.
@@ -4774,7 +4859,7 @@ function continueAfterOrderRecaptcha() {
     // Filter any stale copies of orders whose cancellation receipt remains in Firestore.
     if (firebaseReady && db) {
       try {
-        const cancelledSnap = await db.collection('cancelledOrders').get();
+        const cancelledSnap = await db.collection('cancelledOrders').limit(500).get();
         const cancelledIds = new Set();
         cancelledSnap.forEach(doc => {
           const data = doc.data() || {};
@@ -4793,32 +4878,25 @@ function continueAfterOrderRecaptcha() {
 
     // Backfill minimal public tracking records for existing orders (admin session only).
     if (firebaseReady && db && isAdminMode && currentAdminUser) {
-      const backfills = list.filter(o => o && o.orderId).map(o => {
-        const code = Number.isInteger(o.statusCode) ? o.statusCode : 0;
-        return db.collection('orderTracking').doc(String(o.orderId)).set({
-          orderId: String(o.orderId),
-          statusCode: code,
-          status: String(o.status || (ORDER_STATUSES[code] && ORDER_STATUSES[code].label) || 'تحت التنفيذ 📦'),
-          // Backfill the public tracking record for OLD orders too, using the
-          // admin-authorized orders list. Never copy phone or payment fields.
-          name: String(o.name || ''),
-          // تنظيف تلقائي للطلبات القديمة: حذف العنوان والتليفون من المستند العام
-          address: firebase.firestore.FieldValue.delete(),
-          phoneNorm: firebase.firestore.FieldValue.delete(),
-          total: o.total == null ? '' : o.total,
-          items: Array.isArray(o.items) ? o.items : [],
-          createdAt: o.createdAt || Date.now(),
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
+      const backfills = list.filter(o => o && o.orderId).slice(0, 80).map(o => {
+        try {
+          return db.collection('orderTracking').doc(String(o.orderId)).set({
+            orderId: String(o.orderId),
+            statusCode: typeof o.statusCode === 'number' ? o.statusCode : 0,
+            status: String(o.status || 'تحت التنفيذ 📦'),
+            name: String(o.name || ''),
+            total: o.total == null ? '' : o.total,
+            items: Array.isArray(o.items) ? o.items : [],
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        } catch (e) { return Promise.resolve(); }
       });
-      Promise.allSettled(backfills).then(results => {
-        const failed = results.filter(r => r.status === 'rejected').length;
-        if (failed) console.warn('تعذر إنشاء بعض سجلات تتبع الطلبات القديمة:', failed);
-      });
+      try { await Promise.all(backfills); } catch (e) {}
     }
 
     adminOrdersCache = list;
     filterAdminOrders();
+  }
   }
 
   function filterAdminOrders() {
