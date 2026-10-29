@@ -432,77 +432,119 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   // تحميل كل المنتجات من ملف واحد products.json (يتبني تلقائياً من GitHub Actions).
   // بنجرب raw.githubusercontent الأول لأنه بيتحدّث فور الحفظ، وبعده نسخة الموقع. لو فشل الاتنين نرجع للطريقة القديمة.
+  function msqFetchWithTimeout(url, ms) {
+    ms = ms || 6000;
+    const ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+    const timer = setTimeout(function () { try { if (ctrl) ctrl.abort(); } catch (e) {} }, ms);
+    return fetch(url, { cache: 'no-store', signal: ctrl ? ctrl.signal : undefined })
+      .then(function (r) { clearTimeout(timer); return r; })
+      .catch(function (e) { clearTimeout(timer); throw e; });
+  }
+
+  // الأولوية: products.json المحلي على الموقع (سريع وثابت)، ثم النسخة من GitHub.
   async function loadProductsBundle() {
     const bust = Math.floor(Date.now() / 60000);
     const urls = [
-      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products.json?t=${bust}`,
-      `products.json?t=${bust}`
+      `products.json?t=${bust}`,
+      `./products.json?t=${bust}`,
+      `https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/products.json?t=${bust}`
     ];
     for (let i = 0; i < urls.length; i++) {
       try {
-        const r = await fetch(urls[i], { cache: 'no-store' });
-        if (!r.ok) continue;
+        const r = await msqFetchWithTimeout(urls[i], 5000);
+        if (!r || !r.ok) continue;
         const data = await r.json();
         if (!data || !Array.isArray(data.files)) continue;
         const files = data.files.filter(f => f && typeof f.name === 'string' && typeof f.text === 'string');
-        if (files.length) return files;
-      } catch (e) {}
+        if (files.length) {
+          console.info('products bundle from', urls[i], files.length);
+          return files;
+        }
+      } catch (e) {
+        console.warn('bundle try fail', urls[i], e && e.message);
+      }
     }
     return null;
   }
 
   async function loadRealProducts() {
+    const grid = productsGrid || document.getElementById('products-container');
+    const showMsg = function (msg) {
+      if (grid) grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">' + msg + '</p>';
+    };
     try {
-      const withTimeout = (p, ms) => Promise.race([
-        p,
-        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
-      ]);
+      if (grid) grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:14px;font-weight:bold;">جاري تحميل المنتجات...</p>';
+
       let bundle = null;
-      try { bundle = await withTimeout(loadProductsBundle(), 12000); } catch (e) { console.warn('bundle load timeout/fail', e); }
+      try { bundle = await loadProductsBundle(); } catch (e) { console.warn('bundle load fail', e); }
+
       const bundleTexts = {};
       if (bundle) bundle.forEach(f => { bundleTexts[f.name] = f.text; });
+
       let mdFiles = [];
-      try {
-        mdFiles = bundle ? bundle.map(f => f.name) : await withTimeout(listProductMarkdownFiles(), 10000);
-      } catch (e2) {
-        console.warn('list products timeout', e2);
+      if (bundle && bundle.length) {
+        mdFiles = bundle.map(f => f.name);
+      } else {
+        // لا نعلق على GitHub API — نستخدم الكاش أو ملفات محلية معروفة
         try { mdFiles = JSON.parse(localStorage.getItem('souqProductFileNames') || '[]') || []; } catch (_) { mdFiles = []; }
+        if (!mdFiles.length) {
+          // محاولة سريعة أخيرة بدون انتظار طويل
+          try {
+            const r = await msqFetchWithTimeout('products.json?t=' + Date.now(), 4000);
+            if (r && r.ok) {
+              const data = await r.json();
+              if (data && Array.isArray(data.files)) {
+                bundle = data.files.filter(f => f && f.name && f.text);
+                bundle.forEach(f => { bundleTexts[f.name] = f.text; });
+                mdFiles = bundle.map(f => f.name);
+              }
+            }
+          } catch (e3) {}
+        }
       }
 
       if (!mdFiles.length) {
-        productsGrid.innerHTML =
-          '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">لا توجد منتجات منشورة حالياً أو تعذر الاتصال بالمصدر.</p>';
+        showMsg('لا توجد منتجات منشورة حالياً أو تعذر الاتصال بالمصدر.');
         return;
       }
 
-      try {
-        localStorage.setItem('souqProductFileNames', JSON.stringify(mdFiles));
-      } catch (e) {}
+      try { localStorage.setItem('souqProductFileNames', JSON.stringify(mdFiles)); } catch (e) {}
 
       products = [];
       for (let i = 0; i < mdFiles.length; i++) {
-        const text = bundle ? bundleTexts[mdFiles[i]] : await fetchProductMarkdown(mdFiles[i]);
+        let text = bundleTexts[mdFiles[i]] || null;
+        if (!text) {
+          try {
+            // مهلة قصيرة لكل ملف — مش هنتعلق
+            const encoded = String(mdFiles[i]).split('/').map(encodeURIComponent).join('/');
+            const r = await msqFetchWithTimeout('products/' + encoded, 4000);
+            if (r && r.ok) text = await r.text();
+          } catch (eF) {}
+        }
         if (!text) continue;
-        const productData = parseMarkdown(text, i + 1);
-        if (productData) products.push(productData);
+        try {
+          const productData = parseMarkdown(text, i + 1);
+          if (productData) products.push(productData);
+        } catch (eParse) {
+          console.warn('parse fail', mdFiles[i], eParse);
+        }
       }
 
       if (products.length === 0) {
-        productsGrid.innerHTML =
-          '<p style="grid-column:1/-1;text-align:center;color:var(--text-muted);font-size:15px;font-weight:bold;">تعذر قراءة ملفات المنتجات.</p>';
+        showMsg('تعذر قراءة ملفات المنتجات.');
         return;
       }
 
       renderProducts(products);
-      buildSizeFilterButtons();
-      renderFeatured();
-      updateCartCount();
-      handleDeepLink();
+      try { buildSizeFilterButtons(); } catch (e) {}
+      try { renderFeatured(); } catch (e) {}
+      try { updateCartCount(); } catch (e) {}
+      try { handleDeepLink(); } catch (e) {}
       try { bindAlbumHoverRotate(); } catch (e) {}
+      console.info('products loaded', products.length);
     } catch (error) {
-      console.error('خطأ:', error);
-      productsGrid.innerHTML =
-        '<p style="grid-column:1/-1;text-align:center;color:var(--burgundy-soft);font-size:13.5px;font-weight:bold;">تأكد أن المستودع عام ويحتوي على ملفات منتجات.</p>';
+      console.error('خطأ تحميل المنتجات:', error);
+      showMsg('تعذر تحميل المنتجات. حدّث الصفحة أو تأكد من وجود products.json');
     }
   }
 
@@ -5159,6 +5201,7 @@ ${itemsText || '-'}
       if (btn) btn.textContent = '☀️';
     }
     loadCustomerData();
+    window.loadRealProducts = loadRealProducts;
     loadRealProducts();
 
     // تم إيقاف تسجيل Service Worker نهائيًا لمنع مشكلة الكاش.
