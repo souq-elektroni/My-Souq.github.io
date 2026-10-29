@@ -4968,7 +4968,6 @@ function continueAfterOrderRecaptcha() {
     adminOrdersCache = list;
     filterAdminOrders();
   }
-  }
 
   function filterAdminOrders() {
     const box = document.getElementById('adminOrdersList');
