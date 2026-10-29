@@ -453,10 +453,21 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   async function loadRealProducts() {
     try {
-      const bundle = await loadProductsBundle();
+      const withTimeout = (p, ms) => Promise.race([
+        p,
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))
+      ]);
+      let bundle = null;
+      try { bundle = await withTimeout(loadProductsBundle(), 12000); } catch (e) { console.warn('bundle load timeout/fail', e); }
       const bundleTexts = {};
       if (bundle) bundle.forEach(f => { bundleTexts[f.name] = f.text; });
-      const mdFiles = bundle ? bundle.map(f => f.name) : await listProductMarkdownFiles();
+      let mdFiles = [];
+      try {
+        mdFiles = bundle ? bundle.map(f => f.name) : await withTimeout(listProductMarkdownFiles(), 10000);
+      } catch (e2) {
+        console.warn('list products timeout', e2);
+        try { mdFiles = JSON.parse(localStorage.getItem('souqProductFileNames') || '[]') || []; } catch (_) { mdFiles = []; }
+      }
 
       if (!mdFiles.length) {
         productsGrid.innerHTML =
@@ -3815,8 +3826,10 @@ function continueAfterOrderRecaptcha() {
     { code: 0, label: 'تحت التنفيذ 📦', color: '#e65100' },
     { code: 1, label: 'تم الحجز ✅', color: '#1565c0' },
     { code: 2, label: 'جاري الشحن 🚚', color: '#6a1b9a' },
-    { code: 3, label: 'تم التوريد 🎉', color: '#2e7d32' }
+    { code: 3, label: 'تم التوريد 🎉', color: '#2e7d32' },
+    { code: 5, label: 'Order 0 Stock — نفذت الكمية', color: '#b71c1c' }
   ];
+  // ملاحظة: code 4 = رفض استلام وحظر (مسار خاص منفصل)
 
   function openTrackingModal() {
     const modal = document.getElementById('trackingModal');
@@ -3844,11 +3857,27 @@ function continueAfterOrderRecaptcha() {
 
   function handleAdminButton() {
     if (isAdminMode && currentAdminUser) openAdminOrdersModal();
-    else document.getElementById('adminLoginModal')?.classList.add('active');
+    else {
+      var lm = document.getElementById('adminLoginModal');
+      if (lm) { lm.style.display = ''; lm.style.pointerEvents = ''; lm.classList.add('active'); }
+    }
   }
 
   function closeAdminLogin() {
-    document.getElementById('adminLoginModal')?.classList.remove('active');
+    var modal = document.getElementById('adminLoginModal');
+    if (!modal) return;
+    modal.classList.remove('active', 'open');
+    modal.style.display = 'none';
+    modal.style.pointerEvents = 'none';
+    modal.style.zIndex = '';
+    // إعادة الظهور الطبيعي عند الفتح لاحقًا
+    setTimeout(function () {
+      if (!modal.classList.contains('active')) {
+        modal.style.display = '';
+        modal.style.pointerEvents = '';
+      }
+    }, 50);
+    try { document.body.style.overflow = ''; } catch (e) {}
   }
 
   async function loginAdmin() {
@@ -4927,6 +4956,25 @@ function continueAfterOrderRecaptcha() {
         <button style="border-color:${s.color};background:${code===s.code?s.color:'white'};color:${code===s.code?'white':s.color};"
           onclick="updateOrderStatusFromAdmin('${safeId}', ${s.code})">${s.label}</button>
       `).join('');
+      if (code === 5) {
+        return `
+        <div class="order-card-admin msq-oos-card" style="border:1px solid #ef9a9a;background:linear-gradient(145deg,#fff,#fff5f5);">
+          <div class="oid">🆔 ${msqEsc(o.orderId || '-')}</div>
+          <div>👤 ${msqEsc(o.name || '-')}</div>
+          <div>📱 ${msqEsc(o.phone || '-')}</div>
+          <div style="margin-top:6px;font-weight:900;color:#b71c1c;">Order 0 Stock — نفذت الكمية</div>
+          <button type="button" onclick="copyOutOfStockWhatsApp('${safeId}')"
+            style="margin-top:10px;width:100%;padding:10px;border-radius:10px;border:none;background:#25d366;color:#fff;font-weight:900;font-size:12.5px;cursor:pointer;">
+            📋 نسخ / واتساب للعميل — نفدت الكمية
+          </button>
+        </div>`;
+      }
+      const oosBtn = code === 0 ? (
+        `<button type="button" onclick="markOrderOutOfStock('${safeId}')"
+          style="margin-top:8px;width:100%;padding:9px;border-radius:10px;border:1px solid #c62828;background:linear-gradient(135deg,#c62828,#8e1520);color:#fff;font-weight:900;font-size:12.5px;cursor:pointer;">
+          ⛔ نفذت الكمية
+        </button>`
+      ) : '';
       return `
         <div class="order-card-admin">
           <div class="oid">🆔 ${msqEsc(o.orderId || '-')}</div>
@@ -4934,6 +4982,7 @@ function continueAfterOrderRecaptcha() {
           <div>💰 ${msqEsc(o.total || '-')} | 📅 ${msqEsc(o.date || '-')}</div>
           <div style="margin-top:4px;font-weight:800;color:${st.color};">الحالة: ${st.label}</div>
           <div class="status-btns-mini">${btns}</div>
+          ${oosBtn}
           <button
             onclick="copyShippingMessage('${safeId}')"
             style="margin-top:8px;width:100%;padding:8px;border-radius:8px;border:none;background:#25d366;color:white;font-weight:800;font-size:12px;cursor:pointer;"
@@ -4987,6 +5036,78 @@ ${itemsText || '-'}
       window.open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, '_blank');
     }
   }
+
+
+  function msqBuildOutOfStockWhatsApp(order) {
+    var o = order || {};
+    var name = o.name || 'عميلنا العزيز';
+    var oid = o.orderId || '';
+    return (
+'مرحباً ' + name + ' 👋\n\n' +
+'بخصوص طلبكم رقم: ' + oid + '\n\n' +
+'نود إبلاغكم بكل تقدير أن الكمية الخاصة بالمنتج المطلوب قد نفدت لدى المورد قبل إتمام مرحلة التجهيز، ولذلك تم إيقاف الطلب مؤقتاً.\n\n' +
+'يسعدنا خدمتكم باختيار بديل مناسب من تشكيلتنا، أو بالتواصل معنا لمساعدتكم في أقرب وقت.\n\n' +
+'مع خالص الشكر لثقتكم\n' +
+'فريق My Souq ❤️'
+    );
+  }
+
+  async function markOrderOutOfStock(orderId) {
+    var id = String(orderId || '').trim();
+    if (!id) return;
+    if (!confirm('تأكيد: نفذت كمية هذا الطلب؟\nسيتم نقل الطلب إلى قناة Order 0 Stock ولن يكمّل مسار التنفيذ العادي.')) return;
+    try {
+      await updateOrderStatusCloud(id, 5, 'Order 0 Stock — نفذت الكمية');
+      var o = (adminOrdersCache || []).find(function (x) { return String(x.orderId) === id; });
+      if (o) {
+        o.statusCode = 5;
+        o.status = 'Order 0 Stock — نفذت الكمية';
+        o.stockExhausted = true;
+      }
+      // حدّث التتبع برسالة واضحة للعميل
+      if (firebaseReady && db) {
+        try {
+          await db.collection('orderTracking').doc(id).set({
+            orderId: id,
+            statusCode: 5,
+            status: 'نفذت الكمية',
+            stockExhausted: true,
+            customerMessage: 'عميلنا العزيز، نعتذر إليك بكل تقدير؛ الكمية الخاصة بالمنتج الذي اخترته قد نفدت لدى المورد قبل إتمام التجهيز. يسعدنا مساعدتك في اختيار بديل مناسب من مجموعتنا، وتبقى ثقتك محل اهتمامنا الدائم.',
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+        } catch (eT) { console.warn(eT); }
+      }
+      alert('تم نقل الطلب إلى Order 0 Stock ✅');
+      if (typeof filterAdminOrders === 'function') filterAdminOrders();
+    } catch (e) {
+      console.error(e);
+      alert('تعذر تحديث حالة الطلب');
+    }
+  }
+  window.markOrderOutOfStock = markOrderOutOfStock;
+
+  function copyOutOfStockWhatsApp(orderId) {
+    var o = (adminOrdersCache || []).find(function (x) { return String(x.orderId) === String(orderId); });
+    if (!o) { alert('الطلب غير موجود'); return; }
+    var msg = msqBuildOutOfStockWhatsApp(o);
+    var done = function () {
+      var phone = String(o.phone || '').replace(/\D/g, '');
+      if (phone.length >= 10) {
+        var wa = phone;
+        if (wa.startsWith('0')) wa = '20' + wa.slice(1);
+        if (!wa.startsWith('20')) wa = '20' + wa;
+        window.open('https://wa.me/' + wa + '?text=' + encodeURIComponent(msg), '_blank');
+      } else {
+        alert('تم نسخ الرسالة ✅');
+      }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(msg).then(done).catch(function () { prompt('انسخ الرسالة:', msg); });
+    } else {
+      prompt('انسخ الرسالة:', msg);
+    }
+  }
+  window.copyOutOfStockWhatsApp = copyOutOfStockWhatsApp;
 
   async function updateOrderStatusFromAdmin(orderId, newCode) {
     const status = ORDER_STATUSES.find(s => s.code === newCode);

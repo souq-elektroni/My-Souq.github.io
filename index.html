@@ -1590,6 +1590,19 @@
                 '</div>';
               return;
             }
+            if (Number(publicTrackingData.statusCode) === 5 ||
+                /نفذت الكمية|Order 0 Stock/.test(String(publicTrackingData.status || publicTrackingData.statusLabel || ''))) {
+              var oosMsg = publicTrackingData.customerMessage || 'عميلنا العزيز، نعتذر إليك بكل تقدير؛ الكمية الخاصة بالمنتج الذي اخترته قد نفدت لدى المورد قبل إتمام التجهيز. يسعدنا مساعدتك في اختيار بديل مناسب من مجموعتنا، وتبقى ثقتك محل اهتمامنا الدائم.';
+              resultBox.innerHTML =
+                '<div role="status" aria-live="polite" style="text-align:center;padding:28px 18px;border-radius:20px;background:linear-gradient(155deg,#fffefb,#fff0f0);border:1px solid #f0c0c0;box-shadow:0 14px 34px rgba(80,20,30,.08);color:#7f2630;line-height:2;">' +
+                  '<div style="width:62px;height:62px;margin:0 auto 12px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#ffe0e0,#ffcdd2);font-size:30px;">📭</div>' +
+                  '<div style="font-size:20px;font-weight:950;margin-bottom:8px;">نفدت الكمية</div>' +
+                  '<div style="font-size:15px;font-weight:800;max-width:420px;margin:0 auto;">' + oosMsg + '</div>' +
+                  '<div style="display:inline-block;margin-top:14px;padding:8px 14px;border-radius:12px;background:rgba(255,255,255,.85);border:1px solid rgba(127,38,48,.12);font-size:14px;font-weight:900;direction:rtl;">رقم الطلب: <bdi>' + searchId + '</bdi></div>' +
+                  '<div style="margin-top:12px;font-size:12.5px;color:#8a6d62;font-weight:700;">يمكنك اختيار منتج بديل من المتجر أو التواصل مع الدعم للمساعدة.</div>' +
+                '</div>';
+              return;
+            }
           }
         }
       } catch (blockedTrackingLookupError) {
@@ -4185,14 +4198,14 @@ window.addToCartAndContinue = function () {
     if (typeof window.handleAdminButton === 'function') {
       window.handleAdminButton();
     } else if (loginModal) {
-      loginModal.classList.add('active');
+      loginModal.style.display='';loginModal.style.pointerEvents='';loginModal.classList.add('active');
     }
 
     // نافذة الدخول تكون فوق غطاء الصيانة حتى يستطيع العميل رؤية الحقول والتفاعل معها.
     if (loginModal) {
       loginModal.style.zIndex = '1000001';
       loginModal.style.pointerEvents = 'auto';
-      loginModal.classList.add('active');
+      loginModal.style.display='';loginModal.style.pointerEvents='';loginModal.classList.add('active');
     }
   };
 
@@ -4207,7 +4220,7 @@ window.addToCartAndContinue = function () {
         if (ordersModal) ordersModal.classList.add('active');
       } else {
         var loginModal = liftModal('adminLoginModal');
-        if (loginModal) loginModal.classList.add('active');
+        if (loginModal) loginModal.style.display='';loginModal.style.pointerEvents='';loginModal.classList.add('active');
       }
       return result;
     };
@@ -4223,8 +4236,16 @@ window.addToCartAndContinue = function () {
       var result = originalCloseAdminLogin.apply(this, arguments);
       var loginModal = document.getElementById('adminLoginModal');
       if (loginModal) {
+        loginModal.classList.remove('active', 'open');
+        loginModal.style.display = 'none';
         loginModal.style.zIndex = '';
-        loginModal.style.pointerEvents = '';
+        loginModal.style.pointerEvents = 'none';
+        setTimeout(function(){
+          if (!loginModal.classList.contains('active')) {
+            loginModal.style.display = '';
+            loginModal.style.pointerEvents = '';
+          }
+        }, 80);
       }
       if (!isAdminSignedIn()) {
         if (typeof window.readMaintenanceMode === 'function') {
@@ -4267,6 +4288,8 @@ window.addToCartAndContinue = function () {
     var n = Number(order && order.statusCode);
     if (Number.isFinite(n)) return n;
     var label = String(order && (order.status || order.statusLabel) || '');
+    if (/نفذت الكمية|Order 0 Stock/.test(label)) return 5;
+    if (/رفض استلام وحظر/.test(label)) return 4;
     if (/تم الحجز/.test(label)) return 1;
     if (/جاري الشحن/.test(label)) return 2;
     if (/تم التوريد|تم التسليم|تم التوصيل|تم الاستلام|مكتمل/.test(label)) return 3;
@@ -4295,7 +4318,8 @@ window.addToCartAndContinue = function () {
       bar.innerHTML =
         '<button type="button" data-status="0" aria-pressed="false">🟡 طلبات تحت التنفيذ</button>' +
         '<button type="button" data-status="1" aria-pressed="false">✅ طلبات تم الحجز</button>' +
-        '<button type="button" data-status="2" aria-pressed="false">🚚 طلبات جاري الشحن</button>';
+        '<button type="button" data-status="2" aria-pressed="false">🚚 طلبات جاري الشحن</button>' +
+        '<button type="button" data-status="5" aria-pressed="false">📭 Order 0 Stock</button>';
       var list = document.getElementById('adminOrdersList');
       if (list && list.parentNode === pane) pane.insertBefore(bar, list);
       else pane.insertBefore(bar, pane.firstChild);
@@ -4332,7 +4356,9 @@ window.addToCartAndContinue = function () {
       // قائمة مفتوحة = غير المورّدة وغير الملغاة (statusCode 0/1/2)
       var filtered = cache.filter(function(order){
         var code = getCode(order);
-        if (code >= 3) return false;
+        if (selectedStatus === 5) return code === 5;
+        // المفتوحة العادية: 0/1/2 فقط (بدون Order 0 Stock وبدون المورّد)
+        if (code === 5 || code === 4 || code >= 3) return false;
         if (selectedStatus === null) return true;
         return code === selectedStatus;
       });
@@ -5083,7 +5109,8 @@ window.addToCartAndContinue = function () {
   var SHORT_FILTERS = {
     '0': '🟡 تحت التنفيذ',
     '1': '✅ تم الحجز',
-    '2': '🚚 جاري الشحن'
+    '2': '🚚 جاري الشحن',
+    '5': '📭 Order 0 Stock'
   };
 
   var busy = false;
