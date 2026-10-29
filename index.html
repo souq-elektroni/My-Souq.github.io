@@ -283,6 +283,49 @@
 
 <link rel="stylesheet" href="styles-extra-b.css?v=202610281300tracking">
 <link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202610281300tracking">
+
+<style id="msq-open-filters-grid-css">
+#msqOpenOrderFilters{
+  display:grid !important;
+  grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+  gap:8px !important;
+  width:100%;
+  margin:0 0 12px;
+  box-sizing:border-box;
+}
+#msqOpenOrderFilters button{
+  width:100%;
+  min-height:44px;
+  margin:0 !important;
+  padding:8px 6px !important;
+  border-radius:12px !important;
+  font-weight:900 !important;
+  font-size:12.5px !important;
+  line-height:1.25 !important;
+  white-space:normal !important;
+  text-align:center;
+  box-sizing:border-box;
+}
+#msqOpenOrderFilters button.active{
+  box-shadow:0 0 0 2px rgba(139,63,82,.35) inset;
+}
+@media (max-width:720px){
+  #msqOpenOrderFilters{
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    gap:5px !important;
+  }
+  #msqOpenOrderFilters button{
+    min-height:52px;
+    padding:6px 3px !important;
+    font-size:10.5px !important;
+    border-radius:10px !important;
+  }
+}
+@media (max-width:380px){
+  #msqOpenOrderFilters button{font-size:9.5px !important;padding:5px 2px !important;}
+}
+</style>
+
 </head>
 
 <body>
@@ -2586,8 +2629,21 @@
       if (!key || key.length < 10) return false;
       var log = loadPhoneLog();
       var last = log[key];
-      if (!last) return false;
-      return (Date.now() - Number(last)) < PHONE_COOLDOWN_MS;
+      if (last && (Date.now() - Number(last)) < PHONE_COOLDOWN_MS) return true;
+      // راجع سجل الطلبات المحلي أيضًا (لو الطلب اتسجل فعلاً)
+      try {
+        var hist = (typeof ordersHistory !== 'undefined' && Array.isArray(ordersHistory))
+          ? ordersHistory
+          : (JSON.parse(localStorage.getItem('souqOrdersHistory') || '[]') || []);
+        for (var i = 0; i < hist.length; i++) {
+          var o = hist[i] || {};
+          var op = normalizePhoneLocal(o.phone || o.customerPhone || '');
+          if (op !== key) continue;
+          var ts = Number(o.createdAt || 0);
+          if (ts && (Date.now() - ts) < PHONE_COOLDOWN_MS) return true;
+        }
+      } catch (e) {}
+      return false;
     }
     function markPhoneOrdered(phone) {
       var key = normalizePhoneLocal(phone);
@@ -2600,6 +2656,23 @@
       });
       savePhoneLog(log);
     }
+    function cooldownRemainingMin(phone) {
+      var key = normalizePhoneLocal(phone);
+      if (!key) return 15;
+      var log = loadPhoneLog();
+      var last = Number(log[key] || 0);
+      try {
+        var hist = JSON.parse(localStorage.getItem('souqOrdersHistory') || '[]') || [];
+        hist.forEach(function (o) {
+          if (normalizePhoneLocal((o && o.phone) || '') === key) {
+            last = Math.max(last, Number(o.createdAt || 0));
+          }
+        });
+      } catch (e) {}
+      if (!last) return 15;
+      var left = PHONE_COOLDOWN_MS - (Date.now() - last);
+      return Math.max(1, Math.ceil(left / 60000));
+    }
 
     function hookFinalizePhoneGuard() {
       if (typeof window.finalizeOrder !== 'function' || window.finalizeOrder._msqPhoneGuard) return;
@@ -2608,19 +2681,52 @@
         var phoneEl = document.getElementById('custPhone');
         var phone = phoneEl ? phoneEl.value.trim() : '';
         if (phone && isPhoneCoolingDown(phone)) {
-          alert('تم استلام طلب من هذا الرقم مؤخرًا.\nانتظر قليلًا قبل إرسال طلب جديد (حوالي 15 دقيقة) لتقليل الطلبات المتكررة.');
+          alert('تم استلام طلب من هذا الرقم مؤخرًا.\nلا يمكن تسجيل طلب جديد الآن.\nحاول مرة أخرى بعد حوالي ' + cooldownRemainingMin(phone) + ' دقيقة.');
           return;
         }
+        var beforeCount = 0;
+        try {
+          var h0 = JSON.parse(localStorage.getItem('souqOrdersHistory') || '[]') || [];
+          beforeCount = h0.length;
+        } catch (e) {}
         var result = await prev.apply(this, arguments);
-        if (phone) markPhoneOrdered(phone);
+        // سجّل التهدئة فقط لو الطلب اتسجل فعلاً (نجاح Firebase/محلي)
+        try {
+          var h1 = JSON.parse(localStorage.getItem('souqOrdersHistory') || '[]') || [];
+          var added = h1.length > beforeCount;
+          var samePhoneNew = h1.some(function (o) {
+            return normalizePhoneLocal((o && o.phone) || '') === normalizePhoneLocal(phone)
+              && Number(o.createdAt || 0) > Date.now() - 120000;
+          });
+          if (phone && (added || samePhoneNew)) markPhoneOrdered(phone);
+        } catch (e2) {
+          // لا نعلّم الرقم لو مفيش دليل على نجاح الطلب — يمنع الطلبات الوهمية
+        }
         return result;
       };
       window.finalizeOrder._msqPhoneGuard = true;
     }
 
+    // امنع كمان خطوة المتابعة قبل التأكيد
+    function hookValidateTermsGuard() {
+      if (typeof window.validateAndOpenTerms !== 'function' || window.validateAndOpenTerms._msqPhoneGuard) return;
+      var prevV = window.validateAndOpenTerms;
+      window.validateAndOpenTerms = function () {
+        var phoneEl = document.getElementById('custPhone');
+        var phone = phoneEl ? phoneEl.value.trim() : '';
+        if (phone && isPhoneCoolingDown(phone)) {
+          alert('تم استلام طلب من هذا الرقم مؤخرًا.\nلا يمكن بدء طلب جديد الآن (حوالي ' + cooldownRemainingMin(phone) + ' دقيقة).');
+          return;
+        }
+        return prevV.apply(this, arguments);
+      };
+      window.validateAndOpenTerms._msqPhoneGuard = true;
+    }
+
     hookFinalizePhoneGuard();
-    setTimeout(hookFinalizePhoneGuard, 800);
-    setTimeout(hookFinalizePhoneGuard, 2000);
+    hookValidateTermsGuard();
+    setTimeout(function(){ hookFinalizePhoneGuard(); hookValidateTermsGuard(); }, 800);
+    setTimeout(function(){ hookFinalizePhoneGuard(); hookValidateTermsGuard(); }, 2000);
   })();
   </script>
 
@@ -4316,9 +4422,9 @@ window.addToCartAndContinue = function () {
       bar.id = 'msqOpenOrderFilters';
       bar.setAttribute('aria-label','تصفية الطلبات المفتوحة حسب الحالة');
       bar.innerHTML =
-        '<button type="button" data-status="0" aria-pressed="false">🟡 طلبات تحت التنفيذ</button>' +
-        '<button type="button" data-status="1" aria-pressed="false">✅ طلبات تم الحجز</button>' +
-        '<button type="button" data-status="2" aria-pressed="false">🚚 طلبات جاري الشحن</button>' +
+        '<button type="button" data-status="0" aria-pressed="false">🟡 تحت التنفيذ</button>' +
+        '<button type="button" data-status="1" aria-pressed="false">✅ تم الحجز</button>' +
+        '<button type="button" data-status="2" aria-pressed="false">🚚 جاري الشحن</button>' +
         '<button type="button" data-status="5" aria-pressed="false">📭 Order 0 Stock</button>';
       var list = document.getElementById('adminOrdersList');
       if (list && list.parentNode === pane) pane.insertBefore(bar, list);

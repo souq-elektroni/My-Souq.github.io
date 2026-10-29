@@ -3742,6 +3742,18 @@ function continueAfterOrderRecaptcha() {
         return;
       }
 
+      // تهدئة الرقم 15 دقيقة — بعد نجاح الحفظ فقط (لا طلبات وهمية)
+      try {
+        var phoneKey = String(phone || '').replace(/\D/g, '');
+        if (phoneKey.indexOf('20') === 0 && phoneKey.length >= 12) phoneKey = '0' + phoneKey.slice(2);
+        if (phoneKey.length >= 10) {
+          var log = {};
+          try { log = JSON.parse(localStorage.getItem('mysouq_phone_orders') || '{}') || {}; } catch (e) {}
+          log[phoneKey] = Date.now();
+          localStorage.setItem('mysouq_phone_orders', JSON.stringify(log));
+        }
+      } catch (eMark) {}
+
       __msqFinalizeDoneIds.add(thisOrderId);
 
       // جهّز بيانات تليجرام قبل مسح السلة
