@@ -328,27 +328,34 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   const productsGrid = document.getElementById("products-container");
   const cartCount = document.getElementById("cartCount");
 
-  /* رقم طلب قصير + قوي + آمن (crypto.getRandomValues) + يضمن عدم التكرار */
+  /* رقم طلب سهل القراءة + آمن (crypto.getRandomValues)
+     الشكل: M-700156324F  (M- + 9 أرقام + حرف)
+     الأرقام القديمة MS-XXXXXXXX لسه مدعومة في التتبع */
   function generateStrongOrderId() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // بدون حروف متشابهة
-    function randomChar() {
+    const letters = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // بدون I/O للوضوح
+    function rndByte() {
       if (window.crypto && window.crypto.getRandomValues) {
         const arr = new Uint32Array(1);
         window.crypto.getRandomValues(arr);
-        return chars.charAt(arr[0] % chars.length);
+        return arr[0];
       }
-      return chars.charAt(Math.floor(Math.random() * chars.length));
+      return Math.floor(Math.random() * 0xffffffff);
     }
     let id = '';
     let attempts = 0;
     do {
-      id = 'MS-';
+      // 9 أرقام (يتجنب أصفار بادئة مبالغ فيها: يبدأ من 1-9)
+      let num = '';
+      num += String((rndByte() % 9) + 1); // أول رقم 1-9
       for (let i = 0; i < 8; i++) {
-        id += randomChar();
+        num += String(rndByte() % 10);
       }
+      const letter = letters.charAt(rndByte() % letters.length);
+      id = 'M-' + num + letter;
       attempts++;
     } while (
-      ordersHistory.some(o => o.orderId === id) &&
+      (typeof ordersHistory !== 'undefined' && Array.isArray(ordersHistory) &&
+        ordersHistory.some(function (o) { return o && o.orderId === id; })) &&
       attempts < 50
     );
     return id;
@@ -4067,7 +4074,7 @@ function continueAfterOrderRecaptcha() {
           ❌ عذراً، لم يتم العثور على أي طلب بهذا الرقم
         </div>
         <div style="font-size: 11.5px; margin-top: 3px; color: var(--text-muted);">
-          تأكد من كتابة الرقم بشكل صحيح (مثال: MS-K7P2M9X4)<br>
+          تأكد من كتابة الرقم بشكل صحيح (مثال: M-700156324F)<br>
           ${firebaseReady
             ? 'الطلب مش موجود على السحابة. تأكد إن العميل خلّص الطلب بنجاح.'
             : 'Firebase لسه مش متضبط — التتبع شغال محلياً فقط.'}
@@ -4891,7 +4898,7 @@ function continueAfterOrderRecaptcha() {
       try {
         const q = (document.getElementById('adminOrderSearch') && document.getElementById('adminOrderSearch').value || '').trim();
         if (q && /^[A-Za-z0-9_-]{4,40}$/.test(q)) {
-          const oid = q.toUpperCase().startsWith('MS-') ? q : q;
+          const oid = q;
           try {
             const one = await db.collection('orders').doc(oid).get();
             if (one.exists) {
