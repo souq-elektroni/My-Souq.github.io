@@ -407,7 +407,12 @@
 html body > header.mysouq-banner-carousel,
 html body header.mysouq-banner-carousel,
 html body > header{
-  margin-top:12px !important;
+  margin-top:0 !important;
+  margin-bottom:12px !important;
+}
+/* إخفاء شريط الأقسام والبحث التحتاني — موجودين في بار الأعلى */
+html body .controls-wrapper{
+  display:none !important;
 }
 .msq-store-terms-modal .msq-terms-h{margin:14px 0 6px;font-size:14px;font-weight:900;color:#6e2f40}
 .msq-store-terms-modal .terms-body ul{margin:0 0 4px;padding-right:18px}
@@ -1022,60 +1027,20 @@ html body > header{
   </div>
 
 
-  <!-- Terms View-Only Modal — شروط الشراء من المتجر (من البار فقط) -->
+  <!-- Terms View-Only Modal — نفس نص شروط المتجر الأصلي (عرض فقط) -->
   <div class="modal-overlay" id="termsViewModal">
-    <div class="modal-content terms-modal msq-store-terms-modal" style="max-width:520px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;">
-      <div class="terms-header" style="flex-shrink:0;">📜 شروط وأحكام الشراء من My Souq</div>
-      <div class="terms-body msq-store-terms-body" style="overflow-y:auto;flex:1;padding-inline:4px;text-align:right;line-height:1.75;">
-        <p style="margin:0 0 12px;font-weight:800;color:var(--primary,#8b3f52);">مرحباً بك في متجر My Souq. باستخدامك للموقع وإتمام أي طلب فأنت توافق على الشروط التالية:</p>
-        <h4 class="msq-terms-h">1. طبيعة المتجر والمنتجات</h4>
+    <div class="modal-content terms-modal" style="max-width:420px;">
+      <div class="terms-header">📌 الشروط والأحكام</div>
+      <div class="terms-body">
+        <strong>يرجى مراجعة الشروط بعناية:</strong>
         <ul>
-          <li>My Souq متجر إلكتروني لبيع الملابس والمنتجات المعروضة على الموقع.</li>
-          <li>الصور المعروضة توضيحية، وقد تختلف الألوان قليلاً حسب إعدادات الشاشة والإضاءة.</li>
-          <li>المقاسات والأبعاد المذكورة في صفحة المنتج هي المرجع الأساسي قبل الطلب.</li>
+          <li>يجب على العميل التأكد جيداً ومراجعة الطلب قبل التأكيد.</li>
+          <li>سياسة الاسترجاع متاحة في حالات وجود عيب مصنع بالمنتج فقط.</li>
+          <li>لا يحق للعميل إلغاء الطلب أو التعديل عليه بعد تأكيد الحجز مع المصنع.</li>
         </ul>
-        <h4 class="msq-terms-h">2. الطلب والتأكيد</h4>
-        <ul>
-          <li>يُعتبر الطلب ملزماً بعد تأكيد العميل ومراجعة بياناته وإتمام خطوات الطلب.</li>
-          <li>على العميل التأكد من صحة الاسم ورقم الهاتف والعنوان والمقاس قبل التأكيد.</li>
-          <li>يحق للمتجر رفض أو إلغاء أي طلب في حال وجود بيانات غير صحيحة أو اشتباه في طلب وهمي.</li>
-        </ul>
-        <h4 class="msq-terms-h">3. الأسعار والدفع</h4>
-        <ul>
-          <li>الأسعار المعروضة بالجنيه المصري وتشمل ما هو مذكور في صفحة المنتج وقت الطلب.</li>
-          <li>طرق الدفع المتاحة هي المعروضة أثناء إتمام الطلب (مثل الدفع عند الاستلام أو إنستا باي حسب المتاح).</li>
-          <li>أي عروض أو خصومات تطبق وفق شروط العرض المعلنة في وقتها فقط.</li>
-        </ul>
-        <h4 class="msq-terms-h">4. الشحن والتسليم</h4>
-        <ul>
-          <li>يتم الشحن داخل جمهورية مصر العربية حسب المناطق المتاحة وتكلفة الشحن الموضحة عند الطلب.</li>
-          <li>مدة التوصيل تقديرية وقد تختلف حسب المنطقة وظروف الشحن.</li>
-          <li>استلام الطلب من المندوب يُعد موافقة على استلام المنتج بالحالة الظاهرة عند التسليم.</li>
-        </ul>
-        <h4 class="msq-terms-h">5. الاستبدال والاسترجاع</h4>
-        <ul>
-          <li>سياسة الاسترجاع أو الاستبدال متاحة في حالات <strong>عيب المصنع</strong> فقط.</li>
-          <li>لا يُقبل الاسترجاع بسبب اختيار مقاس خاطئ أو تغيير الرأي بعد تأكيد الطلب مع المصنع.</li>
-          <li>في حال وجود عيب مصنع، يرجى التواصل معنا فور الاستلام مع صور واضحة للمنتج ورقم الطلب.</li>
-        </ul>
-        <h4 class="msq-terms-h">6. إلغاء الطلب أو تعديله</h4>
-        <ul>
-          <li>يمكن طلب إلغاء أو تعديل الطلب قبل تأكيد الحجز مع المصنع فقط.</li>
-          <li>بعد تأكيد الحجز مع المصنع لا يحق للعميل إلغاء الطلب أو تعديله.</li>
-        </ul>
-        <h4 class="msq-terms-h">7. الخصوصية وبيانات العملاء</h4>
-        <ul>
-          <li>نستخدم بيانات العميل (الاسم، الهاتف، العنوان) فقط لغرض تنفيذ الطلب والتواصل المتعلق به.</li>
-          <li>لا نبيع بيانات العملاء لأطراف ثالثة.</li>
-        </ul>
-        <h4 class="msq-terms-h">8. التواصل</h4>
-        <ul>
-          <li>للاستفسارات أو متابعة الطلبات يرجى استخدام أدوات الموقع (تتبع الطلب / الدعم) أو أرقام التواصل المعروضة في المتجر.</li>
-        </ul>
-        <p style="margin:14px 0 0;font-size:13px;color:var(--text-muted,#7a5a63);">آخر تحديث لشروط المتجر: 2026 — إدارة My Souq تحتفظ بحق تعديل هذه الشروط مع الإعلان عن أي تغيير جوهري على الموقع.</p>
       </div>
-      <div class="terms-actions" style="justify-content:center;flex-shrink:0;padding-top:10px;">
-        <button type="button" class="btn-decline" onclick="document.getElementById('termsViewModal').classList.remove('active')" style="min-width:140px;">إغلاق</button>
+      <div class="terms-actions" style="justify-content:center;">
+        <button type="button" class="btn-decline" onclick="document.getElementById('termsViewModal').classList.remove('active')" style="min-width:120px;">إغلاق</button>
       </div>
     </div>
   </div>
