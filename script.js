@@ -5390,3 +5390,53 @@ ${itemsText || '-'}
     initNavbar();
   }
 })();
+
+
+/* ===== Navbar terms + logo admin bind fix ===== */
+(function () {
+  function bindTermsNav() {
+    var btn = document.getElementById('msqTermsNavBtn');
+    if (!btn || btn._msqBound) return;
+    btn._msqBound = true;
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var view = document.getElementById('termsViewModal');
+      if (view) {
+        view.classList.add('active');
+      } else {
+        // fallback
+        var t = document.getElementById('termsModal');
+        if (t) t.classList.add('active');
+      }
+    });
+  }
+
+  function rebindLogoAdmin() {
+    try {
+      var logo = document.getElementById('msqLogoLockup');
+      if (logo) logo._msqAdminSecretBound = false; // allow rebind
+      if (typeof window.bindSecretAdminEntry === 'function') {
+        window.bindSecretAdminEntry();
+      }
+    } catch (e) {}
+  }
+
+  function bootNavExtras() {
+    bindTermsNav();
+    rebindLogoAdmin();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootNavExtras);
+  } else {
+    bootNavExtras();
+  }
+  // retry a few times in case maintenance script loads later
+  var n = 0;
+  var iv = setInterval(function () {
+    n++;
+    bootNavExtras();
+    if (n > 12) clearInterval(iv);
+  }, 500);
+})();
