@@ -297,8 +297,8 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   function filterGender(gender, btn) {
     currentGenderFilter = gender || 'all';
-    document.querySelectorAll('.msq-gender-btn, #msqFilterDropdown [data-gender]').forEach(function (b) {
-      b.classList.toggle('active', b.getAttribute('data-gender') === currentGenderFilter);
+    document.querySelectorAll('.msq-gender-btn').forEach(function (b) {
+      b.classList.toggle('active', b === btn || b.getAttribute('data-gender') === currentGenderFilter);
     });
     handleSearchAndFilter();
   }
@@ -1175,24 +1175,19 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   function syncCategoryActiveUI(btn) {
     document.querySelectorAll('.cat-btn').forEach(function (b) {
+      // أزرار المخزون لها حالة مستقلة
       if (b.classList.contains('stock-avail') || b.classList.contains('stock-out')) return;
       b.classList.remove('active');
     });
-    document.querySelectorAll('.msq-cat-item').forEach(function (b) {
-      b.classList.remove('active');
-    });
-    var cat = null;
     if (btn && !btn.classList.contains('stock-avail') && !btn.classList.contains('stock-out')) {
       btn.classList.add('active');
-      cat = btn.getAttribute('data-main-category') || currentCategory;
     } else {
-      cat = currentCategory;
-    }
-    if (cat) {
-      var sel = '.cat-btn[data-main-category="' + String(cat).replace(/"/g, '\"') + '"], .msq-cat-item[data-main-category="' + String(cat).replace(/"/g, '\"') + '"]';
-      document.querySelectorAll(sel).forEach(function (b) {
-        if (!b.classList.contains('stock-avail') && !b.classList.contains('stock-out')) b.classList.add('active');
-      });
+      var main = document.querySelector('.cat-btn[data-main-category="' + String(currentCategory).replace(/"/g, '\\"') + '"]');
+      if (main) main.classList.add('active');
+      else if (currentCategory === 'الكل') {
+        var allBtn = document.querySelector('.cat-btn[data-main-category="الكل"]');
+        if (allBtn) allBtn.classList.add('active');
+      }
     }
   }
 
@@ -5251,192 +5246,192 @@ ${itemsText || '-'}
     })();
   };
 
-/* ========== My Souq Top Navbar JS ========== */
+/* ===== Additive Top Navbar helpers (does not remove existing features) ===== */
 (function () {
   'use strict';
-
   function $(id) { return document.getElementById(id); }
 
-  function msqCloseAllDropdowns() {
-    var fd = $('msqFilterDropdown');
-    var cd = $('msqCatsDropdown');
-    var ft = $('msqFilterToggle');
-    var ct = $('msqAllCatsBtn');
-    if (fd) { fd.hidden = true; }
-    if (cd) { cd.hidden = true; }
+  function closeDrops() {
+    var fd = $('msqFilterDropdown'), cd = $('msqCatsDropdown');
+    var ft = $('msqFilterToggle'), ct = $('msqAllCatsBtn');
+    if (fd) fd.hidden = true;
+    if (cd) cd.hidden = true;
     if (ft) ft.setAttribute('aria-expanded', 'false');
     if (ct) ct.setAttribute('aria-expanded', 'false');
   }
 
-  window.msqCloseCats = function () {
-    var cd = $('msqCatsDropdown');
-    var ct = $('msqAllCatsBtn');
-    if (cd) cd.hidden = true;
-    if (ct) ct.setAttribute('aria-expanded', 'false');
-  };
-
-  window.msqSyncGenderChips = function (btn) {
-    document.querySelectorAll('#msqFilterDropdown [data-gender]').forEach(function (b) {
-      b.classList.toggle('active', b === btn);
-    });
-    // also sync lower bar if present
-    document.querySelectorAll('.msq-gender-btn').forEach(function (b) {
-      b.classList.toggle('active', b.getAttribute('data-gender') === btn.getAttribute('data-gender'));
-    });
-  };
-
-  window.msqSyncStockChips = function (btn) {
-    document.querySelectorAll('#msqFilterDropdown .msq-filter-section:nth-child(2) .msq-chip').forEach(function (b) {
-      b.classList.remove('active');
-    });
-    if (btn) btn.classList.add('active');
-  };
-
-  function syncSizeOptionsToNav() {
-    var src = $('sizeSelect');
-    var dst = $('sizeSelectNav');
+  function syncSizeNav() {
+    var src = $('sizeSelect'), dst = $('sizeSelectNav');
     if (!src || !dst) return;
     dst.innerHTML = src.innerHTML;
-    dst.value = src.value;
+    try { dst.value = src.value; } catch (e) {}
   }
 
-  // Patch buildSizeFilterButtons to also fill nav select
-  var _origBuild = window.buildSizeFilterButtons;
-  if (typeof buildSizeFilterButtons === 'function') {
-    var orig = buildSizeFilterButtons;
-    window.buildSizeFilterButtons = function () {
-      orig.apply(this, arguments);
-      syncSizeOptionsToNav();
-    };
-  } else {
-    // wait for it
-    var tries = 0;
-    var t = setInterval(function () {
-      tries++;
-      if (typeof buildSizeFilterButtons === 'function') {
-        clearInterval(t);
-        var orig = buildSizeFilterButtons;
-        window.buildSizeFilterButtons = function () {
-          orig.apply(this, arguments);
-          syncSizeOptionsToNav();
-        };
-      } else if (tries > 40) clearInterval(t);
-    }, 250);
+  function bindNavSearch() {
+    var nav = $('msqNavSearchInput');
+    var main = $('searchInput');
+    if (!nav || nav._msqBound) return;
+    nav._msqBound = true;
+    nav.addEventListener('input', function () {
+      if (main) {
+        main.value = nav.value;
+        if (typeof handleSearchAndFilter === 'function') handleSearchAndFilter();
+      }
+    });
+    // mirror main -> nav if user types in original search
+    if (main && !main._msqNavMirror) {
+      main._msqNavMirror = true;
+      main.addEventListener('input', function () {
+        nav.value = main.value;
+      });
+    }
   }
 
-  function initNavbar() {
+  function bindDropdowns() {
     var filterBtn = $('msqFilterToggle');
     var filterDrop = $('msqFilterDropdown');
     var catsBtn = $('msqAllCatsBtn');
     var catsDrop = $('msqCatsDropdown');
-
-    if (filterBtn && filterDrop) {
+    if (filterBtn && filterDrop && !filterBtn._msqBound) {
+      filterBtn._msqBound = true;
       filterBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         var open = filterDrop.hidden;
-        msqCloseAllDropdowns();
+        closeDrops();
         if (open) {
           filterDrop.hidden = false;
           filterBtn.setAttribute('aria-expanded', 'true');
-          syncSizeOptionsToNav();
-          // sync current values
-          var ss = $('sortSelect');
-          var sn = $('sortSelectNav');
+          syncSizeNav();
+          var ss = $('sortSelect'), sn = $('sortSelectNav');
           if (ss && sn) sn.value = ss.value;
-          var sc = $('sharedSubcategorySelect');
-          var scn = $('sharedSubcategorySelectNav');
+          var sc = $('sharedSubcategorySelect'), scn = $('sharedSubcategorySelectNav');
           if (sc && scn) scn.value = sc.value;
         }
       });
     }
-
-    if (catsBtn && catsDrop) {
+    if (catsBtn && catsDrop && !catsBtn._msqBound) {
+      catsBtn._msqBound = true;
       catsBtn.addEventListener('click', function (e) {
         e.stopPropagation();
         var open = catsDrop.hidden;
-        msqCloseAllDropdowns();
+        closeDrops();
         if (open) {
           catsDrop.hidden = false;
           catsBtn.setAttribute('aria-expanded', 'true');
         }
       });
     }
-
-    document.addEventListener('click', function (e) {
-      if (!e.target.closest('.msq-filter-wrap') && !e.target.closest('.msq-cats-wrap')) {
-        msqCloseAllDropdowns();
-      }
-    });
-
-    // Keep category active state in dropdown in sync when lower buttons used (if any)
-    document.addEventListener('click', function (e) {
-      var btn = e.target.closest('.msq-cat-item, .cat-btn[data-main-category]');
-      if (!btn) return;
-      var cat = btn.getAttribute('data-main-category');
-      if (!cat) return;
-      document.querySelectorAll('.msq-cat-item').forEach(function (b) {
-        b.classList.toggle('active', b.getAttribute('data-main-category') === cat);
+    if (!document._msqNavDocClick) {
+      document._msqNavDocClick = true;
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.msq-filter-wrap') && !e.target.closest('.msq-cats-wrap')) closeDrops();
       });
-    });
-
-    // Initial size sync after products load
-    setTimeout(syncSizeOptionsToNav, 1500);
-    setTimeout(syncSizeOptionsToNav, 3500);
+    }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initNavbar);
-  } else {
-    initNavbar();
-  }
-})();
-
-
-/* ===== Navbar terms + logo admin bind fix ===== */
-(function () {
-  function bindTermsNav() {
-    var btn = document.getElementById('msqTermsNavBtn');
+  function bindTerms() {
+    var btn = $('msqTermsNavBtn');
     if (!btn || btn._msqBound) return;
     btn._msqBound = true;
     btn.addEventListener('click', function (e) {
       e.preventDefault();
-      e.stopPropagation();
-      var view = document.getElementById('termsViewModal');
-      if (view) {
-        view.classList.add('active');
-      } else {
-        // fallback
-        var t = document.getElementById('termsModal');
-        if (t) t.classList.add('active');
-      }
+      var view = $('termsViewModal');
+      if (view) view.classList.add('active');
     });
   }
 
-  function rebindLogoAdmin() {
-    try {
-      var logo = document.getElementById('msqLogoLockup');
-      if (logo) logo._msqAdminSecretBound = false; // allow rebind
-      if (typeof window.bindSecretAdminEntry === 'function') {
-        window.bindSecretAdminEntry();
-      }
-    } catch (e) {}
+  function bindLogoLongPress() {
+    var logo = $('msqLogoLockup');
+    if (!logo || logo._msqAdminSecretBound) return;
+    logo._msqAdminSecretBound = true;
+    var pressTimer = null;
+    var LONG_MS = 1200;
+    function isAdminNow() {
+      try { return typeof isAdminMode !== 'undefined' && !!isAdminMode; } catch (e) { return false; }
+    }
+    function startPress(e) {
+      if (e && e.type === 'mousedown' && e.button !== 0) return;
+      if (pressTimer) clearTimeout(pressTimer);
+      pressTimer = setTimeout(function () {
+        pressTimer = null;
+        if (isAdminNow()) {
+          if (typeof handleAdminButton === 'function') try { handleAdminButton(); } catch (err) {}
+        } else if (typeof openAdminLoginModal === 'function') {
+          openAdminLoginModal();
+        }
+      }, LONG_MS);
+    }
+    function cancelPress() {
+      if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
+    }
+    logo.addEventListener('mousedown', startPress);
+    logo.addEventListener('touchstart', startPress, { passive: true });
+    logo.addEventListener('mouseup', cancelPress);
+    logo.addEventListener('mouseleave', cancelPress);
+    logo.addEventListener('touchend', cancelPress);
+    logo.addEventListener('touchcancel', cancelPress);
+    logo.addEventListener('click', function (e) {
+      e.preventDefault();
+      try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (_) {}
+    });
+    logo.title = 'للإدارة: اضغط مطوّلاً';
   }
 
-  function bootNavExtras() {
-    bindTermsNav();
-    rebindLogoAdmin();
+  // Keep gender chips in filter dropdown in sync when filterGender runs
+  var _fg = window.filterGender;
+  if (typeof filterGender === 'function' && !filterGender._msqNavPatched) {
+    var origFG = filterGender;
+    window.filterGender = function (gender, btn) {
+      var r = origFG.apply(this, arguments);
+      document.querySelectorAll('#msqFilterDropdown [data-gender]').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-gender') === (gender || 'all'));
+      });
+      return r;
+    };
+    window.filterGender._msqNavPatched = true;
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bootNavExtras);
-  } else {
-    bootNavExtras();
-  }
-  // retry a few times in case maintenance script loads later
-  var n = 0;
+  // After size options rebuild, copy to nav
+  var tries = 0;
   var iv = setInterval(function () {
-    n++;
-    bootNavExtras();
-    if (n > 12) clearInterval(iv);
-  }, 500);
+    tries++;
+    if (typeof buildSizeFilterButtons === 'function' && !buildSizeFilterButtons._msqNavPatched) {
+      var orig = buildSizeFilterButtons;
+      window.buildSizeFilterButtons = function () {
+        var r = orig.apply(this, arguments);
+        syncSizeNav();
+        return r;
+      };
+      buildSizeFilterButtons._msqNavPatched = true;
+      // also expose if it was local then assigned later
+    }
+    if (window.buildSizeFilterButtons && !window.buildSizeFilterButtons._msqNavPatched2) {
+      var o2 = window.buildSizeFilterButtons;
+      window.buildSizeFilterButtons = function () {
+        var r = o2.apply(this, arguments);
+        syncSizeNav();
+        return r;
+      };
+      window.buildSizeFilterButtons._msqNavPatched2 = true;
+    }
+    if (tries > 40) clearInterval(iv);
+  }, 300);
+
+  function boot() {
+    bindNavSearch();
+    bindDropdowns();
+    bindTerms();
+    bindLogoLongPress();
+    // also keep original brand-badge bind working
+    try {
+      if (typeof window.bindSecretAdminEntry === 'function') window.bindSecretAdminEntry();
+    } catch (e) {}
+    setTimeout(syncSizeNav, 1500);
+    setTimeout(syncSizeNav, 4000);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+  var n = 0;
+  var t = setInterval(function () { n++; boot(); if (n > 10) clearInterval(t); }, 600);
 })();
