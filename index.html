@@ -326,118 +326,6 @@
 }
 </style>
 
-
-<style id="msq-top-navbar-styles">
-.msq-top-navbar{
-  position:sticky;top:0;z-index:1200;width:100%;margin:0;padding:0;
-  background:linear-gradient(180deg,#fffefc 0%,#fdf8f5 100%);
-  border-bottom:1px solid rgba(128,61,72,.12);
-  box-shadow:0 2px 12px rgba(57,32,38,.06);
-  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  direction:ltr;
-}
-.msq-nav-inner{
-  width:100%;margin:0;padding:8px 12px;display:flex;align-items:center;
-  justify-content:space-between;gap:10px;min-height:56px;box-sizing:border-box;
-}
-.msq-nav-left{display:flex;align-items:center;gap:6px;flex-shrink:0;margin-right:auto}
-.msq-nav-icon-btn{
-  position:relative;display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:8px 10px;border:1px solid rgba(128,61,72,.14);border-radius:12px;
-  background:rgba(255,255,255,.9);color:#5c2d3a;font-weight:700;font-size:12.5px;
-  cursor:pointer;transition:all .2s ease;box-shadow:0 2px 8px rgba(128,61,72,.05);
-  white-space:nowrap;min-width:42px;min-height:42px;
-}
-.msq-nav-icon-btn:hover{background:var(--primary,#8b3f52);color:#fff;border-color:transparent;transform:translateY(-1px);box-shadow:0 6px 16px rgba(128,61,72,.2)}
-.msq-nav-icon-btn svg{flex-shrink:0}
-.msq-track-btn .msq-nav-label{font-size:12px;font-weight:800}
-.msq-fav-count,.msq-nav-icon-btn .cart-count{
-  position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:999px;
-  background:#e8a6b3;color:#5c2d3a;font-size:10px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;line-height:1;
-  box-shadow:0 1px 4px rgba(0,0,0,.12)
-}
-.msq-nav-center{display:flex;align-items:center;gap:8px;flex:1 1 auto;max-width:560px;justify-content:center;margin:0 auto}
-.msq-filter-wrap,.msq-cats-wrap{position:relative;flex-shrink:0}
-.msq-filter-btn{
-  display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;
-  border:1px solid rgba(128,61,72,.16);border-radius:11px;background:#fff;color:#5c2d3a;cursor:pointer;transition:all .2s;
-  box-shadow:0 2px 8px rgba(128,61,72,.05)
-}
-.msq-filter-btn:hover,.msq-filter-btn[aria-expanded="true"]{background:var(--primary,#8b3f52);color:#fff;border-color:transparent}
-.msq-search-wrap{position:relative;flex:1 1 200px;min-width:120px;max-width:340px}
-.msq-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:#9a6b78;pointer-events:none}
-.msq-search-input{
-  width:100%;height:40px;padding:0 40px 0 36px;border:1px solid rgba(128,61,72,.16);border-radius:11px;
-  background:#fff;font-size:13.5px;font-weight:600;color:#3a1f28;outline:none;box-sizing:border-box;direction:rtl;text-align:right
-}
-.msq-search-input:focus{border-color:rgba(128,61,72,.4);box-shadow:0 0 0 3px rgba(139,63,82,.1)}
-.msq-voice-btn{position:absolute;right:5px;top:50%;transform:translateY(-50%);width:30px;height:30px;border:none;border-radius:8px;background:transparent;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;opacity:.75}
-.msq-voice-btn:hover{opacity:1;background:rgba(128,61,72,.08)}
-.msq-all-cats-btn{
-  display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;border:1px solid rgba(128,61,72,.16);
-  border-radius:11px;background:var(--primary,#8b3f52);color:#fff;font-weight:800;font-size:12.5px;cursor:pointer;white-space:nowrap;
-  box-shadow:0 3px 12px rgba(128,61,72,.18)
-}
-.msq-all-cats-btn:hover,.msq-all-cats-btn[aria-expanded="true"]{background:#6e2f40}
-.msq-filter-dropdown,.msq-cats-dropdown{
-  position:absolute;top:calc(100% + 6px);right:0;min-width:250px;background:#fff;border:1px solid rgba(128,61,72,.12);
-  border-radius:14px;box-shadow:0 14px 40px rgba(57,32,38,.14);padding:12px;z-index:1300;direction:rtl;text-align:right
-}
-.msq-cats-dropdown{min-width:190px;padding:6px}
-.msq-filter-section{margin-bottom:10px}.msq-filter-section:last-child{margin-bottom:0}
-.msq-filter-title{display:block;font-size:11.5px;font-weight:800;color:#8b3f52;margin-bottom:5px}
-.msq-filter-chips{display:flex;flex-wrap:wrap;gap:5px}
-.msq-chip{padding:6px 11px;border:1px solid rgba(128,61,72,.14);border-radius:999px;background:#fdf8f5;color:#5c2d3a;font-size:12px;font-weight:700;cursor:pointer}
-.msq-chip:hover{border-color:rgba(128,61,72,.35);background:#fff}
-.msq-chip.active{background:var(--primary,#8b3f52);color:#fff;border-color:transparent}
-.msq-filter-select{width:100%;height:36px;padding:0 10px;border:1px solid rgba(128,61,72,.16);border-radius:9px;background:#fff;font-size:12.5px;font-weight:600;color:#3a1f28;outline:none;cursor:pointer;direction:rtl}
-.msq-cat-item{display:block;width:100%;text-align:right;padding:10px 12px;border:none;border-radius:9px;background:transparent;color:#3a1f28;font-size:13.5px;font-weight:700;cursor:pointer}
-.msq-cat-item:hover{background:rgba(128,61,72,.08)}
-.msq-cat-item.active{background:rgba(139,63,82,.12);color:#8b3f52}
-.msq-cat-item.offer{color:#c45c2a}
-.msq-nav-right{display:flex;align-items:center;gap:12px;flex-shrink:0;margin-left:auto}
-.msq-terms-link{background:none;border:none;color:#7a4555;font-size:12.5px;font-weight:700;cursor:pointer;padding:6px 2px;white-space:nowrap}
-.msq-terms-link:hover{color:var(--primary,#8b3f52)}
-.msq-logo-lockup{display:inline-flex;align-items:center;gap:7px;text-decoration:none;color:inherit;padding:3px;border-radius:12px;user-select:none;-webkit-user-select:none;cursor:pointer}
-.msq-logo-lockup:hover{transform:scale(1.03)}
-.msq-logo-img{width:38px;height:38px;border-radius:50%;box-shadow:0 2px 10px rgba(128,61,72,.18);border:2px solid rgba(232,166,179,.45);pointer-events:none}
-.msq-logo-text{font-weight:900;font-size:16px;letter-spacing:.03em;line-height:1;pointer-events:none}
-.msq-logo-my{color:#8b3f52}.msq-logo-souq{color:#3a1f28}
-/* قرّب البنر من البار من غير ما نمسح ستايلات البنر */
-html body > header.mysouq-banner-carousel,
-html body header.mysouq-banner-carousel,
-html body > header{
-  margin-top:0 !important;
-  margin-bottom:12px !important;
-}
-/* إخفاء شريط الأقسام والبحث التحتاني — موجودين في بار الأعلى */
-html body .controls-wrapper{
-  display:none !important;
-}
-.msq-store-terms-modal .msq-terms-h{margin:14px 0 6px;font-size:14px;font-weight:900;color:#6e2f40}
-.msq-store-terms-modal .terms-body ul{margin:0 0 4px;padding-right:18px}
-.msq-store-terms-modal .terms-body li{margin-bottom:5px;font-size:13.5px;font-weight:600;color:#3a1f28}
-@media (max-width:900px){
-  .msq-track-btn .msq-nav-label{display:none}
-  .msq-nav-icon-btn{padding:8px;min-width:40px;min-height:40px}
-  .msq-all-cats-btn span{display:none}
-  .msq-all-cats-btn{padding:0 10px}
-  .msq-terms-link{display:none}
-  .msq-logo-text{font-size:13px}
-  .msq-logo-img{width:32px;height:32px}
-  .msq-nav-inner{padding:6px 8px;gap:6px;min-height:50px}
-}
-@media (max-width:560px){
-  .msq-nav-center{max-width:none;gap:5px}
-  .msq-search-wrap{min-width:90px}
-  .msq-search-input{font-size:12.5px;height:36px}
-  .msq-filter-btn,.msq-all-cats-btn{width:36px;height:36px;min-width:36px}
-  .msq-nav-icon-btn{min-width:36px;min-height:36px;padding:6px}
-  .msq-logo-text{display:none}
-  .msq-filter-dropdown{right:auto;left:0;min-width:min(270px,92vw)}
-}
-</style>
-
 </head>
 
 <body>
@@ -447,124 +335,26 @@ html body .controls-wrapper{
 
 
 
-  <!-- brand-badge kept for secret admin long-press (visually hidden; logo in navbar also bound) -->
-  <div class="brand-badge" aria-hidden="true" style="position:fixed;width:1px;height:1px;opacity:0;pointer-events:auto;overflow:hidden;clip:rect(0,0,0,0);">
+  <div class="brand-badge">
     <span>MY</span>
     <span>SOUQ</span>
   </div>
 
-  <!-- top-actions kept in DOM for any legacy selectors (visually hidden) -->
-  <div class="top-actions" aria-hidden="true" style="display:none!important">
-    <div class="admin-orders-trigger" onclick="handleAdminButton()">📋 الطلبات</div>
-    <div class="track-trigger" onclick="openTrackingModal()">🔍 تتبع طلبك</div>
-    <button type="button" class="msq-favorites-trigger" onclick="if(window.msqOpenFavorites)window.msqOpenFavorites()" aria-label="المفضلة" title="المفضلة">♥ المفضلة</button>
-    <div class="cart-trigger" onclick="openCartModal()">🛒 السلة</div>
-  </div>
-
-  <!-- ===== Top Navbar (additive UI only — no feature removal) ===== -->
-  <nav class="msq-top-navbar" id="msqTopNavbar" aria-label="القائمة الرئيسية">
-    <div class="msq-nav-inner">
-      <!-- أقصى اليسار -->
-      <div class="msq-nav-left">
-        <button type="button" class="msq-nav-icon-btn msq-track-btn" onclick="openTrackingModal()" title="استعلام عن الطلب" aria-label="استعلام عن الطلب">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><circle cx="11.5" cy="14.5" r="3.5"/><path d="M16 17.5l1.8 1.8"/></svg>
-          <span class="msq-nav-label">استعلام عن الطلب</span>
-        </button>
-        <button type="button" class="msq-nav-icon-btn msq-favorites-trigger" id="msqFavoritesTrigger" onclick="if(window.msqOpenFavorites)window.msqOpenFavorites()" title="المفضلة" aria-label="المفضلة">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
-          <span class="msq-fav-count" id="msqFavCount">0</span>
-        </button>
-        <button type="button" class="msq-nav-icon-btn cart-trigger" onclick="openCartModal()" title="السلة" aria-label="السلة">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M6 6L5 3H2"/></svg>
-          <span class="cart-count" id="cartCount">0</span>
-        </button>
-        <button type="button" class="msq-nav-icon-btn admin-orders-trigger" id="adminOrdersBtn" onclick="handleAdminButton()" title="الطلبات" aria-label="الطلبات" style="display:none">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
-        </button>
-      </div>
-
-      <!-- الوسط -->
-      <div class="msq-nav-center">
-        <div class="msq-filter-wrap">
-          <button type="button" class="msq-filter-btn" id="msqFilterToggle" title="الفلاتر" aria-label="فتح الفلاتر" aria-expanded="false">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-          </button>
-          <div class="msq-filter-dropdown" id="msqFilterDropdown" hidden>
-            <div class="msq-filter-section">
-              <span class="msq-filter-title">الجنس</span>
-              <div class="msq-filter-chips">
-                <button type="button" class="msq-chip active" data-gender="all" onclick="filterGender('all', this)">الكل</button>
-                <button type="button" class="msq-chip" data-gender="male" onclick="filterGender('male', this)">رجالي / أولادي</button>
-                <button type="button" class="msq-chip" data-gender="female" onclick="filterGender('female', this)">نسائي / بناتي</button>
-              </div>
-            </div>
-            <div class="msq-filter-section">
-              <span class="msq-filter-title">المخزون</span>
-              <div class="msq-filter-chips">
-                <button type="button" class="msq-chip" onclick="filterStock('available', this)">🟢 متوفرة</button>
-                <button type="button" class="msq-chip" onclick="filterStock('out', this)">🔴 نفذت</button>
-              </div>
-            </div>
-            <div class="msq-filter-section">
-              <label class="msq-filter-title" for="sizeSelectNav">المقاس</label>
-              <select id="sizeSelectNav" class="msq-filter-select" onchange="var s=document.getElementById('sizeSelect');if(s){s.value=this.value;}filterSize(this.value)">
-                <option value="الكل">كل المقاسات</option>
-              </select>
-            </div>
-            <div class="msq-filter-section">
-              <label class="msq-filter-title" for="sortSelectNav">الترتيب</label>
-              <select id="sortSelectNav" class="msq-filter-select" onchange="var s=document.getElementById('sortSelect');if(s){s.value=this.value;}applySorting()">
-                <option value="default">الترتيب الافتراضي</option>
-                <option value="low-high">السعر: من الأقل للأعلى</option>
-                <option value="high-low">السعر: من الأعلى للأقل</option>
-              </select>
-            </div>
-            <div class="msq-filter-section">
-              <label class="msq-filter-title" for="sharedSubcategorySelectNav">نوع الملابس</label>
-              <select id="sharedSubcategorySelectNav" class="msq-filter-select" onchange="var s=document.getElementById('sharedSubcategorySelect');if(s){s.value=this.value;}applySharedSubcategoryFilter(this.value)">
-                <option value="">كل أنواع الملابس</option>
-                <option value="ملابس للمنزل">ملابس للمنزل</option>
-                <option value="ملابس للخروج">ملابس للخروج</option>
-              </select>
-            </div>
-            <div class="msq-filter-section">
-              <button type="button" class="msq-chip" onclick="toggleGalleryMode()">🖼️ صور فقط</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="msq-search-wrap">
-          <svg class="msq-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-          <input type="text" id="msqNavSearchInput" class="msq-search-input" placeholder="ابحث عن منتج..." autocomplete="off" aria-label="بحث">
-          <button type="button" class="msq-voice-btn" onclick="startVoiceSearch()" title="بحث بالصوت" aria-label="بحث بالصوت">🎤</button>
-        </div>
-
-        <div class="msq-cats-wrap">
-          <button type="button" class="msq-all-cats-btn" id="msqAllCatsBtn" aria-expanded="false" aria-label="جميع الأقسام">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
-            <span>جميع الأقسام</span>
-          </button>
-          <div class="msq-cats-dropdown" id="msqCatsDropdown" hidden>
-            <button type="button" class="msq-cat-item active" data-main-category="الكل" onclick="filterCategory('الكل', this);document.getElementById('msqCatsDropdown').hidden=true;document.getElementById('msqAllCatsBtn').setAttribute('aria-expanded','false')">الكل</button>
-            <button type="button" class="msq-cat-item" data-main-category="Kids" onclick="filterCategory('Kids', this);document.getElementById('msqCatsDropdown').hidden=true;document.getElementById('msqAllCatsBtn').setAttribute('aria-expanded','false')">🧒 Kids</button>
-            <button type="button" class="msq-cat-item" data-main-category="Baby" onclick="filterCategory('Baby', this);document.getElementById('msqCatsDropdown').hidden=true;document.getElementById('msqAllCatsBtn').setAttribute('aria-expanded','false')">👶 Baby</button>
-            <button type="button" class="msq-cat-item" data-main-category="Mr & Mrs" onclick="filterCategory('Mr & Mrs', this);document.getElementById('msqCatsDropdown').hidden=true;document.getElementById('msqAllCatsBtn').setAttribute('aria-expanded','false')">👫 Mr &amp; Mrs</button>
-            <button type="button" class="msq-cat-item offer" data-main-category="عروض" onclick="filterCategory('عروض', this);document.getElementById('msqCatsDropdown').hidden=true;document.getElementById('msqAllCatsBtn').setAttribute('aria-expanded','false')">🔥 العروض</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- أقصى اليمين -->
-      <div class="msq-nav-right">
-        <button type="button" class="msq-terms-link" id="msqTermsNavBtn" title="الشروط والأحكام">الشروط والأحكام</button>
-        <a href="#" class="msq-logo-lockup" id="msqLogoLockup" aria-label="My Souq">
-          <img src="favicon.svg" alt="My Souq" width="40" height="40" class="msq-logo-img">
-          <span class="msq-logo-text"><span class="msq-logo-my">My </span><span class="msq-logo-souq">Souq</span></span>
-        </a>
-      </div>
+  <div class="top-actions">
+    <!-- تم إزالة الوضع الليلي وسمات الألوان حسب طلب المستخدم -->
+    <div class="admin-orders-trigger" id="adminOrdersBtn" onclick="handleAdminButton()">
+      📋 الطلبات
     </div>
-  </nav>
-  <!-- ===== End Top Navbar ===== -->
+    <div class="track-trigger" onclick="openTrackingModal()">
+      🔍 تتبع طلبك
+    </div>
+        <button type="button" class="msq-favorites-trigger" id="msqFavoritesTrigger" onclick="if(window.msqOpenFavorites)window.msqOpenFavorites()" aria-label="المفضلة" title="المفضلة">
+      ♥ المفضلة <span class="msq-fav-count" id="msqFavCount">0</span>
+    </button>
+    <div class="cart-trigger" onclick="openCartModal()">
+      🛒 السلة <span class="cart-count" id="cartCount">0</span>
+    </div>
+  </div>
 
   <!-- تم استبدال أيقونة واتساب العائمة بمساعد الدعم؛ أزرار واتساب الخاصة بالمنتجات والطلبات محفوظة. -->
   <a
@@ -1023,25 +813,6 @@ html body .controls-wrapper{
       <p style="font-size:11px;color:var(--text-muted);margin-top:10px;font-weight:600;">
         خطوة بسيطة ضد الطلبات الوهمية — لن تستغرق سوى ثوانٍ
       </p>
-    </div>
-  </div>
-
-
-  <!-- Terms View-Only Modal — نفس نص شروط المتجر الأصلي (عرض فقط) -->
-  <div class="modal-overlay" id="termsViewModal">
-    <div class="modal-content terms-modal" style="max-width:420px;">
-      <div class="terms-header">📌 الشروط والأحكام</div>
-      <div class="terms-body">
-        <strong>يرجى مراجعة الشروط بعناية:</strong>
-        <ul>
-          <li>يجب على العميل التأكد جيداً ومراجعة الطلب قبل التأكيد.</li>
-          <li>سياسة الاسترجاع متاحة في حالات وجود عيب مصنع بالمنتج فقط.</li>
-          <li>لا يحق للعميل إلغاء الطلب أو التعديل عليه بعد تأكيد الحجز مع المصنع.</li>
-        </ul>
-      </div>
-      <div class="terms-actions" style="justify-content:center;">
-        <button type="button" class="btn-decline" onclick="document.getElementById('termsViewModal').classList.remove('active')" style="min-width:120px;">إغلاق</button>
-      </div>
     </div>
   </div>
 
