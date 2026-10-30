@@ -326,6 +326,353 @@
 }
 </style>
 
+
+<style id="msq-top-navbar-styles">
+/* ========== Professional Top Navbar ========== */
+.msq-top-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1200;
+  width: 100%;
+  background: linear-gradient(180deg, #fffefc 0%, #fdf8f5 100%);
+  border-bottom: 1px solid rgba(128,61,72,.12);
+  box-shadow: 0 4px 24px rgba(57,32,38,.07);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  direction: ltr; /* control physical left/right as user requested */
+}
+.msq-nav-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 62px;
+}
+/* LEFT icons */
+.msq-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.msq-nav-icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid rgba(128,61,72,.14);
+  border-radius: 12px;
+  background: rgba(255,255,255,.85);
+  color: #5c2d3a;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .22s ease;
+  box-shadow: 0 2px 10px rgba(128,61,72,.06);
+  white-space: nowrap;
+}
+.msq-nav-icon-btn:hover {
+  background: var(--primary, #8b3f52);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(128,61,72,.22);
+}
+.msq-nav-icon-btn svg { flex-shrink: 0; }
+.msq-nav-label { font-size: 12.5px; }
+.msq-fav-count, .cart-count {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #e8a6b3;
+  color: #5c2d3a;
+  font-size: 11px;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0,0,0,.12);
+}
+/* CENTER */
+.msq-nav-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  max-width: 640px;
+  justify-content: center;
+}
+.msq-filter-wrap, .msq-cats-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.msq-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(128,61,72,.16);
+  border-radius: 12px;
+  background: #fff;
+  color: #5c2d3a;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 2px 8px rgba(128,61,72,.06);
+}
+.msq-filter-btn:hover, .msq-filter-btn[aria-expanded="true"] {
+  background: var(--primary, #8b3f52);
+  color: #fff;
+  border-color: transparent;
+}
+.msq-search-wrap {
+  position: relative;
+  flex: 1 1 220px;
+  min-width: 140px;
+  max-width: 380px;
+}
+.msq-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9a6b78;
+  pointer-events: none;
+}
+.msq-search-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 42px 0 40px;
+  border: 1px solid rgba(128,61,72,.16);
+  border-radius: 12px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  color: #3a1f28;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+  box-sizing: border-box;
+  direction: rtl;
+  text-align: right;
+}
+.msq-search-input::placeholder { color: #b08a95; font-weight: 500; }
+.msq-search-input:focus {
+  border-color: rgba(128,61,72,.4);
+  box-shadow: 0 0 0 3px rgba(139,63,82,.12);
+}
+.msq-voice-btn {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: .75;
+  transition: opacity .15s, background .15s;
+}
+.msq-voice-btn:hover { opacity: 1; background: rgba(128,61,72,.08); }
+.msq-all-cats-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(128,61,72,.16);
+  border-radius: 12px;
+  background: var(--primary, #8b3f52);
+  color: #fff;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(128,61,72,.2);
+}
+.msq-all-cats-btn:hover, .msq-all-cats-btn[aria-expanded="true"] {
+  background: #6e2f40;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(128,61,72,.28);
+}
+/* Dropdowns */
+.msq-filter-dropdown, .msq-cats-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 260px;
+  background: #fff;
+  border: 1px solid rgba(128,61,72,.12);
+  border-radius: 16px;
+  box-shadow: 0 16px 48px rgba(57,32,38,.14);
+  padding: 14px;
+  z-index: 1300;
+  direction: rtl;
+  text-align: right;
+}
+.msq-cats-dropdown {
+  min-width: 200px;
+  padding: 8px;
+}
+.msq-filter-section {
+  margin-bottom: 12px;
+}
+.msq-filter-section:last-child { margin-bottom: 0; }
+.msq-filter-title {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  color: #8b3f52;
+  margin-bottom: 6px;
+  letter-spacing: .02em;
+}
+.msq-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.msq-chip {
+  padding: 7px 12px;
+  border: 1px solid rgba(128,61,72,.14);
+  border-radius: 999px;
+  background: #fdf8f5;
+  color: #5c2d3a;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .18s;
+}
+.msq-chip:hover { border-color: rgba(128,61,72,.35); background: #fff; }
+.msq-chip.active {
+  background: var(--primary, #8b3f52);
+  color: #fff;
+  border-color: transparent;
+}
+.msq-filter-select {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid rgba(128,61,72,.16);
+  border-radius: 10px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3a1f28;
+  outline: none;
+  cursor: pointer;
+  direction: rtl;
+}
+.msq-cat-item {
+  display: block;
+  width: 100%;
+  text-align: right;
+  padding: 11px 14px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #3a1f28;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .15s;
+}
+.msq-cat-item:hover { background: rgba(128,61,72,.08); }
+.msq-cat-item.active { background: rgba(139,63,82,.12); color: #8b3f52; }
+.msq-cat-item.offer { color: #c45c2a; }
+/* RIGHT logo + terms */
+.msq-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.msq-terms-link {
+  background: none;
+  border: none;
+  color: #7a4555;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 4px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color .15s;
+  border-bottom: 1px dashed transparent;
+}
+.msq-terms-link:hover {
+  color: var(--primary, #8b3f52);
+  border-bottom-color: rgba(128,61,72,.4);
+}
+.msq-logo-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  color: inherit;
+  padding: 4px;
+  border-radius: 12px;
+  transition: transform .2s;
+}
+.msq-logo-lockup:hover { transform: scale(1.03); }
+.msq-logo-img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 3px 12px rgba(128,61,72,.2);
+  border: 2px solid rgba(232,166,179,.5);
+}
+.msq-logo-text {
+  font-weight: 900;
+  font-size: 17px;
+  letter-spacing: .04em;
+  line-height: 1;
+}
+.msq-logo-my { color: #8b3f52; }
+.msq-logo-souq { color: #3a1f28; }
+
+/* Mobile */
+@media (max-width: 900px) {
+  .msq-nav-label { display: none; }
+  .msq-nav-icon-btn { padding: 8px 10px; }
+  .msq-all-cats-btn span { display: none; }
+  .msq-all-cats-btn { padding: 0 11px; }
+  .msq-terms-link { display: none; }
+  .msq-logo-text { font-size: 14px; }
+  .msq-logo-img { width: 34px; height: 34px; }
+  .msq-nav-inner { padding: 8px 10px; gap: 8px; min-height: 54px; }
+}
+@media (max-width: 560px) {
+  .msq-nav-center { max-width: none; gap: 6px; }
+  .msq-search-wrap { min-width: 100px; }
+  .msq-search-input { font-size: 13px; height: 38px; }
+  .msq-filter-btn, .msq-all-cats-btn { width: 38px; height: 38px; }
+  .msq-nav-icon-btn { padding: 7px 8px; }
+  .msq-logo-text { display: none; }
+  .msq-filter-dropdown { right: auto; left: 0; min-width: min(280px, 92vw); }
+}
+/* Compensate page content so sticky bar doesn't overlap oddly */
+body { padding-top: 0; }
+.mysouq-banner-carousel { margin-top: 0; }
+/* Hide old floating brand-badge if any residual */
+.brand-badge { display: none !important; }
+.top-actions { display: none !important; }
+</style>
+
 </head>
 
 <body>
@@ -335,26 +682,122 @@
 
 
 
-  <div class="brand-badge">
-    <span>MY</span>
-    <span>SOUQ</span>
-  </div>
+  <!-- ===== Professional Full-Width Top Navbar ===== -->
+  <nav class="msq-top-navbar" id="msqTopNavbar" aria-label="القائمة الرئيسية">
+    <div class="msq-nav-inner">
 
-  <div class="top-actions">
-    <!-- تم إزالة الوضع الليلي وسمات الألوان حسب طلب المستخدم -->
-    <div class="admin-orders-trigger" id="adminOrdersBtn" onclick="handleAdminButton()">
-      📋 الطلبات
+      <!-- LEFT: Icons (track / favorites / cart) -->
+      <div class="msq-nav-left">
+        <button type="button" class="msq-nav-icon-btn" onclick="openTrackingModal()" title="تتبع طلبك" aria-label="تتبع طلبك">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="msq-nav-label">تتبع</span>
+        </button>
+        <button type="button" class="msq-nav-icon-btn msq-favorites-trigger" id="msqFavoritesTrigger" onclick="if(window.msqOpenFavorites)window.msqOpenFavorites()" title="المفضلة" aria-label="المفضلة">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+          <span class="msq-nav-label">المفضلة</span>
+          <span class="msq-fav-count" id="msqFavCount">0</span>
+        </button>
+        <button type="button" class="msq-nav-icon-btn cart-trigger" onclick="openCartModal()" title="السلة" aria-label="السلة">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M6 6L5 3H2"/></svg>
+          <span class="msq-nav-label">السلة</span>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <button type="button" class="msq-nav-icon-btn admin-orders-trigger" id="adminOrdersBtn" onclick="handleAdminButton()" title="الطلبات" aria-label="الطلبات" style="display:none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+          <span class="msq-nav-label">الطلبات</span>
+        </button>
+      </div>
+
+      <!-- CENTER: Filter + Search + All Categories -->
+      <div class="msq-nav-center">
+        <!-- Filter Button (Excel-style funnel) -->
+        <div class="msq-filter-wrap">
+          <button type="button" class="msq-filter-btn" id="msqFilterToggle" title="الفلاتر" aria-label="فتح الفلاتر" aria-expanded="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+          </button>
+          <div class="msq-filter-dropdown" id="msqFilterDropdown" hidden>
+            <div class="msq-filter-section">
+              <span class="msq-filter-title">الجنس</span>
+              <div class="msq-filter-chips">
+                <button type="button" class="msq-chip active" data-gender="all" onclick="filterGender('all', this);msqSyncGenderChips(this)">الكل</button>
+                <button type="button" class="msq-chip" data-gender="male" onclick="filterGender('male', this);msqSyncGenderChips(this)">رجالي / أولادي</button>
+                <button type="button" class="msq-chip" data-gender="female" onclick="filterGender('female', this);msqSyncGenderChips(this)">نسائي / بناتي</button>
+              </div>
+            </div>
+            <div class="msq-filter-section">
+              <span class="msq-filter-title">المخزون</span>
+              <div class="msq-filter-chips">
+                <button type="button" class="msq-chip" onclick="filterStock('available', this);msqSyncStockChips(this)">🟢 متوفرة</button>
+                <button type="button" class="msq-chip" onclick="filterStock('out', this);msqSyncStockChips(this)">🔴 نفذت</button>
+              </div>
+            </div>
+            <div class="msq-filter-section">
+              <label class="msq-filter-title" for="sizeSelectNav">المقاس</label>
+              <select id="sizeSelectNav" class="msq-filter-select" onchange="document.getElementById('sizeSelect').value=this.value;filterSize(this.value)">
+                <option value="الكل">كل المقاسات</option>
+              </select>
+            </div>
+            <div class="msq-filter-section">
+              <label class="msq-filter-title" for="sortSelectNav">الترتيب</label>
+              <select id="sortSelectNav" class="msq-filter-select" onchange="document.getElementById('sortSelect').value=this.value;applySorting()">
+                <option value="default">الترتيب الافتراضي</option>
+                <option value="low-high">السعر: من الأقل للأعلى</option>
+                <option value="high-low">السعر: من الأعلى للأقل</option>
+              </select>
+            </div>
+            <div class="msq-filter-section">
+              <label class="msq-filter-title" for="sharedSubcategorySelectNav">نوع الملابس</label>
+              <select id="sharedSubcategorySelectNav" class="msq-filter-select" onchange="document.getElementById('sharedSubcategorySelect').value=this.value;applySharedSubcategoryFilter(this.value)">
+                <option value="">كل أنواع الملابس</option>
+                <option value="ملابس للمنزل">ملابس للمنزل</option>
+                <option value="ملابس للخروج">ملابس للخروج</option>
+              </select>
+            </div>
+            <div class="msq-filter-section">
+              <button type="button" class="msq-chip gallery-mode-btn" id="galleryModeBtnNav" onclick="toggleGalleryMode();this.classList.toggle('active')">🖼️ صور فقط</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search -->
+        <div class="msq-search-wrap">
+          <svg class="msq-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="searchInput" class="msq-search-input" placeholder="ابحث عن منتج..." oninput="handleSearchAndFilter()" autocomplete="off" aria-label="بحث">
+          <button type="button" class="msq-voice-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="بحث بالصوت" aria-label="بحث بالصوت">🎤</button>
+        </div>
+
+        <!-- All Categories Button -->
+        <div class="msq-cats-wrap">
+          <button type="button" class="msq-all-cats-btn" id="msqAllCatsBtn" aria-expanded="false" aria-label="جميع الأقسام">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <span>جميع الأقسام</span>
+          </button>
+          <div class="msq-cats-dropdown" id="msqCatsDropdown" hidden>
+            <button type="button" class="msq-cat-item active" data-main-category="الكل" onclick="filterCategory('الكل', this);msqCloseCats()">الكل</button>
+            <button type="button" class="msq-cat-item" data-main-category="Kids" onclick="filterCategory('Kids', this);msqCloseCats()">🧒 Kids</button>
+            <button type="button" class="msq-cat-item" data-main-category="Baby" onclick="filterCategory('Baby', this);msqCloseCats()">👶 Baby</button>
+            <button type="button" class="msq-cat-item" data-main-category="Mr & Mrs" onclick="filterCategory('Mr & Mrs', this);msqCloseCats()">👫 Mr &amp; Mrs</button>
+            <button type="button" class="msq-cat-item offer" data-main-category="عروض" onclick="filterCategory('عروض', this);msqCloseCats()">🔥 العروض</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Logo + Terms -->
+      <div class="msq-nav-right">
+        <button type="button" class="msq-terms-link" onclick="document.getElementById('termsModal').classList.add('active')" title="الشروط والأحكام">
+          الشروط والأحكام
+        </button>
+        <a href="#" class="msq-logo-lockup" onclick="window.scrollTo({top:0,behavior:'smooth'});return false;" aria-label="My Souq الرئيسية">
+          <img src="favicon.svg" alt="My Souq" width="40" height="40" class="msq-logo-img">
+          <span class="msq-logo-text"><span class="msq-logo-my">My </span><span class="msq-logo-souq">Souq</span></span>
+        </a>
+      </div>
+
     </div>
-    <div class="track-trigger" onclick="openTrackingModal()">
-      🔍 تتبع طلبك
-    </div>
-        <button type="button" class="msq-favorites-trigger" id="msqFavoritesTrigger" onclick="if(window.msqOpenFavorites)window.msqOpenFavorites()" aria-label="المفضلة" title="المفضلة">
-      ♥ المفضلة <span class="msq-fav-count" id="msqFavCount">0</span>
-    </button>
-    <div class="cart-trigger" onclick="openCartModal()">
-      🛒 السلة <span class="cart-count" id="cartCount">0</span>
-    </div>
-  </div>
+  </nav>
+  <!-- ===== End Top Navbar ===== -->
 
   <!-- تم استبدال أيقونة واتساب العائمة بمساعد الدعم؛ أزرار واتساب الخاصة بالمنتجات والطلبات محفوظة. -->
   <a
@@ -425,7 +868,7 @@
   <div class="controls-wrapper">
 
     <!-- صف الفئات: أقسام ثم عروض ثم المخزون -->
-    <div class="categories-bar categories-main msq-category-nav" aria-label="أقسام المتجر">
+    <div class="categories-bar categories-main msq-category-nav" aria-label="أقسام المتجر" style="display:none!important" aria-hidden="true">
       <button class="cat-btn active" data-main-category="الكل" onclick="filterCategory('الكل', this)">الكل</button>
       <button class="cat-btn msq-main-cat" data-main-category="Kids" onclick="filterCategory('Kids', this)">🧒🏻 Kids</button>
       <button class="cat-btn msq-main-cat" data-main-category="Baby" onclick="filterCategory('Baby', this)">👶🏻 Baby</button>
@@ -440,39 +883,22 @@
       <button type="button" class="cat-btn msq-gender-btn" data-gender="female" onclick="filterGender('female', this)">نسائي / بناتي 👧</button>
     </div>
 
-    <!-- صف البحث والترتيب منفصل بوضوح -->
-    <div class="search-sort-box">
-      <div class="search-field-wrap">
-        <input
-          type="text"
-          id="searchInput"
-          class="search-input"
-          placeholder="🔍 ابحث عن منتج..."
-          oninput="handleSearchAndFilter()"
-          autocomplete="off"
-        >
-        <button type="button" class="voice-search-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="بحث بالصوت">🎤</button>
-      </div>
-      <div class="sort-wrapper">
-        <select id="sizeSelect" onchange="filterSize(this.value)">
-          <option value="الكل">📏 كل المقاسات</option>
-        </select>
-      </div>
-      <div class="sort-wrapper">
-        <select id="sortSelect" aria-label="ترتيب المنتجات" onchange="applySorting()">
-          <option value="default">↕️ الترتيب الافتراضي</option>
-          <option value="low-high">💰 السعر: من الأقل للأعلى</option>
-          <option value="high-low">💎 السعر: من الأعلى للأقل</option>
-        </select>
-      </div>
-      <div class="sort-wrapper shared-subcategory-wrap">
-        <select id="sharedSubcategorySelect" aria-label="فلترة نوع الملابس" onchange="applySharedSubcategoryFilter(this.value)">
-          <option value="">🗂️ كل أنواع الملابس</option>
-          <option value="ملابس للمنزل">🏠 ملابس للمنزل</option>
-          <option value="ملابس للخروج">✨ ملابس للخروج</option>
-        </select>
-      </div>
-      <button type="button" class="gallery-mode-btn" id="galleryModeBtn" onclick="toggleGalleryMode()" title="تصفح بالصور فقط">🖼️ صور فقط</button>
+    <!-- Hidden legacy selects kept for existing JS (size/sort/subcategory population & state) -->
+    <div class="search-sort-box" style="display:none!important" aria-hidden="true">
+      <select id="sizeSelect" onchange="filterSize(this.value)">
+        <option value="الكل">📏 كل المقاسات</option>
+      </select>
+      <select id="sortSelect" aria-label="ترتيب المنتجات" onchange="applySorting()">
+        <option value="default">↕️ الترتيب الافتراضي</option>
+        <option value="low-high">💰 السعر: من الأقل للأعلى</option>
+        <option value="high-low">💎 السعر: من الأعلى للأقل</option>
+      </select>
+      <select id="sharedSubcategorySelect" aria-label="فلترة نوع الملابس" onchange="applySharedSubcategoryFilter(this.value)">
+        <option value="">🗂️ كل أنواع الملابس</option>
+        <option value="ملابس للمنزل">🏠 ملابس للمنزل</option>
+        <option value="ملابس للخروج">✨ ملابس للخروج</option>
+      </select>
+      <button type="button" class="gallery-mode-btn" id="galleryModeBtn" onclick="toggleGalleryMode()" style="display:none">🖼️ صور فقط</button>
     </div>
 
   </div>

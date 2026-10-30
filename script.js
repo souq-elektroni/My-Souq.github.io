@@ -297,8 +297,8 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   function filterGender(gender, btn) {
     currentGenderFilter = gender || 'all';
-    document.querySelectorAll('.msq-gender-btn').forEach(function (b) {
-      b.classList.toggle('active', b === btn || b.getAttribute('data-gender') === currentGenderFilter);
+    document.querySelectorAll('.msq-gender-btn, #msqFilterDropdown [data-gender]').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-gender') === currentGenderFilter);
     });
     handleSearchAndFilter();
   }
@@ -1175,19 +1175,24 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   function syncCategoryActiveUI(btn) {
     document.querySelectorAll('.cat-btn').forEach(function (b) {
-      // أزرار المخزون لها حالة مستقلة
       if (b.classList.contains('stock-avail') || b.classList.contains('stock-out')) return;
       b.classList.remove('active');
     });
+    document.querySelectorAll('.msq-cat-item').forEach(function (b) {
+      b.classList.remove('active');
+    });
+    var cat = null;
     if (btn && !btn.classList.contains('stock-avail') && !btn.classList.contains('stock-out')) {
       btn.classList.add('active');
+      cat = btn.getAttribute('data-main-category') || currentCategory;
     } else {
-      var main = document.querySelector('.cat-btn[data-main-category="' + String(currentCategory).replace(/"/g, '\\"') + '"]');
-      if (main) main.classList.add('active');
-      else if (currentCategory === 'الكل') {
-        var allBtn = document.querySelector('.cat-btn[data-main-category="الكل"]');
-        if (allBtn) allBtn.classList.add('active');
-      }
+      cat = currentCategory;
+    }
+    if (cat) {
+      var sel = '.cat-btn[data-main-category="' + String(cat).replace(/"/g, '\"') + '"], .msq-cat-item[data-main-category="' + String(cat).replace(/"/g, '\"') + '"]';
+      document.querySelectorAll(sel).forEach(function (b) {
+        if (!b.classList.contains('stock-avail') && !b.classList.contains('stock-out')) b.classList.add('active');
+      });
     }
   }
 
@@ -5245,3 +5250,143 @@ ${itemsText || '-'}
       } catch (e) {}
     })();
   };
+
+/* ========== My Souq Top Navbar JS ========== */
+(function () {
+  'use strict';
+
+  function $(id) { return document.getElementById(id); }
+
+  function msqCloseAllDropdowns() {
+    var fd = $('msqFilterDropdown');
+    var cd = $('msqCatsDropdown');
+    var ft = $('msqFilterToggle');
+    var ct = $('msqAllCatsBtn');
+    if (fd) { fd.hidden = true; }
+    if (cd) { cd.hidden = true; }
+    if (ft) ft.setAttribute('aria-expanded', 'false');
+    if (ct) ct.setAttribute('aria-expanded', 'false');
+  }
+
+  window.msqCloseCats = function () {
+    var cd = $('msqCatsDropdown');
+    var ct = $('msqAllCatsBtn');
+    if (cd) cd.hidden = true;
+    if (ct) ct.setAttribute('aria-expanded', 'false');
+  };
+
+  window.msqSyncGenderChips = function (btn) {
+    document.querySelectorAll('#msqFilterDropdown [data-gender]').forEach(function (b) {
+      b.classList.toggle('active', b === btn);
+    });
+    // also sync lower bar if present
+    document.querySelectorAll('.msq-gender-btn').forEach(function (b) {
+      b.classList.toggle('active', b.getAttribute('data-gender') === btn.getAttribute('data-gender'));
+    });
+  };
+
+  window.msqSyncStockChips = function (btn) {
+    document.querySelectorAll('#msqFilterDropdown .msq-filter-section:nth-child(2) .msq-chip').forEach(function (b) {
+      b.classList.remove('active');
+    });
+    if (btn) btn.classList.add('active');
+  };
+
+  function syncSizeOptionsToNav() {
+    var src = $('sizeSelect');
+    var dst = $('sizeSelectNav');
+    if (!src || !dst) return;
+    dst.innerHTML = src.innerHTML;
+    dst.value = src.value;
+  }
+
+  // Patch buildSizeFilterButtons to also fill nav select
+  var _origBuild = window.buildSizeFilterButtons;
+  if (typeof buildSizeFilterButtons === 'function') {
+    var orig = buildSizeFilterButtons;
+    window.buildSizeFilterButtons = function () {
+      orig.apply(this, arguments);
+      syncSizeOptionsToNav();
+    };
+  } else {
+    // wait for it
+    var tries = 0;
+    var t = setInterval(function () {
+      tries++;
+      if (typeof buildSizeFilterButtons === 'function') {
+        clearInterval(t);
+        var orig = buildSizeFilterButtons;
+        window.buildSizeFilterButtons = function () {
+          orig.apply(this, arguments);
+          syncSizeOptionsToNav();
+        };
+      } else if (tries > 40) clearInterval(t);
+    }, 250);
+  }
+
+  function initNavbar() {
+    var filterBtn = $('msqFilterToggle');
+    var filterDrop = $('msqFilterDropdown');
+    var catsBtn = $('msqAllCatsBtn');
+    var catsDrop = $('msqCatsDropdown');
+
+    if (filterBtn && filterDrop) {
+      filterBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = filterDrop.hidden;
+        msqCloseAllDropdowns();
+        if (open) {
+          filterDrop.hidden = false;
+          filterBtn.setAttribute('aria-expanded', 'true');
+          syncSizeOptionsToNav();
+          // sync current values
+          var ss = $('sortSelect');
+          var sn = $('sortSelectNav');
+          if (ss && sn) sn.value = ss.value;
+          var sc = $('sharedSubcategorySelect');
+          var scn = $('sharedSubcategorySelectNav');
+          if (sc && scn) scn.value = sc.value;
+        }
+      });
+    }
+
+    if (catsBtn && catsDrop) {
+      catsBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = catsDrop.hidden;
+        msqCloseAllDropdowns();
+        if (open) {
+          catsDrop.hidden = false;
+          catsBtn.setAttribute('aria-expanded', 'true');
+        }
+      });
+    }
+
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.msq-filter-wrap') && !e.target.closest('.msq-cats-wrap')) {
+        msqCloseAllDropdowns();
+      }
+    });
+
+    // Keep category active state in dropdown in sync when lower buttons used (if any)
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest('.msq-cat-item, .cat-btn[data-main-category]');
+      if (!btn) return;
+      var cat = btn.getAttribute('data-main-category');
+      if (!cat) return;
+      document.querySelectorAll('.msq-cat-item').forEach(function (b) {
+        b.classList.toggle('active', b.getAttribute('data-main-category') === cat);
+      });
+    });
+
+    // Initial size sync after products load
+    setTimeout(syncSizeOptionsToNav, 1500);
+    setTimeout(syncSizeOptionsToNav, 3500);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNavbar);
+  } else {
+    initNavbar();
+  }
+})();
