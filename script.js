@@ -2264,20 +2264,25 @@ ${selectedImage}
     document.getElementById('modalTitle').innerText =
       currentSelectedProduct.title;
 
-    // شارة التصنيف (أولادي / بناتي / ...) جنب الوصف
+    // شارة التصنيف (أولادي / بناتي / ...) مباشرة تحت اسم المنتج
     (function renderModalGender() {
-      var host = document.getElementById('modalDesc');
+      var host = document.getElementById('msqModalGender');
+      var desc = document.getElementById('modalDesc');
+      if (desc) desc.innerHTML = currentSelectedProduct.desc || '';
       if (!host) return;
       var badges = genderLabelForImage(
         currentSelectedProduct,
-        (currentSelectedProduct.images && currentSelectedProduct.images[0]) || ''
+        (currentSelectedProduct.images && currentSelectedProduct.images[0]) || activeModalImage || ''
       );
-      // لو مفيش تاج على الصورة الأولى، استخدم تاجات المنتج
       if (!badges) badges = formatGenderBadges(getProductGenderTags(currentSelectedProduct));
-      var badgeHtml = badges
-        ? '<div class="msq-modal-gender" id="msqModalGender">' + badges + '</div>'
-        : '<div class="msq-modal-gender" id="msqModalGender" hidden></div>';
-      host.innerHTML = badgeHtml + (currentSelectedProduct.desc || '');
+      if (badges) {
+        host.innerHTML = badges;
+        host.hidden = false;
+        host.removeAttribute('hidden');
+      } else {
+        host.innerHTML = '';
+        host.hidden = true;
+      }
     })();
 
 

@@ -10905,3 +10905,25 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
   color:#f7c9d3!important;
   border-color:rgba(255,255,255,.12)!important;
 }
+
+/* شارة النوع تحت اسم المنتج — بارزة وواضحة */
+#productModal #msqModalGender,
+.msq-modal-gender{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:6px!important;
+  margin:2px 0 10px!important;
+  align-items:center!important;
+  min-height:0!important;
+}
+#productModal #msqModalGender[hidden]{
+  display:none!important;
+}
+#productModal #msqModalGender .msq-gender-tag{
+  font-size:13px!important;
+  font-weight:900!important;
+  padding:5px 12px!important;
+  border-radius:999px!important;
+  letter-spacing:0!important;
+  box-shadow:0 1px 2px rgba(0,0,0,.04)!important;
+}
