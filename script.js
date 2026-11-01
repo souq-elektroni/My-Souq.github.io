@@ -318,37 +318,95 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     return 'unisex';
   }
 
-  /* فلتر النوع الدقيق: أولادي / بناتي / رجالي / نسائي */
+  /* فلتر النوع — صارم على النظام الجديد فقط (تاجات الصور/الأشكال) */
+  var GENDER_FILTER_TAGS = {
+    boys: ['أولاد', 'اولاد'],
+    girls: ['بنات'],
+    men: ['رجال'],
+    women: ['نساء'],
+    male: ['أولاد', 'اولاد', 'رجال'],
+    female: ['بنات', 'نساء']
+  };
+
+  function genderFilterWants(filter) {
+    return GENDER_FILTER_TAGS[filter] || null;
+  }
+
+  function tagsMatchWant(tags, want) {
+    if (!want || !tags || !tags.length) return false;
+    for (var i = 0; i < tags.length; i++) {
+      if (want.indexOf(tags[i]) !== -1) return true;
+    }
+    return false;
+  }
+
   function productMatchesGenderFilter(p, filter) {
     if (!filter || filter === 'all') return true;
-
-    var wantMap = {
-      boys: ['أولاد', 'اولاد'],
-      girls: ['بنات'],
-      men: ['رجال'],
-      women: ['نساء'],
-      // توافق قديم
-      male: ['أولاد', 'اولاد', 'رجال'],
-      female: ['بنات', 'نساء']
-    };
-    var want = wantMap[filter];
+    var want = genderFilterWants(filter);
     if (!want) return true;
 
+    // لازم يكون فيه تاج محفوظ مطابق — من غير تخمين ومن غير إظهار المنتجات الفاضية
     var tags = getProductGenderTags(p);
-    if (tags.length) {
-      return tags.some(function (t) {
-        return want.indexOf(t) !== -1;
+    return tagsMatchWant(tags, want);
+  }
+
+  /* صور/أشكال المنتج حسب فلتر النوع الحالي */
+  function getFilteredImageUrls(p, filter) {
+    filter = filter || currentGenderFilter || 'all';
+    var want = genderFilterWants(filter);
+    var urls = [];
+    var seen = {};
+
+    function push(u) {
+      u = String(u || '').trim();
+      if (!u) return;
+      if (u.indexOf('http') !== 0 && u.charAt(0) !== '/') u = '/' + u.replace(/^\.?\//, '');
+      if (seen[u]) return;
+      seen[u] = true;
+      urls.push(u);
+    }
+
+    var entries = p.imageEntries || [];
+    if (entries.length) {
+      entries.forEach(function (e) {
+        if (!e || !e.url) return;
+        if (!want || tagsMatchWant(e.gender || [], want)) push(e.url);
       });
     }
 
-    // fallback نصّي لو مفيش تاجات محفوظة
-    var g = detectProductGender(p);
-    if (filter === 'boys' || filter === 'men') return g === 'male' || g === 'unisex';
-    if (filter === 'girls' || filter === 'women') return g === 'female' || g === 'unisex';
-    if (filter === 'male') return g === 'male' || g === 'unisex';
-    if (filter === 'female') return g === 'female' || g === 'unisex';
-    return true;
+    (p.designs || []).forEach(function (d) {
+      if (!d) return;
+      var ok = !want || tagsMatchWant(d.gender || [], want);
+      if (!ok) return;
+      push(d.front_image);
+      push(d.back_image);
+    });
+
+    // لو الفلتر all أو مفيش تاجات على الصور — كل الصور
+    if (!want) {
+      (p.images || []).forEach(push);
+      if (!urls.length) {
+        (p.designs || []).forEach(function (d) {
+          if (!d) return;
+          push(d.front_image);
+          push(d.back_image);
+        });
+      }
+    }
+
+    return urls;
   }
+
+  function getFilteredDesigns(p, filter) {
+    filter = filter || currentGenderFilter || 'all';
+    var want = genderFilterWants(filter);
+    var list = p.designs || [];
+    if (!want) return list.slice();
+    return list.filter(function (d) {
+      return d && tagsMatchWant(d.gender || [], want);
+    });
+  }
+
 
   function formatGenderBadges(tags) {
     if (!tags || !tags.length) return '';
@@ -1327,9 +1385,17 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   }
 
   function productCardHtml(p) {
-    const albumCount = Array.isArray(p.images) ? p.images.length : 0;
-    const firstImage = (p.images && p.images[0]) || p.image || MSQ_PLACEHOLDER_IMG;
-    const pairedDesigns = Array.isArray(p.designs) ? p.designs.filter(d => d && (d.front_image || d.back_image)) : [];
+    var _gFilter = currentGenderFilter || 'all';
+    var filteredUrls = (typeof getFilteredImageUrls === 'function') ? getFilteredImageUrls(p, _gFilter) : null;
+    var filteredDesigns = (typeof getFilteredDesigns === 'function') ? getFilteredDesigns(p, _gFilter) : null;
+    const pairedDesigns = (filteredDesigns && _gFilter !== 'all')
+      ? filteredDesigns.filter(function (d) { return d && (d.front_image || d.back_image); })
+      : (Array.isArray(p.designs) ? p.designs.filter(function (d) { return d && (d.front_image || d.back_image); }) : []);
+    var displayImages = (filteredUrls && _gFilter !== 'all' && filteredUrls.length)
+      ? filteredUrls
+      : (p.images || []);
+    const albumCount = Array.isArray(displayImages) ? displayImages.length : 0;
+    const firstImage = (displayImages && displayImages[0]) || p.image || MSQ_PLACEHOLDER_IMG;
     const albumBadge = pairedDesigns.length
       ? `<span class="msq-album-badge">▧ ${pairedDesigns.length} أشكال · ${pairedDesigns.length * 2} صور</span>`
       : (albumCount > 1 ? `<span class="msq-album-badge">▧ ألبوم · ${albumCount} صور</span>` : '');
@@ -1376,7 +1442,10 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
           <div class="product-details">
             <h3 class="product-title">${p.title}</h3>
             ${(() => {
-              var g = formatGenderBadges(getProductGenderTags(p));
+              var tags = getProductGenderTags(p);
+              var want = genderFilterWants(currentGenderFilter || 'all');
+              if (want) tags = tags.filter(function (t) { return want.indexOf(t) !== -1; });
+              var g = formatGenderBadges(tags);
               return g ? '<div class="msq-card-gender">' + g + '</div>' : '';
             })()}
             <div class="price-tag">
@@ -1971,6 +2040,17 @@ ${selectedImage}
 
     galleryIndex = 0;
     selectedDesignIndex = 0;
+    // عند تفعيل فلتر النوع: اعرض صور/أشكال النوع المختار فقط داخل المنتج
+    (function applyGenderViewFilter() {
+      var f = currentGenderFilter || 'all';
+      if (!f || f === 'all') return;
+      var urls = getFilteredImageUrls(currentSelectedProduct, f);
+      var des = getFilteredDesigns(currentSelectedProduct, f);
+      currentSelectedProduct = Object.assign({}, currentSelectedProduct, {
+        images: urls.length ? urls : [],
+        designs: des
+      });
+    })();
     const pairedDesigns = Array.isArray(currentSelectedProduct.designs)
       ? currentSelectedProduct.designs.filter(d => d && (d.front_image || d.back_image))
       : [];
@@ -2324,7 +2404,7 @@ ${selectedImage}
     document.getElementById('modalTitle').innerText =
       currentSelectedProduct.title;
 
-    // شارة التصنيف (أولادي / بناتي / ...) مباشرة تحت اسم المنتج
+    // شارة النوع جنب الاسم بشكل منسق
     (function renderModalGender() {
       var host = document.getElementById('msqModalGender');
       var desc = document.getElementById('modalDesc');
@@ -2334,7 +2414,13 @@ ${selectedImage}
         currentSelectedProduct,
         (currentSelectedProduct.images && currentSelectedProduct.images[0]) || activeModalImage || ''
       );
-      if (!badges) badges = formatGenderBadges(getProductGenderTags(currentSelectedProduct));
+      // لو فلتر مفعّل: اعرض تاج الفلتر فقط
+      var want = genderFilterWants(currentGenderFilter || 'all');
+      if (!badges) {
+        var tags = getProductGenderTags(currentSelectedProduct);
+        if (want) tags = tags.filter(function (t) { return want.indexOf(t) !== -1; });
+        badges = formatGenderBadges(tags);
+      }
       if (badges) {
         host.innerHTML = badges;
         host.hidden = false;

@@ -10969,3 +10969,62 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
   font-weight:700!important;
   color:#333!important;
 }
+
+
+/* شارة النوع جنب اسم المنتج في المودال */
+#productModal .msq-title-price-row{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  gap:8px 10px!important;
+}
+#productModal #msqModalGender{
+  display:inline-flex!important;
+  flex-wrap:wrap!important;
+  gap:6px!important;
+  margin:0 0 8px!important;
+  order:0!important;
+}
+#productModal #msqModalGender .msq-gender-tag{
+  font-size:12.5px!important;
+  font-weight:900!important;
+  padding:4px 11px!important;
+  border-radius:999px!important;
+  background:#fdf2f4!important;
+  color:#803d48!important;
+  border:1px solid rgba(128,61,72,.2)!important;
+}
+#productModal .modal-title{
+  display:inline!important;
+  margin:0!important;
+}
+.msq-card-gender{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:4px!important;
+  margin:4px 0 2px!important;
+}
+.msq-card-gender .msq-gender-tag{
+  font-size:11px!important;
+  font-weight:800!important;
+  padding:2px 8px!important;
+  border-radius:999px!important;
+  background:#fdf2f4!important;
+  color:#803d48!important;
+  border:1px solid rgba(128,61,72,.15)!important;
+}
+
+.msq-title-with-gender{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  gap:8px!important;
+  flex:1 1 auto!important;
+  min-width:0!important;
+}
+.msq-title-with-gender .modal-title{
+  margin:0!important;
+}
+.msq-title-with-gender #msqModalGender{
+  margin:0!important;
+}
