@@ -10814,3 +10814,44 @@ body.dark-mode .msq-design-chip.is-active{background:#32282c!important;border-co
   #productModal.msq-pair-mode .modal-body{grid-template-columns:minmax(0,1.4fr) minmax(320px, 380px)!important;gap:16px!important}
   .msq-stage-side img{/* height overridden by equal-frames-v5 */}
 }
+
+/* ===== تاج الجنس (أولاد / بنات / رجال / نساء) على أشكال المنتج ===== */
+.msq-design-chip-gender{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  gap:2px!important;
+  justify-content:center!important;
+  margin-top:2px!important;
+  max-width:100%!important;
+}
+.msq-gender-tag{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:1px!important;
+  font-size:8px!important;
+  font-weight:800!important;
+  line-height:1.2!important;
+  padding:1px 4px!important;
+  border-radius:999px!important;
+  background:#fdf2f4!important;
+  color:#8b3f52!important;
+  border:1px solid rgba(139,63,82,.18)!important;
+  white-space:nowrap!important;
+}
+.msq-gender-tag[data-g="أولاد"],
+.msq-gender-tag[data-g="رجال"]{
+  background:#eef6ff!important;
+  color:#1d4ed8!important;
+  border-color:rgba(29,78,216,.2)!important;
+}
+.msq-gender-tag[data-g="بنات"],
+.msq-gender-tag[data-g="نساء"]{
+  background:#fdf2f8!important;
+  color:#be185d!important;
+  border-color:rgba(190,24,93,.2)!important;
+}
+body.dark-mode .msq-gender-tag{
+  background:#32282c!important;
+  color:#f7c9d3!important;
+  border-color:rgba(255,255,255,.12)!important;
+}

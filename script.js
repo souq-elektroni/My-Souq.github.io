@@ -273,6 +273,21 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   
   function detectProductGender(p) {
+    // أولوية للتاج الصريح (أولاد/بنات/رجال/نساء) من CMS أو الأشكال
+    var tags = [];
+    if (Array.isArray(p.gender)) tags = p.gender.slice();
+    else if (p.gender) tags = String(p.gender).split(/[,|،]+/);
+    (p.designs || []).forEach(function (d) {
+      (d.gender || []).forEach(function (g) {
+        if (tags.indexOf(g) === -1) tags.push(g);
+      });
+    });
+    var hasMale = tags.some(function (t) { return t === 'أولاد' || t === 'رجال' || t === 'اولاد'; });
+    var hasFemale = tags.some(function (t) { return t === 'بنات' || t === 'نساء'; });
+    if (hasMale && !hasFemale) return 'male';
+    if (hasFemale && !hasMale) return 'female';
+    if (hasMale && hasFemale) return 'unisex';
+
     var text = [
       p.title, p.desc, p.description, p.category, p.subcategory,
       p.gender, p.sex
@@ -293,6 +308,14 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     if (/girl|بنات|بناتي|women|female/.test(imgs) && !/boy|اولاد|أولاد|men|male/.test(imgs)) return 'female';
     if (/boy|اولاد|أولاد|men|male|ولادي/.test(imgs) && !/girl|بنات|بناتي|women|female/.test(imgs)) return 'male';
     return 'unisex';
+  }
+
+  function formatGenderBadges(tags) {
+    if (!tags || !tags.length) return '';
+    var icon = { 'أولاد': '👦', 'بنات': '👧', 'رجال': '👨', 'نساء': '👩' };
+    return tags.map(function (t) {
+      return '<span class="msq-gender-tag" data-g="' + t + '">' + (icon[t] || '') + ' ' + t + '</span>';
+    }).join('');
   }
 
   function filterGender(gender, btn) {
@@ -583,9 +606,31 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     };
 
     const topLevel = {};
+    let collectingListKey = null;
     for (const line of lines) {
       const m = line.match(/^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/);
-      if (m) topLevel[m[1]] = scalar(m[2]);
+      if (m) {
+        collectingListKey = null;
+        const key = m[1];
+        const raw = m[2];
+        // دعم قوائم بسيطة على مستوى الجذر (مثل gender)
+        if ((raw === '' || raw === '[]') && (key === 'gender' || key === 'tags')) {
+          topLevel[key] = [];
+          collectingListKey = key;
+        } else {
+          topLevel[key] = scalar(raw);
+        }
+        continue;
+      }
+      if (collectingListKey && /^\s+-\s+/.test(line)) {
+        const item = scalar(line.replace(/^\s+-\s+/, ''));
+        if (item != null && item !== '') {
+          if (!Array.isArray(topLevel[collectingListKey])) topLevel[collectingListKey] = [];
+          topLevel[collectingListKey].push(item);
+        }
+      } else if (collectingListKey && line.trim() !== '') {
+        collectingListKey = null;
+      }
     }
 
     // المنتج المخفي مؤقتًا من لوحة الإدارة (hidden: true) لا يظهر في المتجر
@@ -597,6 +642,24 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     const category = String(topLevel.category ?? 'ملابس شتوية');
     const subcategory = String(topLevel.subcategory ?? topLevel.subCategory ?? '');
     const stockStatus = String(topLevel.stock ?? 'available').toLowerCase() || 'available';
+    // تصنيف عام للمنتج (أولاد/بنات/رجال/نساء) — من YAML list أو نص
+    const normalizeProductGender = (raw) => {
+      const allowed = { 'أولاد': 'أولاد', 'اولاد': 'أولاد', 'بنات': 'بنات', 'رجال': 'رجال', 'نساء': 'نساء',
+        boys: 'أولاد', boy: 'أولاد', girls: 'بنات', girl: 'بنات', men: 'رجال', man: 'رجال', women: 'نساء', woman: 'نساء' };
+      let parts = [];
+      if (Array.isArray(raw)) parts = raw;
+      else if (raw != null && typeof raw === 'object') parts = Object.values(raw);
+      else parts = String(raw || '').split(/[,|\/،\n]+/);
+      const out = []; const seen = {};
+      parts.forEach(function (part) {
+        var t = String(part || '').trim().replace(/^["'\[]+|["'\]]+$/g, '');
+        if (!t) return;
+        var key = allowed[t] || allowed[t.toLowerCase()] || null;
+        if (key && !seen[key]) { seen[key] = true; out.push(key); }
+      });
+      return out;
+    };
+    let productGenderTags = normalizeProductGender(topLevel.gender);
 
     const fixImagePath = (rawPath) => {
       if (!rawPath) return '';
@@ -652,15 +715,40 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     }
 
     // Paired front/back images per design. Keep the original images album compatible.
+    // gender على مستوى الشكل: أولاد / بنات / رجال / نساء (قائمة أو نص مفصول بفواصل)
     const parsedDesigns = [];
     let inDesigns = false;
     let currentDesign = null;
+    let designCollectingGender = false;
+    const normalizeGenderTags = (raw) => {
+      const allowed = { 'أولاد': 'أولاد', 'اولاد': 'أولاد', 'بنات': 'بنات', 'رجال': 'رجال', 'نساء': 'نساء',
+        boys: 'أولاد', boy: 'أولاد', girls: 'بنات', girl: 'بنات', men: 'رجال', man: 'رجال', women: 'نساء', woman: 'نساء',
+        male: 'أولاد', female: 'بنات' };
+      const out = [];
+      const seen = {};
+      String(raw || '').split(/[,|\/،]+/).forEach(function (part) {
+        var t = String(part || '').trim().replace(/^["'\[]+|["'\]]+$/g, '');
+        if (!t) return;
+        var key = allowed[t] || allowed[t.toLowerCase()] || null;
+        if (key && !seen[key]) { seen[key] = true; out.push(key); }
+      });
+      return out;
+    };
     const finishDesign = () => {
+      designCollectingGender = false;
       if (!currentDesign) return;
       const front = fixImagePath(currentDesign.front_image);
       const back = fixImagePath(currentDesign.back_image);
       if (front || back) {
-        const design = { name: currentDesign.name || '', front_image: front || back, back_image: back || front };
+        const tags = Array.isArray(currentDesign.gender)
+          ? currentDesign.gender
+          : normalizeGenderTags(currentDesign.gender);
+        const design = {
+          name: currentDesign.name || '',
+          front_image: front || back,
+          back_image: back || front,
+          gender: tags
+        };
         parsedDesigns.push(design);
         [design.front_image, design.back_image].forEach((url) => {
           if (url && !allExtractedImages.includes(url)) allExtractedImages.push(url);
@@ -675,16 +763,63 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       if (/^[A-Za-z_][A-Za-z0-9_-]*:\s*/.test(line) && !/^\s+-/.test(line)) {
         finishDesign(); inDesigns = false; continue;
       }
-      if (trimmed.startsWith('-')) {
-        finishDesign();
-        currentDesign = { name: '', front_image: '', back_image: '' };
-        const first = trimmed.replace(/^-\s*/, '').match(/^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/);
-        if (first && Object.prototype.hasOwnProperty.call(currentDesign, first[1])) currentDesign[first[1]] = unquote(first[2]);
-        continue;
+      if (trimmed.startsWith('-') && !designCollectingGender) {
+        // بداية شكل جديد (مش عنصر داخل قائمة gender)
+        const afterDash = trimmed.replace(/^-\s*/, '');
+        const looksLikeField = /^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/.test(afterDash);
+        if (looksLikeField || afterDash === '' || afterDash.startsWith('{')) {
+          finishDesign();
+          currentDesign = { name: '', front_image: '', back_image: '', gender: [] };
+          designCollectingGender = false;
+          const first = afterDash.match(/^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/);
+          if (first) {
+            if (first[1] === 'gender') {
+              const inline = unquote(first[2]);
+              if (inline && inline !== '[]' && inline !== '') {
+                currentDesign.gender = normalizeGenderTags(inline);
+              } else {
+                designCollectingGender = true;
+                currentDesign.gender = [];
+              }
+            } else if (Object.prototype.hasOwnProperty.call(currentDesign, first[1])) {
+              currentDesign[first[1]] = unquote(first[2]);
+            }
+          }
+          continue;
+        }
       }
       if (currentDesign) {
+        if (designCollectingGender) {
+          if (trimmed.startsWith('-')) {
+            const item = unquote(trimmed.replace(/^-\s*/, ''));
+            const tags = normalizeGenderTags(item);
+            tags.forEach(function (t) {
+              if (currentDesign.gender.indexOf(t) === -1) currentDesign.gender.push(t);
+            });
+            continue;
+          }
+          // خرجنا من قائمة gender
+          if (/^[A-Za-z_][A-Za-z0-9_-]*:\s*/.test(trimmed)) {
+            designCollectingGender = false;
+          } else {
+            continue;
+          }
+        }
         const field = trimmed.match(/^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/);
-        if (field && Object.prototype.hasOwnProperty.call(currentDesign, field[1])) currentDesign[field[1]] = unquote(field[2]);
+        if (field) {
+          if (field[1] === 'gender') {
+            const inline = unquote(field[2]);
+            if (inline && inline !== '[]' && inline !== '') {
+              currentDesign.gender = normalizeGenderTags(inline);
+              designCollectingGender = false;
+            } else {
+              currentDesign.gender = [];
+              designCollectingGender = true;
+            }
+          } else if (Object.prototype.hasOwnProperty.call(currentDesign, field[1])) {
+            currentDesign[field[1]] = unquote(field[2]);
+          }
+        }
       }
     }
     finishDesign();
@@ -769,6 +904,16 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       ? marked.parse(body || '')
       : (body || title);
 
+    // لو مفيش gender على مستوى المنتج، نجمعه من الأشكال
+    if (!productGenderTags.length && parsedDesigns.length) {
+      const seen = {};
+      parsedDesigns.forEach(function (d) {
+        (d.gender || []).forEach(function (g) {
+          if (!seen[g]) { seen[g] = true; productGenderTags.push(g); }
+        });
+      });
+    }
+
     return {
       id,
       title,
@@ -781,6 +926,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       images: allExtractedImages,
       designs: parsedDesigns,
       variants: parsedVariants,
+      gender: productGenderTags,
       desc: parsedBody
     };
   } catch (e) {
@@ -1746,6 +1892,8 @@ ${selectedImage}
           pairedDesigns.map(function (design, idx) {
             const front = design.front_image || design.back_image || '';
             const back = design.back_image || design.front_image || '';
+            const gTags = Array.isArray(design.gender) ? design.gender : [];
+            const gHtml = formatGenderBadges(gTags);
             return (
               '<button type="button" role="option" class="msq-design-chip' + (idx === 0 ? ' is-active' : '') + '" data-design-idx="' + idx + '">' +
                 '<span class="msq-design-chip-title">الشكل ' + (idx + 1) + '</span>' +
@@ -1754,6 +1902,7 @@ ${selectedImage}
                   (back ? '<img src="' + back + '" alt="" loading="lazy">' : '') +
                 '</span>' +
                 '<span class="msq-design-chip-sub">الوش / الضهر</span>' +
+                (gHtml ? '<span class="msq-design-chip-gender">' + gHtml + '</span>' : '') +
               '</button>'
             );
           }).join('') +
@@ -2593,6 +2742,9 @@ ${selectedImage}
         || '';
       const backImg = (chosen && (chosen.back_image || chosen.front_image)) || '';
 
+      var designGender = (chosen && Array.isArray(chosen.gender) && chosen.gender.length)
+        ? chosen.gender.slice()
+        : (Array.isArray(currentSelectedProduct.gender) ? currentSelectedProduct.gender.slice() : []);
       cart.push({
         id: currentSelectedProduct.id,
         title: currentSelectedProduct.title,
@@ -2602,6 +2754,7 @@ ${selectedImage}
         back_image: (backImg && backImg !== frontImg) ? backImg : '',
         designIndex: pairDesigns.length ? di : null,
         designLabel: pairDesigns.length ? ('الشكل ' + (di + 1)) : '',
+        designGender: designGender,
         size: selectedSize,
         color: selectedColor || '',
         qty: 1
@@ -2795,7 +2948,7 @@ ${selectedImage}
               </span>
 
               <span class="cart-item-meta">
-                المقاس: ${item.size}
+                المقاس: ${item.size}${item.designLabel ? ' | ' + item.designLabel : ''}${(item.designGender && item.designGender.length) ? ' | ' + item.designGender.join(' · ') : ''}
               </span>
 
             </div>
@@ -3357,7 +3510,7 @@ function continueAfterOrderRecaptcha() {
         <img src="${item.image}" class="summary-product-img" alt="${item.title}">
         <div style="flex:1;">
           <div style="font-weight:900; font-size:12.5px; color:var(--text-dark);">${item.title}</div>
-          <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">المقاس: ${item.size}${item.color ? ` | اللون: ${item.color}` : ''} | الكمية: ${item.qty}</div>
+          <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">المقاس: ${item.size}${item.color ? ` | اللون: ${item.color}` : ''}${(item.designGender && item.designGender.length) ? ` | ${item.designGender.join(' · ')}` : ''}${item.designLabel ? ` | ${item.designLabel}` : ''} | الكمية: ${item.qty}</div>
           <div style="font-weight:900; color:var(--burgundy-soft); font-size:12.5px; margin-top:2px;">${item.price * item.qty} ج.م</div>
         </div>
       </div>
@@ -3779,6 +3932,9 @@ function continueAfterOrderRecaptcha() {
           price: item.price == null ? '-' : item.price,
           size: item.size || '-',
           color: item.color || '',
+          designLabel: item.designLabel || '',
+          designGender: Array.isArray(item.designGender) ? item.designGender : [],
+          gender: Array.isArray(item.designGender) && item.designGender.length ? item.designGender.join(' · ') : '',
           image: imageUrl,
           front_image: imageUrl,
           back_image: backUrl,

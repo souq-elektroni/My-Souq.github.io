@@ -2410,7 +2410,13 @@
     "body": "body",
     "الوصف": "body",
     "تفاصيل": "body",
-    "description": "body"
+    "description": "body",
+    "gender": "gender",
+    "التصنيف": "gender",
+    "الجنس": "gender",
+    "أولاد بنات": "gender",
+    "فئة": "gender",
+    "audience": "gender"
   };
 
   function parseImagesText(text) {
@@ -2504,6 +2510,7 @@
           images: row.images || "",
           body: row.body || "",
           sizes: row.sizes || "",
+          gender: row.gender || "",
           variantRows: []
         };
         order.push(title);
@@ -2518,6 +2525,7 @@
       if (row.subcategory) prod.subcategory = row.subcategory;
       if (row.stock) prod.stock = row.stock;
       if (row.sizes) prod.sizes = row.sizes;
+      if (!prod.gender && row.gender) prod.gender = row.gender;
 
       var sizeLabel = normalizeSizeLabel(row.size || "");
       /* دعم العمود القديم «المقاسات» لو مفيش عمود مقاس منفصل */
@@ -3392,6 +3400,25 @@
     lines.push("title: " + yamlQuote(row.title));
     lines.push("category: " + yamlQuote(row.category || "Kids"));
     lines.push("subcategory: " + yamlQuote(row.subcategory || "ملابس للمنزل"));
+    /* تصنيف أولاد/بنات/رجال/نساء من عمود الإكسل */
+    var genderTags = [];
+    if (row.gender) {
+      String(row.gender).split(/[,|\/،]+/).forEach(function (p) {
+        var t = String(p || "").trim();
+        if (!t) return;
+        if (/اولاد|أولاد|boy/i.test(t)) t = "أولاد";
+        else if (/بنات|girl/i.test(t)) t = "بنات";
+        else if (/رجال|رجالي|men|man/i.test(t)) t = "رجال";
+        else if (/نساء|نسائي|حريمي|women|woman/i.test(t)) t = "نساء";
+        if (["أولاد", "بنات", "رجال", "نساء"].indexOf(t) !== -1 && genderTags.indexOf(t) === -1) genderTags.push(t);
+      });
+    }
+    if (genderTags.length) {
+      lines.push("gender:");
+      genderTags.forEach(function (g) { lines.push("  - " + g); });
+    } else {
+      lines.push("gender: []");
+    }
     lines.push("designs: []");
     if (images.length) {
       lines.push("images:");
