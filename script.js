@@ -728,11 +728,15 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     const flagsToGender = (obj) => {
       const tags = [];
       if (!obj) return tags;
+      // لو الحقول boolean موجودة (حتى لو false) نعتمد عليها فقط ونتجاهل gender القديم المتعارض
+      var hasBool =
+        obj.boy !== undefined || obj.girl !== undefined ||
+        obj.man !== undefined || obj.woman !== undefined;
       if (obj.boy === true || obj.boy === 'true' || obj.boy === 1) tags.push('أولاد');
       if (obj.girl === true || obj.girl === 'true' || obj.girl === 1) tags.push('بنات');
       if (obj.man === true || obj.man === 'true' || obj.man === 1) tags.push('رجال');
       if (obj.woman === true || obj.woman === 'true' || obj.woman === 1) tags.push('نساء');
-      if (Array.isArray(obj.gender)) {
+      if (!hasBool && Array.isArray(obj.gender)) {
         obj.gender.forEach(function (g) {
           var t = String(g || '').trim();
           if (t && tags.indexOf(t) === -1) tags.push(t);
@@ -907,14 +911,19 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     const designFlagsToGender = (obj) => {
       const tags = [];
       if (!obj) return tags;
+      var hasBool =
+        obj.boy !== undefined || obj.girl !== undefined ||
+        obj.man !== undefined || obj.woman !== undefined;
       if (obj.boy === true || obj.boy === 'true') tags.push('أولاد');
       if (obj.girl === true || obj.girl === 'true') tags.push('بنات');
       if (obj.man === true || obj.man === 'true') tags.push('رجال');
       if (obj.woman === true || obj.woman === 'true') tags.push('نساء');
-      const fromList = Array.isArray(obj.gender) ? obj.gender : normalizeGenderTags(obj.gender);
-      fromList.forEach(function (g) {
-        if (g && tags.indexOf(g) === -1) tags.push(g);
-      });
+      if (!hasBool) {
+        const fromList = Array.isArray(obj.gender) ? obj.gender : normalizeGenderTags(obj.gender);
+        fromList.forEach(function (g) {
+          if (g && tags.indexOf(g) === -1) tags.push(g);
+        });
+      }
       return tags;
     };
     const finishDesign = () => {
