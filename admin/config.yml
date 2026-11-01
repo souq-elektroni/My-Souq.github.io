@@ -113,7 +113,7 @@ collections:
         name: "designs"
         widget: "list"
         required: false
-        summary: "شكل {{index}} {% if boy %}👦{% endif %}{% if girl %}👧{% endif %}{% if man %}👨{% endif %}{% if woman %}👩{% endif %}"
+        summary: "شكل {{index}}"
         collapsed: true
         add_to_top: false
         fields:
@@ -192,7 +192,7 @@ collections:
         name: "images"
         widget: "list"
         required: false
-        summary: "{{fields.image}} {% if boy %}👦{% endif %}{% if girl %}👧{% endif %}{% if man %}👨{% endif %}{% if woman %}👩{% endif %}"
+        summary: "{{image}}"
         collapsed: true
         add_to_top: false
         fields:

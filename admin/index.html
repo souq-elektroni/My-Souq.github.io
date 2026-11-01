@@ -3895,141 +3895,80 @@
 
 
 
-<style id="my-souq-editor-tidy-v12">
-/* ========== تنسيق آمن لخانات التحرير فقط — بدون نقل عناصر ========== */
 
-/* 1) إخفاء مسار الملف بجانب معاينة الصورة */
-[data-key-path*="front_image"] a[href*="images/"],
-[data-key-path*="back_image"] a[href*="images/"],
-[data-key-path*=".image"] a[href*="images/"],
-[data-key-path$=".image"] a[href*="images/"],
-[data-key-path*="front_image"] a[href$=".webp"],
-[data-key-path*="back_image"] a[href$=".webp"],
-[data-key-path*=".image"] a[href$=".webp"],
-[data-key-path*="front_image"] a[href$=".jpg"],
-[data-key-path*="back_image"] a[href$=".jpg"],
-[data-key-path*=".image"] a[href$=".jpg"],
-[data-key-path*="front_image"] a[href$=".png"],
-[data-key-path*="back_image"] a[href$=".png"],
-[data-key-path*=".image"] a[href$=".png"],
-[data-typed-key-path*="front_image"] a[href*="images/"],
-[data-typed-key-path*="back_image"] a[href*="images/"],
-[data-typed-key-path*=".image"] a[href*="images/"] {
-  display: none !important;
+<style id="my-souq-editor-tidy-v13">
+/* إخفاء نص مسار الملف فقط — بدون إخفاء الصورة */
+[data-key-path*="front_image"] a[href*="images/"]:not(:has(img)),
+[data-key-path*="back_image"] a[href*="images/"]:not(:has(img)),
+[data-key-path*=".image"] a[href*="images/"]:not(:has(img)),
+[data-key-path$=".image"] a[href*="images/"]:not(:has(img)),
+[data-typed-key-path*="front_image"] a[href*="images/"]:not(:has(img)),
+[data-typed-key-path*="back_image"] a[href*="images/"]:not(:has(img)),
+[data-typed-key-path*=".image"] a[href*="images/"]:not(:has(img)) {
+  /* لو الرابط نص مسار فقط */
+  font-size: 0 !important;
+  color: transparent !important;
+  text-decoration: none !important;
 }
-
-/* نص المسار الظاهر كـ code/span */
-[data-key-path*="front_image"] code,
-[data-key-path*="back_image"] code,
-[data-key-path*=".image"] code,
-[data-key-path*="front_image"] [class*="path"],
-[data-key-path*="back_image"] [class*="path"],
-[data-key-path*=".image"] [class*="path"],
-[data-key-path*="front_image"] [class*="filename"],
-[data-key-path*="back_image"] [class*="filename"],
-[data-key-path*=".image"] [class*="filename"] {
-  display: none !important;
-}
-
-/* 2) الوش والضهر جنب بعض */
-[data-key-path*=".front_image"],
-[data-key-path*=".back_image"],
-[data-typed-key-path*=".front_image"],
-[data-typed-key-path*=".back_image"] {
+/* لو فيه صورة جوّه الرابط — سيبه ظاهر */
+[data-key-path] a:has(img),
+[data-typed-key-path] a:has(img) {
   display: inline-block !important;
-  vertical-align: top !important;
-  width: calc(50% - 8px) !important;
-  max-width: calc(50% - 8px) !important;
-  box-sizing: border-box !important;
-  margin: 4px !important;
-  min-width: 140px !important;
+  font-size: inherit !important;
+  color: inherit !important;
 }
 
-/* 3) مربعات التصنيف boolean في صف أفقي مضغوط */
+/* تاجات boolean في صف أفقي بسيط */
 [data-key-path$=".boy"],
 [data-key-path$=".girl"],
 [data-key-path$=".man"],
 [data-key-path$=".woman"],
-[data-key-path*=".boy"],
-[data-key-path*=".girl"],
-[data-key-path*=".man"],
-[data-key-path*=".woman"],
-[data-typed-key-path$=".boy"],
-[data-typed-key-path$=".girl"],
-[data-typed-key-path$=".man"],
-[data-typed-key-path$=".woman"] {
+[data-key-path*=".boy"]:not([data-key-path*="image"]),
+[data-key-path*=".girl"]:not([data-key-path*="image"]),
+[data-key-path*=".man"]:not([data-key-path*="image"]),
+[data-key-path*=".woman"]:not([data-key-path*="image"]) {
   display: inline-flex !important;
-  align-items: center !important;
-  vertical-align: middle !important;
   width: auto !important;
-  max-width: none !important;
-  min-width: 0 !important;
-  margin: 2px 6px 2px 0 !important;
-  padding: 4px 8px !important;
+  max-width: 48% !important;
+  vertical-align: middle !important;
+  margin: 2px 4px !important;
+}
+
+/* الوش والضهر جنب بعض */
+[data-key-path*=".front_image"],
+[data-key-path*=".back_image"] {
+  display: inline-block !important;
+  width: calc(50% - 10px) !important;
+  vertical-align: top !important;
   box-sizing: border-box !important;
-  border-radius: 999px !important;
-  background: #f7f2f4 !important;
-  border: 1px solid rgba(128,61,72,.12) !important;
-}
-
-/* تصغير المسافات داخل حقول الـ boolean */
-[data-key-path*=".boy"] label,
-[data-key-path*=".girl"] label,
-[data-key-path*=".man"] label,
-[data-key-path*=".woman"] label,
-[data-key-path$=".boy"] label,
-[data-key-path$=".girl"] label,
-[data-key-path$=".man"] label,
-[data-key-path$=".woman"] label {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 6px !important;
-  font-size: 12.5px !important;
-  font-weight: 800 !important;
-  margin: 0 !important;
-  white-space: nowrap !important;
-}
-
-/* 4) معاينة الصورة أصغر شوية عشان التاجات تبان جنب/تحت بهدوء */
-[data-key-path*=".image"] img,
-[data-key-path*="front_image"] img,
-[data-key-path*="back_image"] img {
-  max-width: 160px !important;
-  max-height: 160px !important;
-  object-fit: cover !important;
-  border-radius: 10px !important;
+  margin: 4px !important;
 }
 </style>
 
-<script id="my-souq-editor-tidy-v12">
+<script id="my-souq-editor-tidy-v13">
 (function () {
   "use strict";
-  /* سكربت خفيف: يخفي نص المسار فقط — بدون نقل أي عناصر في الـ DOM */
-  var PATH_RE = /\/images\/products\/[^\s]+|\.(webp|jpe?g|png|gif)(\?|$)/i;
+  /* يخفي نصوص المسار فقط، ولا يلمس أي عنصر فيه صورة */
+  var PATH_RE = /\/images\/products\/[^\s<>"']+/i;
 
-  function hidePaths() {
+  function clean() {
     try {
-      // روابط
-      document.querySelectorAll("a").forEach(function (a) {
-        var h = a.getAttribute("href") || "";
+      document.querySelectorAll("[data-key-path] a, [data-typed-key-path] a").forEach(function (a) {
+        if (a.querySelector("img")) return; // لا تلمس روابط الصور
         var t = (a.textContent || "").trim();
-        if (PATH_RE.test(h) || PATH_RE.test(t)) {
-          // لا تخفِ روابط القائمة الجانبية العامة
-          if (a.closest("[data-key-path], [data-typed-key-path], [class*='widget'], [class*='Widget'], [class*='field'], [class*='Field']")) {
-            a.style.setProperty("display", "none", "important");
-          }
+        var h = a.getAttribute("href") || "";
+        if (PATH_RE.test(t) || PATH_RE.test(h)) {
+          a.style.setProperty("display", "none", "important");
         }
       });
-      // نصوص خام فيها المسار
-      var nodes = document.querySelectorAll("[data-key-path] span, [data-key-path] p, [data-key-path] div, [data-typed-key-path] span, [data-typed-key-path] p, [data-typed-key-path] div, [data-key-path] code, [data-typed-key-path] code");
-      for (var i = 0; i < nodes.length; i++) {
-        var el = nodes[i];
-        if (el.querySelector("img, input, button, a img")) continue;
+      document.querySelectorAll("[data-key-path] span, [data-key-path] code, [data-typed-key-path] span, [data-typed-key-path] code").forEach(function (el) {
+        if (el.querySelector("img, input, button, a")) return;
+        if (el.closest("a") && el.closest("a").querySelector("img")) return;
         var t = (el.textContent || "").trim();
-        if (t.length > 12 && PATH_RE.test(t) && t.length < 180) {
+        if (t.length > 10 && PATH_RE.test(t) && t.length < 160) {
           el.style.setProperty("display", "none", "important");
         }
-      }
+      });
     } catch (e) {}
   }
 
@@ -4037,15 +3976,14 @@
   function schedule() {
     if (q) return;
     q = true;
-    setTimeout(function () { q = false; hidePaths(); }, 200);
+    setTimeout(function () { q = false; clean(); }, 250);
   }
-
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", schedule);
   else schedule();
   if (window.MutationObserver) {
     new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
   }
-  setInterval(hidePaths, 2000);
+  setInterval(clean, 2500);
 })();
 </script>
 
