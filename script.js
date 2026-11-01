@@ -725,13 +725,28 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     let currentImageEntry = null;
     let imageCollectingGender = false;
 
+    const flagsToGender = (obj) => {
+      const tags = [];
+      if (!obj) return tags;
+      if (obj.boy === true || obj.boy === 'true' || obj.boy === 1) tags.push('أولاد');
+      if (obj.girl === true || obj.girl === 'true' || obj.girl === 1) tags.push('بنات');
+      if (obj.man === true || obj.man === 'true' || obj.man === 1) tags.push('رجال');
+      if (obj.woman === true || obj.woman === 'true' || obj.woman === 1) tags.push('نساء');
+      if (Array.isArray(obj.gender)) {
+        obj.gender.forEach(function (g) {
+          var t = String(g || '').trim();
+          if (t && tags.indexOf(t) === -1) tags.push(t);
+        });
+      }
+      return tags;
+    };
     const finishImageEntry = () => {
       imageCollectingGender = false;
       if (!currentImageEntry) return;
       const url = fixImagePath(currentImageEntry.image || currentImageEntry.src || currentImageEntry.url || '');
       if (url) {
-        const tags = Array.isArray(currentImageEntry.gender) ? currentImageEntry.gender.slice() : [];
-        parsedImageEntries.push({ url: url, gender: tags });
+        const tags = flagsToGender(currentImageEntry);
+        parsedImageEntries.push({ url: url, gender: tags, boy: !!currentImageEntry.boy, girl: !!currentImageEntry.girl, man: !!currentImageEntry.man, woman: !!currentImageEntry.woman });
         if (!allExtractedImages.includes(url)) allExtractedImages.push(url);
       }
       currentImageEntry = null;
@@ -780,7 +795,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         // بداية عنصر صورة جديد
         if (fieldMatch && /^(image|src|url)$/i.test(fieldMatch[1])) {
           finishImageEntry();
-          currentImageEntry = { image: unquote(fieldMatch[2]), gender: [] };
+          currentImageEntry = { image: unquote(fieldMatch[2]), gender: [], boy: false, girl: false, man: false, woman: false };
           imageCollectingGender = false;
           continue;
         }
@@ -829,7 +844,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
       // حقول بمسافة بادئة بدون شرطة: image: / gender:
       if (currentImageEntry) {
-        const field = trimmed.match(/^(image|src|url|gender):\s*(.*)$/i);
+        const field = trimmed.match(/^(image|src|url|gender|boy|girl|man|woman):\s*(.*)$/i);
         if (field) {
           const fk = field[1].toLowerCase();
           const fv = unquote(field[2]);
@@ -841,6 +856,9 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
               currentImageEntry.gender = currentImageEntry.gender || [];
               imageCollectingGender = true;
             }
+          } else if (fk === 'boy' || fk === 'girl' || fk === 'man' || fk === 'woman') {
+            currentImageEntry[fk] = /^(true|yes|1)$/i.test(String(fv)) || fv === true;
+            imageCollectingGender = false;
           } else {
             currentImageEntry.image = fv;
             imageCollectingGender = false;
@@ -886,15 +904,26 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       });
       return out;
     };
+    const designFlagsToGender = (obj) => {
+      const tags = [];
+      if (!obj) return tags;
+      if (obj.boy === true || obj.boy === 'true') tags.push('أولاد');
+      if (obj.girl === true || obj.girl === 'true') tags.push('بنات');
+      if (obj.man === true || obj.man === 'true') tags.push('رجال');
+      if (obj.woman === true || obj.woman === 'true') tags.push('نساء');
+      const fromList = Array.isArray(obj.gender) ? obj.gender : normalizeGenderTags(obj.gender);
+      fromList.forEach(function (g) {
+        if (g && tags.indexOf(g) === -1) tags.push(g);
+      });
+      return tags;
+    };
     const finishDesign = () => {
       designCollectingGender = false;
       if (!currentDesign) return;
       const front = fixImagePath(currentDesign.front_image);
       const back = fixImagePath(currentDesign.back_image);
       if (front || back) {
-        const tags = Array.isArray(currentDesign.gender)
-          ? currentDesign.gender
-          : normalizeGenderTags(currentDesign.gender);
+        const tags = designFlagsToGender(currentDesign);
         const design = {
           name: currentDesign.name || '',
           front_image: front || back,
@@ -921,7 +950,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         const looksLikeField = /^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/.test(afterDash);
         if (looksLikeField || afterDash === '' || afterDash.startsWith('{')) {
           finishDesign();
-          currentDesign = { name: '', front_image: '', back_image: '', gender: [] };
+          currentDesign = { name: '', front_image: '', back_image: '', gender: [], boy: false, girl: false, man: false, woman: false };
           designCollectingGender = false;
           const first = afterDash.match(/^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/);
           if (first) {
@@ -950,7 +979,6 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
             });
             continue;
           }
-          // خرجنا من قائمة gender
           if (/^[A-Za-z_][A-Za-z0-9_-]*:\s*/.test(trimmed)) {
             designCollectingGender = false;
           } else {
@@ -959,17 +987,20 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         }
         const field = trimmed.match(/^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/);
         if (field) {
-          if (field[1] === 'gender') {
-            const inline = unquote(field[2]);
-            if (inline && inline !== '[]' && inline !== '') {
-              currentDesign.gender = normalizeGenderTags(inline);
+          const fk = field[1];
+          const fv = unquote(field[2]);
+          if (fk === 'gender') {
+            if (fv && fv !== '[]' && fv !== '') {
+              currentDesign.gender = normalizeGenderTags(fv);
               designCollectingGender = false;
             } else {
               currentDesign.gender = [];
               designCollectingGender = true;
             }
-          } else if (Object.prototype.hasOwnProperty.call(currentDesign, field[1])) {
-            currentDesign[field[1]] = unquote(field[2]);
+          } else if (fk === 'boy' || fk === 'girl' || fk === 'man' || fk === 'woman') {
+            currentDesign[fk] = /^(true|yes|1)$/i.test(String(fv));
+          } else if (Object.prototype.hasOwnProperty.call(currentDesign, fk)) {
+            currentDesign[fk] = fv;
           }
         }
       }

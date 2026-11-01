@@ -164,22 +164,27 @@ collections:
                     width: 1400
                     height: 1400
 
-          # تاج لكل شكل — يظهر للعميل جنب الصورة في شاشة الطلب
-          - label: "لِمَن هذا الشكل؟"
-            name: "gender"
-            widget: "select"
-            multiple: true
+          # مربعات التصنيف لكل شكل — تُحفظ كقيم boolean ثابتة
+          - label: "👦 أولاد"
+            name: "boy"
+            widget: "boolean"
+            default: false
             required: false
-            hint: "علّم مربع أو أكثر (أولاد / بنات / رجال / نساء). يظهر للعميل جنب الشكل."
-            options:
-              - label: "👦 أولاد"
-                value: "أولاد"
-              - label: "👧 بنات"
-                value: "بنات"
-              - label: "👨 رجال"
-                value: "رجال"
-              - label: "👩 نساء"
-                value: "نساء"
+          - label: "👧 بنات"
+            name: "girl"
+            widget: "boolean"
+            default: false
+            required: false
+          - label: "👨 رجال"
+            name: "man"
+            widget: "boolean"
+            default: false
+            required: false
+          - label: "👩 نساء"
+            name: "woman"
+            widget: "boolean"
+            default: false
+            required: false
 
       # ألبوم صور مفردة — كل صورة لها تصنيف (أولاد/بنات/رجال/نساء)
       # يدعم أيضًا الشكل القديم (مسارات نصية فقط) للتوافق مع المنتجات السابقة
@@ -219,21 +224,26 @@ collections:
                     quality: 50
                     width: 1000
                     height: 1000
-          - label: "لِمَن هذه الصورة؟"
-            name: "gender"
-            widget: "select"
-            multiple: true
+          - label: "👦 أولاد"
+            name: "boy"
+            widget: "boolean"
+            default: false
             required: false
-            hint: "علّم مربع أو أكثر. يظهر للعميل جنب الصورة."
-            options:
-              - label: "👦 أولاد"
-                value: "أولاد"
-              - label: "👧 بنات"
-                value: "بنات"
-              - label: "👨 رجال"
-                value: "رجال"
-              - label: "👩 نساء"
-                value: "نساء"
+          - label: "👧 بنات"
+            name: "girl"
+            widget: "boolean"
+            default: false
+            required: false
+          - label: "👨 رجال"
+            name: "man"
+            widget: "boolean"
+            default: false
+            required: false
+          - label: "👩 نساء"
+            name: "woman"
+            widget: "boolean"
+            default: false
+            required: false
 
       - label: "السعر الأساسي (ج.م)"
         name: "price"
