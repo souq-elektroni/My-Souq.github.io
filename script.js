@@ -1660,36 +1660,55 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     try {
       var panel = document.getElementById('msqDeptsPanel');
       var btnDepts = document.getElementById('msqDeptsBtn');
-      if (panel) panel.hidden = true;
-      if (btnDepts) btnDepts.setAttribute('aria-expanded', 'false');
+      if (panel) panel.classList.remove('is-open');
+      if (btnDepts) {
+        btnDepts.setAttribute('aria-expanded', 'false');
+        btnDepts.classList.remove('menu-open');
+      }
     } catch (e) {}
     handleSearchAndFilter();
   }
 
   /* قائمة جميع الأقسام */
+  window.toggleDeptsMenu = function (e) {
+    try {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      var btn = document.getElementById('msqDeptsBtn');
+      var panel = document.getElementById('msqDeptsPanel');
+      if (!btn || !panel) return;
+      var open = panel.classList.toggle('is-open');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.classList.toggle('menu-open', open);
+    } catch (err) {}
+  };
+
   (function initDeptsMenu() {
     function bind() {
       var btn = document.getElementById('msqDeptsBtn');
       var panel = document.getElementById('msqDeptsPanel');
-      if (!btn || !panel || btn.dataset.msqBound) return;
-      btn.dataset.msqBound = '1';
-      btn.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        var willOpen = panel.hidden;
-        panel.hidden = !willOpen;
-        btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-      });
-      document.addEventListener('click', function (e) {
-        if (!panel.hidden && !panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
-          panel.hidden = true;
-          btn.setAttribute('aria-expanded', 'false');
-        }
-      });
+      if (!panel) return;
+      // إغلاق عند الضغط خارج القائمة
+      if (!document.documentElement.dataset.msqDeptsDoc) {
+        document.documentElement.dataset.msqDeptsDoc = '1';
+        document.addEventListener('click', function (e) {
+          var p = document.getElementById('msqDeptsPanel');
+          var b = document.getElementById('msqDeptsBtn');
+          if (!p || !p.classList.contains('is-open')) return;
+          if (p.contains(e.target) || (b && b.contains(e.target))) return;
+          p.classList.remove('is-open');
+          if (b) {
+            b.setAttribute('aria-expanded', 'false');
+            b.classList.remove('menu-open');
+          }
+        });
+      }
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
     else bind();
-    setTimeout(bind, 400);
+    setTimeout(bind, 300);
   })();
 
   function filterSubcategory(cat, subcategory, selectEl) {

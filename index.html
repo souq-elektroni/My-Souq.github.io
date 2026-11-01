@@ -429,11 +429,11 @@
 
       <!-- قائمة جميع الأقسام (☰) -->
       <div class="msq-depts-menu" id="msqDeptsMenu">
-        <button type="button" class="cat-btn msq-depts-btn" id="msqDeptsBtn" aria-haspopup="true" aria-expanded="false" aria-controls="msqDeptsPanel">
+        <button type="button" class="cat-btn msq-depts-btn" id="msqDeptsBtn" aria-haspopup="true" aria-expanded="false" aria-controls="msqDeptsPanel" onclick="window.toggleDeptsMenu && window.toggleDeptsMenu(event)">
           <span class="msq-hamburger" aria-hidden="true"><span></span><span></span><span></span></span>
           <span class="msq-depts-label">جميع الأقسام</span>
         </button>
-        <div class="msq-depts-panel" id="msqDeptsPanel" hidden role="menu">
+        <div class="msq-depts-panel" id="msqDeptsPanel" role="menu">
           <button type="button" class="msq-depts-item active" data-main-category="الكل" role="menuitem" onclick="filterCategory('الكل', this)">كل الأقسام</button>
           <button type="button" class="msq-depts-item msq-main-cat" data-main-category="Kids" role="menuitem" onclick="filterCategory('Kids', this)">Kids</button>
           <button type="button" class="msq-depts-item msq-main-cat" data-main-category="Baby" role="menuitem" onclick="filterCategory('Baby', this)">Baby</button>
