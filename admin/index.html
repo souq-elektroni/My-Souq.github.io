@@ -1418,6 +1418,301 @@
         // initialization is disabled below. Register the field synchronously
         // before loading config, then initialize the CMS.
         registerSizeTable();
+
+        /* ===== معاينة احترافية للمنتج: صور جنب بعض + تاجات أفقية ===== */
+        try {
+          if (window.CMS && window.createClass && window.h) {
+            var h = window.h;
+            var createClass = window.createClass;
+
+            function flagChip(label, on) {
+              return h(
+                "span",
+                {
+                  style: {
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    padding: "4px 10px",
+                    borderRadius: "999px",
+                    fontSize: "12px",
+                    fontWeight: "800",
+                    border: "1px solid " + (on ? "rgba(128,61,72,.35)" : "rgba(0,0,0,.08)"),
+                    background: on ? "#fdf2f4" : "#f5f5f5",
+                    color: on ? "#803d48" : "#888"
+                  }
+                },
+                label + (on ? " ✓" : "")
+              );
+            }
+
+            function flagsRow(obj) {
+              if (!obj) obj = {};
+              var boy = obj.boy === true || obj.boy === "true";
+              var girl = obj.girl === true || obj.girl === "true";
+              var man = obj.man === true || obj.man === "true";
+              var woman = obj.woman === true || obj.woman === "true";
+              return h(
+                "div",
+                {
+                  style: {
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "6px",
+                    marginTop: "8px",
+                    justifyContent: "flex-start"
+                  }
+                },
+                flagChip("👦 أولاد", boy),
+                flagChip("👧 بنات", girl),
+                flagChip("👨 رجال", man),
+                flagChip("👩 نساء", woman)
+              );
+            }
+
+            function assetUrl(getAsset, path) {
+              if (!path) return "";
+              try {
+                if (getAsset) {
+                  var a = getAsset(path);
+                  if (a && a.toString) return a.toString();
+                  if (typeof a === "string") return a;
+                }
+              } catch (e) {}
+              return String(path);
+            }
+
+            function imgEl(src, alt) {
+              if (!src) {
+                return h(
+                  "div",
+                  {
+                    style: {
+                      width: "100%",
+                      aspectRatio: "1",
+                      background: "#f3f3f3",
+                      borderRadius: "12px",
+                      border: "1px dashed #ddd"
+                    }
+                  }
+                );
+              }
+              return h("img", {
+                src: src,
+                alt: alt || "",
+                style: {
+                  width: "100%",
+                  maxWidth: "100%",
+                  borderRadius: "12px",
+                  objectFit: "cover",
+                  display: "block",
+                  border: "1px solid rgba(0,0,0,.06)"
+                }
+              });
+            }
+
+            var ProductsPreview = createClass({
+              render: function () {
+                var entry = this.props.entry;
+                var getAsset = this.props.getAsset;
+                var data = entry.get("data");
+                if (!data) return h("div", {}, "");
+
+                var title = data.get("title") || "";
+                var category = data.get("category") || "";
+                var subcategory = data.get("subcategory") || "";
+                var price = data.get("price");
+                var designs = data.get("designs");
+                var images = data.get("images");
+
+                var blocks = [];
+
+                // ألبوم الأشكال: وش + ضهر جنب بعض
+                if (designs && designs.size) {
+                  designs.forEach(function (d, idx) {
+                    if (!d) return;
+                    var front = assetUrl(getAsset, d.get("front_image"));
+                    var back = assetUrl(getAsset, d.get("back_image"));
+                    var flags = {
+                      boy: d.get("boy"),
+                      girl: d.get("girl"),
+                      man: d.get("man"),
+                      woman: d.get("woman")
+                    };
+                    blocks.push(
+                      h(
+                        "div",
+                        {
+                          key: "d" + idx,
+                          style: {
+                            marginBottom: "16px",
+                            padding: "12px",
+                            border: "1px solid #eee",
+                            borderRadius: "14px",
+                            background: "#fff"
+                          }
+                        },
+                        h(
+                          "div",
+                          {
+                            style: {
+                              fontSize: "12px",
+                              fontWeight: "800",
+                              color: "#803d48",
+                              marginBottom: "8px"
+                            }
+                          },
+                          "شكل " + (idx + 1)
+                        ),
+                        h(
+                          "div",
+                          {
+                            style: {
+                              display: "grid",
+                              gridTemplateColumns: "1fr 1fr",
+                              gap: "10px"
+                            }
+                          },
+                          h(
+                            "div",
+                            {},
+                            h(
+                              "div",
+                              {
+                                style: {
+                                  fontSize: "11px",
+                                  color: "#888",
+                                  marginBottom: "4px",
+                                  fontWeight: "700"
+                                }
+                              },
+                              "صورة الوش"
+                            ),
+                            imgEl(front, "وش")
+                          ),
+                          h(
+                            "div",
+                            {},
+                            h(
+                              "div",
+                              {
+                                style: {
+                                  fontSize: "11px",
+                                  color: "#888",
+                                  marginBottom: "4px",
+                                  fontWeight: "700"
+                                }
+                              },
+                              "صورة الضهر"
+                            ),
+                            imgEl(back, "ضهر")
+                          )
+                        ),
+                        flagsRow(flags)
+                      )
+                    );
+                  });
+                }
+
+                // صور الألبوم المفردة
+                if (images && images.size) {
+                  images.forEach(function (im, idx) {
+                    if (!im) return;
+                    var src = "";
+                    var flags = { boy: false, girl: false, man: false, woman: false };
+                    if (typeof im === "string") {
+                      src = assetUrl(getAsset, im);
+                    } else if (im.get) {
+                      src = assetUrl(getAsset, im.get("image") || im.get("src") || im.get("url"));
+                      flags = {
+                        boy: im.get("boy"),
+                        girl: im.get("girl"),
+                        man: im.get("man"),
+                        woman: im.get("woman")
+                      };
+                    }
+                    blocks.push(
+                      h(
+                        "div",
+                        {
+                          key: "i" + idx,
+                          style: {
+                            marginBottom: "14px",
+                            padding: "12px",
+                            border: "1px solid #eee",
+                            borderRadius: "14px",
+                            background: "#fff"
+                          }
+                        },
+                        h(
+                          "div",
+                          {
+                            style: {
+                              maxWidth: "220px",
+                              margin: "0 auto"
+                            }
+                          },
+                          imgEl(src, "صورة " + (idx + 1))
+                        ),
+                        flagsRow(flags)
+                      )
+                    );
+                  });
+                }
+
+                return h(
+                  "div",
+                  {
+                    style: {
+                      direction: "rtl",
+                      fontFamily: "inherit",
+                      padding: "12px",
+                      color: "#222"
+                    }
+                  },
+                  h(
+                    "h2",
+                    {
+                      style: {
+                        margin: "0 0 6px",
+                        fontSize: "20px",
+                        fontWeight: "900",
+                        color: "#803d48"
+                      }
+                    },
+                    String(title)
+                  ),
+                  h(
+                    "div",
+                    {
+                      style: {
+                        fontSize: "12px",
+                        color: "#777",
+                        marginBottom: "12px",
+                        fontWeight: "700"
+                      }
+                    },
+                    [category, subcategory, price != null ? price + " ج.م" : ""]
+                      .filter(Boolean)
+                      .join(" · ")
+                  ),
+                  blocks.length
+                    ? blocks
+                    : h(
+                        "div",
+                        { style: { color: "#999", fontSize: "13px" } },
+                        "لا توجد صور بعد"
+                      )
+                );
+              }
+            });
+
+            window.CMS.registerPreviewTemplate("products", ProductsPreview);
+          }
+        } catch (ePreview) {
+          console.warn("preview template", ePreview);
+        }
+
         window.CMS.init();
       })();
     </script>
