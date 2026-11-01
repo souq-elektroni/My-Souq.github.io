@@ -1608,20 +1608,30 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
   }
 
   function syncCategoryActiveUI(btn) {
-    document.querySelectorAll('.cat-btn').forEach(function (b) {
-      // أزرار المخزون لها حالة مستقلة
-      if (b.classList.contains('stock-avail') || b.classList.contains('stock-out')) return;
+    document.querySelectorAll('.msq-depts-item').forEach(function (b) {
       b.classList.remove('active');
     });
-    if (btn && !btn.classList.contains('stock-avail') && !btn.classList.contains('stock-out')) {
+    var cat = currentCategory || 'الكل';
+    var match = document.querySelector('.msq-depts-item[data-main-category="' + String(cat).replace(/"/g, '\"') + '"]');
+    if (btn && btn.classList && btn.classList.contains('msq-depts-item')) {
       btn.classList.add('active');
-    } else {
-      var main = document.querySelector('.cat-btn[data-main-category="' + String(currentCategory).replace(/"/g, '\\"') + '"]');
-      if (main) main.classList.add('active');
-      else if (currentCategory === 'الكل') {
-        var allBtn = document.querySelector('.cat-btn[data-main-category="الكل"]');
-        if (allBtn) allBtn.classList.add('active');
-      }
+    } else if (match) {
+      match.classList.add('active');
+    }
+    var label = document.querySelector('#msqDeptsBtn .msq-depts-label');
+    if (label) {
+      var map = {
+        'الكل': 'جميع الأقسام',
+        'Kids': 'Kids',
+        'Baby': 'Baby',
+        'Mr & Mrs': 'Mr & Mrs',
+        'عروض': 'العروض'
+      };
+      label.textContent = map[cat] || 'جميع الأقسام';
+    }
+    var deptsBtn = document.getElementById('msqDeptsBtn');
+    if (deptsBtn) {
+      deptsBtn.classList.toggle('active', !!(cat && cat !== 'الكل'));
     }
   }
 
@@ -1647,8 +1657,40 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     document.querySelectorAll('.msq-subcategory').forEach(function (sel) { sel.value = ''; });
     syncCategoryActiveUI(btn);
     syncStockActiveUI(null);
+    try {
+      var panel = document.getElementById('msqDeptsPanel');
+      var btnDepts = document.getElementById('msqDeptsBtn');
+      if (panel) panel.hidden = true;
+      if (btnDepts) btnDepts.setAttribute('aria-expanded', 'false');
+    } catch (e) {}
     handleSearchAndFilter();
   }
+
+  /* قائمة جميع الأقسام */
+  (function initDeptsMenu() {
+    function bind() {
+      var btn = document.getElementById('msqDeptsBtn');
+      var panel = document.getElementById('msqDeptsPanel');
+      if (!btn || !panel || btn.dataset.msqBound) return;
+      btn.dataset.msqBound = '1';
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var willOpen = panel.hidden;
+        panel.hidden = !willOpen;
+        btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      });
+      document.addEventListener('click', function (e) {
+        if (!panel.hidden && !panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+          panel.hidden = true;
+          btn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+    else bind();
+    setTimeout(bind, 400);
+  })();
 
   function filterSubcategory(cat, subcategory, selectEl) {
     currentCategory = cat;

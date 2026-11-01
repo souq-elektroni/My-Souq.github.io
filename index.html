@@ -424,27 +424,37 @@
 
   <div class="controls-wrapper">
 
-    <!-- صف الفئات: أقسام ثم عروض ثم المخزون -->
-    <div class="categories-bar categories-main msq-category-nav" aria-label="أقسام المتجر">
-      <button class="cat-btn active" data-main-category="الكل" onclick="filterCategory('الكل', this)">الكل</button>
-      <button class="cat-btn msq-main-cat" data-main-category="Kids" onclick="filterCategory('Kids', this)">🧒🏻 Kids</button>
-      <button class="cat-btn msq-main-cat" data-main-category="Baby" onclick="filterCategory('Baby', this)">👶🏻 Baby</button>
-      <button class="cat-btn msq-main-cat" data-main-category="Mr & Mrs" onclick="filterCategory('Mr & Mrs', this)">👨🏻‍🤝‍👩🏻 Mr &amp; Mrs</button>
-      <button class="cat-btn offer-tab" data-main-category="عروض" onclick="filterCategory('عروض', this)">🔥 العروض 💥</button>
-      <span class="cat-divider" aria-hidden="true"></span>
-      <button class="cat-btn stock-avail" onclick="filterStock('available', this)">🟢 متوفرة</button>
-      <button class="cat-btn stock-out" onclick="filterStock('out', this)">🔴 نفذت</button>
-      <span class="cat-divider" aria-hidden="true"></span>
+    <!-- صف الفلاتر الاحترافي -->
+    <div class="categories-bar categories-main msq-category-nav msq-filters-row" aria-label="فلاتر المتجر">
+
+      <!-- قائمة جميع الأقسام (☰) -->
+      <div class="msq-depts-menu" id="msqDeptsMenu">
+        <button type="button" class="cat-btn msq-depts-btn" id="msqDeptsBtn" aria-haspopup="true" aria-expanded="false" aria-controls="msqDeptsPanel">
+          <span class="msq-hamburger" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="msq-depts-label">جميع الأقسام</span>
+        </button>
+        <div class="msq-depts-panel" id="msqDeptsPanel" hidden role="menu">
+          <button type="button" class="msq-depts-item active" data-main-category="الكل" role="menuitem" onclick="filterCategory('الكل', this)">كل الأقسام</button>
+          <button type="button" class="msq-depts-item msq-main-cat" data-main-category="Kids" role="menuitem" onclick="filterCategory('Kids', this)">Kids</button>
+          <button type="button" class="msq-depts-item msq-main-cat" data-main-category="Baby" role="menuitem" onclick="filterCategory('Baby', this)">Baby</button>
+          <button type="button" class="msq-depts-item msq-main-cat" data-main-category="Mr &amp; Mrs" role="menuitem" onclick="filterCategory('Mr & Mrs', this)">Mr &amp; Mrs</button>
+          <button type="button" class="msq-depts-item offer-tab" data-main-category="عروض" role="menuitem" onclick="filterCategory('عروض', this)">العروض</button>
+        </div>
+      </div>
+
+      <button class="cat-btn stock-avail" onclick="filterStock('available', this)">متوفرة</button>
+      <button class="cat-btn stock-out" onclick="filterStock('out', this)">نفذت</button>
+
       <label class="msq-gender-filter-wrap" for="msqGenderSelect">
-        <span class="msq-gender-filter-icon" aria-hidden="true">👤</span>
         <select id="msqGenderSelect" class="msq-gender-select" onchange="filterGender(this.value)" aria-label="تصفية حسب النوع">
-          <option value="all">الكل — كل الأنواع</option>
-          <option value="boys">👦 أولادي فقط</option>
-          <option value="girls">👧 بناتي فقط</option>
-          <option value="men">👨 رجالي فقط</option>
-          <option value="women">👩 نسائي فقط</option>
+          <option value="all">كل الأنواع</option>
+          <option value="boys">أولادي فقط</option>
+          <option value="girls">بناتي فقط</option>
+          <option value="men">رجالي فقط</option>
+          <option value="women">نسائي فقط</option>
         </select>
       </label>
+
     </div>
 
     <!-- صف البحث والترتيب منفصل بوضوح -->
