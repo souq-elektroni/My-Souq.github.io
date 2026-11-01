@@ -3423,7 +3423,14 @@
     if (images.length) {
       lines.push("images:");
       images.forEach(function (img) {
-        lines.push("  - " + img.path);
+        /* شكل جديد: صورة + تصنيف (من عمود التصنيف في الإكسل إن وُجد) */
+        lines.push("  - image: " + img.path);
+        if (genderTags.length) {
+          lines.push("    gender:");
+          genderTags.forEach(function (g) { lines.push("      - " + g); });
+        } else {
+          lines.push("    gender: []");
+        }
       });
     } else {
       lines.push("images: []");
@@ -3887,10 +3894,11 @@
 </script>
 
 
-<style id="my-souq-paired-designs-style-v8">
+<style id="my-souq-paired-designs-style-v9">
 /*
-  Sveltia marks every field with data-key-path / data-field-type.
-  designs.N.front_image + designs.N.back_image → side by side.
+  تنسيق احترافي لألبوم الأشكال:
+  [ صورة الوش | صورة الضهر ]
+  [ 👦 أولاد  👧 بنات  👨 رجال  👩 نساء ]  ← صف واحد تحت الصورتين
 */
 [data-key-path*=".front_image"],
 [data-key-path$=".front_image"],
@@ -3902,27 +3910,93 @@
   min-width: 0 !important;
 }
 
-/* Parent of the two image fields: force 2-column grid via JS class */
 .msq-pair-grid {
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
-  gap: 12px !important;
+  gap: 12px 14px !important;
   align-items: start !important;
   width: 100% !important;
   max-width: 100% !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
 }
 .msq-pair-grid > * {
   min-width: 0 !important;
-  width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
+}
+.msq-pair-grid > .msq-pair-front,
+.msq-pair-grid > .msq-pair-back {
   grid-row: 1 !important;
+  width: 100% !important;
+}
+.msq-pair-grid > .msq-pair-gender {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  width: 100% !important;
+  margin-top: 2px !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  background: linear-gradient(180deg, #faf7f8 0%, #f5f0f2 100%) !important;
+  border: 1px solid rgba(128, 61, 72, 0.12) !important;
+  box-sizing: border-box !important;
 }
 
-/* Fallback without JS: if Sveltia wraps both in a flex column, flatten */
-.msq-pair-grid {
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
+/* صف خيارات التصنيف بشكل مربعات أنيقة */
+.msq-pair-gender fieldset,
+.msq-pair-gender [role="group"],
+.msq-pair-gender [class*="checkbox"],
+.msq-pair-gender [class*="Check"] {
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.msq-pair-gender label,
+.msq-pair-gender [class*="option"],
+.msq-pair-gender [class*="Option"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin: 4px 6px 4px 0 !important;
+  padding: 6px 12px !important;
+  border-radius: 999px !important;
+  background: #fff !important;
+  border: 1px solid rgba(128, 61, 72, 0.16) !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  color: #4a3036 !important;
+  cursor: pointer !important;
+  transition: border-color .15s, box-shadow .15s, background .15s !important;
+}
+.msq-pair-gender label:hover,
+.msq-pair-gender [class*="option"]:hover {
+  border-color: rgba(128, 61, 72, 0.35) !important;
+  box-shadow: 0 1px 4px rgba(128, 61, 72, 0.08) !important;
+}
+
+/* عنوان الحقل */
+.msq-pair-gender legend,
+.msq-pair-gender [class*="label"]:not(label),
+.msq-pair-gender > label:first-child,
+.msq-pair-gender h3,
+.msq-pair-gender h4 {
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  color: #803d48 !important;
+  margin: 0 0 6px !important;
+  display: block !important;
+  width: 100% !important;
+}
+
+/* إخفاء التلميح الطويل داخل الصف إن أمكن تصغيره */
+.msq-pair-gender [class*="hint"],
+.msq-pair-gender [class*="Hint"],
+.msq-pair-gender [class*="description"],
+.msq-pair-gender [class*="Description"] {
+  font-size: 11px !important;
+  color: #8a6b72 !important;
+  margin: 0 0 8px !important;
+  line-height: 1.35 !important;
 }
 
 @media (max-width: 520px) {
@@ -3930,9 +4004,15 @@
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
     gap: 8px !important;
   }
+  .msq-pair-gender label,
+  .msq-pair-gender [class*="option"] {
+    padding: 5px 9px !important;
+    font-size: 12px !important;
+    margin: 3px 4px 3px 0 !important;
+  }
 }
 
-/* إخفاء مسار الملف بجانب معاينة الصورة في ألبوم الأشكال */
+/* إخفاء مسار الملف بجانب معاينة الصورة */
 [data-key-path*=".front_image"] a[href*="/images/"],
 [data-key-path*=".back_image"] a[href*="/images/"],
 [data-key-path*=".front_image"] a[href*="images/"],
@@ -3946,7 +4026,8 @@
 [data-key-path*=".front_image"] a[href$=".png"],
 [data-key-path*=".back_image"] a[href$=".png"],
 [data-key-path*=".front_image"] a[href$=".jpeg"],
-[data-key-path*=".back_image"] a[href$=".jpeg"] {
+[data-key-path*=".back_image"] a[href$=".jpeg"],
+.msq-hide-image-path {
   font-size: 0 !important;
   color: transparent !important;
   line-height: 0 !important;
@@ -3958,8 +4039,6 @@
   margin: 0 !important;
   display: none !important;
 }
-
-/* بعض إصدارات Sveltia تعرض المسار كنص عادي مش رابط */
 [data-key-path*=".front_image"] [class*="path"],
 [data-key-path*=".back_image"] [class*="path"],
 [data-key-path*=".front_image"] [class*="filename"],
@@ -3968,63 +4047,79 @@
 [data-key-path*=".back_image"] [class*="url"] {
   display: none !important;
 }
-
-/* إخفاء أي نص طويل يشبه مسار صورة داخل حقل الصورة */
-.msq-hide-image-path {
-  display: none !important;
-  font-size: 0 !important;
-  width: 0 !important;
-  height: 0 !important;
-  overflow: hidden !important;
-  visibility: hidden !important;
-  position: absolute !important;
-  pointer-events: none !important;
-}
 </style>
-<script id="my-souq-paired-designs-layout-v8">
+
+<script id="my-souq-paired-designs-layout-v9">
 (function () {
   "use strict";
 
+  function keyOf(el) {
+    return el.getAttribute("data-key-path") || el.getAttribute("data-typed-key-path") || "";
+  }
   function isFront(el) {
-    var k = el.getAttribute("data-key-path") || el.getAttribute("data-typed-key-path") || "";
+    var k = keyOf(el);
     return /\.front_image$/.test(k) || k === "front_image";
   }
   function isBack(el) {
-    var k = el.getAttribute("data-key-path") || el.getAttribute("data-typed-key-path") || "";
+    var k = keyOf(el);
     return /\.back_image$/.test(k) || k === "back_image";
   }
-
+  function isGender(el) {
+    var k = keyOf(el);
+    return /\.gender$/.test(k) || /(^|\.)gender$/.test(k);
+  }
+  function designIndex(el) {
+    var k = keyOf(el);
+    var m = k.match(/designs\.(\d+)\./);
+    return m ? m[1] : null;
+  }
   function branch(parent, node) {
     while (node && node.parentElement !== parent) node = node.parentElement;
     return node && node.parentElement === parent ? node : null;
   }
 
-  function forceGrid(parent, a, b) {
-    if (!parent || !a || !b || a === b) return;
+  function forceLayout(parent, frontBranch, backBranch, genderBranch) {
+    if (!parent || !frontBranch || !backBranch) return;
     parent.classList.add("msq-pair-grid");
     parent.style.setProperty("display", "grid", "important");
     parent.style.setProperty("grid-template-columns", "minmax(0,1fr) minmax(0,1fr)", "important");
-    parent.style.setProperty("gap", "12px", "important");
+    parent.style.setProperty("gap", "12px 14px", "important");
     parent.style.setProperty("align-items", "start", "important");
     parent.style.setProperty("width", "100%", "important");
-    a.style.setProperty("min-width", "0", "important");
-    b.style.setProperty("min-width", "0", "important");
-    a.style.setProperty("width", "100%", "important");
-    b.style.setProperty("width", "100%", "important");
-    a.style.setProperty("grid-row", "1", "important");
-    b.style.setProperty("grid-row", "1", "important");
-    a.style.setProperty("margin", "0", "important");
-    b.style.setProperty("margin", "0", "important");
+
+    frontBranch.classList.add("msq-pair-front");
+    backBranch.classList.add("msq-pair-back");
+    frontBranch.style.setProperty("grid-row", "1", "important");
+    backBranch.style.setProperty("grid-row", "1", "important");
+    frontBranch.style.setProperty("min-width", "0", "important");
+    backBranch.style.setProperty("min-width", "0", "important");
+    frontBranch.style.setProperty("width", "100%", "important");
+    backBranch.style.setProperty("width", "100%", "important");
+    frontBranch.style.setProperty("margin", "0", "important");
+    backBranch.style.setProperty("margin", "0", "important");
+
+    if (genderBranch) {
+      genderBranch.classList.add("msq-pair-gender");
+      genderBranch.style.setProperty("grid-column", "1 / -1", "important");
+      genderBranch.style.setProperty("grid-row", "2", "important");
+      genderBranch.style.setProperty("width", "100%", "important");
+      genderBranch.style.setProperty("margin", "2px 0 0", "important");
+      /* انقل عنصر التصنيف ليكون آخر الأبناء داخل الشبكة */
+      try {
+        if (genderBranch.parentElement === parent) parent.appendChild(genderBranch);
+      } catch (e) {}
+    }
   }
 
-  function pairFields(frontEl, backEl) {
+  function pairFields(frontEl, backEl, genderEl) {
     var p = frontEl.parentElement;
     var steps = 0;
-    while (p && p !== document.body && steps++ < 20) {
+    while (p && p !== document.body && steps++ < 24) {
       var x = branch(p, frontEl);
       var y = branch(p, backEl);
+      var g = genderEl ? branch(p, genderEl) : null;
       if (x && y && x !== y) {
-        forceGrid(p, x, y);
+        forceLayout(p, x, y, g);
         return true;
       }
       p = p.parentElement;
@@ -4032,28 +4127,56 @@
     return false;
   }
 
-  function designIndex(el) {
-    var k = el.getAttribute("data-key-path") || el.getAttribute("data-typed-key-path") || "";
-    var m = k.match(/designs\.(\d+)\./);
-    return m ? m[1] : null;
+  function hidePaths(el) {
+    var links = el.querySelectorAll("a");
+    for (var li = 0; li < links.length; li++) {
+      var a = links[li];
+      var href = a.getAttribute("href") || "";
+      var at = String(a.textContent || "").trim();
+      if (
+        /\/images\//.test(href) ||
+        /\/images\//.test(at) ||
+        /\.(webp|jpe?g|png|gif|svg)(\?|$)/i.test(href) ||
+        /\.(webp|jpe?g|png|gif|svg)(\?|$)/i.test(at) ||
+        /^\/?images\//i.test(at)
+      ) {
+        a.classList.add("msq-hide-image-path");
+        a.style.setProperty("display", "none", "important");
+      }
+    }
+    var walkers = el.querySelectorAll("span, p, div, code, small");
+    for (var wi = 0; wi < walkers.length; wi++) {
+      var w = walkers[wi];
+      if (w.querySelector("img, button, input, a img")) continue;
+      var wt = String(w.textContent || "").trim();
+      if (
+        wt.length > 12 &&
+        (/\/images\//.test(wt) || /\.(webp|jpe?g|png)(\?|$)/i.test(wt) || /^\/?images\//i.test(wt))
+      ) {
+        w.classList.add("msq-hide-image-path");
+        w.style.setProperty("display", "none", "important");
+      }
+    }
   }
 
   function run() {
-    var fields = document.querySelectorAll(
-      "[data-key-path], [data-typed-key-path]"
-    );
+    var fields = document.querySelectorAll("[data-key-path], [data-typed-key-path]");
     var fronts = [];
     var backs = [];
+    var genders = [];
     for (var i = 0; i < fields.length; i++) {
       var el = fields[i];
       if (isFront(el)) fronts.push(el);
       else if (isBack(el)) backs.push(el);
+      else if (isGender(el) && designIndex(el) !== null) genders.push(el);
     }
 
     var usedBack = new Set();
+    var usedGender = new Set();
     fronts.forEach(function (f) {
       var fi = designIndex(f);
       var match = null;
+      var gMatch = null;
       for (var j = 0; j < backs.length; j++) {
         var b = backs[j];
         if (usedBack.has(b)) continue;
@@ -4064,7 +4187,6 @@
         }
       }
       if (!match) {
-        /* fallback: nearest by vertical position */
         var fr = f.getBoundingClientRect();
         var best = null;
         var bestScore = Infinity;
@@ -4079,52 +4201,27 @@
         });
         if (best && bestScore < 800) match = best;
       }
+      if (fi !== null) {
+        for (var gi = 0; gi < genders.length; gi++) {
+          var g = genders[gi];
+          if (usedGender.has(g)) continue;
+          if (designIndex(g) === fi) {
+            gMatch = g;
+            break;
+          }
+        }
+      }
       if (match) {
         usedBack.add(match);
-        pairFields(f, match);
+        if (gMatch) usedGender.add(gMatch);
+        pairFields(f, match, gMatch);
       }
     });
 
-    
-    /* إخفاء نص مسار الصورة بجانب المصغّر */
     fields.forEach(function (el) {
-      if (!isFront(el) && !isBack(el)) return;
-      var links = el.querySelectorAll("a");
-      for (var li = 0; li < links.length; li++) {
-        var a = links[li];
-        var href = a.getAttribute("href") || "";
-        var at = String(a.textContent || "").trim();
-        if (
-          /\/images\//.test(href) ||
-          /\/images\//.test(at) ||
-          /\.(webp|jpe?g|png|gif|svg)(\?|$)/i.test(href) ||
-          /\.(webp|jpe?g|png|gif|svg)(\?|$)/i.test(at) ||
-          /^\/?images\//i.test(at)
-        ) {
-          a.classList.add("msq-hide-image-path");
-          a.style.setProperty("display", "none", "important");
-        }
-      }
-      /* نص عادي فيه مسار */
-      var walkers = el.querySelectorAll("span, p, div, code, small");
-      for (var wi = 0; wi < walkers.length; wi++) {
-        var w = walkers[wi];
-        if (w.querySelector("img, button, input, a img")) continue;
-        var wt = String(w.textContent || "").trim();
-        if (
-          wt.length > 12 &&
-          (/\/images\//.test(wt) || /\.(webp|jpe?g|png)(\?|$)/i.test(wt) || /^\/?images\//i.test(wt)) &&
-          !w.querySelector("img")
-        ) {
-          /* لا تخفِ حاوية فيها صورة */
-          if (w.querySelector("img")) continue;
-          w.classList.add("msq-hide-image-path");
-          w.style.setProperty("display", "none", "important");
-        }
-      }
+      if (isFront(el) || isBack(el)) hidePaths(el);
     });
 
-    /* زر الإضافة */
     document.querySelectorAll("button").forEach(function (btn) {
       var t = String(btn.innerText || btn.textContent || "").replace(/\s+/g, " ").trim();
       if (/إضافة/.test(t) && /ألبوم|أشكال|شكل|كوليكشن/.test(t)) {

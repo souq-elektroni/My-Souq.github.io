@@ -282,6 +282,11 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         if (tags.indexOf(g) === -1) tags.push(g);
       });
     });
+    (p.imageEntries || []).forEach(function (e) {
+      (e.gender || []).forEach(function (g) {
+        if (tags.indexOf(g) === -1) tags.push(g);
+      });
+    });
     var hasMale = tags.some(function (t) { return t === 'أولاد' || t === 'رجال' || t === 'اولاد'; });
     var hasFemale = tags.some(function (t) { return t === 'بنات' || t === 'نساء'; });
     if (hasMale && !hasFemale) return 'male';
@@ -681,30 +686,114 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       if (fixed && !allExtractedImages.includes(fixed)) allExtractedImages.push(fixed);
     };
 
-    // New Sveltia format: images: [ - /images/products/file.webp ]
+    // صور الألبوم: يدعم الشكل القديم (مسار نصي) والجديد (كائن image + gender)
+    const parsedImageEntries = []; // { url, gender[] }
     let inImages = false;
+    let currentImageEntry = null;
+    let imageCollectingGender = false;
+    const finishImageEntry = () => {
+      imageCollectingGender = false;
+      if (!currentImageEntry) return;
+      const url = fixImagePath(currentImageEntry.image || currentImageEntry.src || currentImageEntry.url || '');
+      if (url) {
+        const tags = Array.isArray(currentImageEntry.gender)
+          ? currentImageEntry.gender.slice()
+          : [];
+        parsedImageEntries.push({ url: url, gender: tags });
+        if (!allExtractedImages.includes(url)) allExtractedImages.push(url);
+      }
+      currentImageEntry = null;
+    };
+    const pushGenderToEntry = (entry, raw) => {
+      if (!entry) return;
+      if (!Array.isArray(entry.gender)) entry.gender = [];
+      String(raw || '').split(/[,|\/،]+/).forEach(function (part) {
+        var t = String(part || '').trim().replace(/^["'\[]+|["'\]]+$/g, '');
+        if (!t) return;
+        var map = { 'أولاد': 'أولاد', 'اولاد': 'أولاد', 'بنات': 'بنات', 'رجال': 'رجال', 'نساء': 'نساء',
+          boys: 'أولاد', boy: 'أولاد', girls: 'بنات', girl: 'بنات', men: 'رجال', women: 'نساء' };
+        var key = map[t] || map[t.toLowerCase()] || null;
+        if (key && entry.gender.indexOf(key) === -1) entry.gender.push(key);
+      });
+    };
     for (const line of lines) {
       if (/^images:\s*$/.test(line.trim())) {
         inImages = true;
         continue;
       }
-      if (inImages) {
-        if (/^[A-Za-z_][A-Za-z0-9_-]*:\s*/.test(line) && !/^\s+-/.test(line)) {
-          inImages = false;
+      if (!inImages) continue;
+      if (/^[A-Za-z_][A-Za-z0-9_-]*:\s*/.test(line) && !/^\s+-/.test(line)) {
+        finishImageEntry();
+        inImages = false;
+        continue;
+      }
+      const trimmed = line.trim();
+      if (trimmed.startsWith('-') && !imageCollectingGender) {
+        const afterDash = trimmed.replace(/^-\s*/, '').trim();
+        // شكل قديم: - /images/products/x.webp
+        // شكل جديد: - image: /path   أو - image: ...
+        const fieldMatch = afterDash.match(/^(image|src|url|gender):\s*(.*)$/i);
+        if (fieldMatch || afterDash === '' || afterDash.startsWith('{')) {
+          finishImageEntry();
+          currentImageEntry = { image: '', gender: [] };
+          imageCollectingGender = false;
+          if (fieldMatch) {
+            const fk = fieldMatch[1].toLowerCase();
+            const fv = unquote(fieldMatch[2]);
+            if (fk === 'gender') {
+              if (fv && fv !== '[]') pushGenderToEntry(currentImageEntry, fv);
+              else imageCollectingGender = true;
+            } else {
+              currentImageEntry.image = fv;
+            }
+          }
           continue;
         }
-        const trimmed = line.trim();
-        if (trimmed.startsWith('-')) {
-          let value = trimmed.replace(/^-\s*/, '').trim();
-          value = value.replace(/^(?:image_item|image):\s*/i, '');
-          if (value) pushImage(value);
-        } else if (trimmed && !trimmed.startsWith('#')) {
-          // Compatibility with a possible inline array/string representation.
-          const inline = trimmed.replace(/^\[|\]$/g, '');
-          inline.split(',').forEach(v => pushImage(v));
+        // مسار صورة مباشر تحت الشرطة
+        finishImageEntry();
+        if (afterDash) {
+          const url = fixImagePath(afterDash.replace(/^(?:image_item|image):\s*/i, ''));
+          if (url) {
+            parsedImageEntries.push({ url: url, gender: [] });
+            if (!allExtractedImages.includes(url)) allExtractedImages.push(url);
+          }
         }
+        continue;
+      }
+      if (currentImageEntry) {
+        if (imageCollectingGender) {
+          if (trimmed.startsWith('-')) {
+            pushGenderToEntry(currentImageEntry, unquote(trimmed.replace(/^-\s*/, '')));
+            continue;
+          }
+          if (/^[A-Za-z_][A-Za-z0-9_-]*:\s*/.test(trimmed)) {
+            imageCollectingGender = false;
+          } else {
+            continue;
+          }
+        }
+        const field = trimmed.match(/^(image|src|url|gender):\s*(.*)$/i);
+        if (field) {
+          const fk = field[1].toLowerCase();
+          const fv = unquote(field[2]);
+          if (fk === 'gender') {
+            if (fv && fv !== '[]') {
+              pushGenderToEntry(currentImageEntry, fv);
+              imageCollectingGender = false;
+            } else {
+              currentImageEntry.gender = [];
+              imageCollectingGender = true;
+            }
+          } else {
+            currentImageEntry.image = fv;
+          }
+        }
+      } else if (trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('-')) {
+        const inline = trimmed.replace(/^\[|\]$/g, '');
+        inline.split(',').forEach(function (v) { pushImage(v); });
       }
     }
+    finishImageEntry();
 
     // Legacy single image support.
     if (topLevel.image) pushImage(topLevel.image);
@@ -904,14 +993,16 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       ? marked.parse(body || '')
       : (body || title);
 
-    // لو مفيش gender على مستوى المنتج، نجمعه من الأشكال
-    if (!productGenderTags.length && parsedDesigns.length) {
+    // لو مفيش gender على مستوى المنتج، نجمعه من الأشكال وصور الألبوم
+    if (!productGenderTags.length) {
       const seen = {};
-      parsedDesigns.forEach(function (d) {
-        (d.gender || []).forEach(function (g) {
+      function addTags(list) {
+        (list || []).forEach(function (g) {
           if (!seen[g]) { seen[g] = true; productGenderTags.push(g); }
         });
-      });
+      }
+      parsedDesigns.forEach(function (d) { addTags(d.gender); });
+      parsedImageEntries.forEach(function (e) { addTags(e.gender); });
     }
 
     return {
@@ -924,6 +1015,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       stock: stockStatus,
       image: allExtractedImages[0],
       images: allExtractedImages,
+      imageEntries: parsedImageEntries,
       designs: parsedDesigns,
       variants: parsedVariants,
       gender: productGenderTags,

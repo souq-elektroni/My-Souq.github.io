@@ -108,23 +108,6 @@ collections:
             value: "ملابس للخروج"
         required: true
 
-      # تصنيف عام للمنتج (للمنتجات القديمة / الاستيراد الجماعي). الأفضل تحديده لكل شكل داخل الألبوم.
-      - label: "التصنيف العام (أولاد / بنات / رجال / نساء)"
-        name: "gender"
-        widget: "select"
-        multiple: true
-        required: false
-        hint: "يُستخدم كافتراضي للمنتج وللمنتجات بدون أشكال. الأفضل تحديد التصنيف داخل كل شكل في ألبوم الأشكال."
-        options:
-          - label: "أولاد"
-            value: "أولاد"
-          - label: "بنات"
-            value: "بنات"
-          - label: "رجال"
-            value: "رجال"
-          - label: "نساء"
-            value: "نساء"
-
       # الصور المزدوجة لكل شكل داخل الكوليكشن؛ الحقل القديم images يظل موجودًا للتوافق.
       - label: "ألبوم الأشكال — صورتان لكل شكل"
         name: "designs"
@@ -181,79 +164,76 @@ collections:
                     width: 1400
                     height: 1400
 
-          # تاج الجنس لكل شكل (أولاد / بنات / رجال / نساء) — يظهر للعميل جنب الصورة
-          - label: "التصنيف (أولاد / بنات / رجال / نساء)"
+          # تاج لكل شكل — يظهر للعميل جنب الصورة في شاشة الطلب
+          - label: "لِمَن هذا الشكل؟"
             name: "gender"
             widget: "select"
             multiple: true
             required: false
-            hint: "اختَر واحد أو أكثر. يظهر جنب الشكل في شاشة المنتج عند الطلب."
+            hint: "علّم مربع أو أكثر (أولاد / بنات / رجال / نساء). يظهر للعميل جنب الشكل."
             options:
-              - label: "أولاد"
+              - label: "👦 أولاد"
                 value: "أولاد"
-              - label: "بنات"
+              - label: "👧 بنات"
                 value: "بنات"
-              - label: "رجال"
+              - label: "👨 رجال"
                 value: "رجال"
-              - label: "نساء"
+              - label: "👩 نساء"
                 value: "نساء"
 
-      - label: "صور الألبوم القديم (اختياري — للتوافق مع المنتجات السابقة)"
+      # ألبوم صور مفردة — كل صورة لها تصنيف (أولاد/بنات/رجال/نساء)
+      # يدعم أيضًا الشكل القديم (مسارات نصية فقط) للتوافق مع المنتجات السابقة
+      - label: "صور الألبوم — صورة وتصنيف لكل صف"
         name: "images"
-        widget: "image"
-        multiple: true
+        widget: "list"
         required: false
-        min: 1
-        max: 200
-        media_libraries:
-          all:
-            max_file_size: 52428800
-            transformations:
-              raster_image:
-                format: webp
-                quality: 50
-                width: 1000
-                height: 1000
-              jpeg:
-                format: webp
-                quality: 50
-                width: 1000
-                height: 1000
-              png:
-                format: webp
-                quality: 50
-                width: 1000
-                height: 1000
-              heic:
-                format: webp
-                quality: 50
-                width: 1000
-                height: 1000
-          default:
-            config:
-              multiple: true
-              max_file_size: 52428800
-              transformations:
-                raster_image:
-                  format: webp
-                  quality: 50
-                  width: 1000
-                  height: 1000
-                jpeg:
-                  format: webp
-                  quality: 50
-                  width: 1000
-                  height: 1000
-                png:
-                  format: webp
-                  quality: 50
-                  width: 1000
-                  height: 1000
-                heic:
-                  format: webp
-                  quality: 50
-                  width: 1000
-                  height: 1000
+        summary: "{{fields.image}}"
+        collapsed: true
+        add_to_top: false
+        fields:
+          - label: "الصورة"
+            name: "image"
+            widget: "image"
+            required: false
+            media_libraries:
+              all:
+                max_file_size: 52428800
+                transformations:
+                  raster_image:
+                    format: webp
+                    quality: 50
+                    width: 1000
+                    height: 1000
+                  jpeg:
+                    format: webp
+                    quality: 50
+                    width: 1000
+                    height: 1000
+                  png:
+                    format: webp
+                    quality: 50
+                    width: 1000
+                    height: 1000
+                  heic:
+                    format: webp
+                    quality: 50
+                    width: 1000
+                    height: 1000
+          - label: "لِمَن هذه الصورة؟"
+            name: "gender"
+            widget: "select"
+            multiple: true
+            required: false
+            hint: "علّم مربع أو أكثر. يظهر للعميل جنب الصورة."
+            options:
+              - label: "👦 أولاد"
+                value: "أولاد"
+              - label: "👧 بنات"
+                value: "بنات"
+              - label: "👨 رجال"
+                value: "رجال"
+              - label: "👩 نساء"
+                value: "نساء"
 
       - label: "السعر الأساسي (ج.م)"
         name: "price"
