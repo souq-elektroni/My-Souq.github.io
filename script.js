@@ -318,20 +318,36 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     return 'unisex';
   }
 
-  /* الفلتر: لو الكوليكشن فيه أولاد وبنات، يظهر في فلتر الأولادي وفي البناتي */
+  /* فلتر النوع الدقيق: أولادي / بناتي / رجالي / نسائي */
   function productMatchesGenderFilter(p, filter) {
     if (!filter || filter === 'all') return true;
+
+    var wantMap = {
+      boys: ['أولاد', 'اولاد'],
+      girls: ['بنات'],
+      men: ['رجال'],
+      women: ['نساء'],
+      // توافق قديم
+      male: ['أولاد', 'اولاد', 'رجال'],
+      female: ['بنات', 'نساء']
+    };
+    var want = wantMap[filter];
+    if (!want) return true;
+
     var tags = getProductGenderTags(p);
     if (tags.length) {
-      if (filter === 'male') {
-        return tags.some(function (t) { return t === 'أولاد' || t === 'رجال' || t === 'اولاد'; });
-      }
-      if (filter === 'female') {
-        return tags.some(function (t) { return t === 'بنات' || t === 'نساء'; });
-      }
+      return tags.some(function (t) {
+        return want.indexOf(t) !== -1;
+      });
     }
+
+    // fallback نصّي لو مفيش تاجات محفوظة
     var g = detectProductGender(p);
-    return g === filter || g === 'unisex';
+    if (filter === 'boys' || filter === 'men') return g === 'male' || g === 'unisex';
+    if (filter === 'girls' || filter === 'women') return g === 'female' || g === 'unisex';
+    if (filter === 'male') return g === 'male' || g === 'unisex';
+    if (filter === 'female') return g === 'female' || g === 'unisex';
+    return true;
   }
 
   function formatGenderBadges(tags) {
@@ -357,8 +373,12 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   function filterGender(gender, btn) {
     currentGenderFilter = gender || 'all';
+    var sel = document.getElementById('msqGenderSelect');
+    if (sel && sel.value !== currentGenderFilter) {
+      try { sel.value = currentGenderFilter; } catch (e) {}
+    }
     document.querySelectorAll('.msq-gender-btn').forEach(function (b) {
-      b.classList.toggle('active', b === btn || b.getAttribute('data-gender') === currentGenderFilter);
+      b.classList.toggle('active', b.getAttribute('data-gender') === currentGenderFilter);
     });
     handleSearchAndFilter();
   }

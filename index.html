@@ -435,9 +435,16 @@
       <button class="cat-btn stock-avail" onclick="filterStock('available', this)">🟢 متوفرة</button>
       <button class="cat-btn stock-out" onclick="filterStock('out', this)">🔴 نفذت</button>
       <span class="cat-divider" aria-hidden="true"></span>
-      <button type="button" class="cat-btn msq-gender-btn active" data-gender="all" onclick="filterGender('all', this)">الكل 👤</button>
-      <button type="button" class="cat-btn msq-gender-btn" data-gender="male" onclick="filterGender('male', this)">رجالي / أولادي 👦</button>
-      <button type="button" class="cat-btn msq-gender-btn" data-gender="female" onclick="filterGender('female', this)">نسائي / بناتي 👧</button>
+      <label class="msq-gender-filter-wrap" for="msqGenderSelect">
+        <span class="msq-gender-filter-icon" aria-hidden="true">👤</span>
+        <select id="msqGenderSelect" class="msq-gender-select" onchange="filterGender(this.value)" aria-label="تصفية حسب النوع">
+          <option value="all">الكل — كل الأنواع</option>
+          <option value="boys">👦 أولادي فقط</option>
+          <option value="girls">👧 بناتي فقط</option>
+          <option value="men">👨 رجالي فقط</option>
+          <option value="women">👩 نسائي فقط</option>
+        </select>
+      </label>
     </div>
 
     <!-- صف البحث والترتيب منفصل بوضوح -->
