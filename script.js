@@ -345,7 +345,8 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     var want = genderFilterWants(filter);
     if (!want) return true;
 
-    // لازم يكون فيه تاج محفوظ مطابق — من غير تخمين ومن غير إظهار المنتجات الفاضية
+    // تاجات فقط — من غير تخمين من الاسم أو الوصف
+    // أي منتج مفيهوش تاج مطابق يختفي من نتائج الفلتر
     var tags = getProductGenderTags(p);
     return tagsMatchWant(tags, want);
   }
@@ -402,6 +403,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     var want = genderFilterWants(filter);
     var list = p.designs || [];
     if (!want) return list.slice();
+    // أشكال عليها تاج مطابق فقط
     return list.filter(function (d) {
       return d && tagsMatchWant(d.gender || [], want);
     });
