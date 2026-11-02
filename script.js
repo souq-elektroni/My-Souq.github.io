@@ -2184,9 +2184,20 @@ ${selectedImage}
         var tags = (d && Array.isArray(d.gender) && d.gender.length)
           ? d.gender
           : getProductGenderTags(currentSelectedProduct);
+        if ((!tags || !tags.length) && currentSelectedProduct) {
+          tags = getProductGenderTags(currentSelectedProduct);
+        }
         var b = formatGenderBadges(tags);
-        if (b) { gEl.innerHTML = b; gEl.hidden = false; }
-        else { gEl.innerHTML = ''; gEl.hidden = true; }
+        if (b) {
+          gEl.innerHTML = b;
+          gEl.hidden = false;
+          gEl.removeAttribute('hidden');
+          gEl.style.display = 'inline-flex';
+        } else {
+          gEl.innerHTML = '';
+          gEl.hidden = true;
+          gEl.style.display = 'none';
+        }
       }
       if (typeof updateDirectWhatsAppButton === 'function') {
         try { updateDirectWhatsAppButton(); } catch (e) {}
@@ -2321,6 +2332,8 @@ ${selectedImage}
 
       activeModalImage = f0 || b0;
       selectedDesignIndex = 0;
+      // إظهار النوع من الشكل الأول فورًا
+      try { window.selectProductDesign(0); } catch (e) {}
     } else {
       if (productModalEl) productModalEl.classList.remove('msq-pair-mode');
       (function clearPairLayout() {
@@ -2503,10 +2516,22 @@ ${selectedImage}
       var desc = document.getElementById('modalDesc');
       if (desc) desc.innerHTML = currentSelectedProduct.desc || '';
       if (!host) return;
-      var badges = genderLabelForImage(
-        currentSelectedProduct,
-        (currentSelectedProduct.images && currentSelectedProduct.images[0]) || activeModalImage || ''
-      );
+      var badges = '';
+      // في وضع الوش/الضهر: خذ النوع من الشكل النشط أولاً
+      var paired = window.__MSQ_PAIRED_DESIGNS__ || [];
+      if (paired.length) {
+        var di = typeof selectedDesignIndex === 'number' ? selectedDesignIndex : 0;
+        var d = paired[di] || paired[0];
+        if (d && Array.isArray(d.gender) && d.gender.length) {
+          badges = formatGenderBadges(d.gender);
+        }
+      }
+      if (!badges) {
+        badges = genderLabelForImage(
+          currentSelectedProduct,
+          (currentSelectedProduct.images && currentSelectedProduct.images[0]) || activeModalImage || ''
+        );
+      }
       // لو فلتر مفعّل: اعرض تاج الفلتر فقط
       var want = genderFilterWants(currentGenderFilter || 'all');
       if (!badges) {
@@ -2518,9 +2543,11 @@ ${selectedImage}
         host.innerHTML = badges;
         host.hidden = false;
         host.removeAttribute('hidden');
+        host.style.display = 'inline-flex';
       } else {
         host.innerHTML = '';
         host.hidden = true;
+        host.style.display = 'none';
       }
     })();
 

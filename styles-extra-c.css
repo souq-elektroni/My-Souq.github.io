@@ -11578,3 +11578,121 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
   background: #fdf2f4 !important;
   color: #803d48 !important;
 }
+
+/* ===== وضع الوش/الضهر: صور تملأ المساحة + النوع ظاهر ===== */
+#productModal.msq-pair-mode .modal-content {
+  display: flex !important;
+  flex-direction: column !important;
+  max-height: 96vh !important;
+  height: auto !important;
+  overflow: hidden !important;
+}
+#productModal.msq-pair-mode .modal-body {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.85fr) !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  max-height: calc(96vh - 20px) !important;
+  overflow: hidden !important;
+  padding: 12px !important;
+  box-sizing: border-box !important;
+}
+#productModal.msq-pair-mode .modal-gallery-wrapper {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+  gap: 8px !important;
+  padding: 0 !important;
+}
+#productModal.msq-pair-mode .msq-stage-row {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  gap: 8px !important;
+}
+#productModal.msq-pair-mode .msq-modal-stage-wrap {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+#productModal.msq-pair-mode .msq-pair-stage {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 10px !important;
+  padding: 10px !important;
+  align-items: stretch !important;
+}
+#productModal.msq-pair-mode .msq-stage-side {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  height: 100% !important;
+  gap: 6px !important;
+}
+#productModal.msq-pair-mode .msq-stage-side img {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 280px !important;
+  max-height: none !important;
+  aspect-ratio: auto !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  background: #e8e2dc !important;
+  border-radius: 12px !important;
+}
+#productModal.msq-pair-mode .msq-design-rail {
+  flex: 0 0 auto !important;
+  max-height: 110px !important;
+}
+#productModal.msq-pair-mode .modal-info {
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+#productModal.msq-pair-mode #msqModalGender,
+#productModal.msq-pair-mode .msq-modal-gender {
+  display: inline-flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  margin: 4px 0 8px !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+#productModal.msq-pair-mode #msqModalGender[hidden] {
+  display: none !important;
+}
+#productModal.msq-pair-mode #msqModalGender:not([hidden]) {
+  display: inline-flex !important;
+}
+
+@media (max-width: 900px) {
+  #productModal.msq-pair-mode .modal-body {
+    grid-template-columns: 1fr !important;
+    overflow-y: auto !important;
+    max-height: 96vh !important;
+  }
+  #productModal.msq-pair-mode .modal-gallery-wrapper {
+    height: auto !important;
+    max-height: none !important;
+  }
+  #productModal.msq-pair-mode .msq-stage-side img {
+    min-height: 220px !important;
+    max-height: 48vh !important;
+    height: auto !important;
+    aspect-ratio: 3 / 4 !important;
+  }
+}
