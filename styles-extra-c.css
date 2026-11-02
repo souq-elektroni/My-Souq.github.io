@@ -11369,67 +11369,109 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
 }
 .msq-top-search .voice-search-btn:hover { opacity: 1 !important; }
 
-/* الفلاتر كلها في سطر واحد بشكل جمالي */
-/* ===== فلاتر سطر واحد متناسق بدون سكرول ===== */
-.msq-filters-one-row,
-.controls-wrapper .msq-filters-row {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  align-items: stretch !important;
-  justify-content: center !important;
+
+/* =========================================================
+   فلاتر سطر واحد متناسق – بدون سكرول – نفس الحجم
+   ========================================================= */
+.controls-wrapper .msq-filters-one-row.msq-filters-row,
+.controls-wrapper .categories-bar.msq-filters-one-row,
+.msq-filters-one-row {
+  display: grid !important;
+  grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
   gap: 8px !important;
+  align-items: stretch !important;
+  justify-content: stretch !important;
   width: 100% !important;
   max-width: 100% !important;
-  overflow: hidden !important;          /* ممنوع سكرول */
-  padding: 6px 4px !important;
+  margin: 0 auto !important;
+  padding: 8px 6px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  flex-wrap: nowrap !important;
+  white-space: normal !important;
+}
+
+/* كل العناصر المباشرة تملأ خليتها فقط */
+.msq-filters-one-row > * {
+  display: flex !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  flex: none !important;
   box-sizing: border-box !important;
 }
 
-/* كل العناصر تاخد نفس الارتفاع وتوزع المساحة بالتساوي */
-.msq-filters-one-row > * {
-  flex: 1 1 0 !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  margin: 0 !important;
-}
-
+.msq-filters-one-row .msq-depts-menu,
 .msq-filters-one-row .sort-wrapper,
 .msq-filters-one-row .msq-gender-filter-wrap,
-.msq-filters-one-row .msq-depts-menu {
+.msq-filters-one-row .shared-subcategory-wrap {
   display: flex !important;
-  flex: 1 1 0 !important;
+  width: 100% !important;
   min-width: 0 !important;
 }
 
 .msq-filters-one-row select,
 .msq-filters-one-row .cat-btn,
 .msq-filters-one-row .gallery-mode-btn,
-.msq-filters-one-row .msq-depts-btn {
+.msq-filters-one-row .msq-depts-btn,
+.msq-filters-one-row .stock-avail,
+.msq-filters-one-row .stock-out {
   width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
   min-height: 42px !important;
   height: 42px !important;
-  padding: 0 10px !important;
+  padding: 0 8px !important;
   border-radius: 12px !important;
   font-size: 12px !important;
   font-weight: 700 !important;
+  line-height: 1.2 !important;
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   box-sizing: border-box !important;
-}
-
-/* زرار صور فقط نفس شكل الباقي */
-.msq-filters-one-row .gallery-mode-btn {
-  flex: 1 1 0 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
+  flex: none !important;
 }
 
-/* موبايل: حجم أصغر شوية بس لسه جنب بعض */
-@media (max-width: 720px) {
+/* زر الأقسام */
+.msq-filters-one-row .msq-depts-btn {
+  gap: 6px !important;
+}
+.msq-filters-one-row .msq-depts-label {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+/* شاشات متوسطة: 4 أعمدة × صفين لو لازم، بس نفضل سطر واحد */
+@media (max-width: 900px) {
   .msq-filters-one-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+  }
+  .msq-filters-one-row select,
+  .msq-filters-one-row .cat-btn,
+  .msq-filters-one-row .gallery-mode-btn,
+  .msq-filters-one-row .msq-depts-btn {
+    min-height: 40px !important;
+    height: 40px !important;
+    font-size: 11px !important;
+    padding: 0 6px !important;
+  }
+}
+
+/* موبايل: سطرين منظمين 4×2 بدون سكرول */
+@media (max-width: 600px) {
+  .msq-filters-one-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
     gap: 5px !important;
+    padding: 6px 4px !important;
   }
   .msq-filters-one-row select,
   .msq-filters-one-row .cat-btn,
@@ -11437,24 +11479,40 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
   .msq-filters-one-row .msq-depts-btn {
     min-height: 38px !important;
     height: 38px !important;
-    font-size: 11px !important;
-    padding: 0 6px !important;
+    font-size: 10.5px !important;
+    padding: 0 4px !important;
   }
 }
-@media (max-width: 480px) {
-  .top-actions {
-    gap: 5px !important;
-    padding: 5px !important;
-  }
-  .msq-top-search {
-    max-width: 130px !important;
-  }
-  .admin-orders-trigger {
-    font-size: 10px !important;
-    padding: 6px 8px !important;
-  }
-  .track-trigger {
-    font-size: 10px !important;
-    padding: 6px 8px !important;
-  }
+
+/* قفل نهائي ضد أي width:100% قديم */
+.controls-wrapper .msq-filters-one-row.msq-filters-row > .gallery-mode-btn,
+.controls-wrapper .msq-filters-one-row.msq-filters-row > .cat-btn,
+.controls-wrapper .msq-filters-one-row.msq-filters-row > .stock-avail,
+.controls-wrapper .msq-filters-one-row.msq-filters-row > .stock-out,
+.controls-wrapper .msq-filters-one-row.msq-filters-row .sort-wrapper,
+.controls-wrapper .msq-filters-one-row.msq-filters-row .sort-wrapper select,
+.controls-wrapper .msq-filters-one-row.msq-filters-row .msq-gender-filter-wrap,
+.controls-wrapper .msq-filters-one-row.msq-filters-row .msq-gender-select,
+.controls-wrapper .msq-filters-one-row.msq-filters-row .msq-depts-menu,
+.controls-wrapper .msq-filters-one-row.msq-filters-row .msq-depts-btn {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  flex: none !important;
+  flex-grow: 0 !important;
+  flex-shrink: 0 !important;
+  flex-basis: auto !important;
+}
+
+/* إخفاء السكرول نهائيًا */
+.controls-wrapper .msq-filters-one-row,
+.controls-wrapper .categories-bar.msq-filters-one-row {
+  overflow-x: hidden !important;
+  overflow-y: visible !important;
+  scrollbar-width: none !important;
+}
+.controls-wrapper .msq-filters-one-row::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
