@@ -12081,3 +12081,78 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
 #msqSizeHelper.msq-size-panel:has(#msqSizeChartBody tr) {
   display: block !important;
 }
+
+/* ===== تتبع الطلب: أيقونة ورقة + عدسة على الموبايل ===== */
+.msq-track-icon-btn .msq-track-icon { display: none !important; }
+.msq-track-icon-btn .msq-track-full { display: inline !important; }
+
+@media (max-width: 720px) {
+  .msq-track-icon-btn {
+    min-width: 42px !important;
+    width: 42px !important;
+    height: 42px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 14px !important;
+    font-size: 18px !important;
+    line-height: 1 !important;
+  }
+  .msq-track-icon-btn .msq-track-full { display: none !important; }
+  .msq-track-icon-btn .msq-track-icon {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 17px !important;
+    letter-spacing: -4px !important;
+    line-height: 1 !important;
+  }
+}
+
+/* ===== إجبار دليل المقاسات في وضع الوش/الضهر ===== */
+#productModal.msq-pair-mode #msqSizeHelper,
+#productModal.msq-pair-mode .msq-size-panel {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  width: 100% !important;
+  margin: 12px 0 !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+#productModal.msq-pair-mode #msqSizeHelper[style*="display: none"],
+#productModal.msq-pair-mode #msqSizeHelper[style*="display:none"] {
+  display: block !important;
+}
+
+@media (max-width: 900px) {
+  #productModal.msq-pair-mode .modal-body {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-height: 100vh !important;
+  }
+  #productModal.msq-pair-mode .modal-info {
+    overflow: visible !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+  #productModal.msq-pair-mode #msqSizeHelper,
+  #productModal.msq-pair-mode .msq-size-panel {
+    display: block !important;
+    order: 3 !important;
+  }
+  #productModal.msq-pair-mode .msq-size-chart-wrap {
+    display: block !important;
+    width: 100% !important;
+    overflow-x: auto !important;
+  }
+  #productModal.msq-pair-mode .msq-size-chart {
+    display: table !important;
+    width: 100% !important;
+  }
+}

@@ -2344,6 +2344,16 @@ ${selectedImage}
       try { window.selectProductDesign(0); } catch (e) {}
       // نقل سياسة الاستبدال + الأزرار تحت الألبوم في وضع الوش/الضهر
       try { window.msqPlacePairFooter && window.msqPlacePairFooter(true); } catch (e) {}
+      // إجبار ظهور دليل المقاسات في وضع الوش/الضهر
+      try {
+        var sh = document.getElementById('msqSizeHelper');
+        var body = document.getElementById('msqSizeChartBody');
+        if (sh && body && body.querySelector('tr')) {
+          sh.style.setProperty('display', 'block', 'important');
+          sh.hidden = false;
+          sh.removeAttribute('hidden');
+        }
+      } catch (e) {}
     } else {
       if (productModalEl) productModalEl.classList.remove('msq-pair-mode');
       try { window.msqPlacePairFooter && window.msqPlacePairFooter(false); } catch (e) {}
@@ -2913,11 +2923,18 @@ ${selectedImage}
       });
       var hasDims = activeCols.some(function (c) { return c.key !== 'size'; });
       if (!hasDims) {
-        helper.style.display = 'none';
+        helper.style.setProperty('display', 'none', 'important');
         return;
       }
 
-      helper.style.display = 'block';
+      helper.style.setProperty('display', 'block', 'important');
+      helper.hidden = false;
+      helper.removeAttribute('hidden');
+      helper.style.setProperty('visibility', 'visible', 'important');
+      helper.style.setProperty('opacity', '1', 'important');
+      helper.style.setProperty('height', 'auto', 'important');
+      helper.style.setProperty('max-height', 'none', 'important');
+      helper.style.setProperty('overflow', 'visible', 'important');
       if (resultEl) resultEl.innerHTML = '';
       if (ageInput) ageInput.value = '';
       if (lenInput) lenInput.value = '';

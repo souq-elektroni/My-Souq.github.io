@@ -244,8 +244,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611021526fix">
-<link rel="stylesheet" href="styles.css?v=202611021526fix">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611021536fix">
+<link rel="stylesheet" href="styles.css?v=202611021536fix">
 
 
 
@@ -281,8 +281,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611021526fix">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611021526fix">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611021536fix">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611021536fix">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -372,8 +372,9 @@
     <div class="admin-orders-trigger" id="adminOrdersBtn" onclick="handleAdminButton()">
       📋 الطلبات
     </div>
-    <div class="track-trigger" onclick="openTrackingModal()">
-      🔍 تتبع طلبك
+    <div class="track-trigger msq-track-icon-btn" onclick="openTrackingModal()" aria-label="تتبع طلبك" title="تتبع طلبك">
+      <span class="msq-track-full">🔍 تتبع طلبك</span>
+      <span class="msq-track-icon" aria-hidden="true">📄🔍</span>
     </div>
     <div class="search-field-wrap msq-top-search">
       <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن منتج..." oninput="handleSearchAndFilter()" autocomplete="off">
@@ -1354,7 +1355,7 @@
   })();
   </script>
 
-  <script src="script.js?v=202611021526fix"></script>
+  <script src="script.js?v=202611021536fix"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
