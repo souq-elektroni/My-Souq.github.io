@@ -424,10 +424,9 @@
 
   <div class="controls-wrapper">
 
-    <!-- صف الفلاتر الاحترافي -->
-    <div class="categories-bar categories-main msq-category-nav msq-filters-row" aria-label="فلاتر المتجر">
+    <!-- صف الفلاتر الموحد -->
+    <div class="categories-bar categories-main msq-category-nav msq-filters-row msq-filters-one-row" aria-label="فلاتر المتجر">
 
-      <!-- قائمة جميع الأقسام (☰) -->
       <div class="msq-depts-menu" id="msqDeptsMenu">
         <button type="button" class="cat-btn msq-depts-btn" id="msqDeptsBtn" aria-haspopup="true" aria-expanded="false" aria-controls="msqDeptsPanel" onclick="window.toggleDeptsMenu && window.toggleDeptsMenu(event)">
           <span class="msq-hamburger" aria-hidden="true"><span></span><span></span><span></span></span>
@@ -455,42 +454,34 @@
         </select>
       </label>
 
-    </div>
-
-    <!-- صف البحث والترتيب منفصل بوضوح -->
-    <div class="search-sort-box">
-      <div class="search-field-wrap">
-        <input
-          type="text"
-          id="searchInput"
-          class="search-input"
-          placeholder="🔍 ابحث عن منتج..."
-          oninput="handleSearchAndFilter()"
-          autocomplete="off"
-        >
+      <div class="search-field-wrap msq-inline-search">
+        <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن منتج..." oninput="handleSearchAndFilter()" autocomplete="off">
         <button type="button" class="voice-search-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="بحث بالصوت">🎤</button>
       </div>
+
       <div class="sort-wrapper">
         <select id="sizeSelect" onchange="filterSize(this.value)">
-          <option value="الكل">📏 كل المقاسات</option>
+          <option value="الكل">كل المقاسات</option>
         </select>
       </div>
       <div class="sort-wrapper">
         <select id="sortSelect" aria-label="ترتيب المنتجات" onchange="applySorting()">
-          <option value="default">↕️ الترتيب الافتراضي</option>
-          <option value="low-high">💰 السعر: من الأقل للأعلى</option>
-          <option value="high-low">💎 السعر: من الأعلى للأقل</option>
+          <option value="default">الترتيب الافتراضي</option>
+          <option value="low-high">السعر: من الأقل للأعلى</option>
+          <option value="high-low">السعر: من الأعلى للأقل</option>
         </select>
       </div>
       <div class="sort-wrapper shared-subcategory-wrap">
         <select id="sharedSubcategorySelect" aria-label="فلترة نوع الملابس" onchange="applySharedSubcategoryFilter(this.value)">
-          <option value="">🗂️ كل أنواع الملابس</option>
-          <option value="ملابس للمنزل">🏠 ملابس للمنزل</option>
-          <option value="ملابس للخروج">✨ ملابس للخروج</option>
+          <option value="">كل أنواع الملابس</option>
+          <option value="ملابس للمنزل">ملابس للمنزل</option>
+          <option value="ملابس للخروج">ملابس للخروج</option>
         </select>
       </div>
-      <button type="button" class="gallery-mode-btn" id="galleryModeBtn" onclick="toggleGalleryMode()" title="تصفح بالصور فقط">🖼️ صور فقط</button>
+      <button type="button" class="gallery-mode-btn" id="galleryModeBtn" onclick="toggleGalleryMode()" title="تصفح بالصور فقط">صور فقط</button>
     </div>
+
+
 
   </div>
 

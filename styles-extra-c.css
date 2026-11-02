@@ -11220,3 +11220,86 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
     max-height:180px!important;
   }
 }
+
+
+/* صف فلاتر واحد */
+.msq-filters-one-row,
+.controls-wrapper .msq-filters-row{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  position:relative!important;
+  z-index:40!important;
+  overflow:visible!important;
+}
+.msq-filters-one-row .search-field-wrap,
+.msq-inline-search{
+  flex:1 1 180px!important;
+  min-width:140px!important;
+  max-width:260px!important;
+  margin:0!important;
+}
+.msq-filters-one-row .sort-wrapper,
+.msq-filters-one-row select,
+.msq-filters-one-row .cat-btn,
+.msq-filters-one-row .gallery-mode-btn{
+  flex:0 0 auto!important;
+}
+.controls-wrapper{
+  overflow:visible!important;
+  position:relative!important;
+  z-index:30!important;
+}
+.search-sort-box{display:none!important} /* اتدمج في صف واحد */
+
+/* قائمة الأقسام فوق كل حاجة */
+.msq-depts-panel{
+  display:none!important;
+  position:fixed!important;
+  z-index:2147483646!important;
+  min-width:190px!important;
+  background:#fff!important;
+  border:1px solid rgba(128,61,72,.16)!important;
+  border-radius:14px!important;
+  box-shadow:0 16px 40px rgba(0,0,0,.18)!important;
+  padding:6px!important;
+  flex-direction:column!important;
+  gap:2px!important;
+}
+.msq-depts-panel.is-open{display:flex!important}
+
+/* ألوان تاجات النوع */
+.msq-gender-tag[data-g="أولاد"],
+.msq-gender-tag[data-g="اولاد"]{
+  background:#e8f3ff!important;
+  color:#1d5fbf!important;
+  border:1px solid rgba(29,95,191,.28)!important;
+}
+.msq-gender-tag[data-g="بنات"]{
+  background:#fdf2f6!important;
+  color:#c2185b!important;
+  border:1px solid rgba(194,24,91,.25)!important;
+}
+.msq-gender-tag[data-g="رجال"]{
+  background:#eef7f2!important;
+  color:#1b6b45!important;
+  border:1px solid rgba(27,107,69,.25)!important;
+}
+.msq-gender-tag[data-g="نساء"]{
+  background:#f6f0ff!important;
+  color:#6a1b9a!important;
+  border:1px solid rgba(106,27,154,.25)!important;
+}
+#productModal #msqModalGender .msq-gender-tag[data-g="أولاد"],
+#productModal #msqModalGender .msq-gender-tag[data-g="اولاد"]{
+  background:#e8f3ff!important;
+  color:#1d5fbf!important;
+  border-color:rgba(29,95,191,.28)!important;
+}
+#productModal #msqModalGender .msq-gender-tag[data-g="بنات"]{
+  background:#fdf2f6!important;
+  color:#c2185b!important;
+  border-color:rgba(194,24,91,.25)!important;
+}

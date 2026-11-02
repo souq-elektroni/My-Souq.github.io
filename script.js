@@ -1679,9 +1679,22 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       var btn = document.getElementById('msqDeptsBtn');
       var panel = document.getElementById('msqDeptsPanel');
       if (!btn || !panel) return;
-      var open = panel.classList.toggle('is-open');
-      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      btn.classList.toggle('menu-open', open);
+      var open = !panel.classList.contains('is-open');
+      if (open) {
+        var r = btn.getBoundingClientRect();
+        panel.style.position = 'fixed';
+        panel.style.top = Math.round(r.bottom + 6) + 'px';
+        panel.style.right = Math.round(window.innerWidth - r.right) + 'px';
+        panel.style.left = 'auto';
+        panel.style.zIndex = '2147483646';
+        panel.classList.add('is-open');
+        btn.setAttribute('aria-expanded', 'true');
+        btn.classList.add('menu-open');
+      } else {
+        panel.classList.remove('is-open');
+        btn.setAttribute('aria-expanded', 'false');
+        btn.classList.remove('menu-open');
+      }
     } catch (err) {}
   };
 
