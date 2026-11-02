@@ -11370,82 +11370,75 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
 .msq-top-search .voice-search-btn:hover { opacity: 1 !important; }
 
 /* الفلاتر كلها في سطر واحد بشكل جمالي */
+/* ===== فلاتر سطر واحد متناسق بدون سكرول ===== */
 .msq-filters-one-row,
 .controls-wrapper .msq-filters-row {
   display: flex !important;
   flex-wrap: nowrap !important;
-  align-items: center !important;
+  align-items: stretch !important;
   justify-content: center !important;
   gap: 8px !important;
-  overflow-x: auto !important;
-  overflow-y: visible !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: thin !important;
-  padding: 6px 4px !important;
   width: 100% !important;
   max-width: 100% !important;
+  overflow: hidden !important;          /* ممنوع سكرول */
+  padding: 6px 4px !important;
   box-sizing: border-box !important;
 }
-.msq-filters-one-row::-webkit-scrollbar { height: 4px; }
-.msq-filters-one-row::-webkit-scrollbar-thumb {
-  background: rgba(128,61,72,.25);
-  border-radius: 4px;
-}
+
+/* كل العناصر تاخد نفس الارتفاع وتوزع المساحة بالتساوي */
 .msq-filters-one-row > * {
-  flex: 0 0 auto !important;
-  white-space: nowrap !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
 }
+
 .msq-filters-one-row .sort-wrapper,
 .msq-filters-one-row .msq-gender-filter-wrap,
 .msq-filters-one-row .msq-depts-menu {
-  flex: 0 0 auto !important;
+  display: flex !important;
+  flex: 1 1 0 !important;
   min-width: 0 !important;
 }
+
 .msq-filters-one-row select,
 .msq-filters-one-row .cat-btn,
 .msq-filters-one-row .gallery-mode-btn,
 .msq-filters-one-row .msq-depts-btn {
-  min-height: 40px !important;
-  height: 40px !important;
-  padding: 0 12px !important;
+  width: 100% !important;
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 0 10px !important;
   border-radius: 12px !important;
   font-size: 12px !important;
   font-weight: 700 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
   box-sizing: border-box !important;
 }
 
-/* موبايل: أيقونات أصغر وبحث مضغوط */
+/* زرار صور فقط نفس شكل الباقي */
+.msq-filters-one-row .gallery-mode-btn {
+  flex: 1 1 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* موبايل: حجم أصغر شوية بس لسه جنب بعض */
 @media (max-width: 720px) {
-  .cart-trigger.msq-icon-only,
-  .msq-favorites-trigger.msq-icon-only {
-    min-width: 36px !important;
-    padding: 6px 8px !important;
-    font-size: 16px !important;
-  }
-  .msq-top-search {
-    flex: 1 1 110px !important;
-    min-width: 100px !important;
-    max-width: 160px !important;
-  }
-  .msq-top-search .search-input {
-    font-size: 12px !important;
-    min-height: 36px !important;
-    height: 36px !important;
-    padding: 6px 32px 6px 8px !important;
-  }
   .msq-filters-one-row {
-    gap: 6px !important;
-    justify-content: flex-start !important;
-    padding: 4px 2px !important;
+    gap: 5px !important;
   }
   .msq-filters-one-row select,
   .msq-filters-one-row .cat-btn,
   .msq-filters-one-row .gallery-mode-btn,
   .msq-filters-one-row .msq-depts-btn {
-    min-height: 36px !important;
-    height: 36px !important;
-    padding: 0 8px !important;
+    min-height: 38px !important;
+    height: 38px !important;
     font-size: 11px !important;
+    padding: 0 6px !important;
   }
 }
 @media (max-width: 480px) {
