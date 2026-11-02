@@ -1354,7 +1354,7 @@
   })();
   </script>
 
-  <script src="script.js?v=202611021027depts"></script>
+  <script src="script.js?v=202611021043depts"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -6715,6 +6715,15 @@ window.addToCartAndContinue = function () {
     if (!item) return;
     setTimeout(closePanel, 50);
   }, true);
+
+  // تتقفل مع أي سكرول (رأسي أو أفقي) عشان متتحركش بعيد عن الزرار
+  function onAnyScroll() {
+    var panel = document.getElementById('msqDeptsPanel');
+    if (panel && panel.classList.contains('is-open')) closePanel();
+  }
+  window.addEventListener('scroll', onAnyScroll, true);
+  window.addEventListener('wheel', onAnyScroll, { passive: true, capture: true });
+  window.addEventListener('touchmove', onAnyScroll, { passive: true, capture: true });
 
   // also expose as toggleDeptsMenu for compatibility
   window.toggleDeptsMenu = window.msqToggleDepts;
