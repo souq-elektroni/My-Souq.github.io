@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202610281300tracking";
+  var BUILD = "202611021545v3";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -155,7 +155,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202610281300tracking">
+  <meta name="msq-build" content="202611021545v3">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -166,11 +166,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=202610281300tracking">
-  <link rel="icon" href="favicon.svg?v=202610281300tracking" type="image/svg+xml">
-  <link rel="icon" href="favicon.svg?v=202610281300tracking" sizes="any">
-  <link rel="apple-touch-icon" href="favicon.svg?v=202610281300tracking">
-  <link rel="shortcut icon" href="favicon.svg?v=202610281300tracking">
+  <link rel="manifest" href="manifest.json?v=202611021545v3">
+  <link rel="icon" href="favicon.svg?v=202611021545v3" type="image/svg+xml">
+  <link rel="icon" href="favicon.svg?v=202611021545v3" sizes="any">
+  <link rel="apple-touch-icon" href="favicon.svg?v=202611021545v3">
+  <link rel="shortcut icon" href="favicon.svg?v=202611021545v3">
     <meta name="description" content="ماي سوق — ملابس أطفال ونساء ورجال بأجود الخامات وأسعار مناسبة. توصيل لكل المحافظات.">
   <meta name="keywords" content="ماي سوق, ملابس أطفال, ملابس أولادي, ملابس بناتي, تسوق أونلاين, مصر">
   <meta name="robots" content="index, follow">
@@ -244,8 +244,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611021536fix">
-<link rel="stylesheet" href="styles.css?v=202611021536fix">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611021545v3">
+<link rel="stylesheet" href="styles.css?v=202611021545v3">
 
 
 
@@ -281,8 +281,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611021536fix">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611021536fix">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611021545v3">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611021545v3">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -353,6 +353,51 @@
 #msqDeptsPanel .msq-depts-item.active { background: #fdf2f4 !important; color: #803d48 !important; }
 </style>
 
+
+<style id="msq-critical-mobile-v3">
+/* تتبع: أيقونة ورقة+عدسة على الموبايل */
+.msq-track-icon-btn .msq-track-icon{display:none!important}
+.msq-track-icon-btn .msq-track-full{display:inline!important}
+@media (max-width:720px){
+  .msq-track-icon-btn{
+    min-width:42px!important;width:42px!important;height:42px!important;
+    padding:0!important;display:inline-flex!important;align-items:center!important;
+    justify-content:center!important;border-radius:14px!important;
+  }
+  .msq-track-icon-btn .msq-track-full{display:none!important}
+  .msq-track-icon-btn .msq-track-icon{
+    display:inline-flex!important;align-items:center!important;justify-content:center!important;
+    color:inherit!important;
+  }
+  .msq-track-icon-btn .msq-track-icon svg{display:block!important;width:22px!important;height:22px!important}
+}
+
+/* دليل المقاسات في وضع الوش/الضهر */
+#productModal.msq-pair-mode #msqSizeHelper{
+  display:block!important;visibility:visible!important;opacity:1!important;
+  height:auto!important;max-height:none!important;overflow:visible!important;
+  width:100%!important;margin:12px 0!important;position:relative!important;z-index:6!important;
+}
+#productModal.msq-pair-mode .msq-size-chart-wrap{display:block!important;overflow-x:auto!important;width:100%!important}
+#productModal.msq-pair-mode .msq-size-chart{display:table!important;width:100%!important}
+
+/* فلاتر موبايل: نص كامل + سكرول أفقي */
+@media (max-width:900px){
+  .msq-filters-one-row,.controls-wrapper .msq-filters-one-row{
+    display:flex!important;flex-wrap:nowrap!important;grid-template-columns:none!important;
+    overflow-x:auto!important;-webkit-overflow-scrolling:touch!important;gap:8px!important;
+    padding:8px 4px 12px!important;width:100%!important;
+  }
+  .msq-filters-one-row>*{flex:0 0 auto!important;width:auto!important;min-width:max-content!important}
+  .msq-filters-one-row select,.msq-filters-one-row .cat-btn,.msq-filters-one-row .gallery-mode-btn,
+  .msq-filters-one-row .msq-depts-btn,.msq-filters-one-row .stock-avail,.msq-filters-one-row .stock-out{
+    width:auto!important;min-width:max-content!important;height:40px!important;padding:0 14px!important;
+    font-size:13px!important;font-weight:800!important;white-space:nowrap!important;
+    overflow:visible!important;border-radius:999px!important;
+  }
+}
+</style>
+
 </head>
 
 <body>
@@ -374,7 +419,14 @@
     </div>
     <div class="track-trigger msq-track-icon-btn" onclick="openTrackingModal()" aria-label="تتبع طلبك" title="تتبع طلبك">
       <span class="msq-track-full">🔍 تتبع طلبك</span>
-      <span class="msq-track-icon" aria-hidden="true">📄🔍</span>
+      <span class="msq-track-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 3h7l4 4v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="1.8" fill="none"/>
+          <path d="M14 3v4h4" stroke="currentColor" stroke-width="1.8" fill="none"/>
+          <circle cx="11" cy="13" r="3.2" stroke="currentColor" stroke-width="1.8" fill="none"/>
+          <path d="M13.4 15.4L16.2 18.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
     </div>
     <div class="search-field-wrap msq-top-search">
       <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن منتج..." oninput="handleSearchAndFilter()" autocomplete="off">
@@ -1355,7 +1407,7 @@
   })();
   </script>
 
-  <script src="script.js?v=202611021536fix"></script>
+  <script src="script.js?v=202611021545v3"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -6800,6 +6852,31 @@ window.addToCartAndContinue = function () {
   });
   var modal = document.getElementById('productModal');
   if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+})();
+</script>
+
+
+<script id="msq-force-size-helper-v3">
+(function(){
+  function forceSize(){
+    try{
+      var modal=document.getElementById('productModal');
+      var helper=document.getElementById('msqSizeHelper');
+      var body=document.getElementById('msqSizeChartBody');
+      if(!modal||!helper) return;
+      if(!modal.classList.contains('active')) return;
+      var hasRows=body && body.querySelectorAll('tr').length>0;
+      if(hasRows || modal.classList.contains('msq-pair-mode')){
+        if(hasRows){
+          helper.style.setProperty('display','block','important');
+          helper.hidden=false;
+          helper.removeAttribute('hidden');
+        }
+      }
+    }catch(e){}
+  }
+  setInterval(forceSize, 700);
+  document.addEventListener('click', function(){ setTimeout(forceSize, 200); setTimeout(forceSize, 600); }, true);
 })();
 </script>
 
