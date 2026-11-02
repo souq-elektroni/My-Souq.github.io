@@ -11743,3 +11743,96 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
     max-height: 42vh !important;
   }
 }
+
+/* ===== تحت الألبوم في وضع الوش/الضهر: سياسة + 4 أزرار ===== */
+#productModal.msq-pair-mode .msq-pair-actions-slot {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin-top: 4px !important;
+  padding: 0 2px 6px !important;
+  box-sizing: border-box !important;
+  flex: 0 0 auto !important;
+}
+
+#productModal.msq-pair-mode .msq-pair-actions-slot .msq-exchange-policy {
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  font-size: 12px !important;
+  line-height: 1.55 !important;
+  box-sizing: border-box !important;
+}
+
+#productModal.msq-pair-mode .msq-pair-actions-slot .modal-actions-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+#productModal.msq-pair-mode .msq-pair-actions-slot .modal-actions-row > * {
+  width: 100% !important;
+  min-height: 46px !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  border-radius: 12px !important;
+}
+
+#productModal.msq-pair-mode .msq-pair-actions-slot .add-another-design-btn {
+  width: 100% !important;
+  min-height: 42px !important;
+  margin: 0 !important;
+}
+
+#productModal.msq-pair-mode .msq-pair-actions-slot .multi-design-hint {
+  margin: 0 !important;
+  font-size: 11px !important;
+  line-height: 1.5 !important;
+}
+
+/* النوع جنب الاسم في المودال */
+#productModal .msq-title-with-gender {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+#productModal .msq-title-with-gender .modal-title {
+  display: inline !important;
+  margin: 0 !important;
+}
+#productModal #msqModalGender:not([hidden]) {
+  display: inline-flex !important;
+  margin: 0 !important;
+}
+
+/* النوع على كارت المنتج */
+.msq-card-gender {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+  margin: 4px 0 2px !important;
+}
+.msq-card-gender .msq-gender-tag {
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  padding: 3px 9px !important;
+  border-radius: 999px !important;
+}
+
+@media (max-width: 900px) {
+  #productModal.msq-pair-mode .msq-pair-actions-slot .modal-actions-row {
+    grid-template-columns: 1fr 1fr !important;
+  }
+}

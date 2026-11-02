@@ -1443,6 +1443,11 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
             <h3 class="product-title">${p.title}</h3>
             ${(() => {
               var tags = getProductGenderTags(p);
+              if (!tags || !tags.length) {
+                var det = detectProductGender(p);
+                if (det === 'male') tags = ['أولاد'];
+                else if (det === 'female') tags = ['بنات'];
+              }
               var want = genderFilterWants(currentGenderFilter || 'all');
               if (want) tags = tags.filter(function (t) { return want.indexOf(t) !== -1; });
               var g = formatGenderBadges(tags);
@@ -2337,8 +2342,11 @@ ${selectedImage}
       selectedDesignIndex = 0;
       // إظهار النوع من الشكل الأول فورًا
       try { window.selectProductDesign(0); } catch (e) {}
+      // نقل سياسة الاستبدال + الأزرار تحت الألبوم في وضع الوش/الضهر
+      try { window.msqPlacePairFooter && window.msqPlacePairFooter(true); } catch (e) {}
     } else {
       if (productModalEl) productModalEl.classList.remove('msq-pair-mode');
+      try { window.msqPlacePairFooter && window.msqPlacePairFooter(false); } catch (e) {}
       (function clearPairLayout() {
         var body = document.querySelector('#productModal .modal-body');
         var info = document.querySelector('#productModal .modal-info');

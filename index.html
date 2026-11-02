@@ -1354,7 +1354,7 @@
   })();
   </script>
 
-  <script src="script.js?v=202611021337pair"></script>
+  <script src="script.js?v=202611021350pair"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -6727,6 +6727,78 @@ window.addToCartAndContinue = function () {
 
   // also expose as toggleDeptsMenu for compatibility
   window.toggleDeptsMenu = window.msqToggleDepts;
+})();
+</script>
+
+
+<script id="msq-pair-footer-actions">
+(function () {
+  var ORIG_PARENT = null;
+  var MOVED = [];
+
+  window.msqPlacePairFooter = function (enable) {
+    var modal = document.getElementById('productModal');
+    var info = document.querySelector('#productModal .modal-info');
+    var stageRow = document.getElementById('msqStageRow');
+    var exchange = document.getElementById('msqExchangePolicyBox');
+    var actions = document.querySelector('#productModal .modal-actions-row');
+    var addAnother = document.querySelector('#productModal .add-another-design-btn');
+    var hint = document.querySelector('#productModal .multi-design-hint');
+
+    if (!enable) {
+      // رجّع العناصر لمكانها الأصلي
+      MOVED.forEach(function (item) {
+        try {
+          if (item.parent && item.el) item.parent.insertBefore(item.el, item.next);
+        } catch (e) {}
+      });
+      MOVED = [];
+      var slot = document.getElementById('msqPairActionsSlot');
+      if (slot) slot.remove();
+      return;
+    }
+
+    if (!modal || !modal.classList.contains('msq-pair-mode') || !stageRow || !info) return;
+
+    var slot = document.getElementById('msqPairActionsSlot');
+    if (!slot) {
+      slot = document.createElement('div');
+      slot.id = 'msqPairActionsSlot';
+      slot.className = 'msq-pair-actions-slot';
+      stageRow.appendChild(slot);
+    }
+
+    function move(el) {
+      if (!el || el.parentElement === slot) return;
+      MOVED.push({ el: el, parent: el.parentElement, next: el.nextSibling });
+      slot.appendChild(el);
+    }
+
+    // تأكد من وجود سياسة الاستبدال
+    try {
+      if (typeof injectExchangePolicy === 'function') injectExchangePolicy();
+      exchange = document.getElementById('msqExchangePolicyBox');
+    } catch (e) {}
+
+    move(exchange);
+    move(actions);
+    // زرار أضف شكل آخر يفضل يفضل تحت الأزرار في نفس المكان
+    move(addAnother);
+    move(hint);
+  };
+
+  // لو المودال اتفتح واتعمل pair mode بعد شوية
+  var observer = new MutationObserver(function () {
+    var modal = document.getElementById('productModal');
+    if (!modal) return;
+    if (modal.classList.contains('msq-pair-mode') && modal.classList.contains('active')) {
+      setTimeout(function () {
+        try { window.msqPlacePairFooter(true); } catch (e) {}
+      }, 80);
+    }
+  });
+  var modal = document.getElementById('productModal');
+  if (modal) observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
 })();
 </script>
 
