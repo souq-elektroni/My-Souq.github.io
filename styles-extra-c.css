@@ -11961,3 +11961,123 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
     padding: 0 12px !important;
   }
 }
+
+/* ===== إصلاح موبايل: جدول المقاسات + فلاتر ===== */
+
+/* جدول دليل المقاسات يظهر دائمًا في وضع الوش/الضهر على الموبايل */
+@media (max-width: 900px) {
+  #productModal.msq-pair-mode .modal-content {
+    max-height: 100vh !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+  #productModal.msq-pair-mode .modal-body {
+    display: flex !important;
+    flex-direction: column !important;
+    grid-template-columns: none !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    max-height: 100vh !important;
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+  }
+  #productModal.msq-pair-mode .modal-gallery-wrapper {
+    order: 1 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    height: auto !important;
+  }
+  #productModal.msq-pair-mode .modal-info {
+    order: 2 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    height: auto !important;
+    padding: 8px 4px 24px !important;
+  }
+
+  /* دليل المقاسات */
+  #productModal.msq-pair-mode #msqSizeHelper.msq-size-panel,
+  #productModal #msqSizeHelper.msq-size-panel {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 10px 0 !important;
+    box-sizing: border-box !important;
+  }
+  #productModal .msq-size-chart-wrap {
+    width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  #productModal .msq-size-chart {
+    width: 100% !important;
+    min-width: 260px !important;
+    font-size: 12px !important;
+  }
+  #productModal .msq-size-chart th,
+  #productModal .msq-size-chart td {
+    padding: 8px 6px !important;
+    white-space: nowrap !important;
+  }
+
+  /* فلاتر الموبايل — نص كامل + إسويب */
+  .controls-wrapper .msq-filters-one-row.msq-filters-row,
+  .controls-wrapper .categories-bar.msq-filters-one-row,
+  .msq-filters-one-row {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    grid-template-columns: none !important;
+    gap: 8px !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-snap-type: x mandatory !important;
+    padding: 8px 6px 12px !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+    box-sizing: border-box !important;
+  }
+  .msq-filters-one-row > * {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    scroll-snap-align: start !important;
+  }
+  .msq-filters-one-row select,
+  .msq-filters-one-row .cat-btn,
+  .msq-filters-one-row .gallery-mode-btn,
+  .msq-filters-one-row .msq-depts-btn,
+  .msq-filters-one-row .stock-avail,
+  .msq-filters-one-row .stock-out,
+  .msq-filters-one-row .msq-gender-select {
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    padding: 0 14px !important;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    border-radius: 999px !important;
+  }
+  .msq-filters-one-row .msq-depts-label {
+    white-space: nowrap !important;
+    overflow: visible !important;
+    max-width: none !important;
+  }
+}
+
+/* لو السكربت أخفى الجدول بالغلط — أظهره لما فيه صفوف */
+#msqSizeHelper.msq-size-panel:has(#msqSizeChartBody tr) {
+  display: block !important;
+}
