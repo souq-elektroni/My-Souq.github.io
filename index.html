@@ -348,11 +348,15 @@
     <div class="track-trigger" onclick="openTrackingModal()">
       🔍 تتبع طلبك
     </div>
-        <button type="button" class="msq-favorites-trigger" id="msqFavoritesTrigger" onclick="if(window.msqOpenFavorites)window.msqOpenFavorites()" aria-label="المفضلة" title="المفضلة">
-      ♥ المفضلة <span class="msq-fav-count" id="msqFavCount">0</span>
+    <div class="search-field-wrap msq-top-search">
+      <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن منتج..." oninput="handleSearchAndFilter()" autocomplete="off">
+      <button type="button" class="voice-search-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="بحث بالصوت">🎤</button>
+    </div>
+    <button type="button" class="msq-favorites-trigger msq-icon-only" id="msqFavoritesTrigger" onclick="if(window.msqOpenFavorites)window.msqOpenFavorites()" aria-label="المفضلة" title="المفضلة">
+      ♥ <span class="msq-fav-count" id="msqFavCount">0</span>
     </button>
-    <div class="cart-trigger" onclick="openCartModal()">
-      🛒 السلة <span class="cart-count" id="cartCount">0</span>
+    <div class="cart-trigger msq-icon-only" onclick="openCartModal()" aria-label="السلة" title="السلة">
+      🛒 <span class="cart-count" id="cartCount">0</span>
     </div>
   </div>
 
@@ -453,11 +457,6 @@
           <option value="women">نسائي فقط</option>
         </select>
       </label>
-
-      <div class="search-field-wrap msq-inline-search">
-        <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن منتج..." oninput="handleSearchAndFilter()" autocomplete="off">
-        <button type="button" class="voice-search-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="بحث بالصوت">🎤</button>
-      </div>
 
       <div class="sort-wrapper">
         <select id="sizeSelect" onchange="filterSize(this.value)">
