@@ -991,19 +991,17 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     const designFlagsToGender = (obj) => {
       const tags = [];
       if (!obj) return tags;
-      var hasBool =
-        obj.boy !== undefined || obj.girl !== undefined ||
-        obj.man !== undefined || obj.woman !== undefined;
+      // اعتبر الـ boolean فقط لو واحد منهم true فعليًا
+      // (القيم الافتراضية false كانت بتمسح تاج gender من الأشكال)
       if (obj.boy === true || obj.boy === 'true') tags.push('أولاد');
       if (obj.girl === true || obj.girl === 'true') tags.push('بنات');
       if (obj.man === true || obj.man === 'true') tags.push('رجال');
       if (obj.woman === true || obj.woman === 'true') tags.push('نساء');
-      if (!hasBool) {
-        const fromList = Array.isArray(obj.gender) ? obj.gender : normalizeGenderTags(obj.gender);
-        fromList.forEach(function (g) {
-          if (g && tags.indexOf(g) === -1) tags.push(g);
-        });
-      }
+      // دايمًا ادمج قائمة gender إن وُجدت
+      var fromList = Array.isArray(obj.gender) ? obj.gender : normalizeGenderTags(obj.gender);
+      fromList.forEach(function (g) {
+        if (g && tags.indexOf(g) === -1) tags.push(g);
+      });
       return tags;
     };
     const finishDesign = () => {
@@ -1061,7 +1059,30 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       if (currentDesign) {
         if (designCollectingGender) {
           if (trimmed.startsWith('-')) {
-            const item = unquote(trimmed.replace(/^-\s*/, ''));
+            const afterDashG = trimmed.replace(/^-\s*/, '');
+            // مهم: "- front_image:" يعني شكل جديد مش تاج جنس
+            if (/^([A-Za-z_][A-Za-z0-9_-]*):\s*/.test(afterDashG)) {
+              designCollectingGender = false;
+              finishDesign();
+              currentDesign = { name: '', front_image: '', back_image: '', gender: [], boy: false, girl: false, man: false, woman: false };
+              const firstG = afterDashG.match(/^([A-Za-z_][A-Za-z0-9_-]*):\s*(.*)$/);
+              if (firstG) {
+                if (firstG[1] === 'gender') {
+                  const inlineG = unquote(firstG[2]);
+                  if (inlineG && inlineG !== '[]' && inlineG !== '') {
+                    currentDesign.gender = normalizeGenderTags(inlineG);
+                  } else {
+                    designCollectingGender = true;
+                    currentDesign.gender = [];
+                  }
+                } else if (Object.prototype.hasOwnProperty.call(currentDesign, firstG[1])) {
+                  currentDesign[firstG[1]] = unquote(firstG[2]);
+                }
+              }
+              continue;
+            }
+            // عنصر تاج: - أولاد
+            const item = unquote(afterDashG);
             const tags = normalizeGenderTags(item);
             tags.forEach(function (t) {
               if (currentDesign.gender.indexOf(t) === -1) currentDesign.gender.push(t);
@@ -2146,10 +2167,16 @@ ${selectedImage}
       if (!f || f === 'all') return;
       var urls = getFilteredImageUrls(currentSelectedProduct, f);
       var des = getFilteredDesigns(currentSelectedProduct, f);
-      currentSelectedProduct = Object.assign({}, currentSelectedProduct, {
-        images: urls.length ? urls : [],
-        designs: des
-      });
+      // لو الفلتر رجّع أشكال → استخدمها؛ لو فاضي متملّاش المنتج (خليه زي ما هو لو المنتج أصلاً مطابق)
+      var next = Object.assign({}, currentSelectedProduct);
+      if (urls.length) next.images = urls;
+      if (des.length) next.designs = des;
+      // لو مفيش أشكال مطابقة ومفيش صور → المنتج ما كانش المفروض يتفتح من الفلتر
+      if (!des.length && !urls.length && !(next.images && next.images.length) && !(next.designs && next.designs.length)) {
+        next.images = [];
+        next.designs = [];
+      }
+      currentSelectedProduct = next;
     })();
     const pairedDesigns = Array.isArray(currentSelectedProduct.designs)
       ? currentSelectedProduct.designs.filter(d => d && (d.front_image || d.back_image))
