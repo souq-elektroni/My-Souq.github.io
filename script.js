@@ -2358,18 +2358,14 @@ ${selectedImage}
       if (productModalEl) productModalEl.classList.remove('msq-pair-mode');
       try { window.msqPlacePairFooter && window.msqPlacePairFooter(false); } catch (e) {}
       try {
-        var helper = document.getElementById('msqSizeHelper');
         var slot = document.getElementById('msqPairSizeSlot');
-        if (helper && helper.__msqOrigParent) {
-          if (helper.__msqOrigNext && helper.__msqOrigNext.parentElement === helper.__msqOrigParent) {
-            helper.__msqOrigParent.insertBefore(helper, helper.__msqOrigNext);
-          } else {
-            helper.__msqOrigParent.appendChild(helper);
-          }
-          helper.__msqOrigParent = null;
-          helper.__msqOrigNext = null;
-        }
         if (slot) slot.remove();
+        // الأصل في modal-info يفضل مكانه لنظام الصورة الواحدة
+        var helper = document.getElementById('msqSizeHelper');
+        if (helper && helper.parentElement && helper.parentElement.id === 'msqPairSizeSlot') {
+          var info = document.querySelector('#productModal .modal-info');
+          if (info) info.appendChild(helper);
+        }
       } catch (eRest) {}
       (function clearPairLayout() {
         var body = document.querySelector('#productModal .modal-body');
@@ -2949,7 +2945,7 @@ ${selectedImage}
       helper.style.setProperty('height', 'auto', 'important');
       helper.style.setProperty('max-height', 'none', 'important');
       helper.style.setProperty('overflow', 'visible', 'important');
-      // في وضع الوش/الضهر: انقل دليل المقاسات تحت الألبوم عشان يبان
+      // في وضع الوش/الضهر: انسخ دليل المقاسات تحت الألبوم (من غير ما نشيل الأصل من الصورة الواحدة)
       try {
         var modal = document.getElementById('productModal');
         var stage = document.getElementById('msqStageRow');
@@ -2959,18 +2955,37 @@ ${selectedImage}
             slot = document.createElement('div');
             slot.id = 'msqPairSizeSlot';
             slot.className = 'msq-pair-size-slot';
-            // حطه بعد الألبوم / قبل الأزرار
             var actions = document.getElementById('msqPairActionsSlot');
             if (actions && actions.parentElement === stage) stage.insertBefore(slot, actions);
             else stage.appendChild(slot);
           }
-          if (helper.parentElement !== slot) {
-            helper.__msqOrigParent = helper.parentElement;
-            helper.__msqOrigNext = helper.nextSibling;
-            slot.appendChild(helper);
+          // امسح النسخة القديمة لو موجودة
+          slot.innerHTML = '';
+          var clone = helper.cloneNode(true);
+          clone.id = 'msqSizeHelperPair';
+          clone.style.setProperty('display', 'block', 'important');
+          clone.hidden = false;
+          clone.removeAttribute('hidden');
+          slot.appendChild(clone);
+          // ربط صفوف الجدول في النسخة باختيار المقاس
+          clone.querySelectorAll('tbody tr[data-size]').forEach(function (row) {
+            row.addEventListener('click', function () {
+              var size = row.getAttribute('data-size');
+              if (!size) return;
+              document.querySelectorAll('#sizesContainer > div').forEach(function (b) {
+                if ((b.textContent || '').trim().indexOf(size) !== -1) b.click();
+              });
+            });
+          });
+          var calcBtnPair = clone.querySelector('#msqCalcSizeBtn, .msq-calc-btn');
+          var calcBtnOrig = document.getElementById('msqCalcSizeBtn');
+          if (calcBtnPair && calcBtnOrig) {
+            calcBtnPair.id = 'msqCalcSizeBtnPair';
+            calcBtnPair.onclick = function () { calcBtnOrig.click(); };
           }
         }
       } catch (eMove) {}
+      // الأصل يفضل ظاهر في نظام الصورة الواحدة
       if (resultEl) resultEl.innerHTML = '';
       if (ageInput) ageInput.value = '';
       if (lenInput) lenInput.value = '';

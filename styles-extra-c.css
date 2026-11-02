@@ -12156,3 +12156,38 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
     width: 100% !important;
   }
 }
+
+/* ===== سكرول رأسي لنظام الوش/الضهر + جدول المقاسات ===== */
+#productModal.msq-pair-mode .modal-content {
+  max-height: 96vh !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+#productModal.msq-pair-mode .modal-body {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+}
+#productModal.msq-pair-mode .modal-gallery-wrapper,
+#productModal.msq-pair-mode .modal-info,
+#productModal.msq-pair-mode .msq-stage-row {
+  overflow: visible !important;
+  max-height: none !important;
+  height: auto !important;
+}
+#msqPairSizeSlot {
+  display: block !important;
+  width: 100% !important;
+  margin: 10px 0 !important;
+}
+#msqSizeHelperPair {
+  display: block !important;
+  width: 100% !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+/* نظام الصورة الواحدة: الجدول في مكانه الأصلي */
+#productModal:not(.msq-pair-mode) #msqSizeHelper {
+  /* السكربت يتحكم في العرض حسب وجود الأبعاد */
+}
