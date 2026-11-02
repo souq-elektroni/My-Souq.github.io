@@ -2343,16 +2343,12 @@ ${selectedImage}
       // إظهار النوع من الشكل الأول فورًا
       try { window.selectProductDesign(0); } catch (e) {}
       // نقل سياسة الاستبدال + الأزرار تحت الألبوم في وضع الوش/الضهر
-      try { window.msqPlacePairFooter && window.msqPlacePairFooter(true); } catch (e) {}
-      // إجبار ظهور دليل المقاسات في وضع الوش/الضهر
       try {
-        var sh = document.getElementById('msqSizeHelper');
-        var body = document.getElementById('msqSizeChartBody');
-        if (sh && body && body.querySelector('tr')) {
-          sh.style.setProperty('display', 'block', 'important');
-          sh.hidden = false;
-          sh.removeAttribute('hidden');
-        }
+        var isMob = window.innerWidth <= 900;
+        // على الموبايل: الأزرار وسياسة الاستبدال تفضل في modal-info بعد دليل المقاسات
+        // على الديسكتوب: تحت الألبوم
+        if (!isMob && window.msqPlacePairFooter) window.msqPlacePairFooter(true);
+        else if (window.msqPlacePairFooter) window.msqPlacePairFooter(false);
       } catch (e) {}
     } else {
       if (productModalEl) productModalEl.classList.remove('msq-pair-mode');
@@ -2945,47 +2941,13 @@ ${selectedImage}
       helper.style.setProperty('height', 'auto', 'important');
       helper.style.setProperty('max-height', 'none', 'important');
       helper.style.setProperty('overflow', 'visible', 'important');
-      // في وضع الوش/الضهر: انسخ دليل المقاسات تحت الألبوم (من غير ما نشيل الأصل من الصورة الواحدة)
+      // دليل المقاسات مرة واحدة فقط في modal-info (نظام صورة واحدة + وش/ضهر)
       try {
-        var modal = document.getElementById('productModal');
-        var stage = document.getElementById('msqStageRow');
-        if (modal && modal.classList.contains('msq-pair-mode') && stage && helper) {
-          var slot = document.getElementById('msqPairSizeSlot');
-          if (!slot) {
-            slot = document.createElement('div');
-            slot.id = 'msqPairSizeSlot';
-            slot.className = 'msq-pair-size-slot';
-            var actions = document.getElementById('msqPairActionsSlot');
-            if (actions && actions.parentElement === stage) stage.insertBefore(slot, actions);
-            else stage.appendChild(slot);
-          }
-          // امسح النسخة القديمة لو موجودة
-          slot.innerHTML = '';
-          var clone = helper.cloneNode(true);
-          clone.id = 'msqSizeHelperPair';
-          clone.style.setProperty('display', 'block', 'important');
-          clone.hidden = false;
-          clone.removeAttribute('hidden');
-          slot.appendChild(clone);
-          // ربط صفوف الجدول في النسخة باختيار المقاس
-          clone.querySelectorAll('tbody tr[data-size]').forEach(function (row) {
-            row.addEventListener('click', function () {
-              var size = row.getAttribute('data-size');
-              if (!size) return;
-              document.querySelectorAll('#sizesContainer > div').forEach(function (b) {
-                if ((b.textContent || '').trim().indexOf(size) !== -1) b.click();
-              });
-            });
-          });
-          var calcBtnPair = clone.querySelector('#msqCalcSizeBtn, .msq-calc-btn');
-          var calcBtnOrig = document.getElementById('msqCalcSizeBtn');
-          if (calcBtnPair && calcBtnOrig) {
-            calcBtnPair.id = 'msqCalcSizeBtnPair';
-            calcBtnPair.onclick = function () { calcBtnOrig.click(); };
-          }
-        }
-      } catch (eMove) {}
-      // الأصل يفضل ظاهر في نظام الصورة الواحدة
+        var slot = document.getElementById('msqPairSizeSlot');
+        if (slot) slot.remove();
+        var pairClone = document.getElementById('msqSizeHelperPair');
+        if (pairClone) pairClone.remove();
+      } catch (eClean) {}
       if (resultEl) resultEl.innerHTML = '';
       if (ageInput) ageInput.value = '';
       if (lenInput) lenInput.value = '';
