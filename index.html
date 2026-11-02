@@ -326,6 +326,33 @@
 }
 </style>
 
+
+<style id="msq-depts-panel-fix">
+#msqDeptsPanel.is-open,
+#msqDeptsPanel.is-open.msq-depts-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+#msqDeptsPanel .msq-depts-item {
+  display: block !important;
+  width: 100% !important;
+  text-align: right !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+  font-weight: 800 !important;
+  font-size: 13.5px !important;
+  color: #4a3036 !important;
+  cursor: pointer !important;
+}
+#msqDeptsPanel .msq-depts-item:hover { background: #f7f2f4 !important; }
+#msqDeptsPanel .msq-depts-item.active { background: #fdf2f4 !important; color: #803d48 !important; }
+</style>
+
 </head>
 
 <body>
@@ -432,7 +459,7 @@
     <div class="categories-bar categories-main msq-category-nav msq-filters-row msq-filters-one-row" aria-label="فلاتر المتجر">
 
       <div class="msq-depts-menu" id="msqDeptsMenu">
-        <button type="button" class="cat-btn msq-depts-btn" id="msqDeptsBtn" aria-haspopup="true" aria-expanded="false" aria-controls="msqDeptsPanel" onclick="window.toggleDeptsMenu && window.toggleDeptsMenu(event)">
+        <button type="button" class="cat-btn msq-depts-btn" id="msqDeptsBtn" aria-haspopup="true" aria-expanded="false" aria-controls="msqDeptsPanel" onclick="window.msqToggleDepts && window.msqToggleDepts(event); return false;">
           <span class="msq-hamburger" aria-hidden="true"><span></span><span></span><span></span></span>
           <span class="msq-depts-label">جميع الأقسام</span>
         </button>
@@ -1327,7 +1354,7 @@
   })();
   </script>
 
-  <script src="script.js?v=202610281300tracking"></script>
+  <script src="script.js?v=202611021027depts"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -6606,6 +6633,91 @@ window.addToCartAndContinue = function () {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();
   setInterval(bind, 2000);
+})();
+</script>
+
+
+<script id="msq-depts-fix">
+(function () {
+  function closePanel() {
+    var panel = document.getElementById('msqDeptsPanel');
+    var btn = document.getElementById('msqDeptsBtn');
+    var menu = document.getElementById('msqDeptsMenu');
+    if (!panel) return;
+    panel.classList.remove('is-open');
+    panel.style.cssText = 'display:none !important;';
+    if (btn) {
+      btn.setAttribute('aria-expanded', 'false');
+      btn.classList.remove('menu-open');
+    }
+    if (menu && panel.parentElement === document.body) {
+      try { menu.appendChild(panel); } catch (e) {}
+    }
+  }
+
+  function openPanel() {
+    var panel = document.getElementById('msqDeptsPanel');
+    var btn = document.getElementById('msqDeptsBtn');
+    if (!panel || !btn) return;
+    var r = btn.getBoundingClientRect();
+    if (panel.parentElement !== document.body) {
+      document.body.appendChild(panel);
+    }
+    panel.classList.add('is-open');
+    panel.style.cssText = [
+      'display:flex !important',
+      'flex-direction:column !important',
+      'position:fixed !important',
+      'top:' + Math.round(r.bottom + 6) + 'px !important',
+      'right:' + Math.round(window.innerWidth - r.right) + 'px !important',
+      'left:auto !important',
+      'z-index:2147483647 !important',
+      'min-width:190px !important',
+      'background:#fff !important',
+      'border:1px solid rgba(128,61,72,.18) !important',
+      'border-radius:14px !important',
+      'box-shadow:0 16px 40px rgba(0,0,0,.2) !important',
+      'padding:6px !important',
+      'gap:2px !important',
+      'box-sizing:border-box !important'
+    ].join(';');
+    btn.setAttribute('aria-expanded', 'true');
+    btn.classList.add('menu-open');
+  }
+
+  window.msqToggleDepts = function (e) {
+    try {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      var panel = document.getElementById('msqDeptsPanel');
+      if (!panel) return;
+      if (panel.classList.contains('is-open') && panel.style.display !== 'none') {
+        closePanel();
+      } else {
+        openPanel();
+      }
+    } catch (err) {
+      console.error('msqToggleDepts', err);
+    }
+  };
+
+  // close on outside click
+  document.addEventListener('click', function (e) {
+    var panel = document.getElementById('msqDeptsPanel');
+    var btn = document.getElementById('msqDeptsBtn');
+    if (!panel || !panel.classList.contains('is-open')) return;
+    if (panel.contains(e.target) || (btn && btn.contains(e.target))) return;
+    closePanel();
+  }, true);
+
+  // close after choosing an item
+  document.addEventListener('click', function (e) {
+    var item = e.target && e.target.closest && e.target.closest('.msq-depts-item');
+    if (!item) return;
+    setTimeout(closePanel, 50);
+  }, true);
+
+  // also expose as toggleDeptsMenu for compatibility
+  window.toggleDeptsMenu = window.msqToggleDepts;
 })();
 </script>
 
