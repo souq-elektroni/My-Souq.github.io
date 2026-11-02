@@ -1660,7 +1660,12 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     try {
       var panel = document.getElementById('msqDeptsPanel');
       var btnDepts = document.getElementById('msqDeptsBtn');
-      if (panel) panel.classList.remove('is-open');
+      var menu = document.getElementById('msqDeptsMenu');
+      if (panel) {
+        panel.classList.remove('is-open');
+        panel.style.display = 'none';
+        if (menu && panel.parentElement === document.body) menu.appendChild(panel);
+      }
       if (btnDepts) {
         btnDepts.setAttribute('aria-expanded', 'false');
         btnDepts.classList.remove('menu-open');
@@ -1678,22 +1683,33 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       }
       var btn = document.getElementById('msqDeptsBtn');
       var panel = document.getElementById('msqDeptsPanel');
+      var menu = document.getElementById('msqDeptsMenu');
       if (!btn || !panel) return;
       var open = !panel.classList.contains('is-open');
       if (open) {
+        // ننقل القائمة لـ body ونثبّتها تحت الزرار عشان مفيش overflow يقطعها
         var r = btn.getBoundingClientRect();
+        if (panel.parentElement !== document.body) {
+          document.body.appendChild(panel);
+        }
         panel.style.position = 'fixed';
         panel.style.top = Math.round(r.bottom + 6) + 'px';
         panel.style.right = Math.round(window.innerWidth - r.right) + 'px';
         panel.style.left = 'auto';
         panel.style.zIndex = '2147483646';
+        panel.style.display = 'flex';
         panel.classList.add('is-open');
         btn.setAttribute('aria-expanded', 'true');
         btn.classList.add('menu-open');
       } else {
         panel.classList.remove('is-open');
+        panel.style.display = 'none';
         btn.setAttribute('aria-expanded', 'false');
         btn.classList.remove('menu-open');
+        // نرجعها لمكانها الأصلي لو القائمة موجودة
+        if (menu && panel.parentElement === document.body) {
+          menu.appendChild(panel);
+        }
       }
     } catch (err) {}
   };
@@ -1709,9 +1725,12 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         document.addEventListener('click', function (e) {
           var p = document.getElementById('msqDeptsPanel');
           var b = document.getElementById('msqDeptsBtn');
+          var m = document.getElementById('msqDeptsMenu');
           if (!p || !p.classList.contains('is-open')) return;
           if (p.contains(e.target) || (b && b.contains(e.target))) return;
           p.classList.remove('is-open');
+          p.style.display = 'none';
+          if (m && p.parentElement === document.body) m.appendChild(p);
           if (b) {
             b.setAttribute('aria-expanded', 'false');
             b.classList.remove('menu-open');

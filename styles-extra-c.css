@@ -11516,3 +11516,65 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
   width: 0 !important;
   height: 0 !important;
 }
+
+/* ===== إصلاح قائمة جميع الأقسام ===== */
+.controls-wrapper,
+.controls-wrapper .msq-filters-one-row,
+.controls-wrapper .categories-bar.msq-filters-one-row,
+.msq-filters-one-row,
+.msq-depts-menu {
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+}
+
+.msq-depts-menu {
+  position: relative !important;
+  z-index: 200 !important;
+}
+
+.msq-depts-panel {
+  display: none !important;
+  position: absolute !important;
+  top: calc(100% + 6px) !important;
+  right: 0 !important;
+  left: auto !important;
+  min-width: 190px !important;
+  max-width: 260px !important;
+  z-index: 2147483646 !important;
+  background: #fff !important;
+  border: 1px solid rgba(128, 61, 72, 0.18) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18) !important;
+  padding: 6px !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  box-sizing: border-box !important;
+}
+
+.msq-depts-panel.is-open {
+  display: flex !important;
+}
+
+.msq-depts-item {
+  display: block !important;
+  width: 100% !important;
+  text-align: right !important;
+  border: 0 !important;
+  background: transparent !important;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+  font-weight: 800 !important;
+  font-size: 13.5px !important;
+  color: #4a3036 !important;
+  cursor: pointer !important;
+}
+
+.msq-depts-item:hover {
+  background: #f7f2f4 !important;
+}
+
+.msq-depts-item.active {
+  background: #fdf2f4 !important;
+  color: #803d48 !important;
+}
