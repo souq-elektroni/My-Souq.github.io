@@ -2185,7 +2185,10 @@ ${selectedImage}
           ? d.gender
           : getProductGenderTags(currentSelectedProduct);
         if ((!tags || !tags.length) && currentSelectedProduct) {
-          tags = getProductGenderTags(currentSelectedProduct);
+          var det = detectProductGender(currentSelectedProduct);
+          if (det === 'male') tags = ['أولاد'];
+          else if (det === 'female') tags = ['بنات'];
+          else if (det === 'unisex') tags = getProductGenderTags(currentSelectedProduct);
         }
         var b = formatGenderBadges(tags);
         if (b) {
@@ -2536,6 +2539,11 @@ ${selectedImage}
       var want = genderFilterWants(currentGenderFilter || 'all');
       if (!badges) {
         var tags = getProductGenderTags(currentSelectedProduct);
+        if ((!tags || !tags.length) && currentSelectedProduct) {
+          var det = detectProductGender(currentSelectedProduct);
+          if (det === 'male') tags = ['أولاد'];
+          else if (det === 'female') tags = ['بنات'];
+        }
         if (want) tags = tags.filter(function (t) { return want.indexOf(t) !== -1; });
         badges = formatGenderBadges(tags);
       }
