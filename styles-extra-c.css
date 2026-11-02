@@ -11836,3 +11836,128 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
     grid-template-columns: 1fr 1fr !important;
   }
 }
+
+/* ===== موبايل: فلاتر منسقة + نص ظاهر + سكرول أفقي ===== */
+@media (max-width: 900px) {
+  .controls-wrapper {
+    width: calc(100% - 12px) !important;
+    max-width: 100% !important;
+    margin-inline: auto !important;
+    padding: 8px 6px !important;
+    box-sizing: border-box !important;
+  }
+
+  .controls-wrapper .msq-filters-one-row.msq-filters-row,
+  .controls-wrapper .categories-bar.msq-filters-one-row,
+  .msq-filters-one-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    grid-template-columns: none !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    scroll-snap-type: x proximity !important;
+    scrollbar-width: thin !important;
+    padding: 6px 4px 10px !important;
+    box-sizing: border-box !important;
+  }
+
+  .msq-filters-one-row::-webkit-scrollbar {
+    display: block !important;
+    height: 3px !important;
+  }
+  .msq-filters-one-row::-webkit-scrollbar-thumb {
+    background: rgba(128, 61, 72, 0.28) !important;
+    border-radius: 4px !important;
+  }
+
+  /* كل عنصر بعرض محتواه — مش مضغوط */
+  .msq-filters-one-row > * {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: max-content !important;
+    margin: 0 !important;
+    scroll-snap-align: start !important;
+  }
+
+  .msq-filters-one-row .sort-wrapper,
+  .msq-filters-one-row .msq-gender-filter-wrap,
+  .msq-filters-one-row .msq-depts-menu,
+  .msq-filters-one-row .shared-subcategory-wrap {
+    display: flex !important;
+    width: auto !important;
+    min-width: max-content !important;
+    flex: 0 0 auto !important;
+  }
+
+  .msq-filters-one-row select,
+  .msq-filters-one-row .cat-btn,
+  .msq-filters-one-row .gallery-mode-btn,
+  .msq-filters-one-row .msq-depts-btn,
+  .msq-filters-one-row .stock-avail,
+  .msq-filters-one-row .stock-out,
+  .msq-filters-one-row .msq-gender-select {
+    width: auto !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    min-height: 40px !important;
+    height: 40px !important;
+    padding: 0 14px !important;
+    border-radius: 999px !important;
+    font-size: 12.5px !important;
+    font-weight: 800 !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    box-sizing: border-box !important;
+    flex: 0 0 auto !important;
+  }
+
+  .msq-filters-one-row .msq-depts-btn {
+    gap: 6px !important;
+    padding: 0 14px !important;
+  }
+  .msq-filters-one-row .msq-depts-label {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    max-width: none !important;
+  }
+
+  /* قفل ضد width:100% القديم */
+  .controls-wrapper .msq-filters-one-row.msq-filters-row > .gallery-mode-btn,
+  .controls-wrapper .msq-filters-one-row.msq-filters-row > .cat-btn,
+  .controls-wrapper .msq-filters-one-row.msq-filters-row > .stock-avail,
+  .controls-wrapper .msq-filters-one-row.msq-filters-row > .stock-out,
+  .controls-wrapper .msq-filters-one-row.msq-filters-row .sort-wrapper,
+  .controls-wrapper .msq-filters-one-row.msq-filters-row .sort-wrapper select,
+  .controls-wrapper .msq-filters-one-row.msq-filters-row .msq-gender-filter-wrap,
+  .controls-wrapper .msq-filters-one-row.msq-filters-row .msq-gender-select,
+  .controls-wrapper .msq-filters-one-row.msq-filters-row .msq-depts-menu,
+  .controls-wrapper .msq-filters-one-row.msq-filters-row .msq-depts-btn {
+    width: auto !important;
+    max-width: none !important;
+    min-width: max-content !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .msq-filters-one-row select,
+  .msq-filters-one-row .cat-btn,
+  .msq-filters-one-row .gallery-mode-btn,
+  .msq-filters-one-row .msq-depts-btn,
+  .msq-filters-one-row .stock-avail,
+  .msq-filters-one-row .stock-out,
+  .msq-filters-one-row .msq-gender-select {
+    min-height: 38px !important;
+    height: 38px !important;
+    font-size: 12px !important;
+    padding: 0 12px !important;
+  }
+}
