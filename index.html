@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611021545v3";
+  var BUILD = "202611021554size";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -155,7 +155,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611021545v3">
+  <meta name="msq-build" content="202611021554size">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -244,8 +244,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611021545v3">
-<link rel="stylesheet" href="styles.css?v=202611021545v3">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611021554size">
+<link rel="stylesheet" href="styles.css?v=202611021554size">
 
 
 
@@ -281,8 +281,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611021545v3">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611021545v3">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611021554size">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611021554size">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -395,6 +395,51 @@
     font-size:13px!important;font-weight:800!important;white-space:nowrap!important;
     overflow:visible!important;border-radius:999px!important;
   }
+}
+</style>
+
+
+<style id="msq-pair-size-slot-css">
+#msqPairSizeSlot, .msq-pair-size-slot {
+  display: block !important;
+  width: 100% !important;
+  margin: 8px 0 4px !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  order: 2 !important;
+}
+#msqPairSizeSlot #msqSizeHelper,
+.msq-pair-size-slot #msqSizeHelper,
+#productModal.msq-pair-mode #msqSizeHelper {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  background: #fffaf7 !important;
+  border: 1px solid rgba(128,61,72,.12) !important;
+  border-radius: 14px !important;
+  padding: 12px !important;
+  box-sizing: border-box !important;
+}
+#msqPairSizeSlot .msq-size-chart-wrap {
+  display: block !important;
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+#msqPairSizeSlot .msq-size-chart {
+  display: table !important;
+  width: 100% !important;
+  min-width: 240px !important;
+}
+#productModal.msq-pair-mode .msq-stage-row {
+  display: flex !important;
+  flex-direction: column !important;
 }
 </style>
 
@@ -1407,7 +1452,7 @@
   })();
   </script>
 
-  <script src="script.js?v=202611021545v3"></script>
+  <script src="script.js?v=202611021554size"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -6863,20 +6908,38 @@ window.addToCartAndContinue = function () {
       var modal=document.getElementById('productModal');
       var helper=document.getElementById('msqSizeHelper');
       var body=document.getElementById('msqSizeChartBody');
+      var stage=document.getElementById('msqStageRow');
       if(!modal||!helper) return;
       if(!modal.classList.contains('active')) return;
       var hasRows=body && body.querySelectorAll('tr').length>0;
-      if(hasRows || modal.classList.contains('msq-pair-mode')){
-        if(hasRows){
-          helper.style.setProperty('display','block','important');
-          helper.hidden=false;
-          helper.removeAttribute('hidden');
+      if(!hasRows) return;
+      helper.style.setProperty('display','block','important');
+      helper.hidden=false;
+      helper.removeAttribute('hidden');
+      helper.style.setProperty('visibility','visible','important');
+      helper.style.setProperty('opacity','1','important');
+      if(modal.classList.contains('msq-pair-mode') && stage){
+        var slot=document.getElementById('msqPairSizeSlot');
+        if(!slot){
+          slot=document.createElement('div');
+          slot.id='msqPairSizeSlot';
+          slot.className='msq-pair-size-slot';
+          var actions=document.getElementById('msqPairActionsSlot');
+          if(actions && actions.parentElement===stage) stage.insertBefore(slot, actions);
+          else stage.appendChild(slot);
+        }
+        if(helper.parentElement!==slot){
+          if(!helper.__msqOrigParent){
+            helper.__msqOrigParent=helper.parentElement;
+            helper.__msqOrigNext=helper.nextSibling;
+          }
+          slot.appendChild(helper);
         }
       }
     }catch(e){}
   }
-  setInterval(forceSize, 700);
-  document.addEventListener('click', function(){ setTimeout(forceSize, 200); setTimeout(forceSize, 600); }, true);
+  setInterval(forceSize, 500);
+  document.addEventListener('click', function(){ setTimeout(forceSize, 150); setTimeout(forceSize, 500); setTimeout(forceSize, 1000); }, true);
 })();
 </script>
 

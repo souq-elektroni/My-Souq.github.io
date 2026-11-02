@@ -2357,6 +2357,20 @@ ${selectedImage}
     } else {
       if (productModalEl) productModalEl.classList.remove('msq-pair-mode');
       try { window.msqPlacePairFooter && window.msqPlacePairFooter(false); } catch (e) {}
+      try {
+        var helper = document.getElementById('msqSizeHelper');
+        var slot = document.getElementById('msqPairSizeSlot');
+        if (helper && helper.__msqOrigParent) {
+          if (helper.__msqOrigNext && helper.__msqOrigNext.parentElement === helper.__msqOrigParent) {
+            helper.__msqOrigParent.insertBefore(helper, helper.__msqOrigNext);
+          } else {
+            helper.__msqOrigParent.appendChild(helper);
+          }
+          helper.__msqOrigParent = null;
+          helper.__msqOrigNext = null;
+        }
+        if (slot) slot.remove();
+      } catch (eRest) {}
       (function clearPairLayout() {
         var body = document.querySelector('#productModal .modal-body');
         var info = document.querySelector('#productModal .modal-info');
@@ -2935,6 +2949,28 @@ ${selectedImage}
       helper.style.setProperty('height', 'auto', 'important');
       helper.style.setProperty('max-height', 'none', 'important');
       helper.style.setProperty('overflow', 'visible', 'important');
+      // في وضع الوش/الضهر: انقل دليل المقاسات تحت الألبوم عشان يبان
+      try {
+        var modal = document.getElementById('productModal');
+        var stage = document.getElementById('msqStageRow');
+        if (modal && modal.classList.contains('msq-pair-mode') && stage && helper) {
+          var slot = document.getElementById('msqPairSizeSlot');
+          if (!slot) {
+            slot = document.createElement('div');
+            slot.id = 'msqPairSizeSlot';
+            slot.className = 'msq-pair-size-slot';
+            // حطه بعد الألبوم / قبل الأزرار
+            var actions = document.getElementById('msqPairActionsSlot');
+            if (actions && actions.parentElement === stage) stage.insertBefore(slot, actions);
+            else stage.appendChild(slot);
+          }
+          if (helper.parentElement !== slot) {
+            helper.__msqOrigParent = helper.parentElement;
+            helper.__msqOrigNext = helper.nextSibling;
+            slot.appendChild(helper);
+          }
+        }
+      } catch (eMove) {}
       if (resultEl) resultEl.innerHTML = '';
       if (ageInput) ageInput.value = '';
       if (lenInput) lenInput.value = '';
