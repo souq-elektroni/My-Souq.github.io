@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611040737ux";
+  var BUILD = "202611040827clean";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -155,7 +155,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611040737ux">
+  <meta name="msq-build" content="202611040827clean">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -244,8 +244,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611040737ux">
-<link rel="stylesheet" href="styles.css?v=202611040737ux">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611040827clean">
+<link rel="stylesheet" href="styles.css?v=202611040827clean">
 
 
 
@@ -281,8 +281,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611040737ux">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611040737ux">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611040827clean">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611040827clean">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -548,31 +548,8 @@
 
 <style id="msq-mobile-ux-features">
 /* ===== وضع قائمة / شبكي ===== */
-.msq-view-toggle-btn{
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  gap:6px!important;min-height:40px!important;padding:0 14px!important;
-  border-radius:999px!important;font-size:13px!important;font-weight:800!important;
-  border:1px solid rgba(128,61,72,.18)!important;background:#fff!important;color:#803d48!important;
-  cursor:pointer!important;white-space:nowrap!important;flex:0 0 auto!important;
-}
-#products-container.msq-list-view{
-  display:flex!important;flex-direction:column!important;gap:10px!important;
-  grid-template-columns:none!important;
-}
-#products-container.msq-list-view .product-card{
-  display:grid!important;grid-template-columns:110px minmax(0,1fr)!important;
-  gap:10px!important;align-items:center!important;padding:8px!important;
-  width:100%!important;max-width:100%!important;box-sizing:border-box!important;
-}
-#products-container.msq-list-view .product-card .image-container{
-  width:110px!important;height:110px!important;min-height:110px!important;
-  aspect-ratio:1/1!important;border-radius:12px!important;overflow:hidden!important;
-}
-#products-container.msq-list-view .product-card .product-details{
-  text-align:right!important;padding:4px 6px!important;
-}
-#products-container.msq-list-view .product-card .product-title{font-size:14px!important;margin:0 0 4px!important}
-#products-container.msq-list-view .product-card .click-hint{font-size:11px!important}
+
+
 
 /* ===== سحب لإغلاق المودال ===== */
 #productModal .modal-content.msq-dragging{
@@ -605,100 +582,12 @@
 #productModal.msq-pair-mode .msq-stage-side img.msq-zooming{
   transition:none!important;
 }
-#productModal .msq-pinch-hint{
-  display:none;text-align:center;font-size:11px;color:#8b3f52;font-weight:700;
-  margin:4px 0 0;opacity:.75;
-}
-@media (max-width:900px){
-  #productModal.msq-pair-mode .msq-pinch-hint{display:block!important}
+
 }
 </style>
 
 
-<style id="msq-mobile-ux-css-v2">
-/* زر تبديل شبكي / قائمة */
-.msq-view-toggle-btn{
-  display:inline-flex!important;align-items:center!important;justify-content:center!important;
-  gap:6px!important;min-height:40px!important;padding:0 14px!important;
-  border-radius:999px!important;font-size:13px!important;font-weight:800!important;
-  white-space:nowrap!important;flex:0 0 auto!important;cursor:pointer!important;
-  border:1px solid rgba(128,61,72,.18)!important;background:#fff!important;color:#803d48!important;
-}
-.msq-view-toggle-btn .msq-view-icon{font-size:15px!important;line-height:1!important}
-@media (min-width:901px){
-  .msq-view-toggle-btn .msq-view-label{display:inline!important}
-}
 
-/* وضع القائمة */
-#products-container.msq-list-view{
-  display:flex!important;flex-direction:column!important;gap:10px!important;
-  grid-template-columns:none!important;
-}
-#products-container.msq-list-view .product-card{
-  display:grid!important;grid-template-columns:112px minmax(0,1fr)!important;
-  gap:10px!important;align-items:center!important;padding:8px!important;
-  width:100%!important;max-width:100%!important;box-sizing:border-box!important;
-  margin:0!important;
-}
-#products-container.msq-list-view .product-card .image-container,
-#products-container.msq-list-view .product-card .image-container.msq-has-pair{
-  width:112px!important;height:112px!important;min-height:112px!important;max-height:112px!important;
-  aspect-ratio:1/1!important;border-radius:12px!important;overflow:hidden!important;
-}
-#products-container.msq-list-view .product-card .msq-card-pair,
-#products-container.msq-list-view .product-card .product-image{
-  width:100%!important;height:100%!important;object-fit:cover!important;
-}
-#products-container.msq-list-view .product-card .product-details{
-  text-align:right!important;padding:2px 6px!important;min-width:0!important;
-}
-#products-container.msq-list-view .product-card .product-title{
-  font-size:14px!important;margin:0 0 4px!important;line-height:1.3!important;
-}
-#products-container.msq-list-view .product-card .click-hint{font-size:11px!important;margin-top:2px!important}
-#products-container.msq-list-view .product-card .msq-card-gender{margin:2px 0!important}
-#products-container.msq-list-view .product-card .price-tag{margin-top:2px!important}
-
-/* سحب لإغلاق */
-#productModal .msq-swipe-handle{
-  display:none;width:48px;height:5px;border-radius:99px;
-  background:rgba(128,61,72,.35);margin:10px auto 6px;flex-shrink:0;
-}
-@media (max-width:900px){
-  #productModal .msq-swipe-handle{display:block!important}
-  #productModal.active .modal-content{
-    transition:transform .22s ease,opacity .22s ease;
-    will-change:transform,opacity;
-    touch-action:pan-y;
-  }
-  #productModal .modal-content.msq-dragging{transition:none!important}
-}
-
-/* pinch zoom */
-#productModal .msq-stage-side{
-  position:relative!important;overflow:hidden!important;touch-action:none;
-}
-#productModal .msq-stage-side img,
-#productModal #msqPairStage img,
-#productModal #modalImage.msq-pinch-ready{
-  touch-action:none;
-  -webkit-user-drag:none;
-  user-select:none;
-  transform-origin:center center;
-  transition:transform .12s ease;
-}
-#productModal .msq-stage-side img.msq-zooming,
-#productModal #modalImage.msq-zooming{
-  transition:none!important;cursor:grab;
-}
-#productModal .msq-pinch-hint{
-  display:none;text-align:center;font-size:11px;font-weight:700;
-  color:#8b3f52;opacity:.75;margin:4px 0 0;
-}
-@media (max-width:900px){
-  #productModal.msq-pair-mode .msq-pinch-hint{display:block!important}
-}
-</style>
 
 </head>
 
@@ -860,10 +749,6 @@
         </select>
       </div>
       <button type="button" class="gallery-mode-btn" id="galleryModeBtn" onclick="toggleGalleryMode()" title="تصفح بالصور فقط">صور فقط</button>
-      <button type="button" class="msq-view-toggle-btn" id="msqViewToggleBtn" onclick="if(window.msqToggleProductView)window.msqToggleProductView()" title="تبديل العرض" aria-label="تبديل عرض شبكي أو قائمة">
-        <span class="msq-view-icon" aria-hidden="true">☰</span>
-        <span class="msq-view-label">قائمة</span>
-      </button>
     </div>
 
 
@@ -1713,7 +1598,7 @@
   })();
   </script>
 
-  <script src="script.js?v=202611040737ux"></script>
+  <script src="script.js?v=202611040827clean"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -7205,49 +7090,7 @@ window.addToCartAndContinue = function () {
 
 <script id="msq-mobile-ux-js">
 (function () {
-  /* ========== 1) عرض شبكي / قائمة ========== */
-  var VIEW_KEY = 'msq_product_view';
-  function applyView(mode) {
-    var grid = document.getElementById('products-container');
-    var btn = document.getElementById('msqViewToggleBtn');
-    if (!grid) return;
-    if (mode === 'list') {
-      grid.classList.add('msq-list-view');
-      document.body.classList.add('msq-products-list');
-      if (btn) {
-        var ic = btn.querySelector('.msq-view-icon');
-        var lb = btn.querySelector('.msq-view-label');
-        if (ic) ic.textContent = '▦';
-        if (lb) lb.textContent = 'شبكي';
-        btn.title = 'عرض شبكي';
-        btn.setAttribute('aria-label', 'تحويل إلى عرض شبكي');
-      }
-    } else {
-      grid.classList.remove('msq-list-view');
-      document.body.classList.remove('msq-products-list');
-      if (btn) {
-        var ic2 = btn.querySelector('.msq-view-icon');
-        var lb2 = btn.querySelector('.msq-view-label');
-        if (ic2) ic2.textContent = '☰';
-        if (lb2) lb2.textContent = 'قائمة';
-        btn.title = 'عرض قائمة';
-        btn.setAttribute('aria-label', 'تحويل إلى عرض قائمة');
-      }
-    }
-    try { localStorage.setItem(VIEW_KEY, mode); } catch (e) {}
-  }
-  window.msqToggleProductView = function () {
-    var grid = document.getElementById('products-container');
-    var next = (grid && grid.classList.contains('msq-list-view')) ? 'grid' : 'list';
-    applyView(next);
-  };
-  function initView() {
-    var mode = 'grid';
-    try { mode = localStorage.getItem(VIEW_KEY) || 'grid'; } catch (e) {}
-    applyView(mode === 'list' ? 'list' : 'grid');
-  }
-
-  /* ========== 2) سحب لأسفل لإغلاق المودال ========== */
+  /* سحب لأسفل لإغلاق المودال فقط — بدون pinch وبدون وضع قائمة */
   function setupSwipeClose() {
     var modal = document.getElementById('productModal');
     if (!modal) return;
@@ -7264,9 +7107,11 @@ window.addToCartAndContinue = function () {
     if (content.__msqSwipeBound) return;
     content.__msqSwipeBound = true;
 
-    var startY = 0, currentY = 0, dragging = false, locked = false;
+    var startY = 0, currentY = 0, dragging = false;
 
-    function isMobile() { return window.matchMedia('(max-width: 900px)').matches; }
+    function isMobile() {
+      return window.matchMedia('(max-width: 900px)').matches;
+    }
     function resetVisual() {
       content.style.transform = '';
       content.style.opacity = '';
@@ -7288,40 +7133,37 @@ window.addToCartAndContinue = function () {
     content.addEventListener('touchstart', function (e) {
       if (!isMobile() || !modal.classList.contains('active')) return;
       if (!e.touches || e.touches.length !== 1) return;
-      // لو pinch شغال متبدأش سحب إغلاق
-      if (e.touches.length > 1) return;
       startY = e.touches[0].clientY;
       currentY = startY;
       var scrollTop = content.scrollTop || 0;
-      // اسمح بالسحب من أعلى المودال أو من المقبض
-      var target = e.target;
-      var fromHandle = target && target.classList && target.classList.contains('msq-swipe-handle');
+      var fromHandle = e.target && e.target.classList && e.target.classList.contains('msq-swipe-handle');
       dragging = fromHandle || scrollTop <= 8;
-      locked = false;
       if (dragging) content.classList.add('msq-dragging');
     }, { passive: true });
 
     content.addEventListener('touchmove', function (e) {
       if (!dragging || !isMobile()) return;
       if (!e.touches || e.touches.length !== 1) {
-        dragging = false; resetVisual(); return;
+        dragging = false;
+        resetVisual();
+        return;
       }
       currentY = e.touches[0].clientY;
       var dy = currentY - startY;
-      if (dy < 0) {
-        // سحب لأعلى: إلغاء وضع السحب
-        if (!locked) { content.style.transform = ''; content.style.opacity = ''; }
+      if (dy <= 0) {
+        content.style.transform = '';
+        content.style.opacity = '';
         return;
       }
-      if (dy > 12) locked = true;
-      if (dy > 0) {
-        content.style.transform = 'translateY(' + Math.min(dy, 320) + 'px)';
-        content.style.opacity = String(Math.max(0.3, 1 - dy / 340));
-      }
+      content.style.transform = 'translateY(' + Math.min(dy, 320) + 'px)';
+      content.style.opacity = String(Math.max(0.3, 1 - dy / 340));
     }, { passive: true });
 
     content.addEventListener('touchend', function () {
-      if (!dragging) { resetVisual(); return; }
+      if (!dragging) {
+        resetVisual();
+        return;
+      }
       dragging = false;
       var dy = currentY - startY;
       if (dy > 100) doClose();
@@ -7329,139 +7171,27 @@ window.addToCartAndContinue = function () {
     }, { passive: true });
 
     content.addEventListener('touchcancel', function () {
-      dragging = false; resetVisual();
+      dragging = false;
+      resetVisual();
     }, { passive: true });
   }
 
-  /* ========== 3) Pinch-to-zoom لصور الوش/الضهر + الصورة الواحدة ========== */
-  function setupPinchZoom() {
-    var modal = document.getElementById('productModal');
-    if (!modal) return;
-
-    function bindImg(img) {
-      if (!img || img.__msqPinch) return;
-      img.__msqPinch = true;
-      img.classList.add('msq-pinch-ready');
-
-      var scale = 1, lastScale = 1;
-      var panX = 0, panY = 0, lastPanX = 0, lastPanY = 0;
-      var startDist = 0, startPan = null, panning = false;
-      var originX = 50, originY = 50;
-
-      function dist(touches) {
-        var a = touches[0], b = touches[1];
-        var dx = a.clientX - b.clientX, dy = a.clientY - b.clientY;
-        return Math.sqrt(dx * dx + dy * dy);
-      }
-      function mid(touches) {
-        return {
-          x: (touches[0].clientX + touches[1].clientX) / 2,
-          y: (touches[0].clientY + touches[1].clientY) / 2
-        };
-      }
-      function apply() {
-        img.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + scale + ')';
-      }
-      function reset() {
-        scale = 1; lastScale = 1; panX = 0; panY = 0; lastPanX = 0; lastPanY = 0;
-        apply();
-      }
-
-      img.addEventListener('touchstart', function (e) {
-        if (!modal.classList.contains('active')) return;
-        if (e.touches.length === 2) {
-          e.preventDefault();
-          startDist = dist(e.touches);
-          lastScale = scale;
-          var rect = img.getBoundingClientRect();
-          var m = mid(e.touches);
-          originX = ((m.x - rect.left) / Math.max(rect.width, 1)) * 100;
-          originY = ((m.y - rect.top) / Math.max(rect.height, 1)) * 100;
-          img.style.transformOrigin = originX + '% ' + originY + '%';
-          panning = false;
-          img.classList.add('msq-zooming');
-        } else if (e.touches.length === 1 && scale > 1.05) {
-          panning = true;
-          startPan = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-          lastPanX = panX; lastPanY = panY;
-          img.classList.add('msq-zooming');
-        }
-      }, { passive: false });
-
-      img.addEventListener('touchmove', function (e) {
-        if (e.touches.length === 2 && startDist > 0) {
-          e.preventDefault();
-          scale = Math.max(1, Math.min(4.5, lastScale * (dist(e.touches) / startDist)));
-          apply();
-        } else if (e.touches.length === 1 && panning && scale > 1.05) {
-          e.preventDefault();
-          panX = lastPanX + (e.touches[0].clientX - startPan.x);
-          panY = lastPanY + (e.touches[0].clientY - startPan.y);
-          apply();
-        }
-      }, { passive: false });
-
-      img.addEventListener('touchend', function (e) {
-        if (e.touches.length < 2) startDist = 0;
-        if (e.touches.length === 0) {
-          panning = false;
-          img.classList.remove('msq-zooming');
-          lastScale = scale;
-          if (scale < 1.08) reset();
-        }
-      }, { passive: true });
-
-      img.addEventListener('dblclick', function (e) {
-        e.preventDefault();
-        reset();
-      });
-    }
-
-    function scan() {
-      modal.querySelectorAll('.msq-stage-side img, #msqPairStage img, #modalImage').forEach(bindImg);
-      // تلميح pinch مرة واحدة
-      if (modal.classList.contains('msq-pair-mode')) {
-        var stage = document.getElementById('msqPairStage') || modal.querySelector('.msq-pair-stage');
-        if (stage && !stage.querySelector('.msq-pinch-hint')) {
-          var hint = document.createElement('div');
-          hint.className = 'msq-pinch-hint';
-          hint.textContent = 'اضغط بإصبعين للتكبير';
-          stage.parentNode && stage.parentNode.insertBefore(hint, stage.nextSibling);
-        }
-      }
-    }
-
-    if (!modal.__msqPinchObs) {
-      modal.__msqPinchObs = true;
-      var obs = new MutationObserver(function () { scan(); });
-      obs.observe(modal, { childList: true, subtree: true });
-    }
-    scan();
-  }
-
   function boot() {
-    initView();
     setupSwipeClose();
-    setupPinchZoom();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 
-  // لما المودال يتفتح: أعد الربط
   var modal = document.getElementById('productModal');
   if (modal) {
     var mo = new MutationObserver(function () {
-      if (modal.classList.contains('active')) {
-        setTimeout(function () { setupSwipeClose(); setupPinchZoom(); }, 120);
-      }
+      if (modal.classList.contains('active')) setTimeout(setupSwipeClose, 100);
     });
     mo.observe(modal, { attributes: true, attributeFilter: ['class'] });
   }
-  document.addEventListener('click', function () {
-    setTimeout(function () { setupSwipeClose(); setupPinchZoom(); }, 250);
-  }, true);
 })();
 </script>
+
 
 
 </body>
