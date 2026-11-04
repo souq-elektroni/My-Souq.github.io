@@ -3176,9 +3176,9 @@ ${selectedImage}
       pm.classList.remove('active');
       pm.classList.remove('msq-pair-mode');
     }
-    // امسح ?product= من الرابط عشان الصفحة متتفتحش لوحدها بعد الريفرش
     clearProductQueryFromUrl();
   }
+  window.closeModal = closeModal;
 
 
   function requireSelectedSize(actionLabel) {
@@ -4551,6 +4551,36 @@ function continueAfterOrderRecaptcha() {
   // ضمان توفر الدوال عالميًا للـ wrappers في index.html
   try {
     window.finalizeOrder = finalizeOrder;
+
+    // حساب العميل: إعادة طلب — إضافة عناصر للسلة من برّه
+    window.msqApplyReorderItems = function (items) {
+      if (!Array.isArray(items) || !items.length) return { ok: false, reason: 'empty' };
+      items.forEach(function (it) {
+        if (!it) return;
+        var entry = {
+          id: it.id,
+          title: it.title || it.name || 'منتج',
+          price: Number(it.price) || 0,
+          size: it.size || '',
+          qty: Number(it.qty != null ? it.qty : (it.quantity != null ? it.quantity : 1)) || 1,
+          image: it.image || it.front_image || '',
+          back_image: it.back_image || '',
+          designName: it.designName || it.design || ''
+        };
+        var found = cart.find(function (c) {
+          return String(c.id) === String(entry.id) && String(c.size || '') === String(entry.size || '');
+        });
+        if (found) found.qty = (Number(found.qty) || 0) + entry.qty;
+        else cart.push(entry);
+      });
+      try { updateCartCount(); } catch (e) {}
+      try { if (typeof renderCart === 'function') renderCart(); } catch (e) {}
+      return { ok: true, count: cart.length };
+    };
+    window.msqGetCartCount = function () {
+      return (cart || []).reduce(function (s, x) { return s + (Number(x.qty) || 0); }, 0);
+    };
+
     window.notifyOwnerNewOrderTelegram = notifyOwnerNewOrderTelegram;
     window.buildTelegramOrderMessage = buildTelegramOrderMessage;
     window.filterCategory = filterCategory;

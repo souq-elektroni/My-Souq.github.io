@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611040827clean";
+  var BUILD = "202611041541account";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -155,7 +155,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611040827clean">
+  <meta name="msq-build" content="202611041541account">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -244,8 +244,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611040827clean">
-<link rel="stylesheet" href="styles.css?v=202611040827clean">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611041541account">
+<link rel="stylesheet" href="styles.css?v=202611041541account">
 
 
 
@@ -281,8 +281,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611040827clean">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611040827clean">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611041541account">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611041541account">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -589,6 +589,34 @@
 
 
 
+
+<style id="msq-account-css">
+.msq-account-trigger{
+  min-width:42px;width:42px;height:42px;border-radius:14px;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:18px;cursor:pointer;border:0;background:rgba(255,255,255,.9);
+}
+.msq-oh-card{
+  border:1px solid rgba(128,61,72,.12);border-radius:14px;padding:12px;
+  margin-bottom:10px;background:#fff;
+}
+.msq-oh-card-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:4px}
+.msq-oh-id{font-weight:900;font-size:13px;color:#803d48;word-break:break-all}
+.msq-oh-status{font-size:11px;font-weight:800;color:#5a4046;background:#f7f1f3;padding:4px 8px;border-radius:999px;white-space:nowrap}
+.msq-oh-date{font-size:11px;color:#8a7076;margin-bottom:6px}
+.msq-oh-items{margin:6px 0 8px;padding-right:16px;font-size:12px;line-height:1.55;color:#4a3036}
+.msq-oh-card-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.msq-oh-total{font-weight:900;font-size:13px;color:#803d48;margin-left:auto}
+.msq-oh-btn-copy,.msq-oh-btn-reorder,.msq-oh-btn-track{
+  border:1px solid rgba(128,61,72,.16);background:#faf6f7;color:#803d48;
+  border-radius:10px;padding:7px 10px;font-size:12px;font-weight:800;cursor:pointer;
+}
+.msq-oh-btn-reorder{background:#803d48;color:#fff;border-color:#803d48}
+@media (max-width:720px){
+  .msq-account-trigger{width:40px;height:40px}
+}
+</style>
+
 </head>
 
 <body>
@@ -623,6 +651,9 @@
       <input type="text" id="searchInput" class="search-input" placeholder="ابحث عن منتج..." oninput="handleSearchAndFilter()" autocomplete="off">
       <button type="button" class="voice-search-btn" id="voiceSearchBtn" onclick="startVoiceSearch()" title="بحث بالصوت">🎤</button>
     </div>
+    <button type="button" class="msq-account-trigger msq-icon-only" id="msqAccountTrigger" onclick="if(window.msqOpenOrderHistoryPanel)window.msqOpenOrderHistoryPanel()" aria-label="حسابي" title="حسابي">
+      👤
+    </button>
     <button type="button" class="msq-favorites-trigger msq-icon-only" id="msqFavoritesTrigger" onclick="if(window.msqOpenFavorites)window.msqOpenFavorites()" aria-label="المفضلة" title="المفضلة">
       ♥ <span class="msq-fav-count" id="msqFavCount">0</span>
     </button>
@@ -1356,26 +1387,29 @@
   </div>
 
 
-  <!-- Order History Modal (مستقل عن نافذة التتبع) -->
+  <!-- حساب العميل بالواتساب + سجل الطلبات + إعادة الطلب -->
   <div class="modal-overlay" id="msqOrderHistoryModal" style="display:none;z-index:1200;">
-    <div class="modal-content msq-oh-modal-content" style="max-width:340px;width:min(92vw,340px);padding:16px 14px;">
+    <div class="modal-content msq-oh-modal-content" style="max-width:420px;width:min(94vw,420px);padding:16px 14px;max-height:92vh;overflow:auto;">
       <button type="button" class="close-btn" onclick="if(window.msqCloseOrderHistoryModal)window.msqCloseOrderHistoryModal()">✕</button>
-      <div class="msq-oh-title" style="font-size:16px;margin-bottom:8px;">📋 سجل الطلبات</div>
+      <div class="msq-oh-title" style="font-size:17px;font-weight:900;margin-bottom:6px;color:#803d48;">👤 حسابي</div>
+      <p class="msq-oh-sub" style="font-size:12px;color:#6b5358;margin:0 0 12px;line-height:1.5;">ادخل برقم الواتساب لعرض طلباتك وإعادة أي طلب للسلة</p>
 
       <div id="msqOhLoginView">
-        <p class="msq-oh-hint">أدخل رقم الهاتف ثم اضغط دخول لعرض طلباتك</p>
-        <div class="msq-oh-row">
-          <input type="tel" id="msqHistoryPhone" class="promo-input" placeholder="01xxxxxxxxx" inputmode="numeric" autocomplete="tel" maxlength="15">
-          <button type="button" id="msqHistoryGoBtn" class="msq-oh-go" onclick="if(window.msqLookupOrderHistory)window.msqLookupOrderHistory()">دخول</button>
+        <p class="msq-oh-hint" style="font-size:12.5px;font-weight:700;margin-bottom:8px;">رقم الواتساب</p>
+        <div class="msq-oh-row" style="display:flex;gap:8px;align-items:center;">
+          <input type="tel" id="msqHistoryPhone" class="promo-input" placeholder="01xxxxxxxxx" inputmode="numeric" autocomplete="tel" maxlength="15" style="flex:1;min-height:44px;">
+          <button type="button" id="msqHistoryGoBtn" class="msq-oh-go" onclick="if(window.msqLookupOrderHistory)window.msqLookupOrderHistory()" style="min-height:44px;padding:0 16px;border-radius:12px;font-weight:900;background:#803d48;color:#fff;border:0;cursor:pointer;">دخول</button>
         </div>
-        <div id="msqHistoryLoginMsg" class="msq-oh-error" style="display:none;margin-top:8px;"></div>
+        <div id="msqHistoryLoginMsg" class="msq-oh-error" style="display:none;margin-top:8px;color:#c62828;font-size:12px;font-weight:700;"></div>
+        <p style="font-size:11px;color:#8a7076;margin-top:10px;line-height:1.5;">نفس رقم الموبايل المستخدم في الطلب — بدون كلمة مرور</p>
       </div>
 
       <div id="msqOhResultsView" style="display:none;">
-        <div class="msq-oh-session-bar">
-          <span id="msqOhSessionPhone" class="msq-oh-session-phone"></span>
-          <button type="button" id="msqOhLogoutBtn" class="msq-oh-logout" onclick="if(window.msqLogoutOrderHistory)window.msqLogoutOrderHistory()">تسجيل خروج</button>
+        <div class="msq-oh-session-bar" style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;padding:8px 10px;background:#faf6f7;border-radius:12px;">
+          <span id="msqOhSessionPhone" class="msq-oh-session-phone" style="font-weight:800;font-size:13px;color:#803d48;"></span>
+          <button type="button" id="msqOhLogoutBtn" class="msq-oh-logout" onclick="if(window.msqLogoutOrderHistory)window.msqLogoutOrderHistory()" style="border:0;background:#fff;border-radius:10px;padding:6px 10px;font-weight:800;font-size:12px;cursor:pointer;color:#803d48;">خروج</button>
         </div>
+        <div id="msqOhProfileBox" class="msq-oh-profile" style="display:none;margin-bottom:12px;padding:10px 12px;border-radius:12px;border:1px solid rgba(128,61,72,.12);background:#fff;"></div>
         <div id="msqHistoryResults" class="msq-oh-results msq-oh-list"></div>
       </div>
     </div>
@@ -1598,7 +1632,7 @@
   })();
   </script>
 
-  <script src="script.js?v=202611040827clean"></script>
+  <script src="script.js?v=202611041541account"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -7193,6 +7227,467 @@ window.addToCartAndContinue = function () {
 </script>
 
 
+
+
+<script id="msq-customer-account-js">
+(function () {
+  var ACCOUNT_KEY = 'msq_customer_account';
+  var SESSION_KEY = 'msqOhPhone';
+  var _phone = '';
+
+  function normPhone(v) {
+    try {
+      if (typeof normalizeEgyptianPhone === 'function') return normalizeEgyptianPhone(v);
+    } catch (e) {}
+    var s = String(v || '').replace(/\D/g, '');
+    if (s.indexOf('20') === 0 && s.length >= 12) s = '0' + s.slice(2);
+    return s;
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function loadAccount() {
+    try { return JSON.parse(localStorage.getItem(ACCOUNT_KEY) || 'null') || null; } catch (e) { return null; }
+  }
+  function saveAccount(acc) {
+    try { localStorage.setItem(ACCOUNT_KEY, JSON.stringify(acc)); } catch (e) {}
+  }
+
+  function upsertAccountFromOrder(order) {
+    if (!order) return;
+    var phone = normPhone(order.phone || order.customerPhone || '');
+    if (!phone || phone.length < 10) return;
+    var acc = loadAccount() || {};
+    acc.phone = phone;
+    if (order.name || order.customerName) acc.name = order.name || order.customerName;
+    if (order.governorate) acc.governorate = order.governorate;
+    if (order.city) acc.city = order.city;
+    if (order.detailedAddress || order.address) acc.detailedAddress = order.detailedAddress || order.address;
+    acc.updatedAt = Date.now();
+    saveAccount(acc);
+  }
+
+  function collectOrdersByPhone(phone) {
+    var out = [];
+    var seen = {};
+    function add(o) {
+      if (!o) return;
+      var id = String(o.orderId || '').trim().toUpperCase();
+      if (!id || seen[id]) return;
+      var p = normPhone(o.phone || o.customerPhone || '');
+      if (p && phone && p !== phone) return;
+      if (!p && phone) return;
+      seen[id] = true;
+      out.push({
+        orderId: id,
+        name: o.name || o.customerName || '-',
+        phone: p || phone,
+        status: o.status || o.statusLabel || '',
+        statusCode: o.statusCode,
+        date: o.date || '',
+        createdAt: Number(o.createdAt || 0),
+        total: o.total || o.totalText || '',
+        items: Array.isArray(o.items) ? o.items : [],
+        governorate: o.governorate || '',
+        city: o.city || '',
+        detailedAddress: o.detailedAddress || o.address || '',
+        payMethod: o.payMethod || ''
+      });
+    }
+    try {
+      if (typeof ordersHistory !== 'undefined' && Array.isArray(ordersHistory)) ordersHistory.forEach(add);
+    } catch (e) {}
+    try {
+      var raw = localStorage.getItem('souqOrdersHistory');
+      if (raw) {
+        var arr = JSON.parse(raw);
+        if (Array.isArray(arr)) arr.forEach(add);
+      }
+    } catch (e) {}
+    out.sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    return out;
+  }
+
+  async function collectCloudOrders(phone) {
+    var out = [];
+    var seen = {};
+    function add(o) {
+      if (!o) return;
+      var id = String(o.orderId || '').trim().toUpperCase();
+      if (!id || seen[id]) return;
+      seen[id] = true;
+      out.push({
+        orderId: id,
+        name: o.name || o.customerName || '-',
+        phone: normPhone(o.phone || o.customerPhone || phone) || phone,
+        status: o.status || o.statusLabel || '',
+        statusCode: o.statusCode,
+        date: o.date || '',
+        createdAt: Number(o.createdAt || 0) || (o.createdAt && o.createdAt.toMillis ? o.createdAt.toMillis() : 0),
+        total: o.total || o.totalText || '',
+        items: Array.isArray(o.items) ? o.items : [],
+        governorate: o.governorate || '',
+        city: o.city || '',
+        detailedAddress: o.detailedAddress || o.address || '',
+        payMethod: o.payMethod || ''
+      });
+    }
+    try {
+      var dbRef = null;
+      if (typeof db !== 'undefined' && db) dbRef = db;
+      else if (typeof firebase !== 'undefined' && firebase.firestore) dbRef = firebase.firestore();
+      if (!dbRef) return out;
+      try {
+        var q1 = await dbRef.collection('orders').where('phone', '==', phone).limit(40).get();
+        q1.forEach(function (doc) {
+          var d = doc.data() || {};
+          add(Object.assign({}, d, { orderId: d.orderId || doc.id }));
+        });
+      } catch (e) { console.warn(e); }
+      try {
+        var q2 = await dbRef.collection('orderTracking').where('phoneNorm', '==', phone).limit(40).get();
+        q2.forEach(function (doc) {
+          var d = doc.data() || {};
+          add(Object.assign({}, d, { orderId: d.orderId || doc.id }));
+        });
+      } catch (e) {}
+    } catch (e) {}
+    return out;
+  }
+
+  function mergeOrders(a, b) {
+    var map = {};
+    (a || []).concat(b || []).forEach(function (o) {
+      if (!o || !o.orderId) return;
+      var id = o.orderId;
+      if (!map[id]) map[id] = o;
+      else {
+        // keep richer one
+        var cur = map[id];
+        if ((o.items && o.items.length) > (cur.items && cur.items.length ? cur.items.length : 0)) map[id] = o;
+        if (!cur.status && o.status) map[id].status = o.status;
+        if (!cur.total && o.total) map[id].total = o.total;
+      }
+    });
+    return Object.keys(map).map(function (k) { return map[k]; })
+      .sort(function (x, y) { return (y.createdAt || 0) - (x.createdAt || 0); });
+  }
+
+  function itemLine(it) {
+    if (!it) return '';
+    var title = it.title || it.name || 'منتج';
+    var size = it.size ? (' — ' + it.size) : '';
+    var qty = it.qty != null ? it.qty : (it.quantity != null ? it.quantity : 1);
+    var price = it.price != null ? (' · ' + it.price + ' ج') : '';
+    return esc(title) + esc(size) + ' ×' + esc(qty) + esc(price);
+  }
+
+  function renderOrders(list, phone) {
+    var box = document.getElementById('msqHistoryResults');
+    if (!box) return;
+    if (!list || !list.length) {
+      box.innerHTML = '<div style="text-align:center;padding:18px 8px;color:#8a7076;font-weight:700;font-size:13px;">لا توجد طلبات مرتبطة بهذا الرقم على هذا الجهاز/السحابة بعد.</div>';
+      return;
+    }
+    box.innerHTML = list.map(function (o, idx) {
+      var itemsHtml = '';
+      if (o.items && o.items.length) {
+        itemsHtml = '<ul class="msq-oh-items">' + o.items.map(function (it) {
+          return '<li>' + itemLine(it) + '</li>';
+        }).join('') + '</ul>';
+      }
+      var st = o.status || '—';
+      var tot = o.total ? ('<span class="msq-oh-total">' + esc(String(o.total)) + '</span>') : '';
+      var dt = o.date || '';
+      return (
+        '<div class="msq-oh-card" data-order-idx="' + idx + '">' +
+          '<div class="msq-oh-card-top">' +
+            '<div class="msq-oh-id">' + esc(o.orderId) + '</div>' +
+            '<div class="msq-oh-status">' + esc(st) + '</div>' +
+          '</div>' +
+          (dt ? '<div class="msq-oh-date">' + esc(dt) + '</div>' : '') +
+          itemsHtml +
+          '<div class="msq-oh-card-actions">' +
+            tot +
+            '<button type="button" class="msq-oh-btn-copy" data-copy="' + esc(o.orderId) + '">نسخ الرقم</button>' +
+            '<button type="button" class="msq-oh-btn-reorder" data-reorder-idx="' + idx + '">🔁 إعادة الطلب</button>' +
+            '<button type="button" class="msq-oh-btn-track" data-track="' + esc(o.orderId) + '">تتبع</button>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+
+    // store list for reorder
+    window.__msqAccountOrders = list;
+
+    box.querySelectorAll('.msq-oh-btn-copy').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-copy') || '';
+        if (!id) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(id).then(function () {
+            btn.textContent = '✓ تم';
+            setTimeout(function () { btn.textContent = 'نسخ الرقم'; }, 1000);
+          }).catch(function () { prompt('انسخ:', id); });
+        } else prompt('انسخ:', id);
+      });
+    });
+
+    box.querySelectorAll('.msq-oh-btn-reorder').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var i = parseInt(btn.getAttribute('data-reorder-idx'), 10);
+        var order = (window.__msqAccountOrders || [])[i];
+        if (order) window.msqReorderFromAccount(order);
+      });
+    });
+
+    box.querySelectorAll('.msq-oh-btn-track').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.getAttribute('data-track') || '';
+        try { window.msqCloseOrderHistoryModal(); } catch (e) {}
+        try {
+          if (typeof openTrackingModal === 'function') openTrackingModal();
+          setTimeout(function () {
+            var inp = document.getElementById('trackingInput') || document.querySelector('#trackingModal input');
+            if (inp) { inp.value = id; }
+            if (typeof searchOrderTracking === 'function') searchOrderTracking();
+          }, 200);
+        } catch (e) {}
+      });
+    });
+  }
+
+  function renderProfile(phone, orders) {
+    var box = document.getElementById('msqOhProfileBox');
+    if (!box) return;
+    var acc = loadAccount() || {};
+    var name = acc.name || (orders[0] && orders[0].name) || '';
+    if (name === '-') name = '';
+    var addr = '';
+    if (acc.governorate || acc.city) {
+      addr = [acc.governorate, acc.city, acc.detailedAddress].filter(Boolean).join(' — ');
+    } else if (orders[0]) {
+      addr = [orders[0].governorate, orders[0].city, orders[0].detailedAddress].filter(Boolean).join(' — ');
+    }
+    box.style.display = 'block';
+    box.innerHTML =
+      (name ? '<div style="font-weight:900;font-size:14px;color:#4a3036;margin-bottom:4px;">' + esc(name) + '</div>' : '') +
+      '<div style="font-size:12.5px;font-weight:800;color:#803d48;">📱 ' + esc(phone) + '</div>' +
+      (addr ? '<div style="font-size:11.5px;color:#6b5358;margin-top:4px;line-height:1.45;">📍 ' + esc(addr) + '</div>' : '') +
+      '<div style="font-size:11px;color:#8a7076;margin-top:6px;">' + (orders.length || 0) + ' طلب</div>';
+  }
+
+  window.msqReorderFromAccount = function (order) {
+    if (!order || !order.items || !order.items.length) {
+      alert('هذا الطلب لا يحتوي على تفاصيل منتجات كافية لإعادة الطلب.');
+      return;
+    }
+    try {
+      if (typeof window.msqApplyReorderItems !== 'function') {
+        alert('تعذر الوصول للسلة. حدّث الصفحة وحاول مرة أخرى.');
+        return;
+      }
+      var res = window.msqApplyReorderItems(order.items);
+      if (!res || !res.ok) {
+        alert('تعذر إضافة المنتجات للسلة.');
+        return;
+      }
+      try {
+        var badge = document.getElementById('cartCount');
+        if (badge && typeof window.msqGetCartCount === 'function') {
+          badge.textContent = String(window.msqGetCartCount());
+        }
+      } catch (e) {}
+
+      // عبّي بيانات العميل من الحساب
+      var acc = loadAccount() || {};
+      var nameEl = document.getElementById('custName');
+      var phoneEl = document.getElementById('custPhone');
+      if (nameEl && (acc.name || order.name)) nameEl.value = acc.name || order.name || nameEl.value;
+      if (phoneEl) phoneEl.value = normPhone(acc.phone || order.phone || phoneEl.value);
+
+      window.msqCloseOrderHistoryModal();
+      if (typeof openCartModal === 'function') openCartModal();
+      else if (typeof window.openCartModal === 'function') window.openCartModal();
+      alert('✓ تمت إضافة منتجات الطلب للسلة. راجع السلة وأكمل الطلب.');
+    } catch (err) {
+      console.error(err);
+      alert('تعذر إعادة الطلب. حاول مرة أخرى.');
+    }
+  };
+
+  window.msqCloseOrderHistoryModal = function () {
+    var modal = document.getElementById('msqOrderHistoryModal');
+    if (!modal) return;
+    modal.classList.remove('active');
+    modal.style.display = 'none';
+  };
+
+  window.msqLogoutOrderHistory = function () {
+    _phone = '';
+    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) {}
+    var loginView = document.getElementById('msqOhLoginView');
+    var resultsView = document.getElementById('msqOhResultsView');
+    var box = document.getElementById('msqHistoryResults');
+    var inp = document.getElementById('msqHistoryPhone');
+    var msg = document.getElementById('msqHistoryLoginMsg');
+    var profile = document.getElementById('msqOhProfileBox');
+    if (loginView) loginView.style.display = '';
+    if (resultsView) resultsView.style.display = 'none';
+    if (box) box.innerHTML = '';
+    if (profile) { profile.style.display = 'none'; profile.innerHTML = ''; }
+    if (inp) { inp.value = ''; setTimeout(function () { try { inp.focus(); } catch (e) {} }, 40); }
+    if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
+  };
+
+  window.msqOpenOrderHistoryPanel = function () {
+    try {
+      if (typeof closeTrackingModal === 'function') closeTrackingModal();
+    } catch (e) {}
+    var modal = document.getElementById('msqOrderHistoryModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    modal.classList.add('active');
+
+    var saved = '';
+    try { saved = sessionStorage.getItem(SESSION_KEY) || ''; } catch (e) {}
+    var acc = loadAccount();
+    if (!saved && acc && acc.phone) saved = acc.phone;
+    if (saved && String(saved).length >= 10) {
+      _phone = normPhone(saved);
+      var inp = document.getElementById('msqHistoryPhone');
+      if (inp) inp.value = _phone;
+      window.msqLookupOrderHistory(true);
+    } else {
+      window.msqLogoutOrderHistory();
+    }
+  };
+
+  window.msqLookupOrderHistory = async function () {
+    var inp = document.getElementById('msqHistoryPhone');
+    var box = document.getElementById('msqHistoryResults');
+    var msg = document.getElementById('msqHistoryLoginMsg');
+    if (!inp || !box) return;
+    var phone = normPhone(inp.value || _phone || '');
+    if (!phone || phone.length < 10) {
+      if (msg) { msg.style.display = 'block'; msg.textContent = 'أدخل رقم واتساب صحيح (01xxxxxxxxx)'; }
+      return;
+    }
+    if (msg) { msg.style.display = 'none'; msg.textContent = ''; }
+
+    var loginView = document.getElementById('msqOhLoginView');
+    var resultsView = document.getElementById('msqOhResultsView');
+    var phoneLabel = document.getElementById('msqOhSessionPhone');
+    if (loginView) loginView.style.display = 'none';
+    if (resultsView) resultsView.style.display = '';
+    if (phoneLabel) phoneLabel.textContent = '📱 ' + phone;
+
+    _phone = phone;
+    try { sessionStorage.setItem(SESSION_KEY, phone); } catch (e) {}
+
+    // حدّث الحساب
+    var acc = loadAccount() || {};
+    acc.phone = phone;
+    acc.updatedAt = Date.now();
+    saveAccount(acc);
+
+    box.innerHTML = '<div class="msq-oh-loading" style="text-align:center;padding:16px;font-weight:700;color:#8a7076;">جاري تحميل طلباتك...</div>';
+
+    var local = collectOrdersByPhone(phone);
+    var cloud = [];
+    try { cloud = await collectCloudOrders(phone); } catch (e) {}
+    var merged = mergeOrders(local, cloud);
+    merged.forEach(upsertAccountFromOrder);
+
+    renderProfile(phone, merged);
+    renderOrders(merged, phone);
+  };
+
+  // بعد إتمام طلب: احفظ بيانات الحساب
+  function hookFinalize() {
+    if (typeof window.finalizeOrder !== 'function' || window.finalizeOrder._msqAccountHook) return;
+    var prev = window.finalizeOrder;
+    window.finalizeOrder = async function () {
+      var result = await prev.apply(this, arguments);
+      try {
+        var nameEl = document.getElementById('custName');
+        var phoneEl = document.getElementById('custPhone');
+        var phone = normPhone(phoneEl && phoneEl.value);
+        if (phone && phone.length >= 10) {
+          var acc = loadAccount() || {};
+          acc.phone = phone;
+          if (nameEl && nameEl.value) acc.name = nameEl.value.trim();
+          try {
+            if (typeof getShippingAddress === 'function') {
+              var sh = getShippingAddress();
+              if (sh) {
+                acc.governorate = sh.governorate || acc.governorate;
+                acc.city = sh.city || acc.city;
+                acc.detailedAddress = sh.detailed || acc.detailedAddress;
+              }
+            }
+          } catch (e) {}
+          acc.updatedAt = Date.now();
+          saveAccount(acc);
+          try { sessionStorage.setItem(SESSION_KEY, phone); } catch (e) {}
+        }
+      } catch (e) {}
+      return result;
+    };
+    window.finalizeOrder._msqAccountHook = true;
+  }
+
+  // تعبئة فورم الطلب من الحساب
+  function autofillCheckout() {
+    try {
+      var acc = loadAccount();
+      if (!acc) return;
+      var nameEl = document.getElementById('custName');
+      var phoneEl = document.getElementById('custPhone');
+      if (nameEl && !nameEl.value && acc.name) nameEl.value = acc.name;
+      if (phoneEl && !phoneEl.value && acc.phone) phoneEl.value = acc.phone;
+    } catch (e) {}
+  }
+
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'msqHistoryGoBtn') return;
+    // autofill when opening cart/confirmation
+  }, true);
+
+  function boot() {
+    hookFinalize();
+    setTimeout(hookFinalize, 1000);
+    setTimeout(hookFinalize, 2500);
+    // Enter on phone field
+    var inp = document.getElementById('msqHistoryPhone');
+    if (inp) {
+      inp.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          window.msqLookupOrderHistory();
+        }
+      });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  // autofill when cart opens
+  var _oc = window.openCartModal;
+  if (typeof _oc === 'function' && !_oc._msqAccFill) {
+    window.openCartModal = function () {
+      var r = _oc.apply(this, arguments);
+      setTimeout(autofillCheckout, 100);
+      return r;
+    };
+    window.openCartModal._msqAccFill = true;
+  }
+})();
+</script>
 
 </body>
 </html>
