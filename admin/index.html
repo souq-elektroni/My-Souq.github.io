@@ -969,7 +969,38 @@
   .msq-thumb-list li button:hover { background: #fee2e2; }
 </style>
 
-  </head>
+  
+<style id="msq-admin-gender-layout">
+/* صف تاجات النوع: أولاد / بنات / رجال / نساء — ترتيب أفقي مرتب */
+.msq-gender-flags-row,
+[data-msq-gender-row="1"] {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 10px 14px !important;
+  align-items: center !important;
+  margin: 8px 0 4px !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  background: #faf6f7 !important;
+  border: 1px solid rgba(128, 61, 72, 0.10) !important;
+}
+.msq-gender-flags-row > *,
+[data-msq-gender-row="1"] > * {
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+}
+/* تلميح قصير فوق الصف */
+.msq-gender-flags-hint {
+  width: 100% !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  color: #803d48 !important;
+  margin: 0 0 4px !important;
+}
+</style>
+
+</head>
 
   <body>
     <div id="loading">
@@ -4539,6 +4570,78 @@
 
   // تصدير للاختبار
   window.__msqValidateGenderTags = validateEntryData;
+})();
+</script>
+
+
+<script id="msq-admin-gender-row-js">
+(function () {
+  var NAMES = { boy: 1, girl: 1, man: 1, woman: 1 };
+  var LABELS = ['أولاد', 'بنات', 'رجال', 'نساء'];
+
+  function textOf(el) {
+    return (el && (el.textContent || '') || '').replace(/\s+/g, ' ').trim();
+  }
+
+  function looksLikeGenderField(node) {
+    if (!node || node.nodeType !== 1) return false;
+    var t = textOf(node);
+    if (!t) return false;
+    // label contains one of the four + toggle-like control
+    var hit = LABELS.some(function (l) { return t.indexOf(l) !== -1; });
+    if (!hit) return false;
+    // avoid huge sections
+    if (t.length > 80) return false;
+    return !!(node.querySelector('input[type="checkbox"]') || node.querySelector('[role="switch"]') || node.querySelector('button[role="switch"]'));
+  }
+
+  function groupIn(container) {
+    if (!container || container.nodeType !== 1) return;
+    // already grouped
+    if (container.querySelector('[data-msq-gender-row="1"]')) return;
+
+    var kids = Array.prototype.slice.call(container.children || []);
+    var genderNodes = kids.filter(looksLikeGenderField);
+    if (genderNodes.length < 2) return;
+
+    var row = document.createElement('div');
+    row.setAttribute('data-msq-gender-row', '1');
+    row.className = 'msq-gender-flags-row';
+
+    var hint = document.createElement('div');
+    hint.className = 'msq-gender-flags-hint';
+    hint.textContent = 'النوع (اختَر واحد على الأقل) — إجباري قبل الحفظ';
+    row.appendChild(hint);
+
+    var first = genderNodes[0];
+    first.parentNode.insertBefore(row, first);
+    genderNodes.forEach(function (n) { row.appendChild(n); });
+  }
+
+  function scan() {
+    try {
+      // list item bodies / object widgets
+      var candidates = document.querySelectorAll(
+        '[class*="ListItem"], [class*="list-item"], [class*="NestedObject"], [class*="ObjectControl"], [class*="object-control"], [class*="Widget"], form, [class*="Pane"]'
+      );
+      candidates.forEach(function (c) {
+        // only group if this container directly has multiple gender-like children
+        groupIn(c);
+      });
+    } catch (e) {}
+  }
+
+  var t = null;
+  function schedule() {
+    if (t) return;
+    t = setTimeout(function () { t = null; scan(); }, 200);
+  }
+
+  var obs = new MutationObserver(schedule);
+  obs.observe(document.documentElement, { childList: true, subtree: true });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', scan);
+  else scan();
+  setInterval(scan, 2000);
 })();
 </script>
 
