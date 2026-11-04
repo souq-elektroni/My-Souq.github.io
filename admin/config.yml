@@ -109,11 +109,12 @@ collections:
         required: true
 
       # الصور المزدوجة لكل شكل داخل الكوليكشن؛ الحقل القديم images يظل موجودًا للتوافق.
-      - label: "ألبوم الأشكال — صورتان لكل شكل"
+      - label: "ألبوم الأشكال — صورتان لكل شكل (النوع إجباري لكل شكل)"
         name: "designs"
         widget: "list"
         required: false
         summary: "شكل {{index}}"
+        hint: "لكل شكل: ارفع الوش/الضهر وفعّل تاج نوع واحد على الأقل (أولاد/بنات/رجال/نساء)."
         collapsed: true
         add_to_top: false
         fields:
@@ -164,35 +165,37 @@ collections:
                     width: 1400
                     height: 1400
 
-          # مربعات التصنيف لكل شكل — تُحفظ كقيم boolean ثابتة
-          - label: "👦 أولاد"
+          # تاج النوع إجباري لكل شكل (واحد على الأقل) — الفلتر يعتمد عليه
+          - label: "👦 أولاد — تاج النوع (اختَر واحد على الأقل من الأربعة)"
             name: "boy"
             widget: "boolean"
             default: false
-            required: false
+            required: true
+            hint: "لازم تفعّل نوع واحد على الأقل لكل شكل (أولاد أو بنات أو رجال أو نساء) وإلا لن يُحفظ المنتج."
           - label: "👧 بنات"
             name: "girl"
             widget: "boolean"
             default: false
-            required: false
+            required: true
           - label: "👨 رجال"
             name: "man"
             widget: "boolean"
             default: false
-            required: false
+            required: true
           - label: "👩 نساء"
             name: "woman"
             widget: "boolean"
             default: false
-            required: false
+            required: true
 
       # ألبوم صور مفردة — كل صورة لها تصنيف (أولاد/بنات/رجال/نساء)
       # يدعم أيضًا الشكل القديم (مسارات نصية فقط) للتوافق مع المنتجات السابقة
-      - label: "صور الألبوم — صورة وتصنيف لكل صف"
+      - label: "صور الألبوم — صورة وتصنيف لكل صف (النوع إجباري لكل صورة)"
         name: "images"
         widget: "list"
         required: false
         summary: "{{image}}"
+        hint: "لكل صورة: فعّل تاج نوع واحد على الأقل وإلا لن يُحفظ المنتج."
         collapsed: true
         add_to_top: false
         fields:
@@ -224,26 +227,28 @@ collections:
                     quality: 50
                     width: 1000
                     height: 1000
-          - label: "👦 أولاد"
+          # تاج النوع إجباري لكل صورة ألبوم
+          - label: "👦 أولاد — تاج النوع (اختَر واحد على الأقل)"
             name: "boy"
             widget: "boolean"
             default: false
-            required: false
+            required: true
+            hint: "لازم تفعّل نوع واحد على الأقل لكل صورة وإلا لن يُحفظ المنتج."
           - label: "👧 بنات"
             name: "girl"
             widget: "boolean"
             default: false
-            required: false
+            required: true
           - label: "👨 رجال"
             name: "man"
             widget: "boolean"
             default: false
-            required: false
+            required: true
           - label: "👩 نساء"
             name: "woman"
             widget: "boolean"
             default: false
-            required: false
+            required: true
 
       - label: "السعر الأساسي (ج.م)"
         name: "price"

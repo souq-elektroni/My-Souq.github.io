@@ -1714,6 +1714,61 @@
         }
 
         window.CMS.init();
+
+        // تاج الجنس إجباري — preSave بعد تهيئة CMS
+        try {
+          if (window.CMS && window.CMS.registerEventListener) {
+            window.CMS.registerEventListener({
+              name: 'preSave',
+              handler: function (event) {
+                function truthy(v) { return v === true || v === 'true' || v === 1 || v === '1'; }
+                function hasGender(obj) {
+                  if (!obj) return false;
+                  if (typeof obj.get === 'function') {
+                    return truthy(obj.get('boy')) || truthy(obj.get('girl')) || truthy(obj.get('man')) || truthy(obj.get('woman'));
+                  }
+                  return truthy(obj.boy) || truthy(obj.girl) || truthy(obj.man) || truthy(obj.woman);
+                }
+                function hasMedia(obj) {
+                  if (!obj) return false;
+                  if (typeof obj.get === 'function') {
+                    var v = obj.get('front_image') || obj.get('back_image') || obj.get('image') || obj.get('src');
+                    return !!(v && String(v).trim());
+                  }
+                  return !!(obj.front_image || obj.back_image || obj.image || obj.src);
+                }
+                var entry = event && event.entry;
+                var data = entry && (entry.get ? entry.get('data') : entry.data);
+                if (!data) return entry;
+                var errors = [];
+                var designs = data.get ? data.get('designs') : data.designs;
+                var images = data.get ? data.get('images') : data.images;
+                var dLen = designs ? (designs.size != null ? designs.size : designs.length) : 0;
+                for (var i = 0; i < dLen; i++) {
+                  var d = designs.get ? designs.get(i) : designs[i];
+                  if (!d) continue;
+                  if (!hasMedia(d) && !hasGender(d)) continue;
+                  if (!hasGender(d)) errors.push('شكل رقم ' + (i + 1) + ' بدون تاج نوع (أولاد/بنات/رجال/نساء)');
+                }
+                var iLen = images ? (images.size != null ? images.size : images.length) : 0;
+                for (var j = 0; j < iLen; j++) {
+                  var im = images.get ? images.get(j) : images[j];
+                  if (!im || typeof im === 'string') continue;
+                  if (!hasMedia(im) && !hasGender(im)) continue;
+                  if (hasMedia(im) && !hasGender(im)) errors.push('صورة رقم ' + (j + 1) + ' بدون تاج نوع (أولاد/بنات/رجال/نساء)');
+                }
+                if (errors.length) {
+                  alert('⚠️ لا يمكن حفظ المنتج:\n\n• ' + errors.join('\n• ') + '\n\nفعّل تاج نوع واحد على الأقل لكل شكل/صورة.');
+                  throw new Error(errors[0]);
+                }
+                return entry;
+              }
+            });
+          }
+        } catch (eGenderHook) {
+          console.warn('gender preSave hook failed', eGenderHook);
+        }
+
       })();
     </script>
 
@@ -4279,6 +4334,211 @@
     new MutationObserver(schedule).observe(document.documentElement, { childList: true, subtree: true });
   }
   setInterval(clean, 2500);
+})();
+</script>
+
+
+<script id="msq-gender-required-validation">
+(function () {
+  function truthy(v) {
+    return v === true || v === 'true' || v === 1 || v === '1';
+  }
+
+  function hasGender(obj) {
+    if (!obj) return false;
+    // plain object
+    if (typeof obj.get === 'function') {
+      return truthy(obj.get('boy')) || truthy(obj.get('girl')) ||
+             truthy(obj.get('man')) || truthy(obj.get('woman'));
+    }
+    return truthy(obj.boy) || truthy(obj.girl) || truthy(obj.man) || truthy(obj.woman);
+  }
+
+  function hasImage(obj) {
+    if (!obj) return false;
+    if (typeof obj.get === 'function') {
+      var f = obj.get('front_image') || obj.get('back_image') || obj.get('image') || obj.get('src') || obj.get('url');
+      return !!(f && String(f).trim());
+    }
+    return !!(obj.front_image || obj.back_image || obj.image || obj.src || obj.url);
+  }
+
+  function listSize(list) {
+    if (!list) return 0;
+    if (typeof list.size === 'number') return list.size;
+    if (Array.isArray(list)) return list.length;
+    return 0;
+  }
+
+  function listGet(list, i) {
+    if (!list) return null;
+    if (typeof list.get === 'function') return list.get(i);
+    return list[i];
+  }
+
+  function validateEntryData(data) {
+    var errors = [];
+    if (!data) return errors;
+
+    var designs = typeof data.get === 'function' ? data.get('designs') : data.designs;
+    var images = typeof data.get === 'function' ? data.get('images') : data.images;
+
+    var dLen = listSize(designs);
+    for (var i = 0; i < dLen; i++) {
+      var d = listGet(designs, i);
+      if (!d) continue;
+      // لو الشكل فاضي تمامًا تجاهله
+      if (!hasImage(d) && !hasGender(d)) continue;
+      if (!hasGender(d)) {
+        errors.push('شكل رقم ' + (i + 1) + ' في ألبوم الوش/الضهر بدون تاج نوع. فعّل: أولاد أو بنات أو رجال أو نساء.');
+      }
+    }
+
+    var iLen = listSize(images);
+    for (var j = 0; j < iLen; j++) {
+      var img = listGet(images, j);
+      if (!img) continue;
+      if (!hasImage(img) && !hasGender(img)) continue;
+      // لو صورة نصية قديمة بدون object — تخطي
+      if (typeof img === 'string') continue;
+      if (hasImage(img) && !hasGender(img)) {
+        errors.push('صورة رقم ' + (j + 1) + ' في ألبوم الصور بدون تاج نوع. فعّل: أولاد أو بنات أو رجال أو نساء.');
+      }
+    }
+
+    // لو مفيش أي أشكال ولا صور فيها تاج — وموجود محتوى صور
+    if (!errors.length && dLen === 0 && iLen === 0) {
+      // منتج بدون صور أصلاً — مش شرط جنس
+    }
+
+    return errors;
+  }
+
+  function showErrors(errors) {
+    var msg = '⚠️ لا يمكن حفظ المنتج:\n\n• ' + errors.join('\n• ') +
+      '\n\nالتاج إجباري عشان فلتر النوع في المتجر يشتغل صح.';
+    try { alert(msg); } catch (e) { console.error(msg); }
+  }
+
+  function tryValidateFromCms() {
+    try {
+      // محاولة قراءة المسودة من Sveltia/Decap store
+      var store = window.CMS && (window.CMS.store || (window.CMS.getStore && window.CMS.getStore()));
+      if (!store || !store.getState) return null;
+      var state = store.getState();
+      var entry = state && state.entryDraft && state.entryDraft.entry;
+      if (!entry) return null;
+      var data = entry.get ? entry.get('data') : (entry.data || null);
+      return validateEntryData(data);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // preSave hook (Decap/Sveltia إن وُجد)
+  function registerPreSave() {
+    if (!window.CMS || !window.CMS.registerEventListener) return false;
+    try {
+      window.CMS.registerEventListener({
+        name: 'preSave',
+        handler: function (event) {
+          return new Promise(function (resolve, reject) {
+            try {
+              var entry = event && event.entry;
+              var data = entry && (entry.get ? entry.get('data') : entry.data);
+              var errors = validateEntryData(data);
+              if (errors && errors.length) {
+                showErrors(errors);
+                reject(new Error(errors[0]));
+                return;
+              }
+              resolve(entry);
+            } catch (err) {
+              resolve(event && event.entry);
+            }
+          });
+        }
+      });
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // اعتراض أزرار الحفظ/النشر في الواجهة
+  function isSaveButton(el) {
+    if (!el || el.nodeType !== 1) return false;
+    var t = (el.innerText || el.textContent || el.getAttribute('aria-label') || el.title || '').toLowerCase();
+    var markers = ['publish', 'save', 'نشر', 'حفظ', 'publish now', 'save draft'];
+    for (var i = 0; i < markers.length; i++) {
+      if (t.indexOf(markers[i]) !== -1) return true;
+    }
+    // أزرار شائعة في Sveltia
+    if (el.matches && (
+      el.matches('[data-testid*="save" i], [data-testid*="publish" i], button[class*="save" i], button[class*="publish" i]')
+    )) return true;
+    return false;
+  }
+
+  document.addEventListener('click', function (e) {
+    var el = e.target;
+    // اطلع لأعلى لحد زرار
+    for (var i = 0; i < 5 && el; i++) {
+      if (el.tagName === 'BUTTON' || (el.getAttribute && el.getAttribute('role') === 'button') || isSaveButton(el)) {
+        if (!isSaveButton(el) && el.tagName !== 'BUTTON') { el = el.parentElement; continue; }
+        if (!isSaveButton(el)) break;
+
+        var errors = tryValidateFromCms();
+        // لو مقدرناش نقرأ الـ store، محاولة من DOM (checkboxes في المحرر)
+        if (errors === null) {
+          errors = validateFromDom();
+        }
+        if (errors && errors.length) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+          showErrors(errors);
+          return false;
+        }
+        break;
+      }
+      el = el.parentElement;
+    }
+  }, true);
+
+  function validateFromDom() {
+    var errors = [];
+    // Sveltia list items — نبحث عن مجموعات boolean قريبة من labels أولاد/بنات
+    // طريقة عملية: أي list item فيه صورة/حقل وفيه 4 checkboxes كلها false
+    try {
+      var items = document.querySelectorAll('[class*="ListItem"], [class*="list-item"], [data-testid*="list-item"]');
+      if (!items.length) {
+        // fallback عام
+        items = document.querySelectorAll('div[class*="NestedObject"], div[class*="object-control"]');
+      }
+      // لو مفيش DOM واضح، متمنعش الحفظ من هنا
+      if (!items.length) return [];
+    } catch (e) {
+      return [];
+    }
+    return errors;
+  }
+
+  function boot() {
+    registerPreSave();
+    // أعد التسجيل بعد تحميل CMS
+    var n = 0;
+    var timer = setInterval(function () {
+      n++;
+      if (registerPreSave() || n > 40) clearInterval(timer);
+    }, 500);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  // تصدير للاختبار
+  window.__msqValidateGenderTags = validateEntryData;
 })();
 </script>
 
