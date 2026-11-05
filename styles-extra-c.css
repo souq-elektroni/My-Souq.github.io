@@ -1184,12 +1184,12 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 
 /* ===== mysouq-open-orders-status-filters-style ===== */
 #msqOpenOrderFilters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px;width:100%}
-#msqOpenOrderFilters button{flex:1 1 220px;min-height:42px;border:1px solid #d7e2e8;border-radius:11px;padding:10px 14px;background:#fff;color:#344650;font-weight:900;cursor:pointer;box-shadow:0 3px 10px rgba(24,33,43,.06)}
+#msqOpenOrderFilters button{flex:0 0 auto;min-height:36px;border:1px solid #d7e2e8;border-radius:999px;padding:7px 14px;background:#fff;color:#344650;font-weight:900;cursor:pointer;box-shadow:0 3px 10px rgba(24,33,43,.06);white-space:nowrap;width:auto}
 #msqOpenOrderFilters button.active[data-status="0"]{background:#ef6c00;border-color:#ef6c00;color:#fff}
 #msqOpenOrderFilters button.active[data-status="1"]{background:#1565c0;border-color:#1565c0;color:#fff}
 #msqOpenOrderFilters button.active[data-status="2"]{background:#6a1b9a;border-color:#6a1b9a;color:#fff}
 #msqOpenOrderFilters button:focus-visible{outline:3px solid rgba(8,127,140,.25);outline-offset:2px}
-@media(max-width:520px){#msqOpenOrderFilters{gap:6px}#msqOpenOrderFilters button{flex:1 1 100%;min-height:40px;padding:9px 8px}}
+@media(max-width:520px){#msqOpenOrderFilters{gap:6px;flex-wrap:wrap}#msqOpenOrderFilters button{flex:0 0 auto;min-height:36px;padding:7px 12px;width:auto}}
 
 /* ===== mysouq-admin-five-tabs-and-delivered-actions ===== */
 /* Keep the five primary admin channels on one horizontal row on desktop and mobile. */
@@ -12211,4 +12211,32 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
 @media (max-width: 900px) {
   #msqAdminTabs { display: none !important; }
   #msqAdminChannelSelectWrap { display: block !important; width: 100% !important; }
+}
+
+
+/* msq-admin-row-final-v4 */
+html body #msqAdminTabs {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  overflow: visible !important;
+  grid-template-columns: none !important;
+}
+html body #msqAdminTabs > button {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  white-space: nowrap !important;
+}
+html body #msqOpenOrderFilters {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  flex-direction: row !important;
+  gap: 8px !important;
+  grid-template-columns: none !important;
+}
+html body #msqOpenOrderFilters > button {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  flex-basis: auto !important;
+  white-space: nowrap !important;
 }
