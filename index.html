@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611051131ghost";
+  var BUILD = "202611051248x2msg";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -155,7 +155,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611051131ghost">
+  <meta name="msq-build" content="202611051248x2msg">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -244,8 +244,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611051131ghost">
-<link rel="stylesheet" href="styles.css?v=202611051131ghost">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611051248x2msg">
+<link rel="stylesheet" href="styles.css?v=202611051248x2msg">
 
 
 
@@ -281,8 +281,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611051131ghost">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611051131ghost">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611051248x2msg">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611051248x2msg">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1574,6 +1574,7 @@ html body #msqOpenOrderFilters > button {
       <p class="success-message">تم إرسال الطلب الخاص بكم بنجاح. رقم الطلب الخاص بكم موضح أدناه، ويمكنكم نسخه والاحتفاظ به لمتابعة الطلب.</p>
       <p id="successOrderIdDisplay" style="font-weight:900;color:var(--burgundy-soft);background:var(--pink-soft, #fff4f6);border:1px dashed var(--burgundy-soft, #8b3f52);border-radius:12px;padding:13px 10px;margin:10px 0;font-size:17px;user-select:text;direction:ltr;overflow-wrap:anywhere;"></p>
       <button type="button" class="success-btn" onclick="copyConfirmedOrderId()" style="margin-bottom:10px;">📋 نسخ رقم الطلب</button>
+      <div id="msqSuccessX2Box" style="display:none;margin:10px 0;padding:12px;border-radius:14px;background:#faf7fc;border:1px solid rgba(106,27,154,.2);"></div>
       <p class="success-message">يمكنكم الاطلاع على مراحل الطلب من خانة <strong>تتبع الطلبات 🔍</strong>.</p>
       <div class="success-policy"><strong>ملحوظة مهمة:</strong><br>الطلب الخاص بكم في مرحلة <strong>قيد التنفيذ</strong> حاليًا، ويحق لكم الإلغاء في هذه المرحلة بعد الإبلاغ عن الإلغاء. ولا يحق الإلغاء في المراحل التالية لهذه المرحلة.</div>
       <p class="success-message" style="text-align:center;margin-top:16px;">إدارة My Souq تتمنى لكم تجربة رائعة <span aria-label="قلب">❤️</span></p>
@@ -1716,7 +1717,7 @@ html body #msqOpenOrderFilters > button {
   })();
   </script>
 
-  <script src="script.js?v=202611051131ghost"></script>
+  <script src="script.js?v=202611051248x2msg"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -7612,7 +7613,11 @@ window.addToCartAndContinue = function () {
 
       try {
         sessionStorage.setItem('msqX2Reorder', '1');
-        if (order.orderId) sessionStorage.setItem('msqX2SourceOrderId', String(order.orderId));
+        localStorage.setItem('msqX2Reorder', '1');
+        if (order.orderId) {
+          sessionStorage.setItem('msqX2SourceOrderId', String(order.orderId));
+          localStorage.setItem('msqX2SourceOrderId', String(order.orderId));
+        }
       } catch (e) {}
       window.msqCloseOrderHistoryModal();
       if (typeof openCartModal === 'function') openCartModal();

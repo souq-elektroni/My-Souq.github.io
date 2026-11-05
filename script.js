@@ -4443,17 +4443,15 @@ function continueAfterOrderRecaptcha() {
     try {
       var x2Flag = '';
       var x2Src = '';
-      try { x2Flag = sessionStorage.getItem('msqX2Reorder') || ''; } catch (e) {}
-      try { x2Src = sessionStorage.getItem('msqX2SourceOrderId') || ''; } catch (e) {}
-      if (x2Flag === '1') {
+      try { x2Flag = sessionStorage.getItem('msqX2Reorder') || localStorage.getItem('msqX2Reorder') || ''; } catch (e) {}
+      try { x2Src = sessionStorage.getItem('msqX2SourceOrderId') || localStorage.getItem('msqX2SourceOrderId') || ''; } catch (e) {}
+      if (x2Flag === '1' || x2Flag === 'true') {
         newOrderRecord.isX2 = true;
         newOrderRecord.x2ReviewStatus = 'pending';
         newOrderRecord.statusCode = 6;
         newOrderRecord.status = 'مراجعة طلب X2 🔁';
         if (x2Src) newOrderRecord.x2SourceOrderId = String(x2Src).slice(0, 40);
         newOrderRecord.originalTotal = totalNumeric;
-        try { sessionStorage.removeItem('msqX2Reorder'); } catch (e) {}
-        try { sessionStorage.removeItem('msqX2SourceOrderId'); } catch (e) {}
       }
     } catch (eX2) {}
 
@@ -4544,8 +4542,34 @@ function continueAfterOrderRecaptcha() {
       if (confirmationModal) confirmationModal.classList.remove('active');
       if (paymentModal) paymentModal.classList.remove('active');
       const successId = document.getElementById('successOrderIdDisplay');
-      if (successId) successId.innerText = 'رقم طلبك هو: ' + thisOrderId;
+      if (successId) successId.innerText = 'رقم طلبكم هو: ' + thisOrderId;
+      try {
+        var isX2Order = !!(newOrderRecord && newOrderRecord.isX2);
+        var titleEl = document.querySelector('#successModal .success-title');
+        var msgEl = document.querySelector('#successModal .success-message');
+        var policyEl = document.querySelector('#successModal .success-policy');
+        var x2Box = document.getElementById('msqSuccessX2Box');
+        if (isX2Order) {
+          if (titleEl) titleEl.textContent = 'تم تأكيد إرسال طلبكم ✅';
+          if (msgEl) msgEl.innerHTML = 'تم تسجيل إعادة الطلب بنجاح. رقم الطلب موضح أدناه — احتفظوا به للمتابعة.';
+          if (policyEl) policyEl.innerHTML = '<strong>مرحلة المراجعة:</strong><br>طلبكم الآن <strong>بمرحلة المراجعة</strong> وسنوافيكم بكل جديد على شاشة <strong>تتبع الطلب</strong>.';
+          if (x2Box) {
+            x2Box.style.display = 'block';
+            x2Box.innerHTML = '<div style="font-weight:950;color:#6a1b9a;margin-bottom:6px">🔁 طلب إعادة (X2)</div><p style="margin:0;font-size:13px;line-height:1.65;font-weight:700;color:#5a4046">طلبكم الآن بمرحلة المراجعة. سنفيدكم بأي تحديث على شاشة تتبع الطلب.</p>';
+          }
+        } else {
+          if (titleEl) titleEl.textContent = 'تم إرسال طلبكم بنجاح ❤️';
+          if (x2Box) { x2Box.style.display = 'none'; x2Box.innerHTML = ''; }
+        }
+      } catch (eUi) {}
       if (successModal) successModal.classList.add('active');
+      // امسح علامة X2 بعد عرض النجاح
+      try {
+        sessionStorage.removeItem('msqX2Reorder');
+        sessionStorage.removeItem('msqX2SourceOrderId');
+        localStorage.removeItem('msqX2Reorder');
+        localStorage.removeItem('msqX2SourceOrderId');
+      } catch (eClr) {}
 
       try {
         if (appliedPromoCode && appliedPromoCode.code) {
