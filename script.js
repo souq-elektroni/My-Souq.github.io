@@ -130,7 +130,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         governorate: String(localRecord.governorate || ''),
         city: String(localRecord.city || ''),
         detailedAddress: String(localRecord.detailedAddress || ''),
-        statusCode: 0,
+        statusCode: (Number.isInteger(localRecord.statusCode) ? localRecord.statusCode : 0),
         status: String(localRecord.status || 'تحت التنفيذ 📦'),
         date: String(localRecord.date || ''),
         createdAt: localRecord.createdAt || Date.now(),
@@ -142,23 +142,39 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
       if (localRecord.promoDiscount) {
         allowed.promoDiscount = String(localRecord.promoDiscount).slice(0, 80);
       }
+      // حقول مراجعة إعادة الطلب X2
+      if (localRecord.isX2) {
+        allowed.isX2 = true;
+        allowed.x2ReviewStatus = String(localRecord.x2ReviewStatus || 'pending');
+        if (localRecord.x2SourceOrderId) allowed.x2SourceOrderId = String(localRecord.x2SourceOrderId).slice(0, 40);
+        if (localRecord.originalTotal != null) allowed.originalTotal = localRecord.originalTotal;
+        if (localRecord.x2NewTotal != null) allowed.x2NewTotal = localRecord.x2NewTotal;
+        if (localRecord.x2HoldUntil != null) allowed.x2HoldUntil = Number(localRecord.x2HoldUntil) || 0;
+        if (localRecord.customerPriceResponse) allowed.customerPriceResponse = String(localRecord.customerPriceResponse).slice(0, 20);
+      }
       await db.collection('orders').doc(normalizedId).set(allowed);
 
       // Customer tracking reads this single document by its unpredictable order ID.
       // Keep only the fields needed by the tracking screen; never include phone/payment data.
       try {
         const initialCode = Number.isInteger(localRecord.statusCode) ? localRecord.statusCode : 0;
-        await db.collection('orderTracking').doc(normalizedId).set({
+        var trackPayload = {
           orderId: normalizedId,
           statusCode: initialCode,
           status: String(localRecord.status || 'تحت التنفيذ 📦'),
           name: String(localRecord.name || ''),
-          // لا عنوان ولا تليفون هنا: المستند ده يقدر يقراه أي حد معاه رقم الطلب
           total: localRecord.total == null ? '' : localRecord.total,
           items: Array.isArray(localRecord.items) ? localRecord.items : [],
           createdAt: localRecord.createdAt || Date.now(),
           updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        };
+        if (localRecord.isX2) {
+          trackPayload.isX2 = true;
+          trackPayload.x2ReviewStatus = String(localRecord.x2ReviewStatus || 'pending');
+          if (localRecord.x2NewTotal != null) trackPayload.x2NewTotal = localRecord.x2NewTotal;
+          if (localRecord.originalTotal != null) trackPayload.originalTotal = localRecord.originalTotal;
+        }
+        await db.collection('orderTracking').doc(normalizedId).set(trackPayload);
       } catch (trackingError) {
         console.warn('تعذر تحديث سجل التتبع العام:', trackingError);
       }
@@ -4090,7 +4106,11 @@ function continueAfterOrderRecaptcha() {
   function buildTelegramOrderMessage(meta) {
     const m = meta || {};
     const lines = [];
-    lines.push('🛒 *طلب جديد — My Souq*');
+    lines.push((m.isX2 || m._x2Tag) ? '🔁 *إعادة طلب X2 — بانتظار المراجعة*' : '🛒 *طلب جديد — My Souq*');
+    if (m.isX2 || m._x2Tag) {
+      lines.push('⚠️ هذا الطلب من حساب العميل (إعادة طلب) — راجعه في قناة مراجعة X2');
+      if (m.x2SourceOrderId) lines.push('📎 الطلب الأصلي: `' + String(m.x2SourceOrderId) + '`');
+    }
     lines.push('━━━━━━━━━━━━━━━━');
     lines.push('🆔 *رقم الطلب:* `' + String(m.orderId || '-') + '`');
     lines.push('👤 *الاسم:* ' + msqEscapeMarkdown(m.name || '-'));
@@ -4230,6 +4250,13 @@ function continueAfterOrderRecaptcha() {
   }
 
   async function notifyOwnerNewOrderTelegram(orderMeta) {
+    try {
+      if (orderMeta && orderMeta.isX2) {
+        orderMeta = Object.assign({}, orderMeta, {
+          _x2Tag: '🔁 إعادة طلب X2 — بانتظار المراجعة'
+        });
+      }
+    } catch (e) {}
     const meta = orderMeta || {};
     const orderId = String(meta.orderId || '').trim();
     if (orderId && __msqTelegramSentIds.has(orderId)) {
@@ -4412,6 +4439,24 @@ function continueAfterOrderRecaptcha() {
       createdAt: Date.now()
     };
 
+    // إعادة طلب من الحساب → مراجعة X2
+    try {
+      var x2Flag = '';
+      var x2Src = '';
+      try { x2Flag = sessionStorage.getItem('msqX2Reorder') || ''; } catch (e) {}
+      try { x2Src = sessionStorage.getItem('msqX2SourceOrderId') || ''; } catch (e) {}
+      if (x2Flag === '1') {
+        newOrderRecord.isX2 = true;
+        newOrderRecord.x2ReviewStatus = 'pending';
+        newOrderRecord.statusCode = 6;
+        newOrderRecord.status = 'مراجعة طلب X2 🔁';
+        if (x2Src) newOrderRecord.x2SourceOrderId = String(x2Src).slice(0, 40);
+        newOrderRecord.originalTotal = totalNumeric;
+        try { sessionStorage.removeItem('msqX2Reorder'); } catch (e) {}
+        try { sessionStorage.removeItem('msqX2SourceOrderId'); } catch (e) {}
+      }
+    } catch (eX2) {}
+
     try { localStorage.removeItem('souqCustomerData'); } catch (_) {}
 
     cart.forEach(function (item) {
@@ -4477,6 +4522,8 @@ function continueAfterOrderRecaptcha() {
       });
 
       const telegramMeta = {
+        isX2: !!(newOrderRecord && newOrderRecord.isX2),
+        x2SourceOrderId: (newOrderRecord && newOrderRecord.x2SourceOrderId) || '',
         orderId: thisOrderId,
         name: name,
         phone: phone,
@@ -4608,9 +4655,21 @@ function continueAfterOrderRecaptcha() {
     { code: 1, label: 'تم الحجز ✅', color: '#1565c0' },
     { code: 2, label: 'جاري الشحن 🚚', color: '#6a1b9a' },
     { code: 3, label: 'تم التوريد 🎉', color: '#2e7d32' },
-    { code: 5, label: 'Order 0 Stock — نفذت الكمية', color: '#b71c1c' }
+    { code: 4, label: 'رفض استلام وحظر', color: '#c62828' },
+    { code: 5, label: 'Order 0 Stock — نفذت الكمية', color: '#b71c1c' },
+    { code: 6, label: 'مراجعة طلب X2 🔁', color: '#6a1b9a' }
   ];
-  // ملاحظة: code 4 = رفض استلام وحظر (مسار خاص منفصل)
+  function getOrderStatusMeta(code) {
+    var c = Number(code);
+    if (!Number.isFinite(c)) c = 0;
+    for (var i = 0; i < ORDER_STATUSES.length; i++) {
+      if (ORDER_STATUSES[i].code === c) return ORDER_STATUSES[i];
+    }
+    return ORDER_STATUSES[0];
+  }
+  window.ORDER_STATUSES = ORDER_STATUSES;
+  window.getOrderStatusMeta = getOrderStatusMeta;
+  // ملاحظة: code 4 = رفض استلام وحظر | code 5 = نفذت الكمية | code 6 = مراجعة إعادة طلب X2
 
   function openTrackingModal() {
     const modal = document.getElementById('trackingModal');
@@ -4735,7 +4794,7 @@ function continueAfterOrderRecaptcha() {
 
     if (foundOrder) {
       let currentCode = typeof foundOrder.statusCode === 'number' ? foundOrder.statusCode : 0;
-      const current = ORDER_STATUSES[currentCode] || ORDER_STATUSES[0];
+      const current = getOrderStatusMeta(currentCode);
 
       let timelineHtml = ORDER_STATUSES.map((s, idx) => {
         const isDone = idx <= currentCode;
@@ -5730,7 +5789,7 @@ function continueAfterOrderRecaptcha() {
 
     box.innerHTML = list.map(o => {
       const code = typeof o.statusCode === 'number' ? o.statusCode : 0;
-      const st = ORDER_STATUSES[code] || ORDER_STATUSES[0];
+      const st = getOrderStatusMeta(code);
       const safeId = String(o.orderId || '').replace(/[^A-Za-z0-9_-]/g, '');
       const btns = ORDER_STATUSES.map(s => `
         <button style="border-color:${s.color};background:${code===s.code?s.color:'white'};color:${code===s.code?'white':s.color};"

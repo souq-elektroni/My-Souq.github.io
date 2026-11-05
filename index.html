@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611050729accountui";
+  var BUILD = "202611050914x2";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -155,7 +155,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611050729accountui">
+  <meta name="msq-build" content="202611050914x2">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -244,8 +244,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611050729accountui">
-<link rel="stylesheet" href="styles.css?v=202611050729accountui">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611050914x2">
+<link rel="stylesheet" href="styles.css?v=202611050914x2">
 
 
 
@@ -281,8 +281,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611050729accountui">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611050729accountui">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611050914x2">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611050914x2">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1629,7 +1629,7 @@
   })();
   </script>
 
-  <script src="script.js?v=202611050729accountui"></script>
+  <script src="script.js?v=202611050914x2"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -2013,7 +2013,7 @@
             '</div>';
           return;
         }
-        var current = currentCode === 4 ? { label: 'رفض استلام وحظر', color: '#c62828' } : (ORDER_STATUSES[currentCode] || ORDER_STATUSES[0]);
+        var current = currentCode === 4 ? { label: 'رفض استلام وحظر', color: '#c62828' } : (window.getOrderStatusMeta ? window.getOrderStatusMeta(currentCode) : (ORDER_STATUSES[currentCode] || ORDER_STATUSES[0]));
 
         var timelineHtml = ORDER_STATUSES.map(function (s, idx) {
           var isDone = idx <= currentCode;
@@ -2211,7 +2211,7 @@
         return;
       }
       var code = typeof o.statusCode === 'number' ? o.statusCode : 0;
-      var st = (typeof ORDER_STATUSES !== 'undefined' && ORDER_STATUSES[code]) ? ORDER_STATUSES[code] : { label: o.status || '-', color: '#e65100' };
+      var st = (window.getOrderStatusMeta ? window.getOrderStatusMeta(code) : ((typeof ORDER_STATUSES !== 'undefined' && ORDER_STATUSES[code]) ? ORDER_STATUSES[code] : { label: o.status || '-', color: '#e65100' }));
       var items = o.items || [];
       var body = document.getElementById('adminOrderDetailsBody');
       if (!body) return;
@@ -4294,9 +4294,25 @@ window.addToCartAndContinue = function () {
   }
   function installAdminRequestsPanel(){
     const modal=document.getElementById('adminOrdersModal'); const logout=document.getElementById('adminLogoutBtn'); if(!modal||!logout||document.getElementById('cancelRequestsAdminPanel')) return;
-    const panel=document.createElement('section'); panel.id='cancelRequestsAdminPanel'; panel.innerHTML='<div class="cancel-admin-heading">🔔 طلبات إلغاء العملاء <span id="cancelRequestsCount" style="display:inline-block;background:#c62828;color:#fff;border-radius:99px;padding:2px 8px;margin-inline-start:5px">0</span></div><div id="cancelRequestsAdminList" style="font-size:12px;color:#765b5b">تظهر هنا طلبات الإلغاء الجديدة.</div><button type="button" id="refreshCancelRequests" style="margin-top:8px;border:0;border-radius:9px;background:#a3202b;color:#fff;padding:8px 12px;font-weight:900;cursor:pointer;font-size:13px;display:inline-block">تحديث طلبات الإلغاء</button>';
+    const panel=document.createElement('section'); panel.id='cancelRequestsAdminPanel'; panel.innerHTML=''+
+      '<div class="cancel-admin-heading">🔔 طلبات إلغاء العملاء <span id="cancelRequestsCount" style="display:inline-block;background:#c62828;color:#fff;border-radius:99px;padding:2px 8px;margin-inline-start:5px">0</span></div>'+
+      '<div id="cancelRequestsAdminList" style="font-size:12px;color:#765b5b">تظهر هنا طلبات الإلغاء الجديدة.</div>'+
+      '<button type="button" id="refreshCancelRequests" style="margin-top:8px;border:0;border-radius:9px;background:#a3202b;color:#fff;padding:8px 12px;font-weight:900;cursor:pointer;font-size:13px;display:inline-block">تحديث طلبات الإلغاء</button>'+
+      '<div class="msq-hard-delete-box" style="margin-top:16px;padding:14px 12px;border-radius:14px;border:1px solid rgba(183,28,28,.25);background:linear-gradient(180deg,#fff8f8,#fff);">'+
+        '<div style="font-weight:950;font-size:14px;color:#b71c1c;margin-bottom:6px;">🗑️ حذف طلب نهائي من الشبكة</div>'+
+        '<p style="font-size:11.5px;color:#7a4545;margin:0 0 10px;line-height:1.5;font-weight:700;">للطلبات الوهمية أو اللي مش بتستجيب في السيستم — الحذف نهائي من Firebase والسجل المحلي.</p>'+
+        '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'+
+          '<input type="text" id="msqHardDeleteOrderId" placeholder="رقم الطلب" autocomplete="off" style="flex:1;min-width:160px;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid rgba(183,28,28,.28);font-weight:800;font-size:13px;box-sizing:border-box;" />'+
+          '<button type="button" id="msqHardDeleteBtn" style="min-height:44px;padding:0 16px;border:0;border-radius:10px;background:#b71c1c;color:#fff;font-weight:950;cursor:pointer;font-size:13px;">Delete</button>'+
+        '</div>'+
+        '<div id="msqHardDeleteMsg" style="display:none;margin-top:8px;font-size:12px;font-weight:800;"></div>'+
+      '</div>';
     logout.parentNode.insertBefore(panel,logout.nextSibling);
     document.getElementById('refreshCancelRequests').addEventListener('click',loadAdminCancelRequests);
+    var hardBtn=document.getElementById('msqHardDeleteBtn');
+    if(hardBtn) hardBtn.addEventListener('click',function(){ if(window.msqAdminHardDeleteOrder) window.msqAdminHardDeleteOrder(); });
+    var hardInp=document.getElementById('msqHardDeleteOrderId');
+    if(hardInp) hardInp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); if(window.msqAdminHardDeleteOrder) window.msqAdminHardDeleteOrder(); } });
   }
   async function loadAdminCancelRequests(){
     const listEl=document.getElementById('cancelRequestsAdminList'), countEl=document.getElementById('cancelRequestsCount'); if(!listEl) return;
@@ -7507,10 +7523,14 @@ window.addToCartAndContinue = function () {
       if (nameEl && (acc.name || order.name)) nameEl.value = acc.name || order.name || nameEl.value;
       if (phoneEl) phoneEl.value = normPhone(acc.phone || order.phone || phoneEl.value);
 
+      try {
+        sessionStorage.setItem('msqX2Reorder', '1');
+        if (order.orderId) sessionStorage.setItem('msqX2SourceOrderId', String(order.orderId));
+      } catch (e) {}
       window.msqCloseOrderHistoryModal();
       if (typeof openCartModal === 'function') openCartModal();
       else if (typeof window.openCartModal === 'function') window.openCartModal();
-      alert('✓ تمت إضافة منتجات الطلب للسلة. راجع السلة وأكمل الطلب.');
+      alert('✓ تمت إضافة منتجات الطلب للسلة.\nعند تأكيد الطلب هيروح لقناة «مراجعة طلبات X2» للمراجعة قبل التنفيذ.');
     } catch (err) {
       console.error(err);
       alert('تعذر إعادة الطلب. حاول مرة أخرى.');
@@ -7683,6 +7703,520 @@ window.addToCartAndContinue = function () {
     };
     window.openCartModal._msqAccFill = true;
   }
+})();
+</script>
+
+
+<script id="msq-admin-hard-delete-js">
+(function () {
+  function setMsg(text, ok) {
+    var el = document.getElementById('msqHardDeleteMsg');
+    if (!el) return;
+    el.style.display = 'block';
+    el.style.color = ok ? '#1b5e20' : '#b71c1c';
+    el.textContent = text;
+  }
+
+  function ensureHardDeleteUi() {
+    var panel = document.getElementById('cancelRequestsAdminPanel');
+    if (!panel) return;
+    if (document.getElementById('msqHardDeleteOrderId')) return;
+    var box = document.createElement('div');
+    box.className = 'msq-hard-delete-box';
+    box.style.cssText = 'margin-top:16px;padding:14px 12px;border-radius:14px;border:1px solid rgba(183,28,28,.25);background:linear-gradient(180deg,#fff8f8,#fff);';
+    box.innerHTML =
+      '<div style="font-weight:950;font-size:14px;color:#b71c1c;margin-bottom:6px;">🗑️ حذف طلب نهائي من الشبكة</div>' +
+      '<p style="font-size:11.5px;color:#7a4545;margin:0 0 10px;line-height:1.5;font-weight:700;">للطلبات الوهمية أو اللي مش بتستجيب في السيستم — الحذف نهائي من Firebase والسجل المحلي.</p>' +
+      '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
+        '<input type="text" id="msqHardDeleteOrderId" placeholder="رقم الطلب" autocomplete="off" style="flex:1;min-width:160px;min-height:44px;padding:10px 12px;border-radius:10px;border:1px solid rgba(183,28,28,.28);font-weight:800;font-size:13px;box-sizing:border-box;" />' +
+        '<button type="button" id="msqHardDeleteBtn" style="min-height:44px;padding:0 16px;border:0;border-radius:10px;background:#b71c1c;color:#fff;font-weight:950;cursor:pointer;font-size:13px;">Delete</button>' +
+      '</div>' +
+      '<div id="msqHardDeleteMsg" style="display:none;margin-top:8px;font-size:12px;font-weight:800;"></div>';
+    panel.appendChild(box);
+    var hardBtn = document.getElementById('msqHardDeleteBtn');
+    if (hardBtn) hardBtn.addEventListener('click', function () { window.msqAdminHardDeleteOrder(); });
+    var hardInp = document.getElementById('msqHardDeleteOrderId');
+    if (hardInp) hardInp.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); window.msqAdminHardDeleteOrder(); }
+    });
+  }
+
+  window.msqAdminHardDeleteOrder = async function () {
+    var inp = document.getElementById('msqHardDeleteOrderId');
+    var btn = document.getElementById('msqHardDeleteBtn');
+    var id = inp ? String(inp.value || '').trim() : '';
+    if (!id) {
+      setMsg('اكتب رقم الطلب أولاً.', false);
+      if (inp) inp.focus();
+      return;
+    }
+
+    // تأكيد صريح
+    var ok = confirm(
+      'تأكيد الحذف النهائي؟\n\n' +
+      'رقم الطلب: ' + id + '\n\n' +
+      'سيتم حذف الطلب نهائيًا من الشبكة (Firebase) ومن السجل المحلي.\n' +
+      'هذا الإجراء للطلبات الوهمية أو المعطلة — ولا يمكن التراجع عنه.'
+    );
+    if (!ok) {
+      setMsg('تم إلغاء عملية الحذف.', false);
+      return;
+    }
+
+    // تأكيد ثاني أقوى
+    var typed = prompt('للتأكيد النهائي: اكتب رقم الطلب مرة أخرى\n' + id, '');
+    if (String(typed || '').trim().toUpperCase() !== id.toUpperCase()) {
+      setMsg('لم يتم الحذف — رقم التأكيد غير مطابق.', false);
+      return;
+    }
+
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = '...';
+    }
+    setMsg('جاري الحذف النهائي...', false);
+
+    try {
+      if (typeof window.deleteOrderFromCloud !== 'function') {
+        throw new Error('دالة الحذف غير متاحة. تأكد من تسجيل دخول الإدارة.');
+      }
+
+      await window.deleteOrderFromCloud(id);
+
+      // تنظيف طلبات الإلغاء المرتبطة
+      try {
+        var dbRef = null;
+        if (typeof db !== 'undefined' && db) dbRef = db;
+        else if (typeof firebase !== 'undefined' && firebase.firestore) dbRef = firebase.firestore();
+        if (dbRef) {
+          var snap = await dbRef.collection('cancellationRequests').where('orderId', '==', id).get();
+          var batch = dbRef.batch();
+          var n = 0;
+          snap.forEach(function (doc) {
+            batch.delete(doc.ref);
+            n++;
+          });
+          // orderTracking doc إن وُجد
+          try {
+            batch.delete(dbRef.collection('orderTracking').doc(id));
+            n++;
+          } catch (e) {}
+          if (n) await batch.commit();
+        }
+      } catch (eClean) {
+        console.warn('cleanup after hard delete', eClean);
+      }
+
+      // محلي
+      try {
+        if (typeof ordersHistory !== 'undefined' && Array.isArray(ordersHistory)) {
+          ordersHistory = ordersHistory.filter(function (o) {
+            return String((o && o.orderId) || '').trim().toUpperCase() !== id.toUpperCase();
+          });
+        }
+      } catch (e) {}
+      try {
+        var raw = localStorage.getItem('souqOrdersHistory');
+        if (raw) {
+          var arr = JSON.parse(raw) || [];
+          arr = arr.filter(function (o) {
+            return String((o && o.orderId) || '').trim().toUpperCase() !== id.toUpperCase();
+          });
+          localStorage.setItem('souqOrdersHistory', JSON.stringify(arr));
+        }
+      } catch (e) {}
+      try {
+        if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) {
+          adminOrdersCache = adminOrdersCache.filter(function (o) {
+            return String((o && o.orderId) || '').trim().toUpperCase() !== id.toUpperCase();
+          });
+        }
+      } catch (e) {}
+
+      setMsg('✓ تم حذف الطلب ' + id + ' نهائيًا من الشبكة.', true);
+      if (inp) inp.value = '';
+      try {
+        if (typeof loadAdminCancelRequests === 'function') loadAdminCancelRequests();
+      } catch (e) {}
+      try {
+        if (typeof loadAllOrdersAdmin === 'function') loadAllOrdersAdmin();
+        else if (typeof window.loadAllOrdersAdmin === 'function') window.loadAllOrdersAdmin();
+      } catch (e) {}
+      alert('تم حذف الطلب ' + id + ' نهائيًا من الشبكة ✅');
+    } catch (err) {
+      console.error(err);
+      var msg = (err && err.message) ? err.message : 'خطأ غير معروف';
+      setMsg('فشل الحذف: ' + msg, false);
+      alert('تعذر الحذف النهائي:\n' + msg);
+    } finally {
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = 'Delete';
+      }
+    }
+  };
+
+  function boot() {
+    ensureHardDeleteUi();
+    setInterval(ensureHardDeleteUi, 1500);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+
+
+<script id="msq-x2-review-system">
+(function () {
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+  function codeOf(o) { return Number.isFinite(Number(o && o.statusCode)) ? Number(o.statusCode) : 0; }
+
+  function getCache() {
+    try {
+      if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) return adminOrdersCache;
+      if (Array.isArray(window.adminOrdersCache)) return window.adminOrdersCache;
+    } catch (e) {}
+    return [];
+  }
+
+  function itemsHtml(items) {
+    if (!Array.isArray(items) || !items.length) return '<div style="font-size:12px;color:#888">بدون تفاصيل منتجات</div>';
+    return '<ul style="margin:6px 0;padding-right:16px;font-size:12px;line-height:1.5">' + items.map(function (it) {
+      var t = it.title || it.name || 'منتج';
+      var sz = it.size ? (' — ' + it.size) : '';
+      var q = it.qty != null ? it.qty : (it.quantity != null ? it.quantity : 1);
+      var p = it.price != null ? (' · ' + it.price + 'ج') : '';
+      return '<li>' + esc(t) + esc(sz) + ' ×' + esc(q) + esc(p) + '</li>';
+    }).join('') + '</ul>';
+  }
+
+  window.msqRenderX2ReviewList = function () {
+    var box = document.getElementById('msqX2ReviewList');
+    if (!box) return;
+    var list = getCache().filter(function (o) {
+      return codeOf(o) === 6 || o.isX2 === true;
+    });
+    var badge = document.getElementById('msqX2Badge');
+    if (badge) badge.textContent = String(list.length);
+
+    if (!list.length) {
+      box.innerHTML = '<p style="text-align:center;color:#8a7076;font-weight:700;padding:16px">لا توجد طلبات X2 قيد المراجعة</p>';
+      return;
+    }
+
+    box.innerHTML = list.map(function (o) {
+      var id = String(o.orderId || '');
+      var safe = id.replace(/[^A-Za-z0-9_-]/g, '');
+      var rs = String(o.x2ReviewStatus || 'pending');
+      var priceNote = '';
+      if (o.x2NewTotal != null && o.originalTotal != null && Number(o.x2NewTotal) !== Number(o.originalTotal)) {
+        priceNote = '<div style="margin:6px 0;padding:8px;border-radius:10px;background:#fff8e1;border:1px solid #ffe082;font-weight:800;font-size:12px;color:#8a6a00">💰 سعر معدّل: <b>' + esc(o.x2NewTotal) + '</b> ج (الأصلي: ' + esc(o.originalTotal) + ')</div>';
+      }
+      var rejectNote = (o.customerPriceResponse === 'reject' || rs === 'customer_rejected')
+        ? '<div style="margin:6px 0;padding:8px;border-radius:10px;background:#ffebee;color:#b71c1c;font-weight:900;font-size:12px">❌ العميل رفض السعر الجديد</div>'
+        : '';
+      var holdNote = '';
+      if (rs === 'held_stock' && o.x2HoldUntil) {
+        var left = Math.max(0, Number(o.x2HoldUntil) - Date.now());
+        var days = Math.ceil(left / 86400000);
+        holdNote = '<div style="margin:6px 0;padding:8px;border-radius:10px;background:#e3f2fd;color:#1565c0;font-weight:800;font-size:12px">⏳ معلّق كمية — متبقي ~' + days + ' يوم</div>';
+      }
+      return (
+        '<article class="msq-x2-card" style="border:1px solid rgba(106,27,154,.2);border-radius:14px;padding:12px;margin-bottom:10px;background:#faf7fc">' +
+          '<div style="font-weight:950;color:#6a1b9a;font-size:13px">🔁 ' + esc(id) + '</div>' +
+          '<div style="font-size:12px;margin:4px 0">👤 ' + esc(o.name || '-') + ' | 📱 ' + esc(o.phone || '-') + '</div>' +
+          (o.x2SourceOrderId ? '<div style="font-size:11px;color:#765b5b">أصلي: ' + esc(o.x2SourceOrderId) + '</div>' : '') +
+          '<div style="font-size:12px;font-weight:800;margin:4px 0">الإجمالي: ' + esc(o.total != null ? o.total : '-') + ' | الحالة: ' + esc(rs) + '</div>' +
+          itemsHtml(o.items) + priceNote + rejectNote + holdNote +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">' +
+            '<button type="button" data-x2="confirm" data-id="' + esc(safe) + '" style="border:0;border-radius:10px;padding:8px 12px;background:#2e7d32;color:#fff;font-weight:900;cursor:pointer">✅ تأكيد الطلب</button>' +
+            '<button type="button" data-x2="hold" data-id="' + esc(safe) + '" style="border:0;border-radius:10px;padding:8px 12px;background:#1565c0;color:#fff;font-weight:900;cursor:pointer">⏳ تعليق كمية 4 أيام</button>' +
+            '<button type="button" data-x2="oos" data-id="' + esc(safe) + '" style="border:0;border-radius:10px;padding:8px 12px;background:#b71c1c;color:#fff;font-weight:900;cursor:pointer">⛔ نفذت الكمية</button>' +
+            '<button type="button" data-x2="price" data-id="' + esc(safe) + '" style="border:0;border-radius:10px;padding:8px 12px;background:#ef6c00;color:#fff;font-weight:900;cursor:pointer">💰 تعديل السعر</button>' +
+            ((o.customerPriceResponse === 'reject' || rs === 'customer_rejected')
+              ? '<button type="button" data-x2="delete" data-id="' + esc(safe) + '" style="border:0;border-radius:10px;padding:8px 12px;background:#212121;color:#fff;font-weight:900;cursor:pointer">🗑️ حذف نهائي</button>'
+              : '') +
+          '</div>' +
+        '</article>'
+      );
+    }).join('');
+
+    box.querySelectorAll('button[data-x2]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var action = btn.getAttribute('data-x2');
+        var id = btn.getAttribute('data-id');
+        window.msqX2AdminAction(action, id, btn);
+      });
+    });
+  };
+
+  window.msqRenderOosList = function () {
+    var box = document.getElementById('msqOosList');
+    if (!box) return;
+    var list = getCache().filter(function (o) {
+      return codeOf(o) === 5 || o.stockExhausted === true || /Order 0 Stock|نفذت الكمية/.test(String(o.status || ''));
+    });
+    var badge = document.getElementById('msqOosBadge');
+    if (badge) badge.textContent = String(list.length);
+    if (!list.length) {
+      box.innerHTML = '<p style="text-align:center;color:#8a7076;font-weight:700;padding:16px">لا توجد طلبات Order 0 Stock</p>';
+      return;
+    }
+    box.innerHTML = list.map(function (o) {
+      var id = String(o.orderId || '');
+      return (
+        '<article style="border:1px solid #ef9a9a;border-radius:14px;padding:12px;margin-bottom:10px;background:linear-gradient(145deg,#fff,#fff5f5)">' +
+          '<div style="font-weight:950;color:#b71c1c">⛔ ' + esc(id) + '</div>' +
+          '<div style="font-size:12px;margin:4px 0">👤 ' + esc(o.name || '-') + ' | 📱 ' + esc(o.phone || '-') + '</div>' +
+          '<div style="font-size:12px;font-weight:800;color:#b71c1c">Order 0 Stock — نفذت الكمية</div>' +
+          itemsHtml(o.items) +
+          '<div style="margin-top:8px"><button type="button" onclick="if(window.showAdminOrderDetails)showAdminOrderDetails(\'' + esc(id.replace(/'/g, '')) + '\')" style="border:0;border-radius:10px;padding:8px 12px;background:#803d48;color:#fff;font-weight:900;cursor:pointer">تفاصيل</button></div>' +
+        '</article>'
+      );
+    }).join('');
+  };
+
+  async function patchOrder(id, data) {
+    if (typeof updateOrderStatusCloud === 'function' && data.statusCode != null) {
+      await updateOrderStatusCloud(id, data.statusCode, data.status || '');
+    }
+    try {
+      var dbRef = (typeof db !== 'undefined' && db) ? db : (firebase && firebase.firestore && firebase.firestore());
+      if (dbRef) {
+        var payload = Object.assign({}, data, { updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        await dbRef.collection('orders').doc(id).set(payload, { merge: true });
+        var track = {
+          statusCode: data.statusCode,
+          status: data.status || '',
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        };
+        if (data.x2ReviewStatus) track.x2ReviewStatus = data.x2ReviewStatus;
+        if (data.x2NewTotal != null) track.x2NewTotal = data.x2NewTotal;
+        if (data.originalTotal != null) track.originalTotal = data.originalTotal;
+        if (data.isX2 != null) track.isX2 = data.isX2;
+        if (data.stockExhausted != null) track.stockExhausted = data.stockExhausted;
+        if (data.customerMessage) track.customerMessage = data.customerMessage;
+        await dbRef.collection('orderTracking').doc(id).set(track, { merge: true });
+      }
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+    // local cache
+    getCache().forEach(function (o) {
+      if (String(o.orderId) === String(id)) Object.assign(o, data);
+    });
+  }
+
+  window.msqX2AdminAction = async function (action, id, btn) {
+    if (!id) return;
+    try {
+      if (btn) { btn.disabled = true; }
+      if (action === 'confirm') {
+        if (!confirm('تأكيد الطلب ' + id + ' ونقله لتحت التنفيذ؟')) return;
+        await patchOrder(id, {
+          statusCode: 0,
+          status: 'تحت التنفيذ 📦',
+          isX2: true,
+          x2ReviewStatus: 'confirmed',
+          customerMessage: 'تم تأكيد طلبكم وهو الآن قيد التنفيذ.'
+        });
+        alert('تم التأكيد ✅ — الطلب تحت التنفيذ');
+      } else if (action === 'hold') {
+        if (!confirm('تعليق الطلب ' + id + ' لمدة 4 أيام انتظار كمية؟')) return;
+        await patchOrder(id, {
+          statusCode: 6,
+          status: 'مراجعة طلب X2 🔁',
+          isX2: true,
+          x2ReviewStatus: 'held_stock',
+          x2HoldUntil: Date.now() + 4 * 24 * 60 * 60 * 1000,
+          customerMessage: 'طلبكم قيد المراجعة لانتظار توفر الكمية. سنوافيكم بأي جديد على شاشة التتبع.'
+        });
+        alert('تم التعليق 4 أيام ⏳');
+      } else if (action === 'oos') {
+        if (!confirm('نقل الطلب ' + id + ' إلى Order 0 Stock (نفذت الكمية)؟')) return;
+        await patchOrder(id, {
+          statusCode: 5,
+          status: 'Order 0 Stock — نفذت الكمية',
+          stockExhausted: true,
+          isX2: true,
+          x2ReviewStatus: 'oos',
+          customerMessage: 'نأسف، نفدت كمية المنتجات المطلوبة في هذا الطلب.'
+        });
+        alert('تم النقل إلى Order 0 Stock ⛔');
+      } else if (action === 'price') {
+        var cur = getCache().find(function (o) { return String(o.orderId) === String(id); });
+        var oldT = cur && cur.total != null ? cur.total : '';
+        var v = prompt('أدخل السعر الجديد للطلب ' + id + ' (جنيه):', String(oldT || ''));
+        if (v == null || String(v).trim() === '') return;
+        var num = Number(String(v).replace(/[^\d.]/g, ''));
+        if (!Number.isFinite(num) || num < 0) { alert('سعر غير صالح'); return; }
+        await patchOrder(id, {
+          statusCode: 6,
+          status: 'مراجعة طلب X2 🔁',
+          isX2: true,
+          x2ReviewStatus: 'awaiting_price_confirm',
+          originalTotal: cur && cur.originalTotal != null ? cur.originalTotal : (cur && cur.total != null ? cur.total : null),
+          x2NewTotal: num,
+          total: num,
+          customerPriceResponse: null,
+          customerMessage: 'رجاءً الاطلاع على السعر الجديد لمتابعة تأكيد الطلب.'
+        });
+        alert('تم تحديث السعر — بانتظار موافقة/رفض العميل على شاشة التتبع');
+      } else if (action === 'delete') {
+        if (typeof window.msqAdminHardDeleteOrder === 'function') {
+          var inp = document.getElementById('msqHardDeleteOrderId');
+          if (inp) inp.value = id;
+          await window.msqAdminHardDeleteOrder();
+        } else if (typeof window.deleteOrderFromCloud === 'function') {
+          if (!confirm('حذف نهائي للطلب ' + id + '؟')) return;
+          await window.deleteOrderFromCloud(id);
+          alert('تم الحذف');
+        }
+      }
+      window.msqRenderX2ReviewList();
+      window.msqRenderOosList();
+      try { if (typeof loadAllOrdersAdmin === 'function') loadAllOrdersAdmin(); } catch (e) {}
+    } catch (err) {
+      console.error(err);
+      alert('تعذر تنفيذ الإجراء:\n' + (err && err.message ? err.message : err));
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  };
+
+  // Hook setTab if exists
+  var _obs = setInterval(function () {
+    window.msqRenderX2ReviewList();
+    window.msqRenderOosList();
+  }, 4000);
+
+  document.addEventListener('click', function (e) {
+    var b = e.target && e.target.closest && e.target.closest('#msqAdminTabs button[data-tab]');
+    if (!b) return;
+    setTimeout(function () {
+      if (b.getAttribute('data-tab') === 'x2') window.msqRenderX2ReviewList();
+      if (b.getAttribute('data-tab') === 'oos') window.msqRenderOosList();
+    }, 50);
+  }, true);
+
+  // Customer tracking: price accept/reject
+  window.msqCustomerX2PriceRespond = async function (orderId, decision) {
+    var id = String(orderId || '').trim();
+    if (!id || (decision !== 'accept' && decision !== 'reject')) return;
+    try {
+      var dbRef = (typeof db !== 'undefined' && db) ? db : (firebase && firebase.firestore && firebase.firestore());
+      if (!dbRef) { alert('تعذر الاتصال'); return; }
+      if (decision === 'accept') {
+        await dbRef.collection('orders').doc(id).set({
+          statusCode: 0,
+          status: 'تحت التنفيذ 📦',
+          x2ReviewStatus: 'customer_accepted',
+          customerPriceResponse: 'accept',
+          customerPriceRespondedAt: Date.now(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        await dbRef.collection('orderTracking').doc(id).set({
+          statusCode: 0,
+          status: 'تحت التنفيذ 📦',
+          x2ReviewStatus: 'customer_accepted',
+          customerPriceResponse: 'accept',
+          customerMessage: 'شكراً لتأكيدكم. طلبكم الآن قيد التنفيذ.',
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        alert('تم قبول السعر — طلبكم قيد التنفيذ ✅');
+      } else {
+        await dbRef.collection('orders').doc(id).set({
+          statusCode: 6,
+          status: 'مراجعة طلب X2 🔁',
+          x2ReviewStatus: 'customer_rejected',
+          customerPriceResponse: 'reject',
+          customerPriceRespondedAt: Date.now(),
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        await dbRef.collection('orderTracking').doc(id).set({
+          statusCode: 6,
+          status: 'مراجعة طلب X2 🔁',
+          x2ReviewStatus: 'customer_rejected',
+          customerPriceResponse: 'reject',
+          customerMessage: 'تم تسجيل رفضكم للسعر الجديد. الإدارة ستراجع الطلب.',
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        alert('تم تسجيل الرفض. شكراً لكم.');
+      }
+      try { if (typeof searchOrderTracking === 'function') searchOrderTracking(); } catch (e) {}
+    } catch (err) {
+      console.error(err);
+      alert('تعذر حفظ اختياركم. حاول مرة أخرى.\n' + (err.message || ''));
+    }
+  };
+})();
+</script>
+
+
+<script id="msq-x2-tracking-ui">
+(function () {
+  function enhanceTrackingBox() {
+    var box = document.getElementById('trackingResultContainer');
+    if (!box || box.style.display === 'none') return;
+    if (box.querySelector('[data-msq-x2-ui]')) return;
+    var text = box.textContent || '';
+    var html = box.innerHTML || '';
+    // try read status from data attributes or known patterns
+    var orderId = '';
+    var m = html.match(/data-order-id=["']([^"']+)["']/);
+    if (m) orderId = m[1];
+    if (!orderId) {
+      var mid = text.match(/\b(M-[A-Za-z0-9_-]+|MS-[A-Za-z0-9_-]+)\b/);
+      if (mid) orderId = mid[1];
+    }
+    // Fetch tracking doc for accurate state
+    if (!orderId) return;
+    var dbRef = null;
+    try {
+      if (typeof db !== 'undefined' && db) dbRef = db;
+      else if (typeof firebase !== 'undefined' && firebase.firestore) dbRef = firebase.firestore();
+    } catch (e) {}
+    if (!dbRef) return;
+    dbRef.collection('orderTracking').doc(orderId).get().then(function (snap) {
+      if (!snap.exists) return;
+      var d = snap.data() || {};
+      var code = Number(d.statusCode);
+      var ui = document.createElement('div');
+      ui.setAttribute('data-msq-x2-ui', '1');
+      ui.style.cssText = 'margin-top:12px;padding:12px;border-radius:14px;background:#faf7fc;border:1px solid rgba(106,27,154,.18)';
+      if (code === 6 || d.isX2) {
+        var rs = String(d.x2ReviewStatus || 'pending');
+        if (rs === 'awaiting_price_confirm' && d.customerPriceResponse !== 'accept') {
+          ui.innerHTML =
+            '<div style="font-weight:950;color:#ef6c00;margin-bottom:8px">💰 تنبيه: تم تحديث سعر الطلب</div>' +
+            '<p style="font-size:13px;line-height:1.6;font-weight:700;color:#5a4046;margin:0 0 10px">رجاءً من حضرتك الاطلاع على السعر الجديد لمتابعة تأكيد الطلب.' +
+            (d.x2NewTotal != null ? ('<br>السعر الجديد: <b style="color:#803d48">' + d.x2NewTotal + ' ج.م</b>') : '') +
+            '</p>' +
+            '<p style="font-size:12.5px;font-weight:800;margin:0 0 10px">بعد إطلاعكم على السعر الجديد رجاء إبداء القبول أو الرفض لمتابعة الطلب.</p>' +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap">' +
+              '<button type="button" style="flex:1;min-height:44px;border:0;border-radius:12px;background:#2e7d32;color:#fff;font-weight:950;cursor:pointer" onclick="window.msqCustomerX2PriceRespond(\'' + orderId.replace(/'/g, '') + '\',\'accept\')">✅ أوافق على السعر</button>' +
+              '<button type="button" style="flex:1;min-height:44px;border:0;border-radius:12px;background:#c62828;color:#fff;font-weight:950;cursor:pointer" onclick="window.msqCustomerX2PriceRespond(\'' + orderId.replace(/'/g, '') + '\',\'reject\')">❌ أرفض</button>' +
+            '</div>';
+        } else {
+          ui.innerHTML =
+            '<div style="font-weight:950;color:#6a1b9a;margin-bottom:6px">🔁 طلبكم الآن بمرحلة المراجعة</div>' +
+            '<p style="font-size:13px;line-height:1.65;font-weight:700;color:#5a4046;margin:0">تم تأكيد الإرسال ورقم الطلب: <b dir="ltr">' + orderId + '</b><br>سنوافيكم بكل جديد على شاشة تتبع الطلب.</p>';
+        }
+        box.appendChild(ui);
+      } else if (code === 5 || d.stockExhausted) {
+        ui.style.background = '#fff5f5';
+        ui.style.borderColor = '#ef9a9a';
+        ui.innerHTML = '<div style="font-weight:950;color:#b71c1c">⛔ نفدت الكمية</div><p style="font-size:13px;font-weight:700;margin:6px 0 0;line-height:1.6">نأسف، نفدت كمية المنتجات المطلوبة في هذا الطلب.</p>';
+        box.appendChild(ui);
+      }
+    }).catch(function () {});
+  }
+
+  setInterval(enhanceTrackingBox, 1200);
+  document.addEventListener('click', function () { setTimeout(enhanceTrackingBox, 400); }, true);
 })();
 </script>
 
@@ -8342,13 +8876,14 @@ window.addToCartAndContinue = function () {
       return String(o.exchangeOutcomeLabel||o.statusLabel||o.status||'تم إنهاء الاستبدال/الإرجاع');
     }
     var code=codeOf(o);
-    try{if(window.ORDER_STATUSES&&window.ORDER_STATUSES[code])return String(window.ORDER_STATUSES[code].label||'');}catch(e){}
+    try{if(window.getOrderStatusMeta)return String(window.getOrderStatusMeta(code).label||'');if(window.ORDER_STATUSES&&window.ORDER_STATUSES[code])return String(window.ORDER_STATUSES[code].label||'');}catch(e){}
     return String(o&&o.status||'');
   }
   function groupOf(o){
     var code=codeOf(o), label=labelOf(o);
     if(code===4 || /رفض استلام وحظر/.test(label)) return 'rejected';
-    if(o&&(o.exchangeOrReturnClosed||o.exchangeResolved)) return 'delivered';
+    if(code===5 || /Order 0 Stock|نفذت الكمية/.test(label) || o&&o.stockExhausted) return 'oos';
+    if(code===6 || o&&o.isX2 || /مراجعة طلب X2|X2/.test(label)) return 'x2';
     if(o&&(o.exchangeOrReturnClosed||o.exchangeResolved)) return 'delivered';
     if(code===3 || /تم التوريد|تم التسليم|تم التوصيل|تم الاستلام|مكتمل|تم الاستبدال|تم الإرجاع/.test(label)) return 'delivered';
     return 'open';
@@ -8359,7 +8894,7 @@ window.addToCartAndContinue = function () {
     var content=modal.querySelector('.modal-content'); if(!content)return;
     var tabs=document.createElement('div');tabs.id='msqAdminTabs';tabs.innerHTML=
       '<button type="button" data-tab="cancel">🔔 طلبات إلغاء <span id="msqCancelBadge">0</span></button>'+
-      '<button type="button" data-tab="open">📋 قائمة الطلبات المفتوحة</button>'+
+      '<button type="button" data-tab="open">📋 قائمة الطلبات المفتوحة</button>'+'<button type="button" data-tab="x2">🔁 مراجعة طلبات X2 <span id="msqX2Badge">0</span></button>'+'<button type="button" data-tab="oos">⛔ Order 0 Stock <span id="msqOosBadge">0</span></button>'+
       '<button type="button" data-tab="delivered">✅ الطلبات تم توريدها</button>'+
       '<button type="button" data-tab="maintenance">🧩 أخرى</button>';
     var paneWrap=document.createElement('div');paneWrap.id='msqAdminTabContent';
@@ -8376,8 +8911,14 @@ window.addToCartAndContinue = function () {
     var deliveredPane=document.createElement('section');deliveredPane.className='msq-tab-pane';deliveredPane.dataset.pane='delivered';
     var deliveredSearch=document.createElement('input');deliveredSearch.type='search';deliveredSearch.id='msqDeliveredSearch';deliveredSearch.className='promo-input';deliveredSearch.placeholder='🔍 بحث في الطلبات التي تم توريدها';deliveredSearch.style.cssText='width:100%;margin-bottom:10px;padding:10px';deliveredPane.appendChild(deliveredSearch);
     var deliveredList=document.createElement('div');deliveredList.id='msqDeliveredList';deliveredPane.appendChild(deliveredList);
+    var x2Pane=document.createElement('section');x2Pane.className='msq-tab-pane';x2Pane.dataset.pane='x2';
+    var x2List=document.createElement('div');x2List.id='msqX2ReviewList';x2List.innerHTML='<p style="color:#765b5b;font-size:13px;font-weight:700">طلبات إعادة الطلب بانتظار المراجعة.</p>';
+    x2Pane.appendChild(x2List);
+    var oosPane=document.createElement('section');oosPane.className='msq-tab-pane';oosPane.dataset.pane='oos';
+    var oosList=document.createElement('div');oosList.id='msqOosList';oosList.innerHTML='<p style="color:#765b5b;font-size:13px;font-weight:700">طلبات نفذت كميتها.</p>';
+    oosPane.appendChild(oosList);
     var maintPane=document.createElement('section');maintPane.className='msq-tab-pane';maintPane.dataset.pane='maintenance';
-    paneWrap.append(searchPane,cancelPane,deliveredPane,maintPane);
+    paneWrap.append(searchPane,cancelPane,x2Pane,oosPane,deliveredPane,maintPane);
     /* Place tabs below the complete header, never inside the title/search/logout row. */
     var header=document.getElementById('adminOrdersHeader');
     if(header) header.insertAdjacentElement('afterend',tabs);
