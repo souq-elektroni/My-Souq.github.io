@@ -12192,3 +12192,23 @@ body.dark-mode .msq-modal-gender .msq-gender-tag{
   /* السكربت يتحكم في العرض حسب وجود الأبعاد */
 }
 
+
+
+/* msq-admin-channels-layout-v2-append */
+#msqAdminTabs {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  grid-template-columns: none !important;
+  gap: 8px !important;
+}
+#msqAdminTabs button {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+  width: auto !important;
+  min-width: max-content !important;
+}
+@media (max-width: 900px) {
+  #msqAdminTabs { display: none !important; }
+  #msqAdminChannelSelectWrap { display: block !important; width: 100% !important; }
+}
