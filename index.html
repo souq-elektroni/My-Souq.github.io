@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611050924tabs";
+  var BUILD = "202611050947oosfix";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -155,7 +155,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611050924tabs">
+  <meta name="msq-build" content="202611050947oosfix">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -244,8 +244,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611050924tabs">
-<link rel="stylesheet" href="styles.css?v=202611050924tabs">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611050947oosfix">
+<link rel="stylesheet" href="styles.css?v=202611050947oosfix">
 
 
 
@@ -281,8 +281,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611050924tabs">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611050924tabs">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611050947oosfix">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611050947oosfix">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -618,70 +618,62 @@
 </style>
 
 
-<style id="msq-admin-channels-layout-v2">
-/* ===== قنوات الإدارة: صف واحد جنب بعض ===== */
+
+
+
+<style id="msq-admin-channels-layout-v3">
+/* قنوات جنب بعض بدون سكرول أفقي */
 #msqAdminTabs,
 html body #adminOrdersModal #msqAdminTabs {
   display: flex !important;
   flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  align-items: stretch !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
   gap: 8px !important;
   width: 100% !important;
   max-width: 100% !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: thin !important;
-  padding: 4px 2px 10px !important;
-  margin: 0 0 10px !important;
+  overflow: visible !important;
+  overflow-x: visible !important;
+  padding: 4px 0 10px !important;
+  margin: 0 0 8px !important;
   grid-template-columns: none !important;
   box-sizing: border-box !important;
 }
+#msqAdminTabs::-webkit-scrollbar { display: none !important; height: 0 !important; }
 #msqAdminTabs button,
 html body #adminOrdersModal #msqAdminTabs button {
   flex: 0 0 auto !important;
   white-space: nowrap !important;
-  min-width: max-content !important;
   width: auto !important;
+  min-width: 0 !important;
   max-width: none !important;
-  min-height: 40px !important;
-  padding: 8px 14px !important;
-  font-size: 12.5px !important;
+  min-height: 38px !important;
+  padding: 7px 12px !important;
+  font-size: 12px !important;
   font-weight: 900 !important;
   border-radius: 999px !important;
-  line-height: 1.2 !important;
+  line-height: 1.25 !important;
 }
-/* فلاتر الحالة تحت القنوات — صف واحد */
-#msqOpenOrderFilters,
-html body #adminOrdersModal #msqOpenOrderFilters {
+#msqOpenOrderFilters {
   display: flex !important;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap !important;
   gap: 6px !important;
-  overflow-x: auto !important;
+  overflow: visible !important;
   width: 100% !important;
-  margin: 0 0 12px !important;
-  padding-bottom: 4px !important;
+  margin: 0 0 10px !important;
   grid-template-columns: none !important;
 }
 #msqOpenOrderFilters button {
   flex: 0 0 auto !important;
   white-space: nowrap !important;
-  min-width: max-content !important;
-  width: auto !important;
-  min-height: 36px !important;
-  padding: 6px 12px !important;
+  min-height: 34px !important;
+  padding: 6px 11px !important;
   font-size: 12px !important;
-  font-weight: 800 !important;
   border-radius: 999px !important;
 }
+#msqAdminChannelSelectWrap { display: none !important; }
 
-/* القائمة المنسدلة مخفية على الشاشات الواسعة */
-#msqAdminChannelSelectWrap {
-  display: none !important;
-}
-
-/* ===== موبايل: قائمة منسدلة بدل الأزرار ===== */
 @media (max-width: 900px) {
   #msqAdminTabs,
   html body #adminOrdersModal #msqAdminTabs {
@@ -691,57 +683,31 @@ html body #adminOrdersModal #msqOpenOrderFilters {
     padding: 0 !important;
     overflow: hidden !important;
     visibility: hidden !important;
-    pointer-events: none !important;
   }
   #msqAdminChannelSelectWrap,
   html body #msqAdminChannelSelectWrap {
     display: block !important;
     width: 100% !important;
     margin: 0 0 12px !important;
-    box-sizing: border-box !important;
   }
-  #msqAdminChannelSelectWrap .msq-ch-label {
-    display: block !important;
-    font-size: 12px !important;
-    font-weight: 900 !important;
-    color: #7a5a60 !important;
-    margin: 0 0 6px 2px !important;
-  }
-  #msqAdminChannelSelect,
-  html body #msqAdminChannelSelect {
+  #msqAdminChannelSelect {
     display: block !important;
     width: 100% !important;
     min-height: 48px !important;
     padding: 12px 42px 12px 14px !important;
     border-radius: 14px !important;
     border: 1.5px solid #d4b8b4 !important;
-    background-color: #fff !important;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238b3f52' d='M1 1l5 5 5-5'/%3E%3C/svg%3E") !important;
-    background-repeat: no-repeat !important;
-    background-position: left 14px center !important;
-    background-size: 12px 8px !important;
-    color: #2c2224 !important;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%238b3f52' d='M1 1l5 5 5-5'/%3E%3C/svg%3E") no-repeat left 14px center / 12px 8px !important;
     font-weight: 900 !important;
     font-size: 14px !important;
-    font-family: inherit !important;
-    box-shadow: 0 5px 16px rgba(80,40,50,.07) !important;
     appearance: none !important;
     -webkit-appearance: none !important;
     box-sizing: border-box !important;
   }
-  /* فلاتر الحالة على الموبايل: صف قابل للتمرير */
-  #msqOpenOrderFilters {
-    display: flex !important;
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
-    gap: 6px !important;
-  }
-  #msqOpenOrderFilters button {
-    flex: 0 0 auto !important;
-    min-width: max-content !important;
-    font-size: 11.5px !important;
-  }
 }
+/* تأكد تبويب OOS ظاهر لما يكون active */
+#msqAdminTabContent .msq-tab-pane { display: none !important; }
+#msqAdminTabContent .msq-tab-pane.active { display: block !important; }
 </style>
 
 </head>
@@ -1756,7 +1722,7 @@ html body #adminOrdersModal #msqOpenOrderFilters {
   })();
   </script>
 
-  <script src="script.js?v=202611050924tabs"></script>
+  <script src="script.js?v=202611050947oosfix"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -4879,8 +4845,7 @@ window.addToCartAndContinue = function () {
       bar.innerHTML =
         '<button type="button" data-status="0" aria-pressed="false">🟡 تحت التنفيذ</button>' +
         '<button type="button" data-status="1" aria-pressed="false">✅ تم الحجز</button>' +
-        '<button type="button" data-status="2" aria-pressed="false">🚚 جاري الشحن</button>' +
-        '<button type="button" data-status="5" aria-pressed="false">📭 Order 0 Stock</button>';
+        '<button type="button" data-status="2" aria-pressed="false">🚚 جاري الشحن</button>';
       var list = document.getElementById('adminOrdersList');
       if (list && list.parentNode === pane) pane.insertBefore(bar, list);
       else pane.insertBefore(bar, pane.firstChild);
@@ -8081,10 +8046,48 @@ window.addToCartAndContinue = function () {
 
   window.msqRenderOosList = function () {
     var box = document.getElementById('msqOosList');
-    if (!box) return;
-    var list = getCache().filter(function (o) {
-      return codeOf(o) === 5 || o.stockExhausted === true || /Order 0 Stock|نفذت الكمية/.test(String(o.status || ''));
-    });
+    if (!box) {
+      // أنشئ القائمة لو التبويب اتبنى متأخر
+      var pane = document.querySelector('#msqAdminTabContent [data-pane="oos"]');
+      if (pane) {
+        box = document.createElement('div');
+        box.id = 'msqOosList';
+        pane.appendChild(box);
+      } else return;
+    }
+    function isOos(o) {
+      if (!o) return false;
+      var c = Number(o.statusCode);
+      if (Number.isFinite(c) && c === 5) return true;
+      if (o.stockExhausted === true) return true;
+      var st = String(o.status || o.statusLabel || '');
+      return /Order 0 Stock|نفذت الكمية/i.test(st);
+    }
+    var list = [];
+    var seen = {};
+    function addAll(arr) {
+      (arr || []).forEach(function (o) {
+        if (!isOos(o)) return;
+        var id = String(o.orderId || '').trim().toUpperCase();
+        if (!id || seen[id]) return;
+        seen[id] = true;
+        // تطبيع statusCode
+        o.statusCode = 5;
+        list.push(o);
+      });
+    }
+    addAll(getCache());
+    try {
+      if (typeof ordersHistory !== 'undefined' && Array.isArray(ordersHistory)) addAll(ordersHistory);
+    } catch (e) {}
+    try {
+      var raw = localStorage.getItem('souqOrdersHistory');
+      if (raw) addAll(JSON.parse(raw) || []);
+    } catch (e) {}
+    try {
+      if (Array.isArray(window.adminOrdersCache)) addAll(window.adminOrdersCache);
+    } catch (e) {}
+
     var badge = document.getElementById('msqOosBadge');
     if (badge) badge.textContent = String(list.length);
     if (!list.length) {
@@ -9072,7 +9075,10 @@ window.addToCartAndContinue = function () {
     if(tab==='delivered')renderDelivered();
     if(tab==='cancel'&&typeof window.loadAdminCancelRequests==='function')window.loadAdminCancelRequests();
     if(tab==='exchanges'&&typeof window.msqLoadExchangeRequests==='function')window.msqLoadExchangeRequests();
+    if(tab==='oos'&&typeof window.msqRenderOosList==='function')window.msqRenderOosList();
+    if(tab==='x2'&&typeof window.msqRenderX2ReviewList==='function')window.msqRenderX2ReviewList();
     moveInjectedPanels();
+    try{ if(typeof window.msqSyncAdminChannelSelect==='function') window.msqSyncAdminChannelSelect(); }catch(e){}
   }
   window.msqSetAdminTab = setTab;
   function renderDelivered(){
@@ -9112,6 +9118,8 @@ window.addToCartAndContinue = function () {
     var original=window.filterAdminOrders;
     window.filterAdminOrders=function(){
       if(activeTab==='delivered'){renderDelivered();return;}
+      if(activeTab==='oos'){if(typeof window.msqRenderOosList==='function')window.msqRenderOosList();return;}
+      if(activeTab==='x2'){if(typeof window.msqRenderX2ReviewList==='function')window.msqRenderX2ReviewList();return;}
       var cache=[];try{cache=typeof adminOrdersCache!=='undefined'&&Array.isArray(adminOrdersCache)?adminOrdersCache:(Array.isArray(window.adminOrdersCache)?window.adminOrdersCache:[]);}catch(e){cache=Array.isArray(window.adminOrdersCache)?window.adminOrdersCache:[];}
       if(!cache.length)return original.apply(this,arguments);
       var filtered=cache.filter(function(o){return groupOf(o)==='open';});

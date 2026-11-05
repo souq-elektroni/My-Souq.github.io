@@ -5763,8 +5763,19 @@ function continueAfterOrderRecaptcha() {
       try { await Promise.all(backfills); } catch (e) {}
     }
 
+    // تطبيع statusCode (أحيانًا بيوصل string من Firestore)
+    list.forEach(function (o) {
+      if (!o) return;
+      var n = Number(o.statusCode);
+      if (Number.isFinite(n)) o.statusCode = n;
+      else if (/Order 0 Stock|نفذت الكمية/i.test(String(o.status || ''))) o.statusCode = 5;
+      else if (/مراجعة طلب X2|X2/i.test(String(o.status || '')) || o.isX2) o.statusCode = 6;
+    });
     adminOrdersCache = list;
+    try { window.adminOrdersCache = list; } catch (e) {}
     filterAdminOrders();
+    try { if (typeof window.msqRenderOosList === 'function') window.msqRenderOosList(); } catch (e) {}
+    try { if (typeof window.msqRenderX2ReviewList === 'function') window.msqRenderX2ReviewList(); } catch (e) {}
   }
 
   function filterAdminOrders() {
