@@ -12310,3 +12310,29 @@ html body #msqAdminChannelSelect {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 }
+
+
+/* msq-img-fill-absolute-v4 */
+#products-container .product-card {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+#products-container .product-card .image-container {
+  position: relative !important;
+  flex: 1 1 auto !important;
+  aspect-ratio: unset !important;
+  min-height: 260px !important;
+  overflow: hidden !important;
+}
+#products-container .product-card .image-container > img,
+#products-container .product-card .product-image {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+#products-container .product-card .product-details {
+  flex: 0 0 auto !important;
+}
