@@ -10606,7 +10606,7 @@ html body .msq-public-terms-trigger {
 
 /* ===== msq-paired-product-images-styles ===== */
 /* ===== كارت ===== */
-.image-container.msq-has-pair{display:block!important;position:relative!important;overflow:hidden!important;background:#f3eee9!important;aspect-ratio:1/1.05}
+.image-container.msq-has-pair{display:block!important;position:relative!important;overflow:hidden!important;background:#f3eee9!important;aspect-ratio:unset!important;flex:1 1 auto!important;min-height:260px!important}
 .msq-card-pair,.msq-card-pair.msq-card-pair-hover{display:grid!important;grid-template-columns:1fr 1fr!important;gap:3px!important;position:absolute!important;inset:0!important;width:100%!important;height:100%!important;padding:4px!important;box-sizing:border-box!important;margin:0!important}
 .msq-card-pair .msq-pair-thumb,.msq-card-pair.msq-card-pair-hover .msq-pair-thumb{position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:100%!important;min-height:0!important;object-fit:cover!important;object-position:center!important;border-radius:10px!important;background:#eee!important;opacity:1!important}
 .msq-pair-thumb.msq-swapping{opacity:.45!important}

@@ -1114,6 +1114,13 @@ footer,
   border-radius: 8px;
   background: #f8f5f2;
 }
+/* كروت الشبكة: غطي المساحة بالكامل */
+#products-container .msq-card-pair .msq-pair-thumb {
+  height: 100% !important;
+  aspect-ratio: unset !important;
+  object-fit: cover !important;
+  border-radius: 0 !important;
+}
 .msq-modal-pair-card { min-width: 0; }
 .msq-modal-pair-captions {
   display: grid !important;
