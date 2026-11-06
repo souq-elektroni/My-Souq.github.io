@@ -12270,3 +12270,16 @@ html body #msqAdminChannelSelect {
   margin-top: 3px !important;
   font-size: 10.5px !important;
 }
+
+
+/* msq-card-bigger-v2 */
+#products-container.products-grid,.products-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)) !important;
+  gap: 16px !important;
+}
+@media (min-width: 1100px) {
+  #products-container.products-grid,.products-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 20px !important;
+  }
+}
