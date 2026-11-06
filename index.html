@@ -7981,6 +7981,8 @@ window.addToCartAndContinue = function () {
       try {
         sessionStorage.setItem('msqX2Reorder', '1');
         localStorage.setItem('msqX2Reorder', '1');
+        sessionStorage.setItem('msqX2ReorderAt', String(Date.now()));
+        localStorage.setItem('msqX2ReorderAt', String(Date.now()));
         if (order.orderId) {
           sessionStorage.setItem('msqX2SourceOrderId', String(order.orderId));
           localStorage.setItem('msqX2SourceOrderId', String(order.orderId));

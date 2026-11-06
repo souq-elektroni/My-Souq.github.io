@@ -4105,51 +4105,90 @@ function continueAfterOrderRecaptcha() {
 
   function buildTelegramOrderMessage(meta) {
     const m = meta || {};
+    const esc = function (v) {
+      return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    };
     const lines = [];
-    lines.push((m.isX2 || m._x2Tag) ? '🔁 *إعادة طلب X2 — بانتظار المراجعة*' : '🛒 *طلب جديد — My Souq*');
-    if (m.isX2 || m._x2Tag) {
-      lines.push('⚠️ هذا الطلب من حساب العميل (إعادة طلب) — راجعه في قناة مراجعة X2');
-      if (m.x2SourceOrderId) lines.push('📎 الطلب الأصلي: `' + String(m.x2SourceOrderId) + '`');
+    const isX2 = m.isX2 === true || m._x2Tag === true;
+    lines.push(isX2 ? '🔁 <b>إعادة طلب X2 — بانتظار المراجعة</b>' : '🛍️ <b>طلب جديد من My Souq</b>');
+    if (isX2) {
+      lines.push('⚠️ <b>نوع الطلب:</b> إعادة طلب من سجل العميل — يلزم مراجعته قبل التنفيذ');
+      if (m.x2SourceOrderId) lines.push('📎 <b>الطلب الأصلي:</b> <code>' + esc(m.x2SourceOrderId) + '</code>');
     }
-    lines.push('━━━━━━━━━━━━━━━━');
-    lines.push('🆔 *رقم الطلب:* `' + String(m.orderId || '-') + '`');
-    lines.push('👤 *الاسم:* ' + msqEscapeMarkdown(m.name || '-'));
-    lines.push('📱 *الهاتف:* `' + String(m.phone || '-') + '`');
-    lines.push('📍 *العنوان:*');
-    lines.push(msqEscapeMarkdown(m.address || '-'));
-    if (m.governorate) lines.push('🏛️ المحافظة: ' + msqEscapeMarkdown(m.governorate));
-    if (m.city) lines.push('🏙️ المدينة: ' + msqEscapeMarkdown(m.city));
-    if (m.detailedAddress) lines.push('🏠 تفصيلي: ' + msqEscapeMarkdown(m.detailedAddress));
-    lines.push('💳 *الدفع:* ' + String(m.payMethod || m.paymentMethod || '-'));
-    lines.push('💰 *الإجمالي:* ' + String(m.total || '-'));
-    lines.push('━━━━━━━━━━━━━━━━');
-    lines.push('🛍️ *المنتجات:*');
+    lines.push('━━━━━━━━━━━━━━━━━━');
+    lines.push('🧾 <b>بيانات الطلب</b>');
+    lines.push('🆔 رقم الطلب: <code>' + esc(m.orderId || '-') + '</code>');
+    lines.push('👤 العميل: ' + esc(m.name || '-'));
+    lines.push('📱 الهاتف: <code>' + esc(m.phone || '-') + '</code>');
+
+    const sources = [m.address, m.detailedAddress].filter(Boolean).map(String);
+    let gpsLat = '', gpsLon = '', mapsUrl = '';
+    for (const source of sources) {
+      const match = source.match(/\[موقع التوصيل GPS:\s*([-+]?\d+(?:\.\d+)?)\s*,\s*([-+]?\d+(?:\.\d+)?)\s*\]/i);
+      if (match && !gpsLat) { gpsLat = match[1]; gpsLon = match[2]; }
+      const urlMatch = source.match(/https?:\/\/(?:www\.)?maps\.google\.com\/\S+/i);
+      if (urlMatch && !mapsUrl) mapsUrl = urlMatch[0].replace(/[)\],]+$/g, '');
+    }
+    if (!mapsUrl && gpsLat && gpsLon) mapsUrl = 'https://maps.google.com/?q=' + encodeURIComponent(gpsLat + ',' + gpsLon);
+    function stripGps(value) {
+      return String(value || '')
+        .replace(/\[موقع التوصيل GPS:[^\]]*\]/gi, '')
+        .replace(/🔗\s*الخريطة:\s*https?:\/\/\S+/gi, '')
+        .replace(/https?:\/\/(?:www\.)?maps\.google\.com\/\S+/gi, '')
+        .replace(/\s{2,}/g, ' ').trim();
+    }
+    const addressParts = [];
+    if (m.governorate) addressParts.push('المحافظة: ' + stripGps(m.governorate));
+    if (m.city) addressParts.push('المدينة: ' + stripGps(m.city));
+    const detail = stripGps(m.detailedAddress);
+    if (detail) addressParts.push('العنوان التفصيلي: ' + detail);
+    if (!addressParts.length) {
+      const fallback = stripGps(m.address);
+      if (fallback) addressParts.push(fallback);
+    }
+    lines.push('📍 <b>عنوان التوصيل:</b>');
+    lines.push(esc(addressParts.join('، ') || '-'));
+    if (gpsLat && gpsLon) {
+      lines.push('📡 <b>إحداثيات GPS:</b> <code>' + esc(gpsLat + ', ' + gpsLon) + '</code>');
+      lines.push('🗺️ <a href="' + esc(mapsUrl) + '">فتح موقع التوصيل على الخريطة</a>');
+    } else if (mapsUrl) {
+      lines.push('🗺️ <a href="' + esc(mapsUrl) + '">فتح موقع التوصيل على الخريطة</a>');
+    }
+    lines.push('💳 طريقة الدفع: ' + esc(m.payMethod || m.paymentMethod || '-'));
+    lines.push('💰 <b>الإجمالي: ' + esc(m.total != null ? m.total : '-') + ' ج.م</b>');
+    lines.push('━━━━━━━━━━━━━━━━━━');
+    lines.push('🛍️ <b>تفاصيل المنتجات</b>');
     const items = Array.isArray(m.items) ? m.items : [];
     if (!items.length) {
-      lines.push('— لا توجد منتجات —');
+      lines.push('لا توجد تفاصيل منتجات');
     } else {
       items.forEach(function (it, idx) {
-        const name = msqEscapeMarkdown(it.name || it.title || 'منتج');
+        const name = esc(it.name || it.title || 'منتج');
         const qty = it.quantity != null ? it.quantity : (it.qty != null ? it.qty : 1);
         const price = it.price != null ? it.price : '-';
-        const size = it.size || '-';
-        const color = it.color ? (' | اللون: ' + it.color) : '';
         lines.push('');
-        lines.push((idx + 1) + ') *' + name + '*');
-        lines.push('   المقاس: ' + size + color);
-        lines.push('   الكمية: ' + qty + ' | السعر: ' + price + ' ج.م');
+        lines.push((idx + 1) + '. <b>' + name + '</b>');
+        lines.push('   📏 المقاس: ' + esc(it.size || '-'));
+        if (it.color) lines.push('   🎨 اللون: ' + esc(it.color));
+        lines.push('   🔢 الكمية: ' + esc(qty) + '  |  💵 سعر القطعة: ' + esc(price) + ' ج.م');
+        if (it.pants_length) lines.push('   👖 طول البنطلون: ' + esc(it.pants_length));
+        if (it.tshirt_length) lines.push('   👕 طول التيشيرت: ' + esc(it.tshirt_length));
+        if (it.tshirt_width) lines.push('   📐 عرض التيشيرت: ' + esc(it.tshirt_width));
+        if (it.extra_piece) lines.push('   ➕ القطعة الإضافية: ' + esc(it.extra_piece));
         const front = it.front_image || it.image || '';
         const back = it.back_image || '';
-        if (front) lines.push('   🖼 الوش: ' + front);
-        if (back && back !== front) lines.push('   🖼 الضهر: ' + back);
+        if (front) lines.push('   🖼️ <a href="' + esc(front) + '">صورة المنتج</a>');
+        if (back && back !== front) lines.push('   🖼️ <a href="' + esc(back) + '">صورة الضهر</a>');
       });
     }
     lines.push('');
-    lines.push('⏰ ' + new Date().toLocaleString('ar-EG'));
+    lines.push('━━━━━━━━━━━━━━━━━━');
+    lines.push('🕒 وقت تسجيل الطلب: ' + esc(new Date().toLocaleString('ar-EG')));
+    lines.push('⬇️ <b>تحديث حالة الطلب من أزرار الحالة أسفل الرسالة</b>');
     return lines.join('\n');
   }
 
-  
   // ===== إحصائيات زيارات داخلية (لوحة الإدارة) =====
   function msqTodayKey() {
     var d = new Date();
@@ -4280,7 +4319,7 @@ function continueAfterOrderRecaptcha() {
       message: message,
       text: message,
       caption: message,
-      parse_mode: 'Markdown'
+      parse_mode: 'HTML'
     };
     let lastError;
     // محاولتان فقط — أسرع، مع منع التكرار عبر orderId
@@ -4443,9 +4482,13 @@ function continueAfterOrderRecaptcha() {
     try {
       var x2Flag = '';
       var x2Src = '';
+      var x2At = 0;
       try { x2Flag = sessionStorage.getItem('msqX2Reorder') || localStorage.getItem('msqX2Reorder') || ''; } catch (e) {}
       try { x2Src = sessionStorage.getItem('msqX2SourceOrderId') || localStorage.getItem('msqX2SourceOrderId') || ''; } catch (e) {}
-      if (x2Flag === '1' || x2Flag === 'true') {
+      try { x2At = Number(sessionStorage.getItem('msqX2ReorderAt') || localStorage.getItem('msqX2ReorderAt') || 0); } catch (e) {}
+      // لا نعتبر الطلب X2 إلا إذا كانت إعادة الطلب حديثة ومربوطة بطلب أصلي؛ العلامات القديمة/المتروكة لا تنتقل لطلب عادي.
+      var validX2Intent = (x2Flag === '1' || x2Flag === 'true') && !!x2Src && !!x2At && (Date.now() - x2At >= 0) && (Date.now() - x2At <= 2 * 60 * 60 * 1000);
+      if (validX2Intent) {
         newOrderRecord.isX2 = true;
         newOrderRecord.x2ReviewStatus = 'pending';
         newOrderRecord.statusCode = 6;
@@ -4471,6 +4514,16 @@ function continueAfterOrderRecaptcha() {
         setBtnBusy(false, 'تأكيد الطلب ✅');
         return;
       }
+
+      // استهلاك علامة إعادة الطلب بعد حفظ الطلب بنجاح فقط؛ حتى لا تتحول الطلبات العادية التالية إلى X2.
+      try {
+        sessionStorage.removeItem('msqX2Reorder');
+        sessionStorage.removeItem('msqX2SourceOrderId');
+        sessionStorage.removeItem('msqX2ReorderAt');
+        localStorage.removeItem('msqX2Reorder');
+        localStorage.removeItem('msqX2SourceOrderId');
+        localStorage.removeItem('msqX2ReorderAt');
+      } catch (eX2Clear) {}
 
       // تهدئة الرقم 15 دقيقة — بعد نجاح الحفظ فقط (لا طلبات وهمية)
       try {
@@ -4567,8 +4620,10 @@ function continueAfterOrderRecaptcha() {
       try {
         sessionStorage.removeItem('msqX2Reorder');
         sessionStorage.removeItem('msqX2SourceOrderId');
+        sessionStorage.removeItem('msqX2ReorderAt');
         localStorage.removeItem('msqX2Reorder');
         localStorage.removeItem('msqX2SourceOrderId');
+        localStorage.removeItem('msqX2ReorderAt');
       } catch (eClr) {}
 
       try {
