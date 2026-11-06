@@ -12253,3 +12253,20 @@ html body #msqAdminChannelSelect {
   -webkit-appearance: none !important;
   cursor: pointer !important;
 }
+
+
+/* msq-card-compact-append */
+#products-container .product-card .product-details,
+#products-container .product-card .product-info {
+  padding: 8px 10px 9px !important;
+  min-height: 0 !important;
+}
+#products-container .product-card .product-title {
+  margin: 0 !important;
+  font-size: 13.5px !important;
+  line-height: 1.25 !important;
+}
+#products-container .product-card .click-hint {
+  margin-top: 3px !important;
+  font-size: 10.5px !important;
+}

@@ -1478,8 +1478,11 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
               onerror="this.onerror=null;this.src='${MSQ_PLACEHOLDER_IMG}'">`}
             ${albumBadge}
           </div>
-          <div class="product-details">
-            <h3 class="product-title">${p.title}</h3>
+          <div class="product-details msq-card-details-compact">
+            <div class="msq-card-top-row">
+              <h3 class="product-title">${p.title}</h3>
+              <div class="price-tag">${getCardPriceHtml(p)}</div>
+            </div>
             ${(() => {
               var tags = getProductGenderTags(p);
               if (!tags || !tags.length) {
@@ -1492,9 +1495,6 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
               var g = formatGenderBadges(tags);
               return g ? '<div class="msq-card-gender">' + g + '</div>' : '';
             })()}
-            <div class="price-tag">
-              ${getCardPriceHtml(p)}
-            </div>
             <div class="click-hint">${hint}</div>
           </div>
         </div>`;
