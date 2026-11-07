@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611072100adminPro";
+  var BUILD = "202611072120adminLayout";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -168,7 +168,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611072100adminPro">
+  <meta name="msq-build" content="202611072120adminLayout">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -257,8 +257,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611072100adminPro">
-<link rel="stylesheet" href="styles.css?v=202611072100adminPro">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611072120adminLayout">
+<link rel="stylesheet" href="styles.css?v=202611072120adminLayout">
 
 
 
@@ -294,8 +294,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611072100adminPro">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611072100adminPro">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611072120adminLayout">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611072120adminLayout">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1879,7 +1879,7 @@ html body #products-container .product-card .msq-fav-btn {
 
   <!-- Admin Orders Modal -->
   <div class="modal-overlay" id="adminOrdersModal">
-    <div class="modal-content msq-admin-shell" style="max-width:min(1400px,98vw); width:min(1400px,98vw); padding:18px 18px 22px; background:linear-gradient(180deg,#f6f0ff 0%,#f3eaff 45%,#efe6ff 100%); border:1px solid #d9c7f2; border-radius:22px; box-shadow:0 24px 60px rgba(88,40,140,.18);">
+    <div class="modal-content msq-admin-shell" style="max-width:min(1560px,99vw); width:min(1560px,99vw); padding:18px 18px 22px; background:linear-gradient(180deg,#f6f0ff 0%,#f3eaff 45%,#efe6ff 100%); border:1px solid #d9c7f2; border-radius:22px; box-shadow:0 24px 60px rgba(88,40,140,.18);">
       <button class="close-btn" onclick="closeAdminOrdersModal()">✕</button>
       <div id="adminOrdersHeader" class="admin-orders-header msq-admin-header-v2">
         <div class="msq-admin-title-row">
@@ -2083,7 +2083,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611072100adminPro"></script>
+  <script src="script.js?v=202611072120adminLayout"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9174,31 +9174,31 @@ html body #msqAdminTabContent .order-card-admin {
 </body>
 
 
+
 <style id="msq-channels-side-force">
-/* ===== Admin shell: wide + clean ===== */
+/* ===== Admin desktop: wide, no horizontal scrollbar on channels ===== */
 html body #adminOrdersModal.modal-overlay {
-  padding: 12px !important;
+  padding: 10px !important;
   align-items: flex-start !important;
 }
 html body #adminOrdersModal .modal-content.msq-admin-shell,
 html body #adminOrdersModal .modal-content {
-  max-width: min(1400px, 98vw) !important;
-  width: min(1400px, 98vw) !important;
-  margin: 8px auto 24px !important;
-  padding: 16px 18px 20px !important;
+  max-width: min(1560px, 99vw) !important;
+  width: min(1560px, 99vw) !important;
+  margin: 6px auto 20px !important;
+  padding: 16px 18px 18px !important;
   border-radius: 20px !important;
   background: linear-gradient(180deg, #f8f4ff 0%, #f3ecff 100%) !important;
   border: 1px solid #e0d0f5 !important;
   box-shadow: 0 20px 50px rgba(70,30,120,.16) !important;
 }
 
-/* Header: title + logout row, then full-width search */
 html body #adminOrdersHeader,
 html body #adminOrdersHeader.msq-admin-header-v2 {
   display: flex !important;
   flex-direction: column !important;
   gap: 10px !important;
-  margin-bottom: 12px !important;
+  margin-bottom: 10px !important;
 }
 html body #adminOrdersHeader .msq-admin-title-row {
   display: flex !important;
@@ -9207,10 +9207,8 @@ html body #adminOrdersHeader .msq-admin-title-row {
   justify-content: space-between !important;
   gap: 12px !important;
   width: 100% !important;
-  margin: 0 !important;
 }
-html body #adminLogoutBtn,
-html body #adminOrdersHeader .msq-admin-logout {
+html body #adminLogoutBtn {
   display: inline-flex !important;
   margin: 0 !important;
   border: 0 !important;
@@ -9220,7 +9218,6 @@ html body #adminOrdersHeader .msq-admin-logout {
   color: #fff !important;
   font-weight: 900 !important;
   cursor: pointer !important;
-  box-shadow: 0 6px 14px rgba(120,20,50,.2) !important;
   white-space: nowrap !important;
 }
 html body #adminOrderSearch {
@@ -9229,42 +9226,33 @@ html body #adminOrderSearch {
   border-radius: 14px !important;
   border: 1.5px solid #d7c6f0 !important;
   background: #fff !important;
-  padding: 10px 14px !important;
-  box-shadow: 0 4px 12px rgba(80,40,130,.06) !important;
 }
 
-/* ===== Channels toolbar: ONE professional row ===== */
+/* Desktop/tablet wide: channels in one row, no scrollbar */
 html body #adminOrdersModal #msqAdminTabs,
 html body #msqAdminTabs,
 html body #msqAdminTabs.msq-admin-channels {
   display: flex !important;
   flex-direction: row !important;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap !important;
   align-items: center !important;
-  justify-content: flex-start !important;
+  justify-content: center !important;
   gap: 8px !important;
   width: 100% !important;
-  margin: 4px 0 14px !important;
+  margin: 6px 0 12px !important;
   padding: 8px !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: thin !important;
-  background: rgba(255,255,255,.65) !important;
+  overflow: visible !important;
+  background: rgba(255,255,255,.7) !important;
   border: 1px solid #e5d8f6 !important;
   border-radius: 16px !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.8) !important;
 }
-html body #adminOrdersModal #msqAdminTabs > button,
 html body #msqAdminTabs > button {
   display: inline-flex !important;
   flex: 0 0 auto !important;
   align-items: center !important;
   justify-content: center !important;
-  gap: 6px !important;
   width: auto !important;
   min-width: max-content !important;
-  max-width: none !important;
   min-height: 40px !important;
   margin: 0 !important;
   padding: 8px 14px !important;
@@ -9274,21 +9262,14 @@ html body #msqAdminTabs > button {
   color: #4a2d7a !important;
   font-weight: 900 !important;
   font-size: 12.5px !important;
-  line-height: 1.2 !important;
   white-space: nowrap !important;
   cursor: pointer !important;
   box-shadow: 0 2px 8px rgba(80,40,130,.06) !important;
-  transition: background .15s ease, color .15s ease, transform .12s ease !important;
-}
-html body #msqAdminTabs > button:hover {
-  transform: translateY(-1px) !important;
-  border-color: #c9b2ec !important;
 }
 html body #msqAdminTabs > button.active {
   background: linear-gradient(135deg, #7b4bb8, #5e3299) !important;
   color: #fff !important;
   border-color: transparent !important;
-  box-shadow: 0 6px 14px rgba(94,50,153,.28) !important;
 }
 html body #msqAdminTabs > button span {
   display: inline-flex !important;
@@ -9297,6 +9278,7 @@ html body #msqAdminTabs > button span {
   min-width: 20px !important;
   height: 20px !important;
   padding: 0 6px !important;
+  margin-inline-start: 4px !important;
   border-radius: 999px !important;
   font-size: 11px !important;
   font-weight: 900 !important;
@@ -9307,92 +9289,196 @@ html body #msqAdminTabs > button.active span {
   background: rgba(255,255,255,.22) !important;
   color: #fff !important;
 }
-html body #msqAdminChannelSelectWrap { display: none !important; }
 
-/* Status filter chips under channels */
+/* Status filters centered */
 html body #msqOpenOrderFilters {
   display: flex !important;
   flex-direction: row !important;
   flex-wrap: wrap !important;
-  gap: 8px !important;
-  justify-content: flex-end !important;
-  margin: 0 0 12px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  margin: 0 0 14px !important;
+  padding: 0 !important;
+}
+html body #msqOpenOrderFilters > button {
+  flex: 0 0 auto !important;
+  min-height: 38px !important;
+  padding: 8px 16px !important;
+  border-radius: 999px !important;
+  font-weight: 900 !important;
+  font-size: 13px !important;
+  white-space: nowrap !important;
 }
 
-/* Hide bulky back-to-list green bar — not needed in channel UI */
-html body #adminBackToOrdersListBtn {
-  display: none !important;
-}
-html body .admin-orders-hint {
-  display: none !important;
-}
+html body #msqAdminChannelSelectWrap { display: none !important; }
+html body #adminBackToOrdersListBtn,
+html body .admin-orders-hint { display: none !important; }
 
-@media (max-width: 900px) {
-  html body #adminOrdersModal .modal-content.msq-admin-shell {
+/* ===== Mobile only: channels as dropdown ===== */
+@media (max-width: 820px) {
+  html body #adminOrdersModal .modal-content.msq-admin-shell,
+  html body #adminOrdersModal .modal-content {
     max-width: 100vw !important;
     width: 100vw !important;
-    border-radius: 16px !important;
+    border-radius: 14px !important;
     padding: 12px !important;
   }
+  html body #adminOrdersModal #msqAdminTabs,
   html body #msqAdminTabs {
-    flex-wrap: nowrap !important;
-    overflow-x: auto !important;
+    display: none !important;
+  }
+  html body #msqAdminChannelSelectWrap {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 0 12px !important;
+  }
+  html body #msqAdminChannelSelect {
+    display: block !important;
+    width: 100% !important;
+    min-height: 48px !important;
+    border-radius: 14px !important;
+    border: 1.5px solid #d2bdf0 !important;
+    background: #fff !important;
+    font-weight: 900 !important;
+    font-size: 14px !important;
+    padding: 12px 14px !important;
+    color: #4a2d7a !important;
+  }
+  html body #msqOpenOrderFilters {
+    justify-content: center !important;
   }
 }
 </style>
 <script id="msq-channels-side-force-js">
 (function () {
-  function polishChannels() {
+  var ORDER = ['cancel','exchanges','open','x2','oos','delivered','rejected','maintenance'];
+  var LABELS = {
+    cancel: '🔔 طلبات الإلغاء',
+    exchanges: '🔄 استبدال ومرتجعات',
+    open: '📋 قائمة الطلبات المفتوحة',
+    x2: '🔁 مراجعة طلبات مكررة',
+    oos: '⛔ Order Stock 0',
+    delivered: '✅ طلبات تم توريدها',
+    rejected: '❌ رفض استلام وحظر',
+    maintenance: '🧩 أخرى'
+  };
+
+  function ensureMobileSelect() {
+    var tabs = document.getElementById('msqAdminTabs');
+    if (!tabs) return;
+    var wrap = document.getElementById('msqAdminChannelSelectWrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.id = 'msqAdminChannelSelectWrap';
+      wrap.innerHTML = '<label class="msq-ch-label" for="msqAdminChannelSelect" style="display:block;font-weight:900;color:#5e3299;margin:0 0 6px 2px;font-size:12.5px">📂 اختر القناة</label>' +
+        '<select id="msqAdminChannelSelect" aria-label="اختر قناة الإدارة"></select>';
+      tabs.parentNode.insertBefore(wrap, tabs);
+      wrap.querySelector('select').addEventListener('change', function () {
+        var tab = this.value;
+        if (!tab) return;
+        if (typeof window.msqSetAdminTab === 'function') window.msqSetAdminTab(tab);
+        else {
+          var btn = tabs.querySelector('button[data-tab="' + tab + '"]');
+          if (btn) btn.click();
+        }
+      });
+    }
+    var sel = document.getElementById('msqAdminChannelSelect');
+    if (!sel) return;
+    var html = '';
+    ORDER.forEach(function (tab) {
+      var btn = tabs.querySelector('button[data-tab="' + tab + '"]');
+      if (!btn) return;
+      var label = (LABELS[tab] || (btn.textContent || '').replace(/\s+/g, ' ').trim());
+      var badge = btn.querySelector('span');
+      if (badge && badge.textContent && badge.textContent.trim() !== '0') {
+        label += ' (' + badge.textContent.trim() + ')';
+      }
+      html += '<option value="' + tab + '">' + label + '</option>';
+    });
+    // also any extra tabs not in ORDER
+    tabs.querySelectorAll('button[data-tab]').forEach(function (btn) {
+      var tab = btn.getAttribute('data-tab');
+      if (!tab || ORDER.indexOf(tab) !== -1) return;
+      html += '<option value="' + tab + '">' + String(btn.textContent || tab).replace(/\s+/g, ' ').trim() + '</option>';
+    });
+    var prev = sel.value;
+    if (sel.getAttribute('data-opts') !== html) {
+      sel.innerHTML = html;
+      sel.setAttribute('data-opts', html);
+    }
+    var active = tabs.querySelector('button.active[data-tab]');
+    if (active) sel.value = active.getAttribute('data-tab');
+    else if (prev && sel.querySelector('option[value="' + prev + '"]')) sel.value = prev;
+  }
+
+  function polishDesktopTabs() {
     var tabs = document.getElementById('msqAdminTabs');
     if (!tabs) return;
     tabs.classList.add('msq-admin-channels');
-    tabs.style.setProperty('display', 'flex', 'important');
-    tabs.style.setProperty('flex-direction', 'row', 'important');
-    tabs.style.setProperty('flex-wrap', 'nowrap', 'important');
-    tabs.style.setProperty('overflow-x', 'auto', 'important');
-    tabs.style.setProperty('align-items', 'center', 'important');
-    tabs.style.setProperty('gap', '8px', 'important');
-    tabs.style.setProperty('width', '100%', 'important');
-    var btns = tabs.querySelectorAll('button[data-tab]');
-    for (var i = 0; i < btns.length; i++) {
-      var b = btns[i];
-      b.style.setProperty('display', 'inline-flex', 'important');
-      b.style.setProperty('flex', '0 0 auto', 'important');
-      b.style.setProperty('width', 'auto', 'important');
-      b.style.setProperty('min-width', 'max-content', 'important');
-      b.style.setProperty('white-space', 'nowrap', 'important');
-    }
-    // Desired visual order
-    var order = ['cancel','exchanges','open','x2','oos','delivered','rejected','maintenance'];
-    order.forEach(function (tab) {
+    ORDER.forEach(function (tab) {
       var btn = tabs.querySelector('button[data-tab="' + tab + '"]');
       if (btn) tabs.appendChild(btn);
     });
-  }
-  function widenShell() {
-    var shell = document.querySelector('#adminOrdersModal .modal-content');
-    if (!shell) return;
-    shell.style.setProperty('max-width', 'min(1400px, 98vw)', 'important');
-    shell.style.setProperty('width', 'min(1400px, 98vw)', 'important');
-  }
-  function tick() {
-    var modal = document.getElementById('adminOrdersModal');
-    if (modal && modal.classList.contains('active')) {
-      widenShell();
-      polishChannels();
+    tabs.style.setProperty('display', 'flex', 'important');
+    tabs.style.setProperty('flex-direction', 'row', 'important');
+    tabs.style.setProperty('flex-wrap', 'wrap', 'important');
+    tabs.style.setProperty('justify-content', 'center', 'important');
+    tabs.style.setProperty('overflow', 'visible', 'important');
+    var btns = tabs.querySelectorAll('button[data-tab]');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].style.setProperty('flex', '0 0 auto', 'important');
+      btns[i].style.setProperty('width', 'auto', 'important');
+      btns[i].style.setProperty('white-space', 'nowrap', 'important');
     }
   }
-  setInterval(tick, 700);
+
+  function centerFilters() {
+    var f = document.getElementById('msqOpenOrderFilters');
+    if (!f) return;
+    f.style.setProperty('display', 'flex', 'important');
+    f.style.setProperty('justify-content', 'center', 'important');
+    f.style.setProperty('align-items', 'center', 'important');
+    f.style.setProperty('width', '100%', 'important');
+    f.style.setProperty('gap', '10px', 'important');
+  }
+
+  function widen() {
+    var shell = document.querySelector('#adminOrdersModal .modal-content');
+    if (!shell) return;
+    if (window.matchMedia('(max-width: 820px)').matches) {
+      shell.style.setProperty('max-width', '100vw', 'important');
+      shell.style.setProperty('width', '100vw', 'important');
+    } else {
+      shell.style.setProperty('max-width', 'min(1560px, 99vw)', 'important');
+      shell.style.setProperty('width', 'min(1560px, 99vw)', 'important');
+    }
+  }
+
+  function tick() {
+    var modal = document.getElementById('adminOrdersModal');
+    if (!modal || !modal.classList.contains('active')) return;
+    widen();
+    polishDesktopTabs();
+    ensureMobileSelect();
+    centerFilters();
+  }
+
+  setInterval(tick, 800);
   document.addEventListener('click', function (e) {
     if (e.target && e.target.closest && e.target.closest('#adminOrdersModal, #msqAdminTabs, .admin-orders-trigger')) {
       setTimeout(tick, 40);
-      setTimeout(tick, 220);
+      setTimeout(tick, 250);
     }
   }, true);
+  window.addEventListener('resize', function () { setTimeout(tick, 50); });
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', tick);
   else tick();
 })();
 </script>
+
 
 
 </html>
