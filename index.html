@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611071945freezeFix";
+  var BUILD = "202611072000channelsVisible";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -168,7 +168,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611071945freezeFix">
+  <meta name="msq-build" content="202611072000channelsVisible">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -257,8 +257,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611071945freezeFix">
-<link rel="stylesheet" href="styles.css?v=202611071945freezeFix">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611072000channelsVisible">
+<link rel="stylesheet" href="styles.css?v=202611072000channelsVisible">
 
 
 
@@ -294,8 +294,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611071945freezeFix">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611071945freezeFix">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611072000channelsVisible">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611072000channelsVisible">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -641,60 +641,50 @@
 
 
 <style id="msq-admin-channels-layout-v5">
-/* قنوات الإدارة = قائمة منسدلة دائمًا (كمبيوتر + موبايل) */
+/* قنوات الإدارة ظاهرة كأزرار جنب بعض — مش مخفية */
 html body #adminOrdersModal #msqAdminTabs,
-html body #msqAdminTabs {
-  display: none !important;
-  height: 0 !important;
-  margin: 0 !important;
+html body #msqAdminTabs,
+html body #msqAdminTabs.msq-admin-channels {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  height: auto !important;
+  margin: 10px 0 14px !important;
   padding: 0 !important;
-  overflow: hidden !important;
-  visibility: hidden !important;
-  pointer-events: none !important;
+  overflow: visible !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  width: 100% !important;
+}
+html body #msqAdminTabs > button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 1 1 auto !important;
+  min-width: 140px !important;
+  min-height: 42px !important;
+  border: 1px solid #d2bdf0 !important;
+  background: #fff !important;
+  color: #4a2a7a !important;
+  border-radius: 999px !important;
+  padding: 10px 12px !important;
+  font-weight: 900 !important;
+  font-size: 12.5px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(90,45,145,.08) !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+html body #msqAdminTabs > button.active {
+  background: linear-gradient(135deg, #7b4bb8, #5e3299) !important;
+  color: #fff !important;
+  border-color: transparent !important;
 }
 
+/* أخفِ القائمة المنسدلة القديمة لأن القنوات ظاهرة */
 html body #msqAdminChannelSelectWrap,
 #msqAdminChannelSelectWrap {
-  display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 0 12px !important;
-  box-sizing: border-box !important;
-}
-html body #msqAdminChannelSelectWrap .msq-ch-label,
-#msqAdminChannelSelectWrap .msq-ch-label {
-  display: block !important;
-  font-size: 12.5px !important;
-  font-weight: 900 !important;
-  color: #7a5a60 !important;
-  margin: 0 0 6px 2px !important;
-}
-html body #msqAdminChannelSelect,
-#msqAdminChannelSelect {
-  display: block !important;
-  width: 100% !important;
-  min-height: 48px !important;
-  padding: 12px 44px 12px 14px !important;
-  border-radius: 14px !important;
-  border: 1.5px solid #d4b8b4 !important;
-  background-color: #fff !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 12 8'%3E%3Cpath fill='%23803d48' d='M1 1l5 5 5-5'/%3E%3C/svg%3E") !important;
-  background-repeat: no-repeat !important;
-  background-position: left 16px center !important;
-  background-size: 14px 9px !important;
-  color: #2c2224 !important;
-  font-weight: 900 !important;
-  font-size: 14px !important;
-  font-family: inherit !important;
-  box-shadow: 0 5px 16px rgba(80,40,50,.08) !important;
-  appearance: none !important;
-  -webkit-appearance: none !important;
-  cursor: pointer !important;
-  box-sizing: border-box !important;
-}
-html body #msqAdminChannelSelect:focus {
-  outline: 2px solid rgba(128,61,72,.35) !important;
-  border-color: #803d48 !important;
+  display: none !important;
 }
 
 /* فلاتر الحالة تفضل جنب بعض */
@@ -714,6 +704,12 @@ html body #msqOpenOrderFilters > button {
   border-radius: 999px !important;
   font-weight: 900 !important;
   font-size: 12.5px !important;
+}
+
+@media (max-width: 899px) {
+  html body #msqAdminTabs > button {
+    min-width: calc(50% - 8px) !important;
+  }
 }
 </style>
 
@@ -2099,7 +2095,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611071945freezeFix"></script>
+  <script src="script.js?v=202611072000channelsVisible"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9046,10 +9042,8 @@ html body #msqAdminTabs > button:not(.active) span {
   color: #5e3299 !important;
 }
 
-/* إخفاء قائمة القنوات المنسدلة القديمة على الشاشات الواسعة — القنوات ظاهرة جنب بعض */
-@media (min-width: 900px) {
-  html body #msqAdminChannelSelectWrap { display: none !important; }
-}
+/* القائمة المنسدلة ملغية — القنوات أزرار ظاهرة */
+html body #msqAdminChannelSelectWrap { display: none !important; }
 @media (max-width: 899px) {
   html body #msqAdminTabs > button { min-width: calc(50% - 8px) !important; }
 }
