@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611072010sideBySide";
+  var BUILD = "202611072030sideForce";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -168,7 +168,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611072010sideBySide">
+  <meta name="msq-build" content="202611072030sideForce">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -257,8 +257,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611072010sideBySide">
-<link rel="stylesheet" href="styles.css?v=202611072010sideBySide">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611072030sideForce">
+<link rel="stylesheet" href="styles.css?v=202611072030sideForce">
 
 
 
@@ -294,8 +294,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611072010sideBySide">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611072010sideBySide">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611072030sideForce">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611072030sideForce">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2083,7 +2083,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611072010sideBySide"></script>
+  <script src="script.js?v=202611072030sideForce"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9036,7 +9036,7 @@ html body #msqAdminTabs > button:not(.active) span {
 /* القائمة المنسدلة ملغية — القنوات أزرار ظاهرة */
 html body #msqAdminChannelSelectWrap { display: none !important; }
 @media (max-width: 899px) {
-  html body #msqAdminTabs > button { min-width: calc(50% - 8px) !important; }
+  html body #msqAdminTabs > button { min-width: 0 !important; width: auto !important; flex: 0 0 auto !important; }
 }
 
 /* بطاقات الطلب داخل الإدارة */
@@ -9172,6 +9172,74 @@ html body #msqAdminTabContent .order-card-admin {
 </script>
 
 </body>
+
+<style id="msq-channels-side-force">
+html body #adminOrdersModal #msqAdminTabs,
+html body #adminOrdersModal #msqAdminTabs.msq-admin-channels,
+html body #msqAdminTabs {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+html body #adminOrdersModal #msqAdminTabs > button,
+html body #msqAdminTabs > button {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  flex-grow: 0 !important;
+  flex-shrink: 0 !important;
+  flex-basis: auto !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  float: none !important;
+  clear: none !important;
+}
+html body #msqAdminChannelSelectWrap { display: none !important; }
+</style>
+<script id="msq-channels-side-force-js">
+(function () {
+  function forceChannelsSideBySide() {
+    var tabs = document.getElementById('msqAdminTabs');
+    if (!tabs) return;
+    tabs.style.setProperty('display', 'flex', 'important');
+    tabs.style.setProperty('flex-direction', 'row', 'important');
+    tabs.style.setProperty('flex-wrap', 'wrap', 'important');
+    tabs.style.setProperty('align-items', 'center', 'important');
+    tabs.style.setProperty('justify-content', 'flex-start', 'important');
+    tabs.style.setProperty('gap', '8px', 'important');
+    tabs.style.setProperty('width', '100%', 'important');
+    var btns = tabs.querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) {
+      var b = btns[i];
+      b.style.setProperty('display', 'inline-flex', 'important');
+      b.style.setProperty('flex', '0 0 auto', 'important');
+      b.style.setProperty('width', 'auto', 'important');
+      b.style.setProperty('min-width', '0', 'important');
+      b.style.setProperty('max-width', 'none', 'important');
+      b.style.setProperty('white-space', 'nowrap', 'important');
+      b.style.setProperty('float', 'none', 'important');
+    }
+  }
+  setInterval(function () {
+    var modal = document.getElementById('adminOrdersModal');
+    if (modal && modal.classList.contains('active')) forceChannelsSideBySide();
+  }, 600);
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.closest && e.target.closest('#adminOrdersModal, #msqAdminTabs')) {
+      setTimeout(forceChannelsSideBySide, 30);
+      setTimeout(forceChannelsSideBySide, 200);
+    }
+  }, true);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', forceChannelsSideBySide);
+  else forceChannelsSideBySide();
+})();
+</script>
+
 </html>
 
 
