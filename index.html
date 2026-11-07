@@ -1882,19 +1882,21 @@ html body #products-container .product-card .msq-fav-btn {
 
   <!-- Admin Orders Modal -->
   <div class="modal-overlay" id="adminOrdersModal">
-    <div class="modal-content" style="max-width:560px; padding:16px;">
+    <div class="modal-content msq-admin-shell" style="max-width:min(1180px,96vw); width:min(1180px,96vw); padding:18px 18px 22px; background:linear-gradient(180deg,#f6f0ff 0%,#f3eaff 45%,#efe6ff 100%); border:1px solid #d9c7f2; border-radius:22px; box-shadow:0 24px 60px rgba(88,40,140,.18);">
       <button class="close-btn" onclick="closeAdminOrdersModal()">✕</button>
-      <div id="adminOrdersHeader" class="admin-orders-header">
-        <div class="terms-header admin-orders-heading">📋 شاشة إدارة الطلبات</div>
+      <div id="adminOrdersHeader" class="admin-orders-header msq-admin-header-v2">
+        <div class="msq-admin-title-row">
+          <div class="terms-header admin-orders-heading msq-admin-title">📋 شاشة إدارة الطلبات</div>
+          <button id="adminLogoutBtn" onclick="logoutAdmin()" class="admin-logout-compact msq-admin-logout">تسجيل الخروج</button>
+        </div>
         <input
           type="text"
           id="adminOrderSearch"
-          class="promo-input admin-orders-search"
+          class="promo-input admin-orders-search msq-admin-search"
           placeholder="🔍 ابحث بالاسم أو رقم الهاتف أو رقم الطلب..."
           aria-label="البحث في الطلبات بالاسم أو الهاتف أو رقم الطلب"
           oninput="filterAdminOrders()"
         >
-        <button id="adminLogoutBtn" onclick="logoutAdmin()" class="admin-logout-compact">تسجيل الخروج</button>
       </div>
       <button type="button" id="adminBackToOrdersListBtn" onclick="(function(){var list=document.getElementById('adminOrdersList');if(list){list.scrollIntoView({behavior:'smooth',block:'start'});var input=document.getElementById('adminOrderSearch');if(input)setTimeout(function(){input.focus({preventScroll:true});},350);}})()" style="display:block;width:100%;background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;border:1px solid rgba(255,255,255,.75);border-radius:10px;padding:11px 14px;cursor:pointer;font-weight:900;margin:0 0 10px;box-shadow:0 5px 14px rgba(46,125,50,.18)">⬅ رجوع لقائمة الطلبات لتعديل الحالات</button>
       <p class="admin-orders-hint">ابحث بالاسم أو رقم التليفون أو رقم الطلب — غيّر الحالة وانسخ رسالة الشحن</p>
@@ -8923,6 +8925,331 @@ window.addToCartAndContinue = function () {
 })();
 </script>
 
+
+<style id="msq-admin-pro-v2">
+/* شاشة إدارة كبيرة + بنفسجي فاتح */
+html body #adminOrdersModal.modal-overlay {
+  align-items: flex-start !important;
+  justify-content: center !important;
+  padding: 18px 10px 28px !important;
+  overflow-y: auto !important;
+  background: rgba(40, 20, 70, 0.45) !important;
+}
+html body #adminOrdersModal .modal-content.msq-admin-shell,
+html body #adminOrdersModal .modal-content {
+  max-width: min(1180px, 96vw) !important;
+  width: min(1180px, 96vw) !important;
+  margin: 10px auto 30px !important;
+  max-height: none !important;
+  background: linear-gradient(180deg, #f7f1ff 0%, #f1e9ff 50%, #ebe1ff 100%) !important;
+  border: 1px solid #d7c4f5 !important;
+  border-radius: 22px !important;
+  box-shadow: 0 24px 60px rgba(88,40,140,.18) !important;
+  padding: 18px !important;
+}
+html body #adminOrdersHeader.msq-admin-header-v2,
+html body #adminOrdersHeader {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  align-items: stretch !important;
+  margin-bottom: 12px !important;
+}
+html body #adminOrdersHeader .msq-admin-title-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+html body #adminOrdersHeader .msq-admin-title,
+html body #adminOrdersHeader .admin-orders-heading {
+  margin: 0 !important;
+  color: #4a2a7a !important;
+  font-size: clamp(18px, 2.4vw, 26px) !important;
+  font-weight: 900 !important;
+}
+html body #adminOrdersHeader .msq-admin-logout,
+html body #adminLogoutBtn {
+  margin: 0 !important;
+  white-space: nowrap !important;
+  background: linear-gradient(135deg, #6b3fa0, #5a2d91) !important;
+  color: #fff !important;
+  border: 0 !important;
+  border-radius: 12px !important;
+  padding: 10px 16px !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  box-shadow: 0 8px 18px rgba(90,45,145,.22) !important;
+}
+html body #adminOrderSearch.msq-admin-search,
+html body #adminOrderSearch {
+  width: 100% !important;
+  min-height: 48px !important;
+  border-radius: 14px !important;
+  border: 1.5px solid #cdb6ef !important;
+  background: #fff !important;
+  box-shadow: 0 6px 16px rgba(90,45,145,.08) !important;
+}
+
+/* قنوات جنب بعض */
+html body #msqAdminTabs,
+html body #msqAdminTabs.msq-admin-channels {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 8px !important;
+  margin: 8px 0 14px !important;
+  width: 100% !important;
+}
+html body #msqAdminTabs > button {
+  flex: 1 1 auto !important;
+  min-width: max(140px, 11%) !important;
+  border: 1px solid #d2bdf0 !important;
+  background: #fff !important;
+  color: #4a2a7a !important;
+  border-radius: 999px !important;
+  padding: 10px 12px !important;
+  font-weight: 900 !important;
+  font-size: 12.5px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(90,45,145,.08) !important;
+}
+html body #msqAdminTabs > button.active {
+  background: linear-gradient(135deg, #7b4bb8, #5e3299) !important;
+  color: #fff !important;
+  border-color: transparent !important;
+}
+html body #msqAdminTabs > button span {
+  display: inline-block !important;
+  min-width: 18px !important;
+  margin-inline-start: 4px !important;
+  padding: 1px 6px !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,.22) !important;
+  font-size: 11px !important;
+}
+html body #msqAdminTabs > button:not(.active) span {
+  background: #efe6ff !important;
+  color: #5e3299 !important;
+}
+
+/* إخفاء قائمة القنوات المنسدلة القديمة على الشاشات الواسعة — القنوات ظاهرة جنب بعض */
+@media (min-width: 900px) {
+  html body #msqAdminChannelSelectWrap { display: none !important; }
+}
+@media (max-width: 899px) {
+  html body #msqAdminTabs > button { min-width: calc(50% - 8px) !important; }
+}
+
+/* بطاقات الطلب داخل الإدارة */
+html body #adminOrdersList .order-card-admin,
+html body #msqAdminTabContent .order-card-admin {
+  background: #fff !important;
+  border: 1px solid #e4d6f8 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 18px rgba(90,45,145,.07) !important;
+}
+</style>
+
+<script id="msq-admin-pro-rules-v2">
+(function () {
+  'use strict';
+
+  function codeOf(order) {
+    if (!order) return -1;
+    if (typeof order.statusCode === 'number') return order.statusCode;
+    var label = String(order.status || order.statusLabel || '');
+    if (/تحت التنفيذ|قيد التنفيذ/.test(label)) return 0;
+    if (/تم الحجز/.test(label)) return 1;
+    if (/جاري الشحن/.test(label)) return 2;
+    if (/تم التوريد|تم التسليم|تم التوصيل|مكتمل/.test(label)) return 3;
+    if (/رفض استلام|حظر/.test(label)) return 4;
+    if (/Order 0 Stock|نفذت الكمية/.test(label)) return 5;
+    if (/X2|مكرر/.test(label)) return 6;
+    return 0;
+  }
+
+  function findOrderForCard(card) {
+    var oidEl = card.querySelector('.oid');
+    var text = oidEl ? String(oidEl.textContent || '').replace(/^\s*🆔\s*/, '').trim() : '';
+    if (!text) {
+      var btn = card.querySelector('[data-order-id]');
+      if (btn) text = String(btn.getAttribute('data-order-id') || '').trim();
+    }
+    if (!text) return { id: '', order: null, code: -1 };
+    var list = [];
+    try {
+      if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) list = adminOrdersCache;
+      else if (Array.isArray(window.adminOrdersCache)) list = window.adminOrdersCache;
+      else if (Array.isArray(window.ordersHistory)) list = window.ordersHistory;
+    } catch (e) {}
+    var match = list.find(function (o) {
+      return String(o.orderId || '').trim().toUpperCase() === text.toUpperCase();
+    });
+    return { id: text, order: match || null, code: codeOf(match) };
+  }
+
+  function hide(el) {
+    if (!el) return;
+    el.style.setProperty('display', 'none', 'important');
+    el.setAttribute('data-msq-hidden-by-rules', '1');
+  }
+  function showInline(el) {
+    if (!el) return;
+    el.style.removeProperty('display');
+    el.removeAttribute('data-msq-hidden-by-rules');
+  }
+
+  /** في القنوات المفتوحة: كل مرحلة وخدمتها فقط */
+  function enforceOpenCardRules(card) {
+    if (!card || !card.closest) return;
+    // فقط داخل قائمة الطلبات المفتوحة
+    var inOpen =
+      card.closest('#adminOrdersList') ||
+      card.closest('#msqAdminTabContent [data-pane="open"]');
+    if (!inOpen) return;
+
+    var info = findOrderForCard(card);
+    var c = info.code;
+
+    // زر مراجعة طلب مكرر / X2 — ممنوع في الطلبات الجديدة/المفتوحة
+    card.querySelectorAll('button, a').forEach(function (b) {
+      var t = String(b.textContent || '');
+      if (/مراجعة.*X2|مراجعة طلب|إعادة طلب X2|مكرر/i.test(t) || b.classList.contains('msq-x2-review-btn')) {
+        hide(b);
+      }
+    });
+
+    var cancelBtn = card.querySelector('.cancel-order-btn, button[data-action="cancel"], .msq-final-cancel-btn');
+    var excBtn = card.querySelector('.cancel-exception-btn, button[data-action="exceptional-cancel"]');
+    var rejectBtn = card.querySelector('.msq-reject-ban-btn, .msq-return-status-btn');
+    var exchangeBtn = card.querySelector('.msq-exchange-admin-btn, button[data-action="exchange"]');
+
+    // جمع كل الأزرار الشبيهة بالنص أيضًا
+    card.querySelectorAll('button').forEach(function (b) {
+      var t = String(b.textContent || '');
+      if (/إلغاء نهائي|إلغاء الطلب نهائي/.test(t)) cancelBtn = cancelBtn || b;
+      if (/إلغاء استثنائي/.test(t)) excBtn = excBtn || b;
+      if (/رفض استلام|حظر/.test(t)) rejectBtn = rejectBtn || b;
+      if (/استبدال|استرجاع|مرتجع/.test(t)) exchangeBtn = exchangeBtn || b;
+    });
+
+    // قواعد المراحل
+    if (c === 0) {
+      // تحت التنفيذ: إلغاء عادي فقط
+      showInline(cancelBtn);
+      hide(excBtn);
+      hide(rejectBtn);
+      hide(exchangeBtn);
+    } else if (c === 1 || c === 2) {
+      // حجز / شحن: استثنائي فقط
+      hide(cancelBtn);
+      showInline(excBtn);
+      hide(rejectBtn);
+      hide(exchangeBtn);
+    } else if (c === 3) {
+      // تم التوريد: رفض استلام وحظر (+ استبدال من قناته عند العيب)
+      hide(cancelBtn);
+      hide(excBtn);
+      showInline(rejectBtn);
+      // الاستبدال يظهر في قناة الاستبدال وليس هنا كخدمة إلغاء
+      hide(exchangeBtn);
+    } else {
+      // حالات أخرى داخل المفتوحة: لا خدمات إلغاء متداخلة
+      hide(cancelBtn);
+      hide(excBtn);
+      hide(rejectBtn);
+    }
+  }
+
+  function enforceAllOpenCards() {
+    var roots = [
+      document.getElementById('adminOrdersList'),
+      document.querySelector('#msqAdminTabContent [data-pane="open"]')
+    ];
+    roots.forEach(function (root) {
+      if (!root) return;
+      root.querySelectorAll('.order-card-admin, .admin-order-card, article').forEach(enforceOpenCardRules);
+    });
+  }
+
+  function ensureChannelLabels() {
+    var tabs = document.getElementById('msqAdminTabs');
+    if (!tabs) return;
+    var map = {
+      cancel: '🔔 طلبات الإلغاء',
+      exchanges: '🔄 استبدال ومرتجعات',
+      open: '📋 قائمة الطلبات المفتوحة',
+      x2: '🔁 مراجعة طلبات مكررة',
+      oos: '⛔ Order Stock 0',
+      delivered: '✅ طلبات تم توريدها',
+      rejected: '❌ رفض استلام وحظر',
+      maintenance: '🧩 أخرى'
+    };
+    Object.keys(map).forEach(function (tab) {
+      var btn = tabs.querySelector('button[data-tab="' + tab + '"]');
+      if (!btn) return;
+      // حافظ على الـ badge إن وجد
+      var badge = btn.querySelector('span');
+      var badgeHtml = badge ? badge.outerHTML : '';
+      // لا تمسح badges المعرّفة بـ id
+      if (badge && badge.id) {
+        if (btn.childNodes.length && String(btn.textContent || '').indexOf(map[tab].replace(/^[^\s]+\s/, '')) === -1) {
+          // حدّث النص مع الإبقاء على أول span id
+          var idSpan = badge;
+          btn.textContent = '';
+          btn.appendChild(document.createTextNode(map[tab] + ' '));
+          btn.appendChild(idSpan);
+        }
+      } else if (!badge) {
+        btn.textContent = map[tab];
+      }
+    });
+  }
+
+  function boot() {
+    ensureChannelLabels();
+    enforceAllOpenCards();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+
+  // راقب إعادة رسم القوائم
+  try {
+    var obs = new MutationObserver(function () {
+      ensureChannelLabels();
+      enforceAllOpenCards();
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+  } catch (e) {}
+
+  // بعد filterAdminOrders
+  var tries = 0;
+  var iv = setInterval(function () {
+    tries++;
+    if (typeof window.filterAdminOrders === 'function' && !window.filterAdminOrders.__msqProRules) {
+      var prev = window.filterAdminOrders;
+      window.filterAdminOrders = function () {
+        var r = prev.apply(this, arguments);
+        setTimeout(enforceAllOpenCards, 30);
+        setTimeout(enforceAllOpenCards, 200);
+        return r;
+      };
+      window.filterAdminOrders.__msqProRules = true;
+    }
+    if (tries > 40) clearInterval(iv);
+  }, 500);
+
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.closest && e.target.closest('#msqAdminTabs, #adminOrdersModal')) {
+      setTimeout(boot, 50);
+      setTimeout(boot, 250);
+    }
+  }, true);
+})();
+</script>
+
 </body>
 </html>
 
@@ -9603,10 +9930,14 @@ window.addToCartAndContinue = function () {
     var modal=document.getElementById('adminOrdersModal'), logout=document.getElementById('adminLogoutBtn');
     if(!modal||!logout||document.getElementById('msqAdminTabs'))return;
     var content=modal.querySelector('.modal-content'); if(!content)return;
-    var tabs=document.createElement('div');tabs.id='msqAdminTabs';tabs.innerHTML=
-      '<button type="button" data-tab="cancel">🔔 طلبات إلغاء <span id="msqCancelBadge">0</span></button>'+
-      '<button type="button" data-tab="open">📋 قائمة الطلبات المفتوحة</button>'+'<button type="button" data-tab="x2">🔁 مراجعة طلبات X2 <span id="msqX2Badge">0</span></button>'+'<button type="button" data-tab="oos">⛔ Order 0 Stock <span id="msqOosBadge">0</span></button>'+
-      '<button type="button" data-tab="delivered">✅ الطلبات تم توريدها</button>'+
+    var tabs=document.createElement('div');tabs.id='msqAdminTabs';tabs.className='msq-admin-channels';tabs.innerHTML=
+      '<button type="button" data-tab="cancel">🔔 طلبات الإلغاء <span id="msqCancelBadge">0</span></button>'+
+      '<button type="button" data-tab="exchanges">🔄 استبدال ومرتجعات <span class="msq-ex-badge">0</span></button>'+
+      '<button type="button" data-tab="open">📋 قائمة الطلبات المفتوحة</button>'+
+      '<button type="button" data-tab="x2">🔁 مراجعة طلبات مكررة <span id="msqX2Badge">0</span></button>'+
+      '<button type="button" data-tab="oos">⛔ Order Stock 0 <span id="msqOosBadge">0</span></button>'+
+      '<button type="button" data-tab="delivered">✅ طلبات تم توريدها</button>'+
+      '<button type="button" data-tab="rejected">❌ رفض استلام وحظر <span id="msqRejectedBadge">0</span></button>'+
       '<button type="button" data-tab="maintenance">🧩 أخرى</button>';
     var paneWrap=document.createElement('div');paneWrap.id='msqAdminTabContent';
     var list=document.getElementById('adminOrdersList');
