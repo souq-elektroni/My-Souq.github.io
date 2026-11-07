@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611071930adminv2";
+  var BUILD = "202611071945freezeFix";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -168,7 +168,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611071930adminv2">
+  <meta name="msq-build" content="202611071945freezeFix">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -257,8 +257,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611071930adminv2">
-<link rel="stylesheet" href="styles.css?v=202611071930adminv2">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611071945freezeFix">
+<link rel="stylesheet" href="styles.css?v=202611071945freezeFix">
 
 
 
@@ -294,8 +294,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611071930adminv2">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611071930adminv2">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611071945freezeFix">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611071945freezeFix">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2099,7 +2099,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611071930adminv2"></script>
+  <script src="script.js?v=202611071945freezeFix"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9067,6 +9067,7 @@ html body #msqAdminTabContent .order-card-admin {
 <script id="msq-admin-pro-rules-v2">
 (function () {
   'use strict';
+  var scheduled = false;
 
   function codeOf(order) {
     if (!order) return -1;
@@ -9077,8 +9078,6 @@ html body #msqAdminTabContent .order-card-admin {
     if (/جاري الشحن/.test(label)) return 2;
     if (/تم التوريد|تم التسليم|تم التوصيل|مكتمل/.test(label)) return 3;
     if (/رفض استلام|حظر/.test(label)) return 4;
-    if (/Order 0 Stock|نفذت الكمية/.test(label)) return 5;
-    if (/X2|مكرر/.test(label)) return 6;
     return 0;
   }
 
@@ -9096,148 +9095,80 @@ html body #msqAdminTabContent .order-card-admin {
       else if (Array.isArray(window.adminOrdersCache)) list = window.adminOrdersCache;
       else if (Array.isArray(window.ordersHistory)) list = window.ordersHistory;
     } catch (e) {}
-    var match = list.find(function (o) {
-      return String(o.orderId || '').trim().toUpperCase() === text.toUpperCase();
-    });
-    return { id: text, order: match || null, code: codeOf(match) };
+    var match = null;
+    for (var i = 0; i < list.length; i++) {
+      if (String(list[i].orderId || '').trim().toUpperCase() === text.toUpperCase()) {
+        match = list[i];
+        break;
+      }
+    }
+    return { id: text, order: match, code: codeOf(match) };
   }
 
   function hide(el) {
     if (!el) return;
     el.style.setProperty('display', 'none', 'important');
-    el.setAttribute('data-msq-hidden-by-rules', '1');
-  }
-  function showInline(el) {
-    if (!el) return;
-    el.style.removeProperty('display');
-    el.removeAttribute('data-msq-hidden-by-rules');
   }
 
-  /** في القنوات المفتوحة: كل مرحلة وخدمتها فقط */
   function enforceOpenCardRules(card) {
     if (!card || !card.closest) return;
-    // فقط داخل قائمة الطلبات المفتوحة
-    var inOpen =
-      card.closest('#adminOrdersList') ||
-      card.closest('#msqAdminTabContent [data-pane="open"]');
-    if (!inOpen) return;
+    if (!card.closest('#adminOrdersList') && !card.closest('#msqAdminTabContent [data-pane="open"]')) return;
 
-    var info = findOrderForCard(card);
-    var c = info.code;
+    var c = findOrderForCard(card).code;
+    var cancelBtn = null, excBtn = null, rejectBtn = null;
 
-    // زر مراجعة طلب مكرر / X2 — ممنوع في الطلبات الجديدة/المفتوحة
-    card.querySelectorAll('button, a').forEach(function (b) {
+    var buttons = card.querySelectorAll('button');
+    for (var i = 0; i < buttons.length; i++) {
+      var b = buttons[i];
       var t = String(b.textContent || '');
-      if (/مراجعة.*X2|مراجعة طلب|إعادة طلب X2|مكرر/i.test(t) || b.classList.contains('msq-x2-review-btn')) {
-        hide(b);
-      }
-    });
+      if (/مراجعة.*X2|مراجعة طلب|إعادة طلب X2|مكرر/i.test(t)) hide(b);
+      if (/إلغاء نهائي|إلغاء الطلب نهائي/.test(t) || b.classList.contains('cancel-order-btn')) cancelBtn = b;
+      if (/إلغاء استثنائي/.test(t) || b.classList.contains('cancel-exception-btn')) excBtn = b;
+      if (/رفض استلام|حظر/.test(t) || b.classList.contains('msq-reject-ban-btn')) rejectBtn = b;
+      if (/استبدال|استرجاع|مرتجع/.test(t)) hide(b);
+    }
 
-    var cancelBtn = card.querySelector('.cancel-order-btn, button[data-action="cancel"], .msq-final-cancel-btn');
-    var excBtn = card.querySelector('.cancel-exception-btn, button[data-action="exceptional-cancel"]');
-    var rejectBtn = card.querySelector('.msq-reject-ban-btn, .msq-return-status-btn');
-    var exchangeBtn = card.querySelector('.msq-exchange-admin-btn, button[data-action="exchange"]');
-
-    // جمع كل الأزرار الشبيهة بالنص أيضًا
-    card.querySelectorAll('button').forEach(function (b) {
-      var t = String(b.textContent || '');
-      if (/إلغاء نهائي|إلغاء الطلب نهائي/.test(t)) cancelBtn = cancelBtn || b;
-      if (/إلغاء استثنائي/.test(t)) excBtn = excBtn || b;
-      if (/رفض استلام|حظر/.test(t)) rejectBtn = rejectBtn || b;
-      if (/استبدال|استرجاع|مرتجع/.test(t)) exchangeBtn = exchangeBtn || b;
-    });
-
-    // قواعد المراحل
     if (c === 0) {
-      // تحت التنفيذ: إلغاء عادي فقط
-      showInline(cancelBtn);
-      hide(excBtn);
-      hide(rejectBtn);
-      hide(exchangeBtn);
+      if (excBtn) hide(excBtn);
+      if (rejectBtn) hide(rejectBtn);
     } else if (c === 1 || c === 2) {
-      // حجز / شحن: استثنائي فقط
-      hide(cancelBtn);
-      showInline(excBtn);
-      hide(rejectBtn);
-      hide(exchangeBtn);
+      if (cancelBtn) hide(cancelBtn);
+      if (rejectBtn) hide(rejectBtn);
     } else if (c === 3) {
-      // تم التوريد: رفض استلام وحظر (+ استبدال من قناته عند العيب)
-      hide(cancelBtn);
-      hide(excBtn);
-      showInline(rejectBtn);
-      // الاستبدال يظهر في قناة الاستبدال وليس هنا كخدمة إلغاء
-      hide(exchangeBtn);
+      if (cancelBtn) hide(cancelBtn);
+      if (excBtn) hide(excBtn);
     } else {
-      // حالات أخرى داخل المفتوحة: لا خدمات إلغاء متداخلة
-      hide(cancelBtn);
-      hide(excBtn);
-      hide(rejectBtn);
+      if (cancelBtn) hide(cancelBtn);
+      if (excBtn) hide(excBtn);
+      if (rejectBtn) hide(rejectBtn);
     }
   }
 
-  function enforceAllOpenCards() {
-    var roots = [
-      document.getElementById('adminOrdersList'),
-      document.querySelector('#msqAdminTabContent [data-pane="open"]')
-    ];
-    roots.forEach(function (root) {
-      if (!root) return;
-      root.querySelectorAll('.order-card-admin, .admin-order-card, article').forEach(enforceOpenCardRules);
-    });
+  function runEnforce() {
+    scheduled = false;
+    var modal = document.getElementById('adminOrdersModal');
+    if (!modal || !modal.classList.contains('active')) return;
+    var root = document.getElementById('adminOrdersList');
+    if (!root) return;
+    var cards = root.querySelectorAll('.order-card-admin, article');
+    for (var i = 0; i < cards.length; i++) enforceOpenCardRules(cards[i]);
   }
 
-  function ensureChannelLabels() {
-    var tabs = document.getElementById('msqAdminTabs');
-    if (!tabs) return;
-    var map = {
-      cancel: '🔔 طلبات الإلغاء',
-      exchanges: '🔄 استبدال ومرتجعات',
-      open: '📋 قائمة الطلبات المفتوحة',
-      x2: '🔁 مراجعة طلبات مكررة',
-      oos: '⛔ Order Stock 0',
-      delivered: '✅ طلبات تم توريدها',
-      rejected: '❌ رفض استلام وحظر',
-      maintenance: '🧩 أخرى'
-    };
-    Object.keys(map).forEach(function (tab) {
-      var btn = tabs.querySelector('button[data-tab="' + tab + '"]');
-      if (!btn) return;
-      // حافظ على الـ badge إن وجد
-      var badge = btn.querySelector('span');
-      var badgeHtml = badge ? badge.outerHTML : '';
-      // لا تمسح badges المعرّفة بـ id
-      if (badge && badge.id) {
-        if (btn.childNodes.length && String(btn.textContent || '').indexOf(map[tab].replace(/^[^\s]+\s/, '')) === -1) {
-          // حدّث النص مع الإبقاء على أول span id
-          var idSpan = badge;
-          btn.textContent = '';
-          btn.appendChild(document.createTextNode(map[tab] + ' '));
-          btn.appendChild(idSpan);
-        }
-      } else if (!badge) {
-        btn.textContent = map[tab];
-      }
-    });
+  function scheduleEnforce() {
+    if (scheduled) return;
+    scheduled = true;
+    setTimeout(runEnforce, 120);
   }
 
-  function boot() {
-    ensureChannelLabels();
-    enforceAllOpenCards();
-  }
+  // لا MutationObserver على document.body — هذا كان يجمّد المتجر
+  document.addEventListener('click', function (e) {
+    if (!e.target || !e.target.closest) return;
+    if (e.target.closest('#adminOrdersModal, #msqAdminTabs, .admin-orders-trigger')) {
+      scheduleEnforce();
+      setTimeout(scheduleEnforce, 300);
+    }
+  }, true);
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
-
-  // راقب إعادة رسم القوائم
-  try {
-    var obs = new MutationObserver(function () {
-      ensureChannelLabels();
-      enforceAllOpenCards();
-    });
-    obs.observe(document.body, { childList: true, subtree: true });
-  } catch (e) {}
-
-  // بعد filterAdminOrders
   var tries = 0;
   var iv = setInterval(function () {
     tries++;
@@ -9245,21 +9176,13 @@ html body #msqAdminTabContent .order-card-admin {
       var prev = window.filterAdminOrders;
       window.filterAdminOrders = function () {
         var r = prev.apply(this, arguments);
-        setTimeout(enforceAllOpenCards, 30);
-        setTimeout(enforceAllOpenCards, 200);
+        scheduleEnforce();
         return r;
       };
       window.filterAdminOrders.__msqProRules = true;
     }
-    if (tries > 40) clearInterval(iv);
-  }, 500);
-
-  document.addEventListener('click', function (e) {
-    if (e.target && e.target.closest && e.target.closest('#msqAdminTabs, #adminOrdersModal')) {
-      setTimeout(boot, 50);
-      setTimeout(boot, 250);
-    }
-  }, true);
+    if (tries > 30) clearInterval(iv);
+  }, 800);
 })();
 </script>
 
