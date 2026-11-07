@@ -475,6 +475,7 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
 
   /* إشعار طلبات My Souq عبر Telegram Worker؛ لا تضع Bot Token داخل هذا الملف. */
   const TELEGRAM_ORDER_WORKER_URL = 'https://my-souq-telegram.ahmedaly1g.workers.dev/';
+  try { window.TELEGRAM_ORDER_WORKER_URL = TELEGRAM_ORDER_WORKER_URL; } catch (e) {}
 
   const GITHUB_USER = 'souq-elektroni';
 

@@ -4066,9 +4066,37 @@ window.addToCartAndContinue = function () {
       });
 
       try {
+        var snapName = order && order.name ? String(order.name) : '';
+        var snapPhone = order && order.phone ? String(order.phone) : '';
+        try {
+          await getDb().collection('cancelledOrders').doc(id).set({
+            status: 'cancelled',
+            cancellationType: 'normal',
+            cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } catch (markErr) { console.warn('cancelledOrders mark', markErr); }
         await window.deleteOrderFromCloud(id);
         await removeOrderLocally(id);
         try { closeAdminOrderDetails(); } catch (e) {}
+        // إشعار تليجرام — إلغاء عادي
+        try {
+          var tgUrl = (typeof window.TELEGRAM_ORDER_WORKER_URL === 'string' && window.TELEGRAM_ORDER_WORKER_URL)
+            ? window.TELEGRAM_ORDER_WORKER_URL
+            : 'https://my-souq-telegram.ahmedaly1g.workers.dev/';
+          await fetch(tgUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'cancelled',
+              type: 'order_cancelled',
+              cancellationType: 'normal',
+              orderId: id,
+              name: snapName,
+              phone: snapPhone,
+              reason: 'إلغاء نهائي (تحت التنفيذ) من لوحة الإدارة'
+            })
+          });
+        } catch (tgErr) { console.warn('Telegram cancel notice failed', tgErr); }
         alert('تم إلغاء وحذف الطلب ' + id + ' نهائياً من النظام ✅');
       } catch (e) {
         btns.forEach(function (b) {
@@ -4142,6 +4170,20 @@ window.addToCartAndContinue = function () {
       if (button) { button.disabled = true; button.textContent = 'جاري الإلغاء الاستثنائي...'; }
       var markerRef = getDb().collection('cancelledOrders').doc(id);
       var deleted = false;
+      var snapName = '';
+      var snapPhone = '';
+      try {
+        var _cached = null;
+        try {
+          if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) {
+            _cached = adminOrdersCache.find(function (x) { return String(x.orderId || '') === id; });
+          }
+        } catch (eC) {}
+        if (_cached) {
+          snapName = String(_cached.name || '');
+          snapPhone = String(_cached.phone || '');
+        }
+      } catch (eSnap) {}
       try {
         await markerRef.set({ status: 'cancelled', cancelledAt: firebase.firestore.FieldValue.serverTimestamp(), cancellationType: 'exceptional' });
         await window.deleteOrderFromCloud(id);
@@ -4154,6 +4196,27 @@ window.addToCartAndContinue = function () {
         }
         await removeOrderLocally(id);
         try { if (typeof loadAdminCancelRequests === 'function') await loadAdminCancelRequests(); } catch (_) {}
+        // إشعار تليجرام: الطلب ملغي
+        try {
+          var tgUrl = (typeof window.TELEGRAM_ORDER_WORKER_URL === 'string' && window.TELEGRAM_ORDER_WORKER_URL)
+            ? window.TELEGRAM_ORDER_WORKER_URL
+            : 'https://my-souq-telegram.ahmedaly1g.workers.dev/';
+          await fetch(tgUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'cancelled',
+              type: 'order_cancelled',
+              cancellationType: 'exceptional',
+              orderId: id,
+              name: snapName,
+              phone: snapPhone,
+              reason: 'إلغاء استثنائي من لوحة الإدارة'
+            })
+          });
+        } catch (tgErr) {
+          console.warn('Telegram cancel notice failed', tgErr);
+        }
         alert('تم الإلغاء الاستثنائي للطلب ' + id + ' بنجاح.');
       } catch (e) {
         console.error('Exceptional cancellation failed:', e);
@@ -9993,6 +10056,25 @@ window.addToCartAndContinue = function () {
       if(typeof window.filterAdminOrders==='function')window.filterAdminOrders();
       renderRejected();
       if(document.getElementById('adminOrderDetailsModal'))document.getElementById('adminOrderDetailsModal').classList.remove('active');
+      // إشعار تليجرام بحالة رفض الاستلام والحظر
+      try {
+        var tgUrl = (typeof window.TELEGRAM_ORDER_WORKER_URL === 'string' && window.TELEGRAM_ORDER_WORKER_URL)
+          ? window.TELEGRAM_ORDER_WORKER_URL
+          : 'https://my-souq-telegram.ahmedaly1g.workers.dev/';
+        await fetch(tgUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'cancelled',
+            type: 'order_cancelled',
+            cancellationType: 'reject_ban',
+            orderId: id,
+            name: nm,
+            phone: ph,
+            reason: 'رفض استلام وحظر بعد التوريد'
+          })
+        });
+      } catch (tgErr) { console.warn('Telegram reject-ban notice failed', tgErr); }
       alert('تم إرجاع حالة الطلب إلى «رفض استلام وحظر» وتسجيل بيانات العميل في قائمة الحظر.');
     }catch(e){
       console.error('Reject-and-block workflow failed:',e);
