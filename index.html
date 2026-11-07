@@ -5,11 +5,11 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611061511pairfix";
+  var BUILD = "202611071930adminv2";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
-  // أخفِ الصفحة لحد التحقق
+  // أخفِ الصفحة لحظيًا فقط — وإظهار إجباري سريع حتى لا تبقى الشاشة فاضية بعد مسح الكاش
   try {
     var st = document.createElement('style');
     st.id = 'msq-boot-hide';
@@ -24,8 +24,21 @@
       var s = document.getElementById('msq-boot-hide');
       if (s) s.remove();
     } catch (e) {}
+    try {
+      if (document.body) {
+        document.body.style.opacity = '1';
+        document.body.style.visibility = 'visible';
+      }
+    } catch (e2) {}
   }
-  setTimeout(reveal, 3000);
+  // إظهار سريع + احتياطي
+  setTimeout(reveal, 400);
+  setTimeout(reveal, 1500);
+  setTimeout(reveal, 4000);
+  try {
+    document.addEventListener('DOMContentLoaded', reveal);
+    window.addEventListener('load', reveal);
+  } catch (e3) {}
 
   function wipeEverything() {
     var jobs = [];
@@ -155,7 +168,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611061511pairfix">
+  <meta name="msq-build" content="202611071930adminv2">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -244,8 +257,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611061511pairfix">
-<link rel="stylesheet" href="styles.css?v=202611061511pairfix">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611071930adminv2">
+<link rel="stylesheet" href="styles.css?v=202611071930adminv2">
 
 
 
@@ -281,8 +294,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611061511pairfix">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611061511pairfix">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611071930adminv2">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611071930adminv2">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2086,7 +2099,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611061511pairfix"></script>
+  <script src="script.js?v=202611071930adminv2"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
