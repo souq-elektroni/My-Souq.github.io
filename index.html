@@ -7981,8 +7981,6 @@ window.addToCartAndContinue = function () {
       try {
         sessionStorage.setItem('msqX2Reorder', '1');
         localStorage.setItem('msqX2Reorder', '1');
-        sessionStorage.setItem('msqX2ReorderAt', String(Date.now()));
-        localStorage.setItem('msqX2ReorderAt', String(Date.now()));
         if (order.orderId) {
           sessionStorage.setItem('msqX2SourceOrderId', String(order.orderId));
           localStorage.setItem('msqX2SourceOrderId', String(order.orderId));
@@ -8929,7 +8927,7 @@ window.addToCartAndContinue = function () {
     }).observe(confModal,{attributes:true,attributeFilter:['class']});
   }
 
-  // Ensure order payload carries lat/lng + maps URL for cloud/telegram pipelines
+  // Ensure order payload carries lat/lng + maps URL (مرة واحدة فقط — بدون لصق GPS داخل نص العنوان)
   function enhanceSaveOrder(){
     if(typeof window.saveOrderToCloud!=='function' || window.saveOrderToCloud._mysouqGps)return;
     var prev=window.saveOrderToCloud;
@@ -8937,15 +8935,23 @@ window.addToCartAndContinue = function () {
       try{
         var c=getCoords();
         if(c && orderRecord && typeof orderRecord==='object'){
-          orderRecord.latitude=c.lat;
-          orderRecord.longitude=c.lon;
-          orderRecord.mapsUrl=c.mapsUrl;
-          // Keep address text self-contained with a tappable maps URL (Telegram auto-linkifies https://)
-          if(orderRecord.address && String(orderRecord.address).indexOf('maps.google.com')===-1){
-            orderRecord.address=String(orderRecord.address).replace(/\n?\[موقع التوصيل GPS:[^\]]*\]/g,'').trim();
-            orderRecord.address=orderRecord.address+
-              '\n[موقع التوصيل GPS: '+c.lat+', '+c.lon+']'+
-              '\n🔗 الخريطة: '+c.mapsUrl;
+          if(orderRecord.latitude==null) orderRecord.latitude=c.lat;
+          if(orderRecord.longitude==null) orderRecord.longitude=c.lon;
+          if(!orderRecord.mapsUrl) orderRecord.mapsUrl=c.mapsUrl;
+          // نظّف أي بلوك GPS مكرر من نص العنوان — الرسالة بتبني اللينك من mapsUrl
+          if(orderRecord.address){
+            orderRecord.address=String(orderRecord.address)
+              .replace(/\n?\s*\[موقع التوصيل GPS:[^\]]*\]/gi,'')
+              .replace(/\n?\s*🔗\s*الخريطة:\s*https?:\/\/\S+/gi,'')
+              .replace(/\n{3,}/g,'\n\n')
+              .trim();
+          }
+          if(orderRecord.detailedAddress){
+            orderRecord.detailedAddress=String(orderRecord.detailedAddress)
+              .replace(/\n?\s*\[موقع التوصيل GPS:[^\]]*\]/gi,'')
+              .replace(/\n?\s*🔗\s*الخريطة:\s*https?:\/\/\S+/gi,'')
+              .replace(/\n{3,}/g,'\n\n')
+              .trim();
           }
         }
       }catch(e){}

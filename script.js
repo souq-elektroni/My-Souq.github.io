@@ -4103,92 +4103,99 @@ function continueAfterOrderRecaptcha() {
     ? window.__msqTelegramSentIds
     : (window.__msqTelegramSentIds = new Set());
 
+  function msqStripGpsBlocks(text) {
+    return String(text || '')
+      .replace(/\n?\s*\[موقع التوصيل GPS:[^\]]*\]/gi, '')
+      .replace(/\n?\s*🔗\s*الخريطة:\s*https?:\/\/\S+/gi, '')
+      .replace(/\n?\s*https?:\/\/(?:www\.)?(?:google\.[^\s/]+\/maps|maps\.google\.[^\s/]+|maps\.app\.goo\.gl)\S*/gi, '')
+      .replace(/\n{3,}/g, '\n\n')
+      .trim();
+  }
+
+  function msqExtractMapsUrl(meta) {
+    const m = meta || {};
+    if (m.mapsUrl && /^https:\/\/\S+$/i.test(String(m.mapsUrl))) return String(m.mapsUrl).trim();
+    try {
+      if (typeof window.mysouqGetDeliveryCoords === 'function') {
+        const c = window.mysouqGetDeliveryCoords();
+        if (c && c.mapsUrl) return String(c.mapsUrl);
+      }
+    } catch (e) {}
+    const blob = [m.address, m.detailedAddress].filter(Boolean).join('\n');
+    const match = blob.match(/https:\/\/(?:www\.)?(?:google\.[^\s/]+\/maps|maps\.google\.[^\s/]+)\S*/i);
+    if (match) return match[0];
+    const gps = blob.match(/\[موقع التوصيل GPS:\s*([-\d.]+)\s*,\s*([-\d.]+)\]/i);
+    if (gps) return 'https://maps.google.com/?q=' + encodeURIComponent(gps[1] + ',' + gps[2]);
+    return '';
+  }
+
   function buildTelegramOrderMessage(meta) {
     const m = meta || {};
-    const esc = function (v) {
-      return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    };
+    const isX2 = !!(m.isX2 || m._x2Tag);
     const lines = [];
-    const isX2 = m.isX2 === true || m._x2Tag === true;
-    lines.push(isX2 ? '🔁 <b>إعادة طلب X2 — بانتظار المراجعة</b>' : '🛍️ <b>طلب جديد من My Souq</b>');
+    lines.push(isX2 ? '🔁 إعادة طلب X2 — بانتظار المراجعة' : '🛒 طلب جديد — My Souq');
     if (isX2) {
-      lines.push('⚠️ <b>نوع الطلب:</b> إعادة طلب من سجل العميل — يلزم مراجعته قبل التنفيذ');
-      if (m.x2SourceOrderId) lines.push('📎 <b>الطلب الأصلي:</b> <code>' + esc(m.x2SourceOrderId) + '</code>');
+      lines.push('⚠️ هذا الطلب من حساب العميل (إعادة طلب) — راجعه قبل تغيير الحالة');
+      if (m.x2SourceOrderId) lines.push('📎 الطلب الأصلي: ' + String(m.x2SourceOrderId));
     }
-    lines.push('━━━━━━━━━━━━━━━━━━');
-    lines.push('🧾 <b>بيانات الطلب</b>');
-    lines.push('🆔 رقم الطلب: <code>' + esc(m.orderId || '-') + '</code>');
-    lines.push('👤 العميل: ' + esc(m.name || '-'));
-    lines.push('📱 الهاتف: <code>' + esc(m.phone || '-') + '</code>');
+    lines.push('────────────────');
+    lines.push('🆔 رقم الطلب: ' + String(m.orderId || '-'));
+    lines.push('👤 الاسم: ' + String(m.name || '-'));
+    lines.push('📱 الهاتف: ' + String(m.phone || '-'));
 
-    const sources = [m.address, m.detailedAddress].filter(Boolean).map(String);
-    let gpsLat = '', gpsLon = '', mapsUrl = '';
-    for (const source of sources) {
-      const match = source.match(/\[موقع التوصيل GPS:\s*([-+]?\d+(?:\.\d+)?)\s*,\s*([-+]?\d+(?:\.\d+)?)\s*\]/i);
-      if (match && !gpsLat) { gpsLat = match[1]; gpsLon = match[2]; }
-      const urlMatch = source.match(/https?:\/\/(?:www\.)?maps\.google\.com\/\S+/i);
-      if (urlMatch && !mapsUrl) mapsUrl = urlMatch[0].replace(/[)\],]+$/g, '');
+    const gov = String(m.governorate || '').trim();
+    const city = String(m.city || '').trim();
+    let detailed = msqStripGpsBlocks(m.detailedAddress || '');
+    if (detailed) {
+      detailed = detailed
+        .replace(/^المحافظة:\s*[^،\n]+[،,]?\s*/i, '')
+        .replace(/^المدينة:\s*[^،\n]+[،,]?\s*/i, '')
+        .replace(/العنوان التفصيلي:\s*/i, '')
+        .trim();
     }
-    if (!mapsUrl && gpsLat && gpsLon) mapsUrl = 'https://maps.google.com/?q=' + encodeURIComponent(gpsLat + ',' + gpsLon);
-    function stripGps(value) {
-      return String(value || '')
-        .replace(/\[موقع التوصيل GPS:[^\]]*\]/gi, '')
-        .replace(/🔗\s*الخريطة:\s*https?:\/\/\S+/gi, '')
-        .replace(/https?:\/\/(?:www\.)?maps\.google\.com\/\S+/gi, '')
-        .replace(/\s{2,}/g, ' ').trim();
+
+    lines.push('📍 العنوان:');
+    if (gov) lines.push('   المحافظة: ' + gov);
+    if (city) lines.push('   المدينة: ' + city);
+    if (detailed) lines.push('   تفصيلي: ' + detailed);
+    if (!gov && !city && !detailed) {
+      const fallback = msqStripGpsBlocks(m.address || '-');
+      lines.push('   ' + (fallback || '-'));
     }
-    const addressParts = [];
-    if (m.governorate) addressParts.push('المحافظة: ' + stripGps(m.governorate));
-    if (m.city) addressParts.push('المدينة: ' + stripGps(m.city));
-    const detail = stripGps(m.detailedAddress);
-    if (detail) addressParts.push('العنوان التفصيلي: ' + detail);
-    if (!addressParts.length) {
-      const fallback = stripGps(m.address);
-      if (fallback) addressParts.push(fallback);
-    }
-    lines.push('📍 <b>عنوان التوصيل:</b>');
-    lines.push(esc(addressParts.join('، ') || '-'));
-    if (gpsLat && gpsLon) {
-      lines.push('📡 <b>إحداثيات GPS:</b> <code>' + esc(gpsLat + ', ' + gpsLon) + '</code>');
-      lines.push('🗺️ <a href="' + esc(mapsUrl) + '">فتح موقع التوصيل على الخريطة</a>');
-    } else if (mapsUrl) {
-      lines.push('🗺️ <a href="' + esc(mapsUrl) + '">فتح موقع التوصيل على الخريطة</a>');
-    }
-    lines.push('💳 طريقة الدفع: ' + esc(m.payMethod || m.paymentMethod || '-'));
-    lines.push('💰 <b>الإجمالي: ' + esc(m.total != null ? m.total : '-') + ' ج.م</b>');
-    lines.push('━━━━━━━━━━━━━━━━━━');
-    lines.push('🛍️ <b>تفاصيل المنتجات</b>');
+
+    const mapsUrl = msqExtractMapsUrl(m);
+    if (mapsUrl) lines.push('🗺️ الموقع: ' + mapsUrl);
+
+    lines.push('💳 الدفع: ' + String(m.payMethod || m.paymentMethod || '-'));
+    lines.push('💰 الإجمالي: ' + String(m.total || '-'));
+    lines.push('────────────────');
+    lines.push('🛍️ المنتجات:');
     const items = Array.isArray(m.items) ? m.items : [];
     if (!items.length) {
-      lines.push('لا توجد تفاصيل منتجات');
+      lines.push('— لا توجد منتجات —');
     } else {
       items.forEach(function (it, idx) {
-        const name = esc(it.name || it.title || 'منتج');
+        const name = String(it.name || it.title || 'منتج');
         const qty = it.quantity != null ? it.quantity : (it.qty != null ? it.qty : 1);
         const price = it.price != null ? it.price : '-';
+        const size = it.size || '-';
+        const color = it.color ? (' | اللون: ' + it.color) : '';
         lines.push('');
-        lines.push((idx + 1) + '. <b>' + name + '</b>');
-        lines.push('   📏 المقاس: ' + esc(it.size || '-'));
-        if (it.color) lines.push('   🎨 اللون: ' + esc(it.color));
-        lines.push('   🔢 الكمية: ' + esc(qty) + '  |  💵 سعر القطعة: ' + esc(price) + ' ج.م');
-        if (it.pants_length) lines.push('   👖 طول البنطلون: ' + esc(it.pants_length));
-        if (it.tshirt_length) lines.push('   👕 طول التيشيرت: ' + esc(it.tshirt_length));
-        if (it.tshirt_width) lines.push('   📐 عرض التيشيرت: ' + esc(it.tshirt_width));
-        if (it.extra_piece) lines.push('   ➕ القطعة الإضافية: ' + esc(it.extra_piece));
+        lines.push((idx + 1) + ') ' + name);
+        lines.push('   المقاس: ' + size + color);
+        lines.push('   الكمية: ' + qty + ' | السعر: ' + price + ' ج.م');
         const front = it.front_image || it.image || '';
         const back = it.back_image || '';
-        if (front) lines.push('   🖼️ <a href="' + esc(front) + '">صورة المنتج</a>');
-        if (back && back !== front) lines.push('   🖼️ <a href="' + esc(back) + '">صورة الضهر</a>');
+        if (front) lines.push('   🖼 الوش: ' + front);
+        if (back && back !== front) lines.push('   🖼 الضهر: ' + back);
       });
     }
     lines.push('');
-    lines.push('━━━━━━━━━━━━━━━━━━');
-    lines.push('🕒 وقت تسجيل الطلب: ' + esc(new Date().toLocaleString('ar-EG')));
-    lines.push('⬇️ <b>تحديث حالة الطلب من أزرار الحالة أسفل الرسالة</b>');
+    lines.push('⏰ ' + new Date().toLocaleString('ar-EG'));
     return lines.join('\n');
   }
 
+  
   // ===== إحصائيات زيارات داخلية (لوحة الإدارة) =====
   function msqTodayKey() {
     var d = new Date();
@@ -4319,7 +4326,7 @@ function continueAfterOrderRecaptcha() {
       message: message,
       text: message,
       caption: message,
-      parse_mode: 'HTML'
+      parse_mode: 'Markdown'
     };
     let lastError;
     // محاولتان فقط — أسرع، مع منع التكرار عبر orderId
@@ -4447,16 +4454,15 @@ function continueAfterOrderRecaptcha() {
     const totalNumeric = typeof currentCartTotal === 'number' ? currentCartTotal : 0;
     const totalText = totalNumeric + ' ج.م';
 
-    // GPS إن وجد
-    let addressForOrder = address;
+    // GPS مرة واحدة فقط — نخزّن lat/lon/mapsUrl منفصلة وننظّف النص من أي بلوك GPS مكرر
+    let deliveryCoords = null;
     try {
       if (typeof window.mysouqGetDeliveryCoords === 'function') {
-        const coords = window.mysouqGetDeliveryCoords();
-        if (coords && coords.mapsUrl && addressForOrder.indexOf('maps.google.com') === -1) {
-          addressForOrder += '\n[موقع التوصيل GPS: ' + coords.lat + ', ' + coords.lon + ']\n🔗 الخريطة: ' + coords.mapsUrl;
-        }
+        deliveryCoords = window.mysouqGetDeliveryCoords();
       }
     } catch (e) {}
+    const addressForOrder = msqStripGpsBlocks(address);
+    const detailedClean = msqStripGpsBlocks(shipping.detailed);
 
     const newOrderRecord = {
       orderId: thisOrderId,
@@ -4471,24 +4477,26 @@ function continueAfterOrderRecaptcha() {
       items: cart.map(function (item) { return Object.assign({}, item); }),
       governorate: shipping.governorate,
       city: shipping.city,
-      detailedAddress: shipping.detailed,
+      detailedAddress: detailedClean,
       statusCode: 0,
       status: 'تحت التنفيذ 📦',
       date: new Date().toLocaleDateString('ar-EG'),
       createdAt: Date.now()
     };
+    if (deliveryCoords && deliveryCoords.lat != null && deliveryCoords.lon != null) {
+      newOrderRecord.latitude = deliveryCoords.lat;
+      newOrderRecord.longitude = deliveryCoords.lon;
+      newOrderRecord.mapsUrl = deliveryCoords.mapsUrl ||
+        ('https://maps.google.com/?q=' + encodeURIComponent(deliveryCoords.lat + ',' + deliveryCoords.lon));
+    }
 
     // إعادة طلب من الحساب → مراجعة X2
     try {
       var x2Flag = '';
       var x2Src = '';
-      var x2At = 0;
       try { x2Flag = sessionStorage.getItem('msqX2Reorder') || localStorage.getItem('msqX2Reorder') || ''; } catch (e) {}
       try { x2Src = sessionStorage.getItem('msqX2SourceOrderId') || localStorage.getItem('msqX2SourceOrderId') || ''; } catch (e) {}
-      try { x2At = Number(sessionStorage.getItem('msqX2ReorderAt') || localStorage.getItem('msqX2ReorderAt') || 0); } catch (e) {}
-      // لا نعتبر الطلب X2 إلا إذا كانت إعادة الطلب حديثة ومربوطة بطلب أصلي؛ العلامات القديمة/المتروكة لا تنتقل لطلب عادي.
-      var validX2Intent = (x2Flag === '1' || x2Flag === 'true') && !!x2Src && !!x2At && (Date.now() - x2At >= 0) && (Date.now() - x2At <= 2 * 60 * 60 * 1000);
-      if (validX2Intent) {
+      if (x2Flag === '1' || x2Flag === 'true') {
         newOrderRecord.isX2 = true;
         newOrderRecord.x2ReviewStatus = 'pending';
         newOrderRecord.statusCode = 6;
@@ -4514,16 +4522,6 @@ function continueAfterOrderRecaptcha() {
         setBtnBusy(false, 'تأكيد الطلب ✅');
         return;
       }
-
-      // استهلاك علامة إعادة الطلب بعد حفظ الطلب بنجاح فقط؛ حتى لا تتحول الطلبات العادية التالية إلى X2.
-      try {
-        sessionStorage.removeItem('msqX2Reorder');
-        sessionStorage.removeItem('msqX2SourceOrderId');
-        sessionStorage.removeItem('msqX2ReorderAt');
-        localStorage.removeItem('msqX2Reorder');
-        localStorage.removeItem('msqX2SourceOrderId');
-        localStorage.removeItem('msqX2ReorderAt');
-      } catch (eX2Clear) {}
 
       // تهدئة الرقم 15 دقيقة — بعد نجاح الحفظ فقط (لا طلبات وهمية)
       try {
@@ -4581,11 +4579,14 @@ function continueAfterOrderRecaptcha() {
         address: addressForOrder,
         governorate: shipping.governorate,
         city: shipping.city,
-        detailedAddress: shipping.detailed,
+        detailedAddress: detailedClean,
         payMethod: payMethod,
         paymentMethod: payMethod,
         total: totalText,
-        items: telegramItems
+        items: telegramItems,
+        mapsUrl: (newOrderRecord && newOrderRecord.mapsUrl) || '',
+        latitude: (newOrderRecord && newOrderRecord.latitude) || null,
+        longitude: (newOrderRecord && newOrderRecord.longitude) || null
       };
 
       // ===== أظهر النجاح فورًا بعد الحفظ — من غير ما نستنى تليجرام =====
@@ -4620,10 +4621,8 @@ function continueAfterOrderRecaptcha() {
       try {
         sessionStorage.removeItem('msqX2Reorder');
         sessionStorage.removeItem('msqX2SourceOrderId');
-        sessionStorage.removeItem('msqX2ReorderAt');
         localStorage.removeItem('msqX2Reorder');
         localStorage.removeItem('msqX2SourceOrderId');
-        localStorage.removeItem('msqX2ReorderAt');
       } catch (eClr) {}
 
       try {
@@ -4874,16 +4873,23 @@ function continueAfterOrderRecaptcha() {
     if (foundOrder) {
       let currentCode = typeof foundOrder.statusCode === 'number' ? foundOrder.statusCode : 0;
       const current = getOrderStatusMeta(currentCode);
+      const isX2Order = !!(foundOrder.isX2 || currentCode === 6 || /مراجعة طلب X2|X2/i.test(String(foundOrder.status || '')));
+      // للعميل: مسار الحالات العادي بدون X2/حظر/نفاد (إلا لو الحالة الحالية منهم)
+      const timelineStatuses = ORDER_STATUSES.filter(function (s) {
+        if (s.code === 6) return isX2Order || currentCode === 6;
+        if (s.code === 4 || s.code === 5) return currentCode === s.code;
+        return s.code <= 3;
+      });
 
-      let timelineHtml = ORDER_STATUSES.map((s, idx) => {
-        const isDone = idx <= currentCode;
-        const isCurrent = idx === currentCode;
+      let timelineHtml = timelineStatuses.map((s, idx) => {
+        const isDone = s.code <= currentCode && currentCode <= 3 ? s.code <= currentCode : s.code === currentCode;
+        const isCurrent = s.code === currentCode;
         return `
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-            <div style="width:22px; height:22px; border-radius:50%; background:${isDone ? s.color : '#ddd'}; color:white; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold; flex-shrink:0;">
-              ${isDone ? '✓' : (idx + 1)}
+            <div style="width:22px; height:22px; border-radius:50%; background:${isDone || isCurrent ? s.color : '#ddd'}; color:white; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold; flex-shrink:0;">
+              ${isDone || isCurrent ? '✓' : (idx + 1)}
             </div>
-            <div style="flex:1; font-size:12.5px; font-weight:${isCurrent ? '900' : '600'}; color:${isDone ? s.color : '#999'};">
+            <div style="flex:1; font-size:12.5px; font-weight:${isCurrent ? '900' : '600'}; color:${isDone || isCurrent ? s.color : '#999'};">
               ${s.label}
               ${isCurrent ? ' ← الحالة الحالية' : ''}
             </div>
@@ -4893,11 +4899,15 @@ function continueAfterOrderRecaptcha() {
 
       let adminControls = '';
       if (isAdminMode) {
+        const adminStatuses = ORDER_STATUSES.filter(function (s) {
+          if (s.code === 6 && !isX2Order) return false;
+          return true;
+        });
         adminControls = `
           <div style="margin-top:12px; padding:10px; background:#fff8e1; border:1px solid #ffe082; border-radius:10px;">
             <div style="font-weight:900; color:var(--burgundy-soft); margin-bottom:8px; font-size:13px;">🔐 تحكم الإدارة — غيّر حالة الطلب:</div>
             <div style="display:flex; flex-wrap:wrap; gap:6px;">
-              ${ORDER_STATUSES.map(s => `
+              ${adminStatuses.map(s => `
                 <button
                   onclick="updateOrderStatus('${foundOrder.orderId}', ${s.code})"
                   style="
@@ -5881,7 +5891,12 @@ function continueAfterOrderRecaptcha() {
       const code = typeof o.statusCode === 'number' ? o.statusCode : 0;
       const st = getOrderStatusMeta(code);
       const safeId = String(o.orderId || '').replace(/[^A-Za-z0-9_-]/g, '');
-      const btns = ORDER_STATUSES.map(s => `
+      // زر مراجعة X2 يظهر فقط للطلبات اللي هي X2 أو حالتها الحالية 6
+      const isX2Order = !!(o.isX2 || code === 6 || /مراجعة طلب X2|X2/i.test(String(o.status || '')));
+      const btns = ORDER_STATUSES.filter(s => {
+        if (s.code === 6 && !isX2Order) return false;
+        return true;
+      }).map(s => `
         <button style="border-color:${s.color};background:${code===s.code?s.color:'white'};color:${code===s.code?'white':s.color};"
           onclick="updateOrderStatusFromAdmin('${safeId}', ${s.code})">${s.label}</button>
       `).join('');
