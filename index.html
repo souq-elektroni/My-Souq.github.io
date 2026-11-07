@@ -4092,12 +4092,36 @@ window.addToCartAndContinue = function () {
       }
     };
 
-    // إلغاء استثنائي لأي مرحلة، مع إعادة تأكيد كلمة مرور حساب الإدارة الحالي.
+    // إلغاء استثنائي لمرحلتي «تم الحجز» و«جاري الشحن» فقط (statusCode 1 و 2).
     window.cancelOrderExceptionally = async function (orderId, button) {
       var id = String(orderId || '').trim();
       if (!id || !isAdminNow() || !currentAdminUser || !currentAdminUser.email) {
         alert('يجب تسجيل الدخول إلى شاشة الإدارة أولاً.'); return;
       }
+      // تحقق من حالة الطلب: الحجز والشحن فقط
+      try {
+        var _ord = null;
+        try {
+          if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) {
+            _ord = adminOrdersCache.find(function (x) { return String(x.orderId || '') === id; });
+          }
+        } catch (e0) {}
+        if (!_ord && typeof window.fetchOrderFromCloud === 'function') {
+          try { _ord = await window.fetchOrderFromCloud(id); } catch (e1) {}
+        }
+        var _code = _ord && typeof _ord.statusCode === 'number' ? _ord.statusCode : null;
+        if (_code === null && _ord && _ord.status) {
+          var _lab = String(_ord.status);
+          if (/تم الحجز/.test(_lab)) _code = 1;
+          else if (/جاري الشحن/.test(_lab)) _code = 2;
+          else if (/تم التوريد|تم التسليم|تم التوصيل/.test(_lab)) _code = 3;
+          else if (/تحت التنفيذ|قيد التنفيذ/.test(_lab)) _code = 0;
+        }
+        if (_code !== 1 && _code !== 2) {
+          alert('الإلغاء الاستثنائي متاح فقط لمرحلتي «تم الحجز» و«جاري الشحن».\nحالة «تم التوريد» أو غيرها غير مسموحة.');
+          return;
+        }
+      } catch (eCheck) { console.warn('status check', eCheck); }
       var email = prompt('أدخل بريد حساب الإدارة لتأكيد الإلغاء الاستثنائي:', currentAdminUser.email || '');
       if (email === null) return;
       email = email.trim().toLowerCase();
@@ -4113,7 +4137,7 @@ window.addToCartAndContinue = function () {
       } catch (authError) {
         alert('فشل تأكيد كلمة مرور الإدارة. لم يتم إلغاء الطلب.'); return;
       }
-      var confirmText = 'إلغاء استثنائي للطلب ' + id + '؟\n\nسيُسمح بهذا الإجراء حتى لو كان الطلب في مرحلة حجز أو شحن أو توريد، وسيُحذف الطلب من قاعدة البيانات بعد تأكيد كلمة المرور.';
+      var confirmText = 'إلغاء استثنائي للطلب ' + id + '؟\n\nمتاح لمرحلتي «تم الحجز» و«جاري الشحن» فقط. سيتم حذف الطلب من قاعدة البيانات بعد التأكيد.';
       if (!confirm(confirmText)) return;
       if (button) { button.disabled = true; button.textContent = 'جاري الإلغاء الاستثنائي...'; }
       var markerRef = getDb().collection('cancelledOrders').doc(id);
@@ -4464,12 +4488,15 @@ window.addToCartAndContinue = function () {
         btn.textContent = '🗑️ إلغاء الطلب نهائياً';
         btn.onclick = function () { cancelOrderPermanently(orderId); };
         row.appendChild(btn);
-        var exceptional = document.createElement('button');
-        exceptional.type = 'button'; exceptional.className = 'cancel-exception-btn';
-        exceptional.textContent = '🔐 إلغاء استثنائي';
-        exceptional.style.cssText = 'border:0;border-radius:8px;padding:8px 12px;background:#7b1e2b;color:#fff;font-weight:900;cursor:pointer;';
-        exceptional.onclick = function () { window.cancelOrderExceptionally(String(orderId || ''), exceptional); };
-        row.appendChild(exceptional);
+        // إلغاء استثنائي: تم الحجز (1) وجاري الشحن (2) فقط — ليس تم التوريد
+        if (detailStatusCode === 1 || detailStatusCode === 2) {
+          var exceptional = document.createElement('button');
+          exceptional.type = 'button'; exceptional.className = 'cancel-exception-btn';
+          exceptional.textContent = '🔐 إلغاء استثنائي';
+          exceptional.style.cssText = 'border:0;border-radius:8px;padding:8px 12px;background:#7b1e2b;color:#fff;font-weight:900;cursor:pointer;';
+          exceptional.onclick = function () { window.cancelOrderExceptionally(String(orderId || ''), exceptional); };
+          row.appendChild(exceptional);
+        }
         body.appendChild(row);
       };
       window.showAdminOrderDetails.__cancelEnhanced = true;
@@ -11361,7 +11388,7 @@ try{
 var track=document.getElementById('trackingResultContainer');if(track&&window.MutationObserver)new MutationObserver(function(){setTimeout(injectButton,80);setTimeout(showExchangeOutcome,250)}).observe(track,{childList:true,subtree:true});setTimeout(showExchangeOutcome,900);window.showExchangeOutcome=showExchangeOutcome;
 async function loadAdmin(){var list=document.getElementById('msqEcAdminList'),cnt=document.getElementById('msqEcAdminCount');if(!list)return;
 /* تحديث مباشر بدون يوزر/باسورد — صلاحيات Firestore تتولى الحماية */
-var d=dbref();if(!d){list.textContent='Firebase غير متاح.';return}list.textContent='جاري التحميل...';try{var snap=await d.collection('exceptionalCancellationRequests').limit(100).get(),rows=[];snap.forEach(function(doc){var x=doc.data()||{};x.__id=doc.id;rows.push(x)});rows.sort(function(a,b){return String(b.createdAtIso||'').localeCompare(String(a.createdAtIso||''))});var n=rows.filter(function(x){return (x.status||'pending')==='pending'}).length;if(cnt)cnt.textContent=String(n);if(!rows.length){list.innerHTML='لا توجد طلبات حتى الآن.';return}
+var d=dbref();if(!d){list.textContent='Firebase غير متاح.';return}list.textContent='جاري التحميل...';try{var snap=await d.collection('exceptionalCancellationRequests').limit(100).get(),rows=[];snap.forEach(function(doc){var x=doc.data()||{};x.__id=doc.id;rows.push(x)});rows.sort(function(a,b){return String(b.createdAtIso||'').localeCompare(String(a.createdAtIso||''))});var n=rows.filter(function(x){return (x.status||'pending')==='pending'}).length;if(cnt)cnt.textContent=String(n);/* أخفِ التذاكر المنفَّذة/المغلقة — تظهر فقط pending و reviewed */var activeRows=rows.filter(function(x){var st=String(x.status||'pending');return st==='pending'||st==='reviewed';});if(!activeRows.length){list.innerHTML=n?('لا توجد تذاكر مفتوحة. ('+String(rows.length-activeRows.length)+' منفَّذة/مغلقة مخفية)'):'لا توجد طلبات حتى الآن.';return}rows=activeRows;
 function statusLabel(st){st=String(st||'pending');if(st==='pending')return 'قيد الانتظار';if(st==='reviewed')return 'تمت مراجعة الإثبات';if(st==='closed')return 'مُغلق';if(st==='cancelled_done')return 'تم تنفيذ الإلغاء';return st}
 list.innerHTML=rows.map(function(r){var proof=String(r.transferProof||'');var st=String(r.status||'pending');var oid=String(r.orderId||'').trim();var actions='';if(st==='pending'){actions+='<button type="button" class="ec-review" data-ec-review="'+esc(r.__id)+'">تمت مراجعة الإثبات</button>';}
 if(st!=='cancelled_done'){actions+='<button type="button" class="ec-exec-cancel" data-ec-exec="'+esc(oid)+'" data-ec-req="'+esc(r.__id)+'" style="background:#7b1e2b;color:#fff;border:0;border-radius:8px;padding:8px 12px;font-weight:900;cursor:pointer">🔐 تنفيذ الإلغاء الاستثنائي على الطلب</button>';}
