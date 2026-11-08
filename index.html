@@ -4508,7 +4508,7 @@ window.addToCartAndContinue = function () {
             exceptional.type = 'button'; exceptional.className = 'cancel-exception-btn';
             exceptional.setAttribute('data-order-id', text);
             exceptional.textContent = '🔐 إلغاء استثنائي';
-            exceptional.style.cssText = 'border:0;border-radius:8px;padding:8px 12px;background:#7b1e2b;color:#fff;font-weight:900;cursor:pointer;';
+            exceptional.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:10px;padding:9px 12px;min-height:38px;background:linear-gradient(135deg,#8e1b2d 0%,#c62828 55%,#e53935 100%);color:#fff;font-weight:950;cursor:pointer;box-shadow:0 2px 8px rgba(198,40,40,.28);';
             exceptional.onclick = function () { window.cancelOrderExceptionally(text, exceptional); };
             row.appendChild(exceptional);
           } else if (matchStatusCode !== 1 && matchStatusCode !== 2 && excBtn) {
@@ -4555,7 +4555,7 @@ window.addToCartAndContinue = function () {
           var exceptional = document.createElement('button');
           exceptional.type = 'button'; exceptional.className = 'cancel-exception-btn';
           exceptional.textContent = '🔐 إلغاء استثنائي';
-          exceptional.style.cssText = 'border:0;border-radius:8px;padding:8px 12px;background:#7b1e2b;color:#fff;font-weight:900;cursor:pointer;';
+          exceptional.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:10px;padding:9px 12px;min-height:38px;background:linear-gradient(135deg,#8e1b2d 0%,#c62828 55%,#e53935 100%);color:#fff;font-weight:950;cursor:pointer;box-shadow:0 2px 8px rgba(198,40,40,.28);';
           exceptional.onclick = function () { window.cancelOrderExceptionally(String(orderId || ''), exceptional); };
           row.appendChild(exceptional);
         }
@@ -6204,76 +6204,116 @@ window.addToCartAndContinue = function () {
 
   function setShort(btn, kind) {
     if (btn.dataset.msqLabelOk) return;
-    if (kind === 'details') btn.textContent = 'تفاصيل';
-    else if (kind === 'wa') btn.textContent = 'واتساب';
-    else if (kind === 'ship') btn.textContent = 'رسالة شحن';
+    if (kind === 'details') btn.textContent = 'تفاصيل الطلب';
+    else if (kind === 'wa') btn.textContent = 'رسالة واتساب';
+    else if (kind === 'ship') btn.textContent = 'نسخ رسالة واتساب';
     else if (kind === 'merge') btn.textContent = '🔗 دمج الطلبات';
     else if (kind === 'cancel') btn.textContent = '🗑️ إلغاء نهائي';
+    else if (kind === 'exceptional') btn.textContent = '🔐 إلغاء استثنائي';
     else if (kind === 'block') btn.textContent = 'رفض وحظر';
     btn.dataset.msqLabelOk = '1';
   }
 
+  function styleExceptionalBtn(btn) {
+    if (!btn) return;
+    btn.classList.add('cancel-exception-btn', 'msq-ex-cancel-pretty');
+    btn.style.cssText = [
+      'display:inline-flex',
+      'align-items:center',
+      'justify-content:center',
+      'gap:6px',
+      'border:0',
+      'border-radius:10px',
+      'padding:9px 12px',
+      'min-height:38px',
+      'background:linear-gradient(135deg,#8e1b2d 0%,#c62828 55%,#e53935 100%)',
+      'color:#fff',
+      'font-weight:950',
+      'font-size:12px',
+      'cursor:pointer',
+      'box-shadow:0 2px 8px rgba(198,40,40,.28)',
+      'letter-spacing:.2px',
+      'width:100%'
+    ].join(';');
+  }
+
   function ensureMergeCancelSideBySide(card) {
-    if (!isMobile() || !card) return;
+    if (!card) return;
     var mergeBtn = card.querySelector('.msq-merge-toggle');
     var cancelBtn = card.querySelector('.cancel-order-btn');
     var excBtn = card.querySelector('.cancel-exception-btn');
+    var statusBar = card.querySelector('.status-btns-mini');
+    var mainRow = card.querySelector(':scope > .msq-act-row-3') || card.querySelector('.msq-act-row-3');
 
-    // صف دمج + إلغاء نهائي
-    if (mergeBtn || cancelBtn) {
-      var row = card.querySelector(':scope > .msq-act-row-merge');
-      if (!row) {
-        row = document.createElement('div');
-        row.className = 'msq-act-row msq-act-row-2 msq-act-row-merge';
-        var mainRow = card.querySelector(':scope > .msq-act-row-3');
-        var statusBar = card.querySelector('.status-btns-mini');
-        var ref = mainRow || statusBar;
-        if (ref && ref.parentNode === card) {
-          if (ref.nextSibling) card.insertBefore(row, ref.nextSibling);
-          else card.appendChild(row);
-        } else {
-          card.appendChild(row);
-        }
+    // صف واحد يجمع: تفاصيل + واتساب + نسخ + (دمج/إلغاء نهائي أو إلغاء استثنائي)
+    var actionRow = card.querySelector(':scope > .msq-act-row-all') || card.querySelector('.msq-act-row-all');
+    if (!actionRow) {
+      actionRow = document.createElement('div');
+      actionRow.className = 'msq-act-row msq-act-row-all';
+    }
+
+    // انقل الأزرار الأساسية من الصف القديم إن وُجد
+    if (mainRow && mainRow !== actionRow) {
+      Array.prototype.slice.call(mainRow.querySelectorAll('button')).forEach(function (b) {
+        actionRow.appendChild(b);
+      });
+      try { mainRow.remove(); } catch (e) {}
+    }
+
+    function put(btn, kind) {
+      if (!btn) return;
+      btn.style.display = '';
+      btn.style.visibility = 'visible';
+      setShort(btn, kind);
+      if (kind === 'exceptional') styleExceptionalBtn(btn);
+      if (btn.parentElement !== actionRow) actionRow.appendChild(btn);
+    }
+
+    // التفاصيل / واتساب / نسخ رسالة — من أي مكان في الكارت
+    Array.prototype.slice.call(card.querySelectorAll('button')).forEach(function (btn) {
+      if (btn.closest('.status-btns-mini') || btn.closest('.msq-merge-box')) return;
+      var k = btnKind(btn);
+      if (k === 'details' || k === 'wa' || k === 'ship') put(btn, k);
+    });
+
+    if (mergeBtn) put(mergeBtn, 'merge');
+    if (cancelBtn) put(cancelBtn, 'cancel');
+    if (excBtn) put(excBtn, 'exceptional');
+
+    // عدد الأعمدة حسب الأزرار الظاهرة
+    var n = actionRow.querySelectorAll('button').length;
+    actionRow.className = 'msq-act-row msq-act-row-all msq-act-row-n' + Math.max(1, Math.min(5, n || 1));
+    actionRow.style.display = n ? '' : 'none';
+
+    if (n) {
+      if (statusBar && statusBar.parentNode === card) {
+        if (statusBar.nextSibling) card.insertBefore(actionRow, statusBar.nextSibling);
+        else card.appendChild(actionRow);
+      } else if (actionRow.parentNode !== card) {
+        card.appendChild(actionRow);
       }
-      if (mergeBtn && mergeBtn.parentElement !== row) {
-        setShort(mergeBtn, 'merge');
-        row.appendChild(mergeBtn);
-      }
-      if (cancelBtn) {
-        cancelBtn.style.display = '';
-        cancelBtn.style.visibility = 'visible';
-        setShort(cancelBtn, 'cancel');
-        if (cancelBtn.parentElement !== row) row.appendChild(cancelBtn);
-      }
-      var mergeBox = card.querySelector('.msq-merge-box');
-      if (mergeBox && row.parentNode === card && row.nextSibling !== mergeBox) {
-        if (row.nextSibling) card.insertBefore(mergeBox, row.nextSibling);
+    }
+
+    // صندوق الدمج يبقى تحت صف الأزرار
+    var mergeBox = card.querySelector('.msq-merge-box');
+    if (mergeBox && actionRow.parentNode === card) {
+      if (actionRow.nextSibling !== mergeBox) {
+        if (actionRow.nextSibling) card.insertBefore(mergeBox, actionRow.nextSibling);
         else card.appendChild(mergeBox);
       }
     }
 
-    // إلغاء استثنائي: يظهر في صف خاص تحتهم
-    if (excBtn) {
-      excBtn.style.display = '';
-      excBtn.style.visibility = 'visible';
-      if (!excBtn.dataset.msqLabelOk) {
-        excBtn.textContent = '🔐 إلغاء استثنائي';
-        excBtn.dataset.msqLabelOk = '1';
+    // صفوف الإلغاء القديمة الفارغة تُخفى
+    Array.prototype.slice.call(card.querySelectorAll('.msq-cancel-actions-row, .msq-act-row-merge')).forEach(function (r) {
+      if (r === actionRow) return;
+      if (!r.querySelector('button')) {
+        try { r.remove(); } catch (e) { r.style.display = 'none'; }
       }
-      var erow = card.querySelector(':scope > .msq-cancel-actions-row');
-      if (!erow) {
-        erow = document.createElement('div');
-        erow.className = 'msq-cancel-actions-row';
-        card.appendChild(erow);
-      }
-      if (excBtn.parentElement !== erow) erow.appendChild(excBtn);
-      erow.style.display = '';
-      erow.style.visibility = 'visible';
-    }
+    });
   }
 
   function layoutOpenCard(card) {
-    if (!isMobile() || !card) return;
+    if (!card) return;
     if (card.dataset.msqLayoutOpen === '1') {
       ensureMergeCancelSideBySide(card);
       return;
@@ -6677,7 +6717,7 @@ window.addToCartAndContinue = function () {
           excBtn.className = 'cancel-exception-btn';
           excBtn.setAttribute('data-order-id', id);
           excBtn.textContent = '🔐 إلغاء استثنائي';
-          excBtn.style.cssText = 'border:0;border-radius:8px;padding:8px 12px;background:#7b1e2b;color:#fff;font-weight:900;cursor:pointer;display:inline-flex;visibility:visible;';
+          excBtn.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:10px;padding:9px 12px;min-height:38px;background:linear-gradient(135deg,#8e1b2d 0%,#c62828 55%,#e53935 100%);color:#fff;font-weight:950;cursor:pointer;box-shadow:0 2px 8px rgba(198,40,40,.28);visibility:visible;';
           excBtn.onclick = function () {
             if (typeof window.cancelOrderExceptionally === 'function') window.cancelOrderExceptionally(id, excBtn);
           };
@@ -8300,11 +8340,82 @@ window.addToCartAndContinue = function () {
     }
     var idNorm = id.toUpperCase();
 
+    // منع حذف الطلبات التي تم توريدها
+    function statusCodeOf(o) {
+      if (!o) return null;
+      if (typeof o.statusCode === 'number' && Number.isFinite(o.statusCode)) return o.statusCode;
+      var lab = String(o.status || o.statusLabel || '');
+      if (/تم التوريد|تم التسليم|تم التوصيل/.test(lab)) return 3;
+      if (/جاري الشحن/.test(lab)) return 2;
+      if (/تم الحجز/.test(lab)) return 1;
+      if (/تحت التنفيذ|قيد التنفيذ/.test(lab)) return 0;
+      return null;
+    }
+    function findLocalOrder(oid) {
+      var pools = [];
+      try { if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) pools.push(adminOrdersCache); } catch (e) {}
+      try { if (Array.isArray(window.adminOrdersCache)) pools.push(window.adminOrdersCache); } catch (e) {}
+      try { if (typeof ordersHistory !== 'undefined' && Array.isArray(ordersHistory)) pools.push(ordersHistory); } catch (e) {}
+      try { if (Array.isArray(window.ordersHistory)) pools.push(window.ordersHistory); } catch (e) {}
+      for (var pi = 0; pi < pools.length; pi++) {
+        var found = pools[pi].find(function (o) {
+          return String(o && (o.orderId || o.id) || '').trim().toUpperCase() === oid;
+        });
+        if (found) return found;
+      }
+      return null;
+    }
+    var localHit = findLocalOrder(idNorm);
+    var sc = statusCodeOf(localHit);
+    if (sc === 3) {
+      setMsg('لا يمكن الحذف: الطلب حالته «تم التوريد». الطلبات المورّدة محمية من الحذف النهائي.', false);
+      alert('لا يمكن حذف الطلب ' + id + '\n\nحالته الحالية: تم التوريد 🎉\nالطلبات التي تم توريدها لا تُحذف من هذه الخانة.');
+      return;
+    }
+    // تحقق سحابي إن أمكن قبل التأكيد
+    try {
+      var dbRef0 = null;
+      if (typeof db !== 'undefined' && db) dbRef0 = db;
+      else if (typeof firebase !== 'undefined' && firebase.firestore) dbRef0 = firebase.firestore();
+      if (dbRef0) {
+        var snap0 = null;
+        try { snap0 = await dbRef0.collection('orders').doc(idNorm).get(); } catch (e0) {}
+        if (!snap0 || !snap0.exists) {
+          try { snap0 = await dbRef0.collection('orders').doc(id).get(); } catch (e1) {}
+        }
+        if (snap0 && snap0.exists) {
+          var d0 = snap0.data() || {};
+          var sc0 = statusCodeOf(d0);
+          if (sc0 === 3) {
+            setMsg('لا يمكن الحذف: الطلب حالته «تم التوريد» في الشبكة.', false);
+            alert('لا يمكن حذف الطلب ' + id + '\n\nحالته في Firebase: تم التوريد 🎉\nالطلبات المورّدة محمية من الحذف النهائي.');
+            return;
+          }
+        } else {
+          try {
+            var tr0 = await dbRef0.collection('orderTracking').doc(idNorm).get();
+            if (tr0 && tr0.exists) {
+              var td0 = tr0.data() || {};
+              var scT = statusCodeOf(td0);
+              if (scT === 3) {
+                setMsg('لا يمكن الحذف: تتبع الطلب يشير إلى «تم التوريد».', false);
+                alert('لا يمكن حذف الطلب ' + id + '\n\nحالة التتبع: تم التوريد 🎉');
+                return;
+              }
+            }
+          } catch (eT) {}
+        }
+      }
+    } catch (eCheck) {
+      console.warn('status check before hard delete', eCheck);
+    }
+
     var ok = confirm(
       'تأكيد الحذف النهائي؟\n\n' +
       'رقم الطلب: ' + id + '\n\n' +
       'هيتحذف من Firebase (لو موجود) ومن سجل المتجر المحلي.\n' +
-      'مناسب للطلبات الوهمية أو اللي مش بتستجيب.'
+      'مناسب للطلبات الوهمية أو اللي مش بتستجيب.\n\n' +
+      'ملاحظة: طلبات «تم التوريد» لن تُحذف.'
     );
     if (!ok) {
       setMsg('تم إلغاء عملية الحذف.', false);
