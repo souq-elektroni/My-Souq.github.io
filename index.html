@@ -9336,7 +9336,8 @@ html body #msqAdminTabContent .order-card-admin {
 
   function pickId(text) {
     var t = String(text || '');
-    var m = t.match(/\b(M-[A-Za-z0-9]+)\b/i);
+    // دعم النظامين: MS-xxxx و M-xxxx
+    var m = t.match(/\b(MS-[A-Za-z0-9]+|M-[A-Za-z0-9]+)\b/i);
     return m ? m[1] : '';
   }
 
@@ -9362,13 +9363,34 @@ html body #msqAdminTabContent .order-card-admin {
     for (var i = 0; i < oids.length; i++) {
       addBtn(oids[i], pickId(oids[i].textContent));
     }
-    var cards = root.querySelectorAll('.msq-x2-card, #msqOosList > article, #msqRejectedList > article');
+    // كل كروت القنوات: مفتوحة / X2 / OOS / مرفوض / مورّد / استبدال
+    var cards = root.querySelectorAll(
+      '.order-card-admin, .msq-x2-card, .msq-ex-admin-card, #msqOosList article, #msqRejectedList article, #msqDeliveredList article, #msqExchangeAdminList article, #msqExchangeAdminList > div, #msqExchangeAdminPanel article, #msqExchangeAdminPanel .msq-ex-admin-card'
+    );
     for (var j = 0; j < cards.length; j++) {
       var card = cards[j];
       if (card.querySelector('.msq-copy-oid-btn')) continue;
-      var line = card.querySelector('.oid') || card.firstElementChild;
-      if (!line) continue;
-      addBtn(line, pickId(line.textContent));
+      var line = card.querySelector('.oid');
+      if (line) {
+        addBtn(line, pickId(line.textContent));
+        continue;
+      }
+      // قناة الاستبدال وغيرها: ابحث عن أي عنصر فيه رقم طلب
+      var nodes = card.querySelectorAll('div, span, strong, b, p');
+      var placed = false;
+      for (var k = 0; k < nodes.length; k++) {
+        var id = pickId(nodes[k].textContent);
+        if (!id) continue;
+        // عنصر قصير غالبًا سطر الرقم نفسه
+        if (String(nodes[k].textContent || '').trim().length > 80) continue;
+        addBtn(nodes[k], id);
+        placed = true;
+        break;
+      }
+      if (!placed) {
+        var id2 = pickId(card.textContent);
+        if (id2 && card.firstElementChild) addBtn(card.firstElementChild, id2);
+      }
     }
   }
 
@@ -9382,6 +9404,8 @@ html body #msqAdminTabContent .order-card-admin {
       enhanceRoot(document.getElementById('msqOosList'));
       enhanceRoot(document.getElementById('msqRejectedList'));
       enhanceRoot(document.getElementById('msqDeliveredList'));
+      enhanceRoot(document.getElementById('msqExchangeAdminList'));
+      enhanceRoot(document.getElementById('msqExchangeAdminPanel'));
       enhanceRoot(document.getElementById('msqAdminTabContent'));
     }, 120);
   }
