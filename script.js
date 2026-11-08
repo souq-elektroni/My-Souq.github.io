@@ -4323,6 +4323,11 @@ function continueAfterOrderRecaptcha() {
       payMethod: meta.payMethod || meta.paymentMethod,
       total: meta.total,
       items: Array.isArray(meta.items) ? meta.items : [],
+      // علامة X2 عشان الـ Worker يعرض أزرار المراجعة مش أزرار الحالة العادية
+      isX2: !!(meta.isX2 || meta._x2Tag || Number(meta.statusCode) === 6),
+      statusCode: meta.statusCode != null ? Number(meta.statusCode) : (meta.isX2 || meta._x2Tag ? 6 : 0),
+      x2SourceOrderId: meta.x2SourceOrderId || meta.sourceOrderId || '',
+      _x2Tag: meta._x2Tag || (meta.isX2 ? '🔁 إعادة طلب X2 — بانتظار المراجعة' : ''),
       // نص منسّق جاهز للعرض على تليجرام (لو الـ Worker يدعمه)
       message: message,
       text: message,
