@@ -9569,6 +9569,18 @@ html body #msqAdminTabContent .order-card-admin {
     return bestScore >= 60 ? best : '';
   }
 
+  // لو العميل عدّل العنوان التفصيلي يدويًا، متلمسش كتابته بعد كده
+  var _det = document.getElementById('custDetailedAddress');
+  if (_det && !_det.__msqGpsAutoBound) {
+    _det.__msqGpsAutoBound = true;
+    _det.addEventListener('input', function () {
+      if (_det.getAttribute('data-msq-gps-auto') === '1') {
+        // أي تعديل يدوي بعد التعبئة التلقائية
+        _det.removeAttribute('data-msq-gps-auto');
+      }
+    });
+  }
+
   window.mysouqFillAddressFromCoords = function (lat, lon, done) {
     var govEl = document.getElementById('custGovernorate');
     var cityEl = document.getElementById('custCity');
@@ -9623,6 +9635,50 @@ html body #msqAdminTabContent .order-card-admin {
           cityEl.disabled = false;
           cityEl.value = city;
         }
+
+        // تعبئة العنوان التفصيلي من نتيجة الخريطة (شارع / حي / منطقة)
+        var detailEl = document.getElementById('custDetailedAddress');
+        if (detailEl) {
+          var parts = [];
+          [
+            addr.road,
+            addr.pedestrian,
+            addr.residential,
+            addr.neighbourhood,
+            addr.suburb,
+            addr.quarter,
+            addr.city_district,
+            addr.hamlet
+          ].forEach(function (p) {
+            p = String(p || '').trim();
+            if (!p) return;
+            if (parts.indexOf(p) === -1) parts.push(p);
+          });
+          // لو مفيش أجزاء كافية خذ جزء من display_name بدون المحافظة/الدولة
+          if (!parts.length && json && json.display_name) {
+            var bits = String(json.display_name).split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+            // شيل مصر واسم المحافظة/المدينة المكرر
+            bits = bits.filter(function (b) {
+              var n = norm(b);
+              if (n === 'egypt' || n === 'مصر') return false;
+              if (gov && norm(b) === norm(gov)) return false;
+              if (city && norm(b) === norm(city)) return false;
+              return true;
+            });
+            parts = bits.slice(0, 3);
+          }
+          var detailed = parts.join('، ');
+          if (detailed) {
+            // املأ لو فاضي أو كان من تعبئة GPS سابقة (مش يمسح كتابة يدوية واضحة للعميل)
+            var cur = String(detailEl.value || '').trim();
+            var wasAuto = detailEl.getAttribute('data-msq-gps-auto') === '1';
+            if (!cur || wasAuto) {
+              detailEl.value = detailed;
+              detailEl.setAttribute('data-msq-gps-auto', '1');
+            }
+          }
+        }
+
         if (typeof window.checkFormCompletion === 'function') {
           window.checkFormCompletion();
         }
@@ -9630,9 +9686,10 @@ html body #msqAdminTabContent .order-card-admin {
           window.mysouqSyncCheckoutAddress();
         }
         if (done) {
+          var detailOk = !!(document.getElementById('custDetailedAddress') && document.getElementById('custDetailedAddress').value.trim());
           done(
             city
-              ? ('تم تعبئة: ' + gov + ' / ' + city)
+              ? ('تم تعبئة: ' + gov + ' / ' + city + (detailOk ? ' + العنوان التفصيلي' : ''))
               : ('تم تعبئة المحافظة: ' + gov + ' — اختَر المدينة إن لزم')
           );
         }
