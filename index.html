@@ -9282,140 +9282,6 @@ html body #msqAdminTabContent .order-card-admin {
 })();
 </script>
 
-
-<script id="mysouq-admin-copy-order-id-v2">
-(function () {
-  'use strict';
-  if (window.__msqCopyOidV2) return;
-  window.__msqCopyOidV2 = true;
-
-  function toast(msg) {
-    var el = document.getElementById('msqCopyOrderToast');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'msqCopyOrderToast';
-      el.style.cssText = 'position:fixed;z-index:99999;left:50%;bottom:24px;transform:translateX(-50%);background:#1b5e20;color:#fff;padding:10px 14px;border-radius:12px;font-weight:900;font-size:13px;box-shadow:0 8px 20px rgba(0,0,0,.18);opacity:0;transition:opacity .2s;pointer-events:none';
-      document.body.appendChild(el);
-    }
-    el.textContent = msg;
-    el.style.opacity = '1';
-    clearTimeout(el._t);
-    el._t = setTimeout(function () { el.style.opacity = '0'; }, 1500);
-  }
-
-  window.msqCopyOrderId = function (orderId, btn) {
-    var id = String(orderId || '').trim();
-    if (!id || id === '-') return;
-    var done = function () {
-      toast('تم نسخ رقم الطلب: ' + id);
-      if (btn) {
-        var old = btn.textContent;
-        btn.textContent = '✓';
-        setTimeout(function () { btn.textContent = old; }, 800);
-      }
-    };
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(id).then(done).catch(function () {
-        try { window.prompt('انسخ رقم الطلب:', id); } catch (e) {}
-      });
-    } else {
-      try {
-        var ta = document.createElement('textarea');
-        ta.value = id;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        ta.remove();
-        done();
-      } catch (e) {
-        try { window.prompt('انسخ رقم الطلب:', id); } catch (e2) {}
-      }
-    }
-  };
-
-  function pickId(text) {
-    var t = String(text || '');
-    var m = t.match(/\b(M-[A-Za-z0-9]+)\b/i);
-    return m ? m[1] : '';
-  }
-
-  function addBtn(line, id) {
-    if (!line || !id || line.querySelector('.msq-copy-oid-btn')) return;
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'msq-copy-oid-btn';
-    b.title = 'نسخ رقم الطلب';
-    b.textContent = '📋';
-    b.onclick = function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.msqCopyOrderId(id, b);
-    };
-    line.classList.add('msq-oid-with-copy');
-    line.appendChild(b);
-  }
-
-  function enhanceRoot(root) {
-    if (!root) return;
-    var oids = root.querySelectorAll('.oid');
-    for (var i = 0; i < oids.length; i++) {
-      var el = oids[i];
-      addBtn(el, pickId(el.textContent));
-    }
-    var cards = root.querySelectorAll('.msq-x2-card, #msqOosList > article, #msqRejectedList > article');
-    for (var j = 0; j < cards.length; j++) {
-      var card = cards[j];
-      if (card.querySelector('.msq-copy-oid-btn')) continue;
-      var line = card.querySelector('.oid') || card.firstElementChild;
-      if (!line) continue;
-      addBtn(line, pickId(line.textContent));
-    }
-  }
-
-  var timer = null;
-  function schedule() {
-    if (timer) return;
-    timer = setTimeout(function () {
-      timer = null;
-      enhanceRoot(document.getElementById('adminOrdersList'));
-      enhanceRoot(document.getElementById('msqX2ReviewList'));
-      enhanceRoot(document.getElementById('msqOosList'));
-      enhanceRoot(document.getElementById('msqRejectedList'));
-      enhanceRoot(document.getElementById('msqDeliveredList'));
-      enhanceRoot(document.getElementById('msqAdminTabContent'));
-    }, 120);
-  }
-
-  function boot() {
-    schedule();
-    var targets = [
-      document.getElementById('adminOrdersList'),
-      document.getElementById('msqAdminTabContent'),
-      document.getElementById('adminOrdersModal')
-    ];
-    try {
-      var obs = new MutationObserver(schedule);
-      targets.forEach(function (t) {
-        if (t) obs.observe(t, { childList: true, subtree: true });
-      });
-    } catch (e) {}
-    document.addEventListener('click', function (e) {
-      if (e.target && e.target.closest && e.target.closest('#msqAdminTabs, #adminOrdersBtn, .admin-orders-trigger')) {
-        setTimeout(schedule, 300);
-      }
-    }, true);
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
-})();
-</script>
-<style id="mysouq-admin-copy-order-id-css">
-.msq-oid-with-copy{display:inline-flex!important;align-items:center;gap:8px;flex-wrap:wrap}
-.msq-copy-oid-btn{display:inline-flex!important;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;padding:0!important;margin:0!important;border:1px solid rgba(106,27,154,.28)!important;border-radius:999px!important;background:#f3e5f5!important;color:#6a1b9a!important;font-size:13px!important;font-weight:900!important;cursor:pointer!important;line-height:1!important;flex:0 0 auto!important}
-.msq-copy-oid-btn:hover{filter:brightness(1.05)}
-</style>
-
 </body>
 
 
@@ -9723,4 +9589,2579 @@ html body .admin-orders-hint { display: none !important; }
   else tick();
 })();
 </script>
+
+
+
 </html>
+
+
+
+
+
+
+
+
+
+
+
+<script id="mysouq-gps-confirmation-telegram-v1">
+(function(){
+  function esc(s){
+    return String(s==null?'':s)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+  function getCoords(){
+    if(typeof window.mysouqGetDeliveryCoords==='function'){
+      try{ return window.mysouqGetDeliveryCoords(); }catch(e){}
+    }
+    var latEl=document.getElementById('mysouqLatitude');
+    var lonEl=document.getElementById('mysouqLongitude');
+    var lat=latEl&&latEl.value, lon=lonEl&&lonEl.value;
+    if(!lat||!lon)return null;
+    return {lat:lat, lon:lon, mapsUrl:'https://maps.google.com/?q='+encodeURIComponent(lat+','+lon)};
+  }
+  function mapsLinkHtml(c){
+    if(!c)return '';
+    return (
+      '<div class="mysouq-gps-review" style="margin-top:12px;padding:12px 14px;border-radius:14px;border:1px solid rgba(139,63,82,.16);background:linear-gradient(145deg,#fff,#faf2f5);">' +
+        '<div style="font-weight:950;color:var(--burgundy-soft,#8b3f52);margin-bottom:6px;font-size:13px;">📍 موقع التوصيل (GPS)</div>' +
+        '<div style="font-size:12.5px;line-height:1.8;color:#4a3a40;direction:ltr;text-align:right;">' +
+          '<span style="font-weight:800;">' + esc(c.lat) + ', ' + esc(c.lon) + '</span>' +
+        '</div>' +
+        '<a href="' + esc(c.mapsUrl) + '" target="_blank" rel="noopener noreferrer" ' +
+          'style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:10px 14px;border-radius:12px;' +
+          'background:linear-gradient(135deg,var(--msq-primary,#8b3f52),var(--msq-primary-2,#b75b72));color:#fff;' +
+          'font-weight:900;font-size:13px;text-decoration:none;box-shadow:0 8px 18px rgba(139,63,82,.2);">' +
+          '🗺️ فتح الموقع على الخريطة' +
+        '</a>' +
+      '</div>'
+    );
+  }
+  function injectGpsIntoConfirmation(){
+    var box=document.getElementById('confirmationSummaryContent');
+    if(!box)return;
+    var existing=box.querySelector('.mysouq-gps-review');
+    var c=getCoords();
+    if(!c){
+      if(existing)existing.remove();
+      return;
+    }
+    var html=mapsLinkHtml(c);
+    if(existing){
+      existing.outerHTML=html;
+    } else {
+      box.insertAdjacentHTML('beforeend', html);
+    }
+  }
+  // Watch confirmation summary fill (built by script.js)
+  var confBox=document.getElementById('confirmationSummaryContent');
+  if(confBox && window.MutationObserver){
+    new MutationObserver(function(){
+      // Avoid infinite loop: only inject if coords exist and block missing or outdated
+      var c=getCoords();
+      if(!c)return;
+      var block=confBox.querySelector('.mysouq-gps-review');
+      if(!block || block.getAttribute('data-coords')!==(c.lat+','+c.lon)){
+        // remove old then inject
+        if(block)block.remove();
+        var wrap=document.createElement('div');
+        wrap.innerHTML=mapsLinkHtml(c);
+        var node=wrap.firstElementChild;
+        if(node){
+          node.setAttribute('data-coords', c.lat+','+c.lon);
+          confBox.appendChild(node);
+        }
+      }
+    }).observe(confBox,{childList:true,subtree:true,characterData:true});
+  }
+  var confModal=document.getElementById('confirmationModal');
+  if(confModal && window.MutationObserver){
+    new MutationObserver(function(){
+      if(confModal.classList.contains('active')){
+        setTimeout(injectGpsIntoConfirmation, 60);
+        setTimeout(injectGpsIntoConfirmation, 250);
+      }
+    }).observe(confModal,{attributes:true,attributeFilter:['class']});
+  }
+
+  // Ensure order payload carries lat/lng + maps URL (مرة واحدة فقط — بدون لصق GPS داخل نص العنوان)
+  function enhanceSaveOrder(){
+    if(typeof window.saveOrderToCloud!=='function' || window.saveOrderToCloud._mysouqGps)return;
+    var prev=window.saveOrderToCloud;
+    window.saveOrderToCloud=async function(orderRecord){
+      try{
+        var c=getCoords();
+        if(c && orderRecord && typeof orderRecord==='object'){
+          if(orderRecord.latitude==null) orderRecord.latitude=c.lat;
+          if(orderRecord.longitude==null) orderRecord.longitude=c.lon;
+          if(!orderRecord.mapsUrl) orderRecord.mapsUrl=c.mapsUrl;
+          // نظّف أي بلوك GPS مكرر من نص العنوان — الرسالة بتبني اللينك من mapsUrl
+          if(orderRecord.address){
+            orderRecord.address=String(orderRecord.address)
+              .replace(/\n?\s*\[موقع التوصيل GPS:[^\]]*\]/gi,'')
+              .replace(/\n?\s*🔗\s*الخريطة:\s*https?:\/\/\S+/gi,'')
+              .replace(/\n{3,}/g,'\n\n')
+              .trim();
+          }
+          if(orderRecord.detailedAddress){
+            orderRecord.detailedAddress=String(orderRecord.detailedAddress)
+              .replace(/\n?\s*\[موقع التوصيل GPS:[^\]]*\]/gi,'')
+              .replace(/\n?\s*🔗\s*الخريطة:\s*https?:\/\/\S+/gi,'')
+              .replace(/\n{3,}/g,'\n\n')
+              .trim();
+          }
+        }
+      }catch(e){}
+      return prev.apply(this,arguments);
+    };
+    window.saveOrderToCloud._mysouqGps=true;
+  }
+  enhanceSaveOrder();
+  setTimeout(enhanceSaveOrder, 500);
+  setTimeout(enhanceSaveOrder, 2000);
+
+  // Also enrich any WhatsApp/Telegram-style message builders that read the address field:
+  // coordinates are already appended into #custDetailedAddress before finalize.
+})();
+</script>
+
+
+
+
+
+
+
+<script id="mysouq-proceed-btn-visibility-v1">
+(function(){
+  function val(id){
+    var el=document.getElementById(id);
+    return el ? String(el.value||'').trim() : '';
+  }
+  function phoneOk(p){
+    var d=String(p||'').replace(/\D/g,'');
+    // Egyptian mobile: 01xxxxxxxxx (11 digits) or 201xxxxxxxxx
+    if(d.indexOf('20')===0) d=d.slice(2);
+    if(d.length===10 && d.charAt(0)==='1') d='0'+d;
+    return /^01[0125][0-9]{8}$/.test(d);
+  }
+  function formReady(){
+    var name=val('custName');
+    var phone=val('custPhone');
+    var gov=val('custGovernorate');
+    var city=val('custCity');
+    var detail=val('custDetailedAddress');
+    // الاسم رباعي — نفس شرط النموذج الأصلي (4 أجزاء على الأقل)
+    var nameParts=name.split(/\s+/).filter(Boolean);
+    if(nameParts.length<4) return false;
+    if(!phoneOk(phone)) return false;
+    if(!gov || !city) return false;
+    if(!detail) return false;
+    try{
+      if(typeof window.mysouqAddressIsValid==='function' && !window.mysouqAddressIsValid()) return false;
+    }catch(e){}
+    // إلزامي: تسجيل الموقع الجغرافي
+    try{
+      if(typeof window.msqHasDeliveryGps==='function'){
+        if(!window.msqHasDeliveryGps()) return false;
+      } else {
+        var la=document.getElementById('mysouqLatitude');
+        var lo=document.getElementById('mysouqLongitude');
+        if(!la || !lo || !String(la.value||'').trim() || !String(lo.value||'').trim()) return false;
+      }
+    }catch(e2){ return false; }
+    return true;
+  }
+  function syncProceed(){
+    var btn=document.getElementById('proceedBtn');
+    if(!btn) return;
+    if(!btn.closest || !btn.closest('#cartModal')) return;
+    // 1) شغّل المنطق الأصلي أولاً بدون ما نلغي أي شرط موجود
+    try{
+      if(typeof window.__msqOrigCheckFormCompletion==='function'){
+        window.__msqOrigCheckFormCompletion();
+      }
+    }catch(e){}
+    // 2) لو الزر لسه مخفي رغم اكتمال الحقول الظاهرة، أظهره (إصلاح ظهور فقط — مش تخفيف شروط)
+    var ready=formReady();
+    var computed=window.getComputedStyle ? window.getComputedStyle(btn).display : btn.style.display;
+    if(ready && (btn.style.display==='none' || computed==='none' || !btn.style.display)){
+      btn.classList.add('is-ready');
+      btn.style.display='flex';
+      btn.removeAttribute('disabled');
+    } else if(!ready){
+      btn.classList.remove('is-ready');
+      // لا نجبر الإخفاء لو المنطق الأصلي أظهره لسبب عنده
+    }
+  }
+  function hookOriginal(){
+    if(typeof window.checkFormCompletion==='function' && !window.checkFormCompletion._msqProceedHook){
+      window.__msqOrigCheckFormCompletion=window.checkFormCompletion;
+      window.checkFormCompletion=function(){
+        var r;
+        try{ r=window.__msqOrigCheckFormCompletion.apply(this,arguments); }catch(e){}
+        // بعد المنطق الأصلي: إصلاح ظهور الزر فقط إذا الحقول مكتملة (بما فيها الاسم الرباعي)
+        try{
+          var btn=document.getElementById('proceedBtn');
+          if(btn && btn.closest && btn.closest('#cartModal') && formReady()){
+            var computed=window.getComputedStyle ? window.getComputedStyle(btn).display : '';
+            if(btn.style.display==='none' || computed==='none'){
+              btn.classList.add('is-ready');
+              btn.style.display='flex';
+            }
+          }
+        }catch(e2){}
+        return r;
+      };
+      window.checkFormCompletion._msqProceedHook=true;
+    }
+  }
+  function bindFields(){
+    ['custName','custPhone','custGovernorate','custCity','custDetailedAddress','mysouqLatitude','mysouqLongitude'].forEach(function(id){
+      var el=document.getElementById(id);
+      if(!el || el._msqProceedBound) return;
+      el._msqProceedBound=true;
+      el.addEventListener('input', syncProceed);
+      el.addEventListener('change', syncProceed);
+      el.addEventListener('blur', syncProceed);
+    });
+  }
+  function boot(){
+    hookOriginal();
+    bindFields();
+    syncProceed();
+  }
+  boot();
+  setTimeout(boot, 400);
+  setTimeout(boot, 1200);
+  setTimeout(boot, 3000);
+  // When cart opens, re-check
+  var cart=document.getElementById('cartModal');
+  if(cart && window.MutationObserver){
+    new MutationObserver(function(){
+      if(cart.classList.contains('active')){
+        setTimeout(function(){ bindFields(); syncProceed(); }, 80);
+        setTimeout(syncProceed, 300);
+      }
+    }).observe(cart,{attributes:true,attributeFilter:['class']});
+  }
+})();
+</script>
+
+
+
+
+
+<script id="mysouq-force-light-no-themes-v7">
+(function () {
+  function forceLight() {
+    try {
+      document.body && document.body.classList.remove('dark-mode');
+      document.documentElement && document.documentElement.classList.remove('dark-mode');
+      document.documentElement && document.documentElement.removeAttribute('data-theme');
+      try { localStorage.removeItem('mysouq-theme'); } catch (e) {}
+      try { localStorage.removeItem('mysouq-dark'); } catch (e) {}
+      try { localStorage.removeItem('theme'); } catch (e) {}
+      try { localStorage.removeItem('darkMode'); } catch (e) {}
+      try { localStorage.removeItem('msq-theme'); } catch (e) {}
+      try { localStorage.removeItem('msq-dark-mode'); } catch (e) {}
+    } catch (e) {}
+  }
+  // Disable theme functions if present
+  try {
+    window.toggleDarkMode = function () { forceLight(); };
+    window.toggleThemePalette = function () {};
+    window.setSiteTheme = function () { forceLight(); };
+  } catch (e) {}
+  forceLight();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', forceLight);
+  }
+  setTimeout(forceLight, 50);
+  setTimeout(forceLight, 400);
+  setTimeout(forceLight, 1200);
+  // Observe body class changes and strip dark-mode
+  try {
+    if (window.MutationObserver && document.body) {
+      new MutationObserver(function () {
+        if (document.body.classList.contains('dark-mode')) {
+          document.body.classList.remove('dark-mode');
+        }
+        if (document.documentElement.getAttribute('data-theme')) {
+          document.documentElement.removeAttribute('data-theme');
+        }
+      }).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+      new MutationObserver(function () {
+        if (document.documentElement.getAttribute('data-theme')) {
+          document.documentElement.removeAttribute('data-theme');
+        }
+      }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+    }
+  } catch (e) {}
+})();
+</script>
+
+<script id="mysouq-banner-carousel">
+(function () {
+  function initBannerCarousel() {
+    var root = document.getElementById('mysouqBannerCarousel');
+    if (!root) return;
+    var slides = root.querySelectorAll('.banner-slide');
+    var dots = root.querySelectorAll('.banner-dot');
+    if (!slides.length) return;
+
+    var current = 0;
+    var timer = null;
+    var INTERVAL = 5000; // 5 seconds
+
+    function goTo(index) {
+      if (index < 0) index = slides.length - 1;
+      if (index >= slides.length) index = 0;
+      slides[current].classList.remove('active');
+      if (dots[current]) {
+        dots[current].classList.remove('active');
+        dots[current].setAttribute('aria-selected', 'false');
+      }
+      current = index;
+      slides[current].classList.add('active');
+      if (dots[current]) {
+        dots[current].classList.add('active');
+        dots[current].setAttribute('aria-selected', 'true');
+      }
+    }
+
+    function next() {
+      goTo(current + 1);
+    }
+
+    function startAuto() {
+      stopAuto();
+      timer = setInterval(next, INTERVAL);
+    }
+
+    function stopAuto() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+
+    dots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        var idx = parseInt(dot.getAttribute('data-index'), 10);
+        if (!isNaN(idx)) {
+          goTo(idx);
+          startAuto();
+        }
+      });
+    });
+
+    // Pause on hover / touch
+    root.addEventListener('mouseenter', stopAuto);
+    root.addEventListener('mouseleave', startAuto);
+    root.addEventListener('touchstart', stopAuto, { passive: true });
+    root.addEventListener('touchend', function () {
+      setTimeout(startAuto, 2500);
+    }, { passive: true });
+
+    // Start
+    goTo(0);
+    startAuto();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBannerCarousel);
+  } else {
+    initBannerCarousel();
+  }
+})();
+</script>
+
+
+
+
+
+
+<!-- My Souq toolbar layout FIX v8: final override after all older CSS; keeps original controls and handlers. -->
+
+
+
+
+<!-- My Souq desktop toolbar compact + centered v9 -->
+
+
+
+
+
+
+
+
+
+
+<script id="mysouq-toast-error-class">
+(function () {
+  /* Mark toast as error when message contains خطأ so CSS can style it softer */
+  var orig = window.showToast;
+  if (typeof orig === 'function' && !window.__msqToastPatched) {
+    window.__msqToastPatched = true;
+    window.showToast = function (msg, isError) {
+      var el = document.getElementById('toastNotification');
+      if (el) {
+        var err = isError === true || (typeof msg === 'string' && msg.indexOf('خطأ') !== -1);
+        if (err) el.setAttribute('data-error', 'true');
+        else el.removeAttribute('data-error');
+      }
+      return orig.apply(this, arguments);
+    };
+  }
+})();
+</script>
+
+
+
+
+
+<script id="mysouq-thumbs-swap-up-down">
+(function () {
+  function getThumbsBar() {
+    return document.getElementById('thumbnailsContainer');
+  }
+  function step() {
+    var bar = getThumbsBar();
+    if (!bar) return 84;
+    var img = bar.querySelector('img, button');
+    return img ? (img.offsetHeight + 8) : 84;
+  }
+  window.thumbsScrollUp = function () {
+    var bar = getThumbsBar();
+    if (!bar) return;
+    bar.scrollBy({ top: -step(), behavior: 'smooth' });
+    if (typeof galleryPrev === 'function') {
+      /* also move active image one step when possible */
+      try { galleryPrev(); } catch (e) {}
+    }
+  };
+  window.thumbsScrollDown = function () {
+    var bar = getThumbsBar();
+    if (!bar) return;
+    bar.scrollBy({ top: step(), behavior: 'smooth' });
+    if (typeof galleryNext === 'function') {
+      try { galleryNext(); } catch (e) {}
+    }
+  };
+})();
+</script>
+
+
+
+<script id="mysouq-thumbs-swap-buttons-inject">
+(function () {
+  function ensureSwapButtons() {
+    var gallery = document.querySelector('#productModal .modal-gallery-wrapper');
+    if (!gallery) return;
+    if (!gallery.querySelector('.thumbs-swap-up')) {
+      var up = document.createElement('button');
+      up.type = 'button';
+      up.className = 'thumbs-swap-btn thumbs-swap-up';
+      up.setAttribute('aria-label', 'الصورة السابقة');
+      up.innerHTML = '▲';
+      up.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof window.thumbsScrollUp === 'function') window.thumbsScrollUp();
+        else scrollThumbs(-1);
+      };
+      gallery.appendChild(up);
+    }
+    if (!gallery.querySelector('.thumbs-swap-down')) {
+      var down = document.createElement('button');
+      down.type = 'button';
+      down.className = 'thumbs-swap-btn thumbs-swap-down';
+      down.setAttribute('aria-label', 'الصورة التالية');
+      down.innerHTML = '▼';
+      down.onclick = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (typeof window.thumbsScrollDown === 'function') window.thumbsScrollDown();
+        else scrollThumbs(1);
+      };
+      gallery.appendChild(down);
+    }
+  }
+
+  function scrollThumbs(dir) {
+    var bar = document.getElementById('thumbnailsContainer');
+    if (!bar) return;
+    var imgs = bar.querySelectorAll('img, button');
+    if (!imgs.length) return;
+    var step = (imgs[0].offsetHeight || 72) + 8;
+    bar.scrollBy({ top: dir * step, behavior: 'smooth' });
+
+    /* Also activate next/prev thumbnail if possible */
+    var active = bar.querySelector('img.active, button.active, .active');
+    var list = Array.prototype.slice.call(imgs);
+    var idx = active ? list.indexOf(active) : -1;
+    var nextIdx = idx + dir;
+    if (nextIdx >= 0 && nextIdx < list.length) {
+      list[nextIdx].click();
+    } else if (dir > 0 && list.length) {
+      list[0].click();
+    } else if (dir < 0 && list.length) {
+      list[list.length - 1].click();
+    }
+  }
+
+  window.thumbsScrollUp = function () { scrollThumbs(-1); };
+  window.thumbsScrollDown = function () { scrollThumbs(1); };
+
+  /* Inject when product modal opens */
+  var obs = new MutationObserver(function () {
+    var modal = document.getElementById('productModal');
+    if (modal && modal.classList.contains('active')) {
+      ensureSwapButtons();
+    }
+  });
+  if (document.body) {
+    obs.observe(document.body, { attributes: true, subtree: true, attributeFilter: ['class'] });
+  }
+  document.addEventListener('DOMContentLoaded', ensureSwapButtons);
+  ensureSwapButtons();
+})();
+</script>
+
+
+
+<script id="mysouq-remove-duplicate-swap-btns">
+(function () {
+  function cleanup() {
+    var modal = document.getElementById('productModal');
+    if (!modal) return;
+    modal.querySelectorAll('.thumbs-swap-btn, .thumbs-swap-up, .thumbs-swap-down').forEach(function (el) {
+      el.remove();
+    });
+    var nav = modal.querySelector('.gallery-nav');
+    if (nav) nav.style.display = 'none';
+  }
+  document.addEventListener('DOMContentLoaded', cleanup);
+  var obs = new MutationObserver(cleanup);
+  if (document.body) {
+    obs.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+  }
+  cleanup();
+  /* Stop the old injector from adding buttons again */
+  window.thumbsScrollUp = function () {
+    var bar = document.getElementById('thumbnailsContainer');
+    if (bar) bar.scrollBy({ top: -76, behavior: 'smooth' });
+  };
+  window.thumbsScrollDown = function () {
+    var bar = document.getElementById('thumbnailsContainer');
+    if (bar) bar.scrollBy({ top: 76, behavior: 'smooth' });
+  };
+})();
+</script>
+
+
+
+<script id="mysouq-size-select-force-v2">
+(function () {
+  function clearSizes(box) {
+    if (!box) return;
+    box.querySelectorAll('button, label, .size-btn, [data-size], *').forEach(function (el) {
+      el.classList.remove('active', 'selected', 'msq-size-on');
+      el.setAttribute('aria-pressed', 'false');
+      /* clear any inline that might fight us */
+      if (el.dataset && el.dataset.msqStyled) {
+        el.style.background = '';
+        el.style.color = '';
+        el.style.borderColor = '';
+        delete el.dataset.msqStyled;
+      }
+    });
+  }
+
+  function markSelected(el) {
+    if (!el) return;
+    el.classList.add('active', 'selected', 'msq-size-on');
+    el.setAttribute('aria-pressed', 'true');
+    /* Inline backup so it ALWAYS shows even if CSS loses */
+    el.style.setProperty('background', '#7a5439', 'important');
+    el.style.setProperty('color', '#ffffff', 'important');
+    el.style.setProperty('border-color', '#5c3f2a', 'important');
+    el.dataset.msqStyled = '1';
+
+    var text = (el.getAttribute('data-size') || el.textContent || '').replace(/\s+/g, ' ').trim();
+    if (text) {
+      try { window.selectedSize = text; } catch (e) {}
+      try { selectedSize = text; } catch (e) {}
+    }
+  }
+
+  function onSizeClick(e) {
+    var box = document.getElementById('sizesContainer');
+    if (!box) return;
+    var t = e.target;
+    if (!box.contains(t)) return;
+    /* climb to the size chip */
+    var chip = t.closest('button, label, .size-btn, [data-size]');
+    if (!chip || !box.contains(chip)) {
+      /* maybe clicked text node parent */
+      chip = t;
+      while (chip && chip !== box && chip.parentElement !== box) {
+        chip = chip.parentElement;
+      }
+      if (!chip || chip === box) return;
+    }
+    clearSizes(box);
+    markSelected(chip);
+  }
+
+  function bind() {
+    var box = document.getElementById('sizesContainer');
+    if (!box || box.dataset.msqSizeBound) return;
+    box.dataset.msqSizeBound = '1';
+    box.addEventListener('click', onSizeClick, true);
+  }
+
+  /* Also observe when sizes are re-rendered */
+  var obs = new MutationObserver(function () {
+    bind();
+    var box = document.getElementById('sizesContainer');
+    if (box && !box.dataset.msqSizeBound) bind();
+  });
+
+  function init() {
+    bind();
+    if (document.body) {
+      obs.observe(document.body, { childList: true, subtree: true });
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+
+
+<script id="mysouq-admin-order-tabs-v2-script">
+(function(){
+  'use strict';
+  var activeTab='open';
+  function codeOf(o){return Number.isFinite(Number(o&&o.statusCode))?Number(o.statusCode):0;}
+  function labelOf(o){
+    if(o&&(o.exchangeOrReturnClosed||o.exchangeResolved)){
+      return String(o.exchangeOutcomeLabel||o.statusLabel||o.status||'تم إنهاء الاستبدال/الإرجاع');
+    }
+    var code=codeOf(o);
+    try{if(window.getOrderStatusMeta)return String(window.getOrderStatusMeta(code).label||'');if(window.ORDER_STATUSES&&window.ORDER_STATUSES[code])return String(window.ORDER_STATUSES[code].label||'');}catch(e){}
+    return String(o&&o.status||'');
+  }
+  function groupOf(o){
+    var code=codeOf(o), label=labelOf(o);
+    if(code===4 || /رفض استلام وحظر/.test(label)) return 'rejected';
+    if(code===5 || /Order 0 Stock|نفذت الكمية/.test(label) || o&&o.stockExhausted) return 'oos';
+    if(code===6 || o&&o.isX2 || /مراجعة طلب X2|X2/.test(label)) return 'x2';
+    if(o&&(o.exchangeOrReturnClosed||o.exchangeResolved)) return 'delivered';
+    if(code===3 || /تم التوريد|تم التسليم|تم التوصيل|تم الاستلام|مكتمل|تم الاستبدال|تم الإرجاع/.test(label)) return 'delivered';
+    return 'open';
+  }
+  function buildTabs(){
+    var modal=document.getElementById('adminOrdersModal'), logout=document.getElementById('adminLogoutBtn');
+    if(!modal||!logout||document.getElementById('msqAdminTabs'))return;
+    var content=modal.querySelector('.modal-content'); if(!content)return;
+    var tabs=document.createElement('div');tabs.id='msqAdminTabs';tabs.className='msq-admin-channels';tabs.innerHTML=
+      '<button type="button" data-tab="cancel">🔔 طلبات الإلغاء <span id="msqCancelBadge">0</span></button>'+
+      '<button type="button" data-tab="exchanges">🔄 استبدال ومرتجعات <span class="msq-ex-badge">0</span></button>'+
+      '<button type="button" data-tab="open">📋 قائمة الطلبات المفتوحة</button>'+
+      '<button type="button" data-tab="x2">🔁 مراجعة طلبات مكررة <span id="msqX2Badge">0</span></button>'+
+      '<button type="button" data-tab="oos">⛔ Order Stock 0 <span id="msqOosBadge">0</span></button>'+
+      '<button type="button" data-tab="delivered">✅ طلبات تم توريدها</button>'+
+      '<button type="button" data-tab="rejected">❌ رفض استلام وحظر <span id="msqRejectedBadge">0</span></button>'+
+      '<button type="button" data-tab="maintenance">🧩 أخرى</button>';
+    var paneWrap=document.createElement('div');paneWrap.id='msqAdminTabContent';
+    var list=document.getElementById('adminOrdersList');
+    var search=document.getElementById('adminOrderSearch');
+    var back=document.getElementById('adminBackToOrdersListBtn');
+    var cancel=document.getElementById('cancelRequestsAdminPanel');
+    var maint=document.getElementById('maintenanceAdminBox');
+    var searchPane=document.createElement('section');searchPane.className='msq-tab-pane';searchPane.dataset.pane='open';
+    /* Keep the main search input in the header between the title and compact logout button. */
+    if(back)searchPane.appendChild(back);
+    if(list)searchPane.appendChild(list);
+    var cancelPane=document.createElement('section');cancelPane.className='msq-tab-pane';cancelPane.dataset.pane='cancel';
+    var deliveredPane=document.createElement('section');deliveredPane.className='msq-tab-pane';deliveredPane.dataset.pane='delivered';
+    var deliveredSearch=document.createElement('input');deliveredSearch.type='search';deliveredSearch.id='msqDeliveredSearch';deliveredSearch.className='promo-input';deliveredSearch.placeholder='🔍 بحث في الطلبات التي تم توريدها';deliveredSearch.style.cssText='width:100%;margin-bottom:10px;padding:10px';deliveredPane.appendChild(deliveredSearch);
+    var deliveredList=document.createElement('div');deliveredList.id='msqDeliveredList';deliveredPane.appendChild(deliveredList);
+    var x2Pane=document.createElement('section');x2Pane.className='msq-tab-pane';x2Pane.dataset.pane='x2';
+    var x2List=document.createElement('div');x2List.id='msqX2ReviewList';x2List.innerHTML='<p style="color:#765b5b;font-size:13px;font-weight:700">طلبات إعادة الطلب بانتظار المراجعة.</p>';
+    x2Pane.appendChild(x2List);
+    var oosPane=document.createElement('section');oosPane.className='msq-tab-pane';oosPane.dataset.pane='oos';
+    var oosList=document.createElement('div');oosList.id='msqOosList';oosList.innerHTML='<p style="color:#765b5b;font-size:13px;font-weight:700">طلبات نفذت كميتها.</p>';
+    oosPane.appendChild(oosList);
+    var maintPane=document.createElement('section');maintPane.className='msq-tab-pane';maintPane.dataset.pane='maintenance';
+    paneWrap.append(searchPane,cancelPane,x2Pane,oosPane,deliveredPane,maintPane);
+    /* Place tabs below the complete header, never inside the title/search/logout row. */
+    var header=document.getElementById('adminOrdersHeader');
+    if(header) header.insertAdjacentElement('afterend',tabs);
+    else logout.insertAdjacentElement('afterend',tabs);
+    tabs.insertAdjacentElement('afterend',paneWrap);
+    tabs.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){setTab(b.dataset.tab);});});
+    deliveredSearch.addEventListener('input',renderDelivered);
+    setTab(activeTab);
+  }
+  function moveInjectedPanels(){
+    var cancel=document.getElementById('cancelRequestsAdminPanel'), maint=document.getElementById('maintenanceAdminBox');
+    var exchange=document.getElementById('msqExchangeAdminPanel');
+    var cp=document.querySelector('#msqAdminTabContent [data-pane="cancel"]'), mp=document.querySelector('#msqAdminTabContent [data-pane="maintenance"]');
+    var ep=document.querySelector('#msqAdminTabContent [data-pane="exchanges"]');
+    if(cancel&&cp&&cancel.parentElement!==cp)cp.appendChild(cancel);
+    if(maint&&mp&&maint.parentElement!==mp)mp.appendChild(maint);
+    if(exchange&&ep&&exchange.parentElement!==ep)ep.appendChild(exchange);
+  }
+  function setTab(tab){
+    activeTab=tab;
+    document.querySelectorAll('#msqAdminTabs button').forEach(function(b){b.classList.toggle('active',b.dataset.tab===tab);});
+    document.querySelectorAll('#msqAdminTabContent .msq-tab-pane').forEach(function(p){p.classList.toggle('active',p.dataset.pane===tab);});
+    if(tab==='open'){if(typeof window.filterAdminOrders==='function')window.filterAdminOrders();}
+    if(tab==='delivered')renderDelivered();
+    if(tab==='cancel'&&typeof window.loadAdminCancelRequests==='function')window.loadAdminCancelRequests();
+    if(tab==='exchanges'&&typeof window.msqLoadExchangeRequests==='function')window.msqLoadExchangeRequests();
+    if(tab==='oos'&&typeof window.msqRenderOosList==='function')window.msqRenderOosList();
+    if(tab==='x2'&&typeof window.msqRenderX2ReviewList==='function')window.msqRenderX2ReviewList();
+    moveInjectedPanels();
+    try{ if(typeof window.msqSyncAdminChannelSelect==='function') window.msqSyncAdminChannelSelect(); }catch(e){}
+  }
+  window.msqSetAdminTab = setTab;
+  function renderDelivered(){
+    var box=document.getElementById('msqDeliveredList');if(!box)return;
+    var q=(document.getElementById('msqDeliveredSearch')||{}).value||'';
+    q=q.toLowerCase().trim().replace(/\s/g,'');
+    var list=[];try{list=typeof adminOrdersCache!=='undefined'&&Array.isArray(adminOrdersCache)?adminOrdersCache:(Array.isArray(window.adminOrdersCache)?window.adminOrdersCache:[]);}catch(e){list=Array.isArray(window.adminOrdersCache)?window.adminOrdersCache:[];}
+    list=list.filter(function(o){if(groupOf(o)!=='delivered')return false;var hay=[o.orderId,o.name,o.phone,o.status].join(' ').toLowerCase().replace(/\s/g,'');return !q||hay.includes(q);});
+    if(!list.length){box.innerHTML='<p style="text-align:center;padding:20px;color:#667">لا توجد طلبات تم توريدها مطابقة.</p>';return;}
+    // Reuse the original card renderer without moving delivered orders into the open list.
+    box.innerHTML=list.map(function(o){
+      var oid = String(o.orderId||'').trim().toUpperCase();
+      var mapHit = (window.__msqClosedExchangeMap||{})[oid];
+      var closed = !!(o.exchangeOrReturnClosed || o.exchangeResolved || mapHit);
+      if (mapHit && !o.exchangeOrReturnClosed) {
+        o.exchangeOrReturnClosed = true;
+        o.exchangeResolved = true;
+        o.exchangeOutcomeLabel = mapHit.label;
+        o.status = mapHit.label;
+        o.statusLabel = mapHit.label;
+      }
+      var outcomeLab = o.exchangeOutcomeLabel || (mapHit && mapHit.label) || '';
+      var st = closed && outcomeLab ? outcomeLab : labelOf(o);
+      var id=String(o.orderId||'').replace(/'/g,"\\'");
+      var items=(o.items&&o.items.length)||0;
+      var statusColor = closed ? '#8a6a00' : '#2e7d32';
+      var badge = closed ? ' <span style="display:inline-block;margin-right:6px;padding:2px 8px;border-radius:8px;background:#fff8e1;border:1px solid #ffe082;color:#8a6a00;font-size:11px">تم إنهاء موقف الاستبدال/الإرجاع</span>' : '';
+      var returnBtn = closed
+        ? '<button type="button" disabled style="opacity:.4;cursor:not-allowed;background:#222;color:#fff;border:0;border-radius:10px;padding:8px 12px;font-weight:900">❌🚫 رفض استلام وحظر</button>'
+        : ('<button type="button" class="msq-reject-ban-btn" onclick="returnDeliveredOrderAsRejected(\''+id+'\',this)" style="background:#111;color:#fff;border:0;border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">❌🚫 رفض استلام وحظر</button>');
+      return '<article class="order-card-admin"><div class="oid">🆔 '+escText(o.orderId||'-')+'</div><div>👤 '+escText(o.name||'-')+' | 📱 '+escText(o.phone||'-')+'</div><div>💰 '+escText(o.total||'-')+' | 📅 '+escText(o.date||'-')+'</div><div style="font-weight:900;color:'+statusColor+';margin:6px 0">الحالة: '+escText(st)+badge+(items?' · 🛍️ '+items+' منتج':'')+'</div><div class="msq-delivered-actions"><button type="button" onclick="showAdminOrderDetails(\''+id+'\')">🧾 تفاصيل الطلب</button><button type="button" onclick="notifyCustomerStatus(\''+id+'\')">💬 إشعار واتساب</button><button type="button" onclick="copyShippingMessage(\''+id+'\')">📋 نسخ رسالة الشحن</button>'+returnBtn+'</div></article>';
+    }).join('');
+  }
+  function escText(v){var d=document.createElement('div');d.textContent=String(v==null?'':v);return d.innerHTML;}
+  function wrapFilter(){
+    if(typeof window.filterAdminOrders!=='function'||window.filterAdminOrders.__msqTabs)return;
+    var original=window.filterAdminOrders;
+    window.filterAdminOrders=function(){
+      if(activeTab==='delivered'){renderDelivered();return;}
+      if(activeTab==='oos'){if(typeof window.msqRenderOosList==='function')window.msqRenderOosList();return;}
+      if(activeTab==='x2'){if(typeof window.msqRenderX2ReviewList==='function')window.msqRenderX2ReviewList();return;}
+      var cache=[];try{cache=typeof adminOrdersCache!=='undefined'&&Array.isArray(adminOrdersCache)?adminOrdersCache:(Array.isArray(window.adminOrdersCache)?window.adminOrdersCache:[]);}catch(e){cache=Array.isArray(window.adminOrdersCache)?window.adminOrdersCache:[];}
+      if(!cache.length)return original.apply(this,arguments);
+      var filtered=cache.filter(function(o){return groupOf(o)==='open';});
+      try{if(typeof adminOrdersCache!=='undefined')adminOrdersCache=filtered;else window.adminOrdersCache=filtered;return original.apply(this,arguments);}finally{if(typeof adminOrdersCache!=='undefined')adminOrdersCache=cache;else window.adminOrdersCache=cache;}
+    };
+    window.filterAdminOrders.__msqTabs=true;
+  }
+  function guardStatusUpdates(){
+    ['updateOrderStatusFromAdmin','updateOrderStatus'].forEach(function(name){
+      var fn=window[name];if(typeof fn!=='function'||fn.__msqForwardOnly)return;
+      var wrapped=async function(orderId,newCode){
+        var cache=[];try{cache=typeof adminOrdersCache!=='undefined'&&Array.isArray(adminOrdersCache)?adminOrdersCache:(Array.isArray(window.adminOrdersCache)?window.adminOrdersCache:[]);}catch(e){cache=Array.isArray(window.adminOrdersCache)?window.adminOrdersCache:[];}
+        var o=cache.find(function(x){return String(x.orderId||'').toUpperCase()===String(orderId||'').toUpperCase();});
+        if(!o&&Array.isArray(window.ordersHistory))o=window.ordersHistory.find(function(x){return String(x.orderId||'').toUpperCase()===String(orderId||'').toUpperCase();});
+        var current=codeOf(o), next=Number(newCode);
+        if(o&&next<current){alert('ممنوع الرجوع لمرحلة سابقة. حالة الطلب تتحرك للأمام فقط.');return;}
+        if(o&&next===current){alert('الطلب موجود بالفعل في هذه المرحلة.');return;}
+        return fn.apply(this,arguments);
+      };
+      wrapped.__msqForwardOnly=true;window[name]=wrapped;
+    });
+  }
+  function init(){
+    buildTabs();moveInjectedPanels();wrapFilter();guardStatusUpdates();
+    var badge=document.getElementById('msqCancelBadge'),count=document.getElementById('cancelRequestsCount');
+    if(badge&&count)badge.textContent=count.textContent;
+  }
+  var timer=setInterval(init,500);setTimeout(function(){clearInterval(timer);init();},30000);
+  document.addEventListener('click',function(e){if(e.target&&e.target.id==='refreshCancelRequests')setTimeout(function(){var a=document.getElementById('msqCancelBadge'),b=document.getElementById('cancelRequestsCount');if(a&&b)a.textContent=b.textContent;},300);});
+})();
+</script>
+
+
+
+
+<!-- My Souq: larger product image on mobile only; existing features and scripts preserved -->
+
+
+
+
+
+
+
+
+
+
+<!-- My Souq: customer tracking polish v2 — enlarge product photos and hide admin-only hint -->
+
+<script id="mysouq-hide-admin-only-tracking-hint-v2">
+(function(){
+  var phrases=['وضع الإدارة مفعّل','تقدر تغيّر حالة أي طلب'];
+  function hideAdminHint(){
+    var modal=document.getElementById('trackingModal');
+    if(!modal)return;
+    var hint=document.getElementById('adminHint');
+    if(hint)hint.style.display='none';
+    // Hide only the smallest element containing the admin-only notice; do not alter tracking data or controls.
+    var nodes=modal.querySelectorAll('div,p,span,small,strong,label');
+    nodes.forEach(function(el){
+      var txt=(el.innerText||el.textContent||'').replace(/\s+/g,' ').trim();
+      if(phrases.some(function(phrase){return txt.indexOf(phrase)!==-1;})){
+        var childHasSamePhrase=Array.prototype.some.call(el.children||[],function(child){
+          var ct=(child.innerText||child.textContent||'').replace(/\s+/g,' ').trim();
+          return phrases.some(function(phrase){return ct.indexOf(phrase)!==-1;});
+        });
+        if(!childHasSamePhrase)el.style.setProperty('display','none','important');
+      }
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',hideAdminHint);else hideAdminHint();
+  try{new MutationObserver(hideAdminHint).observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){}
+  document.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('#trackingModal'))setTimeout(hideAdminHint,0);},true);
+})();
+</script>
+
+
+
+<script id="mysouq-rejected-orders-workflow-v1">
+(function(){
+  'use strict';
+  var rejectedTabReady=false, observersStarted=false, blockCheckMigrationStarted=false;
+
+  // Migrate existing active blocks once while an admin session is available.
+  // The public collection contains only {blocked:true}; no names, phones, or order data.
+  async function migrateExistingBlockChecks(){
+    if(blockCheckMigrationStarted || !isAdmin()) return;
+    var dbx=getDbSafe(); if(!dbx) return;
+    blockCheckMigrationStarted=true;
+    try{
+      var snap=await dbx.collection('blockedCustomers').get();
+      var ops=[];
+      snap.forEach(function(doc){
+        var d=doc.data()||{}, id=String(doc.id||'');
+        var checkId='';
+        if(id.indexOf('phone_')===0) checkId=id;
+        else if(id.indexOf('name_')===0) checkId=id;
+        else if(d.identifierType==='phone' && d.phoneNormalized) checkId='phone_'+String(d.phoneNormalized);
+        else if(d.identifierType==='name' && d.nameNormalized) checkId='name_'+encodeURIComponent(String(d.nameNormalized)).replace(/%/g,'_');
+        if(checkId) ops.push({id:checkId,active:d.blocked!==false});
+      });
+      for(var i=0;i<ops.length;i+=400){
+        var batch=dbx.batch();
+        ops.slice(i,i+400).forEach(function(op){
+          var ref=dbx.collection('blockedCustomerChecks').doc(op.id);
+          if(op.active) batch.set(ref,{blocked:true},{merge:true});
+          else batch.delete(ref);
+        });
+        await batch.commit();
+      }
+    }catch(e){
+      blockCheckMigrationStarted=false;
+      console.warn('My Souq existing block-check migration failed:',e);
+    }
+  }
+
+  function getDbSafe(){
+    try{if(typeof db!=='undefined'&&db)return db;}catch(e){}
+    try{if(window.firebase&&firebase.firestore)return firebase.firestore();}catch(e){}
+    return null;
+  }
+  function isAdmin(){
+    try{if(typeof isAdminNow==='function'&&isAdminNow())return true;}catch(e){}
+    try{return typeof isAdminMode!=='undefined'&&!!isAdminMode&&typeof currentAdminUser!=='undefined'&&!!currentAdminUser;}catch(e){}
+    return false;
+  }
+  function cache(){
+    try{if(typeof adminOrdersCache!=='undefined'&&Array.isArray(adminOrdersCache))return adminOrdersCache;}catch(e){}
+    return Array.isArray(window.adminOrdersCache)?window.adminOrdersCache:[];
+  }
+  function normText(v){
+    return String(v==null?'':v).trim().toLowerCase()
+      .replace(/[\u064B-\u065F\u0670]/g,'')
+      .replace(/[ـ]/g,'')
+      .replace(/\s+/g,' ')
+      .replace(/[أإآ]/g,'ا').replace(/ى/g,'ي');
+  }
+  function phoneKey(v){
+    var d=String(v||'').replace(/\D/g,'');
+    if(d.indexOf('0020')===0)d='0'+d.slice(4);
+    else if(d.indexOf('20')===0)d='0'+d.slice(2);
+    return d;
+  }
+  function nameKey(v){
+    return normText(v).replace(/[^\w\u0600-\u06FF]/g,'').slice(0,180);
+  }
+  function codeOf(o){
+    if(!o)return 0;
+    var n=Number(o.statusCode);
+    if(o.statusCode!==undefined&&o.statusCode!==null&&Number.isFinite(n))return n;
+    var l=String(o.status||o.statusLabel||'');
+    if(/رفض استلام وحظر/.test(l))return 4;
+    if(/تم التوريد|تم التسليم|تم التوصيل|تم الاستلام|مكتمل/.test(l))return 3;
+    if(/جاري الشحن/.test(l))return 2;
+    if(/تم الحجز/.test(l))return 1;
+    return 0;
+  }
+  function labelOf(o){
+    if(o&&(o.exchangeOrReturnClosed||o.exchangeResolved)){
+      return String(o.exchangeOutcomeLabel||o.statusLabel||o.status||'تم إنهاء الاستبدال/الإرجاع');
+    }
+    try{if(window.ORDER_STATUSES&&window.ORDER_STATUSES[codeOf(o)])return String(window.ORDER_STATUSES[codeOf(o)].label||'');}catch(e){}
+    return String(o&&(o.statusLabel||o.status)||'');
+  }
+  function esc(v){
+    var d=document.createElement('div');d.textContent=String(v==null?'':v);return d.innerHTML;
+  }
+  function findCached(id){
+    var target=String(id||'').trim().toUpperCase();
+    return cache().find(function(o){return String(o.orderId||o.id||'').trim().toUpperCase()===target;})||null;
+  }
+  function addStatusButton(row, label, className, fn){
+    var b=document.createElement('button');b.type='button';b.className=className;b.textContent=label;
+    b.addEventListener('click',function(){fn(b);});row.appendChild(b);return b;
+  }
+  function renderActionRow(card, order, id){
+    var c=codeOf(order), marker=String(c);
+    if(card.dataset.msqWorkflowActionCode===marker)return;
+    card.dataset.msqWorkflowActionCode=marker;
+    card.querySelectorAll('.cancel-order-btn,.cancel-exception-btn,.msq-return-status-btn').forEach(function(b){b.remove();});
+    var rows=card.querySelectorAll('.msq-cancel-actions-row');
+    var row=rows.length?rows[0]:null;
+    rows.forEach(function(r,i){if(i>0)r.remove();});
+    if(!row){row=document.createElement('div');row.className='msq-cancel-actions-row';row.style.cssText='display:flex;align-items:center;justify-content:flex-start;gap:8px;margin-top:8px;flex-wrap:wrap;';card.appendChild(row);}
+    row.innerHTML='';
+    if(c===0){
+      addStatusButton(row,'🗑️ إلغاء الطلب نهائيًا','cancel-order-btn',function(){if(typeof window.cancelOrderPermanently==='function')window.cancelOrderPermanently(id);});
+    }else if(c===1||c===2){
+      addStatusButton(row,'🔐 إلغاء استثنائي','cancel-exception-btn',function(b){if(typeof window.cancelOrderExceptionally==='function')window.cancelOrderExceptionally(id,b);});
+    }else if(c===3){
+      if(!(order.exchangeOrReturnClosed || order.exchangeResolved)){
+        addStatusButton(row,'❌🚫 رفض استلام وحظر','msq-return-status-btn msq-reject-ban-btn',function(b){window.returnDeliveredOrderAsRejected(id,b);});
+      }
+    }else{
+      row.remove();
+    }
+  }
+  function patchOrderCards(root){
+    if(!root)return;
+    var cards=[];
+    if(root.matches&&root.matches('.order-card-admin'))cards.push(root);
+    if(root.querySelectorAll)root.querySelectorAll('.order-card-admin').forEach(function(c){cards.push(c);});
+    cards.forEach(function(card){
+      // Delivered cards already render their four actions together in one dedicated row.
+      if(card.closest && card.closest('#msqDeliveredList'))return;
+      var oid=card.querySelector('.oid');if(!oid)return;
+      var id=oid.textContent.replace(/^\s*🆔\s*/,'').trim();
+      var order=findCached(id);if(!order)return;
+      renderActionRow(card,order,id);
+    });
+  }
+  function patchDetails(){
+    var body=document.getElementById('adminOrderDetailsBody');if(!body)return;
+    var id=String(window.__msqCurrentAdminDetailOrderId||'');
+    if(!id)return;
+    var order=findCached(id);if(!order)return;
+    var c=codeOf(order);
+    if(body.dataset.msqWorkflowActionCode===String(c)&&body.querySelector('.msq-detail-status-actions'))return;
+    body.querySelectorAll('div').forEach(function(d){
+      if(d.querySelector('.cancel-order-btn[data-details-cancel="1"],.cancel-exception-btn'))d.remove();
+    });
+    body.querySelectorAll('.cancel-order-btn,.cancel-exception-btn,.msq-return-status-btn').forEach(function(b){b.remove();});
+    var row=document.createElement('div');row.className='msq-detail-status-actions';row.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;';
+    if(c===0)addStatusButton(row,'🗑️ إلغاء الطلب نهائيًا','cancel-order-btn',function(){window.cancelOrderPermanently(id);});
+    else if(c===1||c===2)addStatusButton(row,'🔐 إلغاء استثنائي','cancel-exception-btn',function(b){window.cancelOrderExceptionally(id,b);});
+    else if(c===3)addStatusButton(row,'↩️ إرجاع حالة','msq-return-status-btn',function(b){window.returnDeliveredOrderAsRejected(id,b);});
+    if(row.children.length)body.appendChild(row);
+    body.dataset.msqWorkflowActionCode=String(c);
+  }
+  function installDetailWrapper(){
+    if(typeof window.showAdminOrderDetails!=='function'||window.showAdminOrderDetails.__msqWorkflowWrapped)return;
+    var old=window.showAdminOrderDetails;
+    var wrapped=function(id){
+      window.__msqCurrentAdminDetailOrderId=String(id||'');
+      var r=old.apply(this,arguments);
+      setTimeout(patchDetails,0);
+      setTimeout(patchDetails,80);
+      return r;
+    };
+    wrapped.__msqWorkflowWrapped=true;window.showAdminOrderDetails=wrapped;
+  }
+  function installExceptionalGuard(){
+    if(typeof window.cancelOrderExceptionally!=='function'||window.cancelOrderExceptionally.__msqStageGuard)return;
+    var old=window.cancelOrderExceptionally;
+    var wrapped=function(id,button){
+      var o=findCached(id),c=codeOf(o);
+      if(c!==1&&c!==2){alert('الإلغاء الاستثنائي متاح فقط للطلبات في مرحلتي «تم الحجز» و«جاري الشحن».');return;}
+      return old.apply(this,arguments);
+    };
+    wrapped.__msqStageGuard=true;window.cancelOrderExceptionally=wrapped;
+  }
+  async function findOrderRefs(db,id){
+    var refs=new Map(),data=null;
+    var direct=await db.collection('orders').doc(id).get();
+    if(direct.exists){refs.set(direct.ref.path,direct.ref);data=direct.data()||{};}
+    var snap=await db.collection('orders').where('orderId','==',id).get();
+    snap.forEach(function(doc){refs.set(doc.ref.path,doc.ref);if(!data)data=doc.data()||{};});
+    if(!refs.size){
+      var cacheOrder=findCached(id);
+      if(cacheOrder){
+        var byId=await db.collection('orders').doc(String(cacheOrder.orderId||id)).get();
+        if(byId.exists){refs.set(byId.ref.path,byId.ref);data=byId.data()||{};}
+      }
+    }
+    if(!refs.size){
+      // Legacy records may use a differently cased orderId or an alternate ID field.
+      var all=await db.collection('orders').get();
+      all.forEach(function(doc){
+        var d=doc.data()||{};
+        var ids=[doc.id,d.orderId,d.id,d.orderNumber,d.orderCode,d.code];
+        if(ids.some(function(v){return String(v==null?'':v).trim().toUpperCase()===String(id).trim().toUpperCase();})){
+          refs.set(doc.ref.path,doc.ref);if(!data)data=d;
+        }
+      });
+    }
+    return {refs:Array.from(refs.values()),data:data};
+  }
+  window.returnDeliveredOrderAsRejected=async function(orderId,button){
+    try {
+      var __oid = String(arguments[0]||'').trim().toUpperCase();
+      var __ord = null;
+      try {
+        if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache))
+          __ord = adminOrdersCache.find(function(o){ return String(o.orderId||'').trim().toUpperCase()===__oid; });
+      } catch(e){}
+      if (!__ord && Array.isArray(window.adminOrdersCache))
+        __ord = window.adminOrdersCache.find(function(o){ return String(o.orderId||'').trim().toUpperCase()===__oid; });
+      var __mapHit = (window.__msqClosedExchangeMap||{})[__oid];
+      if ((__ord && (__ord.exchangeOrReturnClosed || __ord.exchangeResolved)) || __mapHit) {
+        alert('هذا الطلب تم إنهاء موقف الاستبدال/الإرجاع عليه.\nلا يمكن تحويله إلى «رفض استلام وحظر».\nرفض الاستلام والحظر متاح فقط إذا المندوب لم يسلّم والمنتج رجع وهو في مرحلة التوريد.');
+        return;
+      }
+    } catch(__g){}
+
+    if(!isAdmin()){alert('يجب تسجيل الدخول إلى الإدارة أولًا.');return;}
+    var id=String(orderId||'').trim().toUpperCase();
+    if(!id){alert('رقم الطلب غير صالح.');return;}
+    var dbx=getDbSafe();
+    if(!dbx){alert('Firebase غير متاح؛ لم يتم تغيير حالة الطلب.');return;}
+    var originalText=button?button.textContent:'↩️ إرجاع حالة';
+    if(button){button.disabled=true;button.textContent='جارٍ إرجاع الحالة والحظر...';}
+    try{
+      var found=await findOrderRefs(dbx,id);
+      if(!found.refs.length||!found.data)throw new Error('لم يتم العثور على الطلب في قاعدة البيانات.');
+      var order=Object.assign({},found.data,{orderId:found.data.orderId||id});
+      if(codeOf(order)!==3)throw new Error('زر إرجاع الحالة متاح فقط لطلب حالته «تم التوريد».');
+      var nm=String(order.name||order.customerName||'').trim();
+      var ph=String(order.phone||order.customerPhone||'').trim();
+      var nk=nameKey(nm),pk=phoneKey(ph);
+      if(!nk&&!pk)throw new Error('لا يوجد اسم أو رقم هاتف محفوظ للعميل، لذلك لا يمكن إنشاء حظر موثوق.');
+      var ok=confirm('تأكيد إرجاع الحالة والحظر؟\n\nالطلب: '+id+'\nالعميل: '+(nm||'-')+'\nالهاتف: '+(ph||'-')+'\n\nستصبح الحالة «رفض استلام وحظر»، وسيتم تسجيل اسم العميل ورقم هاتفه في قائمة الحظر لمنع الطلبات الجديدة.');
+      if(!ok)return;
+      var batch=dbx.batch();
+      var now= firebase.firestore.FieldValue.serverTimestamp();
+      var update={
+        statusCode:4,status:'رفض استلام وحظر',statusLabel:'رفض استلام وحظر',
+        previousStatusCode:3,customerBlocked:true,blockedCustomerName:nm,blockedCustomerPhone:ph,
+        blockedNameKey:nk,blockedPhoneKey:pk,rejectionReason:'رفض الاستلام أو رفض الدفع/طلب الإرجاع بعد التوريد',
+        rejectedAt:now,updatedAt:now
+      };
+      found.refs.forEach(function(ref){batch.update(ref,update);});
+      if(pk){
+        batch.set(dbx.collection('blockedCustomers').doc('phone_'+pk),{
+          blocked:true,identifierType:'phone',phone:ph,phoneNormalized:pk,customerName:nm,
+          nameNormalized:nk,orderId:id,reason:'رفض استلام وحظر بعد التوريد',
+          blockedAt:firebase.firestore.FieldValue.serverTimestamp(),
+          blockedBy:(typeof currentAdminUser!=='undefined'&&currentAdminUser&&currentAdminUser.email)||''
+        },{merge:true});
+      }
+      if(nk){
+        batch.set(dbx.collection('blockedCustomers').doc('name_'+encodeURIComponent(nk).replace(/%/g,'_')),{
+          blocked:true,identifierType:'name',customerName:nm,nameNormalized:nk,phone:ph,
+          phoneNormalized:pk,orderId:id,reason:'رفض استلام وحظر بعد التوريد',
+          blockedAt:firebase.firestore.FieldValue.serverTimestamp(),
+          blockedBy:(typeof currentAdminUser!=='undefined'&&currentAdminUser&&currentAdminUser.email)||''
+        },{merge:true});
+      }
+      // Public checkout reads only these minimal flags; personal details remain admin-only.
+      if(pk)batch.set(dbx.collection('blockedCustomerChecks').doc('phone_'+pk),{blocked:true},{merge:true});
+      if(nk)batch.set(dbx.collection('blockedCustomerChecks').doc('name_'+encodeURIComponent(nk).replace(/%/g,'_')),{blocked:true},{merge:true});
+      var trackRef=dbx.collection('orderTracking').doc(id);
+      var trackSnap=await trackRef.get();
+      if(trackSnap.exists)batch.set(trackRef,update,{merge:true});
+      await batch.commit();
+      [cache(),(Array.isArray(window.ordersHistory)?window.ordersHistory:[])].forEach(function(arr){
+        arr.forEach(function(o){if(String(o.orderId||'').trim().toUpperCase()===id)Object.assign(o,update,{statusCode:4,status:'رفض استلام وحظر',statusLabel:'رفض استلام وحظر'});});
+      });
+      try{
+        ['souqOrdersHistory','ordersHistory','adminOrdersCache'].forEach(function(k){
+          var raw=localStorage.getItem(k);if(!raw)return;var arr=JSON.parse(raw);
+          if(Array.isArray(arr)){arr.forEach(function(o){if(String(o.orderId||'').trim().toUpperCase()===id)Object.assign(o,{statusCode:4,status:'رفض استلام وحظر',statusLabel:'رفض استلام وحظر',customerBlocked:true});});localStorage.setItem(k,JSON.stringify(arr));}
+        });
+      }catch(e){}
+      if(typeof window.filterAdminOrders==='function')window.filterAdminOrders();
+      renderRejected();
+      if(document.getElementById('adminOrderDetailsModal'))document.getElementById('adminOrderDetailsModal').classList.remove('active');
+      // إشعار تليجرام بحالة رفض الاستلام والحظر
+      try {
+        var tgUrl = (typeof window.TELEGRAM_ORDER_WORKER_URL === 'string' && window.TELEGRAM_ORDER_WORKER_URL)
+          ? window.TELEGRAM_ORDER_WORKER_URL
+          : 'https://my-souq-telegram.ahmedaly1g.workers.dev/';
+        await fetch(tgUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'cancelled',
+            type: 'order_cancelled',
+            cancellationType: 'reject_ban',
+            orderId: id,
+            name: nm,
+            phone: ph,
+            reason: 'رفض استلام وحظر بعد التوريد'
+          })
+        });
+      } catch (tgErr) { console.warn('Telegram reject-ban notice failed', tgErr); }
+      alert('تم إرجاع حالة الطلب إلى «رفض استلام وحظر» وتسجيل بيانات العميل في قائمة الحظر.');
+    }catch(e){
+      console.error('Reject-and-block workflow failed:',e);
+      alert('تعذر إرجاع الحالة أو حفظ الحظر. لم يتم تأكيد العملية.\n'+(e&&e.message?e.message:'خطأ غير معروف')+'\n\nقد تحتاج قواعد Firestore إلى السماح للإدارة بالكتابة في مجموعة blockedCustomers.');
+    }finally{if(button){button.disabled=false;button.textContent=originalText;}}
+  };
+
+  window.unblockRejectedCustomer=async function(orderId,button){
+    if(!isAdmin()){alert('يجب تسجيل الدخول إلى الإدارة أولًا.');return;}
+    var id=String(orderId||'').trim().toUpperCase();
+    if(!id){alert('رقم الطلب غير صالح.');return;}
+    var dbx=getDbSafe();
+    if(!dbx){alert('Firebase غير متاح؛ لم يتم فك الحظر.');return;}
+    var originalText=button?button.textContent:'🔓 فك حظر';
+    if(button){button.disabled=true;button.textContent='جارٍ فك الحظر...';}
+    try{
+      var found=await findOrderRefs(dbx,id);
+      if(!found.refs.length||!found.data)throw new Error('لم يتم العثور على الطلب في قاعدة البيانات.');
+      var order=Object.assign({},found.data,{orderId:found.data.orderId||id});
+      if(codeOf(order)!==4)throw new Error('فك الحظر متاح فقط من قناة «رفض استلام وحظر».');
+
+      var nm=String(order.name||order.customerName||order.blockedCustomerName||'').trim();
+      var ph=String(order.phone||order.customerPhone||order.blockedCustomerPhone||'').trim();
+      // Prefer the exact keys recorded when the customer was blocked, then fall back
+      // to the same normalization used by the block-creation workflow.
+      var nk=String(order.blockedNameKey||nameKey(nm)||'');
+      var pk=String(order.blockedPhoneKey||phoneKey(ph)||'');
+      if(!nk&&!pk)throw new Error('لا يوجد اسم أو هاتف محفوظ لهذا العميل في الطلب.');
+
+      if(!confirm('تأكيد فك الحظر عن العميل؟\n\nالعميل: '+(nm||'-')+'\nالهاتف: '+(ph||'-')+'\n\nسيتم حذف سجلات الحظر المطابقة من blockedCustomers. سيظل الطلب القديم محفوظًا في قناة «رفض استلام وحظر»، ولن تتغير حالته التاريخية.'))return;
+
+      var batch=dbx.batch();
+      var idsToDelete={};
+      // These document IDs match the IDs created by returnDeliveredOrderAsRejected.
+      if(pk)idsToDelete['phone_'+pk]=true;
+      if(nk)idsToDelete['name_'+encodeURIComponent(nk).replace(/%/g,'_')]=true;
+
+      // Also remove exact stored IDs if older records used a saved key that differs
+      // from the current normalization; never delete by name/phone query broadly.
+      Object.keys(idsToDelete).forEach(function(docId){
+        batch.delete(dbx.collection('blockedCustomers').doc(docId));
+      });
+      Object.keys(idsToDelete).forEach(function(docId){
+        batch.delete(dbx.collection('blockedCustomerChecks').doc(docId));
+      });
+
+      var stamp=firebase.firestore.FieldValue.serverTimestamp();
+      var adminEmail='';
+      try{if(typeof currentAdminUser!=='undefined'&&currentAdminUser)adminEmail=currentAdminUser.email||'';}catch(e){}
+      var update={
+        customerBlocked:false,
+        blockLifted:true,
+        unblockedAt:stamp,
+        unblockedBy:adminEmail
+      };
+      found.refs.forEach(function(ref){batch.update(ref,update);});
+      await batch.commit();
+
+      // Keep the order and status-4 tracking record for audit/history; only lift the block.
+      [cache(),(Array.isArray(window.ordersHistory)?window.ordersHistory:[])].forEach(function(arr){
+        arr.forEach(function(o){
+          if(String(o.orderId||o.id||'').trim().toUpperCase()===id)Object.assign(o,update);
+        });
+      });
+      try{
+        ['souqOrdersHistory','ordersHistory','adminOrdersCache'].forEach(function(k){
+          var raw=localStorage.getItem(k);if(!raw)return;
+          var arr=JSON.parse(raw);
+          if(Array.isArray(arr)){
+            arr.forEach(function(o){
+              if(String(o.orderId||o.id||'').trim().toUpperCase()===id)
+                Object.assign(o,{customerBlocked:false,blockLifted:true});
+            });
+            localStorage.setItem(k,JSON.stringify(arr));
+          }
+        });
+      }catch(e){}
+      renderRejected();
+      alert('تم فك الحظر بنجاح. تم حذف سجلات الحظر المطابقة، مع الاحتفاظ بالطلب القديم في قناة «رفض استلام وحظر». يمكن للعميل محاولة إنشاء طلب جديد.');
+    }catch(e){
+      console.error('Unblock customer failed:',e);
+      alert('تعذر فك الحظر. لم يتم تأكيد العملية.\n'+(e&&e.message?e.message:'خطأ غير معروف')+'\n\nتأكد من تسجيل الدخول بحساب الإدارة وأن قواعد Firestore تسمح بحذف مستندات blockedCustomers وتحديث الطلب.');
+    }finally{
+      if(button){button.disabled=false;button.textContent=originalText;}
+    }
+  };
+
+  function renderRejected(){
+    var box=document.getElementById('msqRejectedList');if(!box)return;
+    var q=String((document.getElementById('msqRejectedSearch')||{}).value||'').toLowerCase().trim().replace(/\s/g,'');
+    var list=cache().filter(function(o){
+      if(codeOf(o)!==4)return false;
+      var hay=[o.orderId,o.name,o.phone,o.status,o.statusLabel].join(' ').toLowerCase().replace(/\s/g,'');
+      return !q||hay.indexOf(q)!==-1;
+    });
+    var badge=document.getElementById('msqRejectedBadge');if(badge)badge.textContent=String(list.length);
+    if(!list.length){box.innerHTML='<p style="text-align:center;padding:20px;color:#7b1e2b">لا توجد طلبات مرفوض استلامها ومحظورة.</p>';return;}
+    box.innerHTML=list.map(function(o){
+      var id=String(o.orderId||'').replace(/'/g,"\\'");
+      return '<article class="order-card-admin"><div class="oid">🆔 '+esc(o.orderId||'-')+'</div>'+
+        '<div>👤 '+esc(o.name||o.customerName||'-')+' | 📱 '+esc(o.phone||o.customerPhone||'-')+'</div>'+
+        '<div>💰 '+esc(o.total||'-')+' | 📅 '+esc(o.date||'-')+'</div>'+
+        '<div style="margin:7px 0"><span class="msq-reject-status-badge">❌🚫 رفض استلام وحظر</span></div>'+
+        '<div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" onclick="showAdminOrderDetails(\''+id+'\')">🧾 تفاصيل الطلب</button>' +
+        (o.customerBlocked===false || o.blockLifted ? '<button type="button" disabled style="border:0;border-radius:8px;padding:8px 12px;background:#e8f5e9;color:#237445;font-weight:900;opacity:1">✅ تم فك الحظر</button>' :
+        '<button type="button" style="border:0;border-radius:8px;padding:8px 12px;background:#176b3a;color:#fff;font-weight:900;cursor:pointer" onclick="unblockRejectedCustomer(\''+id+'\',this)">🔓 فك حظر</button>') +
+        '</div></article>';
+    }).join('');
+    patchOrderCards(box);
+  }
+
+  function ensureRejectedTab(){
+    var tabs=document.getElementById('msqAdminTabs'),wrap=document.getElementById('msqAdminTabContent');
+    if(!tabs||!wrap)return;
+    var btn=tabs.querySelector('button[data-tab="rejected"]');
+    var pane=wrap.querySelector('[data-pane="rejected"]');
+    if(!btn){
+      btn=document.createElement('button');btn.type='button';btn.dataset.tab='rejected';
+      btn.innerHTML='❌🚫 رفض استلام وحظر <span id="msqRejectedBadge">0</span>';
+      var maint=tabs.querySelector('button[data-tab="maintenance"]');
+      if(maint)tabs.insertBefore(btn,maint);else tabs.appendChild(btn);
+      btn.addEventListener('click',function(){
+        tabs.querySelectorAll('button').forEach(function(b){b.classList.toggle('active',b===btn);});
+        wrap.querySelectorAll('.msq-tab-pane').forEach(function(p){p.classList.toggle('active',p===pane);});
+        renderRejected();
+      });
+    }
+    if(!pane){
+      pane=document.createElement('section');pane.className='msq-tab-pane';pane.dataset.pane='rejected';pane.id='msqRejectedPane';
+      pane.innerHTML='<input type="search" id="msqRejectedSearch" class="promo-input" placeholder="🔍 ابحث برقم الطلب أو اسم العميل أو الهاتف" style="width:100%;margin-bottom:10px;padding:10px;border-radius:10px;border:1px solid #ead1d5;background:#fff"/><div id="msqRejectedList"></div>';
+      wrap.appendChild(pane);
+      pane.querySelector('#msqRejectedSearch').addEventListener('input',renderRejected);
+    }
+    rejectedTabReady=true;
+    renderRejected();
+  }
+
+  function installCheckoutBlockGuard(){
+    if(typeof window.finalizeOrder!=='function'||window.finalizeOrder.__msqBlockGuard)return;
+    var old=window.finalizeOrder;
+    var wrapped=async function(){
+      var nm='',ph='';
+      var nameEl=document.getElementById('custName'),phoneEl=document.getElementById('custPhone');
+      nm=String(nameEl&&nameEl.value||'').trim();ph=String(phoneEl&&phoneEl.value||'').trim();
+      var nk=nameKey(nm),pk=phoneKey(ph);
+      if(!nk&&!pk)return old.apply(this,arguments);
+      var dbx=getDbSafe();
+      if(!dbx)return old.apply(this,arguments);
+      try{
+        var refs=[];
+        if(pk)refs.push(dbx.collection('blockedCustomerChecks').doc('phone_'+pk).get());
+        if(nk)refs.push(dbx.collection('blockedCustomerChecks').doc('name_'+encodeURIComponent(nk).replace(/%/g,'_')).get());
+        var snaps=await Promise.all(refs);
+        var blocked=snaps.some(function(snap){return snap.exists&&(snap.data()||{}).blocked!==false;});
+        if(blocked){
+          alert('عذرًا، لا يمكن إتمام طلب جديد باستخدام بيانات العميل المسجلة في قائمة الحظر. يُرجى التواصل مع إدارة My Souq.');
+          return;
+        }
+      }catch(e){
+        console.warn('تعذر التحقق من قائمة حظر العملاء:',e);
+        // Keep checkout available if the optional block-list read is denied; server-side rules are required for guaranteed enforcement.
+      }
+      return old.apply(this,arguments);
+    };
+    wrapped.__msqBlockGuard=true;window.finalizeOrder=wrapped;
+  }
+
+  function init(){
+    migrateExistingBlockChecks();
+    ensureRejectedTab();
+    installDetailWrapper();
+    installExceptionalGuard();
+    installCheckoutBlockGuard();
+    patchOrderCards(document.getElementById('adminOrdersList'));
+    patchOrderCards(document.getElementById('msqDeliveredList'));
+    patchDetails();
+  }
+  function observe(){
+    if(observersStarted||!document.body)return;
+    observersStarted=true;
+    try{
+      new MutationObserver(function(records){
+        records.forEach(function(r){r.addedNodes&&r.addedNodes.forEach(function(n){if(n.nodeType===1){patchOrderCards(n);if(n.id==='adminOrderDetailsBody'||(n.querySelector&&n.querySelector('#adminOrderDetailsBody')))patchDetails();}});});
+      }).observe(document.body,{childList:true,subtree:true});
+    }catch(e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){init();observe();});
+  else{init();observe();}
+  var timer=setInterval(init,700);setTimeout(function(){clearInterval(timer);init();},30000);
+})();
+</script>
+
+
+
+
+
+
+
+<!-- My Souq blocked-customer checkout enforcement v2 -->
+<script id="mysouq-blocked-customer-checkout-enforcement-v2">
+(function(){
+  'use strict';
+  var MESSAGE = 'الرقم الخاص بكم محظور من إدارة My Souq، الطلب لن يكتمل. رجاء الرجوع إلى الإدارة للاستعلام عن سبب الحظر.';
+  var CHECK_ERROR = 'تعذر التحقق من قائمة الحظر حاليًا، لذلك لم يتم إرسال الطلب. من فضلك أعد المحاولة بعد قليل، وإذا استمرت المشكلة تواصل مع إدارة My Souq.';
+  var busy = false;
+  var noticeEl = null;
+
+  function closeCartForNotice(){
+    var cart = document.getElementById('cartModal');
+    if (cart) {
+      cart.classList.remove('active');
+      cart.setAttribute('aria-hidden', 'true');
+    }
+    document.body.classList.remove('modal-open', 'cart-open');
+  }
+  function showNotice(message, isError){
+    closeCartForNotice();
+    if (!noticeEl) {
+      noticeEl = document.createElement('div');
+      noticeEl.id = 'msqBlockedNoticeOverlay';
+      noticeEl.innerHTML = '<section class="msq-blocked-notice" role="alertdialog" aria-modal="true" aria-labelledby="msqBlockedNoticeTitle"><button type="button" class="msq-blocked-notice-close" aria-label="إغلاق">×</button><div class="msq-blocked-notice-icon" aria-hidden="true">!</div><h2 id="msqBlockedNoticeTitle">تنبيه من My Souq</h2><p class="msq-blocked-notice-message"></p><button type="button" class="msq-blocked-notice-action">العودة إلى المتجر</button></section>';
+      document.body.appendChild(noticeEl);
+      var dismiss = function(){ noticeEl.classList.remove('is-visible'); document.body.classList.remove('msq-notice-open'); };
+      noticeEl.querySelector('.msq-blocked-notice-close').addEventListener('click', dismiss);
+      noticeEl.querySelector('.msq-blocked-notice-action').addEventListener('click', dismiss);
+      noticeEl.addEventListener('click', function(event){ if (event.target === noticeEl) dismiss(); });
+      document.addEventListener('keydown', function(event){ if (event.key === 'Escape' && noticeEl && noticeEl.classList.contains('is-visible')) dismiss(); });
+    }
+    noticeEl.querySelector('.msq-blocked-notice-message').textContent = message;
+    noticeEl.classList.toggle('is-error', !!isError);
+    noticeEl.classList.add('is-visible');
+    document.body.classList.add('msq-notice-open');
+    var closeButton = noticeEl.querySelector('.msq-blocked-notice-action');
+    if (closeButton) closeButton.focus();
+  }
+
+  function getDb(){
+    try { if (typeof db !== 'undefined' && db) return db; } catch(e) {}
+    try { if (window.firebase && typeof window.firebase.firestore === 'function') return window.firebase.firestore(); } catch(e) {}
+    return null;
+  }
+  function phoneKey(value){
+    var d = String(value || '').replace(/\D/g, '');
+    if (d.indexOf('0020') === 0) d = '0' + d.slice(4);
+    else if (d.indexOf('20') === 0) d = '0' + d.slice(2);
+    return d;
+  }
+  function nameKey(value){
+    return String(value == null ? '' : value).trim().toLowerCase()
+      .replace(/[\u064B-\u065F\u0670]/g, '').replace(/[ـ]/g, '')
+      .replace(/\s+/g, ' ').replace(/[أإآ]/g, 'ا').replace(/ى/g, 'ي')
+      .replace(/[^\w\u0600-\u06FF]/g, '').slice(0, 180);
+  }
+  function readCustomerFields(){
+    var nameEl = document.getElementById('custName');
+    var phoneEl = document.getElementById('custPhone');
+    return {
+      name: String(nameEl && nameEl.value || '').trim(),
+      phone: String(phoneEl && phoneEl.value || '').trim()
+    };
+  }
+  async function isBlocked(){
+    var customer = readCustomerFields();
+    var nk = nameKey(customer.name), pk = phoneKey(customer.phone);
+    if (!nk && !pk) return false;
+    var dbx = getDb();
+    if (!dbx) throw new Error('Firestore is unavailable');
+    var refs = [];
+    if (pk) refs.push(dbx.collection('blockedCustomerChecks').doc('phone_' + pk).get());
+    if (nk) refs.push(dbx.collection('blockedCustomerChecks').doc('name_' + encodeURIComponent(nk).replace(/%/g, '_')).get());
+    var snapshots = await Promise.all(refs);
+    return snapshots.some(function(snap){
+      if (!snap || !snap.exists) return false;
+      var data = snap.data() || {};
+      return data.blocked !== false;
+    });
+  }
+  async function allowCheckout(){
+    if (busy) return false;
+    busy = true;
+    try {
+      if (await isBlocked()) {
+        showNotice(MESSAGE, false);
+        return false;
+      }
+      return true;
+    } catch(error) {
+      console.error('My Souq blocked-customer verification failed:', error);
+      showNotice(CHECK_ERROR, true);
+      return false;
+    } finally {
+      busy = false;
+    }
+  }
+
+  function install(){
+    // Stop the customer before moving from customer details to the terms/confirmation stage.
+    if (typeof window.validateAndOpenTerms === 'function' && !window.validateAndOpenTerms.__msqBlockCheckV2) {
+      var previousValidate = window.validateAndOpenTerms;
+      var validateWrapper = async function(){
+        if (!(await allowCheckout())) return;
+        return previousValidate.apply(this, arguments);
+      };
+      validateWrapper.__msqBlockCheckV2 = true;
+      window.validateAndOpenTerms = validateWrapper;
+    }
+    // Re-check immediately before order creation, even if a user reaches confirmation by another path.
+    if (typeof window.finalizeOrder === 'function' && !window.finalizeOrder.__msqBlockCheckV2) {
+      var previousFinalize = window.finalizeOrder;
+      var finalizeWrapper = async function(){
+        if (!(await allowCheckout())) return;
+        return previousFinalize.apply(this, arguments);
+      };
+      finalizeWrapper.__msqBlockCheckV2 = true;
+      window.finalizeOrder = finalizeWrapper;
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', install);
+  else install();
+  var attempts = 0;
+  var timer = setInterval(function(){
+    install();
+    attempts++;
+    if (attempts >= 40) clearInterval(timer);
+  }, 500);
+})();
+</script>
+
+
+<!-- My Souq: Admin orders mobile layout v5 — compact chips + balanced header -->
+
+
+
+
+
+
+
+
+
+
+
+<script id="mysouq-terms-admin-compact-js">
+(function () {
+  function isAdminNow() {
+    try {
+      if (typeof isAdminMode !== 'undefined' && !!isAdminMode) return true;
+    } catch (e) {}
+    var btn = document.getElementById('adminOrdersBtn');
+    return !!(btn && btn.classList.contains('show'));
+  }
+
+  function syncTermsCompact() {
+    document.body.classList.toggle('msq-admin-on', isAdminNow());
+  }
+
+  function hook(name) {
+    if (typeof window[name] !== 'function' || window[name]._msqTermsCompact) return;
+    var orig = window[name];
+    window[name] = function () {
+      var r = orig.apply(this, arguments);
+      try {
+        if (r && typeof r.then === 'function') {
+          r.then(function () {
+            setTimeout(syncTermsCompact, 40);
+            setTimeout(syncTermsCompact, 300);
+            setTimeout(syncTermsCompact, 900);
+          });
+        }
+      } catch (e) {}
+      setTimeout(syncTermsCompact, 40);
+      setTimeout(syncTermsCompact, 300);
+      setTimeout(syncTermsCompact, 900);
+      return r;
+    };
+    window[name]._msqTermsCompact = true;
+  }
+
+  function boot() {
+    syncTermsCompact();
+    hook('loginAdmin');
+    hook('logoutAdmin');
+    hook('handleAdminButton');
+    var btn = document.getElementById('adminOrdersBtn');
+    if (btn) {
+      new MutationObserver(syncTermsCompact).observe(btn, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+      });
+    }
+    // لو auth state اتغير من Firebase
+    setInterval(syncTermsCompact, 1500);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+
+
+
+
+
+
+<!-- cleaned obsolete mysouq-customer-support-chat-v2 -->
+
+
+
+<script id="mysouq-customer-support-chat-script-v1">
+(function(){
+  'use strict';
+  if(window.__msqSupportChatInitialized) return;
+  window.__msqSupportChatInitialized=true;
+  var panel=document.getElementById('msqSupportPanel'), launcher=document.getElementById('msqSupportLauncher');
+  var messages=document.getElementById('msqSupportMessages'), form=document.getElementById('msqSupportForm'), input=document.getElementById('msqSupportInput');
+  if(!panel||!launcher||!messages||!form||!input) return;
+  // Ensure chat starts closed (never auto-open on load/cache)
+  panel.hidden = true;
+  panel.setAttribute('hidden','');
+  launcher.setAttribute('aria-expanded','false');
+  var history=[];
+  // Public support endpoint; no secrets belong in this HTML.
+  window.MYSOUQ_SUPPORT_API_ENDPOINT = 'https://mysouq-bot.ahmedaly1g.workers.dev';
+  // AI runs only on the Cloudflare Worker; Gemini API key stays in Worker Secrets.
+  window.MYSOUQ_SUPPORT_AI_ENDPOINT = window.MYSOUQ_SUPPORT_API_ENDPOINT + '/api/ai/reply';
+  var supportNumber='201116339905';
+  var supportApi=window.MYSOUQ_SUPPORT_API_ENDPOINT, conversationId='', syncBusy=false, pollHandle=null;
+  // لا نسترجع محادثة قديمة: كل فتح جديد للشات يبدأ جلسة جديدة.
+  var humanMode=false, closedNoticeShown=false;
+  var customerName='';
+  try{customerName=localStorage.getItem('msqSupportCustomerName')||'';}catch(e){}
+  async function setCustomerName(name){
+    name=safeText(name).slice(0,80);
+    if(!name)return;
+    customerName=name;
+    try{localStorage.setItem('msqSupportCustomerName',name);}catch(e){}
+    try{
+      var id=await ensureConversation();
+      await apiRequest('/api/chat/name',{method:'POST',body:JSON.stringify({conversationId:id,name:name})});
+    }catch(e){console.warn('set name failed',e);}
+  }
+  function apiRequest(path,options){options=options||{};options.headers=Object.assign({'Content-Type':'application/json'},options.headers||{});options.credentials='omit';return fetch(supportApi+path,options).then(function(r){return r.json().catch(function(){return {ok:false,error:'استجابة غير صالحة'};}).then(function(d){if(!r.ok||d.ok===false)throw new Error(d.error||('HTTP '+r.status));return d;});});}
+  async function ensureConversation(){if(conversationId)return conversationId;var ctx=getContext();var d=await apiRequest('/api/chat/create',{method:'POST',body:JSON.stringify({name:customerName||'زائر My Souq',pageUrl:location.href,product:ctx.product||'',order:ctx.order||''})});conversationId=(d.conversation&&d.conversation.id)||d.conversationId||'';if(!conversationId)throw new Error('لم يرجع الخادم رقم المحادثة');return conversationId;}
+  async function storeCustomerMessage(text){var id=await ensureConversation();var result=await apiRequest('/api/chat/message',{method:'POST',body:JSON.stringify({conversationId:id,text:text})});if(result.status==='closed'){conversationId='';humanMode=false;closedNoticeShown=false;history=[];messages.replaceChildren();var newId=await ensureConversation();result=await apiRequest('/api/chat/message',{method:'POST',body:JSON.stringify({conversationId:newId,text:text})});}return result;}
+  async function syncAdminReplies(){if(!conversationId||syncBusy||panel.hidden)return;syncBusy=true;try{var d=await apiRequest('/api/chat/messages?conversationId='+encodeURIComponent(conversationId));var items=Array.isArray(d.messages)?d.messages:[],known={};humanMode=!!d.humanMode||!!d.needsHuman||d.status==='pending';messages.querySelectorAll('[data-msq-server-id]').forEach(function(n){known[n.getAttribute('data-msq-server-id')]='1';});items.forEach(function(m){if((m.role==='admin'||m.role==='owner')&&m.id&&!known[m.id]){var node=document.createElement('div');node.className='msq-support-message bot';node.textContent='صاحب المتجر: '+safeText(m.text||m.content||'');node.setAttribute('data-msq-server-id',m.id);messages.appendChild(node);history.push({role:'assistant',content:safeText(m.text||m.content||'')});if(history.length>18)history=history.slice(-18);if(/إنهاء المحادثة البشرية|إنهاء المحادثة/.test(String(m.text||'')))closedNoticeShown=true;}});if(d.status==='closed')humanMode=false;messages.scrollTop=messages.scrollHeight;}catch(e){console.warn('My Souq support sync unavailable.',e);}finally{syncBusy=false;}}
+  function startReplyPolling(){if(pollHandle)clearInterval(pollHandle);syncAdminReplies();pollHandle=setInterval(syncAdminReplies,1200);}
+
+  var quickAnswers={
+    track:'تمام، خلّينا نتابع طلبك مع بعض.\n\nاضغط على زر «تتبع طلبك» أعلى الصفحة، ثم اكتب رقم الطلب.\n\nلو النتيجة مش واضحة أو محتاج تأكيد إضافي، ابعتلي رقم الطلب هنا وأوجّهك، أو اضغط «طلب تدخل صاحب المتجر» علشان الإدارة تراجع الحالة معاك.',
+    order:'ما تقلقش، هنحلها خطوة بخطوة.\n\nتأكد من:\n• الاسم ورقم الموبايل والعنوان مكتوبين صح\n• اختيار طريقة الدفع\n• الموافقة على الشروط إن ظهرت\n\nلو زر التأكيد لسه مش شغال، ابعتلي رقم الطلب (لو موجود) أو وصف سريع للمشكلة، وهساعدك أو أوجّهك لزر «طلب تدخل صاحب المتجر». ما تضغطش مرات متتالية لو الزر بيحمّل.',
+    shipping:'مواعيد الشحن بتختلف حسب المنطقة وحالة الطلب.\n\nأفضل خطوة دلوقتي: افتح «تتبع طلبك» عشان تشوف آخر حالة.\n\nلو محتاج تأكيد خاص على ميعاد الوصول، قولي رقم الطلب أو المنطقة، وأقدر أجهّز لك رسالة مباشرة لصاحب المتجر.',
+    sizes:'عشان نختار المقاس الصح:\n\n1) افتح صفحة المنتج\n2) شوف جدول المقاسات أو الوصف\n3) اختار المقاس واللون المتاحين قبل ما تضيف للسلة\n\nلو جدول المقاسات مش واضح أو محتاج تأكيد على منتج معيّن، ابعت اسم المنتج أو رابطه هنا وأساعدك بالمعلومات الظاهرة، أو أحوّلك لصاحب المتجر.',
+    payment:'راجع اختيار طريقة الدفع واتبع التعليمات في صفحة إتمام الطلب.\n\nمهم: من فضلك ما تبعتش هنا أرقام بطاقات أو كلمات مرور أو أي بيانات دفع حساسة.\n\nلو الدفع تم لكن الطلب مش متأكد، ابعت رقم الطلب (إن وجد) واضغط «طلب تدخل صاحب المتجر» عشان نتابع معاك بأمان.',
+    return:'سياسة الاستبدال أو الإرجاع تعتمد على حالة الطلب ونوع المنتج.\n\nابعتلي تفاصيل مختصرة (رقم الطلب + سبب مختصر) من غير أي بيانات دفع، وأوجّهك للخطوة التالية أو أجهّز لك رسالة مباشرة لصاحب المتجر.'
+  };
+  function safeText(v){return String(v==null?'':v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'').trim();}
+  function addMessage(text,who){
+    var el=document.createElement('div'); el.className='msq-support-message '+(who==='user'?'user':'bot'); el.textContent=text;
+    messages.appendChild(el); messages.scrollTop=messages.scrollHeight;
+    history.push({role:who==='user'?'user':'assistant',content:text}); if(history.length>18) history=history.slice(-18);
+    return el;
+  }
+  function openChat(){panel.hidden=false;launcher.setAttribute('aria-expanded','true');startReplyPolling();setTimeout(function(){input.focus();},80);}
+  function closeChat(){var oldId=conversationId;if(oldId){apiRequest('/api/chat/close',{method:'POST',body:JSON.stringify({conversationId:oldId})}).catch(function(e){console.warn('Support session close failed',e);});}panel.hidden=true;launcher.setAttribute('aria-expanded','false');launcher.focus();if(pollHandle){clearInterval(pollHandle);pollHandle=null;}conversationId='';humanMode=false;closedNoticeShown=false;history=[];messages.replaceChildren();input.value='';input.style.height='auto';try{localStorage.removeItem('msqSupportConversationId');}catch(e){}}
+  launcher.addEventListener('click',function(){panel.hidden?openChat():closeChat();});
+  document.getElementById('msqSupportClose').addEventListener('click',closeChat);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&!panel.hidden)closeChat();});
+  function doQuick(key){var prompt=({track:'عاوز أتتبع طلبي',order:'عندي مشكلة في تأكيد الطلب',shipping:'عاوز أعرف معلومات الشحن',sizes:'عندي سؤال عن المقاسات والمنتجات',payment:'عندي مشكلة في الدفع',return:'عندي سؤال عن الاستبدال أو الإرجاع'})[key];if(!prompt)return;submitText(prompt);}
+  messages.addEventListener('click',function(e){var b=e.target.closest('[data-msq-quick]');if(b)doQuick(b.getAttribute('data-msq-quick'));});
+  function detectIntent(t){var s=t.toLowerCase();if(/تتبع|تابع|وصل|حالة الطلب|رقم الطلب|اوردر|أوردر/.test(s))return 'track';if(/تأكيد|تاكيد|مش شغال|لا يعمل|الطلب مش|إتمام الطلب|اتمام الطلب|زرار/.test(s))return 'order';if(/شحن|توصيل|ميعاد الوصول|التوصيل/.test(s))return 'shipping';if(/مقاس|مقاسات|لون|خامة|خامات|منتج|صورة/.test(s))return 'sizes';if(/دفع|انستا باي|instapay|فلوس|تحويل/.test(s))return 'payment';if(/استبدال|استرجاع|ارجاع|إرجاع|رجوع/.test(s))return 'return';return null;}
+  async function askAssistant(text){
+    // Optional secure AI endpoint: configure this on a backend/Worker, never put API secrets in this page.
+    var endpoint=window.MYSOUQ_SUPPORT_AI_ENDPOINT;
+    var aiUnavailable=false;
+    if(endpoint && /^https:\/\//i.test(endpoint)){
+      try{
+        var controller=typeof AbortController!=='undefined'?new AbortController():null;
+        // First requests may load product knowledge from GitHub; allow enough time for the AI response.
+        var timer=controller?setTimeout(function(){controller.abort();},25000):null;
+        var response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify((function(){var ctx=getContext(),box=document.getElementById('trackingResultContainer');var st=box?safeText(box.innerText).slice(0,1800):'';return {message:text,history:history.slice(-10),page:{url:location.href,title:document.title,product:ctx.product,order:ctx.order,orderStatus:st}};})()),signal:controller?controller.signal:undefined,credentials:'omit'});
+        if(timer)clearTimeout(timer);
+        if(response.ok){var data=await response.json();var answer=safeText(data.reply||data.answer||data.message);if(answer)return answer;aiUnavailable=true;}else{aiUnavailable=true;}
+      }catch(err){aiUnavailable=true;console.warn('My Souq support AI unavailable.',err);}
+    }else{aiUnavailable=true;}
+    if(aiUnavailable){
+      return 'معلش، المساعد الذكي مش قادر يتصل بخدمة الرد دلوقتي، ومش عايز أديك معلومة غير مؤكدة. جرّب تبعت رسالتك بعد دقيقة، ولو الموضوع مستعجل اضغط «طلب تدخل صاحب المتجر» وهيوصل طلبك للإدارة.';
+    }
+    var intent=detectIntent(text);if(intent)return quickAnswers[intent];
+    var lower=text.toLowerCase();
+    var trimmed=text.trim();
+
+    // استخراج الاسم: "اسمي أحمد" / "أنا سارة" / اسم قصير بعد ما سألنا
+    var nameMatch=trimmed.match(/^(?:اسمي|أنا اسمي|انا اسمي|أنا|انا)\s+([\u0600-\u06FFa-zA-Z][\u0600-\u06FFa-zA-Z\s]{1,40})$/i);
+    if(nameMatch){
+      var nm=nameMatch[1].trim();
+      setCustomerName(nm);
+      return 'تشرفنا يا '+nm+' 😊\nقولي أقدر أساعدك في إيه؟ منتج، طلب، شحن، ولا حاجة تانية؟';
+    }
+    // لو مش معانا اسم ولسه في بداية المحادثة واحنا سألنا عن الاسم
+    var askedName=history.some(function(m){return m.role==='assistant'&&/نتشرف|اسمك|باسمك/.test(m.content||'');});
+    if(askedName && !customerName && trimmed.length>=2 && trimmed.length<=40 && !/[؟?]/.test(trimmed) && !detectIntent(trimmed)){
+      // غالباً الرد اسم فقط
+      if(!/^(هاي|هاى|اهلا|أهلا|مرحبا|السلام|hello|hi|شكرا|تمام|ماشي)/i.test(trimmed)){
+        setCustomerName(trimmed);
+        return 'تشرفنا يا '+trimmed+' 😊\nقولي أقدر أساعدك في إيه النهاردة؟';
+      }
+    }
+
+    if(/^(هاي|هاى|اهلا|أهلا|أهلًا|مرحبا|مرحبًا|السلام عليكم|سلام عليكم|سلام|hello|hi|hey)[!؟.\s]*$/i.test(trimmed)){
+      if(customerName)return 'أهلًا يا '+customerName+' 😊 نورتنا في My Souq.\nتحب أساعدك في إيه؟';
+      return 'أهلًا وسهلًا بيك في My Souq 😊 نورتنا!\nنتشرف نعرف اسمك؟';
+    }
+    if(/عامل ايه|عاملة ايه|اخبارك|إزيك|ازيك|كيفك/.test(lower)){
+      if(customerName)return 'الحمد لله تمام يا '+customerName+' 😊\nقولي أقدر أساعدك في إيه؟';
+      return 'الحمد لله تمام 😊 يا رب تكون بخير.\nنتشرف نعرف اسمك وبعدين أساعدك في اللي محتاجه.';
+    }
+    if(/شكرا|شكرًا|تسلم|متشكر|متشكرة/.test(text))return 'العفو'+(customerName?' يا '+customerName:'')+' ❤️\nلو محتاج أي حاجة تانية أنا موجود.';
+    if(/تمام|ماشي|حلو|كويس/.test(text) && history.length>2)return 'تمام 😊 أنا معاك.\nتحب نكمّل ولا عندك سؤال تاني؟';
+    if(history.length<=2){
+      if(!customerName)return 'حاضر 😊 نتشرف نعرف اسمك الأول، وبعدين احكيلي محتاج إيه.';
+      return 'حاضر يا '+customerName+' 😊\nاحكيلي براحتك إيه اللي محتاجه.';
+    }
+    return 'فاهمك تمام 😊 خلّينا نوضحها مع بعض.\nهل الموضوع متعلق بـ طلب، أو منتج، أو شحن، أو دفع؟';
+  }
+  async function submitText(raw){var text=safeText(raw);if(!text)return;input.value='';input.style.height='auto';var saved;try{saved=await storeCustomerMessage(text);}catch(err){addMessage(text,'user');addMessage('تعذر إرسال رسالتك لخادم الدعم الآن. تأكد من اتصال الإنترنت وحاول مرة أخرى.','bot');console.warn('Support message save failed',err);return;}addMessage(text,'user');if(saved&&(saved.humanMode||saved.needsHuman||saved.status==='pending'))humanMode=true;if(humanMode){startReplyPolling();return;}var pending=addMessage('ثوانٍ من فضلك، بجيب لك الرد المناسب…','bot');var answer=await askAssistant(text);pending.textContent=answer;history[history.length-1].content=answer;messages.scrollTop=messages.scrollHeight;syncAdminReplies();}
+  form.addEventListener('submit',function(e){e.preventDefault();if(form.dataset.busy==='1')return;var v=safeText(input.value);if(!v)return;form.dataset.busy='1';var btn=document.getElementById('msqSupportSend');btn.disabled=true;submitText(v).finally(function(){form.dataset.busy='0';btn.disabled=false;input.focus();});});
+  input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();form.requestSubmit();}});
+  input.addEventListener('input',function(){input.style.height='auto';input.style.height=Math.min(input.scrollHeight,100)+'px';});
+  function getContext(){var product='';try{var t=document.querySelector('#modalTitle, .product-modal-title, [id*="productTitle"]');if(t)product=safeText(t.textContent).slice(0,120);}catch(e){}var order='';try{var o=document.getElementById('trackInputId');if(o)order=safeText(o.value).slice(0,60);}catch(e){}return {product:product,order:order};}
+  async function handoff(){
+    var transcript=history.slice(-12).map(function(m){return (m.role==='user'?'العميل: ':'المساعد: ')+m.content;}).join('\n');
+    var ctx=getContext();
+    var handoffMsg='🚨 طلب تدخل صاحب المتجر';
+    var endpoint=window.MYSOUQ_SUPPORT_API_ENDPOINT;
+    var savedOk=false;
+    var followId='';
+
+    // 1) سجّل الطلب على السيرفر (لوحة الإدارة + أي تنبيه سيرفر)
+    if(endpoint && /^https:\/\//i.test(endpoint)){
+      try{
+        var id=await ensureConversation();
+        followId=id;
+        try{await storeCustomerMessage(handoffMsg);}catch(e){console.warn('handoff message save',e);}
+        var response=await apiRequest('/api/chat/handoff',{method:'POST',body:JSON.stringify({
+          conversationId:id,
+          summary:transcript,
+          conversation:history.slice(-18),
+          order:ctx.order||'',
+          product:ctx.product||'',
+          pageUrl:location.href,
+          status:'pending',
+          needsHuman:true,
+          notifyTelegram:true
+        })});
+        if(response.ok){
+          savedOk=true;
+          humanMode=true;
+          followId=response.conversationId||id;
+        }
+      }catch(err){console.warn('My Souq support handoff endpoint unavailable.',err);}
+    }
+
+    addMessage(handoffMsg,'user');
+    if(savedOk){
+      addMessage('تم تسجيل طلبك بنجاح ✅ هيصلك رد من صاحب المتجر هنا في الشات عند المراجعة.\nرقم المتابعة: '+followId,'bot');
+      startReplyPolling();
+    }else{
+      addMessage('تعذر إرسال التنبيه الآن. حاول مرة تانية بعد قليل، أو تواصل من صفحة التواصل.','bot');
+    }
+    // التنبيه بيروح على تيليجرام للـ CEO — مفيش واتساب ولا فتح لوحة دعم
+  }
+  
+  document.getElementById('msqSupportHuman').addEventListener('click',handoff);
+})();
+</script>
+
+
+<!-- cleaned obsolete mysouq-chat-luxury-skin-v3 -->
+
+
+
+
+<!-- cleaned obsolete mysouq-chat-layout-fix-v4 -->
+
+
+
+
+<!-- cleaned obsolete mysouq-chat-premium-fix-v5 -->
+
+
+
+<!-- cleaned obsolete mysouq-chat-header-final-v7 -->
+
+
+
+<!-- cleaned obsolete mysouq-launcher-tooltip-fix-v8 -->
+
+
+
+<!-- cleaned obsolete mysouq-floats-layout-v9 -->
+
+
+
+
+<script id="mysouq-feature-pack-v2">
+(function(){
+  'use strict';
+  if (window.__msqFeaturePackV2) return;
+  window.__msqFeaturePackV2 = true;
+
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+  function normPhone(p){ return String(p||'').replace(/\D/g,''); }
+  function normText(t){ return String(t||'').replace(/\s+/g,' ').trim().toLowerCase(); }
+  function normGps(o){
+    var lat = o && (o.latitude!=null ? o.latitude : o.lat);
+    var lng = o && (o.longitude!=null ? o.longitude : o.lng);
+    if (lat==null || lng==null || lat==='' || lng==='') return null;
+    var a = Number(lat), b = Number(lng);
+    if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+    return a.toFixed(5)+','+b.toFixed(5);
+  }
+  function codeOf(o){
+    var n = Number(o && o.statusCode);
+    if (Number.isFinite(n)) return n;
+    var l = String(o && (o.status || o.statusLabel) || '');
+    if (/تم الدمج|تم التوريد|تم التسليم|تم التوصيل|تم الاستلام|مكتمل/.test(l)) return 3;
+    if (/جاري الشحن/.test(l)) return 2;
+    if (/تم الحجز/.test(l)) return 1;
+    return 0;
+  }
+  function getCache(){
+    try { if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) return adminOrdersCache; } catch(e) {}
+    return Array.isArray(window.adminOrdersCache) ? window.adminOrdersCache : [];
+  }
+  function getDb(){
+    try { if (typeof firebase !== 'undefined' && firebase.firestore) return firebase.firestore(); } catch(e) {}
+    return null;
+  }
+
+  /* ---------- robust money / items ---------- */
+  function parseMoney(v){
+    if (typeof v === 'number' && Number.isFinite(v)) return v;
+    var s = String(v==null?'':v).replace(/,/g,'');
+    var m = s.match(/(\d+(?:\.\d+)?)/);
+    return m ? Number(m[1]) : 0;
+  }
+  function lineTotal(it){
+    if (!it || typeof it !== 'object') return 0;
+    var qty = Number(it.qty != null ? it.qty : (it.quantity != null ? it.quantity : 1));
+    if (!Number.isFinite(qty) || qty < 1) qty = 1;
+    // prefer explicit line total fields
+    if (it.lineTotal != null) return parseMoney(it.lineTotal);
+    if (it.total != null && it.price == null) return parseMoney(it.total);
+    var unit = parseMoney(it.price != null ? it.price : (it.unitPrice != null ? it.unitPrice : 0));
+    return unit * qty;
+  }
+  function cloneItem(it){
+    try { return JSON.parse(JSON.stringify(it)); } catch(e) { return Object.assign({}, it); }
+  }
+  function formatEGP(n){
+    var x = Math.round(Number(n) || 0);
+    return x + ' ج.م';
+  }
+
+  async function findOrderDoc(orderId){
+    var id = String(orderId||'').trim();
+    if (!id) return null;
+    var db = getDb();
+    if (!db) throw new Error('Firebase غير متاح');
+    var direct = await db.collection('orders').doc(id).get();
+    if (direct.exists) return { ref: direct.ref, data: direct.data() || {}, id: direct.id };
+    var snap = await db.collection('orders').where('orderId','==',id).limit(1).get();
+    if (!snap.empty) {
+      var d = snap.docs[0];
+      return { ref: d.ref, data: d.data() || {}, id: d.id };
+    }
+    return null;
+  }
+  function sameCustomer(a, b){
+    if (normPhone(a.phone) !== normPhone(b.phone) || !normPhone(a.phone)) return {ok:false, reason:'رقم التليفون غير متطابق أو فارغ'};
+    if (normText(a.name) !== normText(b.name) || !normText(a.name)) return {ok:false, reason:'الاسم غير متطابق أو فارغ'};
+    if (normText(a.address) !== normText(b.address) || !normText(a.address)) return {ok:false, reason:'العنوان غير متطابق أو فارغ'};
+    var ga = normGps(a), gb = normGps(b);
+    if (ga && gb && ga !== gb) return {ok:false, reason:'موقع الـ GPS غير متطابق'};
+    return {ok:true};
+  }
+
+  window.msqToggleMergeBox = function(orderId){
+    var el = document.getElementById('msq-merge-'+String(orderId).replace(/[^a-zA-Z0-9_-]/g,'_'));
+    if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  };
+
+  window.msqMergeOrders = async function(primaryId){
+    try {
+      var pid = String(primaryId || '').trim();
+      var input = document.querySelector('[data-msq-merge-input="'+pid+'"]')
+        || document.querySelector('[data-msq-merge-input="'+pid.toUpperCase()+'"]')
+        || document.querySelector('#msq-merge-'+pid.replace(/[^a-zA-Z0-9_-]/g,'_')+' input')
+        || document.querySelector('#msq-merge-'+String(pid).toUpperCase().replace(/[^a-zA-Z0-9_-]/g,'_')+' input');
+      var otherId = input ? String(input.value||'').trim() : '';
+      if (!otherId) { alert('اكتب رقم الطلب المراد دمجه'); return; }
+      if (String(otherId).toUpperCase() === String(primaryId).toUpperCase()) {
+        alert('لا يمكن دمج الطلب مع نفسه'); return;
+      }
+      if (!confirm('تأكيد دمج الطلب '+otherId+' داخل الطلب '+primaryId+'؟\nالمنتجات هتتجمع والسعر هيتجمع.\nالرقم النهائي: '+primaryId)) return;
+
+      var primary = await findOrderDoc(primaryId);
+      var other = await findOrderDoc(otherId);
+      if (!primary) { alert('الطلب الأساسي غير موجود: '+primaryId); return; }
+      if (!other) { alert('الطلب المراد دمجه غير موجود: '+otherId); return; }
+
+      var a = Object.assign({ orderId: primaryId }, primary.data);
+      var b = Object.assign({ orderId: otherId }, other.data);
+      if (codeOf(a) !== 0 || codeOf(b) !== 0) {
+        alert('الدمج متاح فقط والطلبان في مرحلة «تحت التنفيذ».');
+        return;
+      }
+      var chk = sameCustomer(a, b);
+      if (!chk.ok) {
+        alert('لا يمكن الدمج: '+chk.reason);
+        return;
+      }
+
+      var itemsA = (Array.isArray(a.items) ? a.items : []).map(cloneItem);
+      var itemsB = (Array.isArray(b.items) ? b.items : []).map(cloneItem);
+      if (!itemsA.length && !itemsB.length) {
+        alert('لا توجد منتجات في الطلبين للدمج');
+        return;
+      }
+
+      // Mark origin on each line for clarity
+      itemsA.forEach(function(it){ if (!it._fromOrder) it._fromOrder = primaryId; });
+      itemsB.forEach(function(it){ it._fromOrder = otherId; });
+
+      var mergedItems = itemsA.concat(itemsB);
+
+      var sumA = itemsA.reduce(function(s, it){ return s + lineTotal(it); }, 0);
+      var sumB = itemsB.reduce(function(s, it){ return s + lineTotal(it); }, 0);
+      // Fallback to stored totals if line prices missing
+      if (sumA <= 0) sumA = parseMoney(a.total);
+      if (sumB <= 0) sumB = parseMoney(b.total);
+      var grand = sumA + sumB;
+      if (grand <= 0) {
+        alert('تعذر حساب الإجمالي. تأكد أن أسعار المنتجات محفوظة في الطلبات.');
+        return;
+      }
+
+      var mergedFrom = Array.isArray(a.mergedFrom) ? a.mergedFrom.slice() : [];
+      if (mergedFrom.indexOf(otherId) === -1) mergedFrom.push(otherId);
+      if (Array.isArray(b.mergedFrom)) b.mergedFrom.forEach(function(x){
+        if (mergedFrom.indexOf(x) === -1) mergedFrom.push(x);
+      });
+
+      var updatePrimary = {
+        items: mergedItems,
+        total: formatEGP(grand),
+        totalNumber: grand,
+        itemsCount: mergedItems.length,
+        mergedFrom: mergedFrom,
+        mergedAt: new Date().toISOString(),
+        mergeNote: 'دُمج الطلب '+otherId+' (منتجات: '+itemsB.length+' / مبلغ: '+formatEGP(sumB)+') داخل '+primaryId,
+        updatedAt: new Date().toISOString()
+      };
+      await primary.ref.set(updatePrimary, { merge: true });
+
+      await other.ref.set({
+        statusCode: 3,
+        status: 'تم الدمج',
+        statusLabel: 'تم الدمج في '+primaryId,
+        mergedInto: primaryId,
+        mergedAt: new Date().toISOString(),
+        totalBeforeMerge: b.total || null,
+        itemsBeforeMergeCount: itemsB.length,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
+
+      // local cache
+      getCache().forEach(function(o){
+        if (String(o.orderId) === String(primaryId)) Object.assign(o, updatePrimary);
+        if (String(o.orderId) === String(otherId)) {
+          o.statusCode = 3; o.status = 'تم الدمج'; o.statusLabel = 'تم الدمج في '+primaryId; o.mergedInto = primaryId;
+        }
+      });
+
+      alert('✅ تم الدمج بنجاح\nالرقم النهائي: '+primaryId+'\nعدد المنتجات: '+mergedItems.length+'\nالإجمالي الجديد: '+formatEGP(grand));
+      if (typeof window.filterAdminOrders === 'function') window.filterAdminOrders();
+      try { if (typeof window.loadAdminOrders === 'function') await window.loadAdminOrders(); } catch(e) {}
+    } catch (err) {
+      console.error(err);
+      alert('تعذر الدمج: '+(err && err.message ? err.message : err));
+    }
+  };
+
+  function injectMergeUi(){
+    var box = document.getElementById('adminOrdersList');
+    if (!box) return;
+    box.querySelectorAll('.order-card-admin').forEach(function(card){
+      if (card.querySelector('.msq-merge-toggle')) return;
+      var orderId = '';
+      var detailBtn = card.querySelector('button[onclick*="showAdminOrderDetails"]');
+      if (detailBtn) {
+        var m = String(detailBtn.getAttribute('onclick')||'').match(/showAdminOrderDetails\('([^']+)'\)/);
+        if (m) orderId = m[1];
+      }
+      if (!orderId) return;
+      var order = getCache().find(function(o){ return String(o.orderId)===String(orderId); });
+      if (!order || codeOf(order) !== 0) return;
+      var safeKey = String(orderId).replace(/[^a-zA-Z0-9_-]/g,'_');
+      var wrap = document.createElement('div');
+      wrap.innerHTML =
+        '<button type="button" class="msq-merge-toggle" onclick="msqToggleMergeBox(\''+String(orderId).replace(/'/g,"\\'")+'\')">🔗 دمج طلبات</button>'+
+        '<div class="msq-merge-box" id="msq-merge-'+safeKey+'" style="display:none">'+
+          '<label>الدمج مع رقم طلب لنفس العميل</label>'+
+          '<div class="msq-merge-row">'+
+            '<input type="text" data-msq-merge-input="'+esc(orderId)+'" placeholder="رقم الطلب الآخر">'+
+            '<button type="button" onclick="msqMergeOrders(\''+String(orderId).replace(/'/g,"\\'")+'\')">تأكيد الدمج</button>'+
+          '</div>'+
+          '<div style="font-size:11px;color:#7a6470;margin-top:6px;line-height:1.65">المنتجات هتتجمع (تيشيرت + بنطلون…) والإجمالي يتحسب تلقائي. الشرط: نفس الاسم والتليفون والعنوان'+(normGps(order)?' والـ GPS':'')+'. الرقم النهائي: <b>'+esc(orderId)+'</b></div>'+
+        '</div>';
+      card.appendChild(wrap);
+    });
+  }
+  function wrapFilter(){
+    if (typeof window.filterAdminOrders !== 'function' || window.filterAdminOrders.__msqMergeWrapped) return !!window.filterAdminOrders;
+    var prev = window.filterAdminOrders;
+    window.filterAdminOrders = function(){ var r = prev.apply(this, arguments); try{injectMergeUi();}catch(e){} return r; };
+    window.filterAdminOrders.__msqMergeWrapped = true;
+    return true;
+  }
+  function ensureStatus0Button(){
+    var bar = document.getElementById('msqOpenOrderFilters');
+    if (!bar || bar.querySelector('button[data-status="0"]')) return;
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.setAttribute('data-status','0'); btn.setAttribute('aria-pressed','false');
+    btn.textContent = '🟡 طلبات تحت التنفيذ';
+    bar.insertBefore(btn, bar.firstChild);
+  }
+
+  /* ---------- Exchange policy (factory defect only) ---------- */
+  function injectExchangePolicy(){
+    var info = document.querySelector('#productModal .modal-info');
+    if (!info) return;
+    var box = document.getElementById('msqExchangePolicyBox');
+    if (!box) {
+      box = document.createElement('div');
+      box.id = 'msqExchangePolicyBox';
+      box.className = 'msq-exchange-policy';
+      var actions = info.querySelector('.modal-actions-row');
+      if (actions) info.insertBefore(box, actions); else info.appendChild(box);
+    }
+    box.innerHTML = '<strong>🔄 سياسة الاستبدال</strong>'+
+      'الاستبدال متاح <b>فقط</b> في حالة وجود <b>عيب تصنيع (عيب مصنع)</b> في المنتج.<br>'+
+      'بعد الاستلام، ادخل على <b>تتبع الطلب</b> واضغط «طلب استبدال» وارفع صور توضح العيب بوضوح مع رقم الطلب.';
+  }
+
+  /* ---------- Customer exchange request (tracking) ---------- */
+  var __exPhotos = []; // dataURLs
+
+  function compressImageFile(file, maxW, quality){
+    return new Promise(function(resolve, reject){
+      if (!file || !file.type || file.type.indexOf('image/')!==0) return reject(new Error('صورة فقط'));
+      var reader = new FileReader();
+      reader.onload = function(){
+        var img = new Image();
+        img.onload = function(){
+          var w = img.width, h = img.height;
+          var scale = Math.min(1, (maxW||900) / Math.max(w, h));
+          var cw = Math.round(w * scale), ch = Math.round(h * scale);
+          var c = document.createElement('canvas');
+          c.width = cw; c.height = ch;
+          c.getContext('2d').drawImage(img, 0, 0, cw, ch);
+          resolve(c.toDataURL('image/jpeg', quality || 0.72));
+        };
+        img.onerror = reject;
+        img.src = reader.result;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function injectExchangePanel(){
+    var box = document.getElementById('trackingResultContainer');
+    if (!box || box.style.display === 'none') return;
+    if (box.querySelector('.msq-exchange-panel')) return;
+    if (!(box.innerHTML.indexOf('تم العثور على طلبك') !== -1 || box.innerHTML.indexOf('تم العثور على الطلب') !== -1)) return;
+
+    // Only for delivered / received
+    var statusText = '';
+    var stEl = box.querySelector('.customer-track-current-status strong, .track-status-banner');
+    if (stEl) statusText = stEl.textContent || '';
+    var delivered = /تم التوريد|تم التسليم|تم التوصيل|تم الاستلام|مكتمل/.test(statusText);
+    // also check timeline completed steps - if status code text not matching still allow if last stage active
+    if (!delivered) {
+      // hide for non-delivered
+      return;
+    }
+
+    var orderId = '';
+    var idEl = box.querySelector('.customer-track-data strong');
+    if (idEl) orderId = idEl.textContent.trim();
+    // better: track input
+    var inp = document.getElementById('trackInputId');
+    if (inp && inp.value) orderId = String(inp.value).trim();
+
+    var panel = document.createElement('div');
+    panel.className = 'msq-exchange-panel';
+    panel.innerHTML =
+      '<h4>🔄 طلب الاستبدال والإرجاع (عيب مصنع)</h4>'+
+      '<p>الاستبدال متاح فقط لعيب تصنيع. اشرح العيب وارفع صور واضحة للمنتج تُظهر العيب.</p>'+
+      '<textarea id="msqExReason" placeholder="اكتب وصف عيب المصنع بوضوح..."></textarea>'+
+      '<input type="file" id="msqExPhotos" accept="image/*" multiple>'+
+      '<div class="msq-ex-previews" id="msqExPreviews"></div>'+
+      '<button type="button" class="msq-ex-send" id="msqExSendBtn">إرسال طلب الاستبدال</button>'+
+      '<div id="msqExNote" style="font-size:11px;color:#7a6a40;margin-top:8px;line-height:1.6"></div>';
+    box.appendChild(panel);
+
+    __exPhotos = [];
+    document.getElementById('msqExPhotos').addEventListener('change', async function(ev){
+      var files = Array.prototype.slice.call(ev.target.files || []);
+      var prev = document.getElementById('msqExPreviews');
+      for (var i=0;i<files.length && __exPhotos.length<5;i++){
+        try {
+          var dataUrl = await compressImageFile(files[i], 900, 0.7);
+          __exPhotos.push(dataUrl);
+        } catch(e) {}
+      }
+      if (prev) prev.innerHTML = __exPhotos.map(function(src){ return '<img src="'+src+'" alt="عيب">'; }).join('');
+    });
+
+    document.getElementById('msqExSendBtn').addEventListener('click', function(){
+      submitExchangeRequest(orderId);
+    });
+  }
+
+  async function submitExchangeRequest(orderId){
+    var note = document.getElementById('msqExNote');
+    var reason = ((document.getElementById('msqExReason')||{}).value || '').trim();
+    if (!orderId) { alert('رقم الطلب غير معروف'); return; }
+    if (reason.length < 8) { alert('اكتب وصفًا واضحًا لعيب المصنع'); return; }
+    if (!__exPhotos.length) { alert('ارفع صورة واحدة على الأقل توضح عيب المصنع'); return; }
+    var db = getDb();
+    if (!db) { alert('تعذر الاتصال بالخادم'); return; }
+
+    var btn = document.getElementById('msqExSendBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'جاري الإرسال...'; }
+
+    try {
+      var payload = {
+        orderId: String(orderId),
+        reason: reason,
+        defectType: 'عيب مصنع',
+        photos: __exPhotos.slice(0, 5),
+        status: 'pending',
+        createdAt: (firebase.firestore.FieldValue && firebase.firestore.FieldValue.serverTimestamp)
+          ? firebase.firestore.FieldValue.serverTimestamp()
+          : new Date().toISOString(),
+        createdAtIso: new Date().toISOString()
+      };
+      // try attach customer info from last found order in cache/window
+      try {
+        var found = (window.__lastTrackedOrder) || getCache().find(function(o){ return String(o.orderId)===String(orderId); });
+        if (found) {
+          payload.customerName = found.name || '';
+          payload.customerPhone = found.phone || '';
+        }
+      } catch(e) {}
+
+      await db.collection('exchangeRequests').add(payload);
+      try { if (typeof window.msqNotifyOrderIssue === 'function') await window.msqNotifyOrderIssue({type:'exchange',title:'طلب استبدال (عيب مصنع)',orderId:String(orderId),customerName:payload.customerName||'',customerPhone:payload.customerPhone||'',reason:reason,photos:payload.photos.slice(0,5)}); } catch (notifyErr) { console.warn('Telegram notification failed',notifyErr); }
+      if (note) note.textContent = '✅ تم إرسال طلب الاستبدال والإرجاع للإدارة. هنراجع الصور وهنتواصل معاك.';
+      if (btn) { btn.textContent = 'تم الإرسال'; }
+      alert('تم إرسال طلب الاستبدال بنجاح');
+    } catch (e) {
+      console.error(e);
+      alert('تعذر الإرسال. تأكد من اتصال الإنترنت وصلاحيات Firestore (collection: exchangeRequests).\n'+(e&&e.message?e.message:''));
+      if (btn) { btn.disabled = false; btn.textContent = 'إرسال طلب الاستبدال'; }
+    }
+  }
+
+  // Observe tracking results
+  var trackBox = document.getElementById('trackingResultContainer');
+  if (trackBox) {
+    new MutationObserver(function(){ setTimeout(injectExchangePanel, 50); }).observe(trackBox, { childList:true, subtree:false });
+  }
+
+  /* ---------- Admin exchanges panel + tab button ---------- */
+  async function loadExchangeRequests(){
+    var listEl = document.getElementById('msqExchangeAdminList');
+    var countEl = document.getElementById('msqExchangeCount');
+    if (!listEl) return;
+    var db = getDb();
+    if (!db) { listEl.textContent = 'Firebase غير متاح'; return; }
+    listEl.textContent = 'جاري التحميل...';
+    try {
+      var snap = await db.collection('exchangeRequests').limit(80).get();
+      var rows = [];
+      snap.forEach(function(doc){
+        var d = doc.data() || {};
+        d.__id = doc.id;
+        rows.push(d);
+      });
+      rows.sort(function(a,b){
+        return String(b.createdAtIso||'').localeCompare(String(a.createdAtIso||''));
+      });
+      var pending = rows.filter(function(r){ return String(r.status||'pending')==='pending'; });
+      if (countEl) {
+        countEl.textContent = String(pending.length);
+        countEl.style.display = pending.length ? 'inline-block' : 'none';
+      }
+      // tab badge
+      var tabBadge = document.querySelector('#msqAdminTabs button[data-tab="exchanges"] .msq-ex-badge');
+      if (tabBadge) {
+        tabBadge.textContent = pending.length ? String(pending.length) : '';
+        tabBadge.style.display = pending.length ? 'inline-block' : 'none';
+      }
+      if (!rows.length) { listEl.innerHTML = '<div>لا توجد طلبات استبدال أو إرجاع بعد.</div>'; return; }
+      try {
+        window.__msqClosedExchangeMap = window.__msqClosedExchangeMap || {};
+        rows.forEach(function(r){
+          var st=String(r.status||'pending');
+          var closed=!!(r.caseClosed||st==='replaced'||st==='refunded'||r.customerOutcome);
+          if(!closed)return;
+          var oid=String(r.orderId||'').trim().toUpperCase();
+          if(!oid)return;
+          var label=r.caseClosedLabel||r.exchangeOutcomeLabel||(st==='replaced'||r.customerOutcome==='replaced'?'تم الاستبدال':'تم الإرجاع ورد القيمة');
+          window.__msqClosedExchangeMap[oid]={label:label,message:r.customerOutcomeMessage||'',outcome:r.customerOutcome||st};
+        });
+      } catch(_sm){}
+
+
+            listEl.innerHTML = rows.map(function(r){
+        var photos = Array.isArray(r.photos) ? r.photos : [];
+        var imgs = photos.map(function(src){ return '<img src="'+esc(src)+'" alt="عيب" onclick="window.open(this.src,\'_blank\')">'; }).join('');
+        var st = String(r.status||'pending');
+        var closed = !!(r.caseClosed || r.status==='replaced' || r.status==='refunded' || r.customerOutcome);
+        var closedLabel = r.caseClosedLabel || (r.customerOutcome==='replaced' || r.status==='replaced' ? 'تم الاستبدال' : (r.customerOutcome==='refunded' || r.status==='refunded' ? 'تم الإرجاع ورد القيمة' : 'تم إنهاء الموقف'));
+        if (closed) {
+          var detailId = 'exd_'+esc(r.__id);
+          return '<div class="msq-ex-admin-card msq-ex-closed" data-ex-closed="1">'+
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">'+
+              '<div style="font-weight:950;color:#5d4a00;font-size:14px">🆔 '+esc(r.orderId||'-')+'</div>'+
+              '<div style="font-weight:900;color:#1b5e20;font-size:13px">✅ '+esc(closedLabel)+'</div>'+
+            '</div>'+
+            '<button type="button" class="msq-ex-toggle-details" data-ex-detail="'+detailId+'" style="margin-top:10px;border:1px solid #e0c36a;background:#fffbeb;color:#7a5a00;border-radius:9px;padding:7px 12px;font-weight:900;cursor:pointer;font-size:12px">🧾 تفاصيل الطلب</button>'+
+            '<div id="'+detailId+'" style="display:none;margin-top:10px;padding:12px;border-radius:12px;background:#fff;border:1px solid #f0e0c0;font-size:12.5px;line-height:1.75;color:#5a4a30">'+
+              '<div><b>العميل:</b> '+esc(r.customerName||'-')+' | <b>موبايل:</b> '+esc(r.customerPhone||'-')+'</div>'+
+              '<div><b>السبب:</b> '+esc(r.reason||'-')+'</div>'+
+              '<div><b>الإفادة:</b> '+esc(r.customerOutcomeMessage||closedLabel)+'</div>'+
+              '<div style="margin-top:6px">'+imgs+'</div>'+
+            '</div>'+
+          '</div>';
+        }
+        return '<div class="msq-ex-admin-card">'+
+          '<div style="font-weight:900;color:#8a6a00">🚨 طلب استبدال — عيب مصنع</div>'+
+          '<div style="margin-top:4px;font-size:12.5px;line-height:1.7">'+
+            '<b>رقم الطلب:</b> '+esc(r.orderId||'-')+'<br>'+
+            '<b>العميل:</b> '+esc(r.customerName||'-')+' | <b>موبايل:</b> '+esc(r.customerPhone||'-')+'<br>'+
+            '<b>السبب:</b> '+esc(r.reason||'')+'<br>'+
+            '<b>الحالة:</b> '+esc(st)+
+          '</div>'+
+          '<div style="margin-top:6px">'+imgs+'</div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px">'+
+            '<button type="button" data-ex-replaced="'+esc(r.__id)+'" style="padding:9px 12px;border:0;border-radius:9px;background:#287447;color:#fff;font-weight:900;cursor:pointer">✅ تم الاستبدال</button>'+
+            '<button type="button" data-ex-refund="'+esc(r.__id)+'" style="padding:9px 12px;border:0;border-radius:9px;background:#803d48;color:#fff;font-weight:900;cursor:pointer">💵 إرجاع ورد القيمة</button>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+
+      listEl.querySelectorAll('.msq-ex-toggle-details').forEach(function(btn){
+        btn.onclick = function(){
+          var el = document.getElementById(btn.getAttribute('data-ex-detail'));
+          if (!el) return;
+          var open = el.style.display !== 'none';
+          el.style.display = open ? 'none' : 'block';
+          btn.textContent = open ? '🧾 تفاصيل الطلب' : '🔼 إخفاء التفاصيل';
+        };
+      });
+
+async function saveExchangeOutcome(btn, outcome){
+        var replaced = outcome === 'replaced';
+        var statusLabel = replaced ? 'تم الاستبدال' : 'تم الإرجاع ورد القيمة';
+        var message = replaced
+          ? 'تم استبدال المنتج. شكرًا لثقتكم في My Souq.'
+          : 'تم الإرجاع ورد القيمة. شكرًا لثقتكم في My Souq.';
+        if(!confirm(replaced
+          ? 'تأكيد: تم الاستبدال وإنهاء موقف الطلب؟'
+          : 'تأكيد: تم الإرجاع ورد القيمة وإنهاء موقف الطلب؟')) return;
+        btn.disabled = true;
+        var docId = btn.dataset.exReplaced || btn.dataset.exRefund;
+        try {
+          var ref = db.collection('exchangeRequests').doc(docId);
+          var snap = await ref.get();
+          var data = snap.exists ? (snap.data() || {}) : {};
+          var orderId = String(data.orderId || '').trim();
+          await ref.update({
+            status: replaced ? 'replaced' : 'refunded',
+            customerOutcome: outcome,
+            customerOutcomeMessage: message,
+            customerOutcomeAt: new Date().toISOString(),
+            resolvedAt: new Date().toISOString(),
+            resolvedBy: (window.currentAdminUser && window.currentAdminUser.email) || (typeof currentAdminUser !== 'undefined' && currentAdminUser && currentAdminUser.email) || '',
+            caseClosed: true,
+            caseClosedLabel: statusLabel + ' — تم إنهاء موقف الطلب'
+          });
+          // Update order + public tracking: stay in delivered channel, mark exchange/return closed
+          if (orderId) {
+            var orderPatch = {
+              statusCode: 3,
+              status: statusLabel,
+              statusLabel: statusLabel,
+              exchangeOrReturnClosed: true,
+              exchangeResolved: true,
+              exchangeOutcome: outcome,
+              exchangeOutcomeLabel: statusLabel,
+              exchangeOutcomeMessage: message,
+              exchangeResolvedAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            };
+            try {
+              await db.collection('orders').doc(orderId).set(orderPatch, { merge: true });
+            } catch (ordErr) {
+              try {
+                var q = await db.collection('orders').where('orderId','==',orderId).limit(1).get();
+                if (!q.empty) await q.docs[0].ref.set(orderPatch, { merge: true });
+              } catch (ordErr2) { console.warn('orders outcome write failed', ordErr2); }
+            }
+            try {
+              await db.collection('orderTracking').doc(orderId).set({
+                orderId: orderId,
+                statusCode: 3,
+                status: statusLabel,
+                statusLabel: statusLabel,
+                exchangeResolved: true,
+                exchangeOrReturnClosed: true,
+                exchangeOutcome: outcome,
+                exchangeOutcomeLabel: statusLabel,
+                exchangeOutcomeMessage: message,
+                exchangeResolvedAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+              }, { merge: true });
+            } catch (trackErr) { console.warn('orderTracking outcome write failed', trackErr); }
+            // local caches + localStorage so delivered channel reflects immediately
+            try {
+              [ (typeof adminOrdersCache!=='undefined'?adminOrdersCache:null), window.adminOrdersCache, window.ordersHistory ].forEach(function(arr){
+                if (!Array.isArray(arr)) return;
+                arr.forEach(function(o){
+                  if (String(o.orderId||'').trim().toUpperCase() === String(orderId).toUpperCase())
+                    Object.assign(o, orderPatch);
+                });
+              });
+            } catch (cacheErr) {}
+            try {
+              ['souqOrdersHistory','ordersHistory','adminOrdersCache'].forEach(function(k){
+                var raw = localStorage.getItem(k); if (!raw) return;
+                var arr = JSON.parse(raw);
+                if (!Array.isArray(arr)) return;
+                arr.forEach(function(o){
+                  if (String(o.orderId||'').trim().toUpperCase() === String(orderId).toUpperCase())
+                    Object.assign(o, orderPatch);
+                });
+                localStorage.setItem(k, JSON.stringify(arr));
+              });
+            } catch (lsErr) {}
+            try { if (typeof window.filterAdminOrders === 'function') window.filterAdminOrders(); } catch(e){}
+            try {
+              var delList = document.getElementById('msqDeliveredList');
+              if (delList && typeof window.filterAdminOrders === 'function') window.filterAdminOrders();
+            } catch(e2){}
+          }
+          alert('✅ ' + statusLabel + ' — تم إنهاء موقف الطلب');
+          loadExchangeRequests();
+        } catch(e) {
+          console.error(e);
+          btn.disabled = false;
+          alert('تعذر حفظ إفادة العميل. راجع صلاحيات Firestore لمجموعة exchangeRequests.');
+        }
+      }
+      listEl.querySelectorAll('[data-ex-replaced]').forEach(function(btn){btn.addEventListener('click',function(){saveExchangeOutcome(btn,'replaced')})});
+      listEl.querySelectorAll('[data-ex-refund]').forEach(function(btn){btn.addEventListener('click',function(){saveExchangeOutcome(btn,'refunded')})});
+    } catch(e) {
+      console.error(e);
+      listEl.innerHTML = '<div style="color:#c62828">تعذر التحميل. أضف صلاحيات Firestore لمجموعة <b>exchangeRequests</b>.</div>';
+    }
+  }
+  window.msqLoadExchangeRequests = loadExchangeRequests;
+
+  function ensureExchangeAdminUi(){
+    var modal = document.getElementById('adminOrdersModal');
+    if (!modal) return;
+
+    // 1) Create panel content (hidden until its tab is active)
+    var panel = document.getElementById('msqExchangeAdminPanel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'msqExchangeAdminPanel';
+      panel.innerHTML =
+        '<div class="ex-admin-heading">🔄 طلبات الاستبدال والإرجاع (عيب مصنع) <span id="msqExchangeCount" style="display:none;background:#c9a227;color:#fff;border-radius:99px;padding:2px 8px;margin-inline-start:5px">0</span></div>'+
+        '<p style="font-size:12px;color:#7a6a40;line-height:1.7;margin:0 0 10px">هنا تظهر طلبات العملاء بعد الاستلام عند وجود عيب مصنع، مع الصور.</p>'+
+        '<div id="msqExchangeAdminList" style="font-size:12px;color:#765b5b">اضغط التبويب أو زر التحديث لعرض الطلبات.</div>'+
+        '<button type="button" id="msqRefreshExchanges" style="margin-top:10px;border:0;border-radius:10px;background:#8a6a00;color:#fff;padding:10px 14px;font-weight:800;cursor:pointer;width:100%">تحديث الاستبدالات</button>';
+    }
+
+    // 2) Ensure a dedicated tab pane
+    var wrap = document.getElementById('msqAdminTabContent');
+    var tabs = document.getElementById('msqAdminTabs');
+    if (wrap) {
+      var pane = wrap.querySelector('[data-pane="exchanges"]');
+      if (!pane) {
+        pane = document.createElement('section');
+        pane.className = 'msq-tab-pane';
+        pane.dataset.pane = 'exchanges';
+        wrap.appendChild(pane);
+      }
+      if (panel.parentElement !== pane) pane.appendChild(panel);
+    }
+
+    // 3) Tab button beside the others (not a floating box)
+    if (tabs && !tabs.querySelector('[data-tab="exchanges"]')) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('data-tab', 'exchanges');
+      b.innerHTML = '🔄 الاستبدال والإرجاع <span class="msq-ex-badge" style="display:none;background:#fff;color:#8a6a00;border-radius:99px;padding:0 6px;margin-right:4px;font-size:10px;font-weight:900"></span>';
+      var cancelBtn = tabs.querySelector('[data-tab="cancel"]');
+      if (cancelBtn && cancelBtn.nextSibling) tabs.insertBefore(b, cancelBtn.nextSibling);
+      else if (cancelBtn) tabs.appendChild(b);
+      else tabs.appendChild(b);
+      b.addEventListener('click', function(){
+        // Prefer official setTab if available
+        if (typeof window.msqSetAdminTab === 'function') {
+          window.msqSetAdminTab('exchanges');
+        } else {
+          document.querySelectorAll('#msqAdminTabs button').forEach(function(btn){
+            btn.classList.toggle('active', btn.getAttribute('data-tab') === 'exchanges');
+          });
+          document.querySelectorAll('#msqAdminTabContent .msq-tab-pane').forEach(function(p){
+            p.classList.toggle('active', p.getAttribute('data-pane') === 'exchanges');
+          });
+        }
+        loadExchangeRequests();
+      });
+    }
+
+    // Style the exchanges tab like the rest
+    var exBtn = tabs && tabs.querySelector('[data-tab="exchanges"]');
+    if (exBtn) {
+      exBtn.style.borderColor = '#c9a227';
+      exBtn.style.color = '#8a6a00';
+    }
+
+    var refBtn = document.getElementById('msqRefreshExchanges');
+    if (refBtn && !refBtn._msqBound) {
+      refBtn._msqBound = true;
+      refBtn.addEventListener('click', loadExchangeRequests);
+    }
+  }
+
+  /* maintenance schedule kept — الصندوق السفلي مُلغى لتجنب التكرار؛ الأعلى (وضع الصيانة المجدول) هو المعتمد */
+  /* enhanceMaintenanceAdmin removed — duplicate of main maintenance UI */
+
+  var productModal = document.getElementById('productModal');
+  if (productModal) {
+    new MutationObserver(function(){
+      if (productModal.classList.contains('active')) injectExchangePolicy();
+    }).observe(productModal, { attributes:true, attributeFilter:['class'] });
+  }
+
+  function boot(){
+    ensureStatus0Button();
+    wrapFilter();
+    injectMergeUi();
+    injectExchangePolicy();
+    ensureExchangeAdminUi();
+loadExchangeRequests();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+  setInterval(function(){
+    ensureStatus0Button(); wrapFilter(); injectMergeUi(); ensureExchangeAdminUi();
+}, 3000);
+})();
+</script>
+
+
+
+
+
+
+
+<!-- My Souq: keep the brand and utility controls anchored during page swipes/scrolling.
+     CSS-only override: existing markup, event handlers, and features are preserved. -->
+
+
+
+<!-- My Souq order issues addon: additive functionality only -->
+
+<script id="msq-order-issues-js">
+(function(){'use strict';
+// Replace this URL after deploying mysouq-order-issues-worker.js. Telegram token stays only in Worker secrets.
+window.MYSOUQ_ORDER_ISSUES_API_ENDPOINT=window.MYSOUQ_ORDER_ISSUES_API_ENDPOINT||'https://mysouq-order-issues.ahmedaly1g.workers.dev';
+var TRANSFER_NUMBER='01116339905', proofData='', activeOrder=null;
+function esc(v){return String(v==null?'':v).replace(/[&<>\"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]})}
+function dbref(){try{if(typeof db!=='undefined'&&db)return db;if(window.db)return window.db;if(window.firebase&&firebase.apps&&firebase.apps.length)return firebase.firestore()}catch(e){}return null}
+window.msqNotifyOrderIssue=async function(p){var base=String(window.MYSOUQ_ORDER_ISSUES_API_ENDPOINT||'').replace(/\/+$/,'');if(!/^https:\/\/[^/]+$/i.test(base)||/YOUR-SUBDOMAIN/i.test(base))return {ok:false,skipped:true};try{var extra={site:'My Souq',pageUrl:location.href};try{var o=window.__lastTrackedOrder;if(o&&p&&p.orderId&&String(o.orderId||'').toUpperCase()===String(p.orderId||'').toUpperCase()){if(p.customerName==null&&o.name)extra.customerName=o.name;if(p.customerPhone==null&&o.phone)extra.customerPhone=o.phone;if(p.orderStatus==null&&(o.status||o.statusLabel))extra.orderStatus=o.status||o.statusLabel;if(p.statusCode==null&&typeof o.statusCode==='number')extra.statusCode=o.statusCode;if(p.total==null&&(o.total!=null||o.totalDisplay))extra.total=o.totalDisplay||o.total;}}catch(e0){}var r=await fetch(base+'/api/order-issues/notify',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'omit',body:JSON.stringify(Object.assign(extra,p||{}))});var d=await r.json().catch(function(){return {}});if(!r.ok||d.ok===false)throw Error(d.error||('HTTP '+r.status));return d}catch(e){console.warn('Telegram order issue notification unavailable',e);return {ok:false,error:String(e.message||e)}}};
+function compress(file){return new Promise(function(resolve,reject){var rd=new FileReader();rd.onerror=reject;rd.onload=function(){var im=new Image();im.onerror=reject;im.onload=function(){var k=Math.min(1,1000/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext('2d').drawImage(im,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',.68))};im.src=rd.result};rd.readAsDataURL(file)})}
+function ensureModal(){var m=document.getElementById('msqExceptionalCancelModal');if(m)return m;m=document.createElement('div');m.id='msqExceptionalCancelModal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.innerHTML='<section class="ec-card"><button class="ec-close" id="ecX" type="button">×</button><h3>⚠️ طلب الإلغاء الاستثنائي</h3><div class="ec-policy">في حالة طلبكم للإلغاء الاستثنائي بمرحلة (تم الحجز أو جاري الشحن) يرجى العلم والموافقة على أن سياسة My Souq لا تتيح الإلغاء الاستثنائي إلا بعد موافقة المشتري على تحمّل قيمة الشحن فقط، وذلك طبقًا للشروط والأحكام.</div><label class="ec-check"><input type="checkbox" id="ecAgree"><span>أوافق على تحمّل قيمة الشحن فقط، وأقرّ بالشروط والأحكام المذكورة أعلاه.</span></label><div class="ec-proof" id="ecProof"><b style="color:#803d48">💳 تحويل قيمة الشحن عبر إنستاباي</b><p style="font-size:13px;line-height:1.7">حوّل قيمة الشحن إلى الرقم التالي، ثم ارفع صورة واضحة لإثبات التحويل.</p><div style="font-size:20px;font-weight:950;text-align:center">01116339905</div><button class="ec-secondary" id="ecCopy" type="button">📋 نسخ رقم إنستاباي</button><input type="file" id="ecReceipt" accept="image/*"><img class="ec-preview" id="ecPreview" alt="معاينة إثبات التحويل"><div class="ec-note">اكتب في وصف التحويل: «تحويل قيمة شحن مقابل إلغاء استثنائي».</div></div><button class="ec-main" id="ecSubmit" type="button" disabled>متابعة طلب الإلغاء الاستثنائي</button><button class="ec-secondary" id="ecCancel" type="button">رجوع</button><div class="ec-note" id="ecNote">لن يمكن متابعة الطلب قبل الموافقة ورفع إثبات التحويل.</div></section>';document.body.appendChild(m);
+function close(){m.classList.remove('open');activeOrder=null;proofData='';m.querySelector('#ecAgree').checked=false;m.querySelector('#ecReceipt').value='';m.querySelector('#ecPreview').style.display='none';m.querySelector('#ecProof').classList.remove('show');m.querySelector('#ecSubmit').disabled=true;m.querySelector('#ecNote').textContent='لن يمكن متابعة الطلب قبل الموافقة ورفع إثبات التحويل.'}
+m.querySelector('#ecX').onclick=close;m.querySelector('#ecCancel').onclick=close;m.addEventListener('click',function(e){if(e.target===m)close()});m.querySelector('#ecAgree').onchange=function(){m.querySelector('#ecProof').classList.toggle('show',this.checked);update()};function update(){m.querySelector('#ecSubmit').disabled=!(m.querySelector('#ecAgree').checked&&proofData&&activeOrder)}
+m.querySelector('#ecCopy').onclick=async function(){try{await navigator.clipboard.writeText(TRANSFER_NUMBER);m.querySelector('#ecNote').textContent='تم نسخ رقم إنستاباي. بعد التحويل ارفع صورة الإيصال.'}catch(e){m.querySelector('#ecNote').textContent='انسخ الرقم يدويًا: '+TRANSFER_NUMBER}};
+m.querySelector('#ecReceipt').onchange=async function(){proofData='';var f=this.files&&this.files[0],img=m.querySelector('#ecPreview');if(!f){img.style.display='none';update();return}if(!/^image\//i.test(f.type)||f.size>12*1024*1024){alert('ارفع صورة أقل من 12 ميجابايت.');this.value='';update();return}try{proofData=await compress(f);img.src=proofData;img.style.display='block';m.querySelector('#ecNote').textContent='تم تجهيز صورة الإثبات. يمكنك متابعة الطلب.'}catch(e){alert('تعذر قراءة الصورة. جرّب صورة أخرى.')}update()};
+m.querySelector('#ecSubmit').onclick=submit;return m;
+}
+function updateModal(){var m=document.getElementById('msqExceptionalCancelModal');if(!m)return;m.querySelector('#ecSubmit').disabled=!(m.querySelector('#ecAgree').checked&&proofData&&activeOrder)}
+function openModal(id,status){var m=ensureModal();activeOrder={orderId:String(id).trim().toUpperCase(),orderStatus:String(status||'')};proofData='';m.querySelector('#ecAgree').checked=false;m.querySelector('#ecReceipt').value='';m.querySelector('#ecPreview').style.display='none';m.querySelector('#ecProof').classList.remove('show');m.querySelector('#ecSubmit').disabled=true;m.querySelector('#ecSubmit').textContent='متابعة طلب الإلغاء الاستثنائي';m.classList.add('open')};window.msqOpenExceptionalCancel=openModal;window.openExceptionalCancelModal=openModal;
+function trackedOrder(id){try{var o=window.__lastTrackedOrder;if(o&&String(o.orderId||'').toUpperCase()===id)return o;for(var k of ['ordersHistory','adminOrdersCache']){var a=window[k];if(Array.isArray(a)){var f=a.find(function(x){return String(x.orderId||'').trim().toUpperCase()===id});if(f)return f}}}catch(e){}return {}}
+async function submit(){var m=document.getElementById('msqExceptionalCancelModal');if(!activeOrder||!m.querySelector('#ecAgree').checked||!proofData){alert('يجب الموافقة ورفع صورة إثبات التحويل أولًا.');return}var d=dbref();if(!d){alert('خدمة الطلبات غير متاحة حاليًا.');return}var b=m.querySelector('#ecSubmit');b.disabled=true;b.textContent='جاري إرسال الطلب...';try{var id=activeOrder.orderId,dupe=await d.collection('exceptionalCancellationRequests').where('orderId','==',id).where('status','==','pending').limit(1).get();if(!dupe.empty){m.querySelector('#ecNote').textContent='يوجد طلب إلغاء استثنائي بالفعل بانتظار مراجعة الإدارة.';b.textContent='الطلب مسجل بالفعل';return}var o=trackedOrder(id),purpose='تحويل قيمة شحن مقابل إلغاء استثنائي',data={requestType:'exceptional-cancellation',orderId:id,customerName:String(o.name||o.customerName||''),customerPhone:String(o.phone||o.customerPhone||''),orderStatus:activeOrder.orderStatus,policyAccepted:true,policyText:'تحمّل قيمة الشحن فقط طبقًا للشروط والأحكام',transferNumber:TRANSFER_NUMBER,transferPurpose:purpose,transferProof:proofData,status:'pending',createdAt:window.firebase&&firebase.firestore&&firebase.firestore.FieldValue?firebase.firestore.FieldValue.serverTimestamp():new Date().toISOString(),createdAtIso:new Date().toISOString()};var ref=await d.collection('exceptionalCancellationRequests').add(data);await window.msqNotifyOrderIssue({type:'exceptional-cancellation',title:'طلب إلغاء استثنائي',orderId:id,customerName:data.customerName,customerPhone:data.customerPhone,orderStatus:data.orderStatus,transferNumber:TRANSFER_NUMBER,transferPurpose:purpose,policyAccepted:true,proofDataUrl:proofData,requestId:ref.id});m.querySelector('#ecNote').textContent='تم إرسال الطلب للإدارة، وهو بانتظار مراجعة إثبات التحويل. لم يتم إلغاء الطلب تلقائيًا.';b.textContent='تم إرسال الطلب ✓';var p=document.querySelector('#trackingResultContainer .msq-exceptional-cancel-panel');if(p){p.querySelector('button').disabled=true;p.querySelector('button').textContent='تم إرسال طلب الإلغاء الاستثنائي ✓';p.querySelector('.ec-inline-note').textContent='طلبك قيد مراجعة الإدارة.'}setTimeout(function(){m.classList.remove('open')},1600)}catch(e){console.error(e);b.disabled=false;b.textContent='متابعة طلب الإلغاء الاستثنائي';alert('تعذر الإرسال. تأكد من صلاحيات Firestore لمجموعة exceptionalCancellationRequests.')}}
+function injectButton(){
+var box=document.getElementById('trackingResultContainer');
+if(!box||box.style.display==='none')return;
+if(box.querySelector('.msq-afada-only,.msq-afada-banner')||box.getAttribute('data-msq-afada')==='1'||box.querySelector('[data-case-closed="1"]'))return;
+if(!(box.innerHTML.includes('تم العثور على الطلب بنجاح')||box.innerHTML.includes('تم العثور على طلبك')||box.innerHTML.includes('تم العثور على الطلب')))return;
+var el=box.querySelector('.customer-track-current-status strong, .customer-track-current-status, .track-status-banner'),status=String(el&&el.textContent||'').replace(/\s+/g,' ').trim();
+var cancelAllowed=/تم الحجز|جاري الشحن/.test(status);
+var exchangeAllowed=/تم التوريد/.test(status);
+var inp=document.getElementById('trackInputId'),id=String(inp&&inp.value||'').trim().toUpperCase();
+if(!id)return;
+var p=box.querySelector('.msq-exceptional-cancel-panel');
+if(!p){p=document.createElement('section');p.className='msq-exceptional-cancel-panel';p.style.cssText='margin:12px 0;padding:16px;border:1px solid #dfc9b9;border-radius:18px;background:linear-gradient(145deg,#fffdf8,#f7eee6);direction:rtl;box-shadow:0 8px 24px rgba(75,43,35,.06)';p.innerHTML='<div style="font-weight:950;color:#803d48;font-size:16px;margin-bottom:5px">📦 خدمات ما بعد الطلب</div><div style="font-size:12px;line-height:1.8;color:#806a61;margin-bottom:12px">اختر الإجراء المناسب حسب المرحلة الحالية لطلبك.</div><div class="ec-cancel-actions" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;align-items:stretch;margin:8px 0 6px"><button type="button" class="ec-cancel-action" style="width:100%;min-height:48px;border:0;border-radius:12px;padding:10px 8px;background:#a92332;color:white;font-weight:900;cursor:pointer;margin:0;line-height:1.5">🔴 طلب إلغاء الطلب</button><button type="button" class="ec-exceptional-action" style="width:100%;min-height:48px;border:0;border-radius:12px;padding:10px 8px;background:#803d48;color:white;font-weight:900;cursor:pointer;margin:0;line-height:1.5">🔐 طلب الإلغاء الاستثنائي</button></div><div class="ec-inline-note" style="font-size:11px;line-height:1.8;color:#806a61;margin:4px 0 12px">الإلغاء العادي متاح أثناء «تحت التنفيذ»، والاستثنائي في «تم الحجز» و«جاري الشحن» بعد الموافقة على تحمّل الشحن وإرفاق الإثبات.</div><button type="button" class="ec-exchange-action" style="width:100%;min-height:48px;border:0;border-radius:12px;padding:11px;background:#a8790a;color:white;font-weight:900;cursor:pointer;margin:4px 0;line-height:1.5">🔄 الاستبدال والإرجاع (عيب مصنع)</button><div class="ec-exchange-note" style="font-size:11px;line-height:1.8;color:#806a61;margin-top:5px">متاح فقط في مرحلة «تم التوريد».</div>';box.appendChild(p);
+}
+/* Keep the existing ordinary-cancellation action and move it beside exceptional cancellation. */
+var normalPanel=box.querySelector('.cancel-request-panel'),normalBtn=normalPanel&&normalPanel.querySelector('.cancel-request-btn'),actions=p.querySelector('.ec-cancel-actions'),exceptionalBtn=p.querySelector('.ec-exceptional-action');
+if(normalBtn&&actions&&normalBtn.parentNode!==actions){normalBtn.style.cssText='width:100%;min-height:48px;border:0;border-radius:12px;padding:10px 8px;background:#a92332;color:white;font-weight:900;cursor:pointer;margin:0;line-height:1.5';actions.insertBefore(normalBtn,actions.firstChild);var placeholder=p.querySelector('.ec-cancel-action');if(placeholder)placeholder.remove();}
+if(normalPanel){normalPanel.style.cssText='margin:0;padding:0;border:0;background:transparent;box-shadow:none';var title=normalPanel.querySelector('.cancel-request-title'),desc=normalPanel.querySelector('.cancel-request-desc'),note=normalPanel.querySelector('.cancel-request-note');if(title)title.style.display='none';if(desc)desc.style.display='none';if(note)note.style.display='none';}
+
+var cancelBtn=box.querySelector('.cancel-request-panel .cancel-request-btn'),exceptionalBtn=p.querySelector('.ec-exceptional-action'),exchangeBtn=p.querySelector('.ec-exchange-action');
+function setDisabled(btn,disabled){btn.disabled=disabled;btn.style.opacity=disabled?'.42':'1';btn.style.cursor=disabled?'not-allowed':'pointer';btn.setAttribute('aria-disabled',disabled?'true':'false')}
+/* The normal cancel button keeps its original handler and status rules. */
+if(cancelBtn){cancelBtn.title=cancelBtn.disabled?'طلب الإلغاء العادي متاح فقط أثناء مرحلة تحت التنفيذ':'';}
+setDisabled(exceptionalBtn,!cancelAllowed);exceptionalBtn.title=cancelAllowed?'':'طلب الإلغاء الاستثنائي متاح فقط في مرحلتي تم الحجز وجاري الشحن';
+setDisabled(exchangeBtn,!exchangeAllowed);exchangeBtn.title=exchangeAllowed?'':'طلب الاستبدال متاح فقط في مرحلة تم التوريد';
+exceptionalBtn.onclick=function(){if(!cancelAllowed)return;openModal(id,status)};
+exchangeBtn.onclick=function(){if(!exchangeAllowed)return;var ep=box.querySelector('.msq-exchange-panel');if(ep){ep.scrollIntoView({behavior:'smooth',block:'center'});var r=ep.querySelector('#msqExReason');if(r)r.focus()}else{setTimeout(function(){var ep2=box.querySelector('.msq-exchange-panel');if(ep2){ep2.scrollIntoView({behavior:'smooth',block:'center'});var r2=ep2.querySelector('#msqExReason');if(r2)r2.focus()}else alert('تعذر فتح نموذج الاستبدال. حدّث صفحة تتبع الطلب وحاول مرة أخرى.')},180)}};
+var cn=p.querySelector('.ec-inline-note');if(cn)cn.textContent='الإلغاء العادي متاح أثناء «تحت التنفيذ» فقط. الإلغاء الاستثنائي متاح في «تم الحجز» و«جاري الشحن» فقط، وكلا الطلبين يخضع لمراجعة الإدارة.';
+var en=p.querySelector('.ec-exchange-note');if(en)en.textContent=exchangeAllowed?'متاح الآن بعد التوريد، ولعيب المصنع فقط.':'غير متاح في مرحلة الطلب الحالية؛ يتفعّل عند «تم التوريد».';
+}
+async function showExchangeOutcome(){
+var box=document.getElementById('trackingResultContainer');
+var inp=document.getElementById('trackInputId');
+var id=String(inp&&inp.value||'').trim().toUpperCase();
+var d=dbref();
+if(!box||!id||!d)return;
+try{
+  var msg='', label='';
+  // Prefer public orderTracking snapshot (readable by customer)
+  try{
+    var tr=await d.collection('orderTracking').doc(id).get();
+    if(tr.exists){
+      var td=tr.data()||{};
+      if(td.exchangeResolved || td.exchangeOutcomeMessage){
+        msg=String(td.exchangeOutcomeMessage||'');
+        label=String(td.exchangeOutcomeLabel||'');
+      }
+    }
+  }catch(e1){}
+  // Fallback: admin-only exchangeRequests (works when admin views tracking)
+  if(!msg){
+    try{
+      var snap=await d.collection('exchangeRequests').where('orderId','==',id).limit(10).get();
+      var rows=[];snap.forEach(function(doc){rows.push(doc.data()||{})});
+      var done=rows.filter(function(x){return x.customerOutcomeMessage||x.caseClosed}).sort(function(a,b){return String(b.customerOutcomeAt||b.resolvedAt||'').localeCompare(String(a.customerOutcomeAt||a.resolvedAt||''))})[0];
+      if(done){msg=String(done.customerOutcomeMessage||'');label=String(done.caseClosedLabel||done.customerOutcome==='replaced'?'تم الاستبدال':'تم الإرجاع ورد القيمة')}
+    }catch(e2){}
+  }
+  if(msg||label){
+    // Don't wipe the tracking UI — only ensure afada banner exists (no flicker)
+    if(box.getAttribute('data-msq-afada')==='1' && box.querySelector('.msq-afada-banner, .msq-afada-only')) return;
+    box.setAttribute('data-msq-afada','1');
+    if(!box.querySelector('.msq-afada-banner') && !box.querySelector('.msq-afada-only')){
+      var ban=document.createElement('div');
+      ban.className='msq-afada-banner';
+      ban.innerHTML='<div class="msq-afada-badge">✅ '+(label?esc(label):'إفادة الطلب')+'</div><p class="msq-afada-text">'+(msg?esc(msg):'')+'</p>';
+      var success=box.querySelector('.customer-track-success');
+      if(success&&success.nextSibling) box.insertBefore(ban, success.nextSibling);
+      else box.insertBefore(ban, box.firstChild);
+    }
+    // Keep action buttons visible (disabled). Only kill exchange form residual.
+    var slot=box.querySelector('#msqTrackExchangeSlot,.msq-exchange-panel');
+    if(slot) slot.style.display='none';
+    var form=box.querySelector('.msq-exchange-panel');
+    if(form) form.remove();
+  }
+}catch(e){console.warn('Could not load exchange outcome for tracking',e)}
+}
+var track=document.getElementById('trackingResultContainer');if(track&&window.MutationObserver)new MutationObserver(function(){setTimeout(injectButton,80);setTimeout(showExchangeOutcome,250)}).observe(track,{childList:true,subtree:true});setTimeout(showExchangeOutcome,900);window.showExchangeOutcome=showExchangeOutcome;
+async function loadAdmin(){var list=document.getElementById('msqEcAdminList'),cnt=document.getElementById('msqEcAdminCount');if(!list)return;
+/* تحديث مباشر بدون يوزر/باسورد — صلاحيات Firestore تتولى الحماية */
+var d=dbref();if(!d){list.textContent='Firebase غير متاح.';return}list.textContent='جاري التحميل...';try{var snap=await d.collection('exceptionalCancellationRequests').limit(100).get(),rows=[];snap.forEach(function(doc){var x=doc.data()||{};x.__id=doc.id;rows.push(x)});rows.sort(function(a,b){return String(b.createdAtIso||'').localeCompare(String(a.createdAtIso||''))});var n=rows.filter(function(x){return (x.status||'pending')==='pending'}).length;if(cnt)cnt.textContent=String(n);/* أخفِ التذاكر المنفَّذة/المغلقة — تظهر فقط pending و reviewed */var activeRows=rows.filter(function(x){var st=String(x.status||'pending');return st==='pending'||st==='reviewed';});if(!activeRows.length){list.innerHTML=n?('لا توجد تذاكر مفتوحة. ('+String(rows.length-activeRows.length)+' منفَّذة/مغلقة مخفية)'):'لا توجد طلبات حتى الآن.';return}rows=activeRows;
+function statusLabel(st){st=String(st||'pending');if(st==='pending')return 'قيد الانتظار';if(st==='reviewed')return 'تمت مراجعة الإثبات';if(st==='closed')return 'مُغلق';if(st==='cancelled_done')return 'تم تنفيذ الإلغاء';return st}
+list.innerHTML=rows.map(function(r){var proof=String(r.transferProof||'');var st=String(r.status||'pending');var oid=String(r.orderId||'').trim();var actions='';if(st==='pending'){actions+='<button type="button" class="ec-review" data-ec-review="'+esc(r.__id)+'">تمت مراجعة الإثبات</button>';}
+if(st!=='cancelled_done'){actions+='<button type="button" class="ec-exec-cancel" data-ec-exec="'+esc(oid)+'" data-ec-req="'+esc(r.__id)+'" style="background:#7b1e2b;color:#fff;border:0;border-radius:8px;padding:8px 12px;font-weight:900;cursor:pointer">🔐 تنفيذ الإلغاء الاستثنائي على الطلب</button>';}
+if(st!=='closed'&&st!=='cancelled_done'){actions+='<button type="button" class="ec-close-request" data-ec-close="'+esc(r.__id)+'">إغلاق التذكرة فقط</button>';}
+else if(st==='closed'){actions+='<span style="color:#765;font-weight:700">التذكرة مُغلقة — نفّذ الإلغاء من الزر الأحمر إن لم يُنفَّذ</span>';}
+return '<article class="ec-admin-card"><b style="color:#803d48">⚠️ طلب إلغاء استثنائي</b><div><b>رقم الطلب:</b> '+esc(r.orderId||'-')+'</div><div><b>العميل:</b> '+esc(r.customerName||'-')+'</div><div><b>الهاتف:</b> '+esc(r.customerPhone||'-')+'</div><div><b>حالة الطلب الأصلية:</b> '+esc(r.orderStatus||'-')+'</div><div><b>الموافقة:</b> '+(r.policyAccepted?'تمت':'غير موجودة')+'</div><div><b>وصف التحويل:</b> '+esc(r.transferPurpose||'تحويل قيمة شحن مقابل إلغاء استثنائي')+'</div><div><b>حالة التذكرة:</b> '+esc(statusLabel(st))+'</div>'+(proof?'<a href="'+proof+'" target="_blank" rel="noopener">فتح صورة الإثبات</a><img src="'+proof+'" alt="إثبات التحويل">':'<div style="color:#b3261e">لا توجد صورة إثبات</div>')+'<div class="ec-admin-actions" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px">'+actions+'</div></article>'}).join('');
+list.querySelectorAll('[data-ec-review]').forEach(function(b){b.onclick=async function(){try{b.disabled=true;await d.collection('exceptionalCancellationRequests').doc(b.dataset.ecReview).update({status:'reviewed',reviewedAt:new Date().toISOString(),reviewedBy:(window.currentAdminUser&&currentAdminUser.email)||''});await loadAdmin()}catch(e){b.disabled=false;alert('تعذر تحديث الحالة: '+(e&&e.message?e.message:e)+'\nراجع صلاحيات Firestore على exceptionalCancellationRequests')}}});
+list.querySelectorAll('[data-ec-close]').forEach(function(b){b.onclick=async function(){try{b.disabled=true;await d.collection('exceptionalCancellationRequests').doc(b.dataset.ecClose).update({status:'closed',closedAt:new Date().toISOString()});await loadAdmin()}catch(e){b.disabled=false;alert('تعذر إغلاق التذكرة: '+(e&&e.message?e.message:e)+'\nراجع صلاحيات Firestore')}}});
+list.querySelectorAll('[data-ec-exec]').forEach(function(b){b.onclick=async function(){var oid=String(b.dataset.ecExec||'').trim();var reqId=String(b.dataset.ecReq||'').trim();if(!oid){alert('رقم الطلب غير موجود');return}if(typeof window.cancelOrderExceptionally!=='function'){alert('دالة الإلغاء الاستثنائي غير متاحة. تأكد من تحميل سكربت الإدارة.');return}try{b.disabled=true;b.textContent='جاري التنفيذ...';await window.cancelOrderExceptionally(oid,b);try{if(reqId)await d.collection('exceptionalCancellationRequests').doc(reqId).update({status:'cancelled_done',cancelledDoneAt:new Date().toISOString(),closedAt:new Date().toISOString()})}catch(e2){console.warn('request status update',e2)}await loadAdmin()}catch(e){b.disabled=false;b.textContent='🔐 تنفيذ الإلغاء الاستثنائي على الطلب';alert('تعذر تنفيذ الإلغاء: '+(e&&e.message?e.message:e))}}});
+}catch(e){console.error(e);list.innerHTML='<div style="color:#c62828;line-height:1.8">تعذر التحميل.<br>تأكد أنك مسجّل كإدارة، وأن قواعد Firestore تسمح بقراءة <b>exceptionalCancellationRequests</b>.<br><small style="color:#765">'+((e&&e.message)?e.message:'')+'</small></div>'}}
+function installAdmin(){var modal=document.getElementById('adminOrdersModal');if(!modal)return;var existing=document.getElementById('msqExceptionalAdmin');var target=document.querySelector('#msqAdminTabContent [data-pane="cancel"]');if(existing){if(target&&existing.parentElement!==target)target.appendChild(existing);return;}var content=modal.querySelector('.modal-content');if(!content)return;var p=document.createElement('section');p.id='msqExceptionalAdmin';p.innerHTML='<div style="font-weight:950;color:#803d48;font-size:15px;margin-bottom:6px">⚠️ طلبات الإلغاء الاستثنائي <span id="msqEcAdminCount" style="background:#803d48;color:white;border-radius:99px;padding:2px 8px">0</span></div><p style="font-size:11px;line-height:1.7;margin:0 0 8px">راجع صورة إثبات التحويل ثم اضغط «تنفيذ الإلغاء الاستثنائي على الطلب» لحذف الطلب فعليًا. إغلاق التذكرة وحدها لا يلغي الطلب.</p><button id="msqEcAdminRefresh" type="button" style="border:0;border-radius:9px;padding:8px 12px;background:#f0dfcc;color:#603b32;font-weight:900;cursor:pointer">تحديث الطلبات</button><div id="msqEcAdminList" style="margin-top:8px;font-size:12px">اضغط تحديث الطلبات لعرضها.</div>';var cancelPane=document.querySelector('#msqAdminTabContent [data-pane="cancel"]');(cancelPane||content).appendChild(p);p.querySelector('#msqEcAdminRefresh').onclick=function(){loadAdmin();};window.msqLoadExceptionalAdminRequests=loadAdmin;new MutationObserver(function(){if(modal.classList.contains('active')&&typeof isAdminMode!=='undefined'&&isAdminMode)loadAdmin()}).observe(modal,{attributes:true,attributeFilter:['class']})}
+window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installAdmin);else installAdmin();setTimeout(installAdmin,800);document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('#msqAdminTabs button')){setTimeout(function(){var p=document.getElementById('msqExceptionalAdmin'),cp=document.querySelector('#msqAdminTabContent [data-pane="cancel"]');if(p&&cp&&p.parentElement!==cp)cp.appendChild(p);loadAdmin()},200)}});
+})();
+</script>
+
+
+
+
+
+
+<!-- My Souq paired front/back product images: additive styles, legacy album styles untouched -->
+
