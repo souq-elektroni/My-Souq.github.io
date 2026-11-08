@@ -1485,27 +1485,10 @@ html body #products-container .product-card .msq-fav-btn {
 
         </div>
 
-        <div class="form-group">
-          <label for="custGovernorate">المحافظة * <span style="font-size:11px;font-weight:700;color:#b42332;margin-right:6px;">— يجب ملء الحقول الموضحة</span></label>
-          <select id="custGovernorate" autocomplete="address-level1" required onchange="mysouqGovernorateChanged(); if(typeof checkFormCompletion==='function')checkFormCompletion()"><option value="">اختر المحافظة</option></select>
-        </div>
-
-        <div class="form-group">
-          <label for="custCity">المدينة / المركز * <span style="font-size:11px;font-weight:700;color:#b42332;margin-right:6px;">— يجب ملء الحقول الموضحة</span></label>
-          <select id="custCity" autocomplete="address-level2" required disabled onchange="if(typeof checkFormCompletion==='function')checkFormCompletion()"><option value="">اختر المحافظة أولًا</option></select>
-        </div>
-
-        <div class="form-group">
-          <label for="custDetailedAddress">العنوان بالتفصيل * <span style="font-size:11px;font-weight:700;color:#b42332;margin-right:6px;">— يجب ملء الحقول الموضحة</span></label>
-          <textarea id="custDetailedAddress" rows="2" placeholder="الشارع، رقم العقار، الدور، علامة مميزة" autocomplete="off" oninput="if(window.mysouqSyncCheckoutAddress)window.mysouqSyncCheckoutAddress(); checkFormCompletion()"></textarea>
-        </div>
-
-        <!-- Compatibility field: the original checkout script still reads #custAddress. -->
-        <input type="hidden" id="custAddress" name="address" value="">
-
+        <!-- ترتيب الحقول: الموقع أولًا ثم المحافظة والمدينة والعنوان التفصيلي -->
         <div class="form-group" id="mysouqMapAddressBox">
-          <label>📍 تحديد موقع التوصيل على الخريطة</label>
-          <p style="font-size:12px;color:#75616a;margin:0 0 9px">اضغط على الخريطة لتحديد مكان التسليم، أو استخدم زر تحديد موقعي الحالي.</p>
+          <label>📍 تحديد موقع التوصيل على الخريطة *</label>
+          <p style="font-size:12px;color:#75616a;margin:0 0 9px">اضغط على الخريطة أو استخدم GPS — هتتعبّى المحافظة والمدينة تلقائيًا من الموقع.</p>
           <div id="mysouqDeliveryMap" role="application" aria-label="خريطة تحديد عنوان التوصيل"></div>
           <div class="mysouq-map-actions">
             <button type="button" id="mysouqLocateMeBtn">📡 تحديد موقعي الحالي (GPS)</button>
@@ -1520,6 +1503,24 @@ html body #products-container .product-card .msq-fav-btn {
           <input type="hidden" id="mysouqLatitude" name="latitude" value="">
           <input type="hidden" id="mysouqLongitude" name="longitude" value="">
         </div>
+
+        <div class="form-group">
+          <label for="custGovernorate">المحافظة * <span style="font-size:11px;font-weight:700;color:#b42332;margin-right:6px;">— تُملأ تلقائيًا من الموقع أو اخترها يدويًا</span></label>
+          <select id="custGovernorate" autocomplete="address-level1" required onchange="mysouqGovernorateChanged(); if(typeof checkFormCompletion==='function')checkFormCompletion()"><option value="">اختر المحافظة</option></select>
+        </div>
+
+        <div class="form-group">
+          <label for="custCity">المدينة / المركز * <span style="font-size:11px;font-weight:700;color:#b42332;margin-right:6px;">— تُملأ تلقائيًا من الموقع أو اخترها يدويًا</span></label>
+          <select id="custCity" autocomplete="address-level2" required disabled onchange="if(typeof checkFormCompletion==='function')checkFormCompletion()"><option value="">اختر المحافظة أولًا</option></select>
+        </div>
+
+        <div class="form-group">
+          <label for="custDetailedAddress">العنوان بالتفصيل * <span style="font-size:11px;font-weight:700;color:#b42332;margin-right:6px;">— يجب ملء الحقول الموضحة</span></label>
+          <textarea id="custDetailedAddress" rows="2" placeholder="الشارع، رقم العقار، الدور، علامة مميزة" autocomplete="off" oninput="if(window.mysouqSyncCheckoutAddress)window.mysouqSyncCheckoutAddress(); checkFormCompletion()"></textarea>
+        </div>
+
+        <!-- Compatibility field: the original checkout script still reads #custAddress. -->
+        <input type="hidden" id="custAddress" name="address" value="">
 
       </div>
 
@@ -4994,6 +4995,7 @@ window.addToCartAndContinue = function () {
   if(!gov||!city)return;
   function fill(select,items,placeholder){select.innerHTML='';var first=document.createElement('option');first.value='';first.textContent=placeholder;select.appendChild(first);items.forEach(function(item){var o=document.createElement('option');o.value=item;o.textContent=item;select.appendChild(o);});}
   fill(gov,Object.keys(data),'اختر المحافظة');
+  window.mysouqEgyptCitiesData=data;
   window.mysouqGovernorateChanged=function(){var list=data[gov.value]||[];fill(city,list,list.length?'اختر المدينة / المركز':'اختر المحافظة أولًا');city.disabled=!list.length;city.value='';city.setCustomValidity('');};
   window.mysouqAddressIsValid=function(){return !!(gov.value&&data[gov.value]&&city.value&&data[gov.value].indexOf(city.value)!==-1);};
   // Keep the existing checkout flow intact, but stop it before terms/order creation
@@ -5025,10 +5027,15 @@ window.addToCartAndContinue = function () {
     if(coordLink){coordLink.href='https://maps.google.com/?q='+encodeURIComponent(latInput.value+','+lonInput.value);coordLink.style.display='inline-block';}
     if(typeof window.mysouqSyncCheckoutAddress==='function')window.mysouqSyncCheckoutAddress();
     if(marker){marker.setLatLng([lat,lon]);}else{marker=L.marker([lat,lon],{draggable:true}).addTo(map);marker.on('dragend',function(){var p=marker.getLatLng();setLocation(p.lat,p.lng,'تم تعديل الموقع يدويًا');});}
-    map.setView([lat,lon],16);status.textContent=source+': '+lat.toFixed(6)+', '+lon.toFixed(6)+' — سيتم إرفاق الإحداثيات بالعنوان عند إرسال الطلب.';
+    map.setView([lat,lon],16);status.textContent=source+': '+lat.toFixed(6)+', '+lon.toFixed(6)+' — جاري تعبئة المحافظة والمدينة من الموقع…';
     var detail=document.getElementById('custDetailedAddress');if(detail && typeof window.checkFormCompletion==='function')window.checkFormCompletion();
     setTimeout(function(){ try{ map.invalidateSize({animate:false}); }catch(e){} }, 50);
     setTimeout(function(){ try{ map.invalidateSize({animate:false}); }catch(e){} }, 250);
+    if(typeof window.mysouqFillAddressFromCoords==='function'){
+      window.mysouqFillAddressFromCoords(lat,lon,function(msg){
+        status.textContent=(source||'تم تحديد الموقع')+': '+lat.toFixed(6)+', '+lon.toFixed(6)+(msg?(' — '+msg):'');
+      });
+    }
   }
   map.on('click',function(e){setLocation(e.latlng.lat,e.latlng.lng,'تم تحديد الموقع على الخريطة');});
   document.getElementById('mysouqLocateMeBtn').addEventListener('click',function(){
@@ -9439,6 +9446,203 @@ html body #msqAdminTabContent .order-card-admin {
 .msq-copy-oid-btn{display:inline-flex!important;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;padding:0!important;margin:0!important;border:1px solid rgba(106,27,154,.28)!important;border-radius:999px!important;background:#f3e5f5!important;color:#6a1b9a!important;font-size:13px!important;font-weight:900!important;cursor:pointer!important;line-height:1!important;flex:0 0 auto!important}
 .msq-copy-oid-btn:hover{filter:brightness(1.05)}
 </style>
+
+
+<script id="mysouq-gps-autofill-gov-city">
+(function () {
+  'use strict';
+  if (window.__msqGpsAutofillGovCity) return;
+  window.__msqGpsAutofillGovCity = true;
+
+  var EN_GOV = {
+    cairo: 'القاهرة',
+    giza: 'الجيزة',
+    alexandria: 'الإسكندرية',
+    alexandria: 'الإسكندرية',
+    dakahlia: 'الدقهلية',
+    'ad daqahliyah': 'الدقهلية',
+    sharqia: 'الشرقية',
+    'ash sharqiyah': 'الشرقية',
+    qalyubia: 'القليوبية',
+    'al qalyubiyah': 'القليوبية',
+    kafr: 'كفر الشيخ',
+    'kafr el-sheikh': 'كفر الشيخ',
+    'kafr el sheikh': 'كفر الشيخ',
+    gharbia: 'الغربية',
+    'al gharbiyah': 'الغربية',
+    monufia: 'المنوفية',
+    menofia: 'المنوفية',
+    'al minufiyah': 'المنوفية',
+    beheira: 'البحيرة',
+    'al buhayrah': 'البحيرة',
+    ismailia: 'الإسماعيلية',
+    'al ismailiyah': 'الإسماعيلية',
+    port: 'بورسعيد',
+    'port said': 'بورسعيد',
+    suez: 'السويس',
+    'as suways': 'السويس',
+    north: 'شمال سيناء',
+    'north sinai': 'شمال سيناء',
+    south: 'جنوب سيناء',
+    'south sinai': 'جنوب سيناء',
+    red: 'البحر الأحمر',
+    'red sea': 'البحر الأحمر',
+    'al bahr al ahmar': 'البحر الأحمر',
+    new: 'الوادي الجديد',
+    'new valley': 'الوادي الجديد',
+    matrouh: 'مطروح',
+    matruh: 'مطروح',
+    fayoum: 'الفيوم',
+    fayum: 'الفيوم',
+    'al fayyum': 'الفيوم',
+    beni: 'بني سويف',
+    'bani suwayf': 'بني سويف',
+    minya: 'المنيا',
+    'al minya': 'المنيا',
+    asyut: 'أسيوط',
+    assiut: 'أسيوط',
+    sohag: 'سوهاج',
+    suhaj: 'سوهاج',
+    qena: 'قنا',
+    luxor: 'الأقصر',
+    aswan: 'أسوان',
+    damietta: 'دمياط',
+    dumyat: 'دمياط'
+  };
+
+  function norm(s) {
+    return String(s || '')
+      .replace(/[أإآ]/g, 'ا')
+      .replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي')
+      .replace(/[\u064B-\u065F]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+  }
+
+  function scoreMatch(a, b) {
+    a = norm(a); b = norm(b);
+    if (!a || !b) return 0;
+    if (a === b) return 100;
+    if (a.indexOf(b) !== -1 || b.indexOf(a) !== -1) return 80;
+    return 0;
+  }
+
+  function bestKey(candidates, keys) {
+    var best = '', bestScore = 0;
+    (candidates || []).forEach(function (c) {
+      if (!c) return;
+      var cn = norm(c);
+      if (EN_GOV[cn]) {
+        var ar = EN_GOV[cn];
+        if (keys.indexOf(ar) !== -1) {
+          best = ar; bestScore = 100;
+        }
+      }
+      // partial en keys
+      Object.keys(EN_GOV).forEach(function (k) {
+        if (cn.indexOf(k) !== -1 || k.indexOf(cn) !== -1) {
+          var ar2 = EN_GOV[k];
+          if (keys.indexOf(ar2) !== -1 && bestScore < 90) {
+            best = ar2; bestScore = 90;
+          }
+        }
+      });
+      keys.forEach(function (k) {
+        var sc = scoreMatch(c, k);
+        if (sc > bestScore) { bestScore = sc; best = k; }
+      });
+    });
+    return bestScore >= 60 ? best : '';
+  }
+
+  function bestCity(candidates, cities) {
+    var best = '', bestScore = 0;
+    (candidates || []).forEach(function (c) {
+      if (!c) return;
+      cities.forEach(function (city) {
+        var sc = scoreMatch(c, city);
+        if (sc > bestScore) { bestScore = sc; best = city; }
+      });
+    });
+    return bestScore >= 60 ? best : '';
+  }
+
+  window.mysouqFillAddressFromCoords = function (lat, lon, done) {
+    var govEl = document.getElementById('custGovernorate');
+    var cityEl = document.getElementById('custCity');
+    var data = window.mysouqEgyptCitiesData;
+    if (!govEl || !cityEl || !data) {
+      if (done) done('تعذر قراءة قوائم المحافظات');
+      return;
+    }
+    var url =
+      'https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=' +
+      encodeURIComponent(lat) +
+      '&lon=' +
+      encodeURIComponent(lon) +
+      '&accept-language=ar&addressdetails=1';
+    fetch(url, {
+      headers: { Accept: 'application/json' }
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        var addr = (json && json.address) || {};
+        var keys = Object.keys(data);
+        var govCandidates = [
+          addr.state,
+          addr.province,
+          addr.region,
+          addr.county,
+          addr.state_district,
+          json && json.display_name
+        ];
+        var gov = bestKey(govCandidates, keys);
+        if (!gov) {
+          if (done) done('تم حفظ الإحداثيات — اختَر المحافظة يدويًا');
+          return;
+        }
+        govEl.value = gov;
+        if (typeof window.mysouqGovernorateChanged === 'function') {
+          window.mysouqGovernorateChanged();
+        }
+        var cities = data[gov] || [];
+        var cityCandidates = [
+          addr.city,
+          addr.town,
+          addr.village,
+          addr.municipality,
+          addr.suburb,
+          addr.city_district,
+          addr.county,
+          addr.hamlet
+        ];
+        var city = bestCity(cityCandidates, cities);
+        if (city) {
+          cityEl.disabled = false;
+          cityEl.value = city;
+        }
+        if (typeof window.checkFormCompletion === 'function') {
+          window.checkFormCompletion();
+        }
+        if (typeof window.mysouqSyncCheckoutAddress === 'function') {
+          window.mysouqSyncCheckoutAddress();
+        }
+        if (done) {
+          done(
+            city
+              ? ('تم تعبئة: ' + gov + ' / ' + city)
+              : ('تم تعبئة المحافظة: ' + gov + ' — اختَر المدينة إن لزم')
+          );
+        }
+      })
+      .catch(function () {
+        if (done) done('تم حفظ الإحداثيات — تعذر جلب المحافظة تلقائيًا، اختَرها يدويًا');
+      });
+  };
+})();
+</script>
 
 </body>
 
