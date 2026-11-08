@@ -9282,6 +9282,140 @@ html body #msqAdminTabContent .order-card-admin {
 })();
 </script>
 
+
+<script id="mysouq-admin-copy-order-id-v2">
+(function () {
+  'use strict';
+  if (window.__msqCopyOidV2) return;
+  window.__msqCopyOidV2 = true;
+
+  function toast(msg) {
+    var el = document.getElementById('msqCopyOrderToast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'msqCopyOrderToast';
+      el.style.cssText = 'position:fixed;z-index:99999;left:50%;bottom:24px;transform:translateX(-50%);background:#1b5e20;color:#fff;padding:10px 14px;border-radius:12px;font-weight:900;font-size:13px;box-shadow:0 8px 20px rgba(0,0,0,.18);opacity:0;transition:opacity .2s;pointer-events:none';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(el._t);
+    el._t = setTimeout(function () { el.style.opacity = '0'; }, 1500);
+  }
+
+  window.msqCopyOrderId = function (orderId, btn) {
+    var id = String(orderId || '').trim();
+    if (!id || id === '-') return;
+    var done = function () {
+      toast('تم نسخ رقم الطلب: ' + id);
+      if (btn) {
+        var old = btn.textContent;
+        btn.textContent = '✓';
+        setTimeout(function () { btn.textContent = old; }, 800);
+      }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(id).then(done).catch(function () {
+        try { window.prompt('انسخ رقم الطلب:', id); } catch (e) {}
+      });
+    } else {
+      try {
+        var ta = document.createElement('textarea');
+        ta.value = id;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        done();
+      } catch (e) {
+        try { window.prompt('انسخ رقم الطلب:', id); } catch (e2) {}
+      }
+    }
+  };
+
+  function pickId(text) {
+    var t = String(text || '');
+    var m = t.match(/\b(M-[A-Za-z0-9]+)\b/i);
+    return m ? m[1] : '';
+  }
+
+  function addBtn(line, id) {
+    if (!line || !id || line.querySelector('.msq-copy-oid-btn')) return;
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'msq-copy-oid-btn';
+    b.title = 'نسخ رقم الطلب';
+    b.textContent = '📋';
+    b.onclick = function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      window.msqCopyOrderId(id, b);
+    };
+    line.classList.add('msq-oid-with-copy');
+    line.appendChild(b);
+  }
+
+  function enhanceRoot(root) {
+    if (!root) return;
+    var oids = root.querySelectorAll('.oid');
+    for (var i = 0; i < oids.length; i++) {
+      var el = oids[i];
+      addBtn(el, pickId(el.textContent));
+    }
+    var cards = root.querySelectorAll('.msq-x2-card, #msqOosList > article, #msqRejectedList > article');
+    for (var j = 0; j < cards.length; j++) {
+      var card = cards[j];
+      if (card.querySelector('.msq-copy-oid-btn')) continue;
+      var line = card.querySelector('.oid') || card.firstElementChild;
+      if (!line) continue;
+      addBtn(line, pickId(line.textContent));
+    }
+  }
+
+  var timer = null;
+  function schedule() {
+    if (timer) return;
+    timer = setTimeout(function () {
+      timer = null;
+      enhanceRoot(document.getElementById('adminOrdersList'));
+      enhanceRoot(document.getElementById('msqX2ReviewList'));
+      enhanceRoot(document.getElementById('msqOosList'));
+      enhanceRoot(document.getElementById('msqRejectedList'));
+      enhanceRoot(document.getElementById('msqDeliveredList'));
+      enhanceRoot(document.getElementById('msqAdminTabContent'));
+    }, 120);
+  }
+
+  function boot() {
+    schedule();
+    var targets = [
+      document.getElementById('adminOrdersList'),
+      document.getElementById('msqAdminTabContent'),
+      document.getElementById('adminOrdersModal')
+    ];
+    try {
+      var obs = new MutationObserver(schedule);
+      targets.forEach(function (t) {
+        if (t) obs.observe(t, { childList: true, subtree: true });
+      });
+    } catch (e) {}
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.closest && e.target.closest('#msqAdminTabs, #adminOrdersBtn, .admin-orders-trigger')) {
+        setTimeout(schedule, 300);
+      }
+    }, true);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+<style id="mysouq-admin-copy-order-id-css">
+.msq-oid-with-copy{display:inline-flex!important;align-items:center;gap:8px;flex-wrap:wrap}
+.msq-copy-oid-btn{display:inline-flex!important;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;padding:0!important;margin:0!important;border:1px solid rgba(106,27,154,.28)!important;border-radius:999px!important;background:#f3e5f5!important;color:#6a1b9a!important;font-size:13px!important;font-weight:900!important;cursor:pointer!important;line-height:1!important;flex:0 0 auto!important}
+.msq-copy-oid-btn:hover{filter:brightness(1.05)}
+</style>
+
 </body>
 
 
@@ -9589,197 +9723,4 @@ html body .admin-orders-hint { display: none !important; }
   else tick();
 })();
 </script>
-
-
-
-
-
-<script id="mysouq-admin-copy-order-id-v1">
-(function () {
-  'use strict';
-
-  function toast(msg) {
-    try {
-      if (typeof showToast === 'function') { showToast(msg); return; }
-    } catch (e) {}
-    var el = document.getElementById('msqCopyOrderToast');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'msqCopyOrderToast';
-      el.setAttribute('role', 'status');
-      el.style.cssText = 'position:fixed;z-index:99999;left:50%;bottom:28px;transform:translateX(-50%);background:#1b5e20;color:#fff;padding:10px 16px;border-radius:12px;font-weight:900;font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.18);opacity:0;pointer-events:none;transition:opacity .2s';
-      document.body.appendChild(el);
-    }
-    el.textContent = msg;
-    el.style.opacity = '1';
-    clearTimeout(el._t);
-    el._t = setTimeout(function () { el.style.opacity = '0'; }, 1600);
-  }
-
-  window.msqCopyOrderId = async function (orderId, btn) {
-    var id = String(orderId || '').trim();
-    if (!id || id === '-') {
-      toast('لا يوجد رقم طلب');
-      return;
-    }
-    try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(id);
-      } else {
-        var ta = document.createElement('textarea');
-        ta.value = id;
-        ta.style.cssText = 'position:fixed;left:-9999px;top:0';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        ta.remove();
-      }
-      toast('تم نسخ رقم الطلب: ' + id);
-      if (btn) {
-        var prev = btn.getAttribute('data-label') || btn.innerHTML;
-        btn.setAttribute('data-label', prev);
-        btn.innerHTML = '✓';
-        setTimeout(function () { btn.innerHTML = prev; }, 900);
-      }
-    } catch (e) {
-      try { prompt('انسخ رقم الطلب:', id); } catch (e2) {}
-    }
-  };
-
-  function extractIdFromText(raw) {
-    var t = String(raw || '').replace(/\s+/g, ' ').trim();
-    if (!t) return '';
-    t = t.replace(/^[\s🆔🔁📦🛒]*\s*/u, '').trim();
-    var m = t.match(/\b(M-[A-Za-z0-9]+)\b/i);
-    if (m) return m[1];
-    m = t.match(/([A-Za-z0-9][A-Za-z0-9_-]{4,})/);
-    return m ? m[1] : '';
-  }
-
-  function makeCopyBtn(orderId) {
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'msq-copy-oid-btn';
-    b.title = 'نسخ رقم الطلب';
-    b.setAttribute('aria-label', 'نسخ رقم الطلب');
-    b.setAttribute('data-order-id', orderId);
-    b.innerHTML = '📋';
-    b.addEventListener('click', function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.msqCopyOrderId(orderId, b);
-    });
-    return b;
-  }
-
-  function enhanceNode(node) {
-    if (!node || node.nodeType !== 1) return;
-
-    // .oid lines (most admin cards)
-    node.querySelectorAll('.oid').forEach(function (el) {
-      if (el.querySelector('.msq-copy-oid-btn')) return;
-      var id = extractIdFromText(el.textContent);
-      if (!id) return;
-      el.classList.add('msq-oid-with-copy');
-      el.appendChild(makeCopyBtn(id));
-    });
-
-    // X2 cards: first bold purple line with 🔁
-    node.querySelectorAll('.msq-x2-card, article.msq-x2-card').forEach(function (card) {
-      if (card.querySelector('.msq-copy-oid-btn')) return;
-      var line = card.querySelector('div');
-      if (!line) return;
-      var id = extractIdFromText(line.textContent);
-      if (!id) return;
-      line.classList.add('msq-oid-with-copy');
-      line.appendChild(makeCopyBtn(id));
-    });
-
-    // OOS / generic articles that start with order id text without .oid
-    node.querySelectorAll('#msqOosList article, #msqRejectedList article, #msqX2ReviewList article, #msqDeliveredList article, #adminOrdersList .order-card-admin').forEach(function (card) {
-      if (card.querySelector('.msq-copy-oid-btn')) return;
-      var oid = card.querySelector('.oid');
-      if (oid) return; // handled above
-      var line = card.firstElementChild;
-      if (!line) return;
-      var id = extractIdFromText(line.textContent);
-      if (!id) return;
-      line.classList.add('msq-oid-with-copy');
-      line.appendChild(makeCopyBtn(id));
-    });
-  }
-
-  function scan() {
-    var roots = [
-      document.getElementById('adminOrdersList'),
-      document.getElementById('msqX2ReviewList'),
-      document.getElementById('msqOosList'),
-      document.getElementById('msqRejectedList'),
-      document.getElementById('msqDeliveredList'),
-      document.getElementById('adminOrdersModal'),
-      document.getElementById('msqAdminTabContent'),
-      document.body
-    ];
-    roots.forEach(function (r) { if (r) enhanceNode(r); });
-  }
-
-  function boot() {
-    scan();
-    try {
-      var obs = new MutationObserver(function () {
-        clearTimeout(obs._t);
-        obs._t = setTimeout(scan, 80);
-      });
-      obs.observe(document.body, { childList: true, subtree: true });
-    } catch (e) {}
-    setInterval(scan, 2500);
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
-})();
-</script>
-<style id="mysouq-admin-copy-order-id-css">
-.msq-oid-with-copy{
-  display:flex !important;
-  align-items:center;
-  gap:8px;
-  flex-wrap:wrap;
-}
-.msq-copy-oid-btn{
-  display:inline-flex !important;
-  align-items:center;
-  justify-content:center;
-  width:30px;
-  height:30px;
-  min-width:30px;
-  padding:0 !important;
-  margin:0 !important;
-  border:1px solid rgba(106,27,154,.25) !important;
-  border-radius:999px !important;
-  background:linear-gradient(145deg,#f3e5f5,#ede7f6) !important;
-  color:#6a1b9a !important;
-  font-size:14px !important;
-  font-weight:900 !important;
-  cursor:pointer !important;
-  box-shadow:0 2px 6px rgba(106,27,154,.12);
-  flex:0 0 auto !important;
-  line-height:1 !important;
-}
-.msq-copy-oid-btn:hover{
-  filter:brightness(1.05);
-  border-color:rgba(106,27,154,.45) !important;
-}
-.msq-copy-oid-btn:active{
-  transform:scale(.96);
-}
-#adminOrdersModal .msq-copy-oid-btn,
-#msqAdminTabContent .msq-copy-oid-btn{
-  width:28px;
-  height:28px;
-  min-width:28px;
-  font-size:13px !important;
-}
-</style>
-
 </html>
