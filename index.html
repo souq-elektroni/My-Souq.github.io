@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611091309cacheFix";
+  var BUILD = "202611091342cancelFix";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -147,7 +147,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611091309cacheFix">
+  <meta name="msq-build" content="202611091342cancelFix">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -236,8 +236,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611091309cacheFix">
-<link rel="stylesheet" href="styles.css?v=202611091309cacheFix">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611091342cancelFix">
+<link rel="stylesheet" href="styles.css?v=202611091342cancelFix">
 
 
 
@@ -273,8 +273,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611091309cacheFix">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611091309cacheFix">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611091342cancelFix">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611091342cancelFix">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2090,7 +2090,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611091309cacheFix"></script>
+  <script src="script.js?v=202611091342cancelFix"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -4478,15 +4478,32 @@ window.addToCartAndContinue = function () {
         var list = (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) ? adminOrdersCache : [];
         cards.forEach(function (card) {
           var existing = card.querySelector('.cancel-order-btn');
+          var excExisting = card.querySelector('.cancel-exception-btn');
           var actionRow = card.querySelector('.msq-cancel-actions-row');
           var oidEl = card.querySelector('.oid');
-          var text = oidEl ? oidEl.textContent.replace(/^\s*🆔\s*/, '').trim() : '';
-          var match = list.find(function (o) { return String(o.orderId || '') === text; });
+          var rawOid = oidEl ? String(oidEl.textContent || '') : String(card.textContent || '');
+          var idMatch = rawOid.match(/\b(MS-[A-Za-z0-9]+|M-[A-Za-z0-9]+)\b/i);
+          var text = idMatch ? idMatch[1] : (oidEl ? oidEl.textContent.replace(/^\s*🆔\s*/, '').replace(/📋|✓/g, '').trim() : '');
+          text = String(text || '').trim();
+          var match = list.find(function (o) {
+            return String(o.orderId || '').trim().toUpperCase() === String(text || '').toUpperCase();
+          });
           if (!match) {
-            if (existing) existing.closest('div') && existing.closest('div').remove();
+            // متشلش أزرار موجودة لو معرفناش الطلب — ده كان بيسبب ظهور/اختفاء
             return;
           }
-          var matchStatusCode = (typeof match.statusCode === 'number') ? match.statusCode : 0;
+          // حدّد الحالة صح: من statusCode أو من نص الحالة
+          var matchStatusCode = (typeof match.statusCode === 'number') ? match.statusCode : NaN;
+          if (!Number.isFinite(matchStatusCode)) {
+            var lab = String(match.status || match.statusLabel || '');
+            if (/تحت التنفيذ/.test(lab)) matchStatusCode = 0;
+            else if (/تم الحجز/.test(lab)) matchStatusCode = 1;
+            else if (/جاري الشحن/.test(lab)) matchStatusCode = 2;
+            else if (/تم التوريد|تم التسليم|تم التوصيل/.test(lab)) matchStatusCode = 3;
+            else if (/رفض|حظر/.test(lab)) matchStatusCode = 4;
+            else if (/Order 0|نفد/.test(lab)) matchStatusCode = 5;
+            else matchStatusCode = 0;
+          }
           // Reuse the same action row on every render to prevent duplicate buttons.
           var row = actionRow || (existing ? existing.parentElement : null);
           if (!row || !row.classList.contains('msq-cancel-actions-row')) {
@@ -4521,6 +4538,19 @@ window.addToCartAndContinue = function () {
             row.appendChild(exceptional);
           } else if (matchStatusCode !== 1 && matchStatusCode !== 2 && excBtn) {
             excBtn.remove();
+          }
+          // تأكيد: متسيبش النوعين مع بعض
+          if (matchStatusCode === 0) {
+            var e2 = card.querySelector('.cancel-exception-btn'); if (e2) e2.remove();
+            var p2 = card.querySelector('.cancel-order-btn'); if (p2) p2.textContent = '🗑️ إلغاء نهائي';
+          }
+          if (matchStatusCode === 1 || matchStatusCode === 2) {
+            var p3 = card.querySelector('.cancel-order-btn'); if (p3) p3.remove();
+            var e3 = card.querySelector('.cancel-exception-btn'); if (e3) e3.textContent = '🔐 إلغاء استثنائي';
+          }
+          if (matchStatusCode >= 3) {
+            var p4 = card.querySelector('.cancel-order-btn'); if (p4) p4.remove();
+            var e4 = card.querySelector('.cancel-exception-btn'); if (e4) e4.remove();
           }
           // لو مفيش أزرار في الصف شيله
           if (row && !row.querySelector('button')) {
@@ -6217,13 +6247,18 @@ window.addToCartAndContinue = function () {
   }
 
   function setShort(btn, kind) {
-    if (btn.dataset.msqLabelOk) return;
     if (kind === 'details') btn.textContent = 'تفاصيل الطلب';
-    else if (kind === 'wa') btn.textContent = 'رسالة واتساب';
-    else if (kind === 'ship') btn.textContent = 'نسخ رسالة واتساب';
-    else if (kind === 'merge') btn.textContent = '🔗 دمج الطلبات';
-    else if (kind === 'cancel') btn.textContent = '🗑️ إلغاء نهائي';
-    else if (kind === 'exceptional') btn.textContent = '🔐 إلغاء استثنائي';
+    else if (kind === 'wa') btn.textContent = 'إشعار واتساب';
+    else if (kind === 'ship') btn.textContent = 'نسخ رسالة الشحن';
+    else if (kind === 'merge') btn.textContent = '🔗 دمج طلبات';
+    else if (kind === 'cancel') {
+      btn.classList.add('cancel-order-btn');
+      btn.textContent = '🗑️ إلغاء نهائي';
+    }
+    else if (kind === 'exceptional') {
+      btn.classList.add('cancel-exception-btn');
+      btn.textContent = '🔐 إلغاء استثنائي';
+    }
     else if (kind === 'block') btn.textContent = 'رفض وحظر';
     btn.dataset.msqLabelOk = '1';
   }
@@ -13581,8 +13616,53 @@ window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loadi
     card.setAttribute('data-msq-act-laid', '1');
   }
 
+  function fixCancelType(card) {
+    // من نص الحالة الظاهر على الكارت
+    var statusTxt = '';
+    card.querySelectorAll('div, span').forEach(function (el) {
+      var t = String(el.textContent || '');
+      if (/الحالة:/.test(t) && t.length < 80) statusTxt = t;
+    });
+    var code = -1;
+    if (/تحت التنفيذ/.test(statusTxt)) code = 0;
+    else if (/تم الحجز/.test(statusTxt)) code = 1;
+    else if (/جاري الشحن/.test(statusTxt)) code = 2;
+    else if (/تم التوريد|تم التسليم/.test(statusTxt)) code = 3;
+
+    var perm = card.querySelector('.cancel-order-btn');
+    var exc = card.querySelector('.cancel-exception-btn');
+    // تم الحجز / جاري الشحن → استثنائي فقط
+    if (code === 1 || code === 2) {
+      if (perm) { try { perm.remove(); } catch (e) {} }
+      if (exc) {
+        exc.textContent = '🔐 إلغاء استثنائي';
+        exc.classList.add('cancel-exception-btn');
+        exc.style.display = '';
+        exc.style.visibility = 'visible';
+        exc.style.opacity = '1';
+      }
+    }
+    // تحت التنفيذ → نهائي فقط
+    if (code === 0) {
+      if (exc) { try { exc.remove(); } catch (e) {} }
+      if (perm) {
+        perm.textContent = '🗑️ إلغاء نهائي';
+        perm.classList.add('cancel-order-btn');
+        perm.style.display = '';
+        perm.style.visibility = 'visible';
+        perm.style.opacity = '1';
+      }
+    }
+    // توريد وغيره → مفيش إلغاء
+    if (code === 3) {
+      if (perm) { try { perm.remove(); } catch (e) {} }
+      if (exc) { try { exc.remove(); } catch (e) {} }
+    }
+  }
+
   function run() {
     if (running) return;
+
     var now = Date.now();
     if (now - lastRun < 400) return; // throttle
     lastRun = now;
@@ -13591,7 +13671,7 @@ window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loadi
       var modal = document.getElementById('adminOrdersModal');
       if (!modal) return;
       var list = document.getElementById('adminOrdersList') || modal;
-      list.querySelectorAll('.order-card-admin').forEach(layoutCard);
+      list.querySelectorAll('.order-card-admin').forEach(function(c){ layoutCard(c); fixCancelType(c); });
     } catch (e) {
       console.warn('msq act row', e);
     } finally {
