@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611090954forceLayout";
+  var BUILD = "202611091031singleSize";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -9851,22 +9851,28 @@ html body #msqAdminTabContent .order-card-admin {
 #msqGpsReviewHint{
   display:none;
   position:absolute!important;
-  inset-inline-start:10px!important;
-  bottom:8px!important;
+  inset-inline-start:12px!important;
+  inset-inline-end:12px!important;
+  bottom:14px!important;
   align-items:center!important;
   gap:8px!important;
-  padding:5px 10px!important;
+  padding:7px 12px!important;
   border-radius:10px!important;
-  background:rgba(255,251,235,.95)!important;
-  border:1px solid rgba(245,158,11,.35)!important;
+  background:rgba(255,251,235,.98)!important;
+  border:1px solid rgba(245,158,11,.45)!important;
   color:#92400e!important;
   font-weight:900!important;
   font-size:12px!important;
   line-height:1.35!important;
   pointer-events:none!important;
   z-index:3!important;
-  max-width:calc(100% - 20px)!important;
-  box-shadow:0 2px 8px rgba(146,64,14,.08)!important;
+  max-width:calc(100% - 24px)!important;
+  box-sizing:border-box!important;
+  box-shadow:0 2px 10px rgba(146,64,14,.1)!important;
+}
+.msq-detailed-address-wrap textarea,
+#cartModal #custDetailedAddress{
+  padding-bottom:48px!important;
 }
 #msqGpsReviewHint[data-on="1"]{
   display:flex!important;
@@ -12939,24 +12945,30 @@ window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loadi
 }
 .msq-detailed-address-wrap{position:relative!important}
 #custDetailedAddress{padding-bottom:40px!important;box-sizing:border-box!important;transition:background .2s,border-color .2s!important}
+#custDetailedAddress{
+  padding-bottom:48px !important;
+}
 #msqGpsReviewHint{
   display:none !important;
   position:absolute !important;
-  inset-inline-start:10px !important;
-  bottom:8px !important;
+  inset-inline-start:12px !important;
+  inset-inline-end:12px !important;
+  bottom:14px !important;
   align-items:center !important;
   gap:8px !important;
-  padding:5px 10px !important;
+  padding:7px 12px !important;
   border-radius:10px !important;
-  background:rgba(255,251,235,.97) !important;
-  border:1px solid rgba(245,158,11,.4) !important;
+  background:rgba(255,251,235,.98) !important;
+  border:1px solid rgba(245,158,11,.45) !important;
   color:#92400e !important;
   font-weight:900 !important;
   font-size:12px !important;
   line-height:1.35 !important;
   pointer-events:none !important;
   z-index:5 !important;
-  max-width:calc(100% - 20px) !important;
+  max-width:calc(100% - 24px) !important;
+  box-sizing:border-box !important;
+  box-shadow:0 2px 10px rgba(146,64,14,.1) !important;
 }
 #msqGpsReviewHint[data-on="1"]{display:flex !important}
 .msq-gps-red-lamp{
@@ -13157,6 +13169,154 @@ window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loadi
       setTimeout(run, 400);
     }
   }, true);
+})();
+</script>
+
+
+<style id="msq-single-image-size-layout-v1">
+/* ===== نظام الصورة الواحدة: نافذة أوسع + جدول المقاسات في عمود منفصل ===== */
+@media (min-width: 901px) {
+  #productModal:not(.msq-pair-mode) .modal-content {
+    width: min(1280px, calc(100vw - 32px)) !important;
+    max-width: 1280px !important;
+  }
+  #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-body {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr) minmax(280px, 0.85fr) !important;
+    grid-template-areas: "gallery size info" !important;
+    gap: 18px 20px !important;
+    align-items: start !important;
+    padding: 22px 24px !important;
+  }
+  /* RTL: gallery on the right visually */
+  html[dir="rtl"] #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-body {
+    grid-template-areas: "info size gallery" !important;
+  }
+  #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-gallery-wrapper {
+    grid-area: gallery !important;
+    min-width: 0 !important;
+  }
+  #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-info {
+    grid-area: info !important;
+    min-width: 0 !important;
+  }
+  #productModal:not(.msq-pair-mode).msq-has-size-helper #msqSizeHelper,
+  #productModal:not(.msq-pair-mode).msq-has-size-helper #msqSingleSizeSlot {
+    grid-area: size !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    align-self: start !important;
+    position: sticky !important;
+    top: 8px !important;
+    max-height: calc(100vh - 80px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  /* لما الجدول اتنقل للـ slot، اخفيه من جوه modal-info */
+  #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-info > #msqSizeHelper {
+    display: none !important;
+  }
+  #productModal:not(.msq-pair-mode).msq-has-size-helper #msqSingleSizeSlot > #msqSizeHelper {
+    display: block !important;
+    margin: 0 !important;
+  }
+  #msqSingleSizeSlot {
+    box-sizing: border-box !important;
+  }
+}
+@media (max-width: 900px) {
+  #msqSingleSizeSlot {
+    display: contents !important;
+  }
+  #productModal:not(.msq-pair-mode) #msqSizeHelper {
+    display: block !important;
+    width: 100% !important;
+    order: 5 !important;
+  }
+}
+</style>
+
+
+<script id="msq-single-size-slot-runtime-v1">
+(function () {
+  'use strict';
+  var MOVED = null;
+
+  function ensureSlot(body) {
+    var slot = document.getElementById('msqSingleSizeSlot');
+    if (!slot) {
+      slot = document.createElement('div');
+      slot.id = 'msqSingleSizeSlot';
+      slot.className = 'msq-single-size-slot';
+      body.appendChild(slot);
+    }
+    return slot;
+  }
+
+  function place() {
+    try {
+      var modal = document.getElementById('productModal');
+      var helper = document.getElementById('msqSizeHelper');
+      var body = modal && modal.querySelector('.modal-body');
+      var info = modal && modal.querySelector('.modal-info');
+      if (!modal || !helper || !body || !info) return;
+
+      var isPair = modal.classList.contains('msq-pair-mode');
+      var isActive = modal.classList.contains('active');
+      var helperVisible = helper.style.display !== 'none' && helper.getAttribute('hidden') == null;
+      // also treat as visible if it has chart rows
+      var hasChart = !!(document.getElementById('msqSizeChartBody') && document.getElementById('msqSizeChartBody').children.length);
+
+      if (!isActive || isPair || window.innerWidth <= 900 || (!helperVisible && !hasChart)) {
+        // restore if needed
+        if (MOVED && MOVED.parent && helper.parentElement && helper.parentElement.id === 'msqSingleSizeSlot') {
+          try { MOVED.parent.insertBefore(helper, MOVED.next); } catch (e) {}
+          MOVED = null;
+        }
+        modal.classList.remove('msq-has-size-helper');
+        var slot = document.getElementById('msqSingleSizeSlot');
+        if (slot && !slot.contains(helper)) {
+          try { slot.remove(); } catch (e) {}
+        }
+        return;
+      }
+
+      // show helper
+      helper.style.display = 'block';
+      helper.removeAttribute('hidden');
+      modal.classList.add('msq-has-size-helper');
+
+      var slot = ensureSlot(body);
+      if (helper.parentElement !== slot) {
+        MOVED = { parent: helper.parentElement, next: helper.nextSibling };
+        slot.appendChild(helper);
+      }
+    } catch (e) {
+      console.warn('msq single size slot', e);
+    }
+  }
+
+  function boot() {
+    place();
+    var modal = document.getElementById('productModal');
+    if (modal && window.MutationObserver) {
+      new MutationObserver(function () { setTimeout(place, 60); })
+        .observe(modal, { attributes: true, attributeFilter: ['class', 'style'] });
+    }
+    document.addEventListener('click', function (e) {
+      if (e.target && e.target.closest && e.target.closest('#productModal, .product-card, .open-product, [data-product-id]')) {
+        setTimeout(place, 120);
+        setTimeout(place, 400);
+        setTimeout(place, 900);
+      }
+    }, true);
+    window.addEventListener('resize', function () { setTimeout(place, 80); });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })();
 </script>
 
