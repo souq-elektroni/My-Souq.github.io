@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611091224noFlicker";
+  var BUILD = "202611091302copyStable";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -2765,7 +2765,8 @@ html body #products-container .product-card .msq-fav-btn {
 
         return (
           '<div class="order-card-admin">' +
-            '<div class="oid">🆔 ' + escapeHtml(o.orderId || '-') + '</div>' +
+            '<div class="oid msq-oid-with-copy">🆔 ' + escapeHtml(o.orderId || '-') +
+              ' <button type="button" class="msq-copy-oid-btn" title="نسخ رقم الطلب" onclick="event.preventDefault();event.stopPropagation();if(window.msqCopyOrderId)msqCopyOrderId(\'' + safeId + '\',this)">📋</button></div>' +
             '<div>👤 ' + escapeHtml(o.name || '-') + ' | 📱 ' + escapeHtml(o.phone || '-') + '</div>' +
             '<div>💰 ' + escapeHtml(o.total || '-') + ' | 📅 ' + escapeHtml(o.date || '-') + '</div>' +
             '<div style="margin-top:4px;font-weight:800;color:' + st.color + ';">الحالة: ' + escapeHtml(st.label) +
@@ -8779,7 +8780,8 @@ window.addToCartAndContinue = function () {
       var id = String(o.orderId || '');
       return (
         '<article style="border:1px solid #ef9a9a;border-radius:14px;padding:12px;margin-bottom:10px;background:linear-gradient(145deg,#fff,#fff5f5)">' +
-          '<div style="font-weight:950;color:#b71c1c">⛔ ' + esc(id) + '</div>' +
+          '<div class="oid msq-oid-with-copy" style="font-weight:950;color:#b71c1c;display:inline-flex;align-items:center;gap:8px">⛔ ' + esc(id) +
+          ' <button type="button" class="msq-copy-oid-btn" title="نسخ رقم الطلب" onclick="event.preventDefault();event.stopPropagation();if(window.msqCopyOrderId)msqCopyOrderId(\'' + String(id).replace(/'/g,'') + '\',this)">📋</button></div>' +
           '<div style="font-size:12px;margin:4px 0">👤 ' + esc(o.name || '-') + ' | 📱 ' + esc(o.phone || '-') + '</div>' +
           '<div style="font-size:12px;font-weight:800;color:#b71c1c">Order 0 Stock — نفذت الكمية</div>' +
           itemsHtml(o.items) +
@@ -9362,8 +9364,8 @@ html body #msqAdminTabContent .order-card-admin {
 <script id="mysouq-admin-copy-order-id-v2">
 (function () {
   'use strict';
-  if (window.__msqCopyOidV2) return;
-  window.__msqCopyOidV2 = true;
+  if (window.__msqCopyOidV3) return;
+  window.__msqCopyOidV3 = true;
 
   function toast(msg) {
     var el = document.getElementById('msqCopyOrderToast');
@@ -9376,7 +9378,7 @@ html body #msqAdminTabContent .order-card-admin {
     el.textContent = msg;
     el.style.opacity = '1';
     clearTimeout(el._t);
-    el._t = setTimeout(function () { el.style.opacity = '0'; }, 1500);
+    el._t = setTimeout(function () { el.style.opacity = '0'; }, 1600);
   }
 
   window.msqCopyOrderId = function (orderId, btn) {
@@ -9387,7 +9389,7 @@ html body #msqAdminTabContent .order-card-admin {
       if (btn) {
         var old = btn.textContent;
         btn.textContent = '✓';
-        setTimeout(function () { btn.textContent = old; }, 800);
+        setTimeout(function () { btn.textContent = old || '📋'; }, 900);
       }
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -9411,116 +9413,171 @@ html body #msqAdminTabContent .order-card-admin {
 
   function pickId(text) {
     var t = String(text || '');
-    // دعم النظامين: MS-xxxx و M-xxxx
     var m = t.match(/\b(MS-[A-Za-z0-9]+|M-[A-Za-z0-9]+)\b/i);
-    return m ? m[1] : '';
+    return m ? m[1].toUpperCase() : '';
   }
 
   function addBtn(line, id) {
-    if (!line || !id || line.querySelector('.msq-copy-oid-btn')) return;
+    if (!line || !id) return;
+    if (line.querySelector && line.querySelector('.msq-copy-oid-btn')) return;
+    // لو الزرار موجود بالفعل كـ sibling قريب
+    if (line.parentElement && line.parentElement.querySelector(':scope > .msq-copy-oid-btn')) return;
     var b = document.createElement('button');
     b.type = 'button';
     b.className = 'msq-copy-oid-btn';
     b.title = 'نسخ رقم الطلب';
+    b.setAttribute('aria-label', 'نسخ رقم الطلب');
     b.textContent = '📋';
     b.onclick = function (e) {
       e.preventDefault();
       e.stopPropagation();
       window.msqCopyOrderId(id, b);
     };
-    line.classList.add('msq-oid-with-copy');
+    try {
+      line.classList.add('msq-oid-with-copy');
+      if (getComputedStyle(line).display === 'block') {
+        line.style.display = 'inline-flex';
+        line.style.alignItems = 'center';
+        line.style.gap = '8px';
+      }
+    } catch (e) {}
     line.appendChild(b);
   }
 
   function enhanceRoot(root) {
     if (!root) return;
-    var oids = root.querySelectorAll('.oid');
-    for (var i = 0; i < oids.length; i++) {
-      addBtn(oids[i], pickId(oids[i].textContent));
-    }
-    // كل كروت القنوات: مفتوحة / X2 / OOS / مرفوض / مورّد / استبدال
-    var cards = root.querySelectorAll(
-      '.order-card-admin, .msq-x2-card, .msq-ex-admin-card, #msqOosList article, #msqRejectedList article, #msqDeliveredList article, #msqExchangeAdminList article, #msqExchangeAdminList > div, #msqExchangeAdminPanel article, #msqExchangeAdminPanel .msq-ex-admin-card'
-    );
-    for (var j = 0; j < cards.length; j++) {
-      var card = cards[j];
-      if (card.querySelector('.msq-copy-oid-btn')) continue;
+    // 1) عناصر .oid
+    root.querySelectorAll('.oid').forEach(function (el) {
+      addBtn(el, pickId(el.textContent));
+    });
+    // 2) كروت بدون .oid — دور على رقم الطلب في أول سطور قصيرة
+    root.querySelectorAll('.order-card-admin, article, .msq-x2-card, .msq-ex-admin-card').forEach(function (card) {
+      if (card.querySelector('.msq-copy-oid-btn')) return;
       var line = card.querySelector('.oid');
       if (line) {
         addBtn(line, pickId(line.textContent));
-        continue;
+        return;
       }
-      // قناة الاستبدال وغيرها: ابحث عن أي عنصر فيه رقم طلب
-      var nodes = card.querySelectorAll('div, span, strong, b, p');
-      var placed = false;
-      for (var k = 0; k < nodes.length; k++) {
-        var id = pickId(nodes[k].textContent);
+      var nodes = card.querySelectorAll('div, span, strong, b, p, h3, h4');
+      for (var i = 0; i < nodes.length; i++) {
+        var n = nodes[i];
+        if (n.querySelector && n.querySelector('button, input, select, textarea, table')) continue;
+        var txt = String(n.textContent || '').trim();
+        if (txt.length > 60) continue;
+        var id = pickId(txt);
         if (!id) continue;
-        // عنصر قصير غالبًا سطر الرقم نفسه
-        if (String(nodes[k].textContent || '').trim().length > 80) continue;
-        addBtn(nodes[k], id);
-        placed = true;
-        break;
+        addBtn(n, id);
+        return;
       }
-      if (!placed) {
-        var id2 = pickId(card.textContent);
-        if (id2 && card.firstElementChild) addBtn(card.firstElementChild, id2);
-      }
-    }
+    });
+  }
+
+  function enhanceAll() {
+    [
+      'adminOrdersList', 'msqDeliveredList', 'msqOosList', 'msqRejectedList',
+      'msqX2ReviewList', 'msqExchangeAdminList', 'msqExchangeAdminPanel', 'msqAdminTabContent'
+    ].forEach(function (id) {
+      enhanceRoot(document.getElementById(id));
+    });
   }
 
   var timer = null;
-  var lastEnhance = 0;
   function schedule() {
     if (timer) return;
     timer = setTimeout(function () {
       timer = null;
-      var now = Date.now();
-      if (now - lastEnhance < 500) return;
-      lastEnhance = now;
-      enhanceRoot(document.getElementById('adminOrdersList'));
-      enhanceRoot(document.getElementById('msqX2ReviewList'));
-      enhanceRoot(document.getElementById('msqOosList'));
-      enhanceRoot(document.getElementById('msqRejectedList'));
-      enhanceRoot(document.getElementById('msqDeliveredList'));
-      enhanceRoot(document.getElementById('msqExchangeAdminList'));
-      enhanceRoot(document.getElementById('msqExchangeAdminPanel'));
-      enhanceRoot(document.getElementById('msqAdminTabContent'));
-    }, 300);
+      enhanceAll();
+    }, 180);
   }
 
+  // event delegation: لو الزرار موجود في HTML الأصلي
+  document.addEventListener('click', function (e) {
+    var btn = e.target && e.target.closest && e.target.closest('.msq-copy-oid-btn');
+    if (!btn) return;
+    // لو عليه onclick جاهز سيبه، غير كده انسخ من أقرب نص
+    if (btn.getAttribute('onclick')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var host = btn.closest('.oid, .msq-oid-with-copy') || btn.parentElement;
+    var id = pickId(host && host.textContent);
+    if (id) window.msqCopyOrderId(id, btn);
+  }, true);
+
   function boot() {
-    schedule();
-    var targets = [
-      document.getElementById('adminOrdersList'),
-      document.getElementById('msqAdminTabContent')
-    ];
-    try {
-      var obs = new MutationObserver(function (muts) {
-        // فقط لما تتضاف كروت/قوائم جديدة — مش أي تعديل داخل الكارت
-        for (var i = 0; i < muts.length; i++) {
-          if (muts[i].addedNodes && muts[i].addedNodes.length) { schedule(); break; }
-        }
+    enhanceAll();
+    var roots = ['adminOrdersList', 'msqDeliveredList', 'msqOosList', 'msqAdminTabContent', 'msqX2ReviewList', 'msqRejectedList', 'msqExchangeAdminList'];
+    if (window.MutationObserver) {
+      roots.forEach(function (id) {
+        var el = document.getElementById(id);
+        if (!el || el.__msqCopyObs) return;
+        el.__msqCopyObs = true;
+        new MutationObserver(function (muts) {
+          for (var i = 0; i < muts.length; i++) {
+            if (muts[i].addedNodes && muts[i].addedNodes.length) {
+              schedule();
+              break;
+            }
+          }
+        }).observe(el, { childList: true, subtree: true });
       });
-      targets.forEach(function (t) {
-        if (t) obs.observe(t, { childList: true, subtree: true });
-      });
-    } catch (e) {}
+    }
     document.addEventListener('click', function (e) {
-      if (e.target && e.target.closest && e.target.closest('#msqAdminTabs, #adminOrdersBtn, .admin-orders-trigger')) {
-        setTimeout(schedule, 300);
+      if (e.target && e.target.closest && e.target.closest('#msqAdminTabs, #msqAdminChannelSelect, #adminOrdersBtn, .admin-orders-trigger, #adminOrdersModal')) {
+        setTimeout(enhanceAll, 200);
+        setTimeout(enhanceAll, 600);
       }
     }, true);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
+  setTimeout(boot, 500);
 })();
 </script>
 <style id="mysouq-admin-copy-order-id-css">
-.msq-oid-with-copy{display:inline-flex!important;align-items:center;gap:8px;flex-wrap:wrap}
-.msq-copy-oid-btn{display:inline-flex!important;align-items:center;justify-content:center;width:28px;height:28px;min-width:28px;padding:0!important;margin:0!important;border:1px solid rgba(106,27,154,.28)!important;border-radius:999px!important;background:#f3e5f5!important;color:#6a1b9a!important;font-size:13px!important;font-weight:900!important;cursor:pointer!important;line-height:1!important;flex:0 0 auto!important}
-.msq-copy-oid-btn:hover{filter:brightness(1.05)}
+#adminOrdersModal .msq-oid-with-copy,
+.msq-oid-with-copy{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  flex-wrap:wrap!important;
+  max-width:100%!important;
+}
+#adminOrdersModal .msq-copy-oid-btn,
+.msq-copy-oid-btn{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+  max-width:30px!important;
+  padding:0!important;
+  margin:0 0 0 4px!important;
+  border:1px solid rgba(106,27,154,.3)!important;
+  border-radius:999px!important;
+  background:#f3e5f5!important;
+  color:#6a1b9a!important;
+  font-size:14px!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+  line-height:1!important;
+  flex:0 0 auto!important;
+  position:relative!important;
+  z-index:2!important;
+  pointer-events:auto!important;
+  box-shadow:0 1px 4px rgba(106,27,154,.12)!important;
+}
+#adminOrdersModal .msq-copy-oid-btn:hover,
+.msq-copy-oid-btn:hover{filter:brightness(1.06)}
+/* متخليش سكربتات الصف تخفي زر النسخ */
+#adminOrdersModal .order-card-admin .msq-copy-oid-btn{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
 </style>
 
 
@@ -11078,7 +11135,7 @@ html body .admin-orders-hint { display: none !important; }
       var returnBtn = closed
         ? '<button type="button" disabled style="opacity:.4;cursor:not-allowed;background:#222;color:#fff;border:0;border-radius:10px;padding:8px 12px;font-weight:900">❌🚫 رفض استلام وحظر</button>'
         : ('<button type="button" class="msq-reject-ban-btn" onclick="returnDeliveredOrderAsRejected(\''+id+'\',this)" style="background:#111;color:#fff;border:0;border-radius:10px;padding:8px 12px;font-weight:900;cursor:pointer">❌🚫 رفض استلام وحظر</button>');
-      return '<article class="order-card-admin"><div class="oid">🆔 '+escText(o.orderId||'-')+'</div><div>👤 '+escText(o.name||'-')+' | 📱 '+escText(o.phone||'-')+'</div><div>💰 '+escText(o.total||'-')+' | 📅 '+escText(o.date||'-')+'</div><div style="font-weight:900;color:'+statusColor+';margin:6px 0">الحالة: '+escText(st)+badge+(items?' · 🛍️ '+items+' منتج':'')+'</div><div class="msq-delivered-actions"><button type="button" onclick="showAdminOrderDetails(\''+id+'\')">🧾 تفاصيل الطلب</button><button type="button" onclick="notifyCustomerStatus(\''+id+'\')">💬 إشعار واتساب</button><button type="button" onclick="copyShippingMessage(\''+id+'\')">📋 نسخ رسالة الشحن</button>'+returnBtn+'</div></article>';
+      return '<article class="order-card-admin"><div class="oid msq-oid-with-copy">🆔 '+escText(o.orderId||'-')+' <button type="button" class="msq-copy-oid-btn" title="نسخ رقم الطلب" onclick="event.preventDefault();event.stopPropagation();if(window.msqCopyOrderId)msqCopyOrderId(\''+id+'\',this)">📋</button></div><div>👤 '+escText(o.name||'-')+' | 📱 '+escText(o.phone||'-')+'</div><div>💰 '+escText(o.total||'-')+' | 📅 '+escText(o.date||'-')+'</div><div style="font-weight:900;color:'+statusColor+';margin:6px 0">الحالة: '+escText(st)+badge+(items?' · 🛍️ '+items+' منتج':'')+'</div><div class="msq-delivered-actions"><button type="button" onclick="showAdminOrderDetails(\''+id+'\')">🧾 تفاصيل الطلب</button><button type="button" onclick="notifyCustomerStatus(\''+id+'\')">💬 إشعار واتساب</button><button type="button" onclick="copyShippingMessage(\''+id+'\')">📋 نسخ رسالة الشحن</button>'+returnBtn+'</div></article>';
     }).join('');
   }
   function escText(v){var d=document.createElement('div');d.textContent=String(v==null?'':v);return d.innerHTML;}
