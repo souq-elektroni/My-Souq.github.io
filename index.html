@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 20261023173424CACHEKILL */
 (function () {
   'use strict';
-  var BUILD = "202611091031singleSize";
+  var BUILD = "202611091208wideStable";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -7724,20 +7724,26 @@ window.addToCartAndContinue = function () {
       var body=document.getElementById('msqSizeChartBody');
       if(!modal||!helper) return;
       if(!modal.classList.contains('active')) return;
-      // امسح أي نسخة مكررة
+      // امسح أي نسخة مكررة من وضع الوش/ضهر فقط
       var pairClone=document.getElementById('msqSizeHelperPair');
       if(pairClone) pairClone.remove();
-      var slot=document.getElementById('msqPairSizeSlot');
-      if(slot) slot.remove();
+      var pairSlot=document.getElementById('msqPairSizeSlot');
+      if(pairSlot) pairSlot.remove();
       var hasRows=body && body.querySelectorAll('tr').length>0;
-      if(hasRows){
-        helper.style.setProperty('display','block','important');
-        helper.hidden=false;
-        helper.removeAttribute('hidden');
-        // لو الجدول اتنقل بالغلط لـ body رجّعه لـ modal-info
+      if(!hasRows) return;
+      helper.style.setProperty('display','block','important');
+      helper.hidden=false;
+      helper.removeAttribute('hidden');
+      // مهم: لو الجدول في عمود الصورة الواحدة (#msqSingleSizeSlot) متترجعوش لـ modal-info
+      // ده كان سبب الرعشة مع سكربت الترتيب
+      var singleSlot=document.getElementById('msqSingleSizeSlot');
+      if(singleSlot && (helper.parentElement===singleSlot || modal.classList.contains('msq-has-size-helper'))){
+        return;
+      }
+      // وضع الوش/ضهر أو موبايل: خليه جوه modal-info
+      if(modal.classList.contains('msq-pair-mode') || window.innerWidth<=900){
         var info=document.querySelector('#productModal .modal-info');
-        if(info && helper.parentElement!==info){
-          // حطه بعد مقاسات أو قبل الأزرار
+        if(info && helper.parentElement!==info && helper.parentElement!==singleSlot){
           var actions=info.querySelector('.modal-actions-row');
           var exchange=document.getElementById('msqExchangePolicyBox');
           if(exchange && exchange.parentElement===info) info.insertBefore(helper, exchange);
@@ -7747,8 +7753,13 @@ window.addToCartAndContinue = function () {
       }
     }catch(e){}
   }
-  setInterval(forceSize, 900);
-  document.addEventListener('click', function(){ setTimeout(forceSize, 250); setTimeout(forceSize, 800); }, true);
+  // تقليل التكرار عشان منعملش رعشة
+  setInterval(forceSize, 2500);
+  document.addEventListener('click', function(e){
+    if(e.target && e.target.closest && e.target.closest('#productModal, .product-card')){
+      setTimeout(forceSize, 300);
+    }
+  }, true);
 })();
 </script>
 
@@ -13174,66 +13185,108 @@ window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loadi
 
 
 <style id="msq-single-image-size-layout-v1">
-/* ===== نظام الصورة الواحدة: نافذة أوسع + جدول المقاسات في عمود منفصل ===== */
+/* ===== نظام الصورة الواحدة: نافذة واسعة + 3 أعمدة منسقة بدون رعشة ===== */
 @media (min-width: 901px) {
   #productModal:not(.msq-pair-mode) .modal-content {
-    width: min(1280px, calc(100vw - 32px)) !important;
-    max-width: 1280px !important;
+    width: min(1420px, calc(100vw - 24px)) !important;
+    max-width: 1420px !important;
+    border-radius: 22px !important;
   }
   #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-body {
     display: grid !important;
-    grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr) minmax(280px, 0.85fr) !important;
+    grid-template-columns: minmax(380px, 1.25fr) minmax(320px, 0.95fr) minmax(260px, 0.78fr) !important;
     grid-template-areas: "gallery size info" !important;
-    gap: 18px 20px !important;
+    gap: 16px 22px !important;
     align-items: start !important;
-    padding: 22px 24px !important;
+    padding: 20px 22px 22px !important;
   }
-  /* RTL: gallery on the right visually */
   html[dir="rtl"] #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-body {
     grid-template-areas: "info size gallery" !important;
   }
   #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-gallery-wrapper {
     grid-area: gallery !important;
     min-width: 0 !important;
+    background: #f7f3f0 !important;
+    border-radius: 18px !important;
+    padding: 10px !important;
+  }
+  #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-gallery-wrapper .modal-img,
+  #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-gallery-wrapper img.modal-img {
+    max-height: min(72vh, 640px) !important;
+    object-fit: contain !important;
+    border-radius: 14px !important;
   }
   #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-info {
     grid-area: info !important;
     min-width: 0 !important;
+    padding: 4px 2px 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
   }
-  #productModal:not(.msq-pair-mode).msq-has-size-helper #msqSizeHelper,
-  #productModal:not(.msq-pair-mode).msq-has-size-helper #msqSingleSizeSlot {
+  #msqSingleSizeSlot {
     grid-area: size !important;
     display: block !important;
     width: 100% !important;
     max-width: 100% !important;
     margin: 0 !important;
     align-self: start !important;
-    position: sticky !important;
-    top: 8px !important;
-    max-height: calc(100vh - 80px) !important;
+    box-sizing: border-box !important;
+    background: #fff !important;
+    border: 1px solid rgba(139,63,82,.12) !important;
+    border-radius: 18px !important;
+    padding: 12px 12px 14px !important;
+    box-shadow: 0 8px 24px rgba(60,30,40,.06) !important;
+    max-height: calc(100vh - 70px) !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
   }
-  /* لما الجدول اتنقل للـ slot، اخفيه من جوه modal-info */
   #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-info > #msqSizeHelper {
     display: none !important;
   }
   #productModal:not(.msq-pair-mode).msq-has-size-helper #msqSingleSizeSlot > #msqSizeHelper {
     display: block !important;
     margin: 0 !important;
+    width: 100% !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
   }
-  #msqSingleSizeSlot {
-    box-sizing: border-box !important;
+  #msqSingleSizeSlot .msq-size-panel-head {
+    margin-bottom: 10px !important;
+  }
+  #msqSingleSizeSlot .msq-size-chart-wrap {
+    overflow-x: auto !important;
+    margin-bottom: 12px !important;
+  }
+  #msqSingleSizeSlot .msq-size-chart {
+    width: 100% !important;
+    font-size: 12.5px !important;
+  }
+  #msqSingleSizeSlot .msq-size-calc {
+    margin-top: 8px !important;
+  }
+  /* الأزرار في عمود التفاصيل تبقى واضحة */
+  #productModal:not(.msq-pair-mode).msq-has-size-helper .modal-info .modal-actions-row {
+    margin-top: auto !important;
+    position: sticky !important;
+    bottom: 0 !important;
+    background: linear-gradient(180deg, transparent, #fff 30%) !important;
+    padding-top: 10px !important;
   }
 }
 @media (max-width: 900px) {
   #msqSingleSizeSlot {
     display: contents !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
   }
   #productModal:not(.msq-pair-mode) #msqSizeHelper {
     display: block !important;
     width: 100% !important;
-    order: 5 !important;
   }
 }
 </style>
@@ -13242,7 +13295,8 @@ window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loadi
 <script id="msq-single-size-slot-runtime-v1">
 (function () {
   'use strict';
-  var MOVED = null;
+  var placed = false;
+  var timer = null;
 
   function ensureSlot(body) {
     var slot = document.getElementById('msqSingleSizeSlot');
@@ -13265,54 +13319,63 @@ window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loadi
 
       var isPair = modal.classList.contains('msq-pair-mode');
       var isActive = modal.classList.contains('active');
-      var helperVisible = helper.style.display !== 'none' && helper.getAttribute('hidden') == null;
-      // also treat as visible if it has chart rows
-      var hasChart = !!(document.getElementById('msqSizeChartBody') && document.getElementById('msqSizeChartBody').children.length);
+      var chartBody = document.getElementById('msqSizeChartBody');
+      var hasChart = !!(chartBody && chartBody.querySelectorAll('tr').length);
 
-      if (!isActive || isPair || window.innerWidth <= 900 || (!helperVisible && !hasChart)) {
-        // restore if needed
-        if (MOVED && MOVED.parent && helper.parentElement && helper.parentElement.id === 'msqSingleSizeSlot') {
-          try { MOVED.parent.insertBefore(helper, MOVED.next); } catch (e) {}
-          MOVED = null;
+      // موبايل أو pair أو مقفول: رجّع الجدول لمكانه الأصلي مرة واحدة فقط
+      if (!isActive || isPair || window.innerWidth <= 900 || !hasChart) {
+        if (placed && helper.parentElement && helper.parentElement.id === 'msqSingleSizeSlot') {
+          var anchor = info.querySelector('.modal-actions-row') || document.getElementById('msqExchangePolicyBox');
+          if (anchor && anchor.parentElement === info) info.insertBefore(helper, anchor);
+          else info.appendChild(helper);
+          placed = false;
         }
         modal.classList.remove('msq-has-size-helper');
-        var slot = document.getElementById('msqSingleSizeSlot');
-        if (slot && !slot.contains(helper)) {
-          try { slot.remove(); } catch (e) {}
-        }
         return;
       }
 
-      // show helper
-      helper.style.display = 'block';
+      helper.style.setProperty('display', 'block', 'important');
+      helper.hidden = false;
       helper.removeAttribute('hidden');
       modal.classList.add('msq-has-size-helper');
 
       var slot = ensureSlot(body);
       if (helper.parentElement !== slot) {
-        MOVED = { parent: helper.parentElement, next: helper.nextSibling };
         slot.appendChild(helper);
+        placed = true;
       }
     } catch (e) {
       console.warn('msq single size slot', e);
     }
   }
 
+  function schedule() {
+    if (timer) return;
+    timer = setTimeout(function () {
+      timer = null;
+      place();
+    }, 80);
+  }
+
   function boot() {
     place();
     var modal = document.getElementById('productModal');
-    if (modal && window.MutationObserver) {
-      new MutationObserver(function () { setTimeout(place, 60); })
-        .observe(modal, { attributes: true, attributeFilter: ['class', 'style'] });
+    if (modal && window.MutationObserver && !modal.__msqSingleSlotObs) {
+      modal.__msqSingleSlotObs = true;
+      new MutationObserver(function (muts) {
+        // راقب class فقط عشان منعملش loop من تحريك الـ DOM
+        for (var i = 0; i < muts.length; i++) {
+          if (muts[i].attributeName === 'class') { schedule(); break; }
+        }
+      }).observe(modal, { attributes: true, attributeFilter: ['class'] });
     }
     document.addEventListener('click', function (e) {
-      if (e.target && e.target.closest && e.target.closest('#productModal, .product-card, .open-product, [data-product-id]')) {
-        setTimeout(place, 120);
-        setTimeout(place, 400);
-        setTimeout(place, 900);
+      if (e.target && e.target.closest && e.target.closest('#productModal, .product-card, [onclick*="openProduct"], [data-product-id]')) {
+        setTimeout(place, 150);
+        setTimeout(place, 500);
       }
     }, true);
-    window.addEventListener('resize', function () { setTimeout(place, 80); });
+    window.addEventListener('resize', schedule);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
