@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611091551noFlicker";
+  var BUILD = "202611091600cleanAdmin";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -147,7 +147,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611091551noFlicker">
+  <meta name="msq-build" content="202611091600cleanAdmin">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -236,8 +236,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611091551noFlicker">
-<link rel="stylesheet" href="styles.css?v=202611091551noFlicker">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611091600cleanAdmin">
+<link rel="stylesheet" href="styles.css?v=202611091600cleanAdmin">
 
 
 
@@ -273,8 +273,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611091551noFlicker">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611091551noFlicker">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611091600cleanAdmin">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611091600cleanAdmin">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2090,7 +2090,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611091551noFlicker"></script>
+  <script src="script.js?v=202611091600cleanAdmin"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -6143,507 +6143,10 @@ window.addToCartAndContinue = function () {
 
 
 <script id="mysouq-admin-mobile-ux-final-v1">
-(function () {
-  'use strict';
 
-  var SHORT_FILTERS = {
-    '0': '🟡 تحت التنفيذ',
-    '1': '✅ تم الحجز',
-    '2': '🚚 جاري الشحن',
-    '5': '📭 Order 0 Stock'
-  };
+/* DISABLED — كان يعيد ترتيب أزرار الكروت ويسبب ظهور/اختفاء */
+(function(){ 'use strict'; /* no-op */ })();
 
-  var busy = false;
-  var scheduled = null;
-
-  function isMobile() {
-    return window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
-  }
-
-  function scheduleRefresh(delay) {
-    if (scheduled) clearTimeout(scheduled);
-    scheduled = setTimeout(function () {
-      scheduled = null;
-      safeRefresh();
-    }, delay || 120);
-  }
-
-  function moveCloseBesideSearch() {
-    var modal = document.getElementById('adminOrdersModal');
-    var header = document.getElementById('adminOrdersHeader');
-    if (!modal || !header) return;
-    var closeBtn = modal.querySelector('#adminCloseInHeader') || modal.querySelector('.modal-content > .close-btn');
-    if (!closeBtn) return;
-    if (!isMobile()) {
-      var content = modal.querySelector('.modal-content');
-      if (content && closeBtn.parentElement === header) content.insertBefore(closeBtn, content.firstChild);
-      return;
-    }
-    if (closeBtn.parentElement !== header) {
-      closeBtn.id = 'adminCloseInHeader';
-      header.appendChild(closeBtn);
-    }
-  }
-
-  function ensureChannelSelect() {
-    var tabs = document.getElementById('msqAdminTabs');
-    if (!tabs) return;
-    var parent = tabs.parentNode;
-    if (!parent) return;
-    var wrap = document.getElementById('msqAdminChannelSelectWrap');
-    if (!wrap) {
-      wrap = document.createElement('div');
-      wrap.id = 'msqAdminChannelSelectWrap';
-      wrap.innerHTML =
-        '<label class="msq-ch-label" for="msqAdminChannelSelect">📂 اختر القناة</label>' +
-        '<select id="msqAdminChannelSelect" aria-label="اختر قناة الإدارة"></select>';
-      parent.insertBefore(wrap, tabs);
-      wrap.querySelector('select').addEventListener('change', function () {
-        var tab = this.value;
-        if (!tab) return;
-        if (typeof window.msqSetAdminTab === 'function') window.msqSetAdminTab(tab);
-        else {
-          var btn = tabs.querySelector('button[data-tab="' + tab + '"]');
-          if (btn) btn.click();
-        }
-        syncSelectFromTabs();
-      });
-    }
-    var sel = document.getElementById('msqAdminChannelSelect');
-    if (!sel) return;
-    var buttons = Array.prototype.slice.call(tabs.querySelectorAll('button[data-tab]'));
-    var htmlOpts = '';
-    buttons.forEach(function (btn) {
-      var tab = btn.getAttribute('data-tab') || '';
-      if (!tab) return;
-      htmlOpts += '<option value="' + tab + '">' + String(btn.textContent || '').replace(/\s+/g, ' ').trim() + '</option>';
-    });
-    if (htmlOpts && sel.getAttribute('data-opts') !== String(buttons.length)) {
-      var prev = sel.value;
-      sel.innerHTML = htmlOpts;
-      sel.setAttribute('data-opts', String(buttons.length));
-      if (prev && sel.querySelector('option[value="' + prev + '"]')) sel.value = prev;
-    }
-  }
-
-  function syncSelectFromTabs() {
-    var tabs = document.getElementById('msqAdminTabs');
-    var sel = document.getElementById('msqAdminChannelSelect');
-    if (!tabs || !sel) return;
-    var active = tabs.querySelector('button.active[data-tab]') || tabs.querySelector('button[data-tab]');
-    if (active) {
-      var tab = active.getAttribute('data-tab');
-      if (tab && sel.value !== tab) sel.value = tab;
-    }
-  }
-
-  function compactOpenFilters() {
-    var bar = document.getElementById('msqOpenOrderFilters');
-    if (!bar) return;
-    bar.querySelectorAll('button[data-status]').forEach(function (btn) {
-      var st = btn.getAttribute('data-status');
-      if (SHORT_FILTERS[st] && !btn.dataset.msqShort) {
-        btn.textContent = SHORT_FILTERS[st];
-        btn.dataset.msqShort = '1';
-      }
-    });
-  }
-
-  function btnKind(btn) {
-    var t = String(btn.textContent || '').replace(/\s+/g, ' ').trim();
-    var oc = String(btn.getAttribute('onclick') || '');
-    if (/msqMergeOrders/.test(oc) || /تأكيد الدمج/.test(t)) return 'mergeConfirm';
-    if (btn.closest && btn.closest('.msq-merge-box')) return 'mergeConfirm';
-    if (/showAdminOrderDetails/.test(oc) || /تفاصيل/.test(t)) return 'details';
-    if (/notifyCustomerStatus/.test(oc) || /واتساب|إشعار/.test(t)) return 'wa';
-    if (/copyShippingMessage/.test(oc) || /رسالة الشحن|نسخ رسالة/.test(t)) return 'ship';
-    if (btn.classList.contains('msq-merge-toggle') || (/دمج/.test(t) && !/تأكيد/.test(t))) return 'merge';
-    if (btn.classList.contains('cancel-exception-btn') || /cancelOrderExceptionally/.test(oc) || /استثنائي/.test(t)) return 'exceptional';
-    if (/cancelOrderPermanently/.test(oc) || btn.classList.contains('cancel-order-btn') || (/إلغاء/.test(t) && /نهائ/.test(t))) return 'cancel';
-    if (/رفض استلام|حظر/.test(t)) return 'block';
-    return 'other';
-  }
-
-  function setShort(btn, kind) {
-    if (kind === 'details') btn.textContent = 'تفاصيل الطلب';
-    else if (kind === 'wa') btn.textContent = 'إشعار واتساب';
-    else if (kind === 'ship') btn.textContent = 'نسخ رسالة الشحن';
-    else if (kind === 'merge') btn.textContent = '🔗 دمج طلبات';
-    else if (kind === 'cancel') {
-      btn.classList.add('cancel-order-btn');
-      btn.textContent = '🗑️ إلغاء نهائي';
-    }
-    else if (kind === 'exceptional') {
-      btn.classList.add('cancel-exception-btn');
-      btn.textContent = '🔐 إلغاء استثنائي';
-    }
-    else if (kind === 'block') btn.textContent = 'رفض وحظر';
-    btn.dataset.msqLabelOk = '1';
-  }
-
-  function styleExceptionalBtn(btn) {
-    if (!btn) return;
-    btn.classList.add('cancel-exception-btn', 'msq-ex-cancel-pretty');
-    btn.style.cssText = [
-      'display:inline-flex',
-      'align-items:center',
-      'justify-content:center',
-      'gap:6px',
-      'border:0',
-      'border-radius:10px',
-      'padding:9px 12px',
-      'min-height:38px',
-      'background:linear-gradient(135deg,#8e1b2d 0%,#c62828 55%,#e53935 100%)',
-      'color:#fff',
-      'font-weight:950',
-      'font-size:12px',
-      'cursor:pointer',
-      'box-shadow:0 2px 8px rgba(198,40,40,.28)',
-      'letter-spacing:.2px',
-      'width:100%'
-    ].join(';');
-  }
-
-  function ensureMergeCancelSideBySide(card) {
-    if (!card) return;
-    var mergeBtn = card.querySelector('.msq-merge-toggle');
-    var cancelBtn = card.querySelector('.cancel-order-btn');
-    var excBtn = card.querySelector('.cancel-exception-btn');
-    var statusBar = card.querySelector('.status-btns-mini');
-    var mainRow = card.querySelector(':scope > .msq-act-row-3') || card.querySelector('.msq-act-row-3');
-
-    // صف واحد يجمع: تفاصيل + واتساب + نسخ + (دمج/إلغاء نهائي أو إلغاء استثنائي)
-    var actionRow = card.querySelector(':scope > .msq-act-row-all') || card.querySelector('.msq-act-row-all');
-    // لو الصف جاهز وكل الأزرار جواه بالفعل — متلمسش (يمنع الرعشة)
-    if (actionRow) {
-      var pending = false;
-      Array.prototype.slice.call(card.querySelectorAll('button')).forEach(function (btn) {
-        if (btn.closest('.status-btns-mini') || btn.closest('.msq-merge-box')) return;
-        var t = String(btn.textContent || '');
-        var oc = String(btn.getAttribute('onclick') || '');
-        var isAct = /تفاصيل|واتساب|إشعار|رسالة الشحن|دمج|إلغاء/.test(t) || /showAdminOrderDetails|notifyCustomerStatus|copyShippingMessage|cancelOrder/.test(oc) || btn.classList.contains('msq-merge-toggle') || btn.classList.contains('cancel-order-btn') || btn.classList.contains('cancel-exception-btn');
-        if (isAct && btn.parentElement !== actionRow) pending = true;
-      });
-      if (!pending) return;
-    }
-    if (!actionRow) {
-      actionRow = document.createElement('div');
-      actionRow.className = 'msq-act-row msq-act-row-all';
-    }
-
-    // انقل الأزرار الأساسية من الصف القديم إن وُجد
-    if (mainRow && mainRow !== actionRow) {
-      Array.prototype.slice.call(mainRow.querySelectorAll('button')).forEach(function (b) {
-        actionRow.appendChild(b);
-      });
-      try { mainRow.remove(); } catch (e) {}
-    }
-
-    function put(btn, kind) {
-      if (!btn) return;
-      btn.style.display = '';
-      btn.style.visibility = 'visible';
-      setShort(btn, kind);
-      if (kind === 'exceptional') styleExceptionalBtn(btn);
-      if (btn.parentElement !== actionRow) actionRow.appendChild(btn);
-    }
-
-    // التفاصيل / واتساب / نسخ رسالة — من أي مكان في الكارت
-    Array.prototype.slice.call(card.querySelectorAll('button')).forEach(function (btn) {
-      if (btn.closest('.status-btns-mini') || btn.closest('.msq-merge-box')) return;
-      var k = btnKind(btn);
-      if (k === 'details' || k === 'wa' || k === 'ship') put(btn, k);
-    });
-
-    if (mergeBtn) put(mergeBtn, 'merge');
-    if (cancelBtn) put(cancelBtn, 'cancel');
-    if (excBtn) put(excBtn, 'exceptional');
-
-    // عدد الأعمدة حسب الأزرار الظاهرة
-    var n = actionRow.querySelectorAll('button').length;
-    actionRow.className = 'msq-act-row msq-act-row-all msq-act-row-n' + Math.max(1, Math.min(5, n || 1));
-    actionRow.style.display = n ? '' : 'none';
-
-    if (n) {
-      if (statusBar && statusBar.parentNode === card) {
-        if (statusBar.nextSibling) card.insertBefore(actionRow, statusBar.nextSibling);
-        else card.appendChild(actionRow);
-      } else if (actionRow.parentNode !== card) {
-        card.appendChild(actionRow);
-      }
-    }
-
-    // صندوق الدمج يبقى تحت صف الأزرار
-    var mergeBox = card.querySelector('.msq-merge-box');
-    if (mergeBox && actionRow.parentNode === card) {
-      if (actionRow.nextSibling !== mergeBox) {
-        if (actionRow.nextSibling) card.insertBefore(mergeBox, actionRow.nextSibling);
-        else card.appendChild(mergeBox);
-      }
-    }
-
-    // صفوف الإلغاء القديمة الفارغة تُخفى
-    Array.prototype.slice.call(card.querySelectorAll('.msq-cancel-actions-row, .msq-act-row-merge')).forEach(function (r) {
-      if (r === actionRow) return;
-      if (!r.querySelector('button')) {
-        try { r.remove(); } catch (e) { r.style.display = 'none'; }
-      }
-    });
-  }
-
-  function layoutOpenCard(card) {
-    if (!card) return;
-    if (card.dataset.msqLayoutOpen === '1') {
-      ensureMergeCancelSideBySide(card);
-      return;
-    }
-
-    var statusBar = card.querySelector('.status-btns-mini');
-    if (statusBar) {
-      statusBar.querySelectorAll('button').forEach(function (b) {
-        if (b.dataset.msqLabelOk) return;
-        var t = String(b.textContent || '');
-        if (/تحت التنفيذ/.test(t)) b.textContent = 'تحت التنفيذ';
-        else if (/تم الحجز/.test(t)) b.textContent = 'تم الحجز';
-        else if (/جاري الشحن/.test(t)) b.textContent = 'جاري الشحن';
-        else if (/تم التوريد|تم التسليم|تم التوصيل/.test(t)) b.textContent = 'تم التوريد';
-        b.dataset.msqLabelOk = '1';
-      });
-    }
-
-    var picked = { details: null, wa: null, ship: null, merge: null, cancel: null };
-    Array.prototype.slice.call(card.querySelectorAll('button')).forEach(function (btn) {
-      if (btn.closest('.status-btns-mini')) return;
-      if (btn.closest('.msq-merge-box')) return;
-      var k = btnKind(btn);
-      if ((k === 'details' || k === 'wa' || k === 'ship' || k === 'merge' || k === 'cancel') && !picked[k]) {
-        picked[k] = btn;
-        setShort(btn, k);
-      } else if (k === 'exceptional' || k === 'cancel' || k === 'mergeConfirm') {
-        btn.style.display = '';
-        btn.style.visibility = 'visible';
-      } else if (k === 'details' || k === 'wa' || k === 'ship' || k === 'merge') {
-        // مكرر فقط من الأنواع دي
-        if (picked[k] && picked[k] !== btn) btn.style.display = 'none';
-      }
-    });
-
-    var rowMain = card.querySelector(':scope > .msq-act-row-3');
-    if (!rowMain) {
-      rowMain = document.createElement('div');
-      rowMain.className = 'msq-act-row msq-act-row-3';
-    }
-    ['details', 'wa', 'ship'].forEach(function (k) {
-      if (picked[k] && picked[k].parentElement !== rowMain) rowMain.appendChild(picked[k]);
-    });
-
-    // امسح حاويات flex القديمة فقط لو تفاصيل/واتساب/شحن — ومتلمسش الإلغاء/الدمج
-    Array.prototype.slice.call(card.children).forEach(function (ch) {
-      if (ch === statusBar || ch === rowMain) return;
-      if (!ch.classList) return;
-      if (ch.classList.contains('msq-act-row') || ch.classList.contains('msq-merge-box')) return;
-      if (ch.classList.contains('msq-cancel-actions-row')) return;
-      if (ch.classList.contains('msq-act-row-merge')) return;
-      if (ch.querySelector && (ch.querySelector('.cancel-order-btn') || ch.querySelector('.cancel-exception-btn') || ch.querySelector('.msq-merge-toggle') || ch.querySelector('.msq-merge-box'))) return;
-      if (ch.tagName !== 'DIV') return;
-      var style = ch.getAttribute('style') || '';
-      if (!/display:\s*flex/i.test(style)) return;
-      var moved = false;
-      Array.prototype.slice.call(ch.querySelectorAll('button')).forEach(function (b) {
-        var k = btnKind(b);
-        if (k === 'details' || k === 'wa' || k === 'ship') {
-          if (!picked[k]) { picked[k] = b; setShort(b, k); rowMain.appendChild(b); moved = true; }
-        }
-      });
-      if (moved && !ch.querySelector('button')) {
-        try { ch.remove(); } catch (e) {}
-      }
-    });
-
-    if (rowMain.children.length) {
-      if (statusBar && statusBar.parentNode === card) {
-        if (statusBar.nextSibling) card.insertBefore(rowMain, statusBar.nextSibling);
-        else card.appendChild(rowMain);
-      } else if (rowMain.parentNode !== card) {
-        card.appendChild(rowMain);
-      }
-    }
-
-    card.dataset.msqLayoutOpen = '1';
-    ensureMergeCancelSideBySide(card);
-  }
-
-  function layoutDeliveredCard(card) {
-    if (!isMobile() || !card || card.dataset.msqLayoutDel === '1') return;
-    var box = card.querySelector('.msq-delivered-actions');
-    var btns = box
-      ? Array.prototype.slice.call(box.querySelectorAll('button'))
-      : Array.prototype.slice.call(card.querySelectorAll('button'));
-    if (!btns.length) return;
-    var map = {};
-    btns.forEach(function (b) {
-      var k = btnKind(b);
-      setShort(b, k);
-      if (!map[k]) map[k] = b;
-      else b.style.display = 'none';
-    });
-    if (!box) {
-      box = document.createElement('div');
-      box.className = 'msq-delivered-actions msq-act-row msq-act-row-4';
-      card.appendChild(box);
-    } else {
-      box.classList.add('msq-act-row', 'msq-act-row-4');
-    }
-    ['details', 'wa', 'ship', 'block'].forEach(function (k) {
-      if (map[k] && map[k].parentElement !== box) box.appendChild(map[k]);
-    });
-    card.dataset.msqLayoutDel = '1';
-  }
-
-  function processCards() {
-    var list = document.getElementById('adminOrdersList');
-    if (list) {
-      // على الديسكتوب والموبايل: صف أزرار واحد جنب بعض
-      list.querySelectorAll('.order-card-admin').forEach(function (card) {
-        try { ensureMergeCancelSideBySide(card); } catch (e) {}
-      });
-      if (isMobile()) {
-        list.querySelectorAll('.order-card-admin').forEach(layoutOpenCard);
-      }
-      // لا تخفي أزرار الإلغاء أبدًا
-      list.querySelectorAll('.cancel-order-btn, .cancel-exception-btn').forEach(function (b) {
-        b.style.display = '';
-        b.style.visibility = 'visible';
-        b.style.opacity = '1';
-        b.style.pointerEvents = 'auto';
-      });
-    }
-    var del = document.getElementById('msqDeliveredList');
-    if (del && isMobile()) {
-      del.querySelectorAll('.order-card-admin, article').forEach(layoutDeliveredCard);
-    }
-  }
-
-  function safeRefresh() {
-    if (busy) return;
-    busy = true;
-    try {
-      moveCloseBesideSearch();
-      ensureChannelSelect();
-      syncSelectFromTabs();
-      compactOpenFilters();
-      processCards();
-    } catch (e) {
-      console.warn('msq admin mobile refresh', e);
-    } finally {
-      busy = false;
-    }
-  }
-
-  // راقب القائمة فقط — مش كل الصفحة (عشان منعملش loop)
-  function watchList() {
-    var list = document.getElementById('adminOrdersList');
-    var del = document.getElementById('msqDeliveredList');
-    var modal = document.getElementById('adminOrdersModal');
-    [list, del, modal].forEach(function (el) {
-      if (!el || el.__msqWatch) return;
-      el.__msqWatch = true;
-      try {
-        // DISABLED: MutationObserver كان بيسبب رعشة لا نهائية مع سكربتات الأزرار
-        // التحديث يتم فقط عند filterAdminOrders / تغيير التبويب / الضغط
-      } catch (e) {}
-    });
-  }
-
-  // لف filterAdminOrders مرة واحدة بعد ما يخلص الرسم
-  function wrapFilter() {
-    if (typeof window.filterAdminOrders !== 'function' || window.filterAdminOrders.__msqMobileWrap) return;
-    var prev = window.filterAdminOrders;
-    window.filterAdminOrders = function () {
-      var r = prev.apply(this, arguments);
-      // امسح علامات الكروت القديمة عشان تترسم من جديد بعد الفلترة
-      setTimeout(function () {
-        document.querySelectorAll('#adminOrdersList .order-card-admin').forEach(function (c) {
-          delete c.dataset.msqLayoutOpen;
-        });
-        scheduleRefresh(80);
-      }, 30);
-      return r;
-    };
-    window.filterAdminOrders.__msqMobileWrap = true;
-  }
-
-  function wrapSetTab() {
-    if (typeof window.msqSetAdminTab !== 'function' || window.msqSetAdminTab.__mobileSelectWrapped) return;
-    var old = window.msqSetAdminTab;
-    window.msqSetAdminTab = function () {
-      var r = old.apply(this, arguments);
-      document.querySelectorAll('.order-card-admin').forEach(function (c) {
-        delete c.dataset.msqLayoutOpen;
-        delete c.dataset.msqLayoutDel;
-      });
-      scheduleRefresh(80);
-      return r;
-    };
-    window.msqSetAdminTab.__mobileSelectWrapped = true;
-  }
-
-  // toggle الدمج — بدون observer ثقيل
-  function wrapToggle() {
-    if (typeof window.msqToggleMergeBox !== 'function' || window.msqToggleMergeBox.__msqLayoutWrap) return;
-    var orig = window.msqToggleMergeBox;
-    window.msqToggleMergeBox = function (orderId) {
-      var r = orig.apply(this, arguments);
-      try {
-        var key = String(orderId).replace(/[^a-zA-Z0-9_-]/g, '_');
-        var box = document.getElementById('msq-merge-' + key)
-          || document.getElementById('msq-merge-' + String(orderId).toUpperCase().replace(/[^a-zA-Z0-9_-]/g, '_'));
-        if (box) {
-          box.style.display = 'block';
-          var conf = box.querySelector('button[onclick*="msqMergeOrders"]');
-          if (conf) {
-            conf.style.display = 'inline-flex';
-            conf.style.visibility = 'visible';
-            conf.disabled = false;
-          }
-        }
-      } catch (e) {}
-      return r;
-    };
-    window.msqToggleMergeBox.__msqLayoutWrap = true;
-  }
-
-  function boot() {
-    wrapFilter();
-    wrapSetTab();
-    wrapToggle();
-    watchList();
-    scheduleRefresh(100);
-  }
-
-  // محاولات خفيفة فقط عند الفتح — مش setInterval طويل
-  boot();
-  setTimeout(boot, 500);
-  setTimeout(boot, 1500);
-
-  // لما تتفتح نافذة الإدارة
-  document.addEventListener('click', function (e) {
-    var t = e.target;
-    if (!t) return;
-    if (t.closest && (t.closest('#adminOrdersBtn') || t.closest('.admin-orders-trigger'))) {
-      setTimeout(boot, 200);
-      setTimeout(function () { scheduleRefresh(100); }, 400);
-    }
-  }, true);
-
-  window.addEventListener('resize', function () {
-    document.querySelectorAll('.order-card-admin').forEach(function (c) {
-      delete c.dataset.msqLayoutOpen;
-      delete c.dataset.msqLayoutDel;
-    });
-    scheduleRefresh(200);
-  });
-})();
 </script>
 
 <script id="mysouq-modal-body-scroll-lock-v1">
@@ -6721,172 +6224,10 @@ window.addToCartAndContinue = function () {
 
 
 <script id="mysouq-force-cancel-buttons-v1">
-(function () {
-  'use strict';
-  if (window.__msqForceCancelV2) return;
-  window.__msqForceCancelV2 = true;
 
-  function pickId(text) {
-    var m = String(text || '').match(/\b(MS-[A-Za-z0-9]+|M-[A-Za-z0-9]+)\b/i);
-    return m ? m[1].toUpperCase() : '';
-  }
+/* DISABLED — أزرار الإلغاء تُرسم مع الكارت حسب الحالة (نهائي/استثنائي) */
+(function(){ 'use strict'; /* no-op */ })();
 
-  function codeOf(order) {
-    if (!order) return -1;
-    var n = Number(order.statusCode);
-    if (Number.isFinite(n)) return n;
-    var label = String(order.status || order.statusLabel || '');
-    if (/تحت التنفيذ/.test(label)) return 0;
-    if (/تم الحجز/.test(label)) return 1;
-    if (/جاري الشحن/.test(label)) return 2;
-    if (/تم التوريد|تم التسليم|تم التوصيل|مكتمل/.test(label)) return 3;
-    if (/رفض|حظر/.test(label)) return 4;
-    if (/Order 0|نفد/.test(label)) return 5;
-    return -1;
-  }
-
-  function codeFromCard(card) {
-    var t = String(card.textContent || '');
-    if (/الحالة:\s*تم الحجز|تم الحجز/.test(t) && !/تحت التنفيذ/.test(t.split('الحالة:')[1] || '')) {
-      // prefer explicit status line
-    }
-    var statusLine = '';
-    card.querySelectorAll('div').forEach(function (el) {
-      var s = String(el.textContent || '');
-      if (/الحالة:/.test(s) && s.length < 100) statusLine = s;
-    });
-    if (/تحت التنفيذ/.test(statusLine)) return 0;
-    if (/تم الحجز/.test(statusLine)) return 1;
-    if (/جاري الشحن/.test(statusLine)) return 2;
-    if (/تم التوريد|تم التسليم/.test(statusLine)) return 3;
-    return -1;
-  }
-
-  function getCache() {
-    try {
-      if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) return adminOrdersCache;
-    } catch (e) {}
-    return Array.isArray(window.adminOrdersCache) ? window.adminOrdersCache : [];
-  }
-
-  function findOrder(id) {
-    id = String(id || '').trim().toUpperCase();
-    if (!id) return null;
-    return getCache().find(function (o) {
-      return String(o.orderId || '').trim().toUpperCase() === id;
-    }) || null;
-  }
-
-  function placeBtn(card, btn) {
-    var row = card.querySelector(':scope > .msq-act-row-all') ||
-              card.querySelector('.msq-act-row-all') ||
-              card.querySelector(':scope > div[style*="display:flex"]');
-    if (!row) {
-      row = document.createElement('div');
-      row.className = 'msq-act-row msq-act-row-all';
-      row.style.cssText = 'display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;width:100%;';
-      var statusBar = card.querySelector('.status-btns-mini');
-      if (statusBar && statusBar.parentNode === card) {
-        if (statusBar.nextSibling) card.insertBefore(row, statusBar.nextSibling);
-        else card.appendChild(row);
-      } else card.appendChild(row);
-    }
-    // حط زر الإلغاء أول عنصر في الصف
-    if (btn.parentElement !== row) {
-      if (row.firstChild) row.insertBefore(btn, row.firstChild);
-      else row.appendChild(btn);
-    }
-  }
-
-  function ensureCancelButtons() {
-    var list = document.getElementById('adminOrdersList');
-    if (!list) return;
-    list.querySelectorAll('.order-card-admin').forEach(function (card) {
-      var id = pickId((card.querySelector('.oid') && card.querySelector('.oid').textContent) || card.textContent);
-      if (!id) return;
-
-      var order = findOrder(id);
-      var c = codeOf(order);
-      if (c < 0) c = codeFromCard(card);
-      if (c < 0) return; // مش عارفين الحالة → متلمسش
-
-      var finalBtn = card.querySelector('.cancel-order-btn');
-      var excBtn = card.querySelector('.cancel-exception-btn');
-
-      // تحت التنفيذ → نهائي فقط
-      if (c === 0) {
-        if (excBtn) { try { excBtn.remove(); } catch (e) {} }
-        if (!finalBtn) {
-          finalBtn = document.createElement('button');
-          finalBtn.type = 'button';
-          finalBtn.className = 'cancel-order-btn';
-          finalBtn.setAttribute('data-order-id', id);
-          finalBtn.textContent = '🗑️ إلغاء نهائي';
-          finalBtn.style.cssText = 'flex:1;min-width:110px;padding:9px;border-radius:8px;border:0;background:linear-gradient(135deg,#8e1b2d,#c62828);color:#fff;font-weight:900;font-size:12px;cursor:pointer;';
-          finalBtn.onclick = function () {
-            if (typeof window.cancelOrderPermanently === 'function') window.cancelOrderPermanently(id);
-          };
-          placeBtn(card, finalBtn);
-        } else {
-          finalBtn.textContent = '🗑️ إلغاء نهائي';
-          finalBtn.style.display = '';
-          finalBtn.style.visibility = 'visible';
-          finalBtn.style.opacity = '1';
-          placeBtn(card, finalBtn);
-        }
-        return;
-      }
-
-      // تم الحجز / جاري الشحن → استثنائي فقط
-      if (c === 1 || c === 2) {
-        if (finalBtn) { try { finalBtn.remove(); } catch (e) {} }
-        if (!excBtn) {
-          excBtn = document.createElement('button');
-          excBtn.type = 'button';
-          excBtn.className = 'cancel-exception-btn';
-          excBtn.setAttribute('data-order-id', id);
-          excBtn.textContent = '🔐 إلغاء استثنائي';
-          excBtn.style.cssText = 'flex:1;min-width:110px;padding:9px;border-radius:8px;border:0;background:linear-gradient(135deg,#8e1b2d,#c62828);color:#fff;font-weight:900;font-size:12px;cursor:pointer;';
-          excBtn.onclick = function () {
-            if (typeof window.cancelOrderExceptionally === 'function') window.cancelOrderExceptionally(id, excBtn);
-          };
-          placeBtn(card, excBtn);
-        } else {
-          excBtn.textContent = '🔐 إلغاء استثنائي';
-          excBtn.className = 'cancel-exception-btn';
-          excBtn.style.display = '';
-          excBtn.style.visibility = 'visible';
-          excBtn.style.opacity = '1';
-          placeBtn(card, excBtn);
-        }
-        return;
-      }
-
-      // باقي الحالات → مفيش إلغاء
-      if (finalBtn) { try { finalBtn.remove(); } catch (e) {} }
-      if (excBtn) { try { excBtn.remove(); } catch (e) {} }
-    });
-  }
-
-  function wrap() {
-    if (typeof window.filterAdminOrders === 'function' && !window.filterAdminOrders.__forceCancelWrapV2) {
-      var prev = window.filterAdminOrders;
-      window.filterAdminOrders = function () {
-        var r = prev.apply(this, arguments);
-        setTimeout(ensureCancelButtons, 120);
-        return r;
-      };
-      window.filterAdminOrders.__forceCancelWrapV2 = true;
-    }
-  }
-  wrap();
-  setTimeout(wrap, 1000);
-  document.addEventListener('click', function (e) {
-    if (e.target && e.target.closest && e.target.closest('#msqAdminTabs, #msqAdminChannelSelect')) {
-      setTimeout(ensureCancelButtons, 200);
-    }
-  }, true);
-})();
 </script>
 
 
@@ -9109,73 +8450,10 @@ window.addToCartAndContinue = function () {
 
 
 <script id="msq-admin-channel-dropdown-force">
-(function () {
-  function ensure() {
-    try {
-      if (typeof window.ensureChannelSelect === 'function') {
-        window.ensureChannelSelect();
-      }
-      // لو الدالة مش على window — ابنِ القائمة يدويًا
-      var tabs = document.getElementById('msqAdminTabs');
-      if (!tabs) return;
-      var parent = tabs.parentNode;
-      if (!parent) return;
-      var wrap = document.getElementById('msqAdminChannelSelectWrap');
-      if (!wrap) {
-        wrap = document.createElement('div');
-        wrap.id = 'msqAdminChannelSelectWrap';
-        wrap.innerHTML =
-          '<label class="msq-ch-label" for="msqAdminChannelSelect">📂 اختر القناة</label>' +
-          '<select id="msqAdminChannelSelect" aria-label="اختر قناة الإدارة"></select>';
-        parent.insertBefore(wrap, tabs);
-        wrap.querySelector('select').addEventListener('change', function () {
-          var tab = this.value;
-          if (!tab) return;
-          if (typeof window.msqSetAdminTab === 'function') window.msqSetAdminTab(tab);
-          else {
-            var btn = tabs.querySelector('button[data-tab="' + tab + '"]');
-            if (btn) btn.click();
-          }
-        });
-      }
-      var sel = document.getElementById('msqAdminChannelSelect');
-      if (!sel) return;
-      var buttons = Array.prototype.slice.call(tabs.querySelectorAll('button[data-tab]'));
-      if (!buttons.length) return;
-      var html = '';
-      buttons.forEach(function (btn) {
-        var tab = btn.getAttribute('data-tab') || '';
-        if (!tab) return;
-        html += '<option value="' + tab + '">' + String(btn.textContent || '').replace(/\s+/g, ' ').trim() + '</option>';
-      });
-      if (html && sel.getAttribute('data-opts') !== String(buttons.length)) {
-        var prev = sel.value;
-        sel.innerHTML = html;
-        sel.setAttribute('data-opts', String(buttons.length));
-        if (prev && sel.querySelector('option[value="' + prev + '"]')) sel.value = prev;
-        else {
-          var act = tabs.querySelector('button.active[data-tab]');
-          if (act) sel.value = act.getAttribute('data-tab') || sel.value;
-        }
-      }
-      // مزامنة عند تغيير التبويب من أي مكان
-      var active = tabs.querySelector('button.active[data-tab]');
-      if (active && sel.value !== active.getAttribute('data-tab')) {
-        sel.value = active.getAttribute('data-tab');
-      }
-    } catch (e) {}
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensure);
-  else ensure();
-  // تقليل الرعشة: مزامنة خفيفة فقط والماودال مفتوح
-  // DISABLED interval — كان بيساهم في الرعشة
-  // ensure() يتنادى عند الفتح/تغيير التبويب فقط
-  document.addEventListener('click', function (e) {
-    if (e.target && e.target.closest && e.target.closest('#adminOrdersModal, #msqAdminTabs, .admin-orders-trigger, #msqAdminChannelSelect')) {
-      setTimeout(ensure, 120);
-    }
-  }, true);
-})();
+
+/* DISABLED — dropdown يُدار بالـ CSS فقط (موبايل) */
+(function(){ 'use strict'; /* no-op */ })();
+
 </script>
 
 
@@ -9308,125 +8586,10 @@ html body #msqAdminTabContent .order-card-admin {
 </style>
 
 <script id="msq-admin-pro-rules-v2">
-(function () {
-  'use strict';
-  var scheduled = false;
 
-  function codeOf(order) {
-    if (!order) return -1;
-    if (typeof order.statusCode === 'number') return order.statusCode;
-    var label = String(order.status || order.statusLabel || '');
-    if (/تحت التنفيذ|قيد التنفيذ/.test(label)) return 0;
-    if (/تم الحجز/.test(label)) return 1;
-    if (/جاري الشحن/.test(label)) return 2;
-    if (/تم التوريد|تم التسليم|تم التوصيل|مكتمل/.test(label)) return 3;
-    if (/رفض استلام|حظر/.test(label)) return 4;
-    return 0;
-  }
+/* DISABLED — كان يعيد فرض قواعد على كل كارت ويسبب رعشة */
+(function(){ 'use strict'; /* no-op */ })();
 
-  function findOrderForCard(card) {
-    var oidEl = card.querySelector('.oid');
-    var text = oidEl ? String(oidEl.textContent || '').replace(/^\s*🆔\s*/, '').trim() : '';
-    if (!text) {
-      var btn = card.querySelector('[data-order-id]');
-      if (btn) text = String(btn.getAttribute('data-order-id') || '').trim();
-    }
-    if (!text) return { id: '', order: null, code: -1 };
-    var list = [];
-    try {
-      if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) list = adminOrdersCache;
-      else if (Array.isArray(window.adminOrdersCache)) list = window.adminOrdersCache;
-      else if (Array.isArray(window.ordersHistory)) list = window.ordersHistory;
-    } catch (e) {}
-    var match = null;
-    for (var i = 0; i < list.length; i++) {
-      if (String(list[i].orderId || '').trim().toUpperCase() === text.toUpperCase()) {
-        match = list[i];
-        break;
-      }
-    }
-    return { id: text, order: match, code: codeOf(match) };
-  }
-
-  function hide(el) {
-    if (!el) return;
-    el.style.setProperty('display', 'none', 'important');
-  }
-
-  function enforceOpenCardRules(card) {
-    if (!card || !card.closest) return;
-    if (!card.closest('#adminOrdersList') && !card.closest('#msqAdminTabContent [data-pane="open"]')) return;
-
-    var c = findOrderForCard(card).code;
-    var cancelBtn = null, excBtn = null, rejectBtn = null;
-
-    var buttons = card.querySelectorAll('button');
-    for (var i = 0; i < buttons.length; i++) {
-      var b = buttons[i];
-      var t = String(b.textContent || '');
-      if (/مراجعة.*X2|مراجعة طلب|إعادة طلب X2|مكرر/i.test(t)) hide(b);
-      if (/إلغاء نهائي|إلغاء الطلب نهائي/.test(t) || b.classList.contains('cancel-order-btn')) cancelBtn = b;
-      if (/إلغاء استثنائي/.test(t) || b.classList.contains('cancel-exception-btn')) excBtn = b;
-      if (/رفض استلام|حظر/.test(t) || b.classList.contains('msq-reject-ban-btn')) rejectBtn = b;
-      if (/استبدال|استرجاع|مرتجع/.test(t)) hide(b);
-    }
-
-    if (c === 0) {
-      if (excBtn) hide(excBtn);
-      if (rejectBtn) hide(rejectBtn);
-    } else if (c === 1 || c === 2) {
-      if (cancelBtn) hide(cancelBtn);
-      if (rejectBtn) hide(rejectBtn);
-    } else if (c === 3) {
-      if (cancelBtn) hide(cancelBtn);
-      if (excBtn) hide(excBtn);
-    } else {
-      if (cancelBtn) hide(cancelBtn);
-      if (excBtn) hide(excBtn);
-      if (rejectBtn) hide(rejectBtn);
-    }
-  }
-
-  function runEnforce() {
-    scheduled = false;
-    var modal = document.getElementById('adminOrdersModal');
-    if (!modal || !modal.classList.contains('active')) return;
-    var root = document.getElementById('adminOrdersList');
-    if (!root) return;
-    var cards = root.querySelectorAll('.order-card-admin, article');
-    for (var i = 0; i < cards.length; i++) enforceOpenCardRules(cards[i]);
-  }
-
-  function scheduleEnforce() {
-    if (scheduled) return;
-    scheduled = true;
-    setTimeout(runEnforce, 120);
-  }
-
-  // لا MutationObserver على document.body — هذا كان يجمّد المتجر
-  document.addEventListener('click', function (e) {
-    if (!e.target || !e.target.closest) return;
-    if (e.target.closest('#adminOrdersModal, #msqAdminTabs, .admin-orders-trigger')) {
-      scheduleEnforce();
-      setTimeout(scheduleEnforce, 300);
-    }
-  }, true);
-
-  var tries = 0;
-  var iv = setInterval(function () {
-    tries++;
-    if (typeof window.filterAdminOrders === 'function' && !window.filterAdminOrders.__msqProRules) {
-      var prev = window.filterAdminOrders;
-      window.filterAdminOrders = function () {
-        var r = prev.apply(this, arguments);
-        scheduleEnforce();
-        return r;
-      };
-      window.filterAdminOrders.__msqProRules = true;
-    }
-    if (tries > 30) clearInterval(iv);
-  }, 800);
-})();
 </script>
 
 
@@ -9434,170 +8597,76 @@ html body #msqAdminTabContent .order-card-admin {
 <script id="mysouq-admin-copy-order-id-v2">
 (function () {
   'use strict';
-  if (window.__msqCopyOidV3) return;
-  window.__msqCopyOidV3 = true;
+  if (window.__msqCopyOidV4) return;
+  window.__msqCopyOidV4 = true;
 
-  function toast(msg) {
-    var el = document.getElementById('msqCopyOrderToast');
-    if (!el) {
-      el = document.createElement('div');
-      el.id = 'msqCopyOrderToast';
-      el.style.cssText = 'position:fixed;z-index:99999;left:50%;bottom:24px;transform:translateX(-50%);background:#1b5e20;color:#fff;padding:10px 14px;border-radius:12px;font-weight:900;font-size:13px;box-shadow:0 8px 20px rgba(0,0,0,.18);opacity:0;transition:opacity .2s;pointer-events:none';
-      document.body.appendChild(el);
-    }
-    el.textContent = msg;
-    el.style.opacity = '1';
-    clearTimeout(el._t);
-    el._t = setTimeout(function () { el.style.opacity = '0'; }, 1600);
-  }
-
-  window.msqCopyOrderId = function (orderId, btn) {
+  window.msqCopyOrderId = window.msqCopyOrderId || function (orderId, btn) {
     var id = String(orderId || '').trim();
-    if (!id || id === '-') return;
+    if (!id) return;
     var done = function () {
-      toast('تم نسخ رقم الطلب: ' + id);
-      if (btn) {
-        var old = btn.textContent;
-        btn.textContent = '✓';
-        setTimeout(function () { btn.textContent = old || '📋'; }, 900);
-      }
+      if (btn) { var o = btn.textContent; btn.textContent = '✓'; setTimeout(function(){ btn.textContent = o || '📋'; }, 800); }
+      try {
+        var el = document.getElementById('msqCopyOrderToast');
+        if (!el) {
+          el = document.createElement('div');
+          el.id = 'msqCopyOrderToast';
+          el.style.cssText = 'position:fixed;z-index:99999;left:50%;bottom:24px;transform:translateX(-50%);background:#1b5e20;color:#fff;padding:10px 14px;border-radius:12px;font-weight:900;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none';
+          document.body.appendChild(el);
+        }
+        el.textContent = 'تم نسخ رقم الطلب: ' + id;
+        el.style.opacity = '1';
+        clearTimeout(el._t);
+        el._t = setTimeout(function () { el.style.opacity = '0'; }, 1500);
+      } catch (e) {}
     };
     if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(id).then(done).catch(function () {
-        try { window.prompt('انسخ رقم الطلب:', id); } catch (e) {}
-      });
+      navigator.clipboard.writeText(id).then(done).catch(function () { try { prompt('انسخ:', id); } catch (e) {} });
     } else {
       try {
         var ta = document.createElement('textarea');
-        ta.value = id;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        ta.remove();
-        done();
-      } catch (e) {
-        try { window.prompt('انسخ رقم الطلب:', id); } catch (e2) {}
-      }
+        ta.value = id; document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); ta.remove(); done();
+      } catch (e) { try { prompt('انسخ:', id); } catch (e2) {} }
     }
   };
 
-  function pickId(text) {
-    var t = String(text || '');
-    var m = t.match(/\b(MS-[A-Za-z0-9]+|M-[A-Za-z0-9]+)\b/i);
-    return m ? m[1].toUpperCase() : '';
+  function pickId(t) {
+    var m = String(t || '').match(/\b(MS-[A-Za-z0-9]+|M-[A-Za-z0-9]+)\b/i);
+    return m ? m[1] : '';
   }
 
-  function addBtn(line, id) {
-    if (!line || !id) return;
-    if (line.querySelector && line.querySelector('.msq-copy-oid-btn')) return;
-    // لو الزرار موجود بالفعل كـ sibling قريب
-    if (line.parentElement && line.parentElement.querySelector(':scope > .msq-copy-oid-btn')) return;
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'msq-copy-oid-btn';
-    b.title = 'نسخ رقم الطلب';
-    b.setAttribute('aria-label', 'نسخ رقم الطلب');
-    b.textContent = '📋';
-    b.onclick = function (e) {
-      e.preventDefault();
-      e.stopPropagation();
-      window.msqCopyOrderId(id, b);
-    };
-    try {
-      line.classList.add('msq-oid-with-copy');
-      if (getComputedStyle(line).display === 'block') {
-        line.style.display = 'inline-flex';
-        line.style.alignItems = 'center';
-        line.style.gap = '8px';
-      }
-    } catch (e) {}
-    line.appendChild(b);
-  }
-
-  function enhanceRoot(root) {
-    if (!root) return;
-    // 1) عناصر .oid
-    root.querySelectorAll('.oid').forEach(function (el) {
-      addBtn(el, pickId(el.textContent));
-    });
-    // 2) كروت بدون .oid — دور على رقم الطلب في أول سطور قصيرة
-    root.querySelectorAll('.order-card-admin, article, .msq-x2-card, .msq-ex-admin-card').forEach(function (card) {
-      if (card.querySelector('.msq-copy-oid-btn')) return;
-      var line = card.querySelector('.oid');
-      if (line) {
-        addBtn(line, pickId(line.textContent));
-        return;
-      }
-      var nodes = card.querySelectorAll('div, span, strong, b, p, h3, h4');
-      for (var i = 0; i < nodes.length; i++) {
-        var n = nodes[i];
-        if (n.querySelector && n.querySelector('button, input, select, textarea, table')) continue;
-        var txt = String(n.textContent || '').trim();
-        if (txt.length > 60) continue;
-        var id = pickId(txt);
-        if (!id) continue;
-        addBtn(n, id);
-        return;
-      }
-    });
-  }
-
-  function enhanceAll() {
-    [
-      'adminOrdersList', 'msqDeliveredList', 'msqOosList', 'msqRejectedList',
-      'msqX2ReviewList', 'msqExchangeAdminList', 'msqExchangeAdminPanel', 'msqAdminTabContent'
-    ].forEach(function (id) {
-      enhanceRoot(document.getElementById(id));
-    });
-  }
-
-  var timer = null;
-  function schedule() {
-    if (timer) return;
-    timer = setTimeout(function () {
-      timer = null;
-      enhanceAll();
-    }, 180);
-  }
-
-  // event delegation: لو الزرار موجود في HTML الأصلي
-  document.addEventListener('click', function (e) {
-    var btn = e.target && e.target.closest && e.target.closest('.msq-copy-oid-btn');
-    if (!btn) return;
-    // لو عليه onclick جاهز سيبه، غير كده انسخ من أقرب نص
-    if (btn.getAttribute('onclick')) return;
-    e.preventDefault();
-    e.stopPropagation();
-    var host = btn.closest('.oid, .msq-oid-with-copy') || btn.parentElement;
-    var id = pickId(host && host.textContent);
-    if (id) window.msqCopyOrderId(id, btn);
-  }, true);
-
-  function boot() {
-    // مرة واحدة فقط — مفيش MutationObserver (كان سبب ظهور/اختفاء زر النسخ)
-    enhanceAll();
-    document.addEventListener('click', function (e) {
-      if (e.target && e.target.closest && e.target.closest('#msqAdminTabs, #msqAdminChannelSelect, #adminOrdersBtn, .admin-orders-trigger')) {
-        setTimeout(enhanceAll, 250);
-      }
-    }, true);
-    // لف filterAdminOrders مرة واحدة
-    function wrapFilter() {
-      if (typeof window.filterAdminOrders !== 'function' || window.filterAdminOrders.__msqCopyWrap) return;
-      var prev = window.filterAdminOrders;
-      window.filterAdminOrders = function () {
-        var r = prev.apply(this, arguments);
-        setTimeout(enhanceAll, 100);
-        return r;
+  function fillMissing() {
+    document.querySelectorAll('#adminOrdersModal .oid').forEach(function (line) {
+      if (line.querySelector('.msq-copy-oid-btn')) return;
+      var id = pickId(line.textContent);
+      if (!id) return;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'msq-copy-oid-btn';
+      b.title = 'نسخ رقم الطلب';
+      b.textContent = '📋';
+      b.onclick = function (e) {
+        e.preventDefault(); e.stopPropagation();
+        window.msqCopyOrderId(id, b);
       };
-      window.filterAdminOrders.__msqCopyWrap = true;
-    }
-    wrapFilter();
-    setTimeout(wrapFilter, 800);
+      line.classList.add('msq-oid-with-copy');
+      line.appendChild(b);
+    });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
+  function wrap() {
+    if (typeof window.filterAdminOrders !== 'function' || window.filterAdminOrders.__msqCopyWrapV4) return;
+    var prev = window.filterAdminOrders;
+    window.filterAdminOrders = function () {
+      var r = prev.apply(this, arguments);
+      setTimeout(fillMissing, 60);
+      return r;
+    };
+    window.filterAdminOrders.__msqCopyWrapV4 = true;
+  }
+  wrap();
+  setTimeout(wrap, 1000);
+  setTimeout(fillMissing, 1500);
 })();
 </script>
 <style id="mysouq-admin-copy-order-id-css">
@@ -13588,164 +12657,10 @@ window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loadi
 }
 </style>
 <script id="msq-admin-actions-row-force-js-v1">
-(function () {
-  'use strict';
-  var running = false;
-  var lastRun = 0;
 
-  function btnKind(btn) {
-    var t = String(btn.textContent || '').replace(/\s+/g, ' ').trim();
-    var oc = String(btn.getAttribute('onclick') || '');
-    if (/showAdminOrderDetails/.test(oc) || /تفاصيل/.test(t)) return 'details';
-    if (/notifyCustomerStatus/.test(oc) || /واتساب|إشعار/.test(t)) return 'wa';
-    if (/copyShippingMessage/.test(oc) || /رسالة الشحن|نسخ رسالة/.test(t)) return 'ship';
-    if (btn.classList.contains('msq-merge-toggle') || (/دمج/.test(t) && !/تأكيد/.test(t))) return 'merge';
-    if (btn.classList.contains('cancel-exception-btn') || /استثنائي/.test(t)) return 'exceptional';
-    if (/cancelOrderPermanently/.test(oc) || btn.classList.contains('cancel-order-btn') || (/إلغاء/.test(t) && /نهائ/.test(t))) return 'cancel';
-    return '';
-  }
+/* DISABLED */
+(function(){ 'use strict'; /* no-op */ })();
 
-  function needsLayout(card) {
-    var row = card.querySelector(':scope > .msq-act-row-all');
-    if (!row) return true;
-    var actionBtns = [];
-    Array.prototype.slice.call(card.querySelectorAll('button')).forEach(function (btn) {
-      if (btn.closest('.status-btns-mini') || btn.closest('.msq-merge-box')) return;
-      if (btnKind(btn)) actionBtns.push(btn);
-    });
-    if (!actionBtns.length) return false;
-    // لو كل الأزرار بالفعل جوه نفس الصف → مفيش داعي نلمس حاجة
-    for (var i = 0; i < actionBtns.length; i++) {
-      if (actionBtns[i].parentElement !== row) return true;
-    }
-    return false;
-  }
-
-  function layoutCard(card) {
-    if (!card || !card.classList.contains('order-card-admin')) return;
-    if (!needsLayout(card)) return;
-
-    var statusBar = card.querySelector('.status-btns-mini');
-    var row = card.querySelector(':scope > .msq-act-row-all');
-    if (!row) {
-      row = document.createElement('div');
-      row.className = 'msq-act-row msq-act-row-all';
-    }
-    var order = ['ship', 'wa', 'details', 'merge', 'exceptional', 'cancel'];
-    var map = {};
-    Array.prototype.slice.call(card.querySelectorAll('button')).forEach(function (btn) {
-      if (btn.closest('.status-btns-mini') || btn.closest('.msq-merge-box')) return;
-      var k = btnKind(btn);
-      if (!k) return;
-      if (!map[k]) map[k] = btn;
-    });
-    order.forEach(function (k) {
-      var b = map[k];
-      if (!b) return;
-      if (b.parentElement !== row) row.appendChild(b);
-    });
-    // نظّف الصفوف الفاضية مرة واحدة
-    Array.prototype.slice.call(card.querySelectorAll(':scope > div[style*="display:flex"], .msq-act-row-merge, .msq-cancel-actions-row, .msq-act-row-3')).forEach(function (el) {
-      if (el === row) return;
-      if (!el.querySelector('button')) {
-        try { el.remove(); } catch (e) {}
-      }
-    });
-    var n = row.querySelectorAll('button').length;
-    if (!n) return;
-    row.className = 'msq-act-row msq-act-row-all msq-act-row-n' + Math.max(1, Math.min(5, n));
-    if (statusBar && statusBar.parentNode === card) {
-      if (row.parentNode !== card) {
-        if (statusBar.nextSibling) card.insertBefore(row, statusBar.nextSibling);
-        else card.appendChild(row);
-      }
-    } else if (row.parentNode !== card) {
-      card.appendChild(row);
-    }
-    card.setAttribute('data-msq-act-laid', '1');
-  }
-
-  function fixCancelType(card) {
-    // من نص الحالة الظاهر على الكارت
-    var statusTxt = '';
-    card.querySelectorAll('div, span').forEach(function (el) {
-      var t = String(el.textContent || '');
-      if (/الحالة:/.test(t) && t.length < 80) statusTxt = t;
-    });
-    var code = -1;
-    if (/تحت التنفيذ/.test(statusTxt)) code = 0;
-    else if (/تم الحجز/.test(statusTxt)) code = 1;
-    else if (/جاري الشحن/.test(statusTxt)) code = 2;
-    else if (/تم التوريد|تم التسليم/.test(statusTxt)) code = 3;
-
-    var perm = card.querySelector('.cancel-order-btn');
-    var exc = card.querySelector('.cancel-exception-btn');
-    // تم الحجز / جاري الشحن → استثنائي فقط
-    if (code === 1 || code === 2) {
-      if (perm) { try { perm.remove(); } catch (e) {} }
-      if (exc) {
-        exc.textContent = '🔐 إلغاء استثنائي';
-        exc.classList.add('cancel-exception-btn');
-        exc.style.display = '';
-        exc.style.visibility = 'visible';
-        exc.style.opacity = '1';
-      }
-    }
-    // تحت التنفيذ → نهائي فقط
-    if (code === 0) {
-      if (exc) { try { exc.remove(); } catch (e) {} }
-      if (perm) {
-        perm.textContent = '🗑️ إلغاء نهائي';
-        perm.classList.add('cancel-order-btn');
-        perm.style.display = '';
-        perm.style.visibility = 'visible';
-        perm.style.opacity = '1';
-      }
-    }
-    // توريد وغيره → مفيش إلغاء
-    if (code === 3) {
-      if (perm) { try { perm.remove(); } catch (e) {} }
-      if (exc) { try { exc.remove(); } catch (e) {} }
-    }
-  }
-
-  function run() {
-    if (running) return;
-
-    var now = Date.now();
-    if (now - lastRun < 400) return; // throttle
-    lastRun = now;
-    running = true;
-    try {
-      var modal = document.getElementById('adminOrdersModal');
-      if (!modal) return;
-      var list = document.getElementById('adminOrdersList') || modal;
-      list.querySelectorAll('.order-card-admin').forEach(function(c){ layoutCard(c); fixCancelType(c); });
-    } catch (e) {
-      console.warn('msq act row', e);
-    } finally {
-      running = false;
-    }
-  }
-
-  var t = null;
-  function schedule() {
-    if (t) return;
-    t = setTimeout(function () { t = null; run(); }, 200);
-  }
-
-  document.addEventListener('click', function (e) {
-    if (e.target && e.target.closest && e.target.closest('#adminOrdersModal, .admin-orders-trigger, #adminOrdersBtn')) {
-      setTimeout(run, 250);
-      setTimeout(run, 700);
-    }
-  }, true);
-
-  // مفيش MutationObserver — الأزرار بتترسم مع الكارت وبتتظبط عند filter فقط
-  function bootObs() {
-    // no continuous observers
-  }
-})();
 </script>
 
 
@@ -13785,6 +12700,131 @@ window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loadi
     '#adminOrdersModal .msq-act-row-all,#adminOrdersModal .msq-act-row{min-height:40px;}'
   ].join('');
   (document.head || document.documentElement).appendChild(s);
+})();
+</script>
+
+
+<style id="msq-admin-channels-clean-v1">
+/* ===== قنوات الإدارة: صف أفقي على الديسكتوب بدون سكربتات ===== */
+html body #adminOrdersModal #msqAdminTabs,
+html body #msqAdminTabs.msq-admin-channels,
+html body #msqAdminTabs {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: 100% !important;
+  margin: 10px 0 12px !important;
+  padding: 0 !important;
+  height: auto !important;
+  overflow: visible !important;
+  visibility: visible !important;
+}
+html body #msqAdminTabs > button {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+html body #msqAdminChannelSelectWrap {
+  display: none !important;
+}
+@media (max-width: 820px) {
+  html body #msqAdminTabs,
+  html body #msqAdminTabs.msq-admin-channels {
+    display: none !important;
+  }
+  html body #msqAdminChannelSelectWrap {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 0 12px !important;
+  }
+  html body #msqAdminChannelSelect {
+    display: block !important;
+    width: 100% !important;
+    min-height: 44px !important;
+    border-radius: 12px !important;
+    border: 1px solid #d2bdf0 !important;
+    padding: 10px 12px !important;
+    font-weight: 800 !important;
+    font-size: 14px !important;
+    background: #fff !important;
+  }
+}
+/* أزرار ثابتة — بدون وميض */
+#adminOrdersModal .msq-copy-oid-btn,
+#adminOrdersModal .cancel-order-btn,
+#adminOrdersModal .cancel-exception-btn {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+#adminOrdersModal .order-card-admin {
+  animation: none !important;
+}
+</style>
+
+
+<script id="msq-admin-channel-select-once">
+(function () {
+  'use strict';
+  if (window.__msqChSelectOnce) return;
+  window.__msqChSelectOnce = true;
+
+  function build() {
+    var tabs = document.getElementById('msqAdminTabs');
+    if (!tabs) return;
+    var wrap = document.getElementById('msqAdminChannelSelectWrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.id = 'msqAdminChannelSelectWrap';
+      wrap.innerHTML = '<label class="msq-ch-label" for="msqAdminChannelSelect" style="display:block;font-weight:900;color:#5e3299;margin:0 0 6px 2px;font-size:12.5px">📂 اختر القناة</label><select id="msqAdminChannelSelect" aria-label="اختر قناة الإدارة"></select>';
+      tabs.parentNode.insertBefore(wrap, tabs);
+      wrap.querySelector('select').addEventListener('change', function () {
+        var tab = this.value;
+        if (!tab) return;
+        if (typeof window.msqSetAdminTab === 'function') window.msqSetAdminTab(tab);
+        else {
+          var btn = tabs.querySelector('button[data-tab="' + tab + '"]');
+          if (btn) btn.click();
+        }
+      });
+    }
+    var sel = document.getElementById('msqAdminChannelSelect');
+    if (!sel) return;
+    var html = '';
+    tabs.querySelectorAll('button[data-tab]').forEach(function (btn) {
+      var tab = btn.getAttribute('data-tab');
+      if (!tab) return;
+      var label = (btn.textContent || '').replace(/\s+/g, ' ').trim();
+      html += '<option value="' + tab + '">' + label + '</option>';
+    });
+    if (html && sel.getAttribute('data-built') !== '1') {
+      sel.innerHTML = html;
+      sel.setAttribute('data-built', '1');
+    }
+    var active = tabs.querySelector('button.active[data-tab]');
+    if (active) sel.value = active.getAttribute('data-tab');
+  }
+
+  function onOpen() {
+    build();
+  }
+
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.closest && e.target.closest('#adminOrdersBtn, .admin-orders-trigger, #msqAdminTabs')) {
+      setTimeout(onOpen, 100);
+    }
+  }, true);
+  setTimeout(build, 1500);
 })();
 </script>
 
