@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611091535cancelEx";
+  var BUILD = "202611091551noFlicker";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -147,7 +147,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611091535cancelEx">
+  <meta name="msq-build" content="202611091551noFlicker">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -236,8 +236,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611091535cancelEx">
-<link rel="stylesheet" href="styles.css?v=202611091535cancelEx">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611091551noFlicker">
+<link rel="stylesheet" href="styles.css?v=202611091551noFlicker">
 
 
 
@@ -273,8 +273,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611091535cancelEx">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611091535cancelEx">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611091551noFlicker">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611091551noFlicker">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2090,7 +2090,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611091535cancelEx"></script>
+  <script src="script.js?v=202611091551noFlicker"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -6549,12 +6549,8 @@ window.addToCartAndContinue = function () {
       if (!el || el.__msqWatch) return;
       el.__msqWatch = true;
       try {
-        var obs = new MutationObserver(function () {
-          if (busy) return;
-          scheduleRefresh(350);
-        });
-        // subtree:false على list يقلل الرعشة؛ modal يفضل true للتبويبات
-        obs.observe(el, { childList: true, subtree: (el.id === 'adminOrdersModal') });
+        // DISABLED: MutationObserver كان بيسبب رعشة لا نهائية مع سكربتات الأزرار
+        // التحديث يتم فقط عند filterAdminOrders / تغيير التبويب / الضغط
       } catch (e) {}
     });
   }
@@ -6877,24 +6873,19 @@ window.addToCartAndContinue = function () {
       var prev = window.filterAdminOrders;
       window.filterAdminOrders = function () {
         var r = prev.apply(this, arguments);
-        setTimeout(ensureCancelButtons, 80);
-        setTimeout(ensureCancelButtons, 500);
+        setTimeout(ensureCancelButtons, 120);
         return r;
       };
       window.filterAdminOrders.__forceCancelWrapV2 = true;
     }
   }
   wrap();
-  setTimeout(wrap, 600);
-  setTimeout(wrap, 1800);
+  setTimeout(wrap, 1000);
   document.addEventListener('click', function (e) {
-    if (e.target && e.target.closest && e.target.closest('#adminOrdersModal, #msqAdminTabs, #msqAdminChannelSelect, .admin-orders-trigger, #adminOrdersBtn')) {
-      setTimeout(ensureCancelButtons, 300);
-      setTimeout(ensureCancelButtons, 900);
+    if (e.target && e.target.closest && e.target.closest('#msqAdminTabs, #msqAdminChannelSelect')) {
+      setTimeout(ensureCancelButtons, 200);
     }
   }, true);
-  // مرة واحدة بعد التحميل فقط — مش interval مستمر
-  setTimeout(ensureCancelButtons, 1200);
 })();
 </script>
 
@@ -9177,12 +9168,8 @@ window.addToCartAndContinue = function () {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensure);
   else ensure();
   // تقليل الرعشة: مزامنة خفيفة فقط والماودال مفتوح
-  setInterval(function () {
-    var modal = document.getElementById('adminOrdersModal');
-    if (modal && (modal.classList.contains('active') || modal.style.display === 'flex' || modal.style.display === 'block')) {
-      ensure();
-    }
-  }, 10000);
+  // DISABLED interval — كان بيساهم في الرعشة
+  // ensure() يتنادى عند الفتح/تغيير التبويب فقط
   document.addEventListener('click', function (e) {
     if (e.target && e.target.closest && e.target.closest('#adminOrdersModal, #msqAdminTabs, .admin-orders-trigger, #msqAdminChannelSelect')) {
       setTimeout(ensure, 120);
@@ -9587,34 +9574,30 @@ html body #msqAdminTabContent .order-card-admin {
   }, true);
 
   function boot() {
+    // مرة واحدة فقط — مفيش MutationObserver (كان سبب ظهور/اختفاء زر النسخ)
     enhanceAll();
-    var roots = ['adminOrdersList', 'msqDeliveredList', 'msqOosList', 'msqAdminTabContent', 'msqX2ReviewList', 'msqRejectedList', 'msqExchangeAdminList'];
-    if (window.MutationObserver) {
-      roots.forEach(function (id) {
-        var el = document.getElementById(id);
-        if (!el || el.__msqCopyObs) return;
-        el.__msqCopyObs = true;
-        new MutationObserver(function (muts) {
-          for (var i = 0; i < muts.length; i++) {
-            if (muts[i].addedNodes && muts[i].addedNodes.length) {
-              schedule();
-              break;
-            }
-          }
-        }).observe(el, { childList: true, subtree: true });
-      });
-    }
     document.addEventListener('click', function (e) {
-      if (e.target && e.target.closest && e.target.closest('#msqAdminTabs, #msqAdminChannelSelect, #adminOrdersBtn, .admin-orders-trigger, #adminOrdersModal')) {
-        setTimeout(enhanceAll, 200);
-        setTimeout(enhanceAll, 600);
+      if (e.target && e.target.closest && e.target.closest('#msqAdminTabs, #msqAdminChannelSelect, #adminOrdersBtn, .admin-orders-trigger')) {
+        setTimeout(enhanceAll, 250);
       }
     }, true);
+    // لف filterAdminOrders مرة واحدة
+    function wrapFilter() {
+      if (typeof window.filterAdminOrders !== 'function' || window.filterAdminOrders.__msqCopyWrap) return;
+      var prev = window.filterAdminOrders;
+      window.filterAdminOrders = function () {
+        var r = prev.apply(this, arguments);
+        setTimeout(enhanceAll, 100);
+        return r;
+      };
+      window.filterAdminOrders.__msqCopyWrap = true;
+    }
+    wrapFilter();
+    setTimeout(wrapFilter, 800);
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
-  setTimeout(boot, 500);
 })();
 </script>
 <style id="mysouq-admin-copy-order-id-css">
@@ -10427,10 +10410,7 @@ html body .admin-orders-hint { display: none !important; }
     if (__msqTickTimer) return;
     __msqTickTimer = setTimeout(function(){ __msqTickTimer = null; tick(); }, 60);
   }
-  setInterval(function(){
-    var modal = document.getElementById('adminOrdersModal');
-    if (modal && modal.classList.contains('active')) tick();
-  }, 8000);
+  // DISABLED continuous tick — يمنع رعشة التبويبات
   document.addEventListener('click', function (e) {
     if (e.target && e.target.closest && e.target.closest('#adminOrdersModal, #msqAdminTabs, .admin-orders-trigger')) {
       setTimeout(tick, 40);
@@ -13761,33 +13741,50 @@ window.msqLoadExceptionalAdminRequests=loadAdmin;if(document.readyState==='loadi
     }
   }, true);
 
-  // راقب إضافة كروت جديدة فقط — مش كل تحريك داخل الكارت
+  // مفيش MutationObserver — الأزرار بتترسم مع الكارت وبتتظبط عند filter فقط
   function bootObs() {
-    var list = document.getElementById('adminOrdersList');
-    if (!list || list.__msqActRowObs2) return;
-    list.__msqActRowObs2 = true;
-    if (!window.MutationObserver) return;
-    new MutationObserver(function (muts) {
-      var need = false;
-      for (var i = 0; i < muts.length; i++) {
-        var m = muts[i];
-        if (m.type === 'childList' && m.addedNodes && m.addedNodes.length) {
-          for (var j = 0; j < m.addedNodes.length; j++) {
-            var n = m.addedNodes[j];
-            if (n.nodeType === 1 && (n.classList && (n.classList.contains('order-card-admin') || n.querySelector && n.querySelector('.order-card-admin')))) {
-              need = true; break;
-            }
-          }
-        }
-        if (need) break;
-      }
-      if (need) schedule();
-    }).observe(list, { childList: true, subtree: false });
+    // no continuous observers
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootObs);
-  else bootObs();
-  setTimeout(bootObs, 800);
-  // مفيش setInterval — ده كان بيسبب رعشة
+})();
+</script>
+
+
+<script id="msq-admin-no-flicker-v1">
+(function () {
+  'use strict';
+  if (window.__msqNoFlickerV1) return;
+  window.__msqNoFlickerV1 = true;
+
+  // امنع أي سكربت لاحق من عمل observe على قوائم الإدارة
+  var NativeMO = window.MutationObserver;
+  if (NativeMO) {
+    window.MutationObserver = function (cb) {
+      var obs = new NativeMO(cb);
+      var origObserve = obs.observe.bind(obs);
+      obs.observe = function (el, opts) {
+        try {
+          if (el && el.id && /^(adminOrdersList|msqDeliveredList|msqOosList|msqRejectedList|msqX2ReviewList|msqExchangeAdminList|msqAdminTabContent)$/.test(el.id)) {
+            // تجاهل مراقبة القوائم — المصدر الأساسي للرعشة
+            return;
+          }
+        } catch (e) {}
+        return origObserve(el, opts);
+      };
+      return obs;
+    };
+    window.MutationObserver.prototype = NativeMO.prototype;
+  }
+
+  // CSS ثابت: أزرار النسخ والإلغاء متظهرش/تختفيش
+  var s = document.createElement('style');
+  s.id = 'msq-no-flicker-css';
+  s.textContent = [
+    '#adminOrdersModal .msq-copy-oid-btn{display:inline-flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;}',
+    '#adminOrdersModal .cancel-order-btn,#adminOrdersModal .cancel-exception-btn{visibility:visible!important;opacity:1!important;}',
+    '#adminOrdersModal .order-card-admin{animation:none!important;transition:none!important;}',
+    '#adminOrdersModal .msq-act-row-all,#adminOrdersModal .msq-act-row{min-height:40px;}'
+  ].join('');
+  (document.head || document.documentElement).appendChild(s);
 })();
 </script>
 
