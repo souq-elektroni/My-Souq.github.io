@@ -1,4 +1,4 @@
-/* My Souq SW — disabled cache, self-unregister — 20261023173424CACHEKILL */
+/* My Souq SW — disabled cache, self-unregister — 202611091309cacheFix */
 self.addEventListener('install', function (e) {
   self.skipWaiting();
 });
@@ -15,7 +15,8 @@ self.addEventListener('activate', function (e) {
     })
   );
 });
-// لا تكاش أي طلب
 self.addEventListener('fetch', function (e) {
-  e.respondWith(fetch(e.request));
+  e.respondWith(fetch(e.request, { cache: 'no-store' }).catch(function () {
+    return fetch(e.request);
+  }));
 });
