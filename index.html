@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611091342cancelFix";
+  var BUILD = "202611091535cancelEx";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -147,7 +147,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611091342cancelFix">
+  <meta name="msq-build" content="202611091535cancelEx">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -236,8 +236,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611091342cancelFix">
-<link rel="stylesheet" href="styles.css?v=202611091342cancelFix">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611091535cancelEx">
+<link rel="stylesheet" href="styles.css?v=202611091535cancelEx">
 
 
 
@@ -273,8 +273,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611091342cancelFix">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611091342cancelFix">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611091535cancelEx">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611091535cancelEx">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2090,7 +2090,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611091342cancelFix"></script>
+  <script src="script.js?v=202611091535cancelEx"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -2729,7 +2729,17 @@ html body #products-container .product-card .msq-fav-btn {
       }
 
       box.innerHTML = list.map(function (o) {
-        var code = typeof o.statusCode === 'number' ? o.statusCode : 0;
+        var code = typeof o.statusCode === 'number' ? o.statusCode : NaN;
+        if (!Number.isFinite(code)) {
+          var _lab = String(o.status || o.statusLabel || '');
+          if (/تحت التنفيذ/.test(_lab)) code = 0;
+          else if (/تم الحجز/.test(_lab)) code = 1;
+          else if (/جاري الشحن/.test(_lab)) code = 2;
+          else if (/تم التوريد|تم التسليم|تم التوصيل/.test(_lab)) code = 3;
+          else if (/رفض|حظر/.test(_lab)) code = 4;
+          else if (/Order 0|نفد/.test(_lab)) code = 5;
+          else code = 0;
+        }
         var st = (ORDER_STATUSES && ORDER_STATUSES[code]) ? ORDER_STATUSES[code] : { label: '-', color: '#999' };
         var safeId = String(o.orderId || '').replace(/'/g, "\\'");
         var btns = (ORDER_STATUSES || []).map(function (s) {
@@ -2752,17 +2762,25 @@ html body #products-container .product-card .msq-fav-btn {
               (itemsCount ? ' · 🛍️ ' + itemsCount + ' منتج' : '') +
             '</div>' +
             '<div class="status-btns-mini">' + btns + '</div>' +
-            '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
+            '<div class="msq-act-row msq-act-row-all" style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">' +
+              (code === 0
+                ? ('<button type="button" class="cancel-order-btn" data-order-id="' + safeId + '" onclick="cancelOrderPermanently(\'' + safeId + '\')" ' +
+                   'style="flex:1;min-width:110px;padding:9px;border-radius:8px;border:0;background:linear-gradient(135deg,#8e1b2d,#c62828);color:#fff;font-weight:900;font-size:12px;cursor:pointer;">🗑️ إلغاء نهائي</button>')
+                : '') +
+              ((code === 1 || code === 2)
+                ? ('<button type="button" class="cancel-exception-btn" data-order-id="' + safeId + '" onclick="cancelOrderExceptionally(\'' + safeId + '\',this)" ' +
+                   'style="flex:1;min-width:110px;padding:9px;border-radius:8px;border:0;background:linear-gradient(135deg,#8e1b2d,#c62828);color:#fff;font-weight:900;font-size:12px;cursor:pointer;">🔐 إلغاء استثنائي</button>')
+                : '') +
               '<button onclick="showAdminOrderDetails(\'' + safeId + '\')" ' +
-                'style="flex:1;min-width:120px;padding:9px;border-radius:8px;border:1px solid var(--burgundy-soft);background:var(--pink-soft);color:var(--burgundy-soft);font-weight:800;font-size:12px;cursor:pointer;">' +
+                'style="flex:1;min-width:110px;padding:9px;border-radius:8px;border:1px solid var(--burgundy-soft);background:var(--pink-soft);color:var(--burgundy-soft);font-weight:800;font-size:12px;cursor:pointer;">' +
                 '🧾 تفاصيل الطلب' +
               '</button>' +
               '<button onclick="notifyCustomerStatus(\'' + safeId + '\')" ' +
-                'style="flex:1;min-width:120px;padding:9px;border-radius:8px;border:1px solid #1565c0;background:#e3f2fd;color:#1565c0;font-weight:800;font-size:12px;cursor:pointer;">' +
+                'style="flex:1;min-width:110px;padding:9px;border-radius:8px;border:1px solid #1565c0;background:#e3f2fd;color:#1565c0;font-weight:800;font-size:12px;cursor:pointer;">' +
                 '💬 إشعار واتساب' +
               '</button>' +
               '<button onclick="copyShippingMessage(\'' + safeId + '\')" ' +
-                'style="flex:1;min-width:120px;padding:9px;border-radius:8px;border:none;background:#25d366;color:white;font-weight:800;font-size:12px;cursor:pointer;">' +
+                'style="flex:1;min-width:110px;padding:9px;border-radius:8px;border:none;background:#25d366;color:white;font-weight:800;font-size:12px;cursor:pointer;">' +
                 '📋 نسخ رسالة الشحن' +
               '</button>' +
             '</div>' +
@@ -6709,123 +6727,174 @@ window.addToCartAndContinue = function () {
 <script id="mysouq-force-cancel-buttons-v1">
 (function () {
   'use strict';
+  if (window.__msqForceCancelV2) return;
+  window.__msqForceCancelV2 = true;
+
+  function pickId(text) {
+    var m = String(text || '').match(/\b(MS-[A-Za-z0-9]+|M-[A-Za-z0-9]+)\b/i);
+    return m ? m[1].toUpperCase() : '';
+  }
+
   function codeOf(order) {
-    var n = Number(order && order.statusCode);
+    if (!order) return -1;
+    var n = Number(order.statusCode);
     if (Number.isFinite(n)) return n;
-    var label = String(order && (order.status || order.statusLabel) || '');
+    var label = String(order.status || order.statusLabel || '');
+    if (/تحت التنفيذ/.test(label)) return 0;
     if (/تم الحجز/.test(label)) return 1;
     if (/جاري الشحن/.test(label)) return 2;
     if (/تم التوريد|تم التسليم|تم التوصيل|مكتمل/.test(label)) return 3;
-    return 0;
+    if (/رفض|حظر/.test(label)) return 4;
+    if (/Order 0|نفد/.test(label)) return 5;
+    return -1;
   }
+
+  function codeFromCard(card) {
+    var t = String(card.textContent || '');
+    if (/الحالة:\s*تم الحجز|تم الحجز/.test(t) && !/تحت التنفيذ/.test(t.split('الحالة:')[1] || '')) {
+      // prefer explicit status line
+    }
+    var statusLine = '';
+    card.querySelectorAll('div').forEach(function (el) {
+      var s = String(el.textContent || '');
+      if (/الحالة:/.test(s) && s.length < 100) statusLine = s;
+    });
+    if (/تحت التنفيذ/.test(statusLine)) return 0;
+    if (/تم الحجز/.test(statusLine)) return 1;
+    if (/جاري الشحن/.test(statusLine)) return 2;
+    if (/تم التوريد|تم التسليم/.test(statusLine)) return 3;
+    return -1;
+  }
+
   function getCache() {
     try {
       if (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) return adminOrdersCache;
     } catch (e) {}
     return Array.isArray(window.adminOrdersCache) ? window.adminOrdersCache : [];
   }
+
   function findOrder(id) {
     id = String(id || '').trim().toUpperCase();
+    if (!id) return null;
     return getCache().find(function (o) {
       return String(o.orderId || '').trim().toUpperCase() === id;
     }) || null;
   }
-  function oidFromCard(card) {
-    var el = card.querySelector('.oid');
-    if (!el) return '';
-    return String(el.textContent || '').replace(/^\s*🆔\s*/, '').trim();
+
+  function placeBtn(card, btn) {
+    var row = card.querySelector(':scope > .msq-act-row-all') ||
+              card.querySelector('.msq-act-row-all') ||
+              card.querySelector(':scope > div[style*="display:flex"]');
+    if (!row) {
+      row = document.createElement('div');
+      row.className = 'msq-act-row msq-act-row-all';
+      row.style.cssText = 'display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;width:100%;';
+      var statusBar = card.querySelector('.status-btns-mini');
+      if (statusBar && statusBar.parentNode === card) {
+        if (statusBar.nextSibling) card.insertBefore(row, statusBar.nextSibling);
+        else card.appendChild(row);
+      } else card.appendChild(row);
+    }
+    // حط زر الإلغاء أول عنصر في الصف
+    if (btn.parentElement !== row) {
+      if (row.firstChild) row.insertBefore(btn, row.firstChild);
+      else row.appendChild(btn);
+    }
   }
+
   function ensureCancelButtons() {
     var list = document.getElementById('adminOrdersList');
     if (!list) return;
     list.querySelectorAll('.order-card-admin').forEach(function (card) {
-      var id = oidFromCard(card);
+      var id = pickId((card.querySelector('.oid') && card.querySelector('.oid').textContent) || card.textContent);
       if (!id) return;
+
       var order = findOrder(id);
-      var c = order ? codeOf(order) : 0;
+      var c = codeOf(order);
+      if (c < 0) c = codeFromCard(card);
+      if (c < 0) return; // مش عارفين الحالة → متلمسش
 
       var finalBtn = card.querySelector('.cancel-order-btn');
+      var excBtn = card.querySelector('.cancel-exception-btn');
+
+      // تحت التنفيذ → نهائي فقط
       if (c === 0) {
+        if (excBtn) { try { excBtn.remove(); } catch (e) {} }
         if (!finalBtn) {
           finalBtn = document.createElement('button');
           finalBtn.type = 'button';
           finalBtn.className = 'cancel-order-btn';
           finalBtn.setAttribute('data-order-id', id);
           finalBtn.textContent = '🗑️ إلغاء نهائي';
+          finalBtn.style.cssText = 'flex:1;min-width:110px;padding:9px;border-radius:8px;border:0;background:linear-gradient(135deg,#8e1b2d,#c62828);color:#fff;font-weight:900;font-size:12px;cursor:pointer;';
           finalBtn.onclick = function () {
             if (typeof window.cancelOrderPermanently === 'function') window.cancelOrderPermanently(id);
           };
-          var mergeRow = card.querySelector('.msq-act-row-merge');
-          var mergeBtn = card.querySelector('.msq-merge-toggle');
-          if (mergeRow) mergeRow.appendChild(finalBtn);
-          else if (mergeBtn && mergeBtn.parentElement) mergeBtn.parentElement.appendChild(finalBtn);
-          else {
-            var row = card.querySelector('.msq-cancel-actions-row');
-            if (!row) {
-              row = document.createElement('div');
-              row.className = 'msq-cancel-actions-row';
-              card.appendChild(row);
-            }
-            row.appendChild(finalBtn);
-          }
+          placeBtn(card, finalBtn);
+        } else {
+          finalBtn.textContent = '🗑️ إلغاء نهائي';
+          finalBtn.style.display = '';
+          finalBtn.style.visibility = 'visible';
+          finalBtn.style.opacity = '1';
+          placeBtn(card, finalBtn);
         }
-        finalBtn.style.display = 'inline-flex';
-        finalBtn.style.visibility = 'visible';
-        finalBtn.style.opacity = '1';
-      } else if (finalBtn) {
-        finalBtn.remove();
+        return;
       }
 
-      var excBtn = card.querySelector('.cancel-exception-btn');
+      // تم الحجز / جاري الشحن → استثنائي فقط
       if (c === 1 || c === 2) {
+        if (finalBtn) { try { finalBtn.remove(); } catch (e) {} }
         if (!excBtn) {
           excBtn = document.createElement('button');
           excBtn.type = 'button';
           excBtn.className = 'cancel-exception-btn';
           excBtn.setAttribute('data-order-id', id);
           excBtn.textContent = '🔐 إلغاء استثنائي';
-          excBtn.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:10px;padding:9px 12px;min-height:38px;background:linear-gradient(135deg,#8e1b2d 0%,#c62828 55%,#e53935 100%);color:#fff;font-weight:950;cursor:pointer;box-shadow:0 2px 8px rgba(198,40,40,.28);visibility:visible;';
+          excBtn.style.cssText = 'flex:1;min-width:110px;padding:9px;border-radius:8px;border:0;background:linear-gradient(135deg,#8e1b2d,#c62828);color:#fff;font-weight:900;font-size:12px;cursor:pointer;';
           excBtn.onclick = function () {
             if (typeof window.cancelOrderExceptionally === 'function') window.cancelOrderExceptionally(id, excBtn);
           };
-          var erow = card.querySelector('.msq-cancel-actions-row');
-          if (!erow) {
-            erow = document.createElement('div');
-            erow.className = 'msq-cancel-actions-row';
-            card.appendChild(erow);
-          }
-          erow.appendChild(excBtn);
+          placeBtn(card, excBtn);
+        } else {
+          excBtn.textContent = '🔐 إلغاء استثنائي';
+          excBtn.className = 'cancel-exception-btn';
+          excBtn.style.display = '';
+          excBtn.style.visibility = 'visible';
+          excBtn.style.opacity = '1';
+          placeBtn(card, excBtn);
         }
-        excBtn.style.display = 'inline-flex';
-        excBtn.style.visibility = 'visible';
-      } else if (excBtn) {
-        excBtn.remove();
+        return;
       }
+
+      // باقي الحالات → مفيش إلغاء
+      if (finalBtn) { try { finalBtn.remove(); } catch (e) {} }
+      if (excBtn) { try { excBtn.remove(); } catch (e) {} }
     });
   }
 
   function wrap() {
-    if (typeof window.filterAdminOrders === 'function' && !window.filterAdminOrders.__forceCancelWrap) {
+    if (typeof window.filterAdminOrders === 'function' && !window.filterAdminOrders.__forceCancelWrapV2) {
       var prev = window.filterAdminOrders;
       window.filterAdminOrders = function () {
         var r = prev.apply(this, arguments);
-        setTimeout(ensureCancelButtons, 50);
-        setTimeout(ensureCancelButtons, 400);
+        setTimeout(ensureCancelButtons, 80);
+        setTimeout(ensureCancelButtons, 500);
         return r;
       };
-      window.filterAdminOrders.__forceCancelWrap = true;
+      window.filterAdminOrders.__forceCancelWrapV2 = true;
     }
   }
   wrap();
-  setTimeout(wrap, 800);
-  setTimeout(wrap, 2000);
+  setTimeout(wrap, 600);
+  setTimeout(wrap, 1800);
   document.addEventListener('click', function (e) {
-    if (e.target && e.target.closest && e.target.closest('#adminOrdersModal, .admin-orders-trigger, #adminOrdersBtn')) {
-      setTimeout(ensureCancelButtons, 400);
-      setTimeout(ensureCancelButtons, 1200);
+    if (e.target && e.target.closest && e.target.closest('#adminOrdersModal, #msqAdminTabs, #msqAdminChannelSelect, .admin-orders-trigger, #adminOrdersBtn')) {
+      setTimeout(ensureCancelButtons, 300);
+      setTimeout(ensureCancelButtons, 900);
     }
   }, true);
-  setTimeout(ensureCancelButtons, 1500);
+  // مرة واحدة بعد التحميل فقط — مش interval مستمر
+  setTimeout(ensureCancelButtons, 1200);
 })();
 </script>
 
