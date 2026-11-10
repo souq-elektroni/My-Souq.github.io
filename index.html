@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611101504fcm";
+  var BUILD = "202611101535vapid";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -51,7 +51,7 @@
             }));
           }).then(function () {
             // سجّل SW الجديد (إشعارات الإدارة + PWA) بعد مسح القديم
-            return navigator.serviceWorker.register('./sw.js?v=202611101504fcm', { scope: './' }).catch(function () {});
+            return navigator.serviceWorker.register('./sw.js?v=202611101535vapid', { scope: './' }).catch(function () {});
           }).catch(function () {})
         );
       }
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611101504fcm">
+  <meta name="msq-build" content="202611101535vapid">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -191,7 +191,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=202611101504fcm">
+  <link rel="manifest" href="manifest.json?v=202611101535vapid">
   <link rel="icon" href="favicon.svg?v=202611021545v3" type="image/svg+xml">
   <link rel="icon" href="favicon.svg?v=202611021545v3" sizes="any">
   <link rel="apple-touch-icon" href="favicon.svg?v=202611021545v3">
@@ -264,14 +264,16 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
+  <script>window.MSQ_FCM_VAPID_KEY="BJZecO6pyhqNi1tSY-86VPs5JzSA1dN8-FGm-Kco1-uiPuZe0dSXdeY0cnP-yKRcGPsBuXYKu_cDczqQZPB_qvo";</script>
+
   
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611101504fcm">
-<link rel="stylesheet" href="styles.css?v=202611101504fcm">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611101535vapid">
+<link rel="stylesheet" href="styles.css?v=202611101535vapid">
 
 
 
@@ -307,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611101504fcm">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611101504fcm">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611101535vapid">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611101535vapid">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2129,7 +2131,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611101504fcm"></script>
+  <script src="script.js?v=202611101535vapid"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -13065,7 +13067,7 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
 
   // من Firebase Console → Project settings → Cloud Messaging → Web Push certificates
   // الصق مفتاح VAPID هنا (أو في window.MSQ_FCM_VAPID_KEY قبل التحميل)
-  var VAPID_KEY = (typeof window.MSQ_FCM_VAPID_KEY === 'string' && window.MSQ_FCM_VAPID_KEY) || '';
+  var VAPID_KEY = (typeof window.MSQ_FCM_VAPID_KEY === 'string' && window.MSQ_FCM_VAPID_KEY) || 'BJZecO6pyhqNi1tSY-86VPs5JzSA1dN8-FGm-Kco1-uiPuZe0dSXdeY0cnP-yKRcGPsBuXYKu_cDczqQZPB_qvo';
 
   var STORAGE_KEY = 'msq_admin_notif_enabled';
   var SEEN_KEY = 'msq_admin_seen_order_ids';
@@ -13303,7 +13305,7 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
     }
     try {
       if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.register('./sw.js?v=202611101504fcm', { scope: './' });
+        await navigator.serviceWorker.register('./sw.js?v=202611101535vapid', { scope: './' });
         await navigator.serviceWorker.ready;
       }
     } catch (e) {}
