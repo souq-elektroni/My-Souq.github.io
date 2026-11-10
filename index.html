@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611101142rejectedFetch";
+  var BUILD = "202611101340tgGuard";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -177,7 +177,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611101142rejectedFetch">
+  <meta name="msq-build" content="202611101340tgGuard">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -266,8 +266,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611101142rejectedFetch">
-<link rel="stylesheet" href="styles.css?v=202611101142rejectedFetch">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611101340tgGuard">
+<link rel="stylesheet" href="styles.css?v=202611101340tgGuard">
 
 
 
@@ -303,8 +303,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611101142rejectedFetch">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611101142rejectedFetch">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611101340tgGuard">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611101340tgGuard">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2120,7 +2120,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611101142rejectedFetch"></script>
+  <script src="script.js?v=202611101340tgGuard"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -4130,6 +4130,8 @@ window.addToCartAndContinue = function () {
           await getDb().collection('cancelledOrders').doc(id).set({
             status: 'cancelled',
             cancellationType: 'normal',
+            lastCancelSource: 'admin',
+            source: 'admin',
             cancelledAt: firebase.firestore.FieldValue.serverTimestamp()
           });
         } catch (markErr) { console.warn('cancelledOrders mark', markErr); }
@@ -4243,7 +4245,7 @@ window.addToCartAndContinue = function () {
         }
       } catch (eSnap) {}
       try {
-        await markerRef.set({ status: 'cancelled', cancelledAt: firebase.firestore.FieldValue.serverTimestamp(), cancellationType: 'exceptional' });
+        await markerRef.set({ status: 'cancelled', cancelledAt: firebase.firestore.FieldValue.serverTimestamp(), cancellationType: 'exceptional', lastCancelSource: 'admin', source: 'admin' });
         await window.deleteOrderFromCloud(id);
         deleted = true;
         var reqSnap = await getDb().collection('cancellationRequests').where('orderId', '==', id).get();
@@ -4269,7 +4271,10 @@ window.addToCartAndContinue = function () {
               orderId: id,
               name: snapName,
               phone: snapPhone,
-              reason: 'إلغاء استثنائي من لوحة الإدارة'
+              source: 'admin',
+              lastCancelSource: 'admin',
+              reason: '🔐 إلغاء استثنائي من شاشة الإدارة',
+              message: '🔐 تم إلغاء الطلب استثنائيًا من شاشة الإدارة\n🆔 ' + id
             })
           });
         } catch (tgErr) {

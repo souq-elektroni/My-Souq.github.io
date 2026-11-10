@@ -229,9 +229,24 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
     if (!normalizedId || !Number.isInteger(nextCode) || nextCode < 0) return false;
 
     const order = ordersHistory.find(o => String(o.orderId || '').trim() === normalizedId);
-    const previousCode = order && Number.isInteger(order.statusCode) ? order.statusCode : 0;
-    if (order && nextCode < previousCode) {
+    // من الكاش الإداري كمان
+    let adminHit = null;
+    try {
+      const cache = (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) ? adminOrdersCache : (window.adminOrdersCache || []);
+      adminHit = cache.find(x => String(x.orderId || '').trim().toUpperCase() === normalizedId.toUpperCase()) || null;
+    } catch (e) {}
+    const previousCode = (order && Number.isInteger(order.statusCode))
+      ? order.statusCode
+      : (adminHit && Number.isFinite(Number(adminHit.statusCode)) ? Number(adminHit.statusCode) : null);
+
+    if (previousCode != null && nextCode === previousCode) {
+      console.info('الحالة بالفعل:', nextCode);
+      try { window.__msqLastStatusResult = { ok: false, reason: 'same', code: nextCode, label: newLabel }; } catch (e) {}
+      return 'same';
+    }
+    if (previousCode != null && nextCode < previousCode) {
       console.warn('تم رفض إرجاع حالة الطلب إلى مرحلة سابقة.');
+      try { window.__msqLastStatusResult = { ok: false, reason: 'backward', code: nextCode }; } catch (e) {}
       return false;
     }
 
@@ -272,6 +287,28 @@ try { localStorage.removeItem("souqCart"); localStorage.removeItem("souqCartItem
         order.status = newLabel;
         localStorage.setItem('souqOrdersHistory', JSON.stringify(ordersHistory));
       }
+      // سجّل مصدر التحديث
+      try {
+        await db.collection('orders').doc(normalizedId).set({
+          lastStatusSource: 'admin',
+          lastStatusAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastStatusCode: nextCode,
+          lastStatusLabel: String(newLabel || '')
+        }, { merge: true });
+        await db.collection('orderTracking').doc(normalizedId).set({
+          lastStatusSource: 'admin',
+          lastStatusAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastStatusCode: nextCode,
+          lastStatusLabel: String(newLabel || '')
+        }, { merge: true });
+      } catch (eMark) { console.warn('status source mark failed', eMark); }
+      // إشعار تليجرام
+      try {
+        if (typeof window.notifyTelegramStatusFromAdmin === 'function') {
+          await window.notifyTelegramStatusFromAdmin(normalizedId, nextCode, newLabel, order || adminHit || {});
+        }
+      } catch (eTg) { console.warn(eTg); }
+      try { window.__msqLastStatusResult = { ok: true, reason: 'updated', code: nextCode, label: newLabel }; } catch (e) {}
       return true;
     } catch (e) {
       console.error('فشل تحديث حالة الطلب:', e);
@@ -4712,7 +4749,71 @@ function continueAfterOrderRecaptcha() {
       return (cart || []).reduce(function (s, x) { return s + (Number(x.qty) || 0); }, 0);
     };
 
-    window.notifyOwnerNewOrderTelegram = notifyOwnerNewOrderTelegram;
+  
+  window.notifyOwnerNewOrderTelegram = notifyOwnerNewOrderTelegram;
+
+  // إشعار تليجرام عند تغيير الحالة من شاشة الإدارة (عادي / X2 / أي حالة)
+  async function notifyTelegramStatusFromAdmin(orderId, newCode, statusLabel, extra) {
+    try {
+      var id = String(orderId || '').trim();
+      if (!id) return false;
+      var code = Number(newCode);
+      var label = String(statusLabel || '');
+      var meta = extra || {};
+      var name = meta.name || '';
+      var phone = meta.phone || '';
+      // حاول من الكاش
+      try {
+        var cache = (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache)) ? adminOrdersCache : (window.adminOrdersCache || []);
+        var hit = cache.find(function (x) { return String(x.orderId || '').trim().toUpperCase() === id.toUpperCase(); });
+        if (hit) {
+          if (!name) name = hit.name || hit.customerName || '';
+          if (!phone) phone = hit.phone || hit.customerPhone || '';
+        }
+      } catch (e) {}
+      var tgUrl = (typeof window.TELEGRAM_ORDER_WORKER_URL === 'string' && window.TELEGRAM_ORDER_WORKER_URL)
+        ? window.TELEGRAM_ORDER_WORKER_URL
+        : TELEGRAM_ORDER_WORKER_URL;
+      var payload = {
+        action: 'status_sync',
+        type: 'admin_status_sync',
+        orderId: id,
+        name: name,
+        phone: phone,
+        statusCode: Number.isFinite(code) ? code : 0,
+        status: label,
+        source: 'admin',
+        lastStatusSource: 'admin',
+        reason: '🖥️ تم تحديث الحالة من شاشة الإدارة إلى: ' + (label || ('كود ' + code)),
+        message: '🖥️ تم تحديث حالة الطلب من شاشة الإدارة\n🆔 ' + id + '\n📌 الحالة الجديدة: ' + (label || code)
+      };
+      var res = await fetch(tgUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      // توافق مع نسخ الـ worker القديمة
+      if (!(res && res.ok)) {
+        try {
+          await fetch(tgUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(Object.assign({}, payload, {
+              action: 'cancelled',
+              type: 'order_status_sync',
+              cancellationType: 'admin_status_sync'
+            }))
+          });
+        } catch (e2) {}
+      }
+      return !!(res && res.ok);
+    } catch (e) {
+      console.warn('Telegram status sync failed', e);
+      return false;
+    }
+  }
+  window.notifyTelegramStatusFromAdmin = notifyTelegramStatusFromAdmin;
+
     window.buildTelegramOrderMessage = buildTelegramOrderMessage;
     window.filterCategory = filterCategory;
     window.filterStock = filterStock;
@@ -6080,12 +6181,45 @@ ${itemsText || '-'}
   async function updateOrderStatusFromAdmin(orderId, newCode) {
     const status = ORDER_STATUSES.find(s => s.code === newCode);
     if (!status) return;
-    await updateOrderStatusCloud(orderId, newCode, status.label);
+    const idNorm = String(orderId || '').trim();
+    // قراءة الحالة الحالية من الكاش + Firestore
+    let cur = null;
+    try {
+      cur = (adminOrdersCache || []).find(x => String(x.orderId || '').trim().toUpperCase() === idNorm.toUpperCase());
+    } catch (e) {}
+    try {
+      if (firebaseReady && db && idNorm) {
+        var live = await db.collection('orders').doc(idNorm).get();
+        if (!live.exists) live = await db.collection('orderTracking').doc(idNorm).get();
+        if (live && live.exists) {
+          var ld = live.data() || {};
+          cur = Object.assign({}, cur || {}, ld, { orderId: ld.orderId || idNorm });
+        }
+      }
+    } catch (eLive) { console.warn('live status read', eLive); }
+    if (cur && Number(cur.statusCode) === Number(newCode)) {
+      alert('ℹ️ هذه الحالة مطبّقة بالفعل على الطلب.\n\nالحالة الحالية: ' + (status.label || cur.status || newCode) + '\nتم التحويل مسبقًا من شاشة الإدارة أو من تليجرام.');
+      return;
+    }
+    if (cur && (cur.cancelled === true || cur.lastCancelSource)) {
+      alert('ℹ️ هذا الطلب تم إلغاؤه مسبقًا (' + (cur.lastCancelSource === 'admin' ? 'من شاشة الإدارة' : 'من تليجرام/النظام') + ').\nلا يمكن تغيير حالته.');
+      return;
+    }
+    const result = await updateOrderStatusCloud(orderId, newCode, status.label);
+    if (result === 'same') {
+      alert('ℹ️ هذه الحالة مطبّقة بالفعل على الطلب.\n\nالحالة الحالية: ' + (status.label || newCode));
+      return;
+    }
+    if (!result) {
+      alert('تعذر تحديث الحالة. تأكد من الاتصال أو أن الحالة ليست تراجعًا لمرحلة سابقة.');
+      return;
+    }
     // حدّث الكاش محلياً
-    const o = adminOrdersCache.find(x => x.orderId === orderId);
+    const o = (adminOrdersCache || []).find(x => String(x.orderId || '').trim().toUpperCase() === String(orderId || '').trim().toUpperCase());
     if (o) {
       o.statusCode = newCode;
       o.status = status.label;
+      o.lastStatusSource = 'admin';
     }
     filterAdminOrders();
   }
