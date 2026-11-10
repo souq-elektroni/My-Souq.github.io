@@ -5899,8 +5899,9 @@ function continueAfterOrderRecaptcha() {
       const safeId = String(o.orderId || '').replace(/[^A-Za-z0-9_-]/g, '');
       // زر مراجعة X2 يظهر فقط للطلبات اللي هي X2 أو حالتها الحالية 6
       const isX2Order = !!(o.isX2 || code === 6 || /مراجعة طلب X2|X2/i.test(String(o.status || '')));
+      // إخفاء رفض استلام (4) و X2 (6) من قائمة الطلبات المفتوحة
       const btns = ORDER_STATUSES.filter(s => {
-        if (s.code === 6 && !isX2Order) return false;
+        if (s.code === 4 || s.code === 6) return false;
         return true;
       }).map(s => `
         <button style="border-color:${s.color};background:${code===s.code?s.color:'white'};color:${code===s.code?'white':s.color};"
@@ -5927,7 +5928,7 @@ function continueAfterOrderRecaptcha() {
       ) : '';
       return `
         <div class="order-card-admin">
-          <div class="oid">🆔 ${msqEsc(o.orderId || '-')}</div>
+          <div class="oid msq-oid-with-copy">🆔 ${msqEsc(o.orderId || '-')} <button type="button" class="msq-copy-oid-btn" title="نسخ رقم الطلب" onclick="event.preventDefault();event.stopPropagation();if(window.msqCopyOrderId)msqCopyOrderId('${safeId}',this)">📋</button></div>
           <div>👤 ${msqEsc(o.name || '-')} | 📱 ${msqEsc(o.phone || '-')}</div>
           <div>💰 ${msqEsc(o.total || '-')} | 📅 ${msqEsc(o.date || '-')}</div>
           <div style="margin-top:4px;font-weight:800;color:${st.color};">الحالة: ${st.label}</div>

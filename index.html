@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611091600cleanAdmin";
+  var BUILD = "202611100744hideStatus";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -147,7 +147,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611091600cleanAdmin">
+  <meta name="msq-build" content="202611100744hideStatus">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -236,8 +236,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611091600cleanAdmin">
-<link rel="stylesheet" href="styles.css?v=202611091600cleanAdmin">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611100744hideStatus">
+<link rel="stylesheet" href="styles.css?v=202611100744hideStatus">
 
 
 
@@ -273,8 +273,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611091600cleanAdmin">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611091600cleanAdmin">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611100744hideStatus">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611100744hideStatus">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2090,7 +2090,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611091600cleanAdmin"></script>
+  <script src="script.js?v=202611100744hideStatus"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -2742,7 +2742,10 @@ html body #products-container .product-card .msq-fav-btn {
         }
         var st = (ORDER_STATUSES && ORDER_STATUSES[code]) ? ORDER_STATUSES[code] : { label: '-', color: '#999' };
         var safeId = String(o.orderId || '').replace(/'/g, "\\'");
-        var btns = (ORDER_STATUSES || []).map(function (s) {
+        // في القناة المفتوحة: متظهرش X2 (6) ولا رفض استلام (4) — دول لقنواتهم
+        var btns = (ORDER_STATUSES || []).filter(function (s) {
+          return s.code !== 4 && s.code !== 6;
+        }).map(function (s) {
           return (
             '<button style="border-color:' + s.color + ';background:' + (code === s.code ? s.color : 'white') +
             ';color:' + (code === s.code ? 'white' : s.color) + ';" ' +
@@ -8636,21 +8639,39 @@ html body #msqAdminTabContent .order-card-admin {
   }
 
   function fillMissing() {
-    document.querySelectorAll('#adminOrdersModal .oid').forEach(function (line) {
-      if (line.querySelector('.msq-copy-oid-btn')) return;
-      var id = pickId(line.textContent);
+    document.querySelectorAll('#adminOrdersModal .oid, #msqExchangeAdminList .oid, #msqExchangeAdminPanel .oid, #msqExchangeAdminList .msq-ex-admin-card').forEach(function (line) {
+      if (line.querySelector && line.querySelector('.msq-copy-oid-btn')) return;
+      // لو كارت استبدال من غير .oid
+      var target = line.classList && line.classList.contains('msq-ex-admin-card') ? line : line;
+      var id = pickId(target.textContent);
       if (!id) return;
-      var b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'msq-copy-oid-btn';
-      b.title = 'نسخ رقم الطلب';
-      b.textContent = '📋';
-      b.onclick = function (e) {
+      if (line.classList && line.classList.contains('msq-ex-admin-card')) {
+        // حط الزرار جنب أول سطر فيه رقم الطلب
+        var host = line.querySelector('div') || line;
+        if (host.querySelector('.msq-copy-oid-btn')) return;
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'msq-copy-oid-btn';
+        b.title = 'نسخ رقم الطلب';
+        b.textContent = '📋';
+        b.onclick = function (e) {
+          e.preventDefault(); e.stopPropagation();
+          window.msqCopyOrderId(id, b);
+        };
+        host.appendChild(b);
+        return;
+      }
+      var b2 = document.createElement('button');
+      b2.type = 'button';
+      b2.className = 'msq-copy-oid-btn';
+      b2.title = 'نسخ رقم الطلب';
+      b2.textContent = '📋';
+      b2.onclick = function (e) {
         e.preventDefault(); e.stopPropagation();
-        window.msqCopyOrderId(id, b);
+        window.msqCopyOrderId(id, b2);
       };
       line.classList.add('msq-oid-with-copy');
-      line.appendChild(b);
+      line.appendChild(b2);
     });
   }
 
@@ -11692,7 +11713,7 @@ html body .admin-orders-hint { display: none !important; }
           var detailId = 'exd_'+esc(r.__id);
           return '<div class="msq-ex-admin-card msq-ex-closed" data-ex-closed="1">'+
             '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">'+
-              '<div style="font-weight:950;color:#5d4a00;font-size:14px">🆔 '+esc(r.orderId||'-')+'</div>'+
+              '<div class="oid msq-oid-with-copy" style="font-weight:950;color:#5d4a00;font-size:14px;display:inline-flex;align-items:center;gap:8px">🆔 '+esc(r.orderId||'-')+' <button type="button" class="msq-copy-oid-btn" title="نسخ رقم الطلب" onclick="event.preventDefault();event.stopPropagation();if(window.msqCopyOrderId)msqCopyOrderId(\\''+String(r.orderId||'').replace(/'/g,'')+'\\',this)">📋</button></div>'+
               '<div style="font-weight:900;color:#1b5e20;font-size:13px">✅ '+esc(closedLabel)+'</div>'+
             '</div>'+
             '<button type="button" class="msq-ex-toggle-details" data-ex-detail="'+detailId+'" style="margin-top:10px;border:1px solid #e0c36a;background:#fffbeb;color:#7a5a00;border-radius:9px;padding:7px 12px;font-weight:900;cursor:pointer;font-size:12px">🧾 تفاصيل الطلب</button>'+
@@ -11707,7 +11728,7 @@ html body .admin-orders-hint { display: none !important; }
         return '<div class="msq-ex-admin-card">'+
           '<div style="font-weight:900;color:#8a6a00">🚨 طلب استبدال — عيب مصنع</div>'+
           '<div style="margin-top:4px;font-size:12.5px;line-height:1.7">'+
-            '<b>رقم الطلب:</b> '+esc(r.orderId||'-')+'<br>'+
+            '<b>رقم الطلب:</b> <span class="oid msq-oid-with-copy" style="display:inline-flex;align-items:center;gap:6px">'+esc(r.orderId||'-')+' <button type="button" class="msq-copy-oid-btn" title="نسخ رقم الطلب" onclick="event.preventDefault();event.stopPropagation();if(window.msqCopyOrderId)msqCopyOrderId(\\''+String(r.orderId||'').replace(/'/g,'')+'\\',this)">📋</button></span><br>'+
             '<b>العميل:</b> '+esc(r.customerName||'-')+' | <b>موبايل:</b> '+esc(r.customerPhone||'-')+'<br>'+
             '<b>السبب:</b> '+esc(r.reason||'')+'<br>'+
             '<b>الحالة:</b> '+esc(st)+
