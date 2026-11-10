@@ -5872,8 +5872,15 @@ function continueAfterOrderRecaptcha() {
       if (!o) return;
       var n = Number(o.statusCode);
       if (Number.isFinite(n)) o.statusCode = n;
-      else if (/Order 0 Stock|نفذت الكمية/i.test(String(o.status || ''))) o.statusCode = 5;
-      else if (/مراجعة طلب X2|X2/i.test(String(o.status || '')) || o.isX2) o.statusCode = 6;
+      else {
+        var lab = String(o.status || o.statusLabel || '');
+        if (/رفض استلام|استلام وحظر|محظور/.test(lab)) o.statusCode = 4;
+        else if (/Order 0 Stock|نفذت الكمية/i.test(lab)) o.statusCode = 5;
+        else if (/مراجعة طلب X2|X2/i.test(lab) || o.isX2) o.statusCode = 6;
+        else if (/تم التوريد|تم التسليم|تم التوصيل/.test(lab)) o.statusCode = 3;
+        else if (/جاري الشحن/.test(lab)) o.statusCode = 2;
+        else if (/تم الحجز/.test(lab)) o.statusCode = 1;
+      }
     });
     adminOrdersCache = list;
     try { window.adminOrdersCache = list; } catch (e) {}

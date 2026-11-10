@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611101132rejectedTabs";
+  var BUILD = "202611101142rejectedFetch";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -177,7 +177,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611101132rejectedTabs">
+  <meta name="msq-build" content="202611101142rejectedFetch">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -266,8 +266,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611101132rejectedTabs">
-<link rel="stylesheet" href="styles.css?v=202611101132rejectedTabs">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611101142rejectedFetch">
+<link rel="stylesheet" href="styles.css?v=202611101142rejectedFetch">
 
 
 
@@ -303,8 +303,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611101132rejectedTabs">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611101132rejectedTabs">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611101142rejectedFetch">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611101142rejectedFetch">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2120,7 +2120,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611101132rejectedTabs"></script>
+  <script src="script.js?v=202611101142rejectedFetch"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -10482,10 +10482,11 @@ html body .admin-orders-hint { display: none !important; }
   }
   function codeOf(o){
     if(!o)return 0;
+    var l=String(o.status||o.statusLabel||'');
+    // النص له أولوية لو واضح إنه رفض — عشان statusCode الغلط = 0 متخفيش الطلب
+    if(/رفض استلام|استلام وحظر/.test(l))return 4;
     var n=Number(o.statusCode);
     if(o.statusCode!==undefined&&o.statusCode!==null&&Number.isFinite(n))return n;
-    var l=String(o.status||o.statusLabel||'');
-    if(/رفض استلام وحظر/.test(l))return 4;
     if(/تم التوريد|تم التسليم|تم التوصيل|تم الاستلام|مكتمل/.test(l))return 3;
     if(/جاري الشحن/.test(l))return 2;
     if(/تم الحجز/.test(l))return 1;
@@ -10796,41 +10797,107 @@ html body .admin-orders-hint { display: none !important; }
     }
   };
 
+  function isRejectedOrder(o){
+    if(!o) return false;
+    var n = Number(o.statusCode);
+    if(Number.isFinite(n) && n === 4) return true;
+    var lab = String(o.status || o.statusLabel || o.statusText || '');
+    if(/رفض\s*استلام|استلام\s*وحظر|محظور|رفض وحظر/.test(lab)) return true;
+    if(o.customerBlocked === true && (n === 4 || /رفض|حظر/.test(lab))) return true;
+    if(o.rejectedAt || o.blockReason || o.rejectionReason) return true;
+    return false;
+  }
+
   function renderRejected(){
-    var box=document.getElementById('msqRejectedList');if(!box)return;
-    var q=String((document.getElementById('msqRejectedSearch')||{}).value||'').toLowerCase().trim().replace(/\s/g,'');
-    var list=cache().filter(function(o){
-      var c = codeOf(o);
-      var lab = String(o && (o.status || o.statusLabel) || '');
-      var isRejected = (c === 4) || /رفض استلام\s*وحظر|رفض استلام|محظور/.test(lab);
-      if(!isRejected) return false;
-      var hay=[o.orderId,o.name,o.phone,o.status,o.statusLabel].join(' ').toLowerCase().replace(/\s/g,'');
-      return !q||hay.indexOf(q)!==-1;
-    });
-    var badge=document.getElementById('msqRejectedBadge');if(badge)badge.textContent=String(list.length);
-    if(!list.length){box.innerHTML='<p style="text-align:center;padding:20px;color:#7b1e2b">لا توجد طلبات مرفوض استلامها ومحظورة.</p>';return;}
-    box.innerHTML=list.map(function(o){
-      var id=String(o.orderId||'').replace(/'/g,"\\'");
-      return '<article class="order-card-admin"><div class="oid msq-oid-with-copy">🆔 '+esc(o.orderId||'-')+' <button type="button" class="msq-copy-oid-btn" title="نسخ رقم الطلب" onclick="event.preventDefault();event.stopPropagation();if(window.msqCopyOrderId)msqCopyOrderId(\\''+id+'\\',this)">📋</button></div>'+
-        '<div>👤 '+esc(o.name||o.customerName||'-')+' | 📱 '+esc(o.phone||o.customerPhone||'-')+'</div>'+
-        '<div>💰 '+esc(o.total||'-')+' | 📅 '+esc(o.date||'-')+'</div>'+
-        '<div style="margin:7px 0"><span class="msq-reject-status-badge">❌🚫 رفض استلام وحظر</span></div>'+
-        '<div style="display:flex;gap:7px;flex-wrap:wrap"><button type="button" onclick="showAdminOrderDetails(\''+id+'\')">🧾 تفاصيل الطلب</button>' +
-        (o.customerBlocked===false || o.blockLifted ? '<button type="button" disabled style="border:0;border-radius:8px;padding:8px 12px;background:#e8f5e9;color:#237445;font-weight:900;opacity:1">✅ تم فك الحظر</button>' :
-        '<button type="button" style="border:0;border-radius:8px;padding:8px 12px;background:#176b3a;color:#fff;font-weight:900;cursor:pointer" onclick="unblockRejectedCustomer(\''+id+'\',this)">🔓 فك حظر</button>') +
-        '</div></article>';
-    }).join('');
-    patchOrderCards(box);
-    try { if (typeof window.msqCopyOrderId === 'function') {
-      box.querySelectorAll('.oid').forEach(function(line){
-        if (line.querySelector('.msq-copy-oid-btn')) return;
-        var m = String(line.textContent||'').match(/\b(MS-[A-Za-z0-9]+|M-[A-Za-z0-9]+)\b/i);
-        if (!m) return;
-        var b = document.createElement('button'); b.type='button'; b.className='msq-copy-oid-btn'; b.title='نسخ رقم الطلب'; b.textContent='📋';
-        b.onclick=function(e){ e.preventDefault(); e.stopPropagation(); window.msqCopyOrderId(m[1], b); };
-        line.classList.add('msq-oid-with-copy'); line.appendChild(b);
+    var box = document.getElementById('msqRejectedList');
+    if(!box) return;
+    var q = String((document.getElementById('msqRejectedSearch')||{}).value||'').toLowerCase().trim().replace(/\s/g,'');
+
+    function paint(list){
+      list = (list || []).filter(function(o){
+        if(!isRejectedOrder(o)) return false;
+        var hay = [o.orderId,o.name,o.customerName,o.phone,o.customerPhone,o.status,o.statusLabel].join(' ').toLowerCase().replace(/\s/g,'');
+        return !q || hay.indexOf(q) !== -1;
       });
-    } } catch(e) {}
+      var seen = {};
+      list = list.filter(function(o){
+        var id = String(o.orderId || o.id || '').trim().toUpperCase();
+        if(!id || seen[id]) return false;
+        seen[id] = true;
+        return true;
+      });
+      var badge = document.getElementById('msqRejectedBadge');
+      if(badge) badge.textContent = String(list.length);
+      if(!list.length){
+        box.innerHTML = '<p style="text-align:center;padding:20px;color:#7b1e2b;font-weight:800">لا توجد طلبات مرفوض استلامها ومحظورة.</p>';
+        return;
+      }
+      box.innerHTML = list.map(function(o){
+        var id = String(o.orderId || o.id || '').replace(/'/g, '');
+        var nm = o.name || o.customerName || '-';
+        var ph = o.phone || o.customerPhone || '-';
+        var lift = (o.customerBlocked === false || o.blockLifted);
+        return '<article class="order-card-admin" style="border:1px solid #ef9a9a;background:linear-gradient(145deg,#fff,#fff5f5)">' +
+          '<div class="oid msq-oid-with-copy">🆔 ' + esc(o.orderId || o.id || '-') +
+            ' <button type="button" class="msq-copy-oid-btn" title="نسخ رقم الطلب" onclick="event.preventDefault();event.stopPropagation();if(window.msqCopyOrderId)msqCopyOrderId(\'' + id + '\',this)">📋</button></div>' +
+          '<div>👤 ' + esc(nm) + ' | 📱 ' + esc(ph) + '</div>' +
+          '<div>💰 ' + esc(o.total || '-') + ' | 📅 ' + esc(o.date || o.rejectedAt || '-') + '</div>' +
+          '<div style="margin:7px 0"><span class="msq-reject-status-badge">❌🚫 رفض استلام وحظر</span></div>' +
+          '<div style="display:flex;gap:7px;flex-wrap:wrap">' +
+            '<button type="button" onclick="showAdminOrderDetails(\'' + id + '\')">🧾 تفاصيل الطلب</button>' +
+            (lift
+              ? '<button type="button" disabled style="border:0;border-radius:8px;padding:8px 12px;background:#e8f5e9;color:#237445;font-weight:900">✅ تم فك الحظر</button>'
+              : '<button type="button" style="border:0;border-radius:8px;padding:8px 12px;background:#176b3a;color:#fff;font-weight:900;cursor:pointer" onclick="unblockRejectedCustomer(\'' + id + '\',this)">🔓 فك حظر</button>') +
+          '</div></article>';
+      }).join('');
+      try{ if(typeof patchOrderCards === 'function') patchOrderCards(box); }catch(e){}
+    }
+
+    var local = cache().slice();
+    paint(local);
+
+    var dbx = getDbSafe();
+    if(!dbx || box.__msqRejectFetching) return;
+    box.__msqRejectFetching = true;
+    var found = [];
+    function takeSnap(snap){
+      if(!snap) return;
+      snap.forEach(function(doc){
+        var d = doc.data() || {};
+        if(!d.orderId) d.orderId = doc.id;
+        if(isRejectedOrder(d)) found.push(d);
+      });
+    }
+    Promise.all([
+      dbx.collection('orders').where('statusCode', '==', 4).limit(100).get().catch(function(){ return null; }),
+      dbx.collection('orderTracking').where('statusCode', '==', 4).limit(100).get().catch(function(){ return null; }),
+      dbx.collection('orders').limit(250).get().catch(function(){ return null; }),
+      dbx.collection('orderTracking').limit(250).get().catch(function(){ return null; })
+    ]).then(function(snaps){
+      snaps.forEach(takeSnap);
+      paint(local.concat(found));
+      try{
+        found.forEach(function(o){
+          var id = String(o.orderId||'').trim().toUpperCase();
+          if(!id) return;
+          var arr = cache();
+          var hit = arr.find(function(x){ return String(x.orderId||'').trim().toUpperCase()===id; });
+          if(hit){
+            hit.statusCode = 4;
+            if(!hit.status) hit.status = 'رفض استلام وحظر';
+            if(!hit.statusLabel) hit.statusLabel = 'رفض استلام وحظر';
+          } else {
+            o.statusCode = 4;
+            if(!o.status) o.status = 'رفض استلام وحظر';
+            arr.push(o);
+          }
+        });
+      }catch(e){}
+    }).catch(function(err){
+      console.warn('rejected fetch failed', err);
+    }).finally(function(){
+      box.__msqRejectFetching = false;
+    });
   }
 
   window.msqRenderRejectedList = renderRejected;
