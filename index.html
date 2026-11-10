@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611101435adminNotif";
+  var BUILD = "202611101504fcm";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -51,7 +51,7 @@
             }));
           }).then(function () {
             // سجّل SW الجديد (إشعارات الإدارة + PWA) بعد مسح القديم
-            return navigator.serviceWorker.register('./sw.js?v=202611101435adminNotif', { scope: './' }).catch(function () {});
+            return navigator.serviceWorker.register('./sw.js?v=202611101504fcm', { scope: './' }).catch(function () {});
           }).catch(function () {})
         );
       }
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611101435adminNotif">
+  <meta name="msq-build" content="202611101504fcm">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -191,7 +191,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=202611101435adminNotif">
+  <link rel="manifest" href="manifest.json?v=202611101504fcm">
   <link rel="icon" href="favicon.svg?v=202611021545v3" type="image/svg+xml">
   <link rel="icon" href="favicon.svg?v=202611021545v3" sizes="any">
   <link rel="apple-touch-icon" href="favicon.svg?v=202611021545v3">
@@ -263,14 +263,15 @@
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-check-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
   
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611101435adminNotif">
-<link rel="stylesheet" href="styles.css?v=202611101435adminNotif">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611101504fcm">
+<link rel="stylesheet" href="styles.css?v=202611101504fcm">
 
 
 
@@ -306,8 +307,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611101435adminNotif">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611101435adminNotif">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611101504fcm">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611101504fcm">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1926,14 +1927,19 @@ html body #products-container .product-card .msq-fav-btn {
           <div class="terms-header admin-orders-heading msq-admin-title">📋 شاشة إدارة الطلبات</div>
           <button id="adminLogoutBtn" onclick="logoutAdmin()" class="admin-logout-compact msq-admin-logout">تسجيل الخروج</button>
         </div>
-        <input
-          type="text"
-          id="adminOrderSearch"
-          class="promo-input admin-orders-search msq-admin-search"
-          placeholder="🔍 ابحث بالاسم أو رقم الهاتف أو رقم الطلب..."
-          aria-label="البحث في الطلبات بالاسم أو الهاتف أو رقم الطلب"
-          oninput="filterAdminOrders()"
-        >
+        <div class="msq-admin-toolbar">
+          <input
+            type="text"
+            id="adminOrderSearch"
+            class="promo-input admin-orders-search msq-admin-search"
+            placeholder="🔍 بحث..."
+            aria-label="البحث في الطلبات بالاسم أو الهاتف أو رقم الطلب"
+            oninput="filterAdminOrders()"
+          >
+          <div class="msq-admin-toolbar-actions" id="msqAdminToolbarActions">
+            <!-- أزرار التثبيت والإشعارات تُحقن هنا -->
+          </div>
+        </div>
       </div>
       <button type="button" id="adminBackToOrdersListBtn" onclick="(function(){var list=document.getElementById('adminOrdersList');if(list){list.scrollIntoView({behavior:'smooth',block:'start'});var input=document.getElementById('adminOrderSearch');if(input)setTimeout(function(){input.focus({preventScroll:true});},350);}})()" style="display:block;width:100%;background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;border:1px solid rgba(255,255,255,.75);border-radius:10px;padding:11px 14px;cursor:pointer;font-weight:900;margin:0 0 10px;box-shadow:0 5px 14px rgba(46,125,50,.18)">⬅ رجوع لقائمة الطلبات لتعديل الحالات</button>
       <p class="admin-orders-hint">ابحث بالاسم أو رقم التليفون أو رقم الطلب — غيّر الحالة وانسخ رسالة الشحن</p>
@@ -2123,7 +2129,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611101435adminNotif"></script>
+  <script src="script.js?v=202611101504fcm"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -13057,6 +13063,10 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
   if (window.__msqAdminNotifV1) return;
   window.__msqAdminNotifV1 = true;
 
+  // من Firebase Console → Project settings → Cloud Messaging → Web Push certificates
+  // الصق مفتاح VAPID هنا (أو في window.MSQ_FCM_VAPID_KEY قبل التحميل)
+  var VAPID_KEY = (typeof window.MSQ_FCM_VAPID_KEY === 'string' && window.MSQ_FCM_VAPID_KEY) || '';
+
   var STORAGE_KEY = 'msq_admin_notif_enabled';
   var SEEN_KEY = 'msq_admin_seen_order_ids';
   var MAX_SEEN = 200;
@@ -13072,14 +13082,12 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
     } catch (e) {}
     return false;
   }
-
   function enabled() {
     try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
   }
   function setEnabled(v) {
     try { localStorage.setItem(STORAGE_KEY, v ? '1' : '0'); } catch (e) {}
   }
-
   function loadSeen() {
     try {
       var raw = localStorage.getItem(SEEN_KEY);
@@ -13088,9 +13096,7 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
     } catch (e) { return []; }
   }
   function saveSeen(arr) {
-    try {
-      localStorage.setItem(SEEN_KEY, JSON.stringify(arr.slice(-MAX_SEEN)));
-    } catch (e) {}
+    try { localStorage.setItem(SEEN_KEY, JSON.stringify(arr.slice(-MAX_SEEN))); } catch (e) {}
   }
 
   function playBeep() {
@@ -13100,7 +13106,6 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
       if (!audioCtx) audioCtx = new Ctx();
       if (audioCtx.state === 'suspended') audioCtx.resume();
       var now = audioCtx.currentTime;
-      // نغمتين سريعتين
       [0, 0.18].forEach(function (delay, i) {
         var o = audioCtx.createOscillator();
         var g = audioCtx.createGain();
@@ -13118,17 +13123,14 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
     } catch (e) {}
   }
 
-  function showNotif(order) {
+  function showLocalNotif(order) {
     var id = String((order && (order.orderId || order.id)) || '').trim();
     var name = (order && (order.name || order.customerName)) || 'عميل';
     var total = (order && order.total) != null ? String(order.total) : '-';
     var title = '🛍️ طلب جديد — My Souq';
     var body = (id ? ('🆔 ' + id + '\n') : '') + '👤 ' + name + ' · 💰 ' + total;
     playBeep();
-    try {
-      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
-    } catch (e) {}
-
+    try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {}
     function viaSW() {
       if (!('serviceWorker' in navigator)) return Promise.reject();
       return navigator.serviceWorker.ready.then(function (reg) {
@@ -13143,19 +13145,9 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
           });
           return true;
         }
-        if (reg.showNotification) {
-          return reg.showNotification(title, {
-            body: body,
-            icon: 'images/icon-192.png',
-            tag: 'msq-order-' + (id || Date.now()),
-            vibrate: [200, 100, 200],
-            data: { orderId: id }
-          });
-        }
         return Promise.reject();
       });
     }
-
     viaSW().catch(function () {
       try {
         if (Notification.permission === 'granted') {
@@ -13170,15 +13162,7 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
     var seen = loadSeen();
     var seenMap = {};
     seen.forEach(function (x) { seenMap[x] = true; });
-    var fresh = [];
-    list.forEach(function (o) {
-      if (!o) return;
-      var id = String(o.orderId || o.id || '').trim().toUpperCase();
-      if (!id) return;
-      if (!seenMap[id]) fresh.push(o);
-    });
     if (bootstrap) {
-      // أول تشغيل: سجّل الموجود من غير إشعار
       list.forEach(function (o) {
         var id = String((o && (o.orderId || o.id)) || '').trim().toUpperCase();
         if (id && !seenMap[id]) seen.push(id);
@@ -13186,23 +13170,24 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
       saveSeen(seen);
       return;
     }
-    fresh.forEach(function (o) {
+    list.forEach(function (o) {
+      if (!o) return;
       var id = String(o.orderId || o.id || '').trim().toUpperCase();
+      if (!id || seenMap[id]) return;
       seen.push(id);
-      showNotif(o);
+      seenMap[id] = true;
+      showLocalNotif(o);
     });
-    if (fresh.length) saveSeen(seen);
+    saveSeen(seen);
   }
 
   var bootstrapped = false;
-
   function fromCache() {
     try {
       var cache = (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache))
-        ? adminOrdersCache
-        : (window.adminOrdersCache || []);
+        ? adminOrdersCache : (window.adminOrdersCache || []);
       processOrders(cache, !bootstrapped);
-      if (!bootstrapped) bootstrapped = true;
+      bootstrapped = true;
     } catch (e) {}
   }
 
@@ -13213,7 +13198,6 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
       if (typeof firebase !== 'undefined' && firebase.firestore) db = firebase.firestore();
     } catch (e) {}
     if (!db) {
-      // polling على الكاش كل 20 ثانية
       pollTimer = setInterval(fromCache, 20000);
       fromCache();
       return;
@@ -13229,9 +13213,7 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
           });
           processOrders(list, !bootstrapped);
           bootstrapped = true;
-        }, function (err) {
-          console.warn('admin notif snapshot failed', err);
-          // fallback بدون orderBy
+        }, function () {
           try {
             unsub = db.collection('orders').limit(40).onSnapshot(function (snap) {
               var list = [];
@@ -13252,11 +13234,59 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
       fromCache();
     }
   }
-
   function stopListen() {
     try { if (typeof unsub === 'function') unsub(); } catch (e) {}
     unsub = null;
     if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+
+  async function saveTokenToFirestore(token) {
+    if (!token) return;
+    try {
+      var db = firebase.firestore();
+      var id = token.slice(0, 80).replace(/\W/g, '_');
+      await db.collection('adminPushTokens').doc(id).set({
+        token: token,
+        enabled: true,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        userAgent: String(navigator.userAgent || '').slice(0, 180),
+        email: (typeof currentAdminUser !== 'undefined' && currentAdminUser && currentAdminUser.email) || ''
+      }, { merge: true });
+      console.info('FCM token saved');
+    } catch (e) {
+      console.warn('save FCM token', e);
+    }
+  }
+
+  async function registerFcmToken() {
+    if (typeof firebase === 'undefined' || !firebase.messaging) {
+      console.warn('firebase.messaging غير متاح');
+      return null;
+    }
+    try {
+      var messaging = firebase.messaging();
+      // SW لازم يكون جاهز
+      var reg = await navigator.serviceWorker.ready;
+      var opts = { serviceWorkerRegistration: reg };
+      if (VAPID_KEY) opts.vapidKey = VAPID_KEY;
+      var token = await messaging.getToken(opts);
+      if (token) await saveTokenToFirestore(token);
+      try {
+        messaging.onMessage(function (payload) {
+          var n = (payload && payload.notification) || {};
+          var d = (payload && payload.data) || {};
+          showLocalNotif({
+            orderId: d.orderId || '',
+            name: d.name || n.title || 'طلب جديد',
+            total: d.total || ''
+          });
+        });
+      } catch (e) {}
+      return token;
+    } catch (e) {
+      console.warn('FCM getToken failed', e);
+      return null;
+    }
   }
 
   async function enableNotifications() {
@@ -13264,28 +13294,36 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
       alert('المتصفح لا يدعم الإشعارات');
       return false;
     }
-    // لازم تفاعل مستخدم للصوت على iOS
     playBeep();
     var perm = Notification.permission;
-    if (perm !== 'granted') {
-      perm = await Notification.requestPermission();
-    }
+    if (perm !== 'granted') perm = await Notification.requestPermission();
     if (perm !== 'granted') {
       alert('لم يتم السماح بالإشعارات. من إعدادات المتصفح اسمح بالإشعارات لهذا الموقع.');
       return false;
     }
-    // تأكد من SW
     try {
       if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.register('./sw.js?v=202611101435adminNotif', { scope: './' });
+        await navigator.serviceWorker.register('./sw.js?v=202611101504fcm', { scope: './' });
         await navigator.serviceWorker.ready;
       }
     } catch (e) {}
+
     setEnabled(true);
     bootstrapped = false;
     startFirestoreListen();
+
+    var token = await registerFcmToken();
     updateUi();
-    alert('✅ تم تفعيل إشعارات الطلبات الجديدة على هذا الجهاز.\nهتسمع صوت مع كل طلب جديد طالما التطبيق/الموقع مفتوح أو في الخلفية.');
+
+    var msg = '✅ تم تفعيل إشعارات الطلبات على هذا الجهاز.';
+    if (token) {
+      msg += '\n\n☁️ FCM مفعّل — الإشعار يقدر يوصل حتى والتطبيق مقفول (بعد ما Worker الطلبات يبعت الإشعار).';
+    } else if (!VAPID_KEY) {
+      msg += '\n\n⚠️ لتفعيل الإشعار والتطبيق مقفول: حط مفتاح Web Push (VAPID) من Firebase Console في الإعدادات (window.MSQ_FCM_VAPID_KEY).';
+    } else {
+      msg += '\n\n⚠️ تعذر تسجيل FCM — الإشعار المحلي شغال والموقع مفتوح.';
+    }
+    alert(msg);
     return true;
   }
 
@@ -13299,97 +13337,165 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
     var btn = document.getElementById('msqAdminNotifBtn');
     if (!btn) return;
     if (enabled()) {
-      btn.textContent = '🔔 الإشعارات: مفعّلة';
+      btn.innerHTML = '🔔<span class="msq-btn-label"> مفعّلة</span>';
+      btn.title = 'الإشعارات مفعّلة — اضغط لإيقاف';
       btn.style.background = 'linear-gradient(135deg,#2e7d32,#1b5e20)';
       btn.style.color = '#fff';
     } else {
-      btn.textContent = '🔕 تفعيل إشعارات الطلبات';
+      btn.innerHTML = '🔔<span class="msq-btn-label"> إشعارات</span>';
+      btn.title = 'تفعيل إشعارات الطلبات';
       btn.style.background = 'linear-gradient(135deg,#5e3299,#7b4bb8)';
       btn.style.color = '#fff';
     }
   }
 
-  function ensureButton() {
-    var header = document.getElementById('adminOrdersHeader') || document.querySelector('#adminOrdersModal .msq-admin-header-v2');
-    if (!header) return;
-    if (document.getElementById('msqAdminNotifBtn')) {
-      updateUi();
-      return;
+  function ensureButtons() {
+    var host = document.getElementById('msqAdminToolbarActions') ||
+      document.querySelector('#adminOrdersHeader .msq-admin-toolbar-actions');
+    if (!host) {
+      // fallback: old injection point
+      host = document.getElementById('adminOrdersHeader');
+      if (!host) return;
     }
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.id = 'msqAdminNotifBtn';
-    btn.style.cssText = 'border:0;border-radius:12px;padding:8px 12px;font-weight:900;font-size:12px;cursor:pointer;margin:4px;box-shadow:0 4px 12px rgba(0,0,0,.12)';
-    btn.onclick = function () {
-      if (enabled()) {
-        if (confirm('إيقاف إشعارات الطلبات على هذا الجهاز؟')) disableNotifications();
-      } else {
-        enableNotifications();
-      }
-    };
-    // حط الزرار جنب العنوان/تسجيل الخروج
-    var titleRow = header.querySelector('.msq-admin-title-row') || header;
-    titleRow.appendChild(btn);
+    if (!document.getElementById('msqAdminInstallBtn')) {
+      var inst = document.createElement('button');
+      inst.type = 'button';
+      inst.id = 'msqAdminInstallBtn';
+      inst.innerHTML = '📲<span class="msq-btn-label"> تثبيت</span>';
+      inst.title = 'تثبيت كتطبيق';
+      inst.style.cssText = 'border:1px solid #d2bdf0;background:#fff;color:#5e3299;cursor:pointer';
+      inst.onclick = function () {
+        alert(
+          '📲 تثبيت لوحة الإدارة على الموبايل:\\n\\n' +
+          '• Android (Chrome): ⋮ → إضافة إلى الشاشة الرئيسية / تثبيت التطبيق\\n' +
+          '• iPhone (Safari): مشاركة → إضافة إلى الشاشة الرئيسية\\n\\n' +
+          'بعدها: فعّل الإشعارات من الزر 🔔'
+        );
+      };
+      host.appendChild(inst);
+    }
+    if (!document.getElementById('msqAdminNotifBtn')) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.id = 'msqAdminNotifBtn';
+      btn.style.cursor = 'pointer';
+      btn.onclick = function () {
+        if (enabled()) {
+          if (confirm('إيقاف إشعارات الطلبات على هذا الجهاز؟')) disableNotifications();
+        } else enableNotifications();
+      };
+      host.appendChild(btn);
+    }
     updateUi();
   }
 
   function onAdminReady() {
     if (!isAdmin()) return;
-    ensureButton();
+    ensureButtons();
     if (enabled() && Notification.permission === 'granted') {
       startFirestoreListen();
+      registerFcmToken();
     }
   }
 
-  // راقب فتح شاشة الإدارة
   document.addEventListener('click', function (e) {
-    if (e.target && e.target.closest && e.target.closest('#adminOrdersBtn, .admin-orders-trigger, #adminOrdersModal, #adminLoginBtn')) {
-      setTimeout(onAdminReady, 400);
-      setTimeout(onAdminReady, 1200);
+    if (e.target && e.target.closest && e.target.closest('#adminOrdersBtn, .admin-orders-trigger, #adminOrdersModal')) {
+      setTimeout(onAdminReady, 300);
+      setTimeout(onAdminReady, 1000);
     }
   }, true);
 
-  // بعد login
-  var t = setInterval(function () {
-    if (isAdmin()) {
-      onAdminReady();
-    }
-  }, 2000);
-  setTimeout(function () { clearInterval(t); }, 60000);
-
-  // install tip
-  window.msqShowAdminInstallTip = function () {
-    alert(
-      '📲 تثبيت لوحة الإدارة على الموبايل:\n\n' +
-      '• Android (Chrome): القائمة ⋮ → «إضافة إلى الشاشة الرئيسية» أو «تثبيت التطبيق»\n' +
-      '• iPhone (Safari): زر المشاركة □↑ → «إضافة إلى الشاشة الرئيسية»\n\n' +
-      'بعد التثبيت افتح التطبيق → ادخل الإدارة → اضغط «تفعيل إشعارات الطلبات» واسمح بالإشعارات.'
-    );
-  };
-
-  // زر تثبيت صغير
-  function ensureInstallHint() {
-    var header = document.getElementById('adminOrdersHeader');
-    if (!header || document.getElementById('msqAdminInstallBtn')) return;
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.id = 'msqAdminInstallBtn';
-    b.textContent = '📲 تثبيت كتطبيق';
-    b.style.cssText = 'border:1px solid #d2bdf0;border-radius:12px;padding:8px 12px;font-weight:900;font-size:12px;cursor:pointer;margin:4px;background:#fff;color:#5e3299';
-    b.onclick = function () { window.msqShowAdminInstallTip(); };
-    var row = header.querySelector('.msq-admin-title-row') || header;
-    row.appendChild(b);
-  }
-
-  setInterval(function () {
-    if (isAdmin()) {
-      ensureButton();
-      ensureInstallHint();
-    }
-  }, 3000);
-
+  setInterval(function () { if (isAdmin()) ensureButtons(); }, 2500);
   window.msqEnableAdminNotifications = enableNotifications;
   window.msqDisableAdminNotifications = disableNotifications;
 })();
 </script>
+
+
+<style id="msq-admin-toolbar-css">
+#adminOrdersModal .msq-admin-header-v2{
+  display:flex!important;
+  flex-direction:column!important;
+  gap:10px!important;
+  align-items:stretch!important;
+}
+#adminOrdersModal .msq-admin-title-row{
+  display:flex!important;
+  flex-wrap:wrap!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:8px!important;
+}
+#adminOrdersModal .msq-admin-toolbar{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  gap:8px!important;
+  width:100%!important;
+}
+#adminOrdersModal #adminOrderSearch.msq-admin-search,
+#adminOrdersModal .msq-admin-search{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  max-width:none!important;
+  width:auto!important;
+  min-height:42px!important;
+  height:42px!important;
+  padding:8px 12px!important;
+  font-size:13px!important;
+  border-radius:12px!important;
+  margin:0!important;
+}
+#adminOrdersModal .msq-admin-toolbar-actions{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  gap:6px!important;
+  flex:0 0 auto!important;
+}
+#adminOrdersModal #msqAdminNotifBtn,
+#adminOrdersModal #msqAdminInstallBtn{
+  flex:0 0 auto!important;
+  min-width:44px!important;
+  min-height:42px!important;
+  height:42px!important;
+  padding:8px 12px!important;
+  border-radius:12px!important;
+  font-weight:900!important;
+  font-size:12px!important;
+  white-space:nowrap!important;
+  line-height:1.15!important;
+  box-shadow:0 3px 10px rgba(90,45,145,.12)!important;
+}
+@media (max-width:720px){
+  #adminOrdersModal .msq-admin-toolbar{
+    flex-wrap:wrap!important;
+  }
+  #adminOrdersModal #adminOrderSearch.msq-admin-search{
+    flex:1 1 100%!important;
+    order:2!important;
+    min-height:40px!important;
+    font-size:12.5px!important;
+  }
+  #adminOrdersModal .msq-admin-toolbar-actions{
+    order:1!important;
+    width:100%!important;
+    justify-content:stretch!important;
+  }
+  #adminOrdersModal #msqAdminNotifBtn,
+  #adminOrdersModal #msqAdminInstallBtn{
+    flex:1 1 0!important;
+    font-size:12px!important;
+    padding:10px 8px!important;
+    min-height:44px!important;
+  }
+  #adminOrdersModal .msq-admin-title{
+    font-size:15px!important;
+  }
+  #adminOrdersModal .msq-admin-logout{
+    padding:8px 10px!important;
+    font-size:12px!important;
+  }
+}
+</style>
 
