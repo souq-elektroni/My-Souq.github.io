@@ -1194,17 +1194,21 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
 /* ===== mysouq-admin-five-tabs-and-delivered-actions ===== */
 /* Keep the five primary admin channels on one horizontal row on desktop and mobile. */
 #msqAdminTabs{
-  grid-template-columns:repeat(5,minmax(0,1fr))!important;
-  gap:7px!important;
-  align-items:stretch;
+  display:flex!important;
+  flex-direction:row!important;
+  flex-wrap:wrap!important;
+  gap:8px!important;
+  align-items:center!important;
+  grid-template-columns:none!important;
 }
 #msqAdminTabs button{
+  flex:0 0 auto!important;
+  width:auto!important;
   min-width:0!important;
-  white-space:normal!important;
-  overflow-wrap:anywhere;
-  line-height:1.35;
-  padding:10px 5px!important;
-  font-size:clamp(9px,1vw,13px)!important;
+  white-space:nowrap!important;
+  line-height:1.25;
+  padding:8px 14px!important;
+  font-size:12.5px!important;
 }
 #msqAdminTabs button[data-tab="rejected"]{border-color:#c62828;color:#9d1823}
 #msqAdminTabs button[data-tab="rejected"].active{background:#b71c1c;color:#fff;border-color:#b71c1c}
@@ -1226,7 +1230,7 @@ body.dark-mode .brand-badge{background:linear-gradient(145deg,#087f83,#24a6a5)!i
   font-weight:900;
 }
 @media(max-width:520px){
-  #msqAdminTabs{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:4px!important}
+  #msqAdminTabs{display:flex!important;flex-direction:row!important;flex-wrap:wrap!important;gap:6px!important}
   #msqAdminTabs button{padding:8px 2px!important;font-size:9px!important;min-height:52px}
   #msqDeliveredList .msq-delivered-actions{grid-template-columns:repeat(4,minmax(0,1fr));gap:4px!important}
   #msqDeliveredList .msq-delivered-actions button{font-size:9px;padding:8px 2px;overflow-wrap:anywhere}
