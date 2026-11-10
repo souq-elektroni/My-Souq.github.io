@@ -5732,7 +5732,16 @@ function continueAfterOrderRecaptcha() {
       if (typeof merged.statusCode !== 'number' || isNaN(merged.statusCode)) {
         const n = Number(merged.statusCode);
         if (Number.isFinite(n)) merged.statusCode = n;
-        else merged.statusCode = 0;
+        else {
+          const lab = String(merged.status || merged.statusLabel || '');
+          if (/رفض استلام/.test(lab)) merged.statusCode = 4;
+          else if (/Order 0|نفد/.test(lab)) merged.statusCode = 5;
+          else if (/X2|مراجعة طلب/.test(lab)) merged.statusCode = 6;
+          else if (/تم التوريد|تم التسليم|تم التوصيل/.test(lab)) merged.statusCode = 3;
+          else if (/جاري الشحن/.test(lab)) merged.statusCode = 2;
+          else if (/تم الحجز/.test(lab)) merged.statusCode = 1;
+          else merged.statusCode = 0;
+        }
       }
       byId.set(id.toUpperCase(), merged);
     }
@@ -5869,6 +5878,7 @@ function continueAfterOrderRecaptcha() {
     adminOrdersCache = list;
     try { window.adminOrdersCache = list; } catch (e) {}
     filterAdminOrders();
+    try { if (typeof window.msqRenderRejectedList === 'function') window.msqRenderRejectedList(); } catch (e) {}
     try { if (typeof window.msqRenderOosList === 'function') window.msqRenderOosList(); } catch (e) {}
     try { if (typeof window.msqRenderX2ReviewList === 'function') window.msqRenderX2ReviewList(); } catch (e) {}
   }

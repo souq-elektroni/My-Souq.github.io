@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611100752tabsCopy";
+  var BUILD = "202611101132rejectedTabs";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -177,7 +177,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611100752tabsCopy">
+  <meta name="msq-build" content="202611101132rejectedTabs">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -266,8 +266,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611100752tabsCopy">
-<link rel="stylesheet" href="styles.css?v=202611100752tabsCopy">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611101132rejectedTabs">
+<link rel="stylesheet" href="styles.css?v=202611101132rejectedTabs">
 
 
 
@@ -303,8 +303,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611100752tabsCopy">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611100752tabsCopy">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611101132rejectedTabs">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611101132rejectedTabs">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2120,7 +2120,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611100752tabsCopy"></script>
+  <script src="script.js?v=202611101132rejectedTabs"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -10286,6 +10286,12 @@ html body .admin-orders-hint { display: none !important; }
     if(tab==='exchanges'&&typeof window.msqLoadExchangeRequests==='function')window.msqLoadExchangeRequests();
     if(tab==='oos'&&typeof window.msqRenderOosList==='function')window.msqRenderOosList();
     if(tab==='x2'&&typeof window.msqRenderX2ReviewList==='function')window.msqRenderX2ReviewList();
+    if(tab==='rejected'){
+      try{
+        if(typeof window.msqRenderRejectedList==='function') window.msqRenderRejectedList();
+        else if(typeof renderRejected==='function') renderRejected();
+      }catch(e){}
+    }
     moveInjectedPanels();
     try{ if(typeof window.msqSyncAdminChannelSelect==='function') window.msqSyncAdminChannelSelect(); }catch(e){}
   }
@@ -10794,7 +10800,10 @@ html body .admin-orders-hint { display: none !important; }
     var box=document.getElementById('msqRejectedList');if(!box)return;
     var q=String((document.getElementById('msqRejectedSearch')||{}).value||'').toLowerCase().trim().replace(/\s/g,'');
     var list=cache().filter(function(o){
-      if(codeOf(o)!==4)return false;
+      var c = codeOf(o);
+      var lab = String(o && (o.status || o.statusLabel) || '');
+      var isRejected = (c === 4) || /رفض استلام\s*وحظر|رفض استلام|محظور/.test(lab);
+      if(!isRejected) return false;
       var hay=[o.orderId,o.name,o.phone,o.status,o.statusLabel].join(' ').toLowerCase().replace(/\s/g,'');
       return !q||hay.indexOf(q)!==-1;
     });
@@ -10824,6 +10833,8 @@ html body .admin-orders-hint { display: none !important; }
     } } catch(e) {}
   }
 
+  window.msqRenderRejectedList = renderRejected;
+
   function ensureRejectedTab(){
     var tabs=document.getElementById('msqAdminTabs'),wrap=document.getElementById('msqAdminTabContent');
     if(!tabs||!wrap)return;
@@ -10834,10 +10845,11 @@ html body .admin-orders-hint { display: none !important; }
       btn.innerHTML='❌🚫 رفض استلام وحظر <span id="msqRejectedBadge">0</span>';
       var maint=tabs.querySelector('button[data-tab="maintenance"]');
       if(maint)tabs.insertBefore(btn,maint);else tabs.appendChild(btn);
-      btn.addEventListener('click',function(){
-        tabs.querySelectorAll('button').forEach(function(b){b.classList.toggle('active',b===btn);});
-        wrap.querySelectorAll('.msq-tab-pane').forEach(function(p){p.classList.toggle('active',p===pane);});
-        renderRejected();
+    }
+    if(btn && !btn.__msqRejectedClick){
+      btn.__msqRejectedClick = true;
+      btn.addEventListener('click', function(){
+        setTimeout(function(){ try{ renderRejected(); }catch(e){} }, 30);
       });
     }
     if(!pane){
@@ -12912,4 +12924,53 @@ html body #msqAdminChannelSelectWrap {
   setTimeout(build, 1500);
 })();
 </script>
+
+<style id="msq-admin-tabs-force-horizontal-v2">
+html body #adminOrdersModal #msqAdminTabs,
+html body #msqAdminTabs,
+html body #msqAdminTabs.msq-admin-channels {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 10px 0 12px !important;
+  padding: 0 !important;
+  height: auto !important;
+  min-height: 0 !important;
+  overflow: visible !important;
+  grid-template-columns: none !important;
+  grid-auto-flow: unset !important;
+}
+html body #adminOrdersModal #msqAdminTabs > button,
+html body #msqAdminTabs > button {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  flex-grow: 0 !important;
+  flex-shrink: 0 !important;
+  flex-basis: auto !important;
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+  float: none !important;
+  box-sizing: border-box !important;
+}
+html body #msqAdminChannelSelectWrap { display: none !important; }
+@media (max-width: 820px) {
+  html body #msqAdminTabs,
+  html body #msqAdminTabs.msq-admin-channels,
+  html body #adminOrdersModal #msqAdminTabs {
+    display: none !important;
+  }
+  html body #msqAdminChannelSelectWrap {
+    display: block !important;
+    width: 100% !important;
+  }
+}
+</style>
 
