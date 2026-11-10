@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611101408x2Copy";
+  var BUILD = "202611101435adminNotif";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -49,6 +49,9 @@
             return Promise.all((regs || []).map(function (r) {
               return r.unregister().catch(function () {});
             }));
+          }).then(function () {
+            // سجّل SW الجديد (إشعارات الإدارة + PWA) بعد مسح القديم
+            return navigator.serviceWorker.register('./sw.js?v=202611101435adminNotif', { scope: './' }).catch(function () {});
           }).catch(function () {})
         );
       }
@@ -177,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611101408x2Copy">
+  <meta name="msq-build" content="202611101435adminNotif">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -188,7 +191,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=202611021545v3">
+  <link rel="manifest" href="manifest.json?v=202611101435adminNotif">
   <link rel="icon" href="favicon.svg?v=202611021545v3" type="image/svg+xml">
   <link rel="icon" href="favicon.svg?v=202611021545v3" sizes="any">
   <link rel="apple-touch-icon" href="favicon.svg?v=202611021545v3">
@@ -266,8 +269,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611101408x2Copy">
-<link rel="stylesheet" href="styles.css?v=202611101408x2Copy">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611101435adminNotif">
+<link rel="stylesheet" href="styles.css?v=202611101435adminNotif">
 
 
 
@@ -303,8 +306,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611101408x2Copy">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611101408x2Copy">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611101435adminNotif">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611101435adminNotif">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2120,7 +2123,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611101408x2Copy"></script>
+  <script src="script.js?v=202611101435adminNotif"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -13047,4 +13050,346 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
   }
 }
 </style>
+
+<script id="msq-admin-mobile-notifications-v1">
+(function () {
+  'use strict';
+  if (window.__msqAdminNotifV1) return;
+  window.__msqAdminNotifV1 = true;
+
+  var STORAGE_KEY = 'msq_admin_notif_enabled';
+  var SEEN_KEY = 'msq_admin_seen_order_ids';
+  var MAX_SEEN = 200;
+  var unsub = null;
+  var pollTimer = null;
+  var audioCtx = null;
+
+  function isAdmin() {
+    try {
+      if (typeof isAdminMode !== 'undefined' && isAdminMode) return true;
+      if (typeof currentAdminUser !== 'undefined' && currentAdminUser) return true;
+      if (window.currentAdminUser) return true;
+    } catch (e) {}
+    return false;
+  }
+
+  function enabled() {
+    try { return localStorage.getItem(STORAGE_KEY) === '1'; } catch (e) { return false; }
+  }
+  function setEnabled(v) {
+    try { localStorage.setItem(STORAGE_KEY, v ? '1' : '0'); } catch (e) {}
+  }
+
+  function loadSeen() {
+    try {
+      var raw = localStorage.getItem(SEEN_KEY);
+      var arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr.map(String) : [];
+    } catch (e) { return []; }
+  }
+  function saveSeen(arr) {
+    try {
+      localStorage.setItem(SEEN_KEY, JSON.stringify(arr.slice(-MAX_SEEN)));
+    } catch (e) {}
+  }
+
+  function playBeep() {
+    try {
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) return;
+      if (!audioCtx) audioCtx = new Ctx();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      var now = audioCtx.currentTime;
+      // نغمتين سريعتين
+      [0, 0.18].forEach(function (delay, i) {
+        var o = audioCtx.createOscillator();
+        var g = audioCtx.createGain();
+        o.type = 'sine';
+        o.frequency.value = i === 0 ? 880 : 1175;
+        g.gain.value = 0.0001;
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        g.gain.setValueAtTime(0.0001, now + delay);
+        g.gain.exponentialRampToValueAtTime(0.22, now + delay + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + delay + 0.16);
+        o.start(now + delay);
+        o.stop(now + delay + 0.18);
+      });
+    } catch (e) {}
+  }
+
+  function showNotif(order) {
+    var id = String((order && (order.orderId || order.id)) || '').trim();
+    var name = (order && (order.name || order.customerName)) || 'عميل';
+    var total = (order && order.total) != null ? String(order.total) : '-';
+    var title = '🛍️ طلب جديد — My Souq';
+    var body = (id ? ('🆔 ' + id + '\n') : '') + '👤 ' + name + ' · 💰 ' + total;
+    playBeep();
+    try {
+      if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+    } catch (e) {}
+
+    function viaSW() {
+      if (!('serviceWorker' in navigator)) return Promise.reject();
+      return navigator.serviceWorker.ready.then(function (reg) {
+        if (reg.active) {
+          reg.active.postMessage({
+            type: 'SHOW_ADMIN_ORDER_NOTIFICATION',
+            title: title,
+            body: body,
+            orderId: id,
+            tag: 'msq-order-' + (id || Date.now()),
+            url: location.href.split('#')[0]
+          });
+          return true;
+        }
+        if (reg.showNotification) {
+          return reg.showNotification(title, {
+            body: body,
+            icon: 'images/icon-192.png',
+            tag: 'msq-order-' + (id || Date.now()),
+            vibrate: [200, 100, 200],
+            data: { orderId: id }
+          });
+        }
+        return Promise.reject();
+      });
+    }
+
+    viaSW().catch(function () {
+      try {
+        if (Notification.permission === 'granted') {
+          new Notification(title, { body: body, icon: 'images/icon-192.png', tag: 'msq-order-' + (id || Date.now()) });
+        }
+      } catch (e) {}
+    });
+  }
+
+  function processOrders(list, bootstrap) {
+    if (!Array.isArray(list)) return;
+    var seen = loadSeen();
+    var seenMap = {};
+    seen.forEach(function (x) { seenMap[x] = true; });
+    var fresh = [];
+    list.forEach(function (o) {
+      if (!o) return;
+      var id = String(o.orderId || o.id || '').trim().toUpperCase();
+      if (!id) return;
+      if (!seenMap[id]) fresh.push(o);
+    });
+    if (bootstrap) {
+      // أول تشغيل: سجّل الموجود من غير إشعار
+      list.forEach(function (o) {
+        var id = String((o && (o.orderId || o.id)) || '').trim().toUpperCase();
+        if (id && !seenMap[id]) seen.push(id);
+      });
+      saveSeen(seen);
+      return;
+    }
+    fresh.forEach(function (o) {
+      var id = String(o.orderId || o.id || '').trim().toUpperCase();
+      seen.push(id);
+      showNotif(o);
+    });
+    if (fresh.length) saveSeen(seen);
+  }
+
+  var bootstrapped = false;
+
+  function fromCache() {
+    try {
+      var cache = (typeof adminOrdersCache !== 'undefined' && Array.isArray(adminOrdersCache))
+        ? adminOrdersCache
+        : (window.adminOrdersCache || []);
+      processOrders(cache, !bootstrapped);
+      if (!bootstrapped) bootstrapped = true;
+    } catch (e) {}
+  }
+
+  function startFirestoreListen() {
+    stopListen();
+    var db = null;
+    try {
+      if (typeof firebase !== 'undefined' && firebase.firestore) db = firebase.firestore();
+    } catch (e) {}
+    if (!db) {
+      // polling على الكاش كل 20 ثانية
+      pollTimer = setInterval(fromCache, 20000);
+      fromCache();
+      return;
+    }
+    try {
+      unsub = db.collection('orders').orderBy('createdAt', 'desc').limit(30)
+        .onSnapshot(function (snap) {
+          var list = [];
+          snap.forEach(function (doc) {
+            var d = doc.data() || {};
+            if (!d.orderId) d.orderId = doc.id;
+            list.push(d);
+          });
+          processOrders(list, !bootstrapped);
+          bootstrapped = true;
+        }, function (err) {
+          console.warn('admin notif snapshot failed', err);
+          // fallback بدون orderBy
+          try {
+            unsub = db.collection('orders').limit(40).onSnapshot(function (snap) {
+              var list = [];
+              snap.forEach(function (doc) {
+                var d = doc.data() || {};
+                if (!d.orderId) d.orderId = doc.id;
+                list.push(d);
+              });
+              processOrders(list, !bootstrapped);
+              bootstrapped = true;
+            });
+          } catch (e2) {
+            pollTimer = setInterval(fromCache, 20000);
+          }
+        });
+    } catch (e) {
+      pollTimer = setInterval(fromCache, 15000);
+      fromCache();
+    }
+  }
+
+  function stopListen() {
+    try { if (typeof unsub === 'function') unsub(); } catch (e) {}
+    unsub = null;
+    if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+  }
+
+  async function enableNotifications() {
+    if (!('Notification' in window)) {
+      alert('المتصفح لا يدعم الإشعارات');
+      return false;
+    }
+    // لازم تفاعل مستخدم للصوت على iOS
+    playBeep();
+    var perm = Notification.permission;
+    if (perm !== 'granted') {
+      perm = await Notification.requestPermission();
+    }
+    if (perm !== 'granted') {
+      alert('لم يتم السماح بالإشعارات. من إعدادات المتصفح اسمح بالإشعارات لهذا الموقع.');
+      return false;
+    }
+    // تأكد من SW
+    try {
+      if ('serviceWorker' in navigator) {
+        await navigator.serviceWorker.register('./sw.js?v=202611101435adminNotif', { scope: './' });
+        await navigator.serviceWorker.ready;
+      }
+    } catch (e) {}
+    setEnabled(true);
+    bootstrapped = false;
+    startFirestoreListen();
+    updateUi();
+    alert('✅ تم تفعيل إشعارات الطلبات الجديدة على هذا الجهاز.\nهتسمع صوت مع كل طلب جديد طالما التطبيق/الموقع مفتوح أو في الخلفية.');
+    return true;
+  }
+
+  function disableNotifications() {
+    setEnabled(false);
+    stopListen();
+    updateUi();
+  }
+
+  function updateUi() {
+    var btn = document.getElementById('msqAdminNotifBtn');
+    if (!btn) return;
+    if (enabled()) {
+      btn.textContent = '🔔 الإشعارات: مفعّلة';
+      btn.style.background = 'linear-gradient(135deg,#2e7d32,#1b5e20)';
+      btn.style.color = '#fff';
+    } else {
+      btn.textContent = '🔕 تفعيل إشعارات الطلبات';
+      btn.style.background = 'linear-gradient(135deg,#5e3299,#7b4bb8)';
+      btn.style.color = '#fff';
+    }
+  }
+
+  function ensureButton() {
+    var header = document.getElementById('adminOrdersHeader') || document.querySelector('#adminOrdersModal .msq-admin-header-v2');
+    if (!header) return;
+    if (document.getElementById('msqAdminNotifBtn')) {
+      updateUi();
+      return;
+    }
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.id = 'msqAdminNotifBtn';
+    btn.style.cssText = 'border:0;border-radius:12px;padding:8px 12px;font-weight:900;font-size:12px;cursor:pointer;margin:4px;box-shadow:0 4px 12px rgba(0,0,0,.12)';
+    btn.onclick = function () {
+      if (enabled()) {
+        if (confirm('إيقاف إشعارات الطلبات على هذا الجهاز؟')) disableNotifications();
+      } else {
+        enableNotifications();
+      }
+    };
+    // حط الزرار جنب العنوان/تسجيل الخروج
+    var titleRow = header.querySelector('.msq-admin-title-row') || header;
+    titleRow.appendChild(btn);
+    updateUi();
+  }
+
+  function onAdminReady() {
+    if (!isAdmin()) return;
+    ensureButton();
+    if (enabled() && Notification.permission === 'granted') {
+      startFirestoreListen();
+    }
+  }
+
+  // راقب فتح شاشة الإدارة
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.closest && e.target.closest('#adminOrdersBtn, .admin-orders-trigger, #adminOrdersModal, #adminLoginBtn')) {
+      setTimeout(onAdminReady, 400);
+      setTimeout(onAdminReady, 1200);
+    }
+  }, true);
+
+  // بعد login
+  var t = setInterval(function () {
+    if (isAdmin()) {
+      onAdminReady();
+    }
+  }, 2000);
+  setTimeout(function () { clearInterval(t); }, 60000);
+
+  // install tip
+  window.msqShowAdminInstallTip = function () {
+    alert(
+      '📲 تثبيت لوحة الإدارة على الموبايل:\n\n' +
+      '• Android (Chrome): القائمة ⋮ → «إضافة إلى الشاشة الرئيسية» أو «تثبيت التطبيق»\n' +
+      '• iPhone (Safari): زر المشاركة □↑ → «إضافة إلى الشاشة الرئيسية»\n\n' +
+      'بعد التثبيت افتح التطبيق → ادخل الإدارة → اضغط «تفعيل إشعارات الطلبات» واسمح بالإشعارات.'
+    );
+  };
+
+  // زر تثبيت صغير
+  function ensureInstallHint() {
+    var header = document.getElementById('adminOrdersHeader');
+    if (!header || document.getElementById('msqAdminInstallBtn')) return;
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.id = 'msqAdminInstallBtn';
+    b.textContent = '📲 تثبيت كتطبيق';
+    b.style.cssText = 'border:1px solid #d2bdf0;border-radius:12px;padding:8px 12px;font-weight:900;font-size:12px;cursor:pointer;margin:4px;background:#fff;color:#5e3299';
+    b.onclick = function () { window.msqShowAdminInstallTip(); };
+    var row = header.querySelector('.msq-admin-title-row') || header;
+    row.appendChild(b);
+  }
+
+  setInterval(function () {
+    if (isAdmin()) {
+      ensureButton();
+      ensureInstallHint();
+    }
+  }, 3000);
+
+  window.msqEnableAdminNotifications = enableNotifications;
+  window.msqDisableAdminNotifications = disableNotifications;
+})();
+</script>
 
