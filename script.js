@@ -3035,6 +3035,7 @@ ${selectedImage}
         var pairClone = document.getElementById('msqSizeHelperPair');
         if (pairClone) pairClone.remove();
       } catch (eClean) {}
+      try { if (window.msqRestoreProductModalLayout) window.msqRestoreProductModalLayout(); } catch (eR) {}
       // أعد الجدول لمكانه داخل modal-info (تخطيط عمودين سليم)
       try {
         var pm = document.getElementById('productModal');
