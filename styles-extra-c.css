@@ -12391,3 +12391,149 @@ html body #msqAdminChannelSelect {
 #products-container .product-card .product-details {
   flex: 0 0 auto !important;
 }
+
+
+/* ===== product modal roomy size chart + width v202611111508 ===== */
+#productModal .modal-content{
+  width:min(1360px, calc(100vw - 20px)) !important;
+  max-width:1360px !important;
+}
+@media (min-width: 900px){
+  #productModal .modal-body{
+    grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.95fr) minmax(300px, 0.85fr) !important;
+    gap: 22px !important;
+    align-items: start !important;
+  }
+  /* في وضع الصورة الواحدة: عمودين أوسع + جدول مقاسات مرتاح */
+  #productModal:not(.msq-pair-mode) .modal-body{
+    grid-template-columns: minmax(0, 1.2fr) minmax(380px, 1fr) !important;
+    gap: 28px !important;
+  }
+  #productModal:not(.msq-pair-mode) .modal-info{
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+}
+#productModal #msqSizeHelper.msq-size-panel,
+#productModal .msq-size-panel,
+#productModal .msq-size-helper{
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 12px 0 14px !important;
+  padding: 14px 14px 16px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(128,61,72,.14) !important;
+  background: linear-gradient(180deg, #fffdfb 0%, #faf4f6 100%) !important;
+  box-shadow: 0 6px 18px rgba(88,40,60,.06) !important;
+  box-sizing: border-box !important;
+}
+#productModal .msq-size-section-title,
+#productModal .msq-size-panel > .msq-size-section-title,
+#productModal #msqSizeHelper h4,
+#productModal #msqSizeHelper .msq-size-title{
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  margin: 0 0 8px !important;
+  color: var(--burgundy-soft, #803d48) !important;
+  letter-spacing: 0 !important;
+}
+#productModal .msq-size-chart-wrap{
+  width: 100% !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  border-radius: 12px !important;
+  margin-top: 8px !important;
+}
+#productModal .msq-size-chart,
+#productModal table.msq-size-chart{
+  width: 100% !important;
+  min-width: 320px !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  font-size: 13px !important;
+  table-layout: auto !important;
+}
+#productModal .msq-size-chart th{
+  background: linear-gradient(135deg, #803d48, #9a4d5a) !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  font-size: 12px !important;
+  padding: 10px 12px !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+}
+#productModal .msq-size-chart th:first-child{
+  border-radius: 0 10px 0 0 !important;
+}
+#productModal .msq-size-chart th:last-child{
+  border-radius: 10px 0 0 0 !important;
+}
+#productModal .msq-size-chart td{
+  padding: 10px 12px !important;
+  text-align: center !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  border-bottom: 1px solid rgba(128,61,72,.08) !important;
+  background: #fff !important;
+  white-space: nowrap !important;
+}
+#productModal .msq-size-chart tr:nth-child(even) td{
+  background: #faf6f7 !important;
+}
+#productModal .msq-size-chart tr.msq-row-recommended td,
+#productModal .msq-size-chart tr.msq-row-selected td{
+  background: #f3e5f5 !important;
+  color: #6a1b9a !important;
+  font-weight: 900 !important;
+}
+#productModal .msq-size-panel input,
+#productModal #msqSizeHelper input{
+  min-height: 42px !important;
+  border-radius: 12px !important;
+  font-size: 13px !important;
+  padding: 8px 12px !important;
+}
+#productModal .msq-size-panel button,
+#productModal #msqSizeHelper button{
+  min-height: 44px !important;
+  border-radius: 12px !important;
+  font-weight: 900 !important;
+  font-size: 13.5px !important;
+  padding: 10px 14px !important;
+}
+@media (max-width: 720px){
+  #productModal .modal-content{
+    width: calc(100vw - 8px) !important;
+    max-width: 100% !important;
+    border-radius: 18px 18px 0 0 !important;
+  }
+  #productModal .msq-size-chart{
+    min-width: 300px !important;
+    font-size: 12.5px !important;
+  }
+  #productModal .msq-size-chart th,
+  #productModal .msq-size-chart td{
+    padding: 9px 8px !important;
+  }
+}
+
+/* Admin swipe-down handle (mobile) */
+#adminOrdersModal .msq-admin-swipe-handle{
+  display: none;
+  width: 48px;
+  height: 5px;
+  border-radius: 99px;
+  background: rgba(94,50,153,.28);
+  margin: 6px auto 10px;
+}
+@media (max-width: 820px){
+  #adminOrdersModal .msq-admin-swipe-handle{ display: block !important; }
+  #adminOrdersModal .msq-admin-shell{
+    transition: transform .22s ease, opacity .22s ease;
+    will-change: transform;
+  }
+  #adminOrdersModal.msq-admin-swiping .msq-admin-shell{
+    transition: none !important;
+  }
+}
