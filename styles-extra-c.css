@@ -12393,274 +12393,132 @@ html body #msqAdminChannelSelect {
 }
 
 
-/* ===== product modal roomy size chart + width v202611111508 ===== */
-#productModal .modal-content{
-  width:min(1360px, calc(100vw - 20px)) !important;
-  max-width:1360px !important;
-}
-@media (min-width: 900px){
-  #productModal .modal-body{
-    grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.95fr) minmax(300px, 0.85fr) !important;
-    gap: 22px !important;
-    align-items: start !important;
-  }
-  /* في وضع الصورة الواحدة: عمودين أوسع + جدول مقاسات مرتاح */
-  #productModal:not(.msq-pair-mode) .modal-body{
-    grid-template-columns: minmax(0, 1.2fr) minmax(380px, 1fr) !important;
-    gap: 28px !important;
-  }
-  #productModal:not(.msq-pair-mode) .modal-info{
-    max-width: none !important;
-    min-width: 0 !important;
-  }
-}
-#productModal #msqSizeHelper.msq-size-panel,
-#productModal .msq-size-panel,
-#productModal .msq-size-helper{
-  display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 12px 0 14px !important;
-  padding: 14px 14px 16px !important;
-  border-radius: 16px !important;
-  border: 1px solid rgba(128,61,72,.14) !important;
-  background: linear-gradient(180deg, #fffdfb 0%, #faf4f6 100%) !important;
-  box-shadow: 0 6px 18px rgba(88,40,60,.06) !important;
-  box-sizing: border-box !important;
-}
-#productModal .msq-size-section-title,
-#productModal .msq-size-panel > .msq-size-section-title,
-#productModal #msqSizeHelper h4,
-#productModal #msqSizeHelper .msq-size-title{
-  font-size: 15px !important;
-  font-weight: 900 !important;
-  margin: 0 0 8px !important;
-  color: var(--burgundy-soft, #803d48) !important;
-  letter-spacing: 0 !important;
-}
-#productModal .msq-size-chart-wrap{
-  width: 100% !important;
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-  border-radius: 12px !important;
-  margin-top: 8px !important;
-}
-#productModal .msq-size-chart,
-#productModal table.msq-size-chart{
-  width: 100% !important;
-  min-width: 320px !important;
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-  font-size: 13px !important;
-  table-layout: auto !important;
-}
-#productModal .msq-size-chart th{
-  background: linear-gradient(135deg, #803d48, #9a4d5a) !important;
-  color: #fff !important;
-  font-weight: 900 !important;
-  font-size: 12px !important;
-  padding: 10px 12px !important;
-  white-space: nowrap !important;
-  text-align: center !important;
-}
-#productModal .msq-size-chart th:first-child{
-  border-radius: 0 10px 0 0 !important;
-}
-#productModal .msq-size-chart th:last-child{
-  border-radius: 10px 0 0 0 !important;
-}
-#productModal .msq-size-chart td{
-  padding: 10px 12px !important;
-  text-align: center !important;
-  font-weight: 700 !important;
-  font-size: 13px !important;
-  border-bottom: 1px solid rgba(128,61,72,.08) !important;
-  background: #fff !important;
-  white-space: nowrap !important;
-}
-#productModal .msq-size-chart tr:nth-child(even) td{
-  background: #faf6f7 !important;
-}
-#productModal .msq-size-chart tr.msq-row-recommended td,
-#productModal .msq-size-chart tr.msq-row-selected td{
-  background: #f3e5f5 !important;
-  color: #6a1b9a !important;
-  font-weight: 900 !important;
-}
-#productModal .msq-size-panel input,
-#productModal #msqSizeHelper input{
-  min-height: 42px !important;
-  border-radius: 12px !important;
-  font-size: 13px !important;
-  padding: 8px 12px !important;
-}
-#productModal .msq-size-panel button,
-#productModal #msqSizeHelper button{
-  min-height: 44px !important;
-  border-radius: 12px !important;
-  font-weight: 900 !important;
-  font-size: 13.5px !important;
-  padding: 10px 14px !important;
-}
-@media (max-width: 720px){
-  #productModal .modal-content{
-    width: calc(100vw - 8px) !important;
-    max-width: 100% !important;
-    border-radius: 18px 18px 0 0 !important;
-  }
-  #productModal .msq-size-chart{
-    min-width: 300px !important;
-    font-size: 12.5px !important;
-  }
-  #productModal .msq-size-chart th,
-  #productModal .msq-size-chart td{
-    padding: 9px 8px !important;
-  }
-}
-
-/* Admin swipe-down handle (mobile) */
-#adminOrdersModal .msq-admin-swipe-handle{
-  display: none;
-  width: 48px;
-  height: 5px;
-  border-radius: 99px;
-  background: rgba(94,50,153,.28);
-  margin: 6px auto 10px;
-}
-@media (max-width: 820px){
-  #adminOrdersModal .msq-admin-swipe-handle{ display: block !important; }
-  #adminOrdersModal .msq-admin-shell{
-    transition: transform .22s ease, opacity .22s ease;
-    will-change: transform;
-  }
-  #adminOrdersModal.msq-admin-swiping .msq-admin-shell{
-    transition: none !important;
-  }
-}
-
-
-
-
-/* ===== FORCE wide single-image modal — big image 202611111537 ===== */
+/* ===== Product modal clean 2-col — big image 202611111542 ===== */
 html body #productModal .modal-content,
 html body #productModal.modal-overlay .modal-content {
-  width: min(1560px, calc(100vw - 12px)) !important;
-  max-width: min(1560px, calc(100vw - 12px)) !important;
-  max-height: min(96dvh, 980px) !important;
+  width: min(1180px, calc(100vw - 24px)) !important;
+  max-width: min(1180px, calc(100vw - 24px)) !important;
+  max-height: min(94dvh, 900px) !important;
+  overflow: auto !important;
 }
-/* الصورة تاخد أكبر مساحة — الجدول والتفاصيل أضيق شوية */
 html body #productModal:not(.msq-pair-mode) .modal-body {
   display: grid !important;
-  grid-template-columns: minmax(420px, 1.55fr) minmax(280px, 0.72fr) minmax(280px, 0.78fr) !important;
-  gap: 14px 16px !important;
-  align-items: stretch !important;
-  padding: 14px 16px 18px !important;
+  grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.95fr) !important;
+  gap: 22px !important;
+  align-items: start !important;
+  padding: 18px 20px 22px !important;
 }
 html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
   grid-column: 1 !important;
-  grid-row: 1 / span 2 !important;
+  grid-row: auto !important;
   min-width: 0 !important;
-  min-height: min(72vh, 640px) !important;
-  height: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: stretch !important;
-  justify-content: flex-start !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-rows: auto auto !important;
+  gap: 10px 12px !important;
+  align-items: start !important;
+  height: auto !important;
+  min-height: 0 !important;
 }
 html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper .modal-img,
 html body #productModal:not(.msq-pair-mode) #modalImage {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
   width: 100% !important;
   height: auto !important;
-  min-height: min(62vh, 560px) !important;
-  max-height: min(78vh, 720px) !important;
+  min-height: min(52vh, 480px) !important;
+  max-height: min(70vh, 620px) !important;
   object-fit: contain !important;
-  object-position: center center !important;
-  border-radius: 16px !important;
-  background: #f6eef1 !important;
-}
-html body #productModal:not(.msq-pair-mode) #msqSizeHelper.msq-size-panel,
-html body #productModal:not(.msq-pair-mode) #msqSizeHelper {
-  grid-column: 2 !important;
-  grid-row: 1 / span 2 !important;
-  align-self: start !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
-  padding: 12px !important;
-  border-radius: 16px !important;
-  border: 1px solid rgba(128,61,72,.12) !important;
-  background: linear-gradient(180deg,#fffefb,#faf5f7) !important;
-  box-shadow: 0 6px 16px rgba(80,30,50,.06) !important;
-  box-sizing: border-box !important;
+  object-position: center !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, #f7f0f2, #efe6ea) !important;
   display: block !important;
 }
-html body #productModal:not(.msq-pair-mode) .modal-info {
-  grid-column: 3 !important;
-  grid-row: 1 / span 2 !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  padding: 6px 4px 8px !important;
-}
-html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
-  grid-template-columns: minmax(0, 1.45fr) minmax(340px, 0.9fr) !important;
-}
-html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-info {
+html body #productModal:not(.msq-pair-mode) .thumbs-vertical-wrap {
   grid-column: 2 !important;
+  grid-row: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  max-height: min(70vh, 620px) !important;
+  overflow: hidden !important;
 }
-html body #productModal:not(.msq-pair-mode).msq-no-size-chart #msqSizeHelper {
-  display: none !important;
+html body #productModal:not(.msq-pair-mode) .thumbnails-bar {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  max-height: min(62vh, 560px) !important;
+  padding: 4px !important;
+  background: transparent !important;
+}
+html body #productModal:not(.msq-pair-mode) .thumbnails-bar img {
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 12px !important;
+  object-fit: cover !important;
+  flex-shrink: 0 !important;
+}
+html body #productModal:not(.msq-pair-mode) .gallery-nav {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 4px 0 0 !important;
+  background: transparent !important;
+}
+html body #productModal:not(.msq-pair-mode) .modal-info {
+  grid-column: 2 !important;
+  grid-row: auto !important;
+  min-width: 0 !important;
+  padding: 4px 2px 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+/* جدول المقاسات داخل التفاصيل — مرتب ومش مزاحم */
+html body #productModal:not(.msq-pair-mode) #msqSizeHelper,
+html body #productModal:not(.msq-pair-mode) #msqSizeHelper.msq-size-panel {
+  display: block !important;
+  width: 100% !important;
+  margin: 4px 0 8px !important;
+  padding: 12px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(128,61,72,.12) !important;
+  background: #fffdfb !important;
+  box-shadow: 0 4px 14px rgba(80,30,50,.05) !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
 }
 html body #productModal .msq-size-chart {
   width: 100% !important;
-  min-width: 0 !important;
   font-size: 12.5px !important;
 }
 html body #productModal .msq-size-chart th {
-  padding: 9px 7px !important;
+  padding: 8px 6px !important;
   font-size: 11.5px !important;
   background: linear-gradient(135deg,#803d48,#9a4d5a) !important;
   color: #fff !important;
 }
 html body #productModal .msq-size-chart td {
-  padding: 9px 7px !important;
+  padding: 8px 6px !important;
   font-size: 12.5px !important;
   font-weight: 700 !important;
 }
 
-@media (max-width: 1200px) {
-  html body #productModal:not(.msq-pair-mode) .modal-body {
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr) !important;
-  }
-  html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
-    grid-column: 1 !important;
-    grid-row: 1 / span 2 !important;
-    min-height: min(55vh, 480px) !important;
-  }
-  html body #productModal:not(.msq-pair-mode) #modalImage {
-    min-height: min(48vh, 420px) !important;
-    max-height: min(62vh, 560px) !important;
-  }
-  html body #productModal:not(.msq-pair-mode) #msqSizeHelper {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-  }
-  html body #productModal:not(.msq-pair-mode) .modal-info {
-    grid-column: 2 !important;
-    grid-row: 2 !important;
-  }
-}
-@media (max-width: 720px) {
+@media (max-width: 860px) {
   html body #productModal:not(.msq-pair-mode) .modal-body {
     grid-template-columns: 1fr !important;
   }
   html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper,
-  html body #productModal:not(.msq-pair-mode) #msqSizeHelper,
   html body #productModal:not(.msq-pair-mode) .modal-info {
     grid-column: 1 !important;
-    grid-row: auto !important;
   }
   html body #productModal:not(.msq-pair-mode) #modalImage {
-    min-height: 280px !important;
-    max-height: 52vh !important;
+    min-height: 260px !important;
+    max-height: 48vh !important;
   }
 }

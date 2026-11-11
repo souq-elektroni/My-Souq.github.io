@@ -3035,29 +3035,29 @@ ${selectedImage}
         var pairClone = document.getElementById('msqSizeHelperPair');
         if (pairClone) pairClone.remove();
       } catch (eClean) {}
+      // أعد الجدول لمكانه داخل modal-info (تخطيط عمودين سليم)
       try {
         var pm = document.getElementById('productModal');
-        var body = document.querySelector('#productModal .modal-body');
         var info = document.querySelector('#productModal .modal-info');
+        var body = document.querySelector('#productModal .modal-body');
         if (pm) pm.classList.remove('msq-no-size-chart');
-        // نظام صورة واحدة: انقل الجدول ليكون ابن مباشر لـ modal-body (عمود وسط)
-        if (pm && !pm.classList.contains('msq-pair-mode') && body && helper) {
-          if (helper.parentElement !== body) {
-            // بعد المعرض وقبل info
-            var gal = body.querySelector('.modal-gallery-wrapper');
-            if (gal && gal.nextSibling) body.insertBefore(helper, gal.nextSibling);
-            else if (info) body.insertBefore(helper, info);
-            else body.appendChild(helper);
+        if (helper && info && helper.parentElement !== info) {
+          // بعد مقاسات المنتج مباشرة إن وجدت
+          var sizes = document.getElementById('sizesContainer');
+          if (sizes && sizes.parentElement) {
+            sizes.parentElement.insertAdjacentElement('afterend', helper);
+          } else {
+            info.appendChild(helper);
           }
-          body.style.setProperty('display', 'grid', 'important');
-          if (window.innerWidth > 1100) {
-            body.style.setProperty('grid-template-columns', 'minmax(420px,1.55fr) minmax(280px,.72fr) minmax(280px,.78fr)', 'important');
-          }
-          var content = document.querySelector('#productModal .modal-content');
-          if (content) {
-            content.style.setProperty('width', 'min(1560px, calc(100vw - 12px))', 'important');
-            content.style.setProperty('max-width', 'min(1560px, calc(100vw - 12px))', 'important');
-          }
+        }
+        if (body) {
+          body.style.removeProperty('grid-template-columns');
+          body.style.removeProperty('display');
+        }
+        var content = document.querySelector('#productModal .modal-content');
+        if (content) {
+          content.style.removeProperty('width');
+          content.style.removeProperty('max-width');
         }
       } catch (ePlace) {}
       if (resultEl) resultEl.innerHTML = '';

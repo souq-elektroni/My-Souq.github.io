@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611111537bigImg";
+  var BUILD = "202611111542clean2col";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611111537bigImg">
+  <meta name="msq-build" content="202611111542clean2col">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611111537bigImg">
-<link rel="stylesheet" href="styles.css?v=202611111537bigImg">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611111542clean2col">
+<link rel="stylesheet" href="styles.css?v=202611111542clean2col">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611111537bigImg">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611111537bigImg">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611111542clean2col">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611111542clean2col">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1155,127 +1155,133 @@ html body #products-container .product-card .msq-fav-btn {
 
 <style id="msq-product-size-roomy">
 
-/* ===== FORCE wide single-image modal — big image 202611111537 ===== */
+/* ===== Product modal clean 2-col — big image 202611111542 ===== */
 html body #productModal .modal-content,
 html body #productModal.modal-overlay .modal-content {
-  width: min(1560px, calc(100vw - 12px)) !important;
-  max-width: min(1560px, calc(100vw - 12px)) !important;
-  max-height: min(96dvh, 980px) !important;
+  width: min(1180px, calc(100vw - 24px)) !important;
+  max-width: min(1180px, calc(100vw - 24px)) !important;
+  max-height: min(94dvh, 900px) !important;
+  overflow: auto !important;
 }
-/* الصورة تاخد أكبر مساحة — الجدول والتفاصيل أضيق شوية */
 html body #productModal:not(.msq-pair-mode) .modal-body {
   display: grid !important;
-  grid-template-columns: minmax(420px, 1.55fr) minmax(280px, 0.72fr) minmax(280px, 0.78fr) !important;
-  gap: 14px 16px !important;
-  align-items: stretch !important;
-  padding: 14px 16px 18px !important;
+  grid-template-columns: minmax(0, 1.2fr) minmax(340px, 0.95fr) !important;
+  gap: 22px !important;
+  align-items: start !important;
+  padding: 18px 20px 22px !important;
 }
 html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
   grid-column: 1 !important;
-  grid-row: 1 / span 2 !important;
+  grid-row: auto !important;
   min-width: 0 !important;
-  min-height: min(72vh, 640px) !important;
-  height: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: stretch !important;
-  justify-content: flex-start !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  grid-template-rows: auto auto !important;
+  gap: 10px 12px !important;
+  align-items: start !important;
+  height: auto !important;
+  min-height: 0 !important;
 }
 html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper .modal-img,
 html body #productModal:not(.msq-pair-mode) #modalImage {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
   width: 100% !important;
   height: auto !important;
-  min-height: min(62vh, 560px) !important;
-  max-height: min(78vh, 720px) !important;
+  min-height: min(52vh, 480px) !important;
+  max-height: min(70vh, 620px) !important;
   object-fit: contain !important;
-  object-position: center center !important;
-  border-radius: 16px !important;
-  background: #f6eef1 !important;
-}
-html body #productModal:not(.msq-pair-mode) #msqSizeHelper.msq-size-panel,
-html body #productModal:not(.msq-pair-mode) #msqSizeHelper {
-  grid-column: 2 !important;
-  grid-row: 1 / span 2 !important;
-  align-self: start !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
-  padding: 12px !important;
-  border-radius: 16px !important;
-  border: 1px solid rgba(128,61,72,.12) !important;
-  background: linear-gradient(180deg,#fffefb,#faf5f7) !important;
-  box-shadow: 0 6px 16px rgba(80,30,50,.06) !important;
-  box-sizing: border-box !important;
+  object-position: center !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, #f7f0f2, #efe6ea) !important;
   display: block !important;
 }
-html body #productModal:not(.msq-pair-mode) .modal-info {
-  grid-column: 3 !important;
-  grid-row: 1 / span 2 !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  padding: 6px 4px 8px !important;
-}
-html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
-  grid-template-columns: minmax(0, 1.45fr) minmax(340px, 0.9fr) !important;
-}
-html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-info {
+html body #productModal:not(.msq-pair-mode) .thumbs-vertical-wrap {
   grid-column: 2 !important;
+  grid-row: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 6px !important;
+  max-height: min(70vh, 620px) !important;
+  overflow: hidden !important;
 }
-html body #productModal:not(.msq-pair-mode).msq-no-size-chart #msqSizeHelper {
-  display: none !important;
+html body #productModal:not(.msq-pair-mode) .thumbnails-bar {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  max-height: min(62vh, 560px) !important;
+  padding: 4px !important;
+  background: transparent !important;
+}
+html body #productModal:not(.msq-pair-mode) .thumbnails-bar img {
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 12px !important;
+  object-fit: cover !important;
+  flex-shrink: 0 !important;
+}
+html body #productModal:not(.msq-pair-mode) .gallery-nav {
+  grid-column: 1 / -1 !important;
+  grid-row: 2 !important;
+  display: flex !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  padding: 4px 0 0 !important;
+  background: transparent !important;
+}
+html body #productModal:not(.msq-pair-mode) .modal-info {
+  grid-column: 2 !important;
+  grid-row: auto !important;
+  min-width: 0 !important;
+  padding: 4px 2px 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+/* جدول المقاسات داخل التفاصيل — مرتب ومش مزاحم */
+html body #productModal:not(.msq-pair-mode) #msqSizeHelper,
+html body #productModal:not(.msq-pair-mode) #msqSizeHelper.msq-size-panel {
+  display: block !important;
+  width: 100% !important;
+  margin: 4px 0 8px !important;
+  padding: 12px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(128,61,72,.12) !important;
+  background: #fffdfb !important;
+  box-shadow: 0 4px 14px rgba(80,30,50,.05) !important;
+  grid-column: auto !important;
+  grid-row: auto !important;
 }
 html body #productModal .msq-size-chart {
   width: 100% !important;
-  min-width: 0 !important;
   font-size: 12.5px !important;
 }
 html body #productModal .msq-size-chart th {
-  padding: 9px 7px !important;
+  padding: 8px 6px !important;
   font-size: 11.5px !important;
   background: linear-gradient(135deg,#803d48,#9a4d5a) !important;
   color: #fff !important;
 }
 html body #productModal .msq-size-chart td {
-  padding: 9px 7px !important;
+  padding: 8px 6px !important;
   font-size: 12.5px !important;
   font-weight: 700 !important;
 }
 
-@media (max-width: 1200px) {
-  html body #productModal:not(.msq-pair-mode) .modal-body {
-    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr) !important;
-  }
-  html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
-    grid-column: 1 !important;
-    grid-row: 1 / span 2 !important;
-    min-height: min(55vh, 480px) !important;
-  }
-  html body #productModal:not(.msq-pair-mode) #modalImage {
-    min-height: min(48vh, 420px) !important;
-    max-height: min(62vh, 560px) !important;
-  }
-  html body #productModal:not(.msq-pair-mode) #msqSizeHelper {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-  }
-  html body #productModal:not(.msq-pair-mode) .modal-info {
-    grid-column: 2 !important;
-    grid-row: 2 !important;
-  }
-}
-@media (max-width: 720px) {
+@media (max-width: 860px) {
   html body #productModal:not(.msq-pair-mode) .modal-body {
     grid-template-columns: 1fr !important;
   }
   html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper,
-  html body #productModal:not(.msq-pair-mode) #msqSizeHelper,
   html body #productModal:not(.msq-pair-mode) .modal-info {
     grid-column: 1 !important;
-    grid-row: auto !important;
   }
   html body #productModal:not(.msq-pair-mode) #modalImage {
-    min-height: 280px !important;
-    max-height: 52vh !important;
+    min-height: 260px !important;
+    max-height: 48vh !important;
   }
 }
 </style>
@@ -2335,7 +2341,7 @@ html body #productModal .msq-size-chart td {
   })();
   </script>
 
-  <script src="script.js?v=202611111537bigImg"></script>
+  <script src="script.js?v=202611111542clean2col"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
