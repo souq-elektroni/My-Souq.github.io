@@ -1,8 +1,9 @@
 {
-  "name": "My Souq إدارة — سوق إلكتروني",
-  "short_name": "My Souq إدارة",
+  "id": "/My-Souq.github.io/",
+  "name": "My Souq إدارة",
+  "short_name": "My Souq",
   "description": "لوحة إدارة My Souq مع إشعارات الطلبات الجديدة",
-  "start_url": "./?admin=1",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "any",

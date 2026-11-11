@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611101535vapid";
+  var BUILD = "202611111300pricePwa";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -51,7 +51,7 @@
             }));
           }).then(function () {
             // سجّل SW الجديد (إشعارات الإدارة + PWA) بعد مسح القديم
-            return navigator.serviceWorker.register('./sw.js?v=202611101535vapid', { scope: './' }).catch(function () {});
+            return navigator.serviceWorker.register('./sw.js?v=202611111300pricePwa', { scope: './' }).catch(function () {});
           }).catch(function () {})
         );
       }
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611101535vapid">
+  <meta name="msq-build" content="202611111300pricePwa">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -191,7 +191,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=202611101535vapid">
+  <link rel="manifest" href="manifest.json?v=202611111300pricePwa">
   <link rel="icon" href="favicon.svg?v=202611021545v3" type="image/svg+xml">
   <link rel="icon" href="favicon.svg?v=202611021545v3" sizes="any">
   <link rel="apple-touch-icon" href="favicon.svg?v=202611021545v3">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611101535vapid">
-<link rel="stylesheet" href="styles.css?v=202611101535vapid">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611111300pricePwa">
+<link rel="stylesheet" href="styles.css?v=202611111300pricePwa">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611101535vapid">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611101535vapid">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611111300pricePwa">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611111300pricePwa">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1101,6 +1101,57 @@ html body #products-container .product-card .msq-fav-btn {
   z-index: 8 !important;
 }
 </style>
+
+
+<script id="msq-pwa-install-boot">
+(function () {
+  if (window.__msqPwaBoot) return;
+  window.__msqPwaBoot = true;
+  window.__msqDeferredInstallPrompt = null;
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    window.__msqDeferredInstallPrompt = e;
+    try {
+      var b = document.getElementById('msqAdminInstallBtn');
+      if (b) {
+        b.innerHTML = '📲<span class="msq-btn-label"> تثبيت الآن</span>';
+        b.style.background = 'linear-gradient(135deg,#5e3299,#7b4bb8)';
+        b.style.color = '#fff';
+      }
+    } catch (err) {}
+  });
+  window.addEventListener('appinstalled', function () {
+    window.__msqDeferredInstallPrompt = null;
+    try {
+      var b = document.getElementById('msqAdminInstallBtn');
+      if (b) b.innerHTML = '✅<span class="msq-btn-label"> مثبّت</span>';
+    } catch (err) {}
+  });
+  window.msqTriggerPwaInstall = async function () {
+    var deferred = window.__msqDeferredInstallPrompt;
+    if (deferred) {
+      deferred.prompt();
+      try {
+        var choice = await deferred.userChoice;
+        window.__msqDeferredInstallPrompt = null;
+        return choice && choice.outcome === 'accepted';
+      } catch (e) { return false; }
+    }
+    var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent || '');
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    if (isStandalone) {
+      alert('التطبيق مثبّت بالفعل على جهازك ✅');
+      return true;
+    }
+    if (isIOS) {
+      alert('على آيفون:\n1) افتح الموقع من Safari\n2) اضغط زر المشاركة □↑\n3) «إضافة إلى الشاشة الرئيسية»\n4) إضافة');
+      return false;
+    }
+    alert('متصفحك لم يعرض زر التثبيت بعد.\n\n• تأكد أنك على Chrome/Edge\n• افتح الموقع من الرابط الأساسي (HTTPS)\n• انتظر بعد التحميل ثم أعد المحاولة\n\nأو من القائمة ⋮ → «تثبيت التطبيق»');
+    return false;
+  };
+})();
+</script>
 
 </head>
 
@@ -2131,7 +2182,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611101535vapid"></script>
+  <script src="script.js?v=202611111300pricePwa"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -8326,24 +8377,49 @@ window.addToCartAndContinue = function () {
         });
         alert('تم النقل إلى Order 0 Stock ⛔');
       } else if (action === 'price') {
-        var cur = getCache().find(function (o) { return String(o.orderId) === String(id); });
-        var oldT = cur && cur.total != null ? cur.total : '';
+        var cur = getCache().find(function (o) { return String(o.orderId) === String(id); }) || {};
+        try {
+          if (typeof firebase !== 'undefined' && firebase.firestore) {
+            var live = await firebase.firestore().collection('orders').doc(String(id)).get();
+            if (live.exists) cur = Object.assign({}, cur, live.data() || {}, { orderId: id });
+          }
+        } catch (eLive) {}
+        var rs = String(cur.x2ReviewStatus || '');
+        var prevNew = cur.x2NewTotal != null ? Number(cur.x2NewTotal) : null;
+        if (rs === 'awaiting_price_confirm' && Number.isFinite(prevNew)) {
+          var src = cur.lastPriceSource === 'telegram' ? 'تليجرام' : (cur.lastPriceSource === 'admin' ? 'شاشة الإدارة' : 'النظام');
+          if (!confirm('⚠️ السعر اتعدّل بالفعل من ' + src + ' إلى ' + prevNew + ' ج.\n\nهل تريد استبداله بسعر جديد؟')) return;
+        }
+        var oldT = cur.x2NewTotal != null ? cur.x2NewTotal : (cur.total != null ? cur.total : '');
         var v = prompt('أدخل السعر الجديد للطلب ' + id + ' (جنيه):', String(oldT || ''));
         if (v == null || String(v).trim() === '') return;
         var num = Number(String(v).replace(/[^\d.]/g, ''));
         if (!Number.isFinite(num) || num < 0) { alert('سعر غير صالح'); return; }
+        if (Number.isFinite(prevNew) && Number(prevNew) === num && rs === 'awaiting_price_confirm') {
+          alert('ℹ️ هذا السعر مطبّق بالفعل (' + num + ' ج) وبانتظار رد العميل.');
+          return;
+        }
         await patchOrder(id, {
           statusCode: 6,
           status: 'مراجعة طلب X2 🔁',
           isX2: true,
           x2ReviewStatus: 'awaiting_price_confirm',
-          originalTotal: cur && cur.originalTotal != null ? cur.originalTotal : (cur && cur.total != null ? cur.total : null),
+          originalTotal: cur.originalTotal != null ? cur.originalTotal : (cur.total != null ? cur.total : null),
           x2NewTotal: num,
           total: num,
           customerPriceResponse: null,
+          lastPriceSource: 'admin',
+          lastPriceAt: Date.now(),
+          lastPriceAmount: num,
           customerMessage: 'رجاءً الاطلاع على السعر الجديد لمتابعة تأكيد الطلب.'
         });
-        alert('تم تحديث السعر — بانتظار موافقة/رفض العميل على شاشة التتبع');
+        try {
+          if (typeof window.notifyTelegramStatusFromAdmin === 'function') {
+            await window.notifyTelegramStatusFromAdmin(id, 6, 'تعديل سعر X2 → ' + num + ' ج', cur);
+          }
+        } catch (eTg) {}
+        alert('تم تحديث السعر من شاشة الإدارة — بانتظار موافقة/رفض العميل');
+
       } else if (action === 'delete') {
         if (typeof window.msqAdminHardDeleteOrder === 'function') {
           var inp = document.getElementById('msqHardDeleteOrderId');
@@ -13305,7 +13381,7 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
     }
     try {
       if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.register('./sw.js?v=202611101535vapid', { scope: './' });
+        await navigator.serviceWorker.register('./sw.js?v=202611111300pricePwa', { scope: './' });
         await navigator.serviceWorker.ready;
       }
     } catch (e) {}
@@ -13366,13 +13442,12 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
       inst.innerHTML = '📲<span class="msq-btn-label"> تثبيت</span>';
       inst.title = 'تثبيت كتطبيق';
       inst.style.cssText = 'border:1px solid #d2bdf0;background:#fff;color:#5e3299;cursor:pointer';
-      inst.onclick = function () {
-        alert(
-          '📲 تثبيت لوحة الإدارة على الموبايل:\\n\\n' +
-          '• Android (Chrome): ⋮ → إضافة إلى الشاشة الرئيسية / تثبيت التطبيق\\n' +
-          '• iPhone (Safari): مشاركة → إضافة إلى الشاشة الرئيسية\\n\\n' +
-          'بعدها: فعّل الإشعارات من الزر 🔔'
-        );
+      inst.onclick = async function () {
+        if (typeof window.msqTriggerPwaInstall === 'function') {
+          await window.msqTriggerPwaInstall();
+        } else {
+          alert('افتح من Chrome ثم من القائمة ⋮ اختر تثبيت التطبيق');
+        }
       };
       host.appendChild(inst);
     }
