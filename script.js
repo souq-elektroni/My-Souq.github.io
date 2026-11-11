@@ -3051,12 +3051,12 @@ ${selectedImage}
           }
           body.style.setProperty('display', 'grid', 'important');
           if (window.innerWidth > 1100) {
-            body.style.setProperty('grid-template-columns', 'minmax(0,1.15fr) minmax(340px,.95fr) minmax(320px,.9fr)', 'important');
+            body.style.setProperty('grid-template-columns', 'minmax(420px,1.55fr) minmax(280px,.72fr) minmax(280px,.78fr)', 'important');
           }
           var content = document.querySelector('#productModal .modal-content');
           if (content) {
-            content.style.setProperty('width', 'min(1480px, calc(100vw - 16px))', 'important');
-            content.style.setProperty('max-width', 'min(1480px, calc(100vw - 16px))', 'important');
+            content.style.setProperty('width', 'min(1560px, calc(100vw - 12px))', 'important');
+            content.style.setProperty('max-width', 'min(1560px, calc(100vw - 12px))', 'important');
           }
         }
       } catch (ePlace) {}
