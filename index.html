@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611111605img26";
+  var BUILD = "202611111610nohang";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611111605img26">
+  <meta name="msq-build" content="202611111610nohang">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611111605img26">
-<link rel="stylesheet" href="styles.css?v=202611111605img26">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611111610nohang">
+<link rel="stylesheet" href="styles.css?v=202611111610nohang">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611111605img26">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611111605img26">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611111610nohang">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611111610nohang">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -2390,7 +2390,7 @@ html body #productModal:not(.msq-pair-mode) .modal-actions-row > * {
   })();
   </script>
 
-  <script src="script.js?v=202611111605img26"></script>
+  <script src="script.js?v=202611111610nohang"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -13964,12 +13964,15 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
 })();
 </script>
 
-<script id="msq-modal-layout-restore-v3">
+<script id="msq-modal-layout-safe-v1">
 (function () {
-  if (window.__msqModalLayoutRestoreV3) return;
-  window.__msqModalLayoutRestoreV3 = true;
+  if (window.__msqModalLayoutSafeV1) return;
+  window.__msqModalLayoutSafeV1 = true;
+  var busy = false;
 
-  function placeSizeChartColumn() {
+  window.msqRestoreProductModalLayout = function () {
+    if (busy) return;
+    busy = true;
     try {
       var pm = document.getElementById('productModal');
       if (!pm || pm.classList.contains('msq-pair-mode')) return;
@@ -13980,77 +13983,37 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
       var img = document.getElementById('modalImage');
       if (!body || !gal || !info) return;
 
-      // ترتيب: gallery -> sizeHelper -> info
       if (gal.parentElement !== body) body.insertBefore(gal, body.firstChild);
+      if (info.parentElement !== body) body.appendChild(info);
 
-      var helperVisible = helper && helper.style.display !== 'none' && !helper.hidden
-        && window.getComputedStyle(helper).display !== 'none'
-        && helper.querySelector && helper.querySelector('#msqSizeChartBody tr, .msq-size-chart tbody tr, table tr');
+      var hasRows = false;
+      try {
+        if (helper && helper.style.display !== 'none' && !helper.hidden) {
+          hasRows = !!(helper.querySelector && helper.querySelector('tbody tr, #msqSizeChartBody tr'));
+        }
+      } catch (e) {}
 
-      // fallback: لو فيه rows
-      if (helper && !helperVisible) {
-        try {
-          var rows = helper.querySelectorAll('tbody tr, #msqSizeChartBody tr');
-          helperVisible = rows && rows.length > 0 && helper.style.display !== 'none';
-        } catch (e) {}
-      }
-
-      if (helper && helperVisible) {
+      if (helper && hasRows) {
         pm.classList.remove('msq-no-size-chart');
-        // حطه بين gallery و info
-        if (helper.parentElement !== body || helper.previousElementSibling !== gal) {
-          if (info.parentElement === body) body.insertBefore(helper, info);
-          else {
-            body.appendChild(helper);
-            body.appendChild(info);
-          }
+        if (helper.parentElement !== body || helper.nextElementSibling !== info) {
+          body.insertBefore(helper, info);
         }
       } else {
         pm.classList.add('msq-no-size-chart');
-        if (helper && info && !info.contains(helper)) {
+        if (helper && !info.contains(helper)) {
           info.appendChild(helper);
         }
       }
 
-      if (info.parentElement !== body) body.appendChild(info);
-
-      // امسح inline مكسور
-      body.style.removeProperty('grid-template-columns');
-      [gal, info, helper].forEach(function (el) {
-        if (!el) return;
-        el.style.removeProperty('grid-column');
-        el.style.removeProperty('grid-row');
-      });
       if (img) {
-        img.style.setProperty('display', 'block', 'important');
-        img.style.removeProperty('visibility');
-        img.style.removeProperty('opacity');
+        if (img.style.display === 'none') img.style.removeProperty('display');
       }
     } catch (e) {
-      console.warn('placeSizeChartColumn', e);
+      console.warn('msqRestoreProductModalLayout', e);
+    } finally {
+      busy = false;
     }
-  }
-
-  window.msqRestoreProductModalLayout = placeSizeChartColumn;
-
-  function boot() {
-    var pm = document.getElementById('productModal');
-    if (pm) {
-      new MutationObserver(function () {
-        if (pm.classList.contains('active')) {
-          placeSizeChartColumn();
-          setTimeout(placeSizeChartColumn, 120);
-          setTimeout(placeSizeChartColumn, 400);
-        }
-      }).observe(pm, { attributes: true, attributeFilter: ['class'] });
-    }
-    document.addEventListener('click', function () {
-      setTimeout(placeSizeChartColumn, 80);
-      setTimeout(placeSizeChartColumn, 350);
-    }, true);
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
+  };
 })();
 </script>
 
