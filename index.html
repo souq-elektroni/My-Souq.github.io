@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611111558restore";
+  var BUILD = "202611111605img26";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611111558restore">
+  <meta name="msq-build" content="202611111605img26">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611111558restore">
-<link rel="stylesheet" href="styles.css?v=202611111558restore">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611111605img26">
+<link rel="stylesheet" href="styles.css?v=202611111605img26">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611111558restore">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611111558restore">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611111605img26">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611111605img26">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1155,91 +1155,74 @@ html body #products-container .product-card .msq-fav-btn {
 
 <style id="msq-product-size-roomy">
 
-/* ===== NUCLEAR product modal restore 202611111558 ===== */
+/* ===== product modal TARGET layout (image-26) 202611111605 ===== */
 html body #productModal:not(.msq-pair-mode) .modal-content {
-  width: min(1100px, calc(100vw - 28px)) !important;
-  max-width: min(1100px, calc(100vw - 28px)) !important;
-  max-height: min(92dvh, 900px) !important;
+  width: min(1320px, calc(100vw - 20px)) !important;
+  max-width: min(1320px, calc(100vw - 20px)) !important;
+  max-height: min(94dvh, 920px) !important;
   overflow: auto !important;
 }
 html body #productModal:not(.msq-pair-mode) .modal-body {
   display: grid !important;
-  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.95fr) !important;
-  grid-template-rows: auto !important;
-  gap: 24px !important;
+  grid-template-columns: minmax(380px, 1.35fr) minmax(300px, 0.85fr) minmax(300px, 0.9fr) !important;
+  gap: 16px 18px !important;
   align-items: start !important;
-  padding: 20px 22px 24px !important;
+  padding: 16px 18px 20px !important;
 }
-/* المعرض: صورة كبيرة + مصغرات رأسية جنب بعض */
+/* Col 1: gallery */
 html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
+  grid-column: 1 !important;
+  grid-row: 1 !important;
   display: grid !important;
-  grid-template-columns: minmax(0, 1fr) 72px !important;
+  grid-template-columns: minmax(0, 1fr) 70px !important;
   grid-template-rows: auto auto !important;
   grid-template-areas:
     "main thumbs"
     "nav nav" !important;
-  gap: 10px 12px !important;
+  gap: 8px 10px !important;
   width: 100% !important;
   min-width: 0 !important;
   height: auto !important;
-  min-height: 0 !important;
-  max-height: none !important;
   overflow: visible !important;
-  grid-column: 1 !important;
-  grid-row: 1 !important;
 }
-html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper > .modal-img,
-html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper > #modalImage,
-html body #productModal:not(.msq-pair-mode) #modalImage.modal-img,
-html body #productModal:not(.msq-pair-mode) #modalImage {
+html body #productModal:not(.msq-pair-mode) #modalImage,
+html body #productModal:not(.msq-pair-mode) .modal-img {
   grid-area: main !important;
-  grid-column: auto !important;
-  grid-row: auto !important;
   display: block !important;
   visibility: visible !important;
   opacity: 1 !important;
   width: 100% !important;
-  max-width: 100% !important;
-  height: min(64vh, 560px) !important;
-  min-height: 360px !important;
-  max-height: min(64vh, 560px) !important;
+  height: min(68vh, 580px) !important;
+  min-height: 400px !important;
+  max-height: min(68vh, 580px) !important;
   object-fit: contain !important;
   object-position: center center !important;
   border-radius: 18px !important;
   background: #f5eef1 !important;
   margin: 0 !important;
-  padding: 0 !important;
-  position: relative !important;
-  left: auto !important;
-  right: auto !important;
-  top: auto !important;
-  z-index: 1 !important;
 }
 html body #productModal:not(.msq-pair-mode) .thumbs-vertical-wrap {
   grid-area: thumbs !important;
-  grid-column: auto !important;
-  grid-row: auto !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
   gap: 6px !important;
-  width: 72px !important;
-  max-height: min(64vh, 560px) !important;
+  max-height: min(68vh, 580px) !important;
   overflow: hidden !important;
+  width: 70px !important;
 }
 html body #productModal:not(.msq-pair-mode) .thumbnails-bar {
   display: flex !important;
   flex-direction: column !important;
   gap: 8px !important;
   overflow-y: auto !important;
-  max-height: min(56vh, 500px) !important;
-  width: 100% !important;
-  padding: 2px !important;
+  max-height: min(60vh, 520px) !important;
   background: transparent !important;
+  padding: 2px !important;
 }
 html body #productModal:not(.msq-pair-mode) .thumbnails-bar img {
-  width: 58px !important;
-  height: 58px !important;
+  width: 56px !important;
+  height: 56px !important;
   border-radius: 10px !important;
   object-fit: cover !important;
   flex-shrink: 0 !important;
@@ -1248,58 +1231,106 @@ html body #productModal:not(.msq-pair-mode) .gallery-nav {
   grid-area: nav !important;
   display: flex !important;
   justify-content: center !important;
-  gap: 10px !important;
+  gap: 8px !important;
   background: transparent !important;
-  padding: 4px 0 0 !important;
+  padding: 2px 0 0 !important;
 }
-html body #productModal:not(.msq-pair-mode) .modal-info {
+/* Col 2: size chart — sibling of body */
+html body #productModal:not(.msq-pair-mode) .modal-body > #msqSizeHelper,
+html body #productModal:not(.msq-pair-mode) .modal-body > .msq-size-panel {
   grid-column: 2 !important;
   grid-row: 1 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  gap: 11px !important;
-  min-width: 0 !important;
-  width: 100% !important;
-  padding: 4px 2px !important;
-}
-/* الجدول جوه التفاصيل فقط — مش عمود لوحده */
-html body #productModal:not(.msq-pair-mode) #msqSizeHelper {
   display: block !important;
   width: 100% !important;
   max-width: 100% !important;
-  margin: 6px 0 !important;
-  padding: 12px !important;
-  border-radius: 14px !important;
+  margin: 0 !important;
+  padding: 14px !important;
+  border-radius: 16px !important;
   border: 1px solid rgba(128,61,72,.12) !important;
-  background: #fffdfb !important;
-  grid-column: unset !important;
-  grid-row: unset !important;
-  order: unset !important;
-  position: relative !important;
+  background: linear-gradient(180deg, #fffefb, #faf6f8) !important;
+  box-shadow: 0 6px 18px rgba(80,30,50,.06) !important;
+  align-self: start !important;
+  box-sizing: border-box !important;
+}
+/* Col 3: info */
+html body #productModal:not(.msq-pair-mode) .modal-info {
+  grid-column: 3 !important;
+  grid-row: 1 !important;
+  min-width: 0 !important;
+  width: 100% !important;
+  padding: 4px 2px 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+/* لو مفيش جدول: عمودين */
+html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
+  grid-template-columns: minmax(0, 1.3fr) minmax(340px, 0.95fr) !important;
+}
+html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-info {
+  grid-column: 2 !important;
+}
+html body #productModal .msq-size-chart {
+  width: 100% !important;
+  font-size: 12.5px !important;
 }
 html body #productModal .msq-size-chart th {
   background: linear-gradient(135deg,#803d48,#9a4d5a) !important;
   color: #fff !important;
-  padding: 8px 6px !important;
+  padding: 9px 7px !important;
   font-size: 11.5px !important;
 }
 html body #productModal .msq-size-chart td {
-  padding: 8px 6px !important;
+  padding: 9px 7px !important;
   font-size: 12.5px !important;
   font-weight: 700 !important;
+  text-align: center !important;
 }
-@media (max-width: 820px) {
+/* الأزرار تفضل طبيعية مش رأسية */
+html body #productModal:not(.msq-pair-mode) .modal-actions-row {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
+html body #productModal:not(.msq-pair-mode) .modal-actions-row > * {
+  writing-mode: horizontal-tb !important;
+  text-orientation: mixed !important;
+  white-space: normal !important;
+  min-height: 48px !important;
+  font-size: 13px !important;
+}
+
+@media (max-width: 1000px) {
+  html body #productModal:not(.msq-pair-mode) .modal-body {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.95fr) !important;
+  }
+  html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
+    grid-column: 1 !important;
+    grid-row: 1 / span 2 !important;
+  }
+  html body #productModal:not(.msq-pair-mode) .modal-body > #msqSizeHelper {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+  }
+  html body #productModal:not(.msq-pair-mode) .modal-info {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+  }
+}
+@media (max-width: 720px) {
   html body #productModal:not(.msq-pair-mode) .modal-body {
     grid-template-columns: 1fr !important;
   }
   html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper,
+  html body #productModal:not(.msq-pair-mode) .modal-body > #msqSizeHelper,
   html body #productModal:not(.msq-pair-mode) .modal-info {
     grid-column: 1 !important;
+    grid-row: auto !important;
   }
   html body #productModal:not(.msq-pair-mode) #modalImage {
-    height: min(48vh, 420px) !important;
+    height: min(48vh, 400px) !important;
     min-height: 240px !important;
-    max-height: min(48vh, 420px) !important;
   }
 }
 </style>
@@ -2359,7 +2390,7 @@ html body #productModal .msq-size-chart td {
   })();
   </script>
 
-  <script src="script.js?v=202611111558restore"></script>
+  <script src="script.js?v=202611111605img26"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -13933,84 +13964,89 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
 })();
 </script>
 
-<script id="msq-modal-layout-restore-v2">
+<script id="msq-modal-layout-restore-v3">
 (function () {
-  if (window.__msqModalLayoutRestoreV2) return;
-  window.__msqModalLayoutRestoreV2 = true;
+  if (window.__msqModalLayoutRestoreV3) return;
+  window.__msqModalLayoutRestoreV3 = true;
 
-  function restoreProductModalLayout() {
+  function placeSizeChartColumn() {
     try {
       var pm = document.getElementById('productModal');
       if (!pm || pm.classList.contains('msq-pair-mode')) return;
       var body = pm.querySelector('.modal-body');
       var gal = pm.querySelector('.modal-gallery-wrapper');
       var info = pm.querySelector('.modal-info');
-      var img = document.getElementById('modalImage');
       var helper = document.getElementById('msqSizeHelper');
+      var img = document.getElementById('modalImage');
       if (!body || !gal || !info) return;
 
-      // ترتيب الأبناء: gallery ثم info فقط
+      // ترتيب: gallery -> sizeHelper -> info
       if (gal.parentElement !== body) body.insertBefore(gal, body.firstChild);
-      if (info.parentElement !== body) body.appendChild(info);
-      // أي عنصر تاني مش gallery/info يتشال من body أو يتحط في info
-      Array.prototype.slice.call(body.children).forEach(function (ch) {
-        if (ch === gal || ch === info) return;
-        if (ch.id === 'msqSizeHelper' || (ch.classList && ch.classList.contains('msq-size-panel'))) {
-          // رجّع الجدول جوه info
-          var sizes = document.getElementById('sizesContainer');
-          if (sizes && sizes.parentElement && sizes.parentElement.parentElement === info) {
-            sizes.parentElement.insertAdjacentElement('afterend', ch);
-          } else {
-            info.appendChild(ch);
+
+      var helperVisible = helper && helper.style.display !== 'none' && !helper.hidden
+        && window.getComputedStyle(helper).display !== 'none'
+        && helper.querySelector && helper.querySelector('#msqSizeChartBody tr, .msq-size-chart tbody tr, table tr');
+
+      // fallback: لو فيه rows
+      if (helper && !helperVisible) {
+        try {
+          var rows = helper.querySelectorAll('tbody tr, #msqSizeChartBody tr');
+          helperVisible = rows && rows.length > 0 && helper.style.display !== 'none';
+        } catch (e) {}
+      }
+
+      if (helper && helperVisible) {
+        pm.classList.remove('msq-no-size-chart');
+        // حطه بين gallery و info
+        if (helper.parentElement !== body || helper.previousElementSibling !== gal) {
+          if (info.parentElement === body) body.insertBefore(helper, info);
+          else {
+            body.appendChild(helper);
+            body.appendChild(info);
           }
         }
-      });
-
-      // امسح أي inline grid مكسور
-      body.style.removeProperty('grid-template-columns');
-      body.style.removeProperty('grid-template-rows');
-      body.style.removeProperty('display');
-      gal.style.removeProperty('grid-column');
-      gal.style.removeProperty('grid-row');
-      info.style.removeProperty('grid-column');
-      info.style.removeProperty('grid-row');
-
-      if (img) {
-        img.style.removeProperty('display');
-        img.style.removeProperty('visibility');
-        img.style.removeProperty('opacity');
-        img.style.removeProperty('height');
-        img.style.removeProperty('max-height');
-        img.style.removeProperty('min-height');
-        img.style.removeProperty('grid-column');
-        img.style.removeProperty('grid-row');
-        if (!img.style.display || img.style.display === 'none') {
-          img.style.setProperty('display', 'block', 'important');
+      } else {
+        pm.classList.add('msq-no-size-chart');
+        if (helper && info && !info.contains(helper)) {
+          info.appendChild(helper);
         }
       }
-      if (helper && helper.parentElement !== info && !info.contains(helper)) {
-        var sizes2 = document.getElementById('sizesContainer');
-        if (sizes2 && sizes2.parentElement) sizes2.parentElement.insertAdjacentElement('afterend', helper);
-        else info.appendChild(helper);
+
+      if (info.parentElement !== body) body.appendChild(info);
+
+      // امسح inline مكسور
+      body.style.removeProperty('grid-template-columns');
+      [gal, info, helper].forEach(function (el) {
+        if (!el) return;
+        el.style.removeProperty('grid-column');
+        el.style.removeProperty('grid-row');
+      });
+      if (img) {
+        img.style.setProperty('display', 'block', 'important');
+        img.style.removeProperty('visibility');
+        img.style.removeProperty('opacity');
       }
     } catch (e) {
-      console.warn('modal layout restore', e);
+      console.warn('placeSizeChartColumn', e);
     }
   }
 
-  window.msqRestoreProductModalLayout = restoreProductModalLayout;
+  window.msqRestoreProductModalLayout = placeSizeChartColumn;
 
-  // بعد أي فتح مودال
-  var _obs = new MutationObserver(function () {
-    var pm = document.getElementById('productModal');
-    if (pm && pm.classList.contains('active')) restoreProductModalLayout();
-  });
   function boot() {
     var pm = document.getElementById('productModal');
-    if (pm) _obs.observe(pm, { attributes: true, attributeFilter: ['class'] });
+    if (pm) {
+      new MutationObserver(function () {
+        if (pm.classList.contains('active')) {
+          placeSizeChartColumn();
+          setTimeout(placeSizeChartColumn, 120);
+          setTimeout(placeSizeChartColumn, 400);
+        }
+      }).observe(pm, { attributes: true, attributeFilter: ['class'] });
+    }
     document.addEventListener('click', function () {
-      setTimeout(restoreProductModalLayout, 50);
-      setTimeout(restoreProductModalLayout, 300);
+      setTimeout(placeSizeChartColumn, 80);
+      setTimeout(placeSizeChartColumn, 350);
     }, true);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

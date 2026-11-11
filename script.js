@@ -3028,38 +3028,28 @@ ${selectedImage}
       helper.style.setProperty('height', 'auto', 'important');
       helper.style.setProperty('max-height', 'none', 'important');
       helper.style.setProperty('overflow', 'visible', 'important');
-      // دليل المقاسات مرة واحدة فقط — وفي الصورة الواحدة: عمود مستقل جنب الصورة
+      // دليل المقاسات: عمود مستقل في النص (صورة | جدول | تفاصيل)
       try {
         var slot = document.getElementById('msqPairSizeSlot');
         if (slot) slot.remove();
         var pairClone = document.getElementById('msqSizeHelperPair');
         if (pairClone) pairClone.remove();
       } catch (eClean) {}
-      try { if (window.msqRestoreProductModalLayout) window.msqRestoreProductModalLayout(); } catch (eR) {}
-      // أعد الجدول لمكانه داخل modal-info (تخطيط عمودين سليم)
       try {
         var pm = document.getElementById('productModal');
-        var info = document.querySelector('#productModal .modal-info');
         var body = document.querySelector('#productModal .modal-body');
+        var gal = document.querySelector('#productModal .modal-gallery-wrapper');
+        var info = document.querySelector('#productModal .modal-info');
         if (pm) pm.classList.remove('msq-no-size-chart');
-        if (helper && info && helper.parentElement !== info) {
-          // بعد مقاسات المنتج مباشرة إن وجدت
-          var sizes = document.getElementById('sizesContainer');
-          if (sizes && sizes.parentElement) {
-            sizes.parentElement.insertAdjacentElement('afterend', helper);
-          } else {
-            info.appendChild(helper);
+        if (helper && body && gal && info && !pm.classList.contains('msq-pair-mode')) {
+          // gallery -> helper -> info
+          if (gal.parentElement !== body) body.insertBefore(gal, body.firstChild);
+          if (info.parentElement !== body) body.appendChild(info);
+          if (helper.parentElement !== body || helper.previousElementSibling !== gal) {
+            body.insertBefore(helper, info);
           }
         }
-        if (body) {
-          body.style.removeProperty('grid-template-columns');
-          body.style.removeProperty('display');
-        }
-        var content = document.querySelector('#productModal .modal-content');
-        if (content) {
-          content.style.removeProperty('width');
-          content.style.removeProperty('max-width');
-        }
+        if (typeof window.msqRestoreProductModalLayout === 'function') window.msqRestoreProductModalLayout();
       } catch (ePlace) {}
       if (resultEl) resultEl.innerHTML = '';
       if (ageInput) ageInput.value = '';
