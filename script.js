@@ -3013,6 +3013,10 @@ ${selectedImage}
       var hasDims = activeCols.some(function (c) { return c.key !== 'size'; });
       if (!hasDims) {
         helper.style.setProperty('display', 'none', 'important');
+        try {
+          var pm0 = document.getElementById('productModal');
+          if (pm0) pm0.classList.add('msq-no-size-chart');
+        } catch (e0) {}
         return;
       }
 
@@ -3024,13 +3028,38 @@ ${selectedImage}
       helper.style.setProperty('height', 'auto', 'important');
       helper.style.setProperty('max-height', 'none', 'important');
       helper.style.setProperty('overflow', 'visible', 'important');
-      // دليل المقاسات مرة واحدة فقط في modal-info (نظام صورة واحدة + وش/ضهر)
+      // دليل المقاسات مرة واحدة فقط — وفي الصورة الواحدة: عمود مستقل جنب الصورة
       try {
         var slot = document.getElementById('msqPairSizeSlot');
         if (slot) slot.remove();
         var pairClone = document.getElementById('msqSizeHelperPair');
         if (pairClone) pairClone.remove();
       } catch (eClean) {}
+      try {
+        var pm = document.getElementById('productModal');
+        var body = document.querySelector('#productModal .modal-body');
+        var info = document.querySelector('#productModal .modal-info');
+        if (pm) pm.classList.remove('msq-no-size-chart');
+        // نظام صورة واحدة: انقل الجدول ليكون ابن مباشر لـ modal-body (عمود وسط)
+        if (pm && !pm.classList.contains('msq-pair-mode') && body && helper) {
+          if (helper.parentElement !== body) {
+            // بعد المعرض وقبل info
+            var gal = body.querySelector('.modal-gallery-wrapper');
+            if (gal && gal.nextSibling) body.insertBefore(helper, gal.nextSibling);
+            else if (info) body.insertBefore(helper, info);
+            else body.appendChild(helper);
+          }
+          body.style.setProperty('display', 'grid', 'important');
+          if (window.innerWidth > 1100) {
+            body.style.setProperty('grid-template-columns', 'minmax(0,1.15fr) minmax(340px,.95fr) minmax(320px,.9fr)', 'important');
+          }
+          var content = document.querySelector('#productModal .modal-content');
+          if (content) {
+            content.style.setProperty('width', 'min(1480px, calc(100vw - 16px))', 'important');
+            content.style.setProperty('max-width', 'min(1480px, calc(100vw - 16px))', 'important');
+          }
+        }
+      } catch (ePlace) {}
       if (resultEl) resultEl.innerHTML = '';
       if (ageInput) ageInput.value = '';
       if (lenInput) lenInput.value = '';
@@ -4484,6 +4513,12 @@ function continueAfterOrderRecaptcha() {
       // أظهر شاشة النجاح لو الطلب اتسجّل قبل كده
       const successId = document.getElementById('successOrderIdDisplay');
       if (successId) successId.innerText = 'رقم طلبك هو: ' + thisOrderId;
+      try {
+        var ph0 = '';
+        try { ph0 = (document.getElementById('custPhone') && document.getElementById('custPhone').value) || ''; } catch (e) {}
+        if (typeof window.msqRememberSuccessOrder === 'function') window.msqRememberSuccessOrder(thisOrderId, ph0);
+        else window.msqLastSuccessOrder = { orderId: thisOrderId, phone: ph0 };
+      } catch (eRem0) {}
       const confirmationModal = document.getElementById('confirmationModal');
       const successModal = document.getElementById('successModal');
       if (confirmationModal) confirmationModal.classList.remove('active');
@@ -4640,6 +4675,13 @@ function continueAfterOrderRecaptcha() {
       if (paymentModal) paymentModal.classList.remove('active');
       const successId = document.getElementById('successOrderIdDisplay');
       if (successId) successId.innerText = 'رقم طلبكم هو: ' + thisOrderId;
+      try {
+        if (typeof window.msqRememberSuccessOrder === 'function') {
+          window.msqRememberSuccessOrder(thisOrderId, phone || (document.getElementById('custPhone') && document.getElementById('custPhone').value) || '');
+        } else {
+          window.msqLastSuccessOrder = { orderId: thisOrderId, phone: phone || '' };
+        }
+      } catch (eRem) {}
       try {
         var isX2Order = !!(newOrderRecord && newOrderRecord.isX2);
         var titleEl = document.querySelector('#successModal .success-title');
@@ -5408,7 +5450,7 @@ function continueAfterOrderRecaptcha() {
       '  #productModal .thumbnails-bar img{width:56px!important;height:56px!important;}',
       '}',
       '@media (min-width:1000px){',
-      '  #productModal .modal-content{max-width:min(1280px,calc(100vw - 28px))!important;}',
+      '  #productModal .modal-content{max-width:min(1480px,calc(100vw - 16px))!important;width:min(1480px,calc(100vw - 16px))!important;}',
       '  #productModal .modal-body{grid-template-columns:minmax(0,1.7fr) minmax(360px,0.8fr)!important;}',
       '  html body #productModal .modal-img{height:min(82vh,760px)!important;max-height:min(82vh,760px)!important;object-fit:contain!important;}',
       '  #productModal .modal-info{padding:24px 26px 26px!important;}',

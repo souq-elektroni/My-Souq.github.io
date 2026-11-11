@@ -156,8 +156,8 @@
 /* ===== mysouq-product-modal-actions-and-width-v2 ===== */
 /* Wider product dialog and a consistent, readable four-action row on all screens. */
 #productModal .modal-content{
-  width:min(1080px,calc(100vw - 28px))!important;
-  max-width:1080px!important;
+  width:min(1480px,calc(100vw - 16px))!important;
+  max-width:1480px!important;
 }
 #productModal .modal-actions-row{
   display:grid!important;
@@ -200,7 +200,7 @@
 }
 #productModal .multi-design-hint{font-size:10.5px;line-height:1.55;color:var(--text-muted);text-align:center;margin-top:-5px;}
 @media(min-width:768px){
-  #productModal .modal-content{width:min(1080px,calc(100vw - 48px))!important;max-width:1080px!important;}
+  #productModal .modal-content{width:min(1480px,calc(100vw - 16px))!important;max-width:1480px!important;}
   #productModal .modal-body{grid-template-columns:minmax(0,1.12fr) minmax(380px,.88fr)!important;gap:30px!important;padding:26px 32px!important;}
   #productModal .modal-actions-row{gap:9px!important;}
   #productModal .modal-actions-row > *{min-height:64px!important;padding:9px 8px!important;font-size:13px!important;border-radius:15px!important;}
@@ -264,7 +264,7 @@ html body #productModal .share-btn{order:4!important;}
 /* ===== mysouq-product-modal-premium-responsive-v4 ===== */
 /* Premium product dialog: preserve the existing overall footprint, improve hierarchy and mobile fit. */
 #productModal{padding:clamp(8px,2vw,22px)!important;backdrop-filter:blur(9px)!important;background:rgba(32,20,28,.62)!important;}
-#productModal .modal-content{width:min(1080px,calc(100vw - 28px))!important;max-width:1080px!important;max-height:min(94dvh,920px)!important;overflow:auto!important;overscroll-behavior:contain!important;border:1px solid rgba(255,255,255,.82)!important;border-radius:clamp(18px,2.4vw,30px)!important;background:linear-gradient(145deg,#fffdfd 0%,#f8eef3 100%)!important;box-shadow:0 28px 90px rgba(24,10,18,.32),inset 0 1px 0 rgba(255,255,255,.95)!important;scrollbar-width:thin;scrollbar-color:#c99aaf transparent;}
+#productModal .modal-content{width:min(1480px,calc(100vw - 16px))!important;max-width:1480px!important;max-height:min(94dvh,920px)!important;overflow:auto!important;overscroll-behavior:contain!important;border:1px solid rgba(255,255,255,.82)!important;border-radius:clamp(18px,2.4vw,30px)!important;background:linear-gradient(145deg,#fffdfd 0%,#f8eef3 100%)!important;box-shadow:0 28px 90px rgba(24,10,18,.32),inset 0 1px 0 rgba(255,255,255,.95)!important;scrollbar-width:thin;scrollbar-color:#c99aaf transparent;}
 #productModal .modal-body{grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr)!important;gap:clamp(16px,2.5vw,30px)!important;padding:clamp(18px,2.6vw,30px)!important;align-items:center!important;}
 #productModal .modal-gallery-wrapper{min-width:0!important;gap:10px!important;padding:0!important;background:transparent!important;}
 #productModal .modal-img{display:block!important;width:100%!important;height:clamp(300px,62vh,640px)!important;max-height:640px!important;object-fit:contain!important;background:#f8f1f4!important;border:1px solid rgba(128,61,72,.12)!important;border-radius:20px!important;box-shadow:0 14px 36px rgba(70,30,44,.11)!important;}
@@ -12535,5 +12535,105 @@ html body #msqAdminChannelSelect {
   }
   #adminOrdersModal.msq-admin-swiping .msq-admin-shell{
     transition: none !important;
+  }
+}
+
+
+/* ===== FORCE wide single-image modal + 3-col size chart 202611111520 ===== */
+html body #productModal .modal-content,
+html body #productModal.modal-overlay .modal-content {
+  width: min(1480px, calc(100vw - 16px)) !important;
+  max-width: min(1480px, calc(100vw - 16px)) !important;
+  max-height: min(96dvh, 980px) !important;
+}
+html body #productModal:not(.msq-pair-mode) .modal-body {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.95fr) minmax(320px, 0.9fr) !important;
+  gap: 18px 20px !important;
+  align-items: start !important;
+  padding: 18px 20px 22px !important;
+}
+html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
+  grid-column: 1 !important;
+  grid-row: 1 / span 2 !important;
+  min-width: 0 !important;
+}
+html body #productModal:not(.msq-pair-mode) #msqSizeHelper.msq-size-panel,
+html body #productModal:not(.msq-pair-mode) #msqSizeHelper {
+  grid-column: 2 !important;
+  grid-row: 1 / span 2 !important;
+  align-self: start !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 16px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(128,61,72,.12) !important;
+  background: linear-gradient(180deg,#fffefb,#faf5f7) !important;
+  box-shadow: 0 8px 22px rgba(80,30,50,.07) !important;
+  box-sizing: border-box !important;
+  display: block !important;
+}
+html body #productModal:not(.msq-pair-mode) .modal-info {
+  grid-column: 3 !important;
+  grid-row: 1 / span 2 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 8px 6px 10px !important;
+}
+/* لما مفيش جدول مقاسات — عمودين فقط */
+html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
+  grid-template-columns: minmax(0, 1.25fr) minmax(340px, 1fr) !important;
+}
+html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-info {
+  grid-column: 2 !important;
+}
+html body #productModal:not(.msq-pair-mode).msq-no-size-chart #msqSizeHelper {
+  display: none !important;
+}
+
+html body #productModal .msq-size-chart {
+  width: 100% !important;
+  min-width: 0 !important;
+  font-size: 13.5px !important;
+}
+html body #productModal .msq-size-chart th {
+  padding: 11px 10px !important;
+  font-size: 12.5px !important;
+  background: linear-gradient(135deg,#803d48,#9a4d5a) !important;
+  color: #fff !important;
+}
+html body #productModal .msq-size-chart td {
+  padding: 11px 10px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+}
+
+@media (max-width: 1100px) {
+  html body #productModal:not(.msq-pair-mode) .modal-body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+  html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+  }
+  html body #productModal:not(.msq-pair-mode) #msqSizeHelper {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+  }
+  html body #productModal:not(.msq-pair-mode) .modal-info {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+  }
+}
+@media (max-width: 720px) {
+  html body #productModal:not(.msq-pair-mode) .modal-body {
+    grid-template-columns: 1fr !important;
+  }
+  html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper,
+  html body #productModal:not(.msq-pair-mode) #msqSizeHelper,
+  html body #productModal:not(.msq-pair-mode) .modal-info {
+    grid-column: 1 !important;
+    grid-row: auto !important;
   }
 }

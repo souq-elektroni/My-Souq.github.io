@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611111508modalSwipe";
+  var BUILD = "202611111526trackBtn";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -51,7 +51,7 @@
             }));
           }).then(function () {
             // سجّل SW الجديد (إشعارات الإدارة + PWA) بعد مسح القديم
-            return navigator.serviceWorker.register('./sw.js?v=202611111508modalSwipe', { scope: './' }).catch(function () {});
+            return navigator.serviceWorker.register('./sw.js?v=202611111526trackBtn', { scope: './' }).catch(function () {});
           }).catch(function () {})
         );
       }
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611111508modalSwipe">
+  <meta name="msq-build" content="202611111526trackBtn">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -191,7 +191,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="My Souq">
-  <link rel="manifest" href="manifest.json?v=202611111508modalSwipe">
+  <link rel="manifest" href="manifest.json?v=202611111526trackBtn">
   <link rel="icon" href="favicon.svg?v=202611021545v3" type="image/svg+xml">
   <link rel="icon" href="favicon.svg?v=202611021545v3" sizes="any">
   <link rel="apple-touch-icon" href="favicon.svg?v=202611021545v3">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611111508modalSwipe">
-<link rel="stylesheet" href="styles.css?v=202611111508modalSwipe">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611111526trackBtn">
+<link rel="stylesheet" href="styles.css?v=202611111526trackBtn">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611111508modalSwipe">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611111508modalSwipe">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611111526trackBtn">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611111526trackBtn">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -864,7 +864,7 @@ html body .products-grid {
   display: grid !important;
   grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
   gap: 14px !important;
-  width: min(1280px, calc(100% - 28px)) !important;
+  width: min(1480px, calc(100% - 16px)) !important;
   margin-left: auto !important;
   margin-right: auto !important;
   align-items: stretch !important;
@@ -1155,151 +1155,129 @@ html body #products-container .product-card .msq-fav-btn {
 
 <style id="msq-product-size-roomy">
 
-/* ===== product modal roomy size chart + width v202611111508 ===== */
-#productModal .modal-content{
-  width:min(1360px, calc(100vw - 20px)) !important;
-  max-width:1360px !important;
+/* ===== FORCE wide single-image modal + 3-col size chart 202611111520 ===== */
+html body #productModal .modal-content,
+html body #productModal.modal-overlay .modal-content {
+  width: min(1480px, calc(100vw - 16px)) !important;
+  max-width: min(1480px, calc(100vw - 16px)) !important;
+  max-height: min(96dvh, 980px) !important;
 }
-@media (min-width: 900px){
-  #productModal .modal-body{
-    grid-template-columns: minmax(0, 1.15fr) minmax(420px, 0.95fr) minmax(300px, 0.85fr) !important;
-    gap: 22px !important;
-    align-items: start !important;
-  }
-  /* في وضع الصورة الواحدة: عمودين أوسع + جدول مقاسات مرتاح */
-  #productModal:not(.msq-pair-mode) .modal-body{
-    grid-template-columns: minmax(0, 1.2fr) minmax(380px, 1fr) !important;
-    gap: 28px !important;
-  }
-  #productModal:not(.msq-pair-mode) .modal-info{
-    max-width: none !important;
-    min-width: 0 !important;
-  }
+html body #productModal:not(.msq-pair-mode) .modal-body {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.95fr) minmax(320px, 0.9fr) !important;
+  gap: 18px 20px !important;
+  align-items: start !important;
+  padding: 18px 20px 22px !important;
 }
-#productModal #msqSizeHelper.msq-size-panel,
-#productModal .msq-size-panel,
-#productModal .msq-size-helper{
-  display: block !important;
+html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
+  grid-column: 1 !important;
+  grid-row: 1 / span 2 !important;
+  min-width: 0 !important;
+}
+html body #productModal:not(.msq-pair-mode) #msqSizeHelper.msq-size-panel,
+html body #productModal:not(.msq-pair-mode) #msqSizeHelper {
+  grid-column: 2 !important;
+  grid-row: 1 / span 2 !important;
+  align-self: start !important;
   width: 100% !important;
   max-width: 100% !important;
-  margin: 12px 0 14px !important;
-  padding: 14px 14px 16px !important;
-  border-radius: 16px !important;
-  border: 1px solid rgba(128,61,72,.14) !important;
-  background: linear-gradient(180deg, #fffdfb 0%, #faf4f6 100%) !important;
-  box-shadow: 0 6px 18px rgba(88,40,60,.06) !important;
+  margin: 0 !important;
+  padding: 16px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(128,61,72,.12) !important;
+  background: linear-gradient(180deg,#fffefb,#faf5f7) !important;
+  box-shadow: 0 8px 22px rgba(80,30,50,.07) !important;
   box-sizing: border-box !important;
+  display: block !important;
 }
-#productModal .msq-size-section-title,
-#productModal .msq-size-panel > .msq-size-section-title,
-#productModal #msqSizeHelper h4,
-#productModal #msqSizeHelper .msq-size-title{
-  font-size: 15px !important;
-  font-weight: 900 !important;
-  margin: 0 0 8px !important;
-  color: var(--burgundy-soft, #803d48) !important;
-  letter-spacing: 0 !important;
+html body #productModal:not(.msq-pair-mode) .modal-info {
+  grid-column: 3 !important;
+  grid-row: 1 / span 2 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 8px 6px 10px !important;
 }
-#productModal .msq-size-chart-wrap{
-  width: 100% !important;
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-  border-radius: 12px !important;
-  margin-top: 8px !important;
+/* لما مفيش جدول مقاسات — عمودين فقط */
+html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
+  grid-template-columns: minmax(0, 1.25fr) minmax(340px, 1fr) !important;
 }
-#productModal .msq-size-chart,
-#productModal table.msq-size-chart{
-  width: 100% !important;
-  min-width: 320px !important;
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-  font-size: 13px !important;
-  table-layout: auto !important;
+html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-info {
+  grid-column: 2 !important;
 }
-#productModal .msq-size-chart th{
-  background: linear-gradient(135deg, #803d48, #9a4d5a) !important;
-  color: #fff !important;
-  font-weight: 900 !important;
-  font-size: 12px !important;
-  padding: 10px 12px !important;
-  white-space: nowrap !important;
-  text-align: center !important;
-}
-#productModal .msq-size-chart th:first-child{
-  border-radius: 0 10px 0 0 !important;
-}
-#productModal .msq-size-chart th:last-child{
-  border-radius: 10px 0 0 0 !important;
-}
-#productModal .msq-size-chart td{
-  padding: 10px 12px !important;
-  text-align: center !important;
-  font-weight: 700 !important;
-  font-size: 13px !important;
-  border-bottom: 1px solid rgba(128,61,72,.08) !important;
-  background: #fff !important;
-  white-space: nowrap !important;
-}
-#productModal .msq-size-chart tr:nth-child(even) td{
-  background: #faf6f7 !important;
-}
-#productModal .msq-size-chart tr.msq-row-recommended td,
-#productModal .msq-size-chart tr.msq-row-selected td{
-  background: #f3e5f5 !important;
-  color: #6a1b9a !important;
-  font-weight: 900 !important;
-}
-#productModal .msq-size-panel input,
-#productModal #msqSizeHelper input{
-  min-height: 42px !important;
-  border-radius: 12px !important;
-  font-size: 13px !important;
-  padding: 8px 12px !important;
-}
-#productModal .msq-size-panel button,
-#productModal #msqSizeHelper button{
-  min-height: 44px !important;
-  border-radius: 12px !important;
-  font-weight: 900 !important;
-  font-size: 13.5px !important;
-  padding: 10px 14px !important;
-}
-@media (max-width: 720px){
-  #productModal .modal-content{
-    width: calc(100vw - 8px) !important;
-    max-width: 100% !important;
-    border-radius: 18px 18px 0 0 !important;
-  }
-  #productModal .msq-size-chart{
-    min-width: 300px !important;
-    font-size: 12.5px !important;
-  }
-  #productModal .msq-size-chart th,
-  #productModal .msq-size-chart td{
-    padding: 9px 8px !important;
-  }
+html body #productModal:not(.msq-pair-mode).msq-no-size-chart #msqSizeHelper {
+  display: none !important;
 }
 
-/* Admin swipe-down handle (mobile) */
-#adminOrdersModal .msq-admin-swipe-handle{
-  display: none;
-  width: 48px;
-  height: 5px;
-  border-radius: 99px;
-  background: rgba(94,50,153,.28);
-  margin: 6px auto 10px;
+html body #productModal .msq-size-chart {
+  width: 100% !important;
+  min-width: 0 !important;
+  font-size: 13.5px !important;
 }
-@media (max-width: 820px){
-  #adminOrdersModal .msq-admin-swipe-handle{ display: block !important; }
-  #adminOrdersModal .msq-admin-shell{
-    transition: transform .22s ease, opacity .22s ease;
-    will-change: transform;
+html body #productModal .msq-size-chart th {
+  padding: 11px 10px !important;
+  font-size: 12.5px !important;
+  background: linear-gradient(135deg,#803d48,#9a4d5a) !important;
+  color: #fff !important;
+}
+html body #productModal .msq-size-chart td {
+  padding: 11px 10px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+}
+
+@media (max-width: 1100px) {
+  html body #productModal:not(.msq-pair-mode) .modal-body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
   }
-  #adminOrdersModal.msq-admin-swiping .msq-admin-shell{
-    transition: none !important;
+  html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+  }
+  html body #productModal:not(.msq-pair-mode) #msqSizeHelper {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+  }
+  html body #productModal:not(.msq-pair-mode) .modal-info {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+  }
+}
+@media (max-width: 720px) {
+  html body #productModal:not(.msq-pair-mode) .modal-body {
+    grid-template-columns: 1fr !important;
+  }
+  html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper,
+  html body #productModal:not(.msq-pair-mode) #msqSizeHelper,
+  html body #productModal:not(.msq-pair-mode) .modal-info {
+    grid-column: 1 !important;
+    grid-row: auto !important;
   }
 }
 </style>
+
+<style id="msq-success-track-btn-css">
+.msq-success-track-btn{
+  display:block;
+  width:100%;
+  margin:0 0 12px;
+  padding:14px 16px;
+  border:0;
+  border-radius:14px;
+  background:linear-gradient(135deg,#2e7d32,#1b5e20);
+  color:#fff !important;
+  font-weight:950;
+  font-size:16px;
+  font-family:inherit;
+  cursor:pointer;
+  box-shadow:0 8px 20px rgba(46,125,50,.28);
+  letter-spacing:0;
+}
+.msq-success-track-btn:hover{filter:brightness(1.05)}
+.msq-success-track-btn:active{transform:scale(.98)}
+#successModal .success-modal{max-width:420px}
+#successModal .success-btn{border-radius:12px}
+</style>
+
 </head>
 
 <body>
@@ -2186,8 +2164,11 @@ html body #products-container .product-card .msq-fav-btn {
       <p class="success-message">تم إرسال الطلب الخاص بكم بنجاح. رقم الطلب الخاص بكم موضح أدناه، ويمكنكم نسخه والاحتفاظ به لمتابعة الطلب.</p>
       <p id="successOrderIdDisplay" style="font-weight:900;color:var(--burgundy-soft);background:var(--pink-soft, #fff4f6);border:1px dashed var(--burgundy-soft, #8b3f52);border-radius:12px;padding:13px 10px;margin:10px 0;font-size:17px;user-select:text;direction:ltr;overflow-wrap:anywhere;"></p>
       <button type="button" class="success-btn" onclick="copyConfirmedOrderId()" style="margin-bottom:10px;">📋 نسخ رقم الطلب</button>
+      <button type="button" id="msqSuccessTrackBtn" class="msq-success-track-btn" onclick="if(window.msqOpenTrackingFromSuccess)window.msqOpenTrackingFromSuccess()">
+        🔍 تتبع الطلب
+      </button>
       <div id="msqSuccessX2Box" style="display:none;margin:10px 0;padding:12px;border-radius:14px;background:#faf7fc;border:1px solid rgba(106,27,154,.2);"></div>
-      <p class="success-message">يمكنكم الاطلاع على مراحل الطلب من خانة <strong>تتبع الطلبات 🔍</strong>.</p>
+      <p class="success-message">اضغط <strong style="color:#1b5e20">تتبع الطلب</strong> لمتابعة حالة طلبك مباشرة — رقم الطلب والموبايل هيكونوا جاهزين.</p>
       <div class="success-policy"><strong>ملحوظة مهمة:</strong><br>الطلب الخاص بكم في مرحلة <strong>قيد التنفيذ</strong> حاليًا، ويحق لكم الإلغاء في هذه المرحلة بعد الإبلاغ عن الإلغاء. ولا يحق الإلغاء في المراحل التالية لهذه المرحلة.</div>
       <p class="success-message" style="text-align:center;margin-top:16px;">إدارة My Souq تتمنى لكم تجربة رائعة <span aria-label="قلب">❤️</span></p>
       <button type="button" class="success-btn" onclick="closeSuccessModal()">إغلاق</button>
@@ -2329,7 +2310,7 @@ html body #products-container .product-card .msq-fav-btn {
   })();
   </script>
 
-  <script src="script.js?v=202611111508modalSwipe"></script>
+  <script src="script.js?v=202611111526trackBtn"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -13528,7 +13509,7 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
     }
     try {
       if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.register('./sw.js?v=202611111508modalSwipe', { scope: './' });
+        await navigator.serviceWorker.register('./sw.js?v=202611111526trackBtn', { scope: './' });
         await navigator.serviceWorker.ready;
       }
     } catch (e) {}
@@ -13821,6 +13802,85 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
+})();
+</script>
+
+<script id="msq-success-track-open-v1">
+(function () {
+  if (window.__msqSuccessTrackV1) return;
+  window.__msqSuccessTrackV1 = true;
+
+  window.msqLastSuccessOrder = window.msqLastSuccessOrder || { orderId: '', phone: '' };
+
+  window.msqRememberSuccessOrder = function (orderId, phone) {
+    var id = String(orderId || '').trim();
+    var ph = String(phone || '').trim();
+    window.msqLastSuccessOrder = { orderId: id, phone: ph };
+    try {
+      sessionStorage.setItem('msqLastSuccessOrderId', id);
+      sessionStorage.setItem('msqLastSuccessPhone', ph);
+    } catch (e) {}
+    var btn = document.getElementById('msqSuccessTrackBtn');
+    if (btn) btn.style.display = id ? 'block' : 'none';
+  };
+
+  window.msqOpenTrackingFromSuccess = function () {
+    var id = (window.msqLastSuccessOrder && window.msqLastSuccessOrder.orderId) || '';
+    var phone = (window.msqLastSuccessOrder && window.msqLastSuccessOrder.phone) || '';
+    if (!id) {
+      try { id = sessionStorage.getItem('msqLastSuccessOrderId') || ''; } catch (e) {}
+    }
+    if (!phone) {
+      try { phone = sessionStorage.getItem('msqLastSuccessPhone') || ''; } catch (e) {}
+    }
+    // من نص عرض رقم الطلب
+    if (!id) {
+      var el = document.getElementById('successOrderIdDisplay');
+      var t = el ? String(el.textContent || '') : '';
+      var m = t.match(/(M-[A-Za-z0-9]+|MS-[A-Za-z0-9]+)/i);
+      if (m) id = m[1];
+    }
+    if (!phone) {
+      try {
+        var pe = document.getElementById('custPhone');
+        if (pe && pe.value) phone = pe.value.trim();
+      } catch (e) {}
+    }
+
+    // اقفل نجاح وافتح تتبع
+    try {
+      if (typeof closeSuccessModal === 'function') closeSuccessModal();
+      else {
+        var sm = document.getElementById('successModal');
+        if (sm) sm.classList.remove('active');
+      }
+    } catch (e) {}
+
+    if (typeof openTrackingModal === 'function') openTrackingModal();
+    else {
+      var tm = document.getElementById('trackingModal');
+      if (tm) tm.classList.add('active');
+    }
+
+    setTimeout(function () {
+      var idEl = document.getElementById('trackInputId');
+      var phEl = document.getElementById('trackInputPhone');
+      if (idEl) {
+        idEl.value = String(id || '').replace(/\s+/g, '').toUpperCase();
+        try { idEl.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
+      }
+      if (phEl) {
+        phEl.value = String(phone || '').replace(/[^\d+]/g, '');
+        try { phEl.dispatchEvent(new Event('input', { bubbles: true })); } catch (e) {}
+      }
+      // المستخدم يطلب يضغط عرض — هنسيبه جاهز، ولو الاتنين موجودين نعمل بحث تلقائي أوضح
+      if (idEl && idEl.value && phEl && phEl.value && typeof searchOrderTracking === 'function') {
+        try { searchOrderTracking(); } catch (e) {}
+      } else if (idEl && idEl.value) {
+        try { idEl.focus(); } catch (e) {}
+      }
+    }, 80);
+  };
 })();
 </script>
 
