@@ -3028,7 +3028,7 @@ ${selectedImage}
       helper.style.setProperty('height', 'auto', 'important');
       helper.style.setProperty('max-height', 'none', 'important');
       helper.style.setProperty('overflow', 'visible', 'important');
-      // دليل المقاسات يثبت داخل modal-info فقط (عمودين ثابتين)
+      // دليل المقاسات: عمود مستقل (صورة | جدول | تفاصيل)
       try {
         var slot = document.getElementById('msqPairSizeSlot');
         if (slot) slot.remove();
@@ -3036,21 +3036,18 @@ ${selectedImage}
         if (pairClone) pairClone.remove();
       } catch (eClean) {}
       try {
-        var info = document.querySelector('#productModal .modal-info');
+        var pm = document.getElementById('productModal');
         var body = document.querySelector('#productModal .modal-body');
-        if (helper && info) {
-          if (helper.parentElement !== info && !info.contains(helper)) {
-            var sizes = document.getElementById('sizesContainer');
-            if (sizes && sizes.parentElement) sizes.parentElement.insertAdjacentElement('afterend', helper);
-            else info.appendChild(helper);
-          }
-        }
-        // امسح أي grid مكسور على body
-        if (body) {
-          body.style.removeProperty('grid-template-columns');
-          body.style.removeProperty('display');
+        var gal = document.querySelector('#productModal .modal-gallery-wrapper');
+        var info = document.querySelector('#productModal .modal-info');
+        if (pm) pm.classList.remove('msq-no-size-chart');
+        if (helper && body && gal && info && pm && !pm.classList.contains('msq-pair-mode')) {
+          if (gal.parentElement !== body) body.insertBefore(gal, body.firstChild);
+          if (info.parentElement !== body) body.appendChild(info);
+          body.insertBefore(helper, info);
         }
       } catch (ePlace) {}
+      try { if (window.msqFixProductModalDom) window.msqFixProductModalDom(); } catch (eF) {}
       if (resultEl) resultEl.innerHTML = '';
       if (ageInput) ageInput.value = '';
       if (lenInput) lenInput.value = '';
