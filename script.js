@@ -3028,7 +3028,7 @@ ${selectedImage}
       helper.style.setProperty('height', 'auto', 'important');
       helper.style.setProperty('max-height', 'none', 'important');
       helper.style.setProperty('overflow', 'visible', 'important');
-      // دليل المقاسات: عمود مستقل في النص (صورة | جدول | تفاصيل)
+      // دليل المقاسات يثبت داخل modal-info فقط (عمودين ثابتين)
       try {
         var slot = document.getElementById('msqPairSizeSlot');
         if (slot) slot.remove();
@@ -3036,20 +3036,20 @@ ${selectedImage}
         if (pairClone) pairClone.remove();
       } catch (eClean) {}
       try {
-        var pm = document.getElementById('productModal');
-        var body = document.querySelector('#productModal .modal-body');
-        var gal = document.querySelector('#productModal .modal-gallery-wrapper');
         var info = document.querySelector('#productModal .modal-info');
-        if (pm) pm.classList.remove('msq-no-size-chart');
-        if (helper && body && gal && info && !pm.classList.contains('msq-pair-mode')) {
-          // gallery -> helper -> info
-          if (gal.parentElement !== body) body.insertBefore(gal, body.firstChild);
-          if (info.parentElement !== body) body.appendChild(info);
-          if (helper.parentElement !== body || helper.previousElementSibling !== gal) {
-            body.insertBefore(helper, info);
+        var body = document.querySelector('#productModal .modal-body');
+        if (helper && info) {
+          if (helper.parentElement !== info && !info.contains(helper)) {
+            var sizes = document.getElementById('sizesContainer');
+            if (sizes && sizes.parentElement) sizes.parentElement.insertAdjacentElement('afterend', helper);
+            else info.appendChild(helper);
           }
         }
-        if (typeof window.msqRestoreProductModalLayout === 'function') window.msqRestoreProductModalLayout();
+        // امسح أي grid مكسور على body
+        if (body) {
+          body.style.removeProperty('grid-template-columns');
+          body.style.removeProperty('display');
+        }
       } catch (ePlace) {}
       if (resultEl) resultEl.innerHTML = '';
       if (ageInput) ageInput.value = '';

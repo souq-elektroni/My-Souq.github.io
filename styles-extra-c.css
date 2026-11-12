@@ -12393,35 +12393,27 @@ html body #msqAdminChannelSelect {
 }
 
 
-/* ===== product modal image-26 proportions 202611111618 ===== */
+/* ===== STABLE 2-col product modal — final 202611111622 ===== */
 html body #productModal:not(.msq-pair-mode) .modal-content {
-  width: min(1280px, calc(100vw - 24px)) !important;
-  max-width: min(1280px, calc(100vw - 24px)) !important;
-  max-height: min(94dvh, 900px) !important;
+  width: min(1100px, calc(100vw - 28px)) !important;
+  max-width: min(1100px, calc(100vw - 28px)) !important;
+  max-height: min(92dvh, 880px) !important;
   overflow: auto !important;
-  box-sizing: border-box !important;
 }
 html body #productModal:not(.msq-pair-mode) .modal-body {
   display: grid !important;
-  /* صورة | جدول | تفاصيل — التفاصيل أوسع من الجدول */
-  grid-template-columns: minmax(360px, 1.25fr) minmax(260px, 0.7fr) minmax(320px, 0.95fr) !important;
-  gap: 14px 16px !important;
+  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.95fr) !important;
+  gap: 22px !important;
   align-items: start !important;
-  padding: 16px 18px 20px !important;
-  width: 100% !important;
-  box-sizing: border-box !important;
-  overflow: visible !important;
+  padding: 18px 20px 22px !important;
 }
 html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
   grid-column: 1 !important;
-  grid-row: 1 !important;
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) 68px !important;
   grid-template-areas: "main thumbs" "nav nav" !important;
   gap: 8px 10px !important;
   min-width: 0 !important;
-  max-width: 100% !important;
-  overflow: visible !important;
 }
 html body #productModal:not(.msq-pair-mode) #modalImage,
 html body #productModal:not(.msq-pair-mode) .modal-img {
@@ -12430,9 +12422,9 @@ html body #productModal:not(.msq-pair-mode) .modal-img {
   visibility: visible !important;
   opacity: 1 !important;
   width: 100% !important;
-  height: min(62vh, 540px) !important;
-  min-height: 360px !important;
-  max-height: min(62vh, 540px) !important;
+  height: min(60vh, 520px) !important;
+  min-height: 340px !important;
+  max-height: min(60vh, 520px) !important;
   object-fit: contain !important;
   border-radius: 18px !important;
   background: #f5eef1 !important;
@@ -12442,16 +12434,15 @@ html body #productModal:not(.msq-pair-mode) .thumbs-vertical-wrap {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  max-height: min(62vh, 540px) !important;
+  max-height: min(60vh, 520px) !important;
   overflow: hidden !important;
-  width: 68px !important;
 }
 html body #productModal:not(.msq-pair-mode) .thumbnails-bar {
   display: flex !important;
   flex-direction: column !important;
   gap: 8px !important;
   overflow-y: auto !important;
-  max-height: min(54vh, 480px) !important;
+  max-height: min(52vh, 460px) !important;
   background: transparent !important;
 }
 html body #productModal:not(.msq-pair-mode) .thumbnails-bar img {
@@ -12467,105 +12458,59 @@ html body #productModal:not(.msq-pair-mode) .gallery-nav {
   justify-content: center !important;
   background: transparent !important;
 }
-/* جدول المقاسات — العمود الأوسط */
-html body #productModal:not(.msq-pair-mode) .modal-body > #msqSizeHelper {
-  grid-column: 2 !important;
-  grid-row: 1 !important;
-  display: block !important;
-  width: 100% !important;
-  max-width: 100% !important;
-  margin: 0 !important;
-  padding: 12px !important;
-  border-radius: 16px !important;
-  border: 1px solid rgba(128,61,72,.12) !important;
-  background: #fffdfb !important;
-  box-sizing: border-box !important;
-  overflow: auto !important;
-  max-height: min(80vh, 760px) !important;
-  align-self: start !important;
-}
-/* التفاصيل — العمود اليمين كامل ظاهر */
 html body #productModal:not(.msq-pair-mode) .modal-info {
-  grid-column: 3 !important;
-  grid-row: 1 !important;
+  grid-column: 2 !important;
   display: flex !important;
   flex-direction: column !important;
-  gap: 10px !important;
+  gap: 11px !important;
   min-width: 0 !important;
   width: 100% !important;
-  max-width: 100% !important;
   overflow: visible !important;
   padding: 2px 4px 8px !important;
-  box-sizing: border-box !important;
 }
-html body #productModal:not(.msq-pair-mode) .modal-info .modal-title {
-  font-size: clamp(20px, 2.2vw, 28px) !important;
-  line-height: 1.25 !important;
-  word-break: break-word !important;
+/* الجدول جوّه التفاصيل — مش عمود لوحده */
+html body #productModal:not(.msq-pair-mode) #msqSizeHelper {
+  display: block !important;
+  width: 100% !important;
+  margin: 4px 0 !important;
+  padding: 12px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(128,61,72,.12) !important;
+  background: #fffdfb !important;
+  grid-column: unset !important;
+  grid-row: unset !important;
+  max-height: none !important;
+  position: relative !important;
+  order: 0 !important;
 }
 html body #productModal:not(.msq-pair-mode) .modal-actions-row {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   gap: 8px !important;
-  width: 100% !important;
 }
 html body #productModal:not(.msq-pair-mode) .modal-actions-row > * {
   writing-mode: horizontal-tb !important;
   white-space: normal !important;
-  min-height: 46px !important;
-  font-size: 12.5px !important;
-  overflow: visible !important;
-}
-html body #productModal:not(.msq-pair-mode) .size-selector {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 8px !important;
-  width: 100% !important;
-}
-html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
-  grid-template-columns: minmax(0, 1.25fr) minmax(340px, 0.95fr) !important;
-}
-html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-info {
-  grid-column: 2 !important;
+  min-height: 48px !important;
 }
 html body #productModal .msq-size-chart th {
   background: linear-gradient(135deg,#803d48,#9a4d5a) !important;
   color: #fff !important;
   padding: 8px 6px !important;
-  font-size: 11px !important;
+  font-size: 11.5px !important;
 }
 html body #productModal .msq-size-chart td {
   padding: 8px 6px !important;
-  font-size: 12px !important;
+  font-size: 12.5px !important;
   font-weight: 700 !important;
   text-align: center !important;
 }
-
-@media (max-width: 1100px) {
-  html body #productModal:not(.msq-pair-mode) .modal-body {
-    grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.95fr) !important;
-  }
-  html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
-    grid-column: 1 !important;
-    grid-row: 1 / span 2 !important;
-  }
-  html body #productModal:not(.msq-pair-mode) .modal-body > #msqSizeHelper {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-  }
-  html body #productModal:not(.msq-pair-mode) .modal-info {
-    grid-column: 2 !important;
-    grid-row: 2 !important;
-  }
-}
-@media (max-width: 720px) {
+@media (max-width: 800px) {
   html body #productModal:not(.msq-pair-mode) .modal-body {
     grid-template-columns: 1fr !important;
   }
   html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper,
-  html body #productModal:not(.msq-pair-mode) .modal-body > #msqSizeHelper,
   html body #productModal:not(.msq-pair-mode) .modal-info {
     grid-column: 1 !important;
-    grid-row: auto !important;
   }
 }
