@@ -3042,9 +3042,9 @@ ${selectedImage}
         var info = document.querySelector('#productModal .modal-info');
         if (pm) pm.classList.remove('msq-no-size-chart');
         if (helper && body && gal && info && pm && !pm.classList.contains('msq-pair-mode')) {
-          if (gal.parentElement !== body) body.insertBefore(gal, body.firstChild);
-          if (info.parentElement !== body) body.appendChild(info);
+          body.insertBefore(gal, body.firstChild);
           body.insertBefore(helper, info);
+          body.appendChild(info);
         }
       } catch (ePlace) {}
       try { if (window.msqFixProductModalDom) window.msqFixProductModalDom(); } catch (eF) {}

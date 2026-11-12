@@ -12393,36 +12393,34 @@ html body #msqAdminChannelSelect {
 }
 
 
-/* ===== PRO 3-col product modal 202611121200 ===== */
+/* ===== PRO 3-col FIXED areas 202611121520 ===== */
 html body #productModal:not(.msq-pair-mode) .modal-content {
-  width: min(1440px, calc(100vw - 12px)) !important;
-  max-width: min(1440px, calc(100vw - 12px)) !important;
-  max-height: min(95dvh, 940px) !important;
+  width: min(1480px, calc(100vw - 10px)) !important;
+  max-width: min(1480px, calc(100vw - 10px)) !important;
+  max-height: min(95dvh, 960px) !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
   box-sizing: border-box !important;
-  border-radius: 24px !important;
 }
 html body #productModal:not(.msq-pair-mode) .modal-body {
   display: grid !important;
-  grid-template-columns: minmax(420px, 1.35fr) minmax(300px, 0.78fr) minmax(340px, 0.92fr) !important;
+  grid-template-columns: minmax(400px, 1.3fr) minmax(320px, 0.85fr) minmax(360px, 1fr) !important;
+  grid-template-areas: "gallery sizeinfo details" !important;
   gap: 16px 18px !important;
   align-items: start !important;
   padding: 16px 18px 20px !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
-
-/* —— عمود 1: الصورة + المصغرات —— */
 html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
-  grid-column: 1 !important;
-  grid-row: 1 !important;
+  grid-area: gallery !important;
+  grid-column: unset !important;
+  grid-row: unset !important;
   display: grid !important;
   grid-template-columns: minmax(0, 1fr) 70px !important;
   grid-template-areas: "main thumbs" "nav nav" !important;
   gap: 8px 10px !important;
   min-width: 0 !important;
-  align-self: stretch !important;
 }
 html body #productModal:not(.msq-pair-mode) #modalImage,
 html body #productModal:not(.msq-pair-mode) .modal-img {
@@ -12431,194 +12429,149 @@ html body #productModal:not(.msq-pair-mode) .modal-img {
   visibility: visible !important;
   opacity: 1 !important;
   width: 100% !important;
-  height: min(70vh, 620px) !important;
-  min-height: 420px !important;
-  max-height: min(70vh, 620px) !important;
+  height: min(68vh, 600px) !important;
+  min-height: 400px !important;
+  max-height: min(68vh, 600px) !important;
   object-fit: contain !important;
-  object-position: center center !important;
   border-radius: 18px !important;
-  background: linear-gradient(180deg, #f7f0f2, #efe6ea) !important;
-  margin: 0 !important;
+  background: #f5eef1 !important;
 }
 html body #productModal:not(.msq-pair-mode) .thumbs-vertical-wrap {
   grid-area: thumbs !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  gap: 6px !important;
-  width: 70px !important;
-  max-height: min(70vh, 620px) !important;
+  max-height: min(68vh, 600px) !important;
   overflow: hidden !important;
+  width: 70px !important;
 }
 html body #productModal:not(.msq-pair-mode) .thumbnails-bar {
   display: flex !important;
   flex-direction: column !important;
   gap: 8px !important;
   overflow-y: auto !important;
-  max-height: min(62vh, 560px) !important;
+  max-height: min(60vh, 540px) !important;
   background: transparent !important;
-  padding: 2px !important;
 }
 html body #productModal:not(.msq-pair-mode) .thumbnails-bar img {
   width: 56px !important;
   height: 56px !important;
-  border-radius: 11px !important;
+  border-radius: 10px !important;
   object-fit: cover !important;
   flex-shrink: 0 !important;
-  border: 2px solid transparent !important;
-  cursor: pointer !important;
 }
 html body #productModal:not(.msq-pair-mode) .gallery-nav {
   grid-area: nav !important;
   display: flex !important;
   justify-content: center !important;
-  gap: 8px !important;
   background: transparent !important;
-  padding: 4px 0 0 !important;
 }
 
-/* —— عمود 2: جدول المقاسات (ابن مباشر لـ modal-body) —— */
+/* عمود الجدول — لازم يكون ابن مباشر لـ body */
 html body #productModal:not(.msq-pair-mode) .modal-body > #msqSizeHelper {
-  grid-column: 2 !important;
-  grid-row: 1 !important;
+  grid-area: sizeinfo !important;
+  grid-column: unset !important;
+  grid-row: unset !important;
   display: block !important;
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
-  padding: 14px 14px 16px !important;
+  padding: 14px !important;
   border-radius: 18px !important;
-  border: 1px solid rgba(128, 61, 72, 0.12) !important;
-  background: linear-gradient(180deg, #fffefb 0%, #faf6f8 100%) !important;
-  box-shadow: 0 8px 22px rgba(80, 30, 50, 0.06) !important;
+  border: 1px solid rgba(128,61,72,.12) !important;
+  background: linear-gradient(180deg, #fffefb, #faf6f8) !important;
+  box-shadow: 0 8px 20px rgba(80,30,50,.06) !important;
   box-sizing: border-box !important;
   align-self: start !important;
-  max-height: min(82vh, 780px) !important;
+  max-height: min(80vh, 760px) !important;
   overflow: auto !important;
 }
-html body #productModal:not(.msq-pair-mode) #msqSizeHelper .msq-size-panel-head,
-html body #productModal:not(.msq-pair-mode) #msqSizeHelper .msq-size-section-title {
-  font-weight: 900 !important;
-  color: #803d48 !important;
-}
-html body #productModal .msq-size-chart {
-  width: 100% !important;
-  border-collapse: separate !important;
-  border-spacing: 0 !important;
-  font-size: 12.5px !important;
-}
-html body #productModal .msq-size-chart th {
-  background: linear-gradient(135deg, #803d48, #9a4d5a) !important;
-  color: #fff !important;
-  font-weight: 900 !important;
-  font-size: 11.5px !important;
-  padding: 10px 8px !important;
-  text-align: center !important;
-  white-space: nowrap !important;
-}
-html body #productModal .msq-size-chart th:first-child { border-radius: 0 10px 0 0 !important; }
-html body #productModal .msq-size-chart th:last-child { border-radius: 10px 0 0 0 !important; }
-html body #productModal .msq-size-chart td {
-  padding: 10px 8px !important;
-  text-align: center !important;
-  font-weight: 700 !important;
-  font-size: 13px !important;
-  border-bottom: 1px solid rgba(128,61,72,.08) !important;
-  background: #fff !important;
-}
-html body #productModal .msq-size-chart tr:nth-child(even) td { background: #faf6f7 !important; }
 
-/* —— عمود 3: باقي التفاصيل —— */
+/* عمود التفاصيل */
 html body #productModal:not(.msq-pair-mode) .modal-info {
-  grid-column: 3 !important;
-  grid-row: 1 !important;
+  grid-area: details !important;
+  grid-column: unset !important;
+  grid-row: unset !important;
   display: flex !important;
   flex-direction: column !important;
   gap: 11px !important;
   min-width: 0 !important;
   width: 100% !important;
-  max-width: 100% !important;
-  padding: 4px 4px 10px !important;
+  padding: 4px 6px 10px !important;
   box-sizing: border-box !important;
   overflow: visible !important;
 }
 html body #productModal:not(.msq-pair-mode) .modal-info .modal-title {
   font-size: clamp(22px, 2.2vw, 30px) !important;
-  line-height: 1.25 !important;
   font-weight: 900 !important;
+  line-height: 1.25 !important;
 }
 html body #productModal:not(.msq-pair-mode) .modal-info .size-selector {
   display: flex !important;
   flex-wrap: wrap !important;
   gap: 8px !important;
-  width: 100% !important;
-}
-html body #productModal:not(.msq-pair-mode) .modal-info .size-selector > div {
-  min-width: 64px !important;
-  text-align: center !important;
 }
 
-/* أزرار أفقية مضبوطة */
+/* اخفي أي نسخة من الجدول جوّه info لو اتنقل للعمود الوسط */
+html body #productModal:not(.msq-pair-mode) .modal-info > #msqSizeHelper {
+  display: none !important;
+}
+
 html body #productModal .modal-actions-row {
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   gap: 10px !important;
   width: 100% !important;
-  direction: rtl !important;
 }
 html body #productModal .modal-actions-row > * {
   writing-mode: horizontal-tb !important;
   text-orientation: mixed !important;
   white-space: normal !important;
   min-height: 50px !important;
-  height: auto !important;
-  width: 100% !important;
-  font-size: 13px !important;
-  font-weight: 900 !important;
-  line-height: 1.25 !important;
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
   justify-content: center !important;
   gap: 6px !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
   padding: 10px 8px !important;
   box-sizing: border-box !important;
-  overflow: visible !important;
+}
+html body #productModal .msq-size-chart th {
+  background: linear-gradient(135deg,#803d48,#9a4d5a) !important;
+  color: #fff !important;
+  padding: 10px 8px !important;
+  font-size: 11.5px !important;
+  text-align: center !important;
+}
+html body #productModal .msq-size-chart td {
+  padding: 10px 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  text-align: center !important;
 }
 
-/* بدون جدول → عمودين */
 html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
-  grid-template-columns: minmax(0, 1.3fr) minmax(360px, 1fr) !important;
-}
-html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-info {
-  grid-column: 2 !important;
+  grid-template-columns: minmax(0, 1.25fr) minmax(380px, 1fr) !important;
+  grid-template-areas: "gallery details" !important;
 }
 
 @media (max-width: 1100px) {
   html body #productModal:not(.msq-pair-mode) .modal-body {
-    grid-template-columns: minmax(0, 1.15fr) minmax(300px, 0.95fr) !important;
-  }
-  html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper {
-    grid-column: 1 !important;
-    grid-row: 1 / span 2 !important;
-  }
-  html body #productModal:not(.msq-pair-mode) .modal-body > #msqSizeHelper {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-  }
-  html body #productModal:not(.msq-pair-mode) .modal-info {
-    grid-column: 2 !important;
-    grid-row: 2 !important;
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.95fr) !important;
+    grid-template-areas:
+      "gallery sizeinfo"
+      "gallery details" !important;
   }
 }
 @media (max-width: 720px) {
   html body #productModal:not(.msq-pair-mode) .modal-body {
     grid-template-columns: 1fr !important;
-  }
-  html body #productModal:not(.msq-pair-mode) .modal-gallery-wrapper,
-  html body #productModal:not(.msq-pair-mode) .modal-body > #msqSizeHelper,
-  html body #productModal:not(.msq-pair-mode) .modal-info {
-    grid-column: 1 !important;
-    grid-row: auto !important;
+    grid-template-areas:
+      "gallery"
+      "sizeinfo"
+      "details" !important;
   }
   html body #productModal:not(.msq-pair-mode) #modalImage {
     height: min(48vh, 400px) !important;
