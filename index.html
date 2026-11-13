@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611131643lampCut";
+  var BUILD = "202611131700lampR";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611131643lampCut">
+  <meta name="msq-build" content="202611131700lampR">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611131643lampCut">
-<link rel="stylesheet" href="styles.css?v=202611131643lampCut">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611131700lampR">
+<link rel="stylesheet" href="styles.css?v=202611131700lampR">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611131643lampCut">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611131643lampCut">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611131700lampR">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611131700lampR">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1393,7 +1393,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 
 <style id="msq-lamp-splash-css">
-@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;1,400&family=Cairo:wght@800&family=Playfair+Display:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Amiri:ital,wght@0,400;1,400&family=Cairo:wght@800&family=Playfair+Display:wght@700&display=swap');
 
 #msqLampSplash{
   position:fixed;inset:0;z-index:99999;
@@ -1410,7 +1410,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 }
 #msqLampSplash.msq-lit::before{
   background:
-    radial-gradient(ellipse 58% 58% at 78% 48%, rgba(255,170,90,.4) 0%, rgba(200,100,40,.12) 40%, transparent 62%),
+    radial-gradient(ellipse 58% 58% at 78% 48%, rgba(255,170,90,.42) 0%, rgba(200,100,40,.14) 40%, transparent 62%),
     linear-gradient(155deg,#2c1c16 0%,#1a1416 50%,#120e12 100%);
 }
 #msqLampSplash.msq-splash-hide{opacity:0;visibility:hidden;pointer-events:none}
@@ -1418,12 +1418,14 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 #msqLampSplash .msq-splash-stage{
   position:relative;z-index:2;
   display:flex;align-items:center;justify-content:center;
-  gap:clamp(24px,5vw,80px);
-  width:min(1280px,96vw);padding:16px;
+  gap:clamp(20px,4vw,64px);
+  width:min(1380px,98vw);padding:12px;
+  flex-direction:row; /* RTL page: DOM lamp then card → lamp right, card left */
 }
 
 #msqLampSplash .msq-splash-card{
-  width:min(500px,92vw);padding:52px 48px 44px;
+  position:relative;
+  width:min(560px,88vw);padding:58px 52px 50px;
   border-radius:28px;text-align:center;color:#faf6f2;
   background:rgba(255,255,255,.1);
   border:1px solid rgba(255,255,255,.16);
@@ -1431,6 +1433,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   backdrop-filter:blur(28px) saturate(1.35);
   -webkit-backdrop-filter:blur(28px) saturate(1.35);
   opacity:0;transform:translateY(22px);filter:blur(6px);pointer-events:none;
+  overflow:visible;
 }
 #msqLampSplash.msq-lit .msq-splash-card{
   animation:msqCard 1s cubic-bezier(.16,1,.3,1) .18s forwards;
@@ -1438,27 +1441,62 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 }
 @keyframes msqCard{to{opacity:1;transform:none;filter:blur(0)}}
 
+/* shiny pulse on top & bottom borders when lamp is on */
+#msqLampSplash .msq-splash-card::before,
+#msqLampSplash .msq-splash-card::after{
+  content:'';
+  position:absolute;left:8%;right:8%;height:2px;
+  border-radius:2px;
+  opacity:0;
+  pointer-events:none;
+  background:linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,220,170,.15) 15%,
+    rgba(255,210,140,.95) 50%,
+    rgba(255,220,170,.15) 85%,
+    transparent 100%);
+  box-shadow:
+    0 0 12px 2px rgba(255,190,100,.55),
+    0 0 28px 4px rgba(255,160,70,.35),
+    0 0 48px 8px rgba(255,140,50,.18);
+}
+#msqLampSplash .msq-splash-card::before{top:0;transform:translateY(-1px)}
+#msqLampSplash .msq-splash-card::after{bottom:0;transform:translateY(1px)}
+#msqLampSplash.msq-lit .msq-splash-card::before,
+#msqLampSplash.msq-lit .msq-splash-card::after{
+  animation:msqBorderPulse 2.4s ease-in-out .4s infinite;
+}
+@keyframes msqBorderPulse{
+  0%,100%{opacity:.35;filter:brightness(.9)}
+  50%{opacity:1;filter:brightness(1.25)}
+}
+
 #msqLampSplash .msq-splash-welcome{
-  margin:0 0 8px;font-family:Amiri,serif;font-size:clamp(24px,3vw,32px);
-  font-style:italic;color:rgba(255,245,235,.92);opacity:0;
+  margin:0 0 10px;font-family:'Aref Ruqaa',Amiri,serif;
+  font-size:clamp(28px,3.4vw,38px);font-weight:400;
+  color:rgba(255,245,235,.94);opacity:0;
+  letter-spacing:.02em;
 }
 #msqLampSplash.msq-lit .msq-splash-welcome{animation:msqF .7s ease .38s forwards}
 #msqLampSplash .msq-splash-brand{
-  margin:0 0 12px;font-family:'Playfair Display',Georgia,serif;
-  font-size:clamp(44px,6vw,60px);font-weight:700;color:#fff;opacity:0;
+  margin:0 0 14px;font-family:'Playfair Display','Aref Ruqaa',Georgia,serif;
+  font-size:clamp(52px,7vw,72px);font-weight:700;color:#fff;opacity:0;
+  letter-spacing:.01em;text-shadow:0 2px 24px rgba(255,180,100,.25);
 }
 #msqLampSplash.msq-lit .msq-splash-brand{animation:msqF .75s ease .5s forwards}
 #msqLampSplash .msq-splash-tagline{
-  margin:0 0 36px;font-family:Amiri,serif;font-size:clamp(16px,2vw,20px);
-  font-style:italic;color:rgba(235,195,165,.78);opacity:0;
+  margin:0 0 40px;font-family:'Aref Ruqaa',Amiri,serif;
+  font-size:clamp(20px,2.4vw,26px);font-weight:400;
+  color:rgba(235,195,165,.92);opacity:0;
+  letter-spacing:.03em;
 }
 #msqLampSplash.msq-lit .msq-splash-tagline{animation:msqF .75s ease .62s forwards}
 @keyframes msqF{to{opacity:1}}
 
 #msqLampSplash .msq-splash-enter{
   display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;
-  min-height:56px;padding:14px 22px;border:0;border-radius:999px;cursor:pointer;
-  font-family:Cairo,sans-serif;font-size:16px;font-weight:800;letter-spacing:.1em;
+  min-height:60px;padding:16px 26px;border:0;border-radius:999px;cursor:pointer;
+  font-family:Cairo,sans-serif;font-size:17px;font-weight:800;letter-spacing:.1em;
   text-transform:uppercase;color:#1a100c;
   background:linear-gradient(180deg,#f8dcc0,#e8b888 55%,#dca070);
   box-shadow:0 12px 30px rgba(200,110,50,.38);opacity:0;
@@ -1467,11 +1505,11 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 #msqLampSplash.msq-lit .msq-splash-enter{animation:msqF .8s ease .78s forwards}
 #msqLampSplash .msq-splash-enter:hover{filter:brightness(1.06);transform:translateY(-2px)}
 
-/* real photo lamp */
+/* real photo lamp — bigger on the right */
 #msqLampSplash .msq-lamp-wrap{
   position:relative;
-  width:min(440px,50vw);
-  height:min(660px,88vh);
+  width:min(540px,54vw);
+  height:min(810px,92vh);
   flex-shrink:0;
 }
 #msqLampSplash .msq-lamp-photo{
@@ -1479,18 +1517,21 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   width:100%;height:100%;
   object-fit:contain;object-position:center center;
   border-radius:12px;
-  filter:brightness(.4) saturate(.55) contrast(1.05);
+  filter:brightness(.38) saturate(.5) contrast(1.08);
   transition:filter 1.15s ease;
   -webkit-user-drag:none;user-select:none;pointer-events:none;
 }
 #msqLampSplash.msq-lit .msq-lamp-photo{
-  filter:brightness(1.12) saturate(1.15) contrast(1.02) drop-shadow(0 12px 40px rgba(255,160,70,.4));
+  /* brighter + extra white specular feel on the metal body */
+  filter:brightness(1.18) saturate(1.18) contrast(1.06)
+         drop-shadow(0 14px 44px rgba(255,160,70,.42))
+         drop-shadow(0 0 18px rgba(255,240,210,.18));
 }
 #msqLampSplash .msq-lamp-glow{
-  position:absolute;left:50%;top:38%;width:120%;height:90%;
+  position:absolute;left:50%;top:38%;width:130%;height:95%;
   transform:translate(-50%,-50%) scale(.3);
-  background:radial-gradient(circle,rgba(255,175,90,.5) 0%,rgba(255,130,40,.12) 42%,transparent 65%);
-  opacity:0;filter:blur(14px);pointer-events:none;z-index:1;
+  background:radial-gradient(circle,rgba(255,175,90,.55) 0%,rgba(255,130,40,.14) 42%,transparent 65%);
+  opacity:0;filter:blur(16px);pointer-events:none;z-index:1;
   transition:opacity 1.15s ease,transform 1.15s ease;
 }
 #msqLampSplash.msq-lit .msq-lamp-glow{opacity:1;transform:translate(-50%,-50%) scale(1)}
@@ -1523,8 +1564,8 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 #msqLampSplash .msq-chain-hint{
   position:absolute;z-index:5;pointer-events:none;
   left:52%;top:48%;
-  font-family:Cairo,sans-serif;font-size:11px;font-weight:700;
-  color:rgba(255,220,180,.45);letter-spacing:.04em;
+  font-family:Cairo,sans-serif;font-size:12px;font-weight:700;
+  color:rgba(255,220,180,.5);letter-spacing:.04em;
   white-space:nowrap;
   transition:opacity .5s;
   text-shadow:0 1px 4px rgba(0,0,0,.5);
@@ -1532,9 +1573,12 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 #msqLampSplash.msq-lit .msq-chain-hint{opacity:0}
 
 @media(max-width:760px){
-  #msqLampSplash .msq-splash-stage{flex-direction:column-reverse;gap:12px}
-  #msqLampSplash .msq-lamp-wrap{width:min(280px,78vw);height:min(400px,48vh)}
-  #msqLampSplash .msq-splash-card{padding:36px 26px}
+  #msqLampSplash .msq-splash-stage{flex-direction:column;gap:16px} /* lamp then card on mobile */
+  #msqLampSplash .msq-lamp-wrap{width:min(320px,82vw);height:min(460px,52vh)}
+  #msqLampSplash .msq-splash-card{padding:40px 28px;width:min(480px,94vw)}
+  #msqLampSplash .msq-splash-welcome{font-size:clamp(24px,6vw,32px)}
+  #msqLampSplash .msq-splash-brand{font-size:clamp(42px,10vw,56px)}
+  #msqLampSplash .msq-splash-tagline{font-size:clamp(18px,4.5vw,22px)}
   #msqLampSplash .msq-chain-hit{left:36%;top:34%;width:18%;height:24%}
 }
 </style>
@@ -1545,18 +1589,18 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 <div id="msqLampSplash" role="dialog" aria-label="Welcome to My Souq" aria-modal="true">
   <div class="msq-splash-stage">
+    <div class="msq-lamp-wrap">
+      <div class="msq-lamp-glow" aria-hidden="true"></div>
+      <img class="msq-lamp-photo" src="assets/lamp-splash.webp" alt="Lamp" width="540" height="810" draggable="false"/>
+      <div class="msq-chain-pull-fx" id="msqChainFx" aria-hidden="true"></div>
+      <div class="msq-chain-hit" id="msqChainHit" role="button" tabindex="0" title="اسحب سلسلة الأباجورة" aria-label="اسحب سلسلة الأباجورة لتشغيل النور"></div>
+      <span class="msq-chain-hint">↓ اسحب السلسلة</span>
+    </div>
     <div class="msq-splash-card">
       <p class="msq-splash-welcome">Welcome back</p>
       <h1 class="msq-splash-brand">My Souq</h1>
       <p class="msq-splash-tagline">The light&rsquo;s on for you</p>
       <button type="button" class="msq-splash-enter" id="msqSplashEnterBtn">Let&rsquo;s enter →</button>
-    </div>
-    <div class="msq-lamp-wrap">
-      <div class="msq-lamp-glow" aria-hidden="true"></div>
-      <img class="msq-lamp-photo" src="assets/lamp-splash.png" alt="Lamp" width="440" height="660" draggable="false"/>
-      <div class="msq-chain-pull-fx" id="msqChainFx" aria-hidden="true"></div>
-      <div class="msq-chain-hit" id="msqChainHit" role="button" tabindex="0" title="اسحب سلسلة الأباجورة" aria-label="اسحب سلسلة الأباجورة لتشغيل النور"></div>
-      <span class="msq-chain-hint">↓ اسحب السلسلة</span>
     </div>
   </div>
 </div>
@@ -2619,7 +2663,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   })();
   </script>
 
-  <script src="script.js?v=202611131643lampCut"></script>
+  <script src="script.js?v=202611131700lampR"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
