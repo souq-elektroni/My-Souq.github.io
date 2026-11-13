@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611131628lampBest";
+  var BUILD = "202611131633realChain";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611131628lampBest">
+  <meta name="msq-build" content="202611131633realChain">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611131628lampBest">
-<link rel="stylesheet" href="styles.css?v=202611131628lampBest">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611131633realChain">
+<link rel="stylesheet" href="styles.css?v=202611131633realChain">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611131628lampBest">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611131628lampBest">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611131633realChain">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611131633realChain">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1384,179 +1384,160 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 
 
+
+
+
+
+
+
+
+
 <style id="msq-lamp-splash-css">
-@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;1,400&family=Cairo:wght@800&family=Playfair+Display:wght@700&display=swap');
 
 #msqLampSplash{
   position:fixed;inset:0;z-index:99999;
   display:flex;align-items:center;justify-content:center;
-  background:#100c10;overflow:hidden;
-  transition:opacity 1s ease, visibility 1s;
+  background:#120e12;overflow:hidden;
+  transition:opacity 1s ease,visibility 1s;
 }
 #msqLampSplash::before{
   content:'';position:absolute;inset:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 50% 50% at 78% 50%, rgba(255,160,80,0) 0%, transparent 55%),
-    linear-gradient(155deg,#2a1814 0%,#161014 55%,#0e0a10 100%);
-  transition:background 1.15s ease;
+    radial-gradient(ellipse 55% 55% at 78% 48%, rgba(255,160,70,0) 0%, transparent 58%),
+    linear-gradient(155deg,#2a1c16 0%,#161214 50%,#100c10 100%);
+  transition:background 1.2s ease;
 }
 #msqLampSplash.msq-lit::before{
   background:
-    radial-gradient(ellipse 55% 55% at 78% 48%, rgba(255,175,95,.38) 0%, rgba(180,90,40,.1) 42%, transparent 62%),
-    linear-gradient(155deg,#2c1a14 0%,#1a1216 55%,#100c12 100%);
+    radial-gradient(ellipse 58% 58% at 78% 48%, rgba(255,170,90,.4) 0%, rgba(200,100,40,.12) 40%, transparent 62%),
+    linear-gradient(155deg,#2c1c16 0%,#1a1416 50%,#120e12 100%);
 }
 #msqLampSplash.msq-splash-hide{opacity:0;visibility:hidden;pointer-events:none}
 
 #msqLampSplash .msq-splash-stage{
   position:relative;z-index:2;
   display:flex;align-items:center;justify-content:center;
-  gap:clamp(28px,6vw,90px);
-  width:min(1260px,96vw);padding:20px 14px;
+  gap:clamp(24px,5vw,80px);
+  width:min(1280px,96vw);padding:16px;
 }
 
-/* card left big */
 #msqLampSplash .msq-splash-card{
-  width:min(520px,92vw);
-  padding:56px 50px 48px;
+  width:min(500px,92vw);padding:52px 48px 44px;
   border-radius:28px;text-align:center;color:#faf6f2;
   background:rgba(255,255,255,.1);
   border:1px solid rgba(255,255,255,.16);
-  box-shadow:0 32px 70px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.22);
+  box-shadow:0 32px 70px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.22);
   backdrop-filter:blur(28px) saturate(1.35);
   -webkit-backdrop-filter:blur(28px) saturate(1.35);
-  opacity:0;transform:translateY(24px);filter:blur(6px);pointer-events:none;
+  opacity:0;transform:translateY(22px);filter:blur(6px);pointer-events:none;
 }
 #msqLampSplash.msq-lit .msq-splash-card{
-  animation:msqCard 1s cubic-bezier(.16,1,.3,1) .2s forwards;
+  animation:msqCard 1s cubic-bezier(.16,1,.3,1) .18s forwards;
   pointer-events:auto;
 }
 @keyframes msqCard{to{opacity:1;transform:none;filter:blur(0)}}
 
 #msqLampSplash .msq-splash-welcome{
-  margin:0 0 10px;font-family:Amiri,serif;font-size:clamp(26px,3vw,34px);
-  font-style:italic;font-weight:400;color:rgba(255,245,235,.92);opacity:0;
+  margin:0 0 8px;font-family:Amiri,serif;font-size:clamp(24px,3vw,32px);
+  font-style:italic;color:rgba(255,245,235,.92);opacity:0;
 }
-#msqLampSplash.msq-lit .msq-splash-welcome{animation:msqF .7s ease .4s forwards}
+#msqLampSplash.msq-lit .msq-splash-welcome{animation:msqF .7s ease .38s forwards}
 #msqLampSplash .msq-splash-brand{
-  margin:0 0 14px;font-family:'Playfair Display',Georgia,serif;
-  font-size:clamp(46px,6.5vw,62px);font-weight:700;color:#fff;line-height:1.05;opacity:0;
+  margin:0 0 12px;font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(44px,6vw,60px);font-weight:700;color:#fff;opacity:0;
 }
-#msqLampSplash.msq-lit .msq-splash-brand{animation:msqF .75s ease .52s forwards}
+#msqLampSplash.msq-lit .msq-splash-brand{animation:msqF .75s ease .5s forwards}
 #msqLampSplash .msq-splash-tagline{
-  margin:0 0 38px;font-family:Amiri,serif;font-size:clamp(17px,2.2vw,21px);
+  margin:0 0 36px;font-family:Amiri,serif;font-size:clamp(16px,2vw,20px);
   font-style:italic;color:rgba(235,195,165,.78);opacity:0;
 }
-#msqLampSplash.msq-lit .msq-splash-tagline{animation:msqF .75s ease .64s forwards}
+#msqLampSplash.msq-lit .msq-splash-tagline{animation:msqF .75s ease .62s forwards}
 @keyframes msqF{to{opacity:1}}
 
 #msqLampSplash .msq-splash-enter{
   display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;
-  min-height:58px;padding:16px 24px;border:0;border-radius:999px;cursor:pointer;
-  font-family:Cairo,sans-serif;font-size:17px;font-weight:800;letter-spacing:.1em;
+  min-height:56px;padding:14px 22px;border:0;border-radius:999px;cursor:pointer;
+  font-family:Cairo,sans-serif;font-size:16px;font-weight:800;letter-spacing:.1em;
   text-transform:uppercase;color:#1a100c;
-  background:linear-gradient(180deg,#f8dcc0,#e8b888 50%,#dca070);
-  box-shadow:0 12px 32px rgba(200,110,50,.4), inset 0 1px 0 rgba(255,255,255,.5);
-  opacity:0;transition:filter .2s,transform .2s;
+  background:linear-gradient(180deg,#f8dcc0,#e8b888 55%,#dca070);
+  box-shadow:0 12px 30px rgba(200,110,50,.38);opacity:0;
+  transition:filter .2s,transform .2s;
 }
-#msqLampSplash.msq-lit .msq-splash-enter{animation:msqF .8s ease .8s forwards}
+#msqLampSplash.msq-lit .msq-splash-enter{animation:msqF .8s ease .78s forwards}
 #msqLampSplash .msq-splash-enter:hover{filter:brightness(1.06);transform:translateY(-2px)}
 
-/* real lamp photo right */
+/* real photo lamp */
 #msqLampSplash .msq-lamp-wrap{
-  position:relative;width:min(400px,48vw);height:min(560px,80vh);flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  width:min(440px,50vw);
+  height:min(660px,88vh);
+  flex-shrink:0;
 }
 #msqLampSplash .msq-lamp-photo{
-  position:relative;z-index:2;width:100%;height:100%;
+  position:relative;z-index:2;
+  width:100%;height:100%;
   object-fit:contain;object-position:center center;
-  filter:brightness(.38) saturate(.55) contrast(1.05);
+  border-radius:12px;
+  filter:brightness(.4) saturate(.55) contrast(1.05);
   transition:filter 1.15s ease;
-  -webkit-user-drag:none;user-select:none;
+  -webkit-user-drag:none;user-select:none;pointer-events:none;
 }
 #msqLampSplash.msq-lit .msq-lamp-photo{
-  filter:brightness(1.12) saturate(1.15) contrast(1.02) drop-shadow(0 8px 36px rgba(255,160,80,.4));
+  filter:brightness(1.12) saturate(1.15) contrast(1.02) drop-shadow(0 12px 40px rgba(255,160,70,.4));
 }
 #msqLampSplash .msq-lamp-glow{
-  position:absolute;left:50%;top:40%;width:120%;height:90%;
+  position:absolute;left:50%;top:38%;width:120%;height:90%;
   transform:translate(-50%,-50%) scale(.3);
-  background:radial-gradient(circle,rgba(255,180,100,.5) 0%, rgba(255,140,50,.12) 40%, transparent 65%);
-  opacity:0;filter:blur(12px);pointer-events:none;z-index:1;
-  transition:opacity 1.15s ease, transform 1.15s ease;
+  background:radial-gradient(circle,rgba(255,175,90,.5) 0%,rgba(255,130,40,.12) 42%,transparent 65%);
+  opacity:0;filter:blur(14px);pointer-events:none;z-index:1;
+  transition:opacity 1.15s ease,transform 1.15s ease;
 }
 #msqLampSplash.msq-lit .msq-lamp-glow{opacity:1;transform:translate(-50%,-50%) scale(1)}
 
-#msqLampSplash .msq-cord-wrap{
-  position:absolute;z-index:8;right:18%;top:18%;
-  display:flex;flex-direction:column;align-items:center;
-  transform-origin:top center;will-change:transform;
+/* hit only over the REAL chain in the photo — no fake cord drawn */
+#msqLampSplash .msq-chain-hit{
+  position:absolute;z-index:10;
+  /* chain hangs under center of glass shade — tuned for this photo */
+  left:38%;
+  top:36%;
+  width:14%;
+  height:22%;
+  cursor:grab;
+  touch-action:none;
+  background:transparent;
+  border-radius:8px;
 }
-#msqLampSplash .msq-cord-line{
-  width:3px;height:68px;border-radius:2px;
-  background:linear-gradient(180deg,#e8d5a8,#a88850);
-  box-shadow:1px 0 2px rgba(0,0,0,.3);
+#msqLampSplash .msq-chain-hit:active{cursor:grabbing}
+#msqLampSplash .msq-chain-hit.msq-pulling{
+  cursor:grabbing;
 }
-#msqLampSplash .msq-cord-knob{
-  width:15px;height:20px;margin-top:-1px;border-radius:4px 4px 7px 7px;
-  background:linear-gradient(180deg,#f0e0b0,#b89560);
-  box-shadow:0 2px 6px rgba(0,0,0,.4);
+/* subtle pull feedback: chain area darkens slightly while dragging */
+#msqLampSplash .msq-chain-pull-fx{
+  position:absolute;z-index:3;pointer-events:none;
+  left:38%;top:36%;width:14%;height:22%;
+  background:linear-gradient(180deg, transparent, rgba(0,0,0,.15));
+  opacity:0;transition:opacity .15s, transform .05s linear;
+  border-radius:6px;
 }
-#msqLampSplash .msq-cord-hit{
-  position:absolute;z-index:9;right:10%;top:14%;width:60px;height:130px;
-  cursor:grab;touch-action:none;
-}
-#msqLampSplash .msq-cord-hit:active{cursor:grabbing}
-#msqLampSplash .msq-cord-label{
-  position:absolute;right:4%;top:40%;
+#msqLampSplash .msq-chain-hint{
+  position:absolute;z-index:5;pointer-events:none;
+  left:52%;top:48%;
   font-family:Cairo,sans-serif;font-size:11px;font-weight:700;
-  color:rgba(255,220,180,.4);writing-mode:vertical-rl;transform:rotate(180deg);
-  pointer-events:none;transition:opacity .4s;
+  color:rgba(255,220,180,.45);letter-spacing:.04em;
+  white-space:nowrap;
+  transition:opacity .5s;
+  text-shadow:0 1px 4px rgba(0,0,0,.5);
 }
-#msqLampSplash.msq-lit .msq-cord-label{opacity:0}
+#msqLampSplash.msq-lit .msq-chain-hint{opacity:0}
 
 @media(max-width:760px){
-  #msqLampSplash .msq-splash-stage{flex-direction:column-reverse;gap:16px}
-  #msqLampSplash .msq-lamp-wrap{width:min(260px,70vw);height:min(360px,45vh)}
-  #msqLampSplash .msq-splash-card{padding:40px 28px}
+  #msqLampSplash .msq-splash-stage{flex-direction:column-reverse;gap:12px}
+  #msqLampSplash .msq-lamp-wrap{width:min(280px,78vw);height:min(400px,48vh)}
+  #msqLampSplash .msq-splash-card{padding:36px 26px}
+  #msqLampSplash .msq-chain-hit{left:36%;top:34%;width:18%;height:24%}
 }
 </style>
-
-
-
-<style id="msq-lamp-photo-fix">
-#msqLampSplash .msq-lamp-wrap{
-  width:min(420px,48vw);
-  height:min(640px,86vh);
-}
-#msqLampSplash .msq-lamp-photo{
-  width:100%;height:100%;
-  object-fit:contain;object-position:center center;
-  filter:brightness(.35) saturate(.5) contrast(1.05);
-  transition:filter 1.2s ease;
-  -webkit-user-drag:none;user-select:none;
-}
-#msqLampSplash.msq-lit .msq-lamp-photo{
-  filter:brightness(1.15) saturate(1.2) contrast(1.02) drop-shadow(0 10px 42px rgba(255,160,70,.45));
-}
-/* series hangs under the glass shade */
-#msqLampSplash .msq-cord-wrap{
-  right:42%;
-  top:38%;
-}
-#msqLampSplash .msq-cord-hit{
-  right:32%;
-  top:32%;
-  width:70px;height:150px;
-}
-#msqLampSplash .msq-cord-label{
-  right:22%;
-  top:48%;
-}
-#msqLampSplash .msq-lamp-glow{
-  top:36%;
-  background:radial-gradient(circle, rgba(255,170,80,.55) 0%, rgba(255,130,40,.15) 40%, transparent 65%);
-}
-</style>
-
 
 </head>
 
@@ -1572,16 +1553,17 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
     </div>
     <div class="msq-lamp-wrap">
       <div class="msq-lamp-glow" aria-hidden="true"></div>
-      <img class="msq-lamp-photo" id="msqLampPhoto" src="assets/lamp-splash.png" alt="Floor lamp" draggable="false"/>
-      <div class="msq-cord-wrap" id="msqCordWrap">
-        <div class="msq-cord-line" id="msqCordLine"></div>
-        <div class="msq-cord-knob"></div>
-      </div>
-      <div class="msq-cord-hit" id="msqCordHit" role="button" tabindex="0" aria-label="اسحب الحبل"></div>
-      <span class="msq-cord-label">اسحب</span>
+      <img class="msq-lamp-photo" src="assets/lamp-splash.jpg" alt="Lamp" width="440" height="660" draggable="false"/>
+      <div class="msq-chain-pull-fx" id="msqChainFx" aria-hidden="true"></div>
+      <div class="msq-chain-hit" id="msqChainHit" role="button" tabindex="0" title="اسحب سلسلة الأباجورة" aria-label="اسحب سلسلة الأباجورة لتشغيل النور"></div>
+      <span class="msq-chain-hint">↓ اسحب السلسلة</span>
     </div>
   </div>
 </div>
+
+
+
+
 
 
 
@@ -2637,7 +2619,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   })();
   </script>
 
-  <script src="script.js?v=202611131628lampBest"></script>
+  <script src="script.js?v=202611131633realChain"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9741,11 +9723,14 @@ html body #msqAdminTabContent .order-card-admin {
 
 
 
+
+
+
 <script id="msq-lamp-splash-js">
 (function () {
-  if (window.__msqLampSplashV7) return;
-  window.__msqLampSplashV7 = true;
-  var SKIP_KEY = 'msq_splash_seen_v7';
+  if (window.__msqLampSplashV8) return;
+  window.__msqLampSplashV8 = true;
+  var SKIP_KEY = 'msq_splash_seen_v8';
   var mode = 'session';
 
   function shouldShow() {
@@ -9782,51 +9767,67 @@ html body #msqAdminTabContent .order-card-admin {
     el.classList.add('msq-lit');
   }
 
-  function bindPull() {
-    var hit = document.getElementById('msqCordHit');
-    var wrap = document.getElementById('msqCordWrap');
-    var line = document.getElementById('msqCordLine');
+  function bindChain() {
+    var hit = document.getElementById('msqChainHit');
+    var fx = document.getElementById('msqChainFx');
     var splash = document.getElementById('msqLampSplash');
-    if (!hit || !wrap || !splash) return;
-    var baseH = 68, startY = 0, pulling = false, done = false;
+    if (!hit || !splash) return;
+    var startY = 0, pulling = false, done = false;
+
     function setPull(dy) {
-      dy = Math.max(0, Math.min(100, dy));
-      wrap.style.transform = 'translateY(' + (dy * 0.4) + 'px)';
-      if (line) line.style.height = (baseH + dy * 0.55) + 'px';
+      dy = Math.max(0, Math.min(80, dy));
+      if (fx) {
+        fx.style.opacity = String(Math.min(1, dy / 30));
+        fx.style.transform = 'translateY(' + dy + 'px)';
+      }
+      hit.classList.toggle('msq-pulling', dy > 4);
     }
     function reset() {
-      wrap.style.transition = 'transform .28s ease';
-      if (line) line.style.transition = 'height .28s ease';
-      wrap.style.transform = '';
-      if (line) line.style.height = baseH + 'px';
-      setTimeout(function () {
-        wrap.style.transition = '';
-        if (line) line.style.transition = '';
-      }, 300);
+      if (fx) {
+        fx.style.transition = 'opacity .25s, transform .25s';
+        fx.style.opacity = '0';
+        fx.style.transform = '';
+        setTimeout(function () { fx.style.transition = ''; }, 280);
+      }
+      hit.classList.remove('msq-pulling');
     }
     function down(y) {
       if (done || splash.classList.contains('msq-lit')) return;
       pulling = true; startY = y;
-      wrap.style.transition = 'none';
-      if (line) line.style.transition = 'none';
+      if (fx) fx.style.transition = 'none';
     }
     function move(y) {
       if (!pulling || done) return;
       var dy = y - startY;
       setPull(dy);
-      if (dy > 50) { done = true; pulling = false; reset(); turnOn(); }
+      if (dy > 42) {
+        done = true; pulling = false;
+        reset();
+        turnOn();
+      }
     }
-    function up() { if (!done) reset(); pulling = false; }
+    function up() {
+      if (!done) reset();
+      pulling = false;
+    }
+
     hit.addEventListener('mousedown', function (e) { e.preventDefault(); down(e.clientY); });
     window.addEventListener('mousemove', function (e) { move(e.clientY); });
     window.addEventListener('mouseup', up);
-    hit.addEventListener('touchstart', function (e) { if (e.touches[0]) down(e.touches[0].clientY); }, { passive: true });
-    window.addEventListener('touchmove', function (e) { if (e.touches[0]) move(e.touches[0].clientY); }, { passive: true });
+    hit.addEventListener('touchstart', function (e) {
+      if (e.touches[0]) down(e.touches[0].clientY);
+    }, { passive: true });
+    window.addEventListener('touchmove', function (e) {
+      if (e.touches[0]) move(e.touches[0].clientY);
+    }, { passive: true });
     window.addEventListener('touchend', up);
     hit.addEventListener('click', function () {
       if (done || splash.classList.contains('msq-lit')) return;
-      setPull(60);
+      setPull(50);
       setTimeout(function () { reset(); done = true; turnOn(); }, 200);
+    });
+    hit.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); turnOn(); }
     });
   }
 
@@ -9837,7 +9838,16 @@ html body #msqAdminTabContent .order-card-admin {
       document.documentElement.style.overflow = 'hidden';
       document.body.style.overflow = 'hidden';
     } catch (e) {}
-    bindPull();
+    // ensure image path resolves even if relative base is odd
+    var img = el && el.querySelector('.msq-lamp-photo');
+    if (img) {
+      img.onerror = function () {
+        if (img.dataset.tried) return;
+        img.dataset.tried = '1';
+        img.src = 'assets/lamp-splash.png';
+      };
+    }
+    bindChain();
     var btn = document.getElementById('msqSplashEnterBtn');
     if (btn) btn.addEventListener('click', hideSplash);
   }
