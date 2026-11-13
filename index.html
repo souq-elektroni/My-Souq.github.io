@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611131557lampReal";
+  var BUILD = "202611131628lampBest";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611131557lampReal">
+  <meta name="msq-build" content="202611131628lampBest">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611131557lampReal">
-<link rel="stylesheet" href="styles.css?v=202611131557lampReal">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611131628lampBest">
+<link rel="stylesheet" href="styles.css?v=202611131628lampBest">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611131557lampReal">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611131557lampReal">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611131628lampBest">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611131628lampBest">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1381,214 +1381,182 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 
 
+
+
+
 <style id="msq-lamp-splash-css">
-@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Cairo:wght@700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap');
 
 #msqLampSplash{
   position:fixed;inset:0;z-index:99999;
   display:flex;align-items:center;justify-content:center;
-  background:#120c10;
-  overflow:hidden;
-  transition:opacity 1.05s cubic-bezier(.22,1,.36,1), visibility 1.05s;
+  background:#100c10;overflow:hidden;
+  transition:opacity 1s ease, visibility 1s;
 }
 #msqLampSplash::before{
   content:'';position:absolute;inset:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 48% 48% at 78% 50%, rgba(255,150,70,0) 0%, transparent 55%),
-    linear-gradient(155deg,#241610 0%,#161014 50%,#0e0a10 100%);
-  transition:background 1.2s ease;
+    radial-gradient(ellipse 50% 50% at 78% 50%, rgba(255,160,80,0) 0%, transparent 55%),
+    linear-gradient(155deg,#2a1814 0%,#161014 55%,#0e0a10 100%);
+  transition:background 1.15s ease;
 }
 #msqLampSplash.msq-lit::before{
   background:
-    radial-gradient(ellipse 52% 52% at 78% 48%, rgba(255,175,95,.4) 0%, rgba(200,100,40,.12) 40%, transparent 62%),
-    linear-gradient(155deg,#2a1a14 0%,#1a1216 50%,#100c12 100%);
+    radial-gradient(ellipse 55% 55% at 78% 48%, rgba(255,175,95,.38) 0%, rgba(180,90,40,.1) 42%, transparent 62%),
+    linear-gradient(155deg,#2c1a14 0%,#1a1216 55%,#100c12 100%);
 }
 #msqLampSplash.msq-splash-hide{opacity:0;visibility:hidden;pointer-events:none}
-#msqLampSplash.msq-leaving{pointer-events:none}
 
 #msqLampSplash .msq-splash-stage{
   position:relative;z-index:2;
   display:flex;align-items:center;justify-content:center;
-  gap:clamp(32px,7vw,100px);
-  width:min(1280px,96vw);
-  padding:20px 16px;
+  gap:clamp(28px,6vw,90px);
+  width:min(1260px,96vw);padding:20px 14px;
 }
 
-/* ===== CARD left — bigger ===== */
+/* card left big */
 #msqLampSplash .msq-splash-card{
-  position:relative;
   width:min(520px,92vw);
-  padding:56px 52px 48px;
-  border-radius:28px;
-  text-align:center;
-  color:#faf6f2;
-  background:linear-gradient(165deg, rgba(255,255,255,.15) 0%, rgba(255,255,255,.06) 100%);
-  border:1px solid rgba(255,255,255,.18);
-  box-shadow:0 36px 80px rgba(0,0,0,.48), inset 0 1px 0 rgba(255,255,255,.25);
-  backdrop-filter:blur(30px) saturate(1.4);
-  -webkit-backdrop-filter:blur(30px) saturate(1.4);
-  opacity:0;transform:translateY(28px) scale(.96);filter:blur(8px);
-  pointer-events:none;
+  padding:56px 50px 48px;
+  border-radius:28px;text-align:center;color:#faf6f2;
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 32px 70px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.22);
+  backdrop-filter:blur(28px) saturate(1.35);
+  -webkit-backdrop-filter:blur(28px) saturate(1.35);
+  opacity:0;transform:translateY(24px);filter:blur(6px);pointer-events:none;
 }
 #msqLampSplash.msq-lit .msq-splash-card{
-  animation:msqCardIn 1s cubic-bezier(.16,1,.3,1) .22s forwards;
+  animation:msqCard 1s cubic-bezier(.16,1,.3,1) .2s forwards;
   pointer-events:auto;
 }
-@keyframes msqCardIn{
-  to{opacity:1;transform:none;filter:blur(0)}
-}
+@keyframes msqCard{to{opacity:1;transform:none;filter:blur(0)}}
 
 #msqLampSplash .msq-splash-welcome{
-  margin:0 0 10px;
-  font-family:'Amiri',serif;
-  font-size:clamp(26px,3.2vw,34px);
-  font-weight:400;font-style:italic;
-  color:rgba(255,245,235,.92);
-  letter-spacing:.02em;
-  opacity:0;
+  margin:0 0 10px;font-family:Amiri,serif;font-size:clamp(26px,3vw,34px);
+  font-style:italic;font-weight:400;color:rgba(255,245,235,.92);opacity:0;
 }
-#msqLampSplash.msq-lit .msq-splash-welcome{animation:msqT .7s ease .42s forwards}
-
+#msqLampSplash.msq-lit .msq-splash-welcome{animation:msqF .7s ease .4s forwards}
 #msqLampSplash .msq-splash-brand{
-  margin:0 0 16px;
-  font-family:'Playfair Display',Georgia,serif;
-  font-size:clamp(48px,7vw,64px);
-  font-weight:700;
-  color:#fff;
-  letter-spacing:.02em;
-  line-height:1.05;
-  text-shadow:0 2px 24px rgba(0,0,0,.25);
-  opacity:0;
+  margin:0 0 14px;font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(46px,6.5vw,62px);font-weight:700;color:#fff;line-height:1.05;opacity:0;
 }
-#msqLampSplash.msq-lit .msq-splash-brand{animation:msqT .75s ease .54s forwards}
-
+#msqLampSplash.msq-lit .msq-splash-brand{animation:msqF .75s ease .52s forwards}
 #msqLampSplash .msq-splash-tagline{
-  margin:0 0 40px;
-  font-family:'Amiri',serif;
-  font-size:clamp(18px,2.4vw,22px);
-  font-weight:400;font-style:italic;
-  color:rgba(235,195,165,.78);
-  letter-spacing:.03em;
-  opacity:0;
+  margin:0 0 38px;font-family:Amiri,serif;font-size:clamp(17px,2.2vw,21px);
+  font-style:italic;color:rgba(235,195,165,.78);opacity:0;
 }
-#msqLampSplash.msq-lit .msq-splash-tagline{animation:msqT .75s ease .66s forwards}
-@keyframes msqT{to{opacity:1}}
+#msqLampSplash.msq-lit .msq-splash-tagline{animation:msqF .75s ease .64s forwards}
+@keyframes msqF{to{opacity:1}}
 
 #msqLampSplash .msq-splash-enter{
-  display:inline-flex;align-items:center;justify-content:center;gap:12px;
-  width:100%;
-  min-height:58px;
-  padding:16px 28px;
-  border:0;border-radius:999px;cursor:pointer;
-  font-family:'Cairo',system-ui,sans-serif;
-  font-size:16px;font-weight:800;
-  letter-spacing:.12em;text-transform:uppercase;
-  color:#1a100c;
-  background:linear-gradient(180deg,#f8dcc0 0%,#ebc08e 45%,#dca070 100%);
-  box-shadow:0 12px 32px rgba(200,110,50,.4), inset 0 1px 0 rgba(255,255,255,.55);
-  opacity:0;
-  transition:filter .2s ease, transform .2s ease, box-shadow .2s ease;
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;
+  min-height:58px;padding:16px 24px;border:0;border-radius:999px;cursor:pointer;
+  font-family:Cairo,sans-serif;font-size:17px;font-weight:800;letter-spacing:.1em;
+  text-transform:uppercase;color:#1a100c;
+  background:linear-gradient(180deg,#f8dcc0,#e8b888 50%,#dca070);
+  box-shadow:0 12px 32px rgba(200,110,50,.4), inset 0 1px 0 rgba(255,255,255,.5);
+  opacity:0;transition:filter .2s,transform .2s;
 }
-#msqLampSplash.msq-lit .msq-splash-enter{animation:msqT .8s ease .82s forwards}
-#msqLampSplash .msq-splash-enter:hover{
-  filter:brightness(1.06);
-  transform:translateY(-2px);
-  box-shadow:0 16px 40px rgba(200,110,50,.5), inset 0 1px 0 rgba(255,255,255,.6);
-}
-#msqLampSplash .msq-splash-enter:active{transform:scale(.98)}
+#msqLampSplash.msq-lit .msq-splash-enter{animation:msqF .8s ease .8s forwards}
+#msqLampSplash .msq-splash-enter:hover{filter:brightness(1.06);transform:translateY(-2px)}
 
-/* ===== LAMP right — realistic metal + fabric ===== */
+/* real lamp photo right */
 #msqLampSplash .msq-lamp-wrap{
-  position:relative;
-  width:min(380px,46vw);
-  height:min(560px,82vh);
-  flex-shrink:0;
+  position:relative;width:min(400px,48vw);height:min(560px,80vh);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+#msqLampSplash .msq-lamp-photo{
+  position:relative;z-index:2;width:100%;height:100%;
+  object-fit:contain;object-position:center center;
+  filter:brightness(.38) saturate(.55) contrast(1.05);
+  transition:filter 1.15s ease;
+  -webkit-user-drag:none;user-select:none;
+}
+#msqLampSplash.msq-lit .msq-lamp-photo{
+  filter:brightness(1.12) saturate(1.15) contrast(1.02) drop-shadow(0 8px 36px rgba(255,160,80,.4));
 }
 #msqLampSplash .msq-lamp-glow{
-  position:absolute;left:50%;top:36%;
-  width:130%;height:95%;
-  transform:translate(-50%,-50%) scale(.25);
-  background:radial-gradient(circle, rgba(255,185,100,.55) 0%, rgba(255,140,50,.16) 36%, transparent 64%);
-  opacity:0;filter:blur(10px);
-  transition:opacity 1.15s ease, transform 1.2s cubic-bezier(.16,1,.3,1);
-  pointer-events:none;z-index:0;
+  position:absolute;left:50%;top:40%;width:120%;height:90%;
+  transform:translate(-50%,-50%) scale(.3);
+  background:radial-gradient(circle,rgba(255,180,100,.5) 0%, rgba(255,140,50,.12) 40%, transparent 65%);
+  opacity:0;filter:blur(12px);pointer-events:none;z-index:1;
+  transition:opacity 1.15s ease, transform 1.15s ease;
 }
-#msqLampSplash.msq-lit .msq-lamp-glow{
-  opacity:1;transform:translate(-50%,-50%) scale(1);
-}
-/* light cone under shade */
-#msqLampSplash .msq-light-cone{
-  position:absolute;left:50%;top:28%;
-  width:70%;height:45%;
-  transform:translateX(-50%);
-  background:linear-gradient(180deg, rgba(255,210,140,.35) 0%, rgba(255,170,80,.08) 45%, transparent 100%);
-  opacity:0;pointer-events:none;z-index:1;
-  clip-path:polygon(30% 0, 70% 0, 100% 100%, 0% 100%);
-  transition:opacity 1s ease .1s;
-  filter:blur(2px);
-}
-#msqLampSplash.msq-lit .msq-light-cone{opacity:1}
+#msqLampSplash.msq-lit .msq-lamp-glow{opacity:1;transform:translate(-50%,-50%) scale(1)}
 
-#msqLampSplash .msq-lamp-svg{
-  position:relative;z-index:3;width:100%;height:100%;
-  filter:drop-shadow(0 24px 40px rgba(0,0,0,.55));
-}
-
-#msqLampSplash .shade-off{opacity:1;transition:opacity .85s ease}
-#msqLampSplash.msq-lit .shade-off{opacity:0}
-#msqLampSplash .shade-on{opacity:0;transition:opacity .95s ease .05s}
-#msqLampSplash.msq-lit .shade-on{opacity:1}
-
-/* real interactive cord */
 #msqLampSplash .msq-cord-wrap{
-  position:absolute;z-index:10;
-  right:11%;top:15%;
-  width:40px;
+  position:absolute;z-index:8;right:18%;top:18%;
   display:flex;flex-direction:column;align-items:center;
-  transform-origin:top center;
-  will-change:transform;
+  transform-origin:top center;will-change:transform;
 }
 #msqLampSplash .msq-cord-line{
-  width:3px;
-  height:70px;
-  border-radius:2px;
-  background:linear-gradient(180deg,#e8d5a8 0%,#c4a060 40%,#a88850 100%);
-  box-shadow:1px 0 2px rgba(0,0,0,.25), -0.5px 0 1px rgba(255,255,255,.25);
+  width:3px;height:68px;border-radius:2px;
+  background:linear-gradient(180deg,#e8d5a8,#a88850);
+  box-shadow:1px 0 2px rgba(0,0,0,.3);
 }
 #msqLampSplash .msq-cord-knob{
-  width:16px;height:22px;margin-top:-2px;
-  border-radius:5px 5px 8px 8px;
-  background:
-    linear-gradient(90deg, rgba(255,255,255,.35), transparent 40%, rgba(0,0,0,.2)),
-    linear-gradient(180deg,#f0e0b0,#c9a060 60%,#9a7848);
-  box-shadow:0 3px 8px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.4);
-  cursor:grab;touch-action:none;
+  width:15px;height:20px;margin-top:-1px;border-radius:4px 4px 7px 7px;
+  background:linear-gradient(180deg,#f0e0b0,#b89560);
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
 }
-#msqLampSplash .msq-cord-knob:active{cursor:grabbing}
 #msqLampSplash .msq-cord-hit{
-  position:absolute;z-index:11;
-  right:6%;top:12%;
-  width:56px;height:140px;
+  position:absolute;z-index:9;right:10%;top:14%;width:60px;height:130px;
   cursor:grab;touch-action:none;
 }
 #msqLampSplash .msq-cord-hit:active{cursor:grabbing}
 #msqLampSplash .msq-cord-label{
-  position:absolute;right:2%;top:42%;
-  font-family:'Cairo',sans-serif;
-  font-size:11px;font-weight:600;letter-spacing:.08em;
-  color:rgba(255,220,180,.4);
-  writing-mode:vertical-rl;transform:rotate(180deg);
-  pointer-events:none;transition:opacity .5s;
+  position:absolute;right:4%;top:40%;
+  font-family:Cairo,sans-serif;font-size:11px;font-weight:700;
+  color:rgba(255,220,180,.4);writing-mode:vertical-rl;transform:rotate(180deg);
+  pointer-events:none;transition:opacity .4s;
 }
 #msqLampSplash.msq-lit .msq-cord-label{opacity:0}
 
-@media (max-width:760px){
-  #msqLampSplash .msq-splash-stage{flex-direction:column-reverse;gap:18px}
-  #msqLampSplash .msq-lamp-wrap{width:min(260px,70vw);height:min(380px,48vh)}
-  #msqLampSplash .msq-splash-card{padding:40px 28px 36px}
-  #msqLampSplash .msq-splash-enter{font-size:15px;min-height:54px}
+@media(max-width:760px){
+  #msqLampSplash .msq-splash-stage{flex-direction:column-reverse;gap:16px}
+  #msqLampSplash .msq-lamp-wrap{width:min(260px,70vw);height:min(360px,45vh)}
+  #msqLampSplash .msq-splash-card{padding:40px 28px}
 }
 </style>
+
+
+
+<style id="msq-lamp-photo-fix">
+#msqLampSplash .msq-lamp-wrap{
+  width:min(420px,48vw);
+  height:min(640px,86vh);
+}
+#msqLampSplash .msq-lamp-photo{
+  width:100%;height:100%;
+  object-fit:contain;object-position:center center;
+  filter:brightness(.35) saturate(.5) contrast(1.05);
+  transition:filter 1.2s ease;
+  -webkit-user-drag:none;user-select:none;
+}
+#msqLampSplash.msq-lit .msq-lamp-photo{
+  filter:brightness(1.15) saturate(1.2) contrast(1.02) drop-shadow(0 10px 42px rgba(255,160,70,.45));
+}
+/* series hangs under the glass shade */
+#msqLampSplash .msq-cord-wrap{
+  right:42%;
+  top:38%;
+}
+#msqLampSplash .msq-cord-hit{
+  right:32%;
+  top:32%;
+  width:70px;height:150px;
+}
+#msqLampSplash .msq-cord-label{
+  right:22%;
+  top:48%;
+}
+#msqLampSplash .msq-lamp-glow{
+  top:36%;
+  background:radial-gradient(circle, rgba(255,170,80,.55) 0%, rgba(255,130,40,.15) 40%, transparent 65%);
+}
+</style>
+
 
 </head>
 
@@ -1596,118 +1564,28 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 <div id="msqLampSplash" role="dialog" aria-label="Welcome to My Souq" aria-modal="true">
   <div class="msq-splash-stage">
-
     <div class="msq-splash-card">
       <p class="msq-splash-welcome">Welcome back</p>
       <h1 class="msq-splash-brand">My Souq</h1>
       <p class="msq-splash-tagline">The light&rsquo;s on for you</p>
       <button type="button" class="msq-splash-enter" id="msqSplashEnterBtn">Let&rsquo;s enter →</button>
     </div>
-
     <div class="msq-lamp-wrap">
       <div class="msq-lamp-glow" aria-hidden="true"></div>
-      <div class="msq-light-cone" aria-hidden="true"></div>
-
+      <img class="msq-lamp-photo" id="msqLampPhoto" src="assets/lamp-splash.png" alt="Floor lamp" draggable="false"/>
       <div class="msq-cord-wrap" id="msqCordWrap">
         <div class="msq-cord-line" id="msqCordLine"></div>
-        <div class="msq-cord-knob" id="msqCordKnob"></div>
+        <div class="msq-cord-knob"></div>
       </div>
-      <div class="msq-cord-hit" id="msqCordHit" role="button" tabindex="0" aria-label="اسحب الحبل لتشغيل النور"></div>
+      <div class="msq-cord-hit" id="msqCordHit" role="button" tabindex="0" aria-label="اسحب الحبل"></div>
       <span class="msq-cord-label">اسحب</span>
-
-      <svg class="msq-lamp-svg" viewBox="0 0 240 400" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs>
-          <linearGradient id="metal" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#8a6a40"/>
-            <stop offset="25%" stop-color="#e8d4a0"/>
-            <stop offset="50%" stop-color="#f5e8c0"/>
-            <stop offset="75%" stop-color="#c4a060"/>
-            <stop offset="100%" stop-color="#7a5a38"/>
-          </linearGradient>
-          <linearGradient id="metalV" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#e8d4a0"/>
-            <stop offset="100%" stop-color="#9a7848"/>
-          </linearGradient>
-          <radialGradient id="ball" cx="32%" cy="28%" r="72%">
-            <stop offset="0%" stop-color="#fff6d8"/>
-            <stop offset="40%" stop-color="#e0c080"/>
-            <stop offset="100%" stop-color="#8a6840"/>
-          </radialGradient>
-          <linearGradient id="fabricOff" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#4a3438"/>
-            <stop offset="100%" stop-color="#2a1c20"/>
-          </linearGradient>
-          <linearGradient id="fabricOn" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#f8d4bc"/>
-            <stop offset="35%" stop-color="#f0b898"/>
-            <stop offset="100%" stop-color="#c87860"/>
-          </linearGradient>
-          <linearGradient id="fabricSheen" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="rgba(255,255,255,.25)"/>
-            <stop offset="40%" stop-color="rgba(255,255,255,0)"/>
-            <stop offset="100%" stop-color="rgba(0,0,0,.2)"/>
-          </linearGradient>
-          <filter id="metalSh" x="-10%" y="-10%" width="120%" height="120%">
-            <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-opacity=".35"/>
-          </filter>
-        </defs>
-
-        <!-- floor shadow -->
-        <ellipse cx="120" cy="388" rx="58" ry="8" fill="rgba(0,0,0,.4)"/>
-
-        <!-- 3 metal legs -->
-        <g stroke="url(#metal)" stroke-width="4" stroke-linecap="round" filter="url(#metalSh)">
-          <line x1="120" y1="290" x2="48" y2="375"/>
-          <line x1="120" y1="290" x2="192" y2="375"/>
-          <line x1="120" y1="290" x2="120" y2="382"/>
-        </g>
-        <circle cx="48" cy="375" r="6.5" fill="url(#ball)"/>
-        <circle cx="192" cy="375" r="6.5" fill="url(#ball)"/>
-        <circle cx="120" cy="382" r="6.5" fill="url(#ball)"/>
-
-        <!-- hub -->
-        <circle cx="120" cy="290" r="13" fill="url(#ball)" filter="url(#metalSh)"/>
-        <circle cx="120" cy="290" r="5" fill="#6a5030"/>
-
-        <!-- metal pole -->
-        <line x1="120" y1="142" x2="120" y2="290" stroke="url(#metalV)" stroke-width="5" stroke-linecap="round"/>
-        <line x1="118" y1="142" x2="118" y2="290" stroke="rgba(255,255,255,.22)" stroke-width="1.5"/>
-
-        <!-- joints -->
-        <circle cx="120" cy="185" r="8.5" fill="url(#ball)" filter="url(#metalSh)"/>
-        <circle cx="120" cy="235" r="8.5" fill="url(#ball)" filter="url(#metalSh)"/>
-        <circle cx="120" cy="185" r="3.2" fill="#7a5a38"/>
-        <circle cx="120" cy="235" r="3.2" fill="#7a5a38"/>
-
-        <!-- SHADE OFF — dark fabric -->
-        <g class="shade-off">
-          <path d="M28 108 C28 58, 212 58, 212 108 L195 142 L45 142 Z" fill="url(#fabricOff)"/>
-          <path d="M28 108 C28 58, 212 58, 212 108 L195 142 L45 142 Z" fill="url(#fabricSheen)" opacity=".4"/>
-          <ellipse cx="120" cy="62" rx="22" ry="8" fill="#3a2c2c"/>
-          <rect x="112" y="50" width="16" height="16" rx="3" fill="#4a3a38"/>
-        </g>
-
-        <!-- SHADE ON — lit fabric + light under -->
-        <g class="shade-on">
-          <!-- glow under shade -->
-          <ellipse cx="120" cy="148" rx="88" ry="28" fill="rgba(255,200,120,.45)"/>
-          <path d="M28 108 C28 58, 212 58, 212 108 L195 142 L45 142 Z" fill="url(#fabricOn)"/>
-          <path d="M28 108 C28 58, 212 58, 212 108 L195 142 L45 142 Z" fill="url(#fabricSheen)" opacity=".55"/>
-          <!-- fabric folds -->
-          <path d="M55 100 L62 140" stroke="rgba(120,60,50,.18)" stroke-width="1.4" fill="none"/>
-          <path d="M80 90 L85 140" stroke="rgba(120,60,50,.15)" stroke-width="1.2" fill="none"/>
-          <path d="M120 86 L120 140" stroke="rgba(120,60,50,.12)" stroke-width="1.1" fill="none"/>
-          <path d="M160 90 L155 140" stroke="rgba(120,60,50,.15)" stroke-width="1.2" fill="none"/>
-          <path d="M185 100 L178 140" stroke="rgba(120,60,50,.18)" stroke-width="1.4" fill="none"/>
-          <path d="M48 142 L192 142" stroke="rgba(255,220,170,.45)" stroke-width="2"/>
-          <ellipse cx="120" cy="62" rx="22" ry="8" fill="#5a4440"/>
-          <rect x="112" y="50" width="16" height="16" rx="3" fill="#6a5448"/>
-        </g>
-      </svg>
     </div>
-
   </div>
 </div>
+
+
+
+
 
 
 
@@ -2759,7 +2637,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   })();
   </script>
 
-  <script src="script.js?v=202611131557lampReal"></script>
+  <script src="script.js?v=202611131628lampBest"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9860,11 +9738,14 @@ html body #msqAdminTabContent .order-card-admin {
 
 
 
+
+
+
 <script id="msq-lamp-splash-js">
 (function () {
-  if (window.__msqLampSplashV6) return;
-  window.__msqLampSplashV6 = true;
-  var SKIP_KEY = 'msq_splash_seen_v6';
+  if (window.__msqLampSplashV7) return;
+  window.__msqLampSplashV7 = true;
+  var SKIP_KEY = 'msq_splash_seen_v7';
   var mode = 'session';
 
   function shouldShow() {
@@ -9880,7 +9761,6 @@ html body #msqAdminTabContent .order-card-admin {
       else if (mode === 'session') sessionStorage.setItem(SKIP_KEY, '1');
     } catch (e) {}
   }
-
   function hideSplash() {
     var el = document.getElementById('msqLampSplash');
     if (!el || el.classList.contains('msq-leaving')) return;
@@ -9892,7 +9772,7 @@ html body #msqAdminTabContent .order-card-admin {
         document.documentElement.style.overflow = '';
         document.body.style.overflow = '';
       } catch (e2) {}
-    }, 1050);
+    }, 1000);
   }
   window.msqEnterStore = hideSplash;
 
@@ -9907,28 +9787,23 @@ html body #msqAdminTabContent .order-card-admin {
     var wrap = document.getElementById('msqCordWrap');
     var line = document.getElementById('msqCordLine');
     var splash = document.getElementById('msqLampSplash');
-    if (!hit || !splash || !wrap) return;
-
-    var baseH = 70;
-    var startY = 0, pulling = false, done = false;
-
+    if (!hit || !wrap || !splash) return;
+    var baseH = 68, startY = 0, pulling = false, done = false;
     function setPull(dy) {
-      dy = Math.max(0, Math.min(90, dy));
-      var stretch = 1 + dy / 90 * 0.85;
-      wrap.style.transform = 'translateY(' + (dy * 0.35) + 'px)';
-      if (line) line.style.height = (baseH * stretch) + 'px';
+      dy = Math.max(0, Math.min(100, dy));
+      wrap.style.transform = 'translateY(' + (dy * 0.4) + 'px)';
+      if (line) line.style.height = (baseH + dy * 0.55) + 'px';
     }
-    function resetPull() {
-      wrap.style.transition = 'transform .25s ease';
-      if (line) line.style.transition = 'height .25s ease';
+    function reset() {
+      wrap.style.transition = 'transform .28s ease';
+      if (line) line.style.transition = 'height .28s ease';
       wrap.style.transform = '';
       if (line) line.style.height = baseH + 'px';
       setTimeout(function () {
         wrap.style.transition = '';
         if (line) line.style.transition = '';
-      }, 280);
+      }, 300);
     }
-
     function down(y) {
       if (done || splash.classList.contains('msq-lit')) return;
       pulling = true; startY = y;
@@ -9939,35 +9814,19 @@ html body #msqAdminTabContent .order-card-admin {
       if (!pulling || done) return;
       var dy = y - startY;
       setPull(dy);
-      if (dy > 48) {
-        done = true; pulling = false;
-        resetPull();
-        turnOn();
-      }
+      if (dy > 50) { done = true; pulling = false; reset(); turnOn(); }
     }
-    function up() {
-      if (!done) resetPull();
-      pulling = false;
-    }
-
+    function up() { if (!done) reset(); pulling = false; }
     hit.addEventListener('mousedown', function (e) { e.preventDefault(); down(e.clientY); });
     window.addEventListener('mousemove', function (e) { move(e.clientY); });
     window.addEventListener('mouseup', up);
-    hit.addEventListener('touchstart', function (e) {
-      if (e.touches[0]) down(e.touches[0].clientY);
-    }, { passive: true });
-    window.addEventListener('touchmove', function (e) {
-      if (e.touches[0]) move(e.touches[0].clientY);
-    }, { passive: true });
+    hit.addEventListener('touchstart', function (e) { if (e.touches[0]) down(e.touches[0].clientY); }, { passive: true });
+    window.addEventListener('touchmove', function (e) { if (e.touches[0]) move(e.touches[0].clientY); }, { passive: true });
     window.addEventListener('touchend', up);
-
     hit.addEventListener('click', function () {
-      if (splash.classList.contains('msq-lit') || done) return;
-      setPull(55);
-      setTimeout(function () { resetPull(); done = true; turnOn(); }, 220);
-    });
-    hit.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); turnOn(); }
+      if (done || splash.classList.contains('msq-lit')) return;
+      setPull(60);
+      setTimeout(function () { reset(); done = true; turnOn(); }, 200);
     });
   }
 
