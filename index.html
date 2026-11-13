@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611121520threeFix";
+  var BUILD = "202611131520lampPull";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611121520threeFix">
+  <meta name="msq-build" content="202611131520lampPull">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611121520threeFix">
-<link rel="stylesheet" href="styles.css?v=202611121520threeFix">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611131520lampPull">
+<link rel="stylesheet" href="styles.css?v=202611131520lampPull">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611121520threeFix">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611121520threeFix">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611131520lampPull">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611131520lampPull">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1365,9 +1365,323 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 #successModal .success-btn{border-radius:12px}
 </style>
 
+
+
+
+
+<style id="msq-lamp-splash-css">
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap');
+
+#msqLampSplash{
+  position:fixed;inset:0;z-index:99999;
+  display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(ellipse 90% 70% at 18% 75%, rgba(90,45,20,0) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 85% 25%, rgba(60,30,80,.12) 0%, transparent 55%),
+    linear-gradient(160deg, #07050a 0%, #120c14 45%, #0a070e 100%);
+  overflow:hidden;
+  transition:opacity .85s ease, visibility .85s ease;
+}
+#msqLampSplash.msq-splash-hide{
+  opacity:0;visibility:hidden;pointer-events:none;
+}
+#msqLampSplash.msq-lit{
+  background:
+    radial-gradient(ellipse 100% 80% at 22% 70%, rgba(255,170,80,.28) 0%, rgba(180,90,40,.08) 42%, transparent 62%),
+    radial-gradient(ellipse 55% 45% at 82% 22%, rgba(140,80,160,.16) 0%, transparent 55%),
+    linear-gradient(160deg, #0e0a12 0%, #1a1018 45%, #100c12 100%);
+  transition:background 1.1s ease;
+}
+
+#msqLampSplash .msq-splash-stage{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:center;
+  gap:clamp(20px,5vw,72px);
+  width:min(1080px,96vw);
+  padding:20px 12px;
+  flex-wrap:wrap;
+}
+
+/* ===== Realistic floor lamp ===== */
+#msqLampSplash .msq-lamp-wrap{
+  position:relative;
+  width:min(300px,48vw);
+  height:min(420px,62vh);
+  flex-shrink:0;
+  display:flex;align-items:flex-end;justify-content:center;
+  user-select:none;-webkit-user-select:none;
+}
+#msqLampSplash .msq-lamp-room-glow{
+  position:absolute;left:50%;bottom:18%;
+  width:240px;height:240px;
+  transform:translateX(-50%) scale(.4);
+  background:radial-gradient(circle, rgba(255,200,120,.55) 0%, rgba(255,150,60,.18) 40%, transparent 68%);
+  opacity:0;filter:blur(6px);
+  transition:opacity 1s ease, transform 1s ease;
+  pointer-events:none;
+}
+#msqLampSplash.msq-lit .msq-lamp-room-glow{
+  opacity:1;transform:translateX(-50%) scale(1);
+}
+
+#msqLampSplash .msq-lamp-svg{
+  position:relative;z-index:2;
+  width:100%;height:100%;
+  filter:drop-shadow(0 18px 28px rgba(0,0,0,.55));
+}
+/* shade brightness */
+#msqLampSplash .lamp-shade-main{
+  fill:#3a2a28;
+  transition:fill 1s ease, filter 1s ease;
+  filter:brightness(.55);
+}
+#msqLampSplash.msq-lit .lamp-shade-main{
+  fill:url(#shadeOnGrad);
+  filter:brightness(1) drop-shadow(0 0 18px rgba(255,180,100,.45));
+}
+#msqLampSplash .lamp-shade-inner{
+  opacity:0;transition:opacity 1s ease;
+}
+#msqLampSplash.msq-lit .lamp-shade-inner{opacity:1}
+
+/* Pull cord */
+#msqLampSplash .msq-pull-hit{
+  position:absolute;
+  z-index:5;
+  right:14%;
+  top:22%;
+  width:44px;height:120px;
+  cursor:grab;
+  touch-action:none;
+  background:transparent;
+}
+#msqLampSplash .msq-pull-hit:active{cursor:grabbing}
+#msqLampSplash .msq-pull-visual{
+  position:absolute;
+  right:22%;
+  top:20%;
+  width:2px;
+  height:70px;
+  background:linear-gradient(180deg, #c4a878, #8a7048);
+  border-radius:2px;
+  transform-origin:top center;
+  transition:transform .15s ease;
+  pointer-events:none;
+  z-index:4;
+}
+#msqLampSplash .msq-pull-visual::after{
+  content:'';
+  position:absolute;left:50%;bottom:-10px;
+  width:12px;height:18px;
+  transform:translateX(-50%);
+  border-radius:4px 4px 6px 6px;
+  background:linear-gradient(180deg,#e8d0a0,#b89560);
+  box-shadow:0 2px 4px rgba(0,0,0,.35);
+}
+#msqLampSplash .msq-pull-visual.msq-pulling{
+  transform:scaleY(1.35);
+}
+#msqLampSplash .msq-pull-hint{
+  position:absolute;right:4%;top:48%;
+  font-family:'Outfit',system-ui,sans-serif;
+  font-size:11px;font-weight:400;
+  letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(255,230,200,.4);
+  writing-mode:vertical-rl;
+  transform:rotate(180deg);
+  pointer-events:none;
+  transition:opacity .6s ease;
+}
+#msqLampSplash.msq-lit .msq-pull-hint{opacity:0}
+
+/* ===== Glass card — hidden until lit ===== */
+#msqLampSplash .msq-splash-card{
+  position:relative;
+  width:min(360px,92vw);
+  padding:40px 34px 34px;
+  border-radius:22px;
+  background:linear-gradient(155deg, rgba(255,255,255,.14) 0%, rgba(255,255,255,.05) 55%, rgba(255,255,255,.07) 100%);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:
+    0 30px 70px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.22),
+    inset 0 -1px 0 rgba(255,255,255,.04);
+  backdrop-filter:blur(24px) saturate(1.35);
+  -webkit-backdrop-filter:blur(24px) saturate(1.35);
+  text-align:left;
+  color:#f7f0ea;
+  opacity:0;
+  transform:translateY(28px) scale(.96);
+  pointer-events:none;
+  transition:opacity .9s cubic-bezier(.22,1,.36,1), transform .9s cubic-bezier(.22,1,.36,1);
+}
+#msqLampSplash.msq-lit .msq-splash-card{
+  opacity:1;
+  transform:none;
+  pointer-events:auto;
+  transition-delay:.25s;
+}
+#msqLampSplash .msq-splash-welcome{
+  margin:0 0 4px;
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:clamp(28px,4.5vw,36px);
+  font-weight:500;
+  font-style:italic;
+  letter-spacing:.01em;
+  color:#fff;
+  line-height:1.15;
+}
+#msqLampSplash .msq-splash-brand{
+  margin:0 0 12px;
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:clamp(34px,5.5vw,46px);
+  font-weight:600;
+  letter-spacing:.06em;
+  color:#fff;
+  line-height:1.1;
+}
+#msqLampSplash .msq-splash-tagline{
+  margin:0 0 30px;
+  font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:clamp(15px,2.4vw,18px);
+  font-weight:400;
+  font-style:italic;
+  color:rgba(255,220,190,.72);
+  letter-spacing:.03em;
+  line-height:1.45;
+}
+#msqLampSplash .msq-splash-enter{
+  display:inline-flex;align-items:center;justify-content:center;gap:12px;
+  width:100%;
+  min-height:52px;
+  padding:14px 20px;
+  border:0;border-radius:999px;
+  cursor:pointer;
+  font-family:'Outfit',system-ui,sans-serif;
+  font-size:15px;font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:#1a1010;
+  background:linear-gradient(135deg,#f3d2a8 0%,#e8b07a 45%,#d4926a 100%);
+  box-shadow:0 12px 30px rgba(200,120,60,.32), inset 0 1px 0 rgba(255,255,255,.45);
+  transition:transform .2s ease, filter .2s ease, box-shadow .2s ease;
+  opacity:0;
+  transform:translateY(10px);
+}
+#msqLampSplash.msq-lit .msq-splash-enter{
+  opacity:1;transform:none;
+  transition-delay:.55s;
+}
+#msqLampSplash .msq-splash-enter:hover{
+  filter:brightness(1.05);
+  transform:translateY(-2px);
+  box-shadow:0 16px 36px rgba(200,120,60,.4);
+}
+#msqLampSplash .msq-splash-enter:active{transform:scale(.98)}
+#msqLampSplash .msq-splash-enter .arr{
+  font-size:16px;transition:transform .2s ease;
+}
+#msqLampSplash .msq-splash-enter:hover .arr{transform:translateX(4px)}
+
+#msqLampSplash .msq-splash-note{
+  margin:16px 0 0;
+  font-family:'Outfit',system-ui,sans-serif;
+  font-size:11px;font-weight:300;
+  letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(255,255,255,.28);
+  text-align:center;
+  opacity:0;transition:opacity .8s ease .7s;
+}
+#msqLampSplash.msq-lit .msq-splash-note{opacity:1}
+
+@media (max-width:640px){
+  #msqLampSplash .msq-lamp-wrap{width:min(200px,58vw);height:min(280px,42vh)}
+  #msqLampSplash .msq-splash-card{padding:32px 24px 26px;text-align:center}
+  #msqLampSplash .msq-pull-hint{font-size:10px}
+}
+</style>
+
 </head>
 
 <body>
+
+<div id="msqLampSplash" role="dialog" aria-label="Welcome to My Souq" aria-modal="true">
+  <div class="msq-splash-stage">
+    <div class="msq-lamp-wrap" id="msqLampWrap">
+      <div class="msq-lamp-room-glow" aria-hidden="true"></div>
+      <div class="msq-pull-visual" id="msqPullVisual" aria-hidden="true"></div>
+      <div class="msq-pull-hit" id="msqPullHit" title="Pull the cord" role="button" tabindex="0" aria-label="Pull the lamp cord to turn the light on"></div>
+      <span class="msq-pull-hint">pull</span>
+      <svg class="msq-lamp-svg" viewBox="0 0 220 320" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <linearGradient id="shadeOnGrad" x1="40" y1="40" x2="180" y2="130">
+            <stop offset="0%" stop-color="#f5d0a8"/>
+            <stop offset="45%" stop-color="#e8a878"/>
+            <stop offset="100%" stop-color="#c47850"/>
+          </linearGradient>
+          <linearGradient id="poleGrad2" x1="0" y1="130" x2="0" y2="250">
+            <stop offset="0%" stop-color="#d4b888"/>
+            <stop offset="100%" stop-color="#7a6040"/>
+          </linearGradient>
+          <radialGradient id="bulbGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="rgba(255,230,180,.9)"/>
+            <stop offset="100%" stop-color="rgba(255,180,80,0)"/>
+          </radialGradient>
+          <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="6" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- floor contact shadow -->
+        <ellipse cx="110" cy="300" rx="48" ry="8" fill="rgba(0,0,0,.35)"/>
+        <!-- tripod legs -->
+        <path d="M110 248 L58 295" stroke="#8a7348" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M110 248 L162 295" stroke="#8a7348" stroke-width="3.2" stroke-linecap="round"/>
+        <path d="M110 248 L110 298" stroke="#9a8458" stroke-width="3.2" stroke-linecap="round"/>
+        <circle cx="58" cy="295" r="4.2" fill="#6a5538"/>
+        <circle cx="162" cy="295" r="4.2" fill="#6a5538"/>
+        <circle cx="110" cy="298" r="4.2" fill="#6a5538"/>
+        <!-- center hub -->
+        <circle cx="110" cy="248" r="7" fill="#c4a878"/>
+        <circle cx="110" cy="248" r="3.5" fill="#8a7048"/>
+        <!-- pole segments -->
+        <line x1="110" y1="130" x2="110" y2="248" stroke="url(#poleGrad2)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="110" cy="175" r="5" fill="#c9a86a"/>
+        <circle cx="110" cy="210" r="4.5" fill="#b89560"/>
+        <!-- shade outer (off = dark) -->
+        <path class="lamp-shade-main" d="M48 88 C48 52, 172 52, 172 88 L160 128 C160 128, 60 128, 60 128 Z"/>
+        <!-- shade pleats hint -->
+        <path d="M70 90 L78 126" stroke="rgba(0,0,0,.12)" stroke-width="1"/>
+        <path d="M95 86 L98 126" stroke="rgba(0,0,0,.1)" stroke-width="1"/>
+        <path d="M125 86 L122 126" stroke="rgba(0,0,0,.1)" stroke-width="1"/>
+        <path d="M150 90 L142 126" stroke="rgba(0,0,0,.12)" stroke-width="1"/>
+        <!-- inner lit shade wash -->
+        <path class="lamp-shade-inner" d="M58 92 C62 60, 158 60, 162 92 L152 124 C152 124, 68 124, 68 124 Z" fill="url(#shadeOnGrad)" opacity=".85" filter="url(#softGlow)"/>
+        <!-- bulb when on -->
+        <ellipse class="lamp-shade-inner" cx="110" cy="108" rx="22" ry="14" fill="url(#bulbGlow)"/>
+        <!-- shade top cap -->
+        <ellipse cx="110" cy="56" rx="18" ry="6" fill="#5a4038"/>
+        <rect x="106" y="48" width="8" height="12" rx="2" fill="#6a5040"/>
+      </svg>
+    </div>
+
+    <div class="msq-splash-card">
+      <p class="msq-splash-welcome">Welcome back.</p>
+      <h1 class="msq-splash-brand">My Souq</h1>
+      <p class="msq-splash-tagline">The light&rsquo;s on for you.</p>
+      <button type="button" class="msq-splash-enter" id="msqSplashEnterBtn">
+        Let&rsquo;s enter <span class="arr" aria-hidden="true">→</span>
+      </button>
+      <p class="msq-splash-note">Pull the cord to begin</p>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
 
   <div id="toastNotification">✓ تم إضافة المنتج إلى السلة بنجاح</div>
 
@@ -2397,7 +2711,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   })();
   </script>
 
-  <script src="script.js?v=202611121520threeFix"></script>
+  <script src="script.js?v=202611131520lampPull"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9481,6 +9795,133 @@ html body #msqAdminTabContent .order-card-admin {
 }
 </style>
 
+
+
+
+
+
+<script id="msq-lamp-splash-js">
+(function () {
+  if (window.__msqLampSplashV2) return;
+  window.__msqLampSplashV2 = true;
+
+  var SKIP_KEY = 'msq_splash_seen_v2';
+  var mode = 'session'; // session | once | always
+
+  function shouldShow() {
+    try {
+      if (mode === 'always') return true;
+      if (mode === 'once') return !localStorage.getItem(SKIP_KEY);
+      return !sessionStorage.getItem(SKIP_KEY);
+    } catch (e) { return true; }
+  }
+  function markSeen() {
+    try {
+      if (mode === 'once') localStorage.setItem(SKIP_KEY, '1');
+      else if (mode === 'session') sessionStorage.setItem(SKIP_KEY, '1');
+    } catch (e) {}
+  }
+
+  function hideSplash() {
+    var el = document.getElementById('msqLampSplash');
+    if (!el) return;
+    el.classList.add('msq-splash-hide');
+    markSeen();
+    setTimeout(function () {
+      try { el.remove(); } catch (e) {}
+      try { document.documentElement.style.overflow = ''; document.body.style.overflow = ''; } catch (e2) {}
+    }, 900);
+  }
+  window.msqEnterStore = hideSplash;
+
+  function turnOn() {
+    var el = document.getElementById('msqLampSplash');
+    if (!el || el.classList.contains('msq-lit')) return;
+    el.classList.add('msq-lit');
+    try {
+      // soft click sound optional — skipped to avoid autoplay issues
+    } catch (e) {}
+  }
+
+  function bindPull() {
+    var hit = document.getElementById('msqPullHit');
+    var visual = document.getElementById('msqPullVisual');
+    var splash = document.getElementById('msqLampSplash');
+    if (!hit || !splash) return;
+
+    var startY = 0, pulling = false, done = false;
+
+    function onStart(y) {
+      if (done || splash.classList.contains('msq-lit')) return;
+      pulling = true;
+      startY = y;
+      if (visual) visual.classList.add('msq-pulling');
+    }
+    function onMove(y) {
+      if (!pulling || done) return;
+      var dy = y - startY;
+      if (dy > 28) {
+        done = true;
+        pulling = false;
+        if (visual) visual.classList.remove('msq-pulling');
+        turnOn();
+      }
+    }
+    function onEnd() {
+      if (!done && visual) visual.classList.remove('msq-pulling');
+      pulling = false;
+    }
+
+    hit.addEventListener('mousedown', function (e) { e.preventDefault(); onStart(e.clientY); });
+    window.addEventListener('mousemove', function (e) { onMove(e.clientY); });
+    window.addEventListener('mouseup', onEnd);
+
+    hit.addEventListener('touchstart', function (e) {
+      if (!e.touches[0]) return;
+      onStart(e.touches[0].clientY);
+    }, { passive: true });
+    window.addEventListener('touchmove', function (e) {
+      if (!e.touches[0]) return;
+      onMove(e.touches[0].clientY);
+    }, { passive: true });
+    window.addEventListener('touchend', onEnd);
+
+    hit.addEventListener('click', function () {
+      // click also works as a short pull
+      if (!splash.classList.contains('msq-lit')) {
+        if (visual) {
+          visual.classList.add('msq-pulling');
+          setTimeout(function () { visual.classList.remove('msq-pulling'); turnOn(); }, 180);
+        } else turnOn();
+      }
+    });
+    hit.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); turnOn(); }
+    });
+  }
+
+  function boot() {
+    var el = document.getElementById('msqLampSplash');
+    if (!shouldShow()) {
+      if (el) el.remove();
+      return;
+    }
+    try {
+      document.documentElement.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+    } catch (e) {}
+    bindPull();
+    var btn = document.getElementById('msqSplashEnterBtn');
+    if (btn) btn.addEventListener('click', hideSplash);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && el && el.classList.contains('msq-lit')) hideSplash();
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
 
 </body>
 
