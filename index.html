@@ -1411,14 +1411,10 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 }
 #msqLampSplash.msq-lit::before{
   background:
-    /* main beam from under shade */
-    radial-gradient(ellipse 44% 54% at 68% 36%, rgba(255,160,80,.38) 0%, rgba(200,80,40,.15) 28%, transparent 60%),
-    /* soft spill across page / card */
-    radial-gradient(ellipse 58% 52% at 42% 44%, rgba(255,145,75,.22) 0%, rgba(180,65,35,.09) 42%, transparent 72%),
-    radial-gradient(ellipse 42% 48% at 72% 58%, rgba(220,95,45,.14) 0%, transparent 55%),
-    radial-gradient(ellipse 72% 42% at 50% 78%, rgba(170,55,30,.1) 0%, transparent 65%),
-    /* upward inverted pyramid glow from top of shade */
-    radial-gradient(ellipse 36% 32% at 68% 18%, rgba(255,190,110,.28) 0%, rgba(230,120,50,.1) 35%, transparent 65%),
+    /* soft warm pool under & around shade only */
+    radial-gradient(ellipse 36% 42% at 70% 38%, rgba(255,160,80,.28) 0%, rgba(200,80,40,.1) 35%, transparent 65%),
+    radial-gradient(ellipse 50% 45% at 48% 48%, rgba(255,140,70,.14) 0%, transparent 60%),
+    radial-gradient(ellipse 30% 28% at 70% 22%, rgba(255,185,100,.18) 0%, transparent 55%),
     linear-gradient(160deg,#2a1a18 0%,#1c1212 45%,#14100f 100%);
 }
 #msqLampSplash.msq-splash-hide{opacity:0;visibility:hidden;pointer-events:none}
@@ -1553,9 +1549,8 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 #msqLampSplash.msq-lit .msq-lamp-svg{
   opacity:1;
   filter:brightness(1.08) saturate(1.12)
-         drop-shadow(0 14px 36px rgba(0,0,0,.28))
-         drop-shadow(0 0 50px rgba(255,130,55,.45))
-         drop-shadow(0 0 95px rgba(220,80,40,.2));
+         drop-shadow(0 12px 28px rgba(0,0,0,.3))
+         drop-shadow(0 0 28px rgba(255,140,60,.35));
 }
 
 /* shade */
@@ -1608,32 +1603,34 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 /* ambient glow blob */
 #msqLampSplash .msq-lamp-glow{
-  position:absolute;left:50%;top:22%;
-  width:105%;height:100%;
-  transform:translate(-50%,0) scale(.08);
-  /* light begins at the shade body itself and fans down */
+  position:absolute;left:50%;top:24%;
+  width:92%;height:95%;
+  transform:translate(-50%,0) scale(.06);
+  /* soft cone starting under shade rim – no hard edges past shade */
   background:
-    radial-gradient(ellipse 55% 50% at 50% 8%, rgba(255,190,100,.7) 0%, rgba(240,140,60,.35) 22%, rgba(220,100,45,.15) 45%, transparent 68%),
-    linear-gradient(180deg, rgba(255,170,90,.35) 0%, rgba(220,100,45,.14) 38%, transparent 72%);
-  opacity:0;filter:blur(14px);pointer-events:none;z-index:0;
-  /* top width locked to shade rim so light doesn't spill past edges */
-  clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
+    radial-gradient(ellipse 70% 45% at 50% 0%, rgba(255,185,95,.65) 0%, rgba(235,130,55,.28) 25%, rgba(200,90,40,.1) 50%, transparent 72%);
+  opacity:0;
+  filter:blur(22px);
+  pointer-events:none;z-index:0;
+  /* top almost as wide as shade bottom, soft fan down – NO hard rectangle */
+  clip-path: polygon(18% 0%, 82% 0%, 96% 100%, 4% 100%);
   transition:opacity 1.4s cubic-bezier(.4,0,.2,1), transform 1.4s cubic-bezier(.4,0,.2,1);
 }
 #msqLampSplash.msq-lit .msq-lamp-glow{
   opacity:1;transform:translate(-50%,0) scale(1);
 }
 
-/* upward inverted pyramid from top of shade */
+/* soft upward glow from top of shade – no hard pyramid edges */
 #msqLampSplash .msq-lamp-glow-up{
-  position:absolute;left:50%;top:0%;
-  width:95%;height:30%;
-  transform:translate(-50%,0) scale(.08);
+  position:absolute;left:50%;top:1%;
+  width:78%;height:28%;
+  transform:translate(-50%,0) scale(.06);
   background:
-    radial-gradient(ellipse 52% 75% at 50% 100%, rgba(255,195,110,.6) 0%, rgba(235,130,55,.22) 32%, transparent 68%),
-    linear-gradient(0deg, rgba(255,175,95,.32) 0%, rgba(220,110,50,.12) 42%, transparent 78%);
-  opacity:0;filter:blur(16px);pointer-events:none;z-index:0;
-  clip-path: polygon(10% 0%, 90% 0%, 70% 100%, 30% 100%);
+    radial-gradient(ellipse 65% 80% at 50% 100%, rgba(255,190,105,.5) 0%, rgba(230,125,55,.18) 40%, transparent 75%);
+  opacity:0;
+  filter:blur(24px);
+  pointer-events:none;z-index:0;
+  clip-path: polygon(15% 0%, 85% 0%, 68% 100%, 32% 100%);
   transition:opacity 1.4s cubic-bezier(.4,0,.2,1), transform 1.4s cubic-bezier(.4,0,.2,1);
 }
 #msqLampSplash.msq-lit .msq-lamp-glow-up{
@@ -1683,19 +1680,19 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 
 #msqLampSplash .lamp-chain{
-  stroke:#e0c090;
+  stroke:#b89050;
   stroke-width:3.2;
   transition:stroke 1s ease, filter 1s ease, opacity 1s ease;
   opacity:1;
 }
 #msqLampSplash:not(.msq-lit) .lamp-chain{
-  stroke:#d4b078;
+  stroke:#a07840;
   opacity:1;
-  filter:brightness(2.1) drop-shadow(0 0 5px rgba(220,180,110,.45)) drop-shadow(0 1px 2px rgba(0,0,0,.4));
+  filter:brightness(2.0) drop-shadow(0 0 5px rgba(200,150,90,.4)) drop-shadow(0 1px 2px rgba(0,0,0,.4));
 }
 #msqLampSplash.msq-lit .lamp-chain{
-  stroke:#f0d4a0;
-  filter:drop-shadow(0 0 6px rgba(255,210,140,.55));
+  stroke:#d4b078;
+  filter:drop-shadow(0 0 6px rgba(255,200,120,.5));
 }
 #msqLampSplash .lamp-chain-ball{
   transition:fill 1s ease, filter 1s ease, opacity 1s ease;
@@ -1763,11 +1760,55 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
             <stop offset="55%" stop-color="#e07048"/>
             <stop offset="100%" stop-color="#c05838"/>
           </linearGradient>
+          <!-- 18K yellow gold alloy (Au+Ag+Cu) – warm yellow, soft highlight -->
           <linearGradient id="goldMetal" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#f5e4c0"/>
-            <stop offset="40%" stop-color="#d4b078"/>
-            <stop offset="100%" stop-color="#8a6035"/>
+            <stop offset="0%" stop-color="#fff6d4"/>
+            <stop offset="22%" stop-color="#f0d878"/>
+            <stop offset="55%" stop-color="#d4b048"/>
+            <stop offset="82%" stop-color="#b89030"/>
+            <stop offset="100%" stop-color="#8a6820"/>
           </linearGradient>
+          <!-- Brass alloy (Cu+Zn) – greenish-yellow undertone -->
+          <linearGradient id="brassMetal" x1="0%" y1="0%" x2="15%" y2="100%">
+            <stop offset="0%" stop-color="#f0e0a0"/>
+            <stop offset="30%" stop-color="#d4c060"/>
+            <stop offset="65%" stop-color="#b09840"/>
+            <stop offset="100%" stop-color="#7a6830"/>
+          </linearGradient>
+          <!-- Pure copper / high-Cu alloy – red-orange -->
+          <linearGradient id="copperMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffc8a8"/>
+            <stop offset="28%" stop-color="#e89068"/>
+            <stop offset="60%" stop-color="#c06040"/>
+            <stop offset="100%" stop-color="#8a3828"/>
+          </linearGradient>
+          <!-- Bronze alloy (Cu+Sn) – brown-gold, slightly muted -->
+          <linearGradient id="bronzeMetal" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#e0c090"/>
+            <stop offset="35%" stop-color="#b89058"/>
+            <stop offset="70%" stop-color="#8a6038"/>
+            <stop offset="100%" stop-color="#5a3a20"/>
+          </linearGradient>
+          <!-- Rose gold alloy (Au+Cu) – pinkish gold for accents -->
+          <linearGradient id="roseGoldMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffe0d0"/>
+            <stop offset="35%" stop-color="#e8b098"/>
+            <stop offset="70%" stop-color="#c88870"/>
+            <stop offset="100%" stop-color="#9a5848"/>
+          </linearGradient>
+          <!-- Specular metal shine (shared highlight) -->
+          <radialGradient id="metalShine" cx="32%" cy="28%" r="55%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9"/>
+            <stop offset="25%" stop-color="#fff5e0" stop-opacity="0.45"/>
+            <stop offset="55%" stop-color="#e8c878" stop-opacity="0.12"/>
+            <stop offset="100%" stop-color="#c9a060" stop-opacity="0"/>
+          </radialGradient>
+          <!-- Copper shine (warmer) -->
+          <radialGradient id="copperShine" cx="32%" cy="28%" r="55%">
+            <stop offset="0%" stop-color="#fff0e8" stop-opacity="0.85"/>
+            <stop offset="30%" stop-color="#ffc8a0" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#c06040" stop-opacity="0"/>
+          </radialGradient>
           <radialGradient id="coreGlow" cx="50%" cy="45%" r="50%">
             <stop offset="0%" stop-color="#fff8f0" stop-opacity="1"/>
             <stop offset="40%" stop-color="#ffd0a0" stop-opacity="0.5"/>
@@ -1796,84 +1837,79 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
         <ellipse class="lamp-inner-glow" cx="140" cy="100" rx="88" ry="48" fill="url(#coreGlow)"/>
 
-        <!-- ===== LONGER COLLAR / NECK ===== -->
+        <!-- ===== COLLAR – polished gold + copper rings ===== -->
         <ellipse cx="140" cy="182" rx="26" ry="8.5" fill="url(#goldMetal)"/>
-        <!-- tall neck tube -->
         <rect x="118" y="182" width="44" height="46" rx="5" fill="url(#goldMetal)"/>
-        <!-- rings on the neck -->
-        <ellipse cx="140" cy="194" rx="23" ry="5" fill="none" stroke="#6a4a28" stroke-width="1.5" opacity="0.45"/>
-        <ellipse cx="140" cy="207" rx="23" ry="5" fill="none" stroke="#6a4a28" stroke-width="1.5" opacity="0.4"/>
-        <ellipse cx="140" cy="220" rx="23" ry="5" fill="none" stroke="#6a4a28" stroke-width="1.5" opacity="0.35"/>
-        <!-- bottom of collar -->
+        <!-- rose-gold / copper alloy rings -->
+        <ellipse cx="140" cy="194" rx="23" ry="5" fill="none" stroke="#c88870" stroke-width="1.8" opacity="0.85"/>
+        <ellipse cx="140" cy="207" rx="23" ry="5" fill="none" stroke="#a86850" stroke-width="1.6" opacity="0.7"/>
+        <ellipse cx="140" cy="220" rx="23" ry="5" fill="none" stroke="#c88870" stroke-width="1.8" opacity="0.8"/>
         <ellipse cx="140" cy="228" rx="24" ry="8" fill="url(#goldMetal)"/>
+        <!-- copper alloy joint -->
+        <circle cx="140" cy="238" r="9" fill="url(#copperMetal)"/>
+        <circle cx="140" cy="238" r="5.5" fill="url(#roseGoldMetal)"/>
+        <circle cx="140" cy="236" r="2.8" fill="url(#copperShine)"/>
 
-        <!-- JOINT – ornate metal ball -->
-        <circle cx="140" cy="238" r="9" fill="#e8c890"/>
-        <circle cx="140" cy="238" r="5.5" fill="#c9a060"/>
-        <circle cx="140" cy="238" r="2.5" fill="#f5e4c0" opacity="0.7"/>
+        <!-- ===== 3 LEGS – brass rods + copper balls + bronze feet ===== -->
+        <!-- CENTER: brass rod -->
+        <line x1="140" y1="238" x2="140" y2="472" stroke="url(#brassMetal)" stroke-width="4.8" stroke-linecap="round"/>
+        <circle cx="140" cy="275" r="6.5" fill="url(#copperMetal)" stroke="#8a4830" stroke-width="0.9"/>
+        <circle cx="140" cy="273" r="2.8" fill="url(#copperShine)"/>
+        <circle cx="140" cy="330" r="5.2" fill="url(#bronzeMetal)" stroke="#6a4a28" stroke-width="0.8"/>
+        <circle cx="140" cy="385" r="6.5" fill="url(#copperMetal)" stroke="#8a4830" stroke-width="0.9"/>
+        <circle cx="140" cy="383" r="2.8" fill="url(#copperShine)"/>
+        <circle cx="140" cy="440" r="5.2" fill="url(#bronzeMetal)" stroke="#6a4a28" stroke-width="0.8"/>
+        <ellipse cx="140" cy="480" rx="14" ry="6" fill="url(#bronzeMetal)" stroke="#6a4a28" stroke-width="1"/>
+        <ellipse cx="140" cy="479" rx="9" ry="3.5" fill="url(#goldMetal)"/>
 
-        <!-- ===== 3 ORNATE METAL LEGS ===== -->
-        <!-- CENTER LEG -->
-        <line x1="140" y1="238" x2="140" y2="470" stroke="#d4b078" stroke-width="5.5" stroke-linecap="round"/>
-        <!-- decorative rings along center leg -->
-        <ellipse cx="140" cy="280" rx="7" ry="3.5" fill="#e8c890" stroke="#a07840" stroke-width="0.8"/>
-        <ellipse cx="140" cy="320" rx="6.5" ry="3.2" fill="#e0c090" stroke="#a07840" stroke-width="0.7"/>
-        <ellipse cx="140" cy="360" rx="7" ry="3.5" fill="#e8c890" stroke="#a07840" stroke-width="0.8"/>
-        <ellipse cx="140" cy="400" rx="6.5" ry="3.2" fill="#e0c090" stroke="#a07840" stroke-width="0.7"/>
-        <ellipse cx="140" cy="440" rx="7" ry="3.5" fill="#e8c890" stroke="#a07840" stroke-width="0.8"/>
-        <!-- ornate foot -->
-        <ellipse cx="140" cy="478" rx="16" ry="7" fill="#e8c890" stroke="#a07840" stroke-width="1"/>
-        <ellipse cx="140" cy="478" rx="11" ry="4.5" fill="#c9a060"/>
-        <ellipse cx="140" cy="476" rx="6" ry="2.5" fill="#f5e4c0" opacity="0.55"/>
+        <!-- LEFT: brass rod -->
+        <line x1="140" y1="238" x2="40" y2="470" stroke="url(#brassMetal)" stroke-width="4.8" stroke-linecap="round"/>
+        <circle cx="122" cy="272" r="6" fill="url(#copperMetal)" stroke="#8a4830" stroke-width="0.9"/>
+        <circle cx="121" cy="270" r="2.6" fill="url(#copperShine)"/>
+        <circle cx="95" cy="325" r="5" fill="url(#bronzeMetal)" stroke="#6a4a28" stroke-width="0.8"/>
+        <circle cx="68" cy="378" r="6" fill="url(#copperMetal)" stroke="#8a4830" stroke-width="0.9"/>
+        <circle cx="67" cy="376" r="2.6" fill="url(#copperShine)"/>
+        <circle cx="50" cy="430" r="5" fill="url(#bronzeMetal)" stroke="#6a4a28" stroke-width="0.8"/>
+        <ellipse cx="40" cy="478" rx="13" ry="5.5" fill="url(#bronzeMetal)" stroke="#6a4a28" stroke-width="1"/>
+        <ellipse cx="40" cy="477" rx="8.5" ry="3.2" fill="url(#goldMetal)"/>
 
-        <!-- LEFT LEG -->
-        <line x1="140" y1="238" x2="38" y2="468" stroke="#e0c898" stroke-width="5.5" stroke-linecap="round"/>
-        <ellipse cx="118" cy="275" rx="6.5" ry="3.2" fill="#e8c890" stroke="#a07840" stroke-width="0.7" transform="rotate(-12 118 275)"/>
-        <ellipse cx="95" cy="315" rx="6" ry="3" fill="#e0c090" stroke="#a07840" stroke-width="0.7" transform="rotate(-15 95 315)"/>
-        <ellipse cx="72" cy="355" rx="6.5" ry="3.2" fill="#e8c890" stroke="#a07840" stroke-width="0.7" transform="rotate(-18 72 355)"/>
-        <ellipse cx="52" cy="400" rx="6" ry="3" fill="#e0c090" stroke="#a07840" stroke-width="0.7" transform="rotate(-20 52 400)"/>
-        <ellipse cx="42" cy="440" rx="6.5" ry="3.2" fill="#e8c890" stroke="#a07840" stroke-width="0.7" transform="rotate(-22 42 440)"/>
-        <ellipse cx="38" cy="475" rx="15" ry="6.5" fill="#e8c890" stroke="#a07840" stroke-width="1"/>
-        <ellipse cx="38" cy="475" rx="10" ry="4" fill="#c9a060"/>
-        <ellipse cx="38" cy="473" rx="5.5" ry="2.2" fill="#f5e4c0" opacity="0.55"/>
+        <!-- RIGHT: brass rod -->
+        <line x1="140" y1="238" x2="240" y2="470" stroke="url(#brassMetal)" stroke-width="4.8" stroke-linecap="round"/>
+        <circle cx="158" cy="272" r="6" fill="url(#copperMetal)" stroke="#8a4830" stroke-width="0.9"/>
+        <circle cx="159" cy="270" r="2.6" fill="url(#copperShine)"/>
+        <circle cx="185" cy="325" r="5" fill="url(#bronzeMetal)" stroke="#6a4a28" stroke-width="0.8"/>
+        <circle cx="212" cy="378" r="6" fill="url(#copperMetal)" stroke="#8a4830" stroke-width="0.9"/>
+        <circle cx="213" cy="376" r="2.6" fill="url(#copperShine)"/>
+        <circle cx="230" cy="430" r="5" fill="url(#bronzeMetal)" stroke="#6a4a28" stroke-width="0.8"/>
+        <ellipse cx="240" cy="478" rx="13" ry="5.5" fill="url(#bronzeMetal)" stroke="#6a4a28" stroke-width="1"/>
+        <ellipse cx="240" cy="477" rx="8.5" ry="3.2" fill="url(#goldMetal)"/>
 
-        <!-- RIGHT LEG -->
-        <line x1="140" y1="238" x2="242" y2="468" stroke="#e0c898" stroke-width="5.5" stroke-linecap="round"/>
-        <ellipse cx="162" cy="275" rx="6.5" ry="3.2" fill="#e8c890" stroke="#a07840" stroke-width="0.7" transform="rotate(12 162 275)"/>
-        <ellipse cx="185" cy="315" rx="6" ry="3" fill="#e0c090" stroke="#a07840" stroke-width="0.7" transform="rotate(15 185 315)"/>
-        <ellipse cx="208" cy="355" rx="6.5" ry="3.2" fill="#e8c890" stroke="#a07840" stroke-width="0.7" transform="rotate(18 208 355)"/>
-        <ellipse cx="228" cy="400" rx="6" ry="3" fill="#e0c090" stroke="#a07840" stroke-width="0.7" transform="rotate(20 228 400)"/>
-        <ellipse cx="238" cy="440" rx="6.5" ry="3.2" fill="#e8c890" stroke="#a07840" stroke-width="0.7" transform="rotate(22 238 440)"/>
-        <ellipse cx="242" cy="475" rx="15" ry="6.5" fill="#e8c890" stroke="#a07840" stroke-width="1"/>
-        <ellipse cx="242" cy="475" rx="10" ry="4" fill="#c9a060"/>
-        <ellipse cx="242" cy="473" rx="5.5" ry="2.2" fill="#f5e4c0" opacity="0.55"/>
-
-        <!-- SIDE CHAIN – richer gold links + crystal pendant -->
+        <!-- SIDE CHAIN – bronze line + gold/copper beads + crystal -->
         <g id="msqChainGroup" class="msq-chain-group">
-          <!-- attachment ring on shade rim -->
-          <circle cx="248" cy="170" r="5.5" fill="none" stroke="#e8c890" stroke-width="2.2"/>
-          <circle cx="248" cy="170" r="3.2" fill="#f0d4a0"/>
-          <!-- main chain line -->
+          <circle cx="248" cy="170" r="5.5" fill="none" stroke="url(#goldMetal)" stroke-width="2.2"/>
+          <circle cx="248" cy="170" r="3.2" fill="url(#copperMetal)"/>
           <line class="lamp-chain" x1="248" y1="175" x2="248" y2="350"
-                stroke="#e0c090" stroke-width="3.2" stroke-linecap="round"/>
-          <!-- ornate chain beads -->
-          <circle cx="248" cy="190" r="4.2" fill="#f0d4a0" stroke="#b89050" stroke-width="0.8"/>
-          <circle cx="248" cy="190" r="2.2" fill="#fff8e8" opacity="0.55"/>
-          <circle cx="248" cy="212" r="3.4" fill="#e8c890" stroke="#a07840" stroke-width="0.7"/>
-          <circle cx="248" cy="234" r="4.2" fill="#f0d4a0" stroke="#b89050" stroke-width="0.8"/>
-          <circle cx="248" cy="234" r="2.2" fill="#fff8e8" opacity="0.55"/>
-          <circle cx="248" cy="256" r="3.4" fill="#e8c890" stroke="#a07840" stroke-width="0.7"/>
-          <circle cx="248" cy="278" r="4.2" fill="#f0d4a0" stroke="#b89050" stroke-width="0.8"/>
-          <circle cx="248" cy="278" r="2.2" fill="#fff8e8" opacity="0.55"/>
-          <circle cx="248" cy="300" r="3.4" fill="#e8c890" stroke="#a07840" stroke-width="0.7"/>
-          <circle cx="248" cy="322" r="4.2" fill="#f0d4a0" stroke="#b89050" stroke-width="0.8"/>
-          <circle cx="248" cy="322" r="2.2" fill="#fff8e8" opacity="0.55"/>
-          <circle cx="248" cy="342" r="3.6" fill="#e8c890" stroke="#a07840" stroke-width="0.7"/>
+                stroke="url(#bronzeMetal)" stroke-width="3.2" stroke-linecap="round"/>
+          <!-- alloy beads: yellow gold / rose gold / copper / bronze -->
+          <circle cx="248" cy="190" r="4.2" fill="url(#goldMetal)" stroke="#8a6820" stroke-width="0.8"/>
+          <circle cx="248" cy="188" r="2" fill="url(#metalShine)"/>
+          <circle cx="248" cy="212" r="3.4" fill="url(#roseGoldMetal)" stroke="#9a5848" stroke-width="0.7"/>
+          <circle cx="248" cy="234" r="4.2" fill="url(#goldMetal)" stroke="#8a6820" stroke-width="0.8"/>
+          <circle cx="248" cy="232" r="2" fill="url(#metalShine)"/>
+          <circle cx="248" cy="256" r="3.4" fill="url(#copperMetal)" stroke="#8a3828" stroke-width="0.7"/>
+          <circle cx="248" cy="254" r="1.6" fill="url(#copperShine)"/>
+          <circle cx="248" cy="278" r="4.2" fill="url(#roseGoldMetal)" stroke="#9a5848" stroke-width="0.8"/>
+          <circle cx="248" cy="276" r="2" fill="url(#metalShine)"/>
+          <circle cx="248" cy="300" r="3.4" fill="url(#copperMetal)" stroke="#8a3828" stroke-width="0.7"/>
+          <circle cx="248" cy="298" r="1.6" fill="url(#copperShine)"/>
+          <circle cx="248" cy="322" r="4.2" fill="url(#goldMetal)" stroke="#8a6820" stroke-width="0.8"/>
+          <circle cx="248" cy="320" r="2" fill="url(#metalShine)"/>
+          <circle cx="248" cy="342" r="3.6" fill="url(#bronzeMetal)" stroke="#5a3a20" stroke-width="0.7"/>
           <g class="msq-crystal">
-            <path d="M248 353 L262 378 L248 408 L234 378 Z" fill="url(#crystalFill)" stroke="#c9a060" stroke-width="1.4"/>
+            <path d="M248 353 L262 378 L248 408 L234 378 Z" fill="url(#crystalFill)" stroke="#a07840" stroke-width="1.4"/>
             <path d="M248 361 L256 378 L248 398 L240 378 Z" fill="#fff8f0" opacity="0.5"/>
             <path d="M248 368 L252 378 L248 391 L244 378 Z" fill="#ffffff" opacity="0.35"/>
-            <ellipse cx="248" cy="353" rx="5" ry="3" fill="#f0d4a0" stroke="#b89050" stroke-width="0.8"/>
+            <ellipse cx="248" cy="353" rx="5" ry="3" fill="url(#goldMetal)" stroke="#8a6028" stroke-width="0.8"/>
           </g>
         </g>
       </svg>
