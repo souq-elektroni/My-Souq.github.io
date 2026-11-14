@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611142030fxPolish";
+  var BUILD = "202611142115glass";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611142030fxPolish">
+  <meta name="msq-build" content="202611142115glass">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611142030fxPolish">
-<link rel="stylesheet" href="styles.css?v=202611142030fxPolish">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611142115glass">
+<link rel="stylesheet" href="styles.css?v=202611142115glass">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611142030fxPolish">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611142030fxPolish">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611142115glass">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611142115glass">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1405,18 +1405,16 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 #msqLampSplash::before{
   content:'';position:absolute;inset:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 45% 40% at 72% 48%, rgba(255,120,80,0) 0%, transparent 55%),
-    radial-gradient(circle at 15% 20%, rgba(255,100,60,.06) 0%, transparent 25%),
-    radial-gradient(circle at 85% 75%, rgba(255,80,50,.05) 0%, transparent 22%),
-    linear-gradient(160deg,#120a0c 0%,#0a0608 50%,#080406 100%);
-  transition:background 1.3s ease;
+    radial-gradient(ellipse 40% 35% at 72% 42%, rgba(255,100,50,0) 0%, transparent 55%),
+    linear-gradient(160deg,#100a0c 0%,#0a0608 50%,#080406 100%);
+  transition:background 1.35s ease;
 }
 #msqLampSplash.msq-lit::before{
   background:
-    radial-gradient(ellipse 58% 52% at 72% 46%, rgba(255,145,85,.32) 0%, rgba(200,85,40,.1) 38%, transparent 66%),
-    radial-gradient(circle at 12% 18%, rgba(255,100,60,.07) 0%, transparent 24%),
-    radial-gradient(circle at 88% 78%, rgba(255,80,50,.06) 0%, transparent 20%),
-    linear-gradient(160deg,#1c1214 0%,#120c0e 50%,#0c080a 100%);
+    /* higher beam, dark amber → soft red */
+    radial-gradient(ellipse 48% 55% at 72% 38%, rgba(255,150,70,.38) 0%, rgba(200,70,35,.14) 32%, transparent 62%),
+    radial-gradient(ellipse 35% 45% at 72% 55%, rgba(220,80,40,.12) 0%, transparent 55%),
+    linear-gradient(160deg,#1e1210 0%,#140c0c 50%,#0c0808 100%);
 }
 #msqLampSplash.msq-splash-hide{opacity:0;visibility:hidden;pointer-events:none}
 
@@ -1431,31 +1429,54 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 /* ========== GLASS CARD ========== */
 #msqLampSplash .msq-splash-card{
   position:relative;
-  width:min(500px,90vw);padding:56px 48px 48px;
+  width:min(560px,92vw);padding:64px 54px 54px;
   border-radius:24px;text-align:center;color:#faf6f2;
-  background:rgba(40,28,30,.55);
-  border:1px solid rgba(255,255,255,.16);
+  /* glass transparency */
+  background:rgba(255,255,255,.06);
+  background:linear-gradient(
+    145deg,
+    rgba(255,255,255,.09) 0%,
+    rgba(40,25,28,.35) 40%,
+    rgba(25,15,18,.45) 100%
+  );
+  border:1px solid rgba(255,255,255,.18);
   box-shadow:
-    0 24px 60px rgba(0,0,0,.5),
-    inset 0 1px 0 rgba(255,255,255,.1);
-  backdrop-filter:blur(24px) saturate(1.2);
-  -webkit-backdrop-filter:blur(24px) saturate(1.2);
+    0 24px 60px rgba(0,0,0,.45),
+    0 0 0 1px rgba(255,255,255,.04),
+    inset 0 1px 0 rgba(255,255,255,.14),
+    inset 0 -1px 0 rgba(0,0,0,.15);
+  backdrop-filter:blur(28px) saturate(1.35);
+  -webkit-backdrop-filter:blur(28px) saturate(1.35);
   opacity:0;transform:translateY(20px) scale(.96);
   pointer-events:none;overflow:visible;
-  transition:opacity .85s cubic-bezier(.16,1,.3,1), transform .85s cubic-bezier(.16,1,.3,1);
+  transition:opacity .85s cubic-bezier(.16,1,.3,1), transform .85s cubic-bezier(.16,1,.3,1),
+              background .9s ease, border-color .9s ease, box-shadow .9s ease;
 }
 #msqLampSplash.msq-lit .msq-splash-card{
   opacity:1;transform:none;
   pointer-events:auto;transition-delay:.18s;
+  background:linear-gradient(
+    145deg,
+    rgba(255,255,255,.11) 0%,
+    rgba(50,30,32,.32) 40%,
+    rgba(30,18,20,.4) 100%
+  );
+  border-color:rgba(255,255,255,.22);
+  box-shadow:
+    0 28px 70px rgba(0,0,0,.4),
+    0 0 40px rgba(255,140,80,.06),
+    0 0 0 1px rgba(255,255,255,.06),
+    inset 0 1px 0 rgba(255,255,255,.16),
+    inset 0 -1px 0 rgba(0,0,0,.12);
 }
 
 /* glowing top/bottom borders */
 #msqLampSplash .msq-splash-card::before,
 #msqLampSplash .msq-splash-card::after{
-  content:'';position:absolute;left:10%;right:10%;height:1.5px;border-radius:2px;
+  content:'';position:absolute;left:12%;right:12%;height:1.5px;border-radius:2px;
   opacity:0;pointer-events:none;
-  background:linear-gradient(90deg,transparent,rgba(255,180,120,.9),transparent);
-  box-shadow:0 0 14px 3px rgba(255,140,80,.4),0 0 30px 6px rgba(255,100,50,.15);
+  background:linear-gradient(90deg,transparent,rgba(255,190,140,.85),transparent);
+  box-shadow:0 0 12px 2px rgba(255,150,90,.35),0 0 28px 5px rgba(255,110,50,.12);
 }
 #msqLampSplash .msq-splash-card::before{top:0}
 #msqLampSplash .msq-splash-card::after{bottom:0}
@@ -1474,7 +1495,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 #msqLampSplash .msq-splash-welcome{
   margin:0 0 8px;font-family:'Aref Ruqaa',serif;
-  font-size:clamp(26px,3.2vw,36px);font-weight:400;
+  font-size:clamp(28px,3.5vw,40px);font-weight:400;
   color:rgba(255,230,210,.9);opacity:0;
   transition:opacity .5s ease;
 }
@@ -1482,7 +1503,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 #msqLampSplash .msq-splash-brand{
   margin:0 0 10px;font-family:'Aref Ruqaa',serif;
-  font-size:clamp(50px,6.5vw,70px);font-weight:700;color:#fff;opacity:0;
+  font-size:clamp(54px,7vw,76px);font-weight:700;color:#fff;opacity:0;letter-spacing:0.02em;
   letter-spacing:.01em;
   transition:opacity .55s ease;
 }
@@ -1490,7 +1511,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 #msqLampSplash .msq-splash-tagline{
   margin:0 0 32px;font-family:'Aref Ruqaa',serif;
-  font-size:clamp(20px,2.4vw,26px);font-weight:400;
+  font-size:clamp(22px,2.6vw,28px);font-weight:400;
   color:rgba(255,200,160,.85);opacity:0;
   transition:opacity .5s ease;
 }
@@ -1526,10 +1547,10 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 }
 #msqLampSplash.msq-lit .msq-lamp-svg{
   opacity:1;
-  filter:brightness(1.05) saturate(1.08)
+  filter:brightness(1.08) saturate(1.12)
          drop-shadow(0 14px 36px rgba(0,0,0,.28))
-         drop-shadow(0 0 48px rgba(255,140,70,.42))
-         drop-shadow(0 0 90px rgba(255,110,50,.18));
+         drop-shadow(0 0 50px rgba(255,130,55,.45))
+         drop-shadow(0 0 95px rgba(220,80,40,.2));
 }
 
 /* shade */
@@ -1582,15 +1603,19 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 /* ambient glow blob */
 #msqLampSplash .msq-lamp-glow{
-  position:absolute;left:50%;top:26%;
-  width:170%;height:100%;
-  transform:translate(-50%,-50%) scale(.15);
-  background:radial-gradient(circle,rgba(255,150,90,.55) 0%,rgba(255,100,45,.14) 40%,transparent 70%);
-  opacity:0;filter:blur(22px);pointer-events:none;z-index:0;
+  position:absolute;left:50%;top:18%;
+  width:140%;height:120%;
+  transform:translate(-50%,0) scale(.12);
+  /* conical / pyramid beam downward from shade */
+  background:
+    radial-gradient(ellipse 55% 70% at 50% 8%, rgba(255,160,70,.55) 0%, rgba(220,90,40,.18) 35%, transparent 65%),
+    linear-gradient(180deg, rgba(255,140,60,.22) 0%, rgba(200,70,30,.08) 45%, transparent 75%);
+  opacity:0;filter:blur(18px);pointer-events:none;z-index:0;
+  clip-path: polygon(28% 0%, 72% 0%, 100% 100%, 0% 100%);
   transition:opacity 1.4s cubic-bezier(.4,0,.2,1), transform 1.4s cubic-bezier(.4,0,.2,1);
 }
 #msqLampSplash.msq-lit .msq-lamp-glow{
-  opacity:1;transform:translate(-50%,-50%) scale(1);
+  opacity:1;transform:translate(-50%,0) scale(1);
 }
 
 /* chain hit (now over the pull cord area under shade) */
@@ -1632,16 +1657,18 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   100% { transform: rotate(0deg); }
 }
 
-/* crystal – steady continuous glow when lamp is on */
+/* crystal – subtle glow even when dark, stronger when lit */
 #msqLampSplash .msq-crystal path:first-child{
   transition: filter 1s ease;
-  filter: drop-shadow(0 0 1px rgba(255,220,150,.15));
+  filter: drop-shadow(0 0 4px rgba(255,200,140,.35))
+         drop-shadow(0 0 10px rgba(255,160,80,.15))
+         brightness(1.05);
 }
 #msqLampSplash.msq-lit .msq-crystal path:first-child{
-  filter: drop-shadow(0 0 6px rgba(255,235,190,.95))
-         drop-shadow(0 0 16px rgba(255,200,120,.6))
-         drop-shadow(0 0 30px rgba(255,160,70,.3))
-         brightness(1.3);
+  filter: drop-shadow(0 0 7px rgba(255,220,170,1))
+         drop-shadow(0 0 18px rgba(255,180,100,.7))
+         drop-shadow(0 0 32px rgba(255,140,60,.35))
+         brightness(1.35);
 }
 
 #msqLampSplash .lamp-chain{
@@ -1672,7 +1699,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 @media(max-width:760px){
   #msqLampSplash .msq-splash-stage{flex-direction:column;gap:20px}
   #msqLampSplash .msq-lamp-wrap{width:min(260px,70vw);height:min(420px,52vh)}
-  #msqLampSplash .msq-splash-card{padding:42px 32px;width:min(460px,92vw)}
+  #msqLampSplash .msq-splash-card{padding:48px 36px;width:min(520px,94vw)}
   #msqLampSplash .msq-splash-welcome{font-size:clamp(20px,5vw,26px)}
   #msqLampSplash .msq-splash-brand{font-size:clamp(36px,9vw,48px)}
   #msqLampSplash .msq-splash-tagline{font-size:clamp(15px,4vw,18px)}
@@ -1695,10 +1722,10 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
             <stop offset="100%" stop-color="#2a1815"/>
           </linearGradient>
           <linearGradient id="shadeOn" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#ffc8a8"/>
-            <stop offset="25%" stop-color="#f0a078"/>
-            <stop offset="55%" stop-color="#e08058"/>
-            <stop offset="100%" stop-color="#c06040"/>
+            <stop offset="0%" stop-color="#ffc4a0"/>
+            <stop offset="25%" stop-color="#f09868"/>
+            <stop offset="55%" stop-color="#e07048"/>
+            <stop offset="100%" stop-color="#c05838"/>
           </linearGradient>
           <linearGradient id="goldMetal" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#f5e4c0"/>
@@ -2850,7 +2877,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   })();
   </script>
 
-  <script src="script.js?v=202611142030fxPolish"></script>
+  <script src="script.js?v=202611142115glass"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9959,8 +9986,8 @@ html body #msqAdminTabContent .order-card-admin {
 
 <script id="msq-lamp-splash-js">
 (function () {
-  if (window.__msqLampSplashV25) return;
-  window.__msqLampSplashV25 = true;
+  if (window.__msqLampSplashV27) return;
+  window.__msqLampSplashV27 = true;
 
   // always show on every page load (no session/local skip)
   var mode = 'always';
