@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611141700tripodChain";
+  var BUILD = "202611141730sideChain";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611141700tripodChain">
+  <meta name="msq-build" content="202611141730sideChain">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611141700tripodChain">
-<link rel="stylesheet" href="styles.css?v=202611141700tripodChain">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611141730sideChain">
+<link rel="stylesheet" href="styles.css?v=202611141730sideChain">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611141700tripodChain">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611141700tripodChain">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611141730sideChain">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611141730sideChain">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1511,8 +1511,8 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 /* ========== MODERN TRIPOD LAMP ========== */
 #msqLampSplash .msq-lamp-wrap{
   position:relative;
-  width:min(300px,40vw);
-  height:min(520px,82vh);
+  width:min(320px,42vw);
+  height:min(540px,84vh);
   flex-shrink:0;
   display:flex;align-items:flex-end;justify-content:center;
 }
@@ -1593,8 +1593,8 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 /* chain hit (now over the pull cord area under shade) */
 #msqLampSplash .msq-chain-hit{
   position:absolute;z-index:10;
-  left:40%;top:38%;
-  width:20%;height:28%;
+  left:68%;top:32%;
+  width:18%;height:42%;
   cursor:grab;touch-action:none;
   background:transparent;border-radius:10px;
 }
@@ -1603,28 +1603,47 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 #msqLampSplash .msq-chain-pull-fx{
   position:absolute;z-index:3;pointer-events:none;
-  left:40%;top:38%;width:20%;height:28%;
-  background:linear-gradient(180deg,transparent,rgba(0,0,0,.12));
+  left:68%;top:32%;width:18%;height:42%;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.1));
   opacity:0;transition:opacity .15s,transform .05s linear;
   border-radius:8px;
 }
 
 
-/* chain swing when pulling */
+/* chain – natural pendulum swing from attachment point */
 #msqLampSplash .msq-chain-group{
-  transform-origin: 130px 186px;
-  transition: transform .15s ease-out;
+  transform-origin: 215px 168px;
+  transition: transform .12s ease-out;
 }
 #msqLampSplash .msq-chain-group.msq-swing{
-  animation: msqChainSwing 0.55s ease-in-out;
+  animation: msqChainSwing 0.9s cubic-bezier(.36,.07,.19,.97);
 }
 @keyframes msqChainSwing{
-  0%{ transform: rotate(0deg); }
-  20%{ transform: rotate(12deg); }
-  40%{ transform: rotate(-10deg); }
-  60%{ transform: rotate(7deg); }
-  80%{ transform: rotate(-4deg); }
-  100%{ transform: rotate(0deg); }
+  0%   { transform: rotate(0deg); }
+  15%  { transform: rotate(14deg); }
+  30%  { transform: rotate(-11deg); }
+  45%  { transform: rotate(8deg); }
+  60%  { transform: rotate(-5deg); }
+  75%  { transform: rotate(3deg); }
+  88%  { transform: rotate(-1.5deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* crystal pulse when lamp is on */
+#msqLampSplash .msq-crystal-glow{
+  opacity:0;
+  transition:opacity .8s ease;
+}
+#msqLampSplash.msq-lit .msq-crystal-glow{
+  opacity:1;
+  animation: msqCrystalPulse 2s ease-in-out infinite;
+}
+@keyframes msqCrystalPulse{
+  0%,100%{ opacity:.35; transform:scale(.85); }
+  50%{ opacity:1; transform:scale(1.15); }
+}
+#msqLampSplash.msq-lit .msq-crystal path:first-child{
+  filter: drop-shadow(0 0 6px rgba(255,220,150,.7)) drop-shadow(0 0 14px rgba(255,180,80,.4));
 }
 
 #msqLampSplash .lamp-chain{
@@ -1644,7 +1663,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 #msqLampSplash .msq-chain-hint{
   position:absolute;z-index:5;pointer-events:none;
-  left:50%;top:55%;transform:translateX(-50%);
+  left:78%;top:58%;
   font-family:Cairo,sans-serif;font-size:11px;font-weight:700;
   color:rgba(255,200,160,.4);letter-spacing:.04em;
   white-space:nowrap;transition:opacity .5s;
@@ -1670,7 +1689,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   <div class="msq-splash-stage">
     <div class="msq-lamp-wrap">
       <div class="msq-lamp-glow" aria-hidden="true"></div>
-      <svg class="msq-lamp-svg" viewBox="0 0 260 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg class="msq-lamp-svg" viewBox="0 0 280 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <defs>
           <linearGradient id="shadeOff" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stop-color="#5a3a32"/>
@@ -1684,8 +1703,8 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
             <stop offset="100%" stop-color="#c06040"/>
           </linearGradient>
           <linearGradient id="goldLeg" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#f0d8a8"/>
-            <stop offset="35%" stop-color="#d4b070"/>
+            <stop offset="0%" stop-color="#f5e0b0"/>
+            <stop offset="40%" stop-color="#d4b070"/>
             <stop offset="100%" stop-color="#9a7040"/>
           </linearGradient>
           <linearGradient id="goldMetal" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -1698,66 +1717,91 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
             <stop offset="40%" stop-color="#ffd0a0" stop-opacity="0.5"/>
             <stop offset="100%" stop-color="#ff9050" stop-opacity="0"/>
           </radialGradient>
+          <!-- crystal glow -->
+          <radialGradient id="crystalGrad" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stop-color="#fff8f0"/>
+            <stop offset="40%" stop-color="#f0d8a0"/>
+            <stop offset="100%" stop-color="#c9a060"/>
+          </radialGradient>
+          <radialGradient id="crystalPulse" cx="50%" cy="40%" r="50%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+            <stop offset="50%" stop-color="#ffe0a0" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#ffb060" stop-opacity="0"/>
+          </radialGradient>
         </defs>
 
         <!-- ===== PLEATED SHADE ===== -->
-        <path class="lamp-shade" d="M58 38
-          C58 28, 202 28, 202 38
-          L228 155
-          C228 165, 32 165, 32 155
+        <path class="lamp-shade" d="M65 42
+          C65 30, 215 30, 215 42
+          L242 162
+          C242 174, 38 174, 38 162
           Z"/>
-        <ellipse cx="130" cy="36" rx="73" ry="10" class="lamp-shade"/>
-        <ellipse cx="130" cy="157" rx="100" ry="12" class="lamp-shade" opacity="0.9"/>
+        <ellipse cx="140" cy="40" rx="76" ry="11" class="lamp-shade"/>
+        <ellipse cx="140" cy="165" rx="104" ry="13" class="lamp-shade" opacity="0.9"/>
 
         <!-- pleat lines -->
-        <line class="lamp-pleat" x1="78" y1="38" x2="52" y2="155"/>
-        <line class="lamp-pleat" x1="95" y1="36" x2="76" y2="156"/>
-        <line class="lamp-pleat" x1="112" y1="35" x2="100" y2="157"/>
-        <line class="lamp-pleat" x1="130" y1="34" x2="130" y2="157"/>
-        <line class="lamp-pleat" x1="148" y1="35" x2="160" y2="157"/>
-        <line class="lamp-pleat" x1="165" y1="36" x2="184" y2="156"/>
-        <line class="lamp-pleat" x1="182" y1="38" x2="208" y2="155"/>
+        <line class="lamp-pleat" x1="85" y1="42" x2="58" y2="163"/>
+        <line class="lamp-pleat" x1="102" y1="39" x2="82" y2="165"/>
+        <line class="lamp-pleat" x1="120" y1="38" x2="108" y2="166"/>
+        <line class="lamp-pleat" x1="140" y1="37" x2="140" y2="166"/>
+        <line class="lamp-pleat" x1="160" y1="38" x2="172" y2="166"/>
+        <line class="lamp-pleat" x1="178" y1="39" x2="198" y2="165"/>
+        <line class="lamp-pleat" x1="195" y1="42" x2="222" y2="163"/>
 
         <!-- inner glow -->
-        <ellipse class="lamp-inner-glow" cx="130" cy="100" rx="60" ry="38" fill="url(#coreGlow)"/>
+        <ellipse class="lamp-inner-glow" cx="140" cy="105" rx="65" ry="40" fill="url(#coreGlow)"/>
 
-        <!-- ===== METAL COLLAR / SOCKET (الزور المعدني) ===== -->
-        <ellipse class="lamp-joint" cx="130" cy="168" rx="22" ry="7" fill="url(#goldMetal)"/>
-        <rect x="112" y="168" width="36" height="18" rx="3" fill="url(#goldMetal)"/>
-        <ellipse class="lamp-joint" cx="130" cy="186" rx="18" ry="6" fill="url(#goldMetal)"/>
-        <!-- small decorative ring -->
-        <ellipse cx="130" cy="175" rx="16" ry="4" fill="none" stroke="#6a4a28" stroke-width="1.2" opacity="0.4"/>
+        <!-- ===== METAL COLLAR (الزور) ===== -->
+        <ellipse cx="140" cy="176" rx="24" ry="8" fill="url(#goldMetal)"/>
+        <rect x="120" y="176" width="40" height="20" rx="4" fill="url(#goldMetal)"/>
+        <ellipse cx="140" cy="196" rx="20" ry="7" fill="url(#goldMetal)"/>
+        <ellipse cx="140" cy="184" rx="17" ry="4" fill="none" stroke="#6a4a28" stroke-width="1.3" opacity="0.4"/>
 
-        <!-- ===== PULL CHAIN (سلسلة) ===== -->
-        <g id="msqChainGroup" class="msq-chain-group">
-          <line class="lamp-chain" x1="130" y1="186" x2="130" y2="268" stroke="url(#goldMetal)" stroke-width="2.2" stroke-linecap="round"/>
-          <circle class="lamp-chain-ball" cx="130" cy="200" r="3.2" fill="url(#goldMetal)"/>
-          <circle class="lamp-chain-ball" cx="130" cy="220" r="3.2" fill="url(#goldMetal)"/>
-          <circle class="lamp-chain-ball" cx="130" cy="240" r="3.2" fill="url(#goldMetal)"/>
-          <circle class="lamp-chain-ball" cx="130" cy="258" r="3.2" fill="url(#goldMetal)"/>
-          <circle class="lamp-chain-ball" cx="130" cy="278" r="6.5" fill="url(#goldMetal)"/>
-          <circle cx="130" cy="278" r="2.8" fill="#3a2815" opacity="0.45"/>
-        </g>
-
-        <!-- ===== TRIPOD LEGS (3 legs clearly visible) ===== -->
-        <!-- joint point under collar -->
-        <circle class="lamp-joint" cx="130" cy="190" r="5" fill="url(#goldMetal)"/>
+        <!-- ===== TRIPOD – 3 clear gold legs ===== -->
+        <!-- joint under collar -->
+        <circle cx="140" cy="200" r="6" fill="url(#goldMetal)"/>
 
         <!-- LEFT leg -->
-        <line class="lamp-leg" x1="130" y1="190" x2="48" y2="430" stroke="url(#goldLeg)" stroke-width="3.8" stroke-linecap="round"/>
-        <ellipse class="lamp-joint" cx="48" cy="432" rx="9" ry="4" fill="url(#goldMetal)"/>
-
-        <!-- CENTER leg (back) -->
-        <line class="lamp-leg" x1="130" y1="190" x2="130" y2="438" stroke="url(#goldLeg)" stroke-width="3.5" stroke-linecap="round" opacity="0.85"/>
-        <ellipse class="lamp-joint" cx="130" cy="440" rx="9" ry="4" fill="url(#goldMetal)"/>
+        <line class="lamp-leg" x1="140" y1="200" x2="45" y2="445" stroke="url(#goldLeg)" stroke-width="4.2" stroke-linecap="round"/>
+        <ellipse cx="45" cy="447" rx="10" ry="4.5" fill="url(#goldMetal)"/>
 
         <!-- RIGHT leg -->
-        <line class="lamp-leg" x1="130" y1="190" x2="212" y2="430" stroke="url(#goldLeg)" stroke-width="3.8" stroke-linecap="round"/>
-        <ellipse class="lamp-joint" cx="212" cy="432" rx="9" ry="4" fill="url(#goldMetal)"/>
+        <line class="lamp-leg" x1="140" y1="200" x2="235" y2="445" stroke="url(#goldLeg)" stroke-width="4.2" stroke-linecap="round"/>
+        <ellipse cx="235" cy="447" rx="10" ry="4.5" fill="url(#goldMetal)"/>
+
+        <!-- BACK/CENTER leg – same gold, slightly thinner for depth -->
+        <line class="lamp-leg" x1="140" y1="200" x2="140" y2="452" stroke="url(#goldLeg)" stroke-width="3.8" stroke-linecap="round"/>
+        <ellipse cx="140" cy="454" rx="10" ry="4.5" fill="url(#goldMetal)"/>
 
         <!-- cross braces -->
-        <line class="lamp-leg" x1="85" y1="310" x2="175" y2="310" stroke="url(#goldLeg)" stroke-width="2" opacity="0.65"/>
-        <line class="lamp-leg" x1="95" y1="350" x2="165" y2="350" stroke="url(#goldLeg)" stroke-width="1.8" opacity="0.5"/>
+        <line class="lamp-leg" x1="90" y1="320" x2="190" y2="320" stroke="url(#goldLeg)" stroke-width="2.2" opacity="0.7"/>
+        <line class="lamp-leg" x1="100" y1="360" x2="180" y2="360" stroke="url(#goldLeg)" stroke-width="1.8" opacity="0.55"/>
+
+        <!-- ===== SIDE CHAIN (on the right edge under shade, not center) ===== -->
+        <g id="msqChainGroup" class="msq-chain-group">
+          <!-- attachment point under right side of shade rim -->
+          <circle cx="215" cy="168" r="3.5" fill="url(#goldMetal)"/>
+          <!-- chain cord – longer, hangs to the side -->
+          <path class="lamp-chain" d="M215 168
+            C218 190, 222 220, 220 250
+            C218 275, 215 295, 216 320"
+            fill="none" stroke="url(#goldMetal)" stroke-width="2.4" stroke-linecap="round"/>
+          <!-- chain beads -->
+          <circle class="lamp-chain-ball" cx="217" cy="195" r="3" fill="url(#goldMetal)"/>
+          <circle class="lamp-chain-ball" cx="220" cy="225" r="3" fill="url(#goldMetal)"/>
+          <circle class="lamp-chain-ball" cx="219" cy="255" r="3" fill="url(#goldMetal)"/>
+          <circle class="lamp-chain-ball" cx="217" cy="285" r="3" fill="url(#goldMetal)"/>
+          <circle class="lamp-chain-ball" cx="216" cy="310" r="3" fill="url(#goldMetal)"/>
+          <!-- CRYSTAL end -->
+          <g class="msq-crystal">
+            <!-- diamond / crystal shape -->
+            <path d="M216 322 L224 338 L216 354 L208 338 Z" fill="url(#crystalGrad)" stroke="#c9a060" stroke-width="0.8"/>
+            <!-- inner highlight -->
+            <path d="M216 326 L220 336 L216 346 L212 336 Z" fill="#fff8f0" opacity="0.45"/>
+            <!-- pulse glow (visible when lit via CSS) -->
+            <circle class="msq-crystal-glow" cx="216" cy="338" r="16" fill="url(#crystalPulse)" opacity="0"/>
+          </g>
+        </g>
       </svg>
 
       <div class="msq-chain-pull-fx" id="msqChainFx" aria-hidden="true"></div>
@@ -2831,7 +2875,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   })();
   </script>
 
-  <script src="script.js?v=202611141700tripodChain"></script>
+  <script src="script.js?v=202611141730sideChain"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9940,8 +9984,8 @@ html body #msqAdminTabContent .order-card-admin {
 
 <script id="msq-lamp-splash-js">
 (function () {
-  if (window.__msqLampSplashV19) return;
-  window.__msqLampSplashV19 = true;
+  if (window.__msqLampSplashV20) return;
+  window.__msqLampSplashV20 = true;
 
   // always show on every page load (no session/local skip)
   var mode = 'always';
