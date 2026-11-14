@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611141615modernLamp2";
+  var BUILD = "202611141700tripodChain";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611141615modernLamp2">
+  <meta name="msq-build" content="202611141700tripodChain">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611141615modernLamp2">
-<link rel="stylesheet" href="styles.css?v=202611141615modernLamp2">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611141700tripodChain">
+<link rel="stylesheet" href="styles.css?v=202611141700tripodChain">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611141615modernLamp2">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611141615modernLamp2">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611141700tripodChain">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611141700tripodChain">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1511,8 +1511,8 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 /* ========== MODERN TRIPOD LAMP ========== */
 #msqLampSplash .msq-lamp-wrap{
   position:relative;
-  width:min(280px,38vw);
-  height:min(480px,78vh);
+  width:min(300px,40vw);
+  height:min(520px,82vh);
   flex-shrink:0;
   display:flex;align-items:flex-end;justify-content:center;
 }
@@ -1593,8 +1593,8 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 /* chain hit (now over the pull cord area under shade) */
 #msqLampSplash .msq-chain-hit{
   position:absolute;z-index:10;
-  left:38%;top:22%;
-  width:24%;height:18%;
+  left:40%;top:38%;
+  width:20%;height:28%;
   cursor:grab;touch-action:none;
   background:transparent;border-radius:10px;
 }
@@ -1603,17 +1603,50 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 #msqLampSplash .msq-chain-pull-fx{
   position:absolute;z-index:3;pointer-events:none;
-  left:38%;top:22%;width:24%;height:18%;
+  left:40%;top:38%;width:20%;height:28%;
   background:linear-gradient(180deg,transparent,rgba(0,0,0,.12));
   opacity:0;transition:opacity .15s,transform .05s linear;
   border-radius:8px;
 }
 
+
+/* chain swing when pulling */
+#msqLampSplash .msq-chain-group{
+  transform-origin: 130px 186px;
+  transition: transform .15s ease-out;
+}
+#msqLampSplash .msq-chain-group.msq-swing{
+  animation: msqChainSwing 0.55s ease-in-out;
+}
+@keyframes msqChainSwing{
+  0%{ transform: rotate(0deg); }
+  20%{ transform: rotate(12deg); }
+  40%{ transform: rotate(-10deg); }
+  60%{ transform: rotate(7deg); }
+  80%{ transform: rotate(-4deg); }
+  100%{ transform: rotate(0deg); }
+}
+
+#msqLampSplash .lamp-chain{
+  stroke:#c9a06a;
+  transition:stroke 1s ease, filter 1s ease;
+}
+#msqLampSplash.msq-lit .lamp-chain{
+  stroke:#e8c48a;
+  filter:drop-shadow(0 0 4px rgba(255,200,120,.4));
+}
+#msqLampSplash .lamp-chain-ball{
+  transition:fill 1s ease, filter 1s ease;
+}
+#msqLampSplash.msq-lit .lamp-chain-ball{
+  filter:drop-shadow(0 0 4px rgba(255,200,120,.35));
+}
+
 #msqLampSplash .msq-chain-hint{
   position:absolute;z-index:5;pointer-events:none;
-  left:50%;top:42%;transform:translateX(-50%);
+  left:50%;top:55%;transform:translateX(-50%);
   font-family:Cairo,sans-serif;font-size:11px;font-weight:700;
-  color:rgba(255,200,160,.35);letter-spacing:.04em;
+  color:rgba(255,200,160,.4);letter-spacing:.04em;
   white-space:nowrap;transition:opacity .5s;
   text-shadow:0 1px 4px rgba(0,0,0,.5);
 }
@@ -1637,26 +1670,28 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   <div class="msq-splash-stage">
     <div class="msq-lamp-wrap">
       <div class="msq-lamp-glow" aria-hidden="true"></div>
-      <svg class="msq-lamp-svg" viewBox="0 0 240 420" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg class="msq-lamp-svg" viewBox="0 0 260 460" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <defs>
-          <!-- Shade OFF (dark muted coral) -->
           <linearGradient id="shadeOff" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stop-color="#5a3a32"/>
             <stop offset="40%" stop-color="#3a2420"/>
             <stop offset="100%" stop-color="#2a1815"/>
           </linearGradient>
-          <!-- Shade ON (warm coral / peach) -->
           <linearGradient id="shadeOn" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stop-color="#ffc8a8"/>
             <stop offset="25%" stop-color="#f0a078"/>
             <stop offset="55%" stop-color="#e08058"/>
             <stop offset="100%" stop-color="#c06040"/>
           </linearGradient>
-          <!-- Gold legs -->
           <linearGradient id="goldLeg" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stop-color="#f0d8a8"/>
-            <stop offset="40%" stop-color="#d4b070"/>
+            <stop offset="35%" stop-color="#d4b070"/>
             <stop offset="100%" stop-color="#9a7040"/>
+          </linearGradient>
+          <linearGradient id="goldMetal" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#f5e4c0"/>
+            <stop offset="40%" stop-color="#d4b078"/>
+            <stop offset="100%" stop-color="#8a6035"/>
           </linearGradient>
           <radialGradient id="coreGlow" cx="50%" cy="45%" r="50%">
             <stop offset="0%" stop-color="#fff8f0" stop-opacity="1"/>
@@ -1665,45 +1700,64 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
           </radialGradient>
         </defs>
 
-        <!-- ===== PLEATED SHADE (trapezoid with folds) ===== -->
-        <!-- main shade body – soft rounded trapezoid -->
+        <!-- ===== PLEATED SHADE ===== -->
         <path class="lamp-shade" d="M58 38
-          C58 28, 182 28, 182 38
-          L208 148
-          C208 158, 32 158, 32 148
+          C58 28, 202 28, 202 38
+          L228 155
+          C228 165, 32 165, 32 155
           Z"/>
-        <!-- top rim -->
-        <ellipse cx="120" cy="36" rx="64" ry="9" class="lamp-shade"/>
-        <!-- bottom soft rim -->
-        <ellipse cx="120" cy="150" rx="90" ry="11" class="lamp-shade" opacity="0.9"/>
+        <ellipse cx="130" cy="36" rx="73" ry="10" class="lamp-shade"/>
+        <ellipse cx="130" cy="157" rx="100" ry="12" class="lamp-shade" opacity="0.9"/>
 
-        <!-- pleat fold lines (vertical soft folds) -->
-        <line class="lamp-pleat" x1="72" y1="38" x2="48" y2="148"/>
-        <line class="lamp-pleat" x1="88" y1="36" x2="70" y2="149"/>
-        <line class="lamp-pleat" x1="104" y1="35" x2="92" y2="150"/>
-        <line class="lamp-pleat" x1="120" y1="34" x2="120" y2="150"/>
-        <line class="lamp-pleat" x1="136" y1="35" x2="148" y2="150"/>
-        <line class="lamp-pleat" x1="152" y1="36" x2="170" y2="149"/>
-        <line class="lamp-pleat" x1="168" y1="38" x2="192" y2="148"/>
+        <!-- pleat lines -->
+        <line class="lamp-pleat" x1="78" y1="38" x2="52" y2="155"/>
+        <line class="lamp-pleat" x1="95" y1="36" x2="76" y2="156"/>
+        <line class="lamp-pleat" x1="112" y1="35" x2="100" y2="157"/>
+        <line class="lamp-pleat" x1="130" y1="34" x2="130" y2="157"/>
+        <line class="lamp-pleat" x1="148" y1="35" x2="160" y2="157"/>
+        <line class="lamp-pleat" x1="165" y1="36" x2="184" y2="156"/>
+        <line class="lamp-pleat" x1="182" y1="38" x2="208" y2="155"/>
 
-        <!-- inner light core -->
-        <ellipse class="lamp-inner-glow" cx="120" cy="95" rx="55" ry="35" fill="url(#coreGlow)"/>
+        <!-- inner glow -->
+        <ellipse class="lamp-inner-glow" cx="130" cy="100" rx="60" ry="38" fill="url(#coreGlow)"/>
 
-        <!-- ===== TRIPOD LEGS ===== -->
-        <!-- center joint under shade -->
-        <circle class="lamp-joint" cx="120" cy="155" r="6"/>
-        <!-- three legs -->
-        <line class="lamp-leg" x1="120" y1="155" x2="55" y2="400"/>
-        <line class="lamp-leg" x1="120" y1="155" x2="120" y2="405"/>
-        <line class="lamp-leg" x1="120" y1="155" x2="185" y2="400"/>
-        <!-- foot pads -->
-        <ellipse class="lamp-joint" cx="55" cy="402" rx="8" ry="3.5"/>
-        <ellipse class="lamp-joint" cx="120" cy="407" rx="8" ry="3.5"/>
-        <ellipse class="lamp-joint" cx="185" cy="402" rx="8" ry="3.5"/>
+        <!-- ===== METAL COLLAR / SOCKET (الزور المعدني) ===== -->
+        <ellipse class="lamp-joint" cx="130" cy="168" rx="22" ry="7" fill="url(#goldMetal)"/>
+        <rect x="112" y="168" width="36" height="18" rx="3" fill="url(#goldMetal)"/>
+        <ellipse class="lamp-joint" cx="130" cy="186" rx="18" ry="6" fill="url(#goldMetal)"/>
+        <!-- small decorative ring -->
+        <ellipse cx="130" cy="175" rx="16" ry="4" fill="none" stroke="#6a4a28" stroke-width="1.2" opacity="0.4"/>
 
-        <!-- small cross brace -->
-        <line class="lamp-leg" x1="85" y1="280" x2="155" y2="280" stroke-width="2" opacity="0.7"/>
-        <line class="lamp-leg" x1="95" y1="320" x2="145" y2="320" stroke-width="1.8" opacity="0.55"/>
+        <!-- ===== PULL CHAIN (سلسلة) ===== -->
+        <g id="msqChainGroup" class="msq-chain-group">
+          <line class="lamp-chain" x1="130" y1="186" x2="130" y2="268" stroke="url(#goldMetal)" stroke-width="2.2" stroke-linecap="round"/>
+          <circle class="lamp-chain-ball" cx="130" cy="200" r="3.2" fill="url(#goldMetal)"/>
+          <circle class="lamp-chain-ball" cx="130" cy="220" r="3.2" fill="url(#goldMetal)"/>
+          <circle class="lamp-chain-ball" cx="130" cy="240" r="3.2" fill="url(#goldMetal)"/>
+          <circle class="lamp-chain-ball" cx="130" cy="258" r="3.2" fill="url(#goldMetal)"/>
+          <circle class="lamp-chain-ball" cx="130" cy="278" r="6.5" fill="url(#goldMetal)"/>
+          <circle cx="130" cy="278" r="2.8" fill="#3a2815" opacity="0.45"/>
+        </g>
+
+        <!-- ===== TRIPOD LEGS (3 legs clearly visible) ===== -->
+        <!-- joint point under collar -->
+        <circle class="lamp-joint" cx="130" cy="190" r="5" fill="url(#goldMetal)"/>
+
+        <!-- LEFT leg -->
+        <line class="lamp-leg" x1="130" y1="190" x2="48" y2="430" stroke="url(#goldLeg)" stroke-width="3.8" stroke-linecap="round"/>
+        <ellipse class="lamp-joint" cx="48" cy="432" rx="9" ry="4" fill="url(#goldMetal)"/>
+
+        <!-- CENTER leg (back) -->
+        <line class="lamp-leg" x1="130" y1="190" x2="130" y2="438" stroke="url(#goldLeg)" stroke-width="3.5" stroke-linecap="round" opacity="0.85"/>
+        <ellipse class="lamp-joint" cx="130" cy="440" rx="9" ry="4" fill="url(#goldMetal)"/>
+
+        <!-- RIGHT leg -->
+        <line class="lamp-leg" x1="130" y1="190" x2="212" y2="430" stroke="url(#goldLeg)" stroke-width="3.8" stroke-linecap="round"/>
+        <ellipse class="lamp-joint" cx="212" cy="432" rx="9" ry="4" fill="url(#goldMetal)"/>
+
+        <!-- cross braces -->
+        <line class="lamp-leg" x1="85" y1="310" x2="175" y2="310" stroke="url(#goldLeg)" stroke-width="2" opacity="0.65"/>
+        <line class="lamp-leg" x1="95" y1="350" x2="165" y2="350" stroke="url(#goldLeg)" stroke-width="1.8" opacity="0.5"/>
       </svg>
 
       <div class="msq-chain-pull-fx" id="msqChainFx" aria-hidden="true"></div>
@@ -2777,7 +2831,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   })();
   </script>
 
-  <script src="script.js?v=202611141615modernLamp2"></script>
+  <script src="script.js?v=202611141700tripodChain"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9886,8 +9940,8 @@ html body #msqAdminTabContent .order-card-admin {
 
 <script id="msq-lamp-splash-js">
 (function () {
-  if (window.__msqLampSplashV18) return;
-  window.__msqLampSplashV18 = true;
+  if (window.__msqLampSplashV19) return;
+  window.__msqLampSplashV19 = true;
 
   // always show on every page load (no session/local skip)
   var mode = 'always';
@@ -9919,6 +9973,14 @@ html body #msqAdminTabContent .order-card-admin {
   function toggleLight() {
     var el = document.getElementById('msqLampSplash');
     if (!el) return;
+    // swing the chain
+    var chain = el.querySelector('.msq-chain-group');
+    if (chain) {
+      chain.classList.remove('msq-swing');
+      void chain.offsetWidth; // reflow
+      chain.classList.add('msq-swing');
+      setTimeout(function(){ chain.classList.remove('msq-swing'); }, 600);
+    }
     if (el.classList.contains('msq-lit')) turnOff();
     else turnOn();
   }
@@ -14580,4 +14642,8 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
       prev = now;
     }, 300);
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLo
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
+  else watch();
+})();
+</script>
+
