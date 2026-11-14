@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611141330cssLampV4";
+  var BUILD = "202611141530cssLampV8";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611141330cssLampV4">
+  <meta name="msq-build" content="202611141530cssLampV8">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611141330cssLampV4">
-<link rel="stylesheet" href="styles.css?v=202611141330cssLampV4">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611141530cssLampV8">
+<link rel="stylesheet" href="styles.css?v=202611141530cssLampV8">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611141330cssLampV4">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611141330cssLampV4">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611141530cssLampV8">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611141530cssLampV8">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1504,8 +1504,8 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 /* ========== PURE CSS / SVG LUXURY LAMP ========== */
 #msqLampSplash .msq-lamp-wrap{
   position:relative;
-  width:min(380px,46vw);
-  height:min(620px,88vh);
+  width:min(320px,40vw);
+  height:min(540px,82vh);
   flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
 }
@@ -1524,13 +1524,12 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 /* glass shade – off state very subtle */
 #msqLampSplash .lamp-glass{
-  fill:url(#glassGradOff);
+  fill:url(#gOff);
   transition:fill 1.15s ease, filter 1.15s ease;
-  filter:url(#glassBlur);
 }
 #msqLampSplash.msq-lit .lamp-glass{
-  fill:url(#glassGradOn);
-  filter:url(#glassBlur) drop-shadow(0 0 12px rgba(255,190,100,.5));
+  fill:url(#gOn);
+  filter:drop-shadow(0 0 14px rgba(255,190,100,.55));
 }
 
 /* inner glow circle inside shade */
@@ -1542,7 +1541,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 /* metal parts */
 #msqLampSplash .lamp-metal{
-  fill:url(#metalGrad);
+  fill:url(#brz);
   transition:filter 1.15s ease;
 }
 #msqLampSplash.msq-lit .lamp-metal{
@@ -1586,8 +1585,8 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 /* hit area for the chain */
 #msqLampSplash .msq-chain-hit{
   position:absolute;z-index:10;
-  left:42%;top:34%;
-  width:16%;height:26%;
+  left:42%;top:32%;
+  width:16%;height:28%;
   cursor:grab;touch-action:none;
   background:transparent;border-radius:10px;
 }
@@ -1596,7 +1595,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 #msqLampSplash .msq-chain-pull-fx{
   position:absolute;z-index:3;pointer-events:none;
-  left:42%;top:34%;width:16%;height:26%;
+  left:42%;top:32%;width:16%;height:28%;
   background:linear-gradient(180deg,transparent,rgba(0,0,0,.18));
   opacity:0;transition:opacity .15s,transform .05s linear;
   border-radius:8px;
@@ -1631,136 +1630,99 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   <div class="msq-splash-stage">
     <div class="msq-lamp-wrap">
       <div class="msq-lamp-glow" aria-hidden="true"></div>
-      <svg class="msq-lamp-svg" viewBox="0 0 380 600" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <defs>
-          <linearGradient id="metalGrad" x1="5%" y1="0%" x2="95%" y2="100%">
-            <stop offset="0%" stop-color="#f5e2c0"/>
-            <stop offset="18%" stop-color="#d8b480"/>
-            <stop offset="40%" stop-color="#a07845"/>
-            <stop offset="65%" stop-color="#c9a060"/>
-            <stop offset="100%" stop-color="#5c4025"/>
-          </linearGradient>
-          <linearGradient id="metalBright" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#fff5e0" stop-opacity=".8"/>
-            <stop offset="45%" stop-color="#d4b078" stop-opacity=".2"/>
-            <stop offset="100%" stop-color="#3a2815" stop-opacity=".5"/>
-          </linearGradient>
-          <radialGradient id="glassGradOff" cx="50%" cy="28%" r="75%">
-            <stop offset="0%" stop-color="#3a2818"/>
-            <stop offset="55%" stop-color="#1e140e"/>
-            <stop offset="100%" stop-color="#0c0806"/>
-          </radialGradient>
-          <radialGradient id="glassGradOn" cx="48%" cy="24%" r="76%">
-            <stop offset="0%" stop-color="#fff8e0"/>
-            <stop offset="15%" stop-color="#ffe8b0"/>
-            <stop offset="38%" stop-color="#f8c068"/>
-            <stop offset="65%" stop-color="#e09038"/>
-            <stop offset="100%" stop-color="#8a4e16"/>
-          </radialGradient>
-          <radialGradient id="innerLight" cx="50%" cy="34%" r="60%">
-            <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
-            <stop offset="25%" stop-color="#ffeeba" stop-opacity=".7"/>
-            <stop offset="100%" stop-color="#ffb040" stop-opacity="0"/>
-          </radialGradient>
-        </defs>
+      <svg class="msq-lamp-svg" viewBox="0 0 280 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <linearGradient id="brz" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f5e4c0"/>
+      <stop offset="28%" stop-color="#d4b078"/>
+      <stop offset="52%" stop-color="#9a7042"/>
+      <stop offset="78%" stop-color="#c9a060"/>
+      <stop offset="100%" stop-color="#5a3e22"/>
+    </linearGradient>
+    <linearGradient id="brzHi" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#fff8e8" stop-opacity="0.85"/>
+      <stop offset="50%" stop-color="#d4b078" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#3a2815" stop-opacity="0.5"/>
+    </linearGradient>
+    <radialGradient id="gOff" cx="50%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="#4a3422"/>
+      <stop offset="55%" stop-color="#2a1c12"/>
+      <stop offset="100%" stop-color="#120e0a"/>
+    </radialGradient>
+    <radialGradient id="gOn" cx="48%" cy="26%" r="72%">
+      <stop offset="0%" stop-color="#fff8e0"/>
+      <stop offset="18%" stop-color="#ffe4a8"/>
+      <stop offset="42%" stop-color="#f5b858"/>
+      <stop offset="70%" stop-color="#d88830"/>
+      <stop offset="100%" stop-color="#8a4e16"/>
+    </radialGradient>
+    <radialGradient id="core" cx="50%" cy="36%" r="55%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="30%" stop-color="#ffe8b0" stop-opacity="0.65"/>
+      <stop offset="100%" stop-color="#ffb040" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
 
-        <!-- BASE: elegant figure-8 / crossed organic loops -->
-        <g class="lamp-metal">
-          <path d="M78 505
-                   C28 525, 25 580, 90 588
-                   C150 595, 215 570, 225 535
-                   C230 518, 215 500, 185 498
-                   C145 495, 105 498, 78 505 Z"/>
-          <path d="M275 500
-                   C330 515, 345 570, 285 585
-                   C230 595, 155 575, 140 540
-                   C133 522, 150 500, 185 496
-                   C220 492, 255 494, 275 500 Z" opacity=".95"/>
-          <ellipse cx="180" cy="555" rx="42" ry="10" opacity=".75"/>
-        </g>
+  <!-- ===== BASE ===== -->
+  <path class="lamp-metal" d="M40 400 C10 420 15 460 55 468 C90 475 130 460 140 430 C145 415 130 400 100 398 C70 396 50 400 40 400 Z"/>
+  <path class="lamp-metal" d="M200 398 C235 412 245 455 210 468 C175 478 130 462 120 432 C115 415 135 398 165 396 C185 394 195 398 200 398 Z" opacity="0.95"/>
+  <ellipse class="lamp-metal" cx="130" cy="450" rx="35" ry="8" opacity="0.7"/>
 
-        <!-- TWISTED STEM -->
-        <g class="lamp-metal">
-          <path d="M140 360
-                   C105 390, 85 435, 105 475
-                   C120 505, 175 520, 205 495
-                   C225 478, 225 435, 200 410
-                   C180 390, 160 372, 140 360 Z"/>
-          <path d="M200 355
-                   C245 385, 275 430, 255 475
-                   C238 510, 175 520, 145 490
-                   C128 472, 140 430, 170 408
-                   C190 390, 205 370, 200 355 Z" opacity=".92"/>
-          <!-- rising neck piece -->
-          <path d="M165 358 C155 320, 162 285, 175 255"
-                fill="none" stroke="url(#metalGrad)" stroke-width="17" stroke-linecap="round"/>
-          <path d="M178 356 C190 318, 182 282, 175 255"
-                fill="none" stroke="url(#metalBright)" stroke-width="5.5" stroke-linecap="round" opacity=".55"/>
-        </g>
+  <!-- ===== STEM (twisted organic) ===== -->
+  <path class="lamp-metal" d="M85 270 C55 300 45 350 70 385 C90 415 135 422 155 395 C170 375 165 335 140 310 C125 295 100 280 85 270 Z"/>
+  <path class="lamp-metal" d="M150 265 C190 295 210 345 185 385 C165 415 115 420 95 390 C80 370 100 330 130 308 C145 293 150 278 150 265 Z" opacity="0.92"/>
 
-        <!-- SWAN NECK ARM – strong visible curve -->
-        <g class="lamp-metal">
-          <path d="M175 255
-                   C165 195, 135 145, 170 115
-                   C195 95, 260 100, 280 145
-                   C292 168, 280 200, 250 215
-                   C225 228, 185 215, 175 185
-                   C168 165, 175 145, 190 130"
-                fill="none" stroke="url(#metalGrad)" stroke-width="16" stroke-linecap="round"/>
-          <path d="M182 248
-                   C172 195, 150 150, 175 122
-                   C192 105, 240 110, 260 145"
-                fill="none" stroke="url(#metalBright)" stroke-width="5.5" stroke-linecap="round" opacity=".6"/>
-        </g>
+  <!-- Rising column -->
+  <path d="M115 265 C108 235 115 205 128 180" fill="none" stroke="url(#brz)" stroke-width="14" stroke-linecap="round"/>
+  <path d="M128 263 C138 233 132 203 128 180" fill="none" stroke="url(#brzHi)" stroke-width="4.5" stroke-linecap="round" opacity="0.55"/>
 
-        <!-- SOCKET CAP -->
-        <g class="lamp-metal">
-          <ellipse cx="185" cy="112" rx="36" ry="15"/>
-          <path d="M151 112 Q151 82 185 76 Q219 82 219 112 Z"/>
-          <path d="M160 98 Q185 90 210 98" fill="none" stroke="#4a3018" stroke-width="2.2" opacity=".4"/>
-          <path d="M162 106 Q185 99 208 106" fill="none" stroke="#4a3018" stroke-width="1.6" opacity=".3"/>
-          <circle cx="223" cy="104" r="7.5"/>
-          <circle cx="223" cy="104" r="3.5" fill="#2a1c10" opacity=".4"/>
-        </g>
+  <!-- ===== SWAN NECK – clearly visible ===== -->
+  <path d="M128 180
+           C120 140 95 105 135 85
+           C165 70 215 80 225 120
+           C232 145 215 175 185 182
+           C160 188 135 172 128 148
+           C123 132 132 115 148 102"
+        fill="none" stroke="url(#brz)" stroke-width="13" stroke-linecap="round"/>
+  <path d="M134 175
+           C126 138 108 108 138 90
+           C158 78 198 88 212 120"
+        fill="none" stroke="url(#brzHi)" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
 
-        <!-- GLASS SHADE – classic flared petal / flower shape -->
-        <g>
-          <!-- main body – wider at bottom, elegant curve -->
-          <path class="lamp-glass" d="M185 115
-            C255 122, 320 160, 335 230
-            C342 265, 320 305, 270 320
-            C230 332, 195 336, 185 336
-            C175 336, 140 332, 100 320
-            C50 305, 28 265, 35 230
-            C50 160, 115 122, 185 115 Z"/>
+  <!-- ===== SOCKET ===== -->
+  <ellipse class="lamp-metal" cx="140" cy="78" rx="28" ry="11"/>
+  <path class="lamp-metal" d="M114 78 Q114 55 140 50 Q166 55 166 78 Z"/>
+  <path d="M124 66 Q140 59 156 66" fill="none" stroke="#4a3018" stroke-width="1.6" opacity="0.4"/>
+  <circle class="lamp-metal" cx="170" cy="72" r="5.5"/>
+  <circle cx="170" cy="72" r="2.5" fill="#2a1c10" opacity="0.4"/>
 
-          <!-- wavy bottom edge – left deep petal -->
-          <path class="lamp-glass" d="M38 235
-            C12 260, 30 310, 90 322
-            C50 300, 35 265, 38 235 Z" opacity=".7"/>
-          <!-- wavy bottom edge – right deep petal -->
-          <path class="lamp-glass" d="M332 235
-            C358 260, 340 310, 280 322
-            C320 300, 335 265, 332 235 Z" opacity=".7"/>
-          <!-- mid side soft waves -->
-          <path class="lamp-glass" d="M55 195 Q18 220 40 270 Q75 300 105 280 Q70 250 60 220 Z" opacity=".35"/>
-          <path class="lamp-glass" d="M315 195 Q352 220 330 270 Q295 300 265 280 Q300 250 310 220 Z" opacity=".35"/>
+  <!-- ===== GLASS SHADE ===== -->
+  <path class="lamp-glass" d="M140 80
+    C195 88 245 125 255 185
+    C260 218 240 250 200 260
+    C170 268 145 270 140 270
+    C135 270 110 268 80 260
+    C40 250 20 218 25 185
+    C35 125 85 88 140 80 Z"/>
 
-          <!-- luminous core -->
-          <ellipse class="lamp-inner-glow" cx="185" cy="210" rx="100" ry="72" fill="url(#innerLight)"/>
-        </g>
+  <!-- Petal waves -->
+  <path class="lamp-glass" d="M28 190 C10 215 22 258 75 265 C42 250 30 218 28 190 Z" opacity="0.7"/>
+  <path class="lamp-glass" d="M252 190 C270 215 258 258 205 265 C238 250 250 218 252 190 Z" opacity="0.7"/>
+  <path class="lamp-glass" d="M45 155 Q18 180 32 220 Q58 245 82 230 Q55 205 48 180 Z" opacity="0.35"/>
+  <path class="lamp-glass" d="M235 155 Q262 180 248 220 Q222 245 198 230 Q225 205 232 180 Z" opacity="0.35"/>
 
-        <!-- PULL CHAIN -->
-        <g>
-          <line class="lamp-chain" x1="185" y1="200" x2="185" y2="320" stroke-width="2.5"/>
-          <circle class="lamp-chain-ball" cx="185" cy="218" r="3.6"/>
-          <circle class="lamp-chain-ball" cx="185" cy="245" r="3.6"/>
-          <circle class="lamp-chain-ball" cx="185" cy="272" r="3.6"/>
-          <circle class="lamp-chain-ball" cx="185" cy="299" r="3.6"/>
-          <circle class="lamp-chain-ball" cx="185" cy="330" r="7.5"/>
-          <circle cx="185" cy="330" r="3.2" fill="#1e140c" opacity=".4"/>
-        </g>
-      </svg>
+  <!-- Core -->
+  <ellipse class="lamp-inner-glow" cx="140" cy="165" rx="72" ry="50" fill="url(#core)"/>
+
+  <!-- ===== CHAIN ===== -->
+  <line class="lamp-chain" x1="140" y1="155" x2="140" y2="265" stroke-width="2.3"/>
+  <circle class="lamp-chain-ball" cx="140" cy="170" r="3.2"/>
+  <circle class="lamp-chain-ball" cx="140" cy="195" r="3.2"/>
+  <circle class="lamp-chain-ball" cx="140" cy="220" r="3.2"/>
+  <circle class="lamp-chain-ball" cx="140" cy="245" r="3.2"/>
+  <circle class="lamp-chain-ball" cx="140" cy="272" r="6"/>
+  <circle cx="140" cy="272" r="2.5" fill="#1e140c" opacity="0.4"/>
+</svg>
 
       <div class="msq-chain-pull-fx" id="msqChainFx" aria-hidden="true"></div>
       <div class="msq-chain-hit" id="msqChainHit" role="button" tabindex="0" title="اسحب سلسلة الأباجورة" aria-label="اسحب سلسلة الأباجورة لتشغيل النور"></div>
@@ -2833,7 +2795,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   })();
   </script>
 
-  <script src="script.js?v=202611141330cssLampV4"></script>
+  <script src="script.js?v=202611141530cssLampV8"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9942,8 +9904,8 @@ html body #msqAdminTabContent .order-card-admin {
 
 <script id="msq-lamp-splash-js">
 (function () {
-  if (window.__msqLampSplashV13) return;
-  window.__msqLampSplashV13 = true;
+  if (window.__msqLampSplashV17) return;
+  window.__msqLampSplashV17 = true;
 
   // always show on every page load (no session/local skip)
   var mode = 'always';
