@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611141530cssLampV8";
+  var BUILD = "202611141615modernLamp2";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611141530cssLampV8">
+  <meta name="msq-build" content="202611141615modernLamp2">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611141530cssLampV8">
-<link rel="stylesheet" href="styles.css?v=202611141530cssLampV8">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611141615modernLamp2">
+<link rel="stylesheet" href="styles.css?v=202611141615modernLamp2">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611141530cssLampV8">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611141530cssLampV8">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611141615modernLamp2">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611141615modernLamp2">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1393,200 +1393,208 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 
 <style id="msq-lamp-splash-css">
-@import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Amiri:ital,wght@0,400;1,400&family=Cairo:wght@800&family=Playfair+Display:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Playfair+Display:wght@500;700&family=Cairo:wght@600;800&display=swap');
 
 #msqLampSplash{
   position:fixed;inset:0;z-index:99999;
   display:flex;align-items:center;justify-content:center;
-  background:#0e0a0e;overflow:hidden;
+  background:#0a0608;overflow:hidden;
   transition:opacity 1s ease,visibility 1s;
 }
+/* soft ambient orbs */
 #msqLampSplash::before{
   content:'';position:absolute;inset:0;pointer-events:none;
   background:
-    radial-gradient(ellipse 48% 48% at 78% 46%, rgba(255,150,60,0) 0%, transparent 60%),
-    linear-gradient(160deg,#161218 0%,#100c10 50%,#0c080c 100%);
+    radial-gradient(ellipse 45% 40% at 72% 48%, rgba(255,120,80,0) 0%, transparent 55%),
+    radial-gradient(circle at 15% 20%, rgba(255,100,60,.06) 0%, transparent 25%),
+    radial-gradient(circle at 85% 75%, rgba(255,80,50,.05) 0%, transparent 22%),
+    linear-gradient(160deg,#120a0c 0%,#0a0608 50%,#080406 100%);
   transition:background 1.3s ease;
 }
 #msqLampSplash.msq-lit::before{
   background:
-    radial-gradient(ellipse 62% 60% at 78% 46%, rgba(255,170,80,.38) 0%, rgba(200,100,35,.12) 42%, transparent 68%),
-    linear-gradient(160deg,#2a1c16 0%,#181214 50%,#120e12 100%);
+    radial-gradient(ellipse 55% 50% at 72% 48%, rgba(255,140,90,.28) 0%, rgba(200,80,40,.08) 40%, transparent 65%),
+    radial-gradient(circle at 15% 20%, rgba(255,100,60,.08) 0%, transparent 25%),
+    radial-gradient(circle at 85% 75%, rgba(255,80,50,.07) 0%, transparent 22%),
+    linear-gradient(160deg,#1a1012 0%,#100a0c 50%,#0c080a 100%);
 }
 #msqLampSplash.msq-splash-hide{opacity:0;visibility:hidden;pointer-events:none}
 
 #msqLampSplash .msq-splash-stage{
   position:relative;z-index:2;
   display:flex;align-items:center;justify-content:center;
-  gap:clamp(18px,3.5vw,56px);
-  width:min(1380px,98vw);padding:12px;
-  flex-direction:row; /* RTL: lamp first in DOM → appears on the right */
+  gap:clamp(24px,4vw,72px);
+  width:min(1200px,96vw);padding:16px;
+  flex-direction:row; /* RTL: lamp first → right side */
 }
 
-/* ========== CARD ========== */
+/* ========== GLASS CARD ========== */
 #msqLampSplash .msq-splash-card{
   position:relative;
-  width:min(540px,86vw);padding:56px 48px 48px;
-  border-radius:28px;text-align:center;color:#faf6f2;
-  background:rgba(255,255,255,.09);
-  border:1px solid rgba(255,255,255,.14);
-  box-shadow:0 32px 70px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.18);
-  backdrop-filter:blur(26px) saturate(1.3);
-  -webkit-backdrop-filter:blur(26px) saturate(1.3);
-  opacity:0;transform:translateY(18px) scale(.97);filter:blur(5px);
+  width:min(420px,86vw);padding:48px 40px 40px;
+  border-radius:24px;text-align:center;color:#faf6f2;
+  background:rgba(40,28,30,.55);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:
+    0 24px 60px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.1);
+  backdrop-filter:blur(24px) saturate(1.2);
+  -webkit-backdrop-filter:blur(24px) saturate(1.2);
+  opacity:0;transform:translateY(16px) scale(.97);
   pointer-events:none;overflow:visible;
-  transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1), filter .7s ease;
+  transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
 }
 #msqLampSplash.msq-lit .msq-splash-card{
-  opacity:1;transform:none;filter:blur(0);
-  pointer-events:auto;transition-delay:.12s;
+  opacity:1;transform:none;
+  pointer-events:auto;transition-delay:.15s;
 }
 
-/* top & bottom glowing borders when lit */
+/* glowing top/bottom borders */
 #msqLampSplash .msq-splash-card::before,
 #msqLampSplash .msq-splash-card::after{
-  content:'';position:absolute;left:8%;right:8%;height:2px;border-radius:2px;
+  content:'';position:absolute;left:10%;right:10%;height:1.5px;border-radius:2px;
   opacity:0;pointer-events:none;
-  background:linear-gradient(90deg,transparent 0%,rgba(255,220,170,.2) 15%,rgba(255,210,140,.95) 50%,rgba(255,220,170,.2) 85%,transparent 100%);
-  box-shadow:0 0 12px 2px rgba(255,190,100,.55),0 0 28px 4px rgba(255,160,70,.32),0 0 48px 8px rgba(255,140,50,.15);
+  background:linear-gradient(90deg,transparent,rgba(255,180,120,.9),transparent);
+  box-shadow:0 0 14px 3px rgba(255,140,80,.4),0 0 30px 6px rgba(255,100,50,.15);
 }
-#msqLampSplash .msq-splash-card::before{top:0;transform:translateY(-1px)}
-#msqLampSplash .msq-splash-card::after{bottom:0;transform:translateY(1px)}
+#msqLampSplash .msq-splash-card::before{top:0}
+#msqLampSplash .msq-splash-card::after{bottom:0}
 #msqLampSplash.msq-lit .msq-splash-card::before,
 #msqLampSplash.msq-lit .msq-splash-card::after{
-  animation:msqBorderPulse 2.4s ease-in-out .3s infinite;
+  animation:msqBorderPulse 2.6s ease-in-out .4s infinite;
 }
 #msqLampSplash:not(.msq-lit) .msq-splash-card::before,
 #msqLampSplash:not(.msq-lit) .msq-splash-card::after{
-  opacity:0;animation:none;transition:opacity .4s ease;
+  opacity:0;animation:none;
 }
 @keyframes msqBorderPulse{
-  0%,100%{opacity:.32;filter:brightness(.85)}
+  0%,100%{opacity:.25;filter:brightness(.8)}
   50%{opacity:1;filter:brightness(1.3)}
 }
 
 #msqLampSplash .msq-splash-welcome{
-  margin:0 0 10px;font-family:'Aref Ruqaa',Amiri,serif;
-  font-size:clamp(28px,3.4vw,38px);font-weight:400;
-  color:rgba(255,245,235,.94);opacity:0;letter-spacing:.02em;
-  transition:opacity .55s ease;
+  margin:0 0 8px;font-family:'Aref Ruqaa',serif;
+  font-size:clamp(22px,2.8vw,30px);font-weight:400;
+  color:rgba(255,230,210,.9);opacity:0;
+  transition:opacity .5s ease;
 }
 #msqLampSplash.msq-lit .msq-splash-welcome{opacity:1;transition-delay:.28s}
 
 #msqLampSplash .msq-splash-brand{
-  margin:0 0 14px;font-family:'Playfair Display','Aref Ruqaa',Georgia,serif;
-  font-size:clamp(52px,7vw,72px);font-weight:700;color:#fff;opacity:0;
-  letter-spacing:.01em;text-shadow:0 2px 24px rgba(255,180,100,.25);
-  transition:opacity .6s ease;
+  margin:0 0 10px;font-family:'Playfair Display',Georgia,serif;
+  font-size:clamp(42px,5.5vw,58px);font-weight:700;color:#fff;opacity:0;
+  letter-spacing:.01em;
+  transition:opacity .55s ease;
 }
 #msqLampSplash.msq-lit .msq-splash-brand{opacity:1;transition-delay:.38s}
 
 #msqLampSplash .msq-splash-tagline{
-  margin:0 0 40px;font-family:'Aref Ruqaa',Amiri,serif;
-  font-size:clamp(20px,2.4vw,26px);font-weight:400;
-  color:rgba(235,195,165,.92);opacity:0;letter-spacing:.03em;
-  transition:opacity .55s ease;
+  margin:0 0 32px;font-family:'Aref Ruqaa',serif;
+  font-size:clamp(16px,2vw,20px);font-weight:400;
+  color:rgba(255,200,160,.85);opacity:0;
+  transition:opacity .5s ease;
 }
 #msqLampSplash.msq-lit .msq-splash-tagline{opacity:1;transition-delay:.48s}
 
 #msqLampSplash .msq-splash-enter{
-  display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;
-  min-height:60px;padding:16px 26px;border:0;border-radius:999px;cursor:pointer;
-  font-family:Cairo,sans-serif;font-size:17px;font-weight:800;letter-spacing:.1em;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;
+  min-height:52px;padding:14px 24px;border:0;border-radius:999px;cursor:pointer;
+  font-family:Cairo,sans-serif;font-size:15px;font-weight:800;letter-spacing:.08em;
   text-transform:uppercase;color:#1a100c;
-  background:linear-gradient(180deg,#f8dcc0,#e8b888 55%,#dca070);
-  box-shadow:0 12px 30px rgba(200,110,50,.38);opacity:0;
-  transition:opacity .55s ease, filter .2s, transform .2s;
+  background:linear-gradient(180deg,#f8d0b0,#e8a878 55%,#d89060);
+  box-shadow:0 10px 28px rgba(200,100,50,.35);opacity:0;
+  transition:opacity .5s ease, filter .2s, transform .2s;
 }
 #msqLampSplash.msq-lit .msq-splash-enter{opacity:1;transition-delay:.58s}
-#msqLampSplash .msq-splash-enter:hover{filter:brightness(1.06);transform:translateY(-2px)}
+#msqLampSplash .msq-splash-enter:hover{filter:brightness(1.08);transform:translateY(-2px)}
 
-/* ========== PURE CSS / SVG LUXURY LAMP ========== */
+/* ========== MODERN TRIPOD LAMP ========== */
 #msqLampSplash .msq-lamp-wrap{
   position:relative;
-  width:min(320px,40vw);
-  height:min(540px,82vh);
+  width:min(280px,38vw);
+  height:min(480px,78vh);
   flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
+  display:flex;align-items:flex-end;justify-content:center;
 }
 
 #msqLampSplash .msq-lamp-svg{
   width:100%;height:100%;
   overflow:visible;
-  filter:drop-shadow(0 18px 40px rgba(0,0,0,.55));
+  filter:drop-shadow(0 12px 30px rgba(0,0,0,.45));
   transition:filter 1.2s ease;
 }
 #msqLampSplash.msq-lit .msq-lamp-svg{
-  filter:drop-shadow(0 18px 40px rgba(0,0,0,.4))
-         drop-shadow(0 0 28px rgba(255,160,60,.35))
-         drop-shadow(0 0 60px rgba(255,140,40,.18));
+  filter:drop-shadow(0 12px 30px rgba(0,0,0,.3))
+         drop-shadow(0 0 40px rgba(255,130,70,.35))
+         drop-shadow(0 0 80px rgba(255,100,50,.15));
 }
 
-/* glass shade – off state very subtle */
-#msqLampSplash .lamp-glass{
-  fill:url(#gOff);
+/* shade */
+#msqLampSplash .lamp-shade{
+  fill:url(#shadeOff);
   transition:fill 1.15s ease, filter 1.15s ease;
 }
-#msqLampSplash.msq-lit .lamp-glass{
-  fill:url(#gOn);
-  filter:drop-shadow(0 0 14px rgba(255,190,100,.55));
+#msqLampSplash.msq-lit .lamp-shade{
+  fill:url(#shadeOn);
+  filter:drop-shadow(0 0 18px rgba(255,140,80,.5));
 }
 
-/* inner glow circle inside shade */
+/* pleat lines */
+#msqLampSplash .lamp-pleat{
+  stroke:rgba(0,0,0,.12);
+  stroke-width:1.2;
+  fill:none;
+  transition:stroke 1.15s ease;
+}
+#msqLampSplash.msq-lit .lamp-pleat{
+  stroke:rgba(255,200,150,.25);
+}
+
+/* metal legs */
+#msqLampSplash .lamp-leg{
+  stroke:url(#goldLeg);
+  stroke-width:3.5;
+  stroke-linecap:round;
+  fill:none;
+  transition:stroke 1.15s ease, filter 1.15s ease;
+}
+#msqLampSplash.msq-lit .lamp-leg{
+  filter:brightness(1.15);
+}
+
+#msqLampSplash .lamp-joint{
+  fill:url(#goldLeg);
+  transition:filter 1.15s ease;
+}
+#msqLampSplash.msq-lit .lamp-joint{
+  filter:brightness(1.2);
+}
+
+/* inner glow */
 #msqLampSplash .lamp-inner-glow{
   opacity:0;
   transition:opacity 1.15s ease;
 }
 #msqLampSplash.msq-lit .lamp-inner-glow{opacity:1}
 
-/* metal parts */
-#msqLampSplash .lamp-metal{
-  fill:url(#brz);
-  transition:filter 1.15s ease;
-}
-#msqLampSplash.msq-lit .lamp-metal{
-  filter:brightness(1.18) saturate(1.15);
-}
-
-/* chain */
-#msqLampSplash .lamp-chain{
-  stroke:#c9a06a;
-  stroke-width:2.2;
-  stroke-linecap:round;
-  fill:none;
-  transition:stroke 1s ease, filter 1s ease;
-}
-#msqLampSplash.msq-lit .lamp-chain{
-  stroke:#e8c48a;
-  filter:drop-shadow(0 0 4px rgba(255,200,120,.4));
-}
-#msqLampSplash .lamp-chain-ball{
-  fill:#b89050;
-  transition:fill 1s ease, filter 1s ease;
-}
-#msqLampSplash.msq-lit .lamp-chain-ball{
-  fill:#e8c48a;
-  filter:drop-shadow(0 0 5px rgba(255,200,120,.45));
-}
-
-/* ambient glow under the whole lamp */
+/* ambient glow blob */
 #msqLampSplash .msq-lamp-glow{
-  position:absolute;left:50%;top:42%;
-  width:140%;height:100%;
-  transform:translate(-50%,-50%) scale(.25);
-  background:radial-gradient(circle,rgba(255,170,80,.55) 0%,rgba(255,120,30,.15) 40%,transparent 68%);
-  opacity:0;filter:blur(18px);pointer-events:none;z-index:0;
+  position:absolute;left:50%;top:28%;
+  width:160%;height:90%;
+  transform:translate(-50%,-50%) scale(.2);
+  background:radial-gradient(circle,rgba(255,140,80,.5) 0%,rgba(255,90,40,.12) 42%,transparent 68%);
+  opacity:0;filter:blur(20px);pointer-events:none;z-index:0;
   transition:opacity 1.2s ease,transform 1.2s ease;
 }
 #msqLampSplash.msq-lit .msq-lamp-glow{
   opacity:1;transform:translate(-50%,-50%) scale(1);
 }
 
-/* hit area for the chain */
+/* chain hit (now over the pull cord area under shade) */
 #msqLampSplash .msq-chain-hit{
   position:absolute;z-index:10;
-  left:42%;top:32%;
-  width:16%;height:28%;
+  left:38%;top:22%;
+  width:24%;height:18%;
   cursor:grab;touch-action:none;
   background:transparent;border-radius:10px;
 }
@@ -1595,30 +1603,29 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 #msqLampSplash .msq-chain-pull-fx{
   position:absolute;z-index:3;pointer-events:none;
-  left:42%;top:32%;width:16%;height:28%;
-  background:linear-gradient(180deg,transparent,rgba(0,0,0,.18));
+  left:38%;top:22%;width:24%;height:18%;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.12));
   opacity:0;transition:opacity .15s,transform .05s linear;
   border-radius:8px;
 }
 
 #msqLampSplash .msq-chain-hint{
   position:absolute;z-index:5;pointer-events:none;
-  left:58%;top:48%;
-  font-family:Cairo,sans-serif;font-size:12px;font-weight:700;
-  color:rgba(255,220,180,.38);letter-spacing:.04em;
+  left:50%;top:42%;transform:translateX(-50%);
+  font-family:Cairo,sans-serif;font-size:11px;font-weight:700;
+  color:rgba(255,200,160,.35);letter-spacing:.04em;
   white-space:nowrap;transition:opacity .5s;
-  text-shadow:0 1px 4px rgba(0,0,0,.55);
+  text-shadow:0 1px 4px rgba(0,0,0,.5);
 }
 #msqLampSplash.msq-lit .msq-chain-hint{opacity:0}
 
 @media(max-width:760px){
-  #msqLampSplash .msq-splash-stage{flex-direction:column;gap:14px}
-  #msqLampSplash .msq-lamp-wrap{width:min(260px,72vw);height:min(420px,50vh)}
-  #msqLampSplash .msq-splash-card{padding:38px 26px;width:min(460px,92vw)}
-  #msqLampSplash .msq-splash-welcome{font-size:clamp(24px,6vw,32px)}
-  #msqLampSplash .msq-splash-brand{font-size:clamp(40px,10vw,54px)}
-  #msqLampSplash .msq-splash-tagline{font-size:clamp(18px,4.5vw,22px)}
-  #msqLampSplash .msq-chain-hit{left:40%;top:32%;width:20%;height:28%}
+  #msqLampSplash .msq-splash-stage{flex-direction:column;gap:20px}
+  #msqLampSplash .msq-lamp-wrap{width:min(220px,60vw);height:min(360px,48vh)}
+  #msqLampSplash .msq-splash-card{padding:36px 28px;width:min(400px,90vw)}
+  #msqLampSplash .msq-splash-welcome{font-size:clamp(20px,5vw,26px)}
+  #msqLampSplash .msq-splash-brand{font-size:clamp(36px,9vw,48px)}
+  #msqLampSplash .msq-splash-tagline{font-size:clamp(15px,4vw,18px)}
 }
 </style>
 
@@ -1630,103 +1637,78 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   <div class="msq-splash-stage">
     <div class="msq-lamp-wrap">
       <div class="msq-lamp-glow" aria-hidden="true"></div>
-      <svg class="msq-lamp-svg" viewBox="0 0 280 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-  <defs>
-    <linearGradient id="brz" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f5e4c0"/>
-      <stop offset="28%" stop-color="#d4b078"/>
-      <stop offset="52%" stop-color="#9a7042"/>
-      <stop offset="78%" stop-color="#c9a060"/>
-      <stop offset="100%" stop-color="#5a3e22"/>
-    </linearGradient>
-    <linearGradient id="brzHi" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#fff8e8" stop-opacity="0.85"/>
-      <stop offset="50%" stop-color="#d4b078" stop-opacity="0.3"/>
-      <stop offset="100%" stop-color="#3a2815" stop-opacity="0.5"/>
-    </linearGradient>
-    <radialGradient id="gOff" cx="50%" cy="30%" r="70%">
-      <stop offset="0%" stop-color="#4a3422"/>
-      <stop offset="55%" stop-color="#2a1c12"/>
-      <stop offset="100%" stop-color="#120e0a"/>
-    </radialGradient>
-    <radialGradient id="gOn" cx="48%" cy="26%" r="72%">
-      <stop offset="0%" stop-color="#fff8e0"/>
-      <stop offset="18%" stop-color="#ffe4a8"/>
-      <stop offset="42%" stop-color="#f5b858"/>
-      <stop offset="70%" stop-color="#d88830"/>
-      <stop offset="100%" stop-color="#8a4e16"/>
-    </radialGradient>
-    <radialGradient id="core" cx="50%" cy="36%" r="55%">
-      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
-      <stop offset="30%" stop-color="#ffe8b0" stop-opacity="0.65"/>
-      <stop offset="100%" stop-color="#ffb040" stop-opacity="0"/>
-    </radialGradient>
-  </defs>
+      <svg class="msq-lamp-svg" viewBox="0 0 240 420" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <defs>
+          <!-- Shade OFF (dark muted coral) -->
+          <linearGradient id="shadeOff" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#5a3a32"/>
+            <stop offset="40%" stop-color="#3a2420"/>
+            <stop offset="100%" stop-color="#2a1815"/>
+          </linearGradient>
+          <!-- Shade ON (warm coral / peach) -->
+          <linearGradient id="shadeOn" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#ffc8a8"/>
+            <stop offset="25%" stop-color="#f0a078"/>
+            <stop offset="55%" stop-color="#e08058"/>
+            <stop offset="100%" stop-color="#c06040"/>
+          </linearGradient>
+          <!-- Gold legs -->
+          <linearGradient id="goldLeg" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#f0d8a8"/>
+            <stop offset="40%" stop-color="#d4b070"/>
+            <stop offset="100%" stop-color="#9a7040"/>
+          </linearGradient>
+          <radialGradient id="coreGlow" cx="50%" cy="45%" r="50%">
+            <stop offset="0%" stop-color="#fff8f0" stop-opacity="1"/>
+            <stop offset="40%" stop-color="#ffd0a0" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#ff9050" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
 
-  <!-- ===== BASE ===== -->
-  <path class="lamp-metal" d="M40 400 C10 420 15 460 55 468 C90 475 130 460 140 430 C145 415 130 400 100 398 C70 396 50 400 40 400 Z"/>
-  <path class="lamp-metal" d="M200 398 C235 412 245 455 210 468 C175 478 130 462 120 432 C115 415 135 398 165 396 C185 394 195 398 200 398 Z" opacity="0.95"/>
-  <ellipse class="lamp-metal" cx="130" cy="450" rx="35" ry="8" opacity="0.7"/>
+        <!-- ===== PLEATED SHADE (trapezoid with folds) ===== -->
+        <!-- main shade body – soft rounded trapezoid -->
+        <path class="lamp-shade" d="M58 38
+          C58 28, 182 28, 182 38
+          L208 148
+          C208 158, 32 158, 32 148
+          Z"/>
+        <!-- top rim -->
+        <ellipse cx="120" cy="36" rx="64" ry="9" class="lamp-shade"/>
+        <!-- bottom soft rim -->
+        <ellipse cx="120" cy="150" rx="90" ry="11" class="lamp-shade" opacity="0.9"/>
 
-  <!-- ===== STEM (twisted organic) ===== -->
-  <path class="lamp-metal" d="M85 270 C55 300 45 350 70 385 C90 415 135 422 155 395 C170 375 165 335 140 310 C125 295 100 280 85 270 Z"/>
-  <path class="lamp-metal" d="M150 265 C190 295 210 345 185 385 C165 415 115 420 95 390 C80 370 100 330 130 308 C145 293 150 278 150 265 Z" opacity="0.92"/>
+        <!-- pleat fold lines (vertical soft folds) -->
+        <line class="lamp-pleat" x1="72" y1="38" x2="48" y2="148"/>
+        <line class="lamp-pleat" x1="88" y1="36" x2="70" y2="149"/>
+        <line class="lamp-pleat" x1="104" y1="35" x2="92" y2="150"/>
+        <line class="lamp-pleat" x1="120" y1="34" x2="120" y2="150"/>
+        <line class="lamp-pleat" x1="136" y1="35" x2="148" y2="150"/>
+        <line class="lamp-pleat" x1="152" y1="36" x2="170" y2="149"/>
+        <line class="lamp-pleat" x1="168" y1="38" x2="192" y2="148"/>
 
-  <!-- Rising column -->
-  <path d="M115 265 C108 235 115 205 128 180" fill="none" stroke="url(#brz)" stroke-width="14" stroke-linecap="round"/>
-  <path d="M128 263 C138 233 132 203 128 180" fill="none" stroke="url(#brzHi)" stroke-width="4.5" stroke-linecap="round" opacity="0.55"/>
+        <!-- inner light core -->
+        <ellipse class="lamp-inner-glow" cx="120" cy="95" rx="55" ry="35" fill="url(#coreGlow)"/>
 
-  <!-- ===== SWAN NECK – clearly visible ===== -->
-  <path d="M128 180
-           C120 140 95 105 135 85
-           C165 70 215 80 225 120
-           C232 145 215 175 185 182
-           C160 188 135 172 128 148
-           C123 132 132 115 148 102"
-        fill="none" stroke="url(#brz)" stroke-width="13" stroke-linecap="round"/>
-  <path d="M134 175
-           C126 138 108 108 138 90
-           C158 78 198 88 212 120"
-        fill="none" stroke="url(#brzHi)" stroke-width="4.5" stroke-linecap="round" opacity="0.6"/>
+        <!-- ===== TRIPOD LEGS ===== -->
+        <!-- center joint under shade -->
+        <circle class="lamp-joint" cx="120" cy="155" r="6"/>
+        <!-- three legs -->
+        <line class="lamp-leg" x1="120" y1="155" x2="55" y2="400"/>
+        <line class="lamp-leg" x1="120" y1="155" x2="120" y2="405"/>
+        <line class="lamp-leg" x1="120" y1="155" x2="185" y2="400"/>
+        <!-- foot pads -->
+        <ellipse class="lamp-joint" cx="55" cy="402" rx="8" ry="3.5"/>
+        <ellipse class="lamp-joint" cx="120" cy="407" rx="8" ry="3.5"/>
+        <ellipse class="lamp-joint" cx="185" cy="402" rx="8" ry="3.5"/>
 
-  <!-- ===== SOCKET ===== -->
-  <ellipse class="lamp-metal" cx="140" cy="78" rx="28" ry="11"/>
-  <path class="lamp-metal" d="M114 78 Q114 55 140 50 Q166 55 166 78 Z"/>
-  <path d="M124 66 Q140 59 156 66" fill="none" stroke="#4a3018" stroke-width="1.6" opacity="0.4"/>
-  <circle class="lamp-metal" cx="170" cy="72" r="5.5"/>
-  <circle cx="170" cy="72" r="2.5" fill="#2a1c10" opacity="0.4"/>
-
-  <!-- ===== GLASS SHADE ===== -->
-  <path class="lamp-glass" d="M140 80
-    C195 88 245 125 255 185
-    C260 218 240 250 200 260
-    C170 268 145 270 140 270
-    C135 270 110 268 80 260
-    C40 250 20 218 25 185
-    C35 125 85 88 140 80 Z"/>
-
-  <!-- Petal waves -->
-  <path class="lamp-glass" d="M28 190 C10 215 22 258 75 265 C42 250 30 218 28 190 Z" opacity="0.7"/>
-  <path class="lamp-glass" d="M252 190 C270 215 258 258 205 265 C238 250 250 218 252 190 Z" opacity="0.7"/>
-  <path class="lamp-glass" d="M45 155 Q18 180 32 220 Q58 245 82 230 Q55 205 48 180 Z" opacity="0.35"/>
-  <path class="lamp-glass" d="M235 155 Q262 180 248 220 Q222 245 198 230 Q225 205 232 180 Z" opacity="0.35"/>
-
-  <!-- Core -->
-  <ellipse class="lamp-inner-glow" cx="140" cy="165" rx="72" ry="50" fill="url(#core)"/>
-
-  <!-- ===== CHAIN ===== -->
-  <line class="lamp-chain" x1="140" y1="155" x2="140" y2="265" stroke-width="2.3"/>
-  <circle class="lamp-chain-ball" cx="140" cy="170" r="3.2"/>
-  <circle class="lamp-chain-ball" cx="140" cy="195" r="3.2"/>
-  <circle class="lamp-chain-ball" cx="140" cy="220" r="3.2"/>
-  <circle class="lamp-chain-ball" cx="140" cy="245" r="3.2"/>
-  <circle class="lamp-chain-ball" cx="140" cy="272" r="6"/>
-  <circle cx="140" cy="272" r="2.5" fill="#1e140c" opacity="0.4"/>
-</svg>
+        <!-- small cross brace -->
+        <line class="lamp-leg" x1="85" y1="280" x2="155" y2="280" stroke-width="2" opacity="0.7"/>
+        <line class="lamp-leg" x1="95" y1="320" x2="145" y2="320" stroke-width="1.8" opacity="0.55"/>
+      </svg>
 
       <div class="msq-chain-pull-fx" id="msqChainFx" aria-hidden="true"></div>
-      <div class="msq-chain-hit" id="msqChainHit" role="button" tabindex="0" title="اسحب سلسلة الأباجورة" aria-label="اسحب سلسلة الأباجورة لتشغيل النور"></div>
-      <span class="msq-chain-hint">↓ اسحب السلسلة</span>
+      <div class="msq-chain-hit" id="msqChainHit" role="button" tabindex="0" title="اضغط لتشغيل النور" aria-label="اضغط لتشغيل وإطفاء النور"></div>
+      <span class="msq-chain-hint">اضغط للإضاءة</span>
     </div>
     <div class="msq-splash-card">
       <p class="msq-splash-welcome">Welcome back</p>
@@ -2795,7 +2777,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   })();
   </script>
 
-  <script src="script.js?v=202611141530cssLampV8"></script>
+  <script src="script.js?v=202611141615modernLamp2"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9904,8 +9886,8 @@ html body #msqAdminTabContent .order-card-admin {
 
 <script id="msq-lamp-splash-js">
 (function () {
-  if (window.__msqLampSplashV17) return;
-  window.__msqLampSplashV17 = true;
+  if (window.__msqLampSplashV18) return;
+  window.__msqLampSplashV18 = true;
 
   // always show on every page load (no session/local skip)
   var mode = 'always';
@@ -14598,8 +14580,4 @@ html body #msqAdminChannelSelectWrap { display: none !important; }
       prev = now;
     }, 300);
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', watch);
-  else watch();
-})();
-</script>
-
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLo
