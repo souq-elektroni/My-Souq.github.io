@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611141900equalLegs";
+  var BUILD = "202611142030fxPolish";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611141900equalLegs">
+  <meta name="msq-build" content="202611142030fxPolish">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611141900equalLegs">
-<link rel="stylesheet" href="styles.css?v=202611141900equalLegs">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611142030fxPolish">
+<link rel="stylesheet" href="styles.css?v=202611142030fxPolish">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611141900equalLegs">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611141900equalLegs">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611142030fxPolish">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611142030fxPolish">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1393,7 +1393,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 
 <style id="msq-lamp-splash-css">
-@import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Playfair+Display:wght@500;700&family=Cairo:wght@600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@600;800&display=swap');
 
 #msqLampSplash{
   position:fixed;inset:0;z-index:99999;
@@ -1413,10 +1413,10 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 }
 #msqLampSplash.msq-lit::before{
   background:
-    radial-gradient(ellipse 55% 50% at 72% 48%, rgba(255,140,90,.28) 0%, rgba(200,80,40,.08) 40%, transparent 65%),
-    radial-gradient(circle at 15% 20%, rgba(255,100,60,.08) 0%, transparent 25%),
-    radial-gradient(circle at 85% 75%, rgba(255,80,50,.07) 0%, transparent 22%),
-    linear-gradient(160deg,#1a1012 0%,#100a0c 50%,#0c080a 100%);
+    radial-gradient(ellipse 58% 52% at 72% 46%, rgba(255,145,85,.32) 0%, rgba(200,85,40,.1) 38%, transparent 66%),
+    radial-gradient(circle at 12% 18%, rgba(255,100,60,.07) 0%, transparent 24%),
+    radial-gradient(circle at 88% 78%, rgba(255,80,50,.06) 0%, transparent 20%),
+    linear-gradient(160deg,#1c1214 0%,#120c0e 50%,#0c080a 100%);
 }
 #msqLampSplash.msq-splash-hide{opacity:0;visibility:hidden;pointer-events:none}
 
@@ -1431,7 +1431,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 /* ========== GLASS CARD ========== */
 #msqLampSplash .msq-splash-card{
   position:relative;
-  width:min(420px,86vw);padding:48px 40px 40px;
+  width:min(500px,90vw);padding:56px 48px 48px;
   border-radius:24px;text-align:center;color:#faf6f2;
   background:rgba(40,28,30,.55);
   border:1px solid rgba(255,255,255,.16);
@@ -1440,13 +1440,13 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
     inset 0 1px 0 rgba(255,255,255,.1);
   backdrop-filter:blur(24px) saturate(1.2);
   -webkit-backdrop-filter:blur(24px) saturate(1.2);
-  opacity:0;transform:translateY(16px) scale(.97);
+  opacity:0;transform:translateY(20px) scale(.96);
   pointer-events:none;overflow:visible;
-  transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1);
+  transition:opacity .85s cubic-bezier(.16,1,.3,1), transform .85s cubic-bezier(.16,1,.3,1);
 }
 #msqLampSplash.msq-lit .msq-splash-card{
   opacity:1;transform:none;
-  pointer-events:auto;transition-delay:.15s;
+  pointer-events:auto;transition-delay:.18s;
 }
 
 /* glowing top/bottom borders */
@@ -1468,21 +1468,21 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   opacity:0;animation:none;
 }
 @keyframes msqBorderPulse{
-  0%,100%{opacity:.25;filter:brightness(.8)}
-  50%{opacity:1;filter:brightness(1.3)}
+  0%,100%{opacity:.2;filter:brightness(.75)}
+  50%{opacity:1;filter:brightness(1.35)}
 }
 
 #msqLampSplash .msq-splash-welcome{
   margin:0 0 8px;font-family:'Aref Ruqaa',serif;
-  font-size:clamp(22px,2.8vw,30px);font-weight:400;
+  font-size:clamp(26px,3.2vw,36px);font-weight:400;
   color:rgba(255,230,210,.9);opacity:0;
   transition:opacity .5s ease;
 }
 #msqLampSplash.msq-lit .msq-splash-welcome{opacity:1;transition-delay:.28s}
 
 #msqLampSplash .msq-splash-brand{
-  margin:0 0 10px;font-family:'Playfair Display',Georgia,serif;
-  font-size:clamp(42px,5.5vw,58px);font-weight:700;color:#fff;opacity:0;
+  margin:0 0 10px;font-family:'Aref Ruqaa',serif;
+  font-size:clamp(50px,6.5vw,70px);font-weight:700;color:#fff;opacity:0;
   letter-spacing:.01em;
   transition:opacity .55s ease;
 }
@@ -1490,7 +1490,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 #msqLampSplash .msq-splash-tagline{
   margin:0 0 32px;font-family:'Aref Ruqaa',serif;
-  font-size:clamp(16px,2vw,20px);font-weight:400;
+  font-size:clamp(20px,2.4vw,26px);font-weight:400;
   color:rgba(255,200,160,.85);opacity:0;
   transition:opacity .5s ease;
 }
@@ -1511,8 +1511,8 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 /* ========== MODERN TRIPOD LAMP ========== */
 #msqLampSplash .msq-lamp-wrap{
   position:relative;
-  width:min(320px,42vw);
-  height:min(540px,84vh);
+  width:min(400px,48vw);
+  height:min(640px,88vh);
   flex-shrink:0;
   display:flex;align-items:flex-end;justify-content:center;
 }
@@ -1520,13 +1520,16 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 #msqLampSplash .msq-lamp-svg{
   width:100%;height:100%;
   overflow:visible;
-  filter:drop-shadow(0 12px 30px rgba(0,0,0,.45));
-  transition:filter 1.2s ease;
+  opacity:0.08;
+  filter:brightness(0.18) saturate(0.2) drop-shadow(0 6px 16px rgba(0,0,0,.25));
+  transition:opacity 1.35s cubic-bezier(.4,0,.2,1), filter 1.35s cubic-bezier(.4,0,.2,1);
 }
 #msqLampSplash.msq-lit .msq-lamp-svg{
-  filter:drop-shadow(0 12px 30px rgba(0,0,0,.3))
-         drop-shadow(0 0 40px rgba(255,130,70,.35))
-         drop-shadow(0 0 80px rgba(255,100,50,.15));
+  opacity:1;
+  filter:brightness(1.05) saturate(1.08)
+         drop-shadow(0 14px 36px rgba(0,0,0,.28))
+         drop-shadow(0 0 48px rgba(255,140,70,.42))
+         drop-shadow(0 0 90px rgba(255,110,50,.18));
 }
 
 /* shade */
@@ -1579,12 +1582,12 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 /* ambient glow blob */
 #msqLampSplash .msq-lamp-glow{
-  position:absolute;left:50%;top:28%;
-  width:160%;height:90%;
-  transform:translate(-50%,-50%) scale(.2);
-  background:radial-gradient(circle,rgba(255,140,80,.5) 0%,rgba(255,90,40,.12) 42%,transparent 68%);
-  opacity:0;filter:blur(20px);pointer-events:none;z-index:0;
-  transition:opacity 1.2s ease,transform 1.2s ease;
+  position:absolute;left:50%;top:26%;
+  width:170%;height:100%;
+  transform:translate(-50%,-50%) scale(.15);
+  background:radial-gradient(circle,rgba(255,150,90,.55) 0%,rgba(255,100,45,.14) 40%,transparent 70%);
+  opacity:0;filter:blur(22px);pointer-events:none;z-index:0;
+  transition:opacity 1.4s cubic-bezier(.4,0,.2,1), transform 1.4s cubic-bezier(.4,0,.2,1);
 }
 #msqLampSplash.msq-lit .msq-lamp-glow{
   opacity:1;transform:translate(-50%,-50%) scale(1);
@@ -1593,8 +1596,8 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 /* chain hit (now over the pull cord area under shade) */
 #msqLampSplash .msq-chain-hit{
   position:absolute;z-index:10;
-  left:72%;top:30%;
-  width:16%;height:48%;
+  left:70%;top:26%;
+  width:18%;height:50%;
   cursor:grab;touch-action:none;
   background:transparent;border-radius:10px;
 }
@@ -1603,7 +1606,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 #msqLampSplash .msq-chain-pull-fx{
   position:absolute;z-index:3;pointer-events:none;
-  left:72%;top:30%;width:16%;height:48%;
+  left:70%;top:26%;width:18%;height:50%;
   background:linear-gradient(180deg,transparent,rgba(0,0,0,.1));
   opacity:0;transition:opacity .15s,transform .05s linear;
   border-radius:8px;
@@ -1612,33 +1615,33 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 /* chain – natural pendulum swing from attachment point */
 #msqLampSplash .msq-chain-group{
-  transform-origin: 222px 168px;
-  transition: transform .12s ease-out;
+  transform-origin: 222px 160px;
+  transition: transform .1s ease-out;
 }
 #msqLampSplash .msq-chain-group.msq-swing{
-  animation: msqChainSwing 0.9s cubic-bezier(.36,.07,.19,.97);
+  animation: msqChainSwing 1.05s cubic-bezier(.22,.61,.36,1);
 }
 @keyframes msqChainSwing{
   0%   { transform: rotate(0deg); }
-  15%  { transform: rotate(14deg); }
-  30%  { transform: rotate(-11deg); }
-  45%  { transform: rotate(8deg); }
+  12%  { transform: rotate(16deg); }
+  28%  { transform: rotate(-12deg); }
+  44%  { transform: rotate(8deg); }
   60%  { transform: rotate(-5deg); }
-  75%  { transform: rotate(3deg); }
-  88%  { transform: rotate(-1.5deg); }
+  76%  { transform: rotate(2.5deg); }
+  90%  { transform: rotate(-1deg); }
   100% { transform: rotate(0deg); }
 }
 
 /* crystal – steady continuous glow when lamp is on */
 #msqLampSplash .msq-crystal path:first-child{
-  transition: filter .9s ease;
-  filter: drop-shadow(0 0 2px rgba(255,220,150,.2));
+  transition: filter 1s ease;
+  filter: drop-shadow(0 0 1px rgba(255,220,150,.15));
 }
 #msqLampSplash.msq-lit .msq-crystal path:first-child{
-  filter: drop-shadow(0 0 8px rgba(255,230,180,.9))
-         drop-shadow(0 0 18px rgba(255,190,100,.5))
-         drop-shadow(0 0 28px rgba(255,160,70,.25))
-         brightness(1.25);
+  filter: drop-shadow(0 0 6px rgba(255,235,190,.95))
+         drop-shadow(0 0 16px rgba(255,200,120,.6))
+         drop-shadow(0 0 30px rgba(255,160,70,.3))
+         brightness(1.3);
 }
 
 #msqLampSplash .lamp-chain{
@@ -1660,7 +1663,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   position:absolute;z-index:5;pointer-events:none;
   left:78%;top:58%;
   font-family:Cairo,sans-serif;font-size:11px;font-weight:700;
-  color:rgba(255,200,160,.4);letter-spacing:.04em;
+  color:rgba(255,200,160,.22);letter-spacing:.04em;
   white-space:nowrap;transition:opacity .5s;
   text-shadow:0 1px 4px rgba(0,0,0,.5);
 }
@@ -1668,8 +1671,8 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
 
 @media(max-width:760px){
   #msqLampSplash .msq-splash-stage{flex-direction:column;gap:20px}
-  #msqLampSplash .msq-lamp-wrap{width:min(220px,60vw);height:min(360px,48vh)}
-  #msqLampSplash .msq-splash-card{padding:36px 28px;width:min(400px,90vw)}
+  #msqLampSplash .msq-lamp-wrap{width:min(260px,70vw);height:min(420px,52vh)}
+  #msqLampSplash .msq-splash-card{padding:42px 32px;width:min(460px,92vw)}
   #msqLampSplash .msq-splash-welcome{font-size:clamp(20px,5vw,26px)}
   #msqLampSplash .msq-splash-brand{font-size:clamp(36px,9vw,48px)}
   #msqLampSplash .msq-splash-tagline{font-size:clamp(15px,4vw,18px)}
@@ -1684,7 +1687,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   <div class="msq-splash-stage">
     <div class="msq-lamp-wrap">
       <div class="msq-lamp-glow" aria-hidden="true"></div>
-      <svg class="msq-lamp-svg" viewBox="0 0 280 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <svg class="msq-lamp-svg" viewBox="0 0 280 520" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
         <defs>
           <linearGradient id="shadeOff" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stop-color="#5a3a32"/>
@@ -1716,62 +1719,62 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
         </defs>
 
         <!-- SHADE -->
-        <path class="lamp-shade" d="M65 42 C65 30, 215 30, 215 42 L242 162 C242 174, 38 174, 38 162 Z"/>
+        <path class="lamp-shade" d="M65 42 C65 30, 215 30, 215 42 L242 155 C242 167, 38 167, 38 155 Z"/>
         <ellipse cx="140" cy="40" rx="76" ry="11" class="lamp-shade"/>
-        <ellipse cx="140" cy="165" rx="104" ry="13" class="lamp-shade" opacity="0.9"/>
+        <ellipse cx="140" cy="158" rx="104" ry="12" class="lamp-shade" opacity="0.9"/>
 
-        <line class="lamp-pleat" x1="85" y1="42" x2="58" y2="163"/>
-        <line class="lamp-pleat" x1="102" y1="39" x2="82" y2="165"/>
-        <line class="lamp-pleat" x1="120" y1="38" x2="108" y2="166"/>
-        <line class="lamp-pleat" x1="140" y1="37" x2="140" y2="166"/>
-        <line class="lamp-pleat" x1="160" y1="38" x2="172" y2="166"/>
-        <line class="lamp-pleat" x1="178" y1="39" x2="198" y2="165"/>
-        <line class="lamp-pleat" x1="195" y1="42" x2="222" y2="163"/>
+        <line class="lamp-pleat" x1="85" y1="42" x2="58" y2="156"/>
+        <line class="lamp-pleat" x1="102" y1="39" x2="82" y2="158"/>
+        <line class="lamp-pleat" x1="120" y1="38" x2="108" y2="159"/>
+        <line class="lamp-pleat" x1="140" y1="37" x2="140" y2="159"/>
+        <line class="lamp-pleat" x1="160" y1="38" x2="172" y2="159"/>
+        <line class="lamp-pleat" x1="178" y1="39" x2="198" y2="158"/>
+        <line class="lamp-pleat" x1="195" y1="42" x2="222" y2="156"/>
 
-        <ellipse class="lamp-inner-glow" cx="140" cy="105" rx="65" ry="40" fill="url(#coreGlow)"/>
+        <ellipse class="lamp-inner-glow" cx="140" cy="100" rx="65" ry="38" fill="url(#coreGlow)"/>
 
-        <!-- COLLAR -->
-        <ellipse cx="140" cy="176" rx="24" ry="8" fill="url(#goldMetal)"/>
-        <rect x="120" y="176" width="40" height="20" rx="4" fill="url(#goldMetal)"/>
-        <ellipse cx="140" cy="196" rx="20" ry="7" fill="url(#goldMetal)"/>
-        <ellipse cx="140" cy="184" rx="17" ry="4" fill="none" stroke="#6a4a28" stroke-width="1.3" opacity="0.4"/>
+        <!-- ===== LONGER COLLAR / NECK ===== -->
+        <ellipse cx="140" cy="168" rx="22" ry="7" fill="url(#goldMetal)"/>
+        <!-- tall neck tube -->
+        <rect x="122" y="168" width="36" height="42" rx="4" fill="url(#goldMetal)"/>
+        <!-- rings on the neck -->
+        <ellipse cx="140" cy="180" rx="19" ry="4" fill="none" stroke="#6a4a28" stroke-width="1.4" opacity="0.45"/>
+        <ellipse cx="140" cy="192" rx="19" ry="4" fill="none" stroke="#6a4a28" stroke-width="1.4" opacity="0.4"/>
+        <ellipse cx="140" cy="204" rx="19" ry="4" fill="none" stroke="#6a4a28" stroke-width="1.4" opacity="0.35"/>
+        <!-- bottom of collar -->
+        <ellipse cx="140" cy="210" rx="20" ry="7" fill="url(#goldMetal)"/>
 
         <!-- JOINT -->
-        <circle cx="140" cy="200" r="7" fill="#e8c890"/>
-        <circle cx="140" cy="200" r="4" fill="#c9a060"/>
+        <circle cx="140" cy="218" r="7" fill="#e8c890"/>
+        <circle cx="140" cy="218" r="4" fill="#c9a060"/>
 
-        <!-- ===== 3 LEGS – equal visual spacing ===== -->
-        <!-- BACK leg (center-back, slightly shorter look for depth) -->
-        <line x1="140" y1="200" x2="140" y2="450" stroke="#d4b078" stroke-width="5" stroke-linecap="round"/>
-        <ellipse cx="140" cy="452" rx="12" ry="5.5" fill="#e8c890"/>
-        <ellipse cx="140" cy="452" rx="8" ry="3.5" fill="#c9a060"/>
+        <!-- ===== 3 EQUAL LEGS from longer neck ===== -->
+        <line x1="140" y1="218" x2="140" y2="485" stroke="#d4b078" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="140" cy="487" rx="12" ry="5.5" fill="#e8c890"/>
+        <ellipse cx="140" cy="487" rx="8" ry="3.5" fill="#c9a060"/>
 
-        <!-- LEFT leg -->
-        <line x1="140" y1="200" x2="45" y2="448" stroke="#e0c898" stroke-width="5" stroke-linecap="round"/>
-        <ellipse cx="45" cy="450" rx="12" ry="5.5" fill="#e8c890"/>
-        <ellipse cx="45" cy="450" rx="8" ry="3.5" fill="#c9a060"/>
+        <line x1="140" y1="218" x2="42" y2="480" stroke="#e0c898" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="42" cy="482" rx="12" ry="5.5" fill="#e8c890"/>
+        <ellipse cx="42" cy="482" rx="8" ry="3.5" fill="#c9a060"/>
 
-        <!-- RIGHT leg -->
-        <line x1="140" y1="200" x2="235" y2="448" stroke="#e0c898" stroke-width="5" stroke-linecap="round"/>
-        <ellipse cx="235" cy="450" rx="12" ry="5.5" fill="#e8c890"/>
-        <ellipse cx="235" cy="450" rx="8" ry="3.5" fill="#c9a060"/>
+        <line x1="140" y1="218" x2="238" y2="480" stroke="#e0c898" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="238" cy="482" rx="12" ry="5.5" fill="#e8c890"/>
+        <ellipse cx="238" cy="482" rx="8" ry="3.5" fill="#c9a060"/>
 
-        <!-- NO horizontal braces -->
-
-        <!-- ===== STRAIGHT SIDE CHAIN ===== -->
+        <!-- SIDE CHAIN -->
         <g id="msqChainGroup" class="msq-chain-group">
-          <circle cx="222" cy="168" r="3.5" fill="#e8c890"/>
-          <line class="lamp-chain" x1="222" y1="168" x2="222" y2="328"
+          <circle cx="222" cy="160" r="3.5" fill="#e8c890"/>
+          <line class="lamp-chain" x1="222" y1="160" x2="222" y2="340"
                 stroke="#d4b078" stroke-width="2.5" stroke-linecap="round"/>
-          <circle cx="222" cy="192" r="3.2" fill="#e8c890"/>
-          <circle cx="222" cy="220" r="3.2" fill="#e8c890"/>
-          <circle cx="222" cy="248" r="3.2" fill="#e8c890"/>
-          <circle cx="222" cy="276" r="3.2" fill="#e8c890"/>
-          <circle cx="222" cy="304" r="3.2" fill="#e8c890"/>
-          <!-- crystal – steady glow when lit -->
+          <circle cx="222" cy="185" r="3.2" fill="#e8c890"/>
+          <circle cx="222" cy="215" r="3.2" fill="#e8c890"/>
+          <circle cx="222" cy="245" r="3.2" fill="#e8c890"/>
+          <circle cx="222" cy="275" r="3.2" fill="#e8c890"/>
+          <circle cx="222" cy="305" r="3.2" fill="#e8c890"/>
+          <circle cx="222" cy="330" r="3.2" fill="#e8c890"/>
           <g class="msq-crystal">
-            <path d="M222 330 L233 350 L222 370 L211 350 Z" fill="url(#crystalFill)" stroke="#c9a060" stroke-width="1.2"/>
-            <path d="M222 336 L228 350 L222 364 L216 350 Z" fill="#fff8f0" opacity="0.45"/>
+            <path d="M222 342 L233 362 L222 382 L211 362 Z" fill="url(#crystalFill)" stroke="#c9a060" stroke-width="1.2"/>
+            <path d="M222 348 L228 362 L222 376 L216 362 Z" fill="#fff8f0" opacity="0.45"/>
           </g>
         </g>
       </svg>
@@ -2847,7 +2850,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   })();
   </script>
 
-  <script src="script.js?v=202611141900equalLegs"></script>
+  <script src="script.js?v=202611142030fxPolish"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9956,8 +9959,8 @@ html body #msqAdminTabContent .order-card-admin {
 
 <script id="msq-lamp-splash-js">
 (function () {
-  if (window.__msqLampSplashV23) return;
-  window.__msqLampSplashV23 = true;
+  if (window.__msqLampSplashV25) return;
+  window.__msqLampSplashV25 = true;
 
   // always show on every page load (no session/local skip)
   var mode = 'always';
