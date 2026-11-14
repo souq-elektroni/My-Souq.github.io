@@ -5,7 +5,7 @@
 /* NUCLEAR CACHE KILL — Build: 202611091309cacheFix */
 (function () {
   'use strict';
-  var BUILD = "202611141830threeLegs";
+  var BUILD = "202611141900equalLegs";
   var RELOAD_KEY = 'msq_nuke_' + BUILD;
   var STORE_KEY = 'msq_active_build';
 
@@ -180,7 +180,7 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
-  <meta name="msq-build" content="202611141830threeLegs">
+  <meta name="msq-build" content="202611141900equalLegs">
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#8b3f52">
@@ -272,8 +272,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;800;900&display=swap">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<link rel="stylesheet" href="styles-extra-a.css?v=202611141830threeLegs">
-<link rel="stylesheet" href="styles.css?v=202611141830threeLegs">
+<link rel="stylesheet" href="styles-extra-a.css?v=202611141900equalLegs">
+<link rel="stylesheet" href="styles.css?v=202611141900equalLegs">
 
 
 
@@ -309,8 +309,8 @@
 
 
 
-<link rel="stylesheet" href="styles-extra-b.css?v=202611141830threeLegs">
-<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611141830threeLegs">
+<link rel="stylesheet" href="styles-extra-b.css?v=202611141900equalLegs">
+<link id="msq-extra-css" rel="stylesheet" href="styles-extra-c.css?v=202611141900equalLegs">
 
 <style id="msq-open-filters-grid-css">
 #msqOpenOrderFilters{
@@ -1629,20 +1629,16 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   100% { transform: rotate(0deg); }
 }
 
-/* crystal itself pulses when lamp is on – no floating orb */
+/* crystal – steady continuous glow when lamp is on */
 #msqLampSplash .msq-crystal path:first-child{
-  transition: filter .8s ease;
+  transition: filter .9s ease;
+  filter: drop-shadow(0 0 2px rgba(255,220,150,.2));
 }
 #msqLampSplash.msq-lit .msq-crystal path:first-child{
-  animation: msqCrystalShine 2.2s ease-in-out infinite;
-}
-@keyframes msqCrystalShine{
-  0%,100%{
-    filter: drop-shadow(0 0 3px rgba(255,220,150,.4)) brightness(1);
-  }
-  50%{
-    filter: drop-shadow(0 0 10px rgba(255,230,180,.95)) drop-shadow(0 0 20px rgba(255,190,100,.55)) brightness(1.35);
-  }
+  filter: drop-shadow(0 0 8px rgba(255,230,180,.9))
+         drop-shadow(0 0 18px rgba(255,190,100,.5))
+         drop-shadow(0 0 28px rgba(255,160,70,.25))
+         brightness(1.25);
 }
 
 #msqLampSplash .lamp-chain{
@@ -1744,25 +1740,23 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
         <circle cx="140" cy="200" r="7" fill="#e8c890"/>
         <circle cx="140" cy="200" r="4" fill="#c9a060"/>
 
-        <!-- ===== 3 LEGS – solid gold colors so they never disappear ===== -->
-        <!-- BACK leg first (drawn behind) – offset slightly left so visible -->
-        <line x1="140" y1="200" x2="100" y2="455" stroke="#d4b078" stroke-width="5" stroke-linecap="round"/>
-        <ellipse cx="100" cy="457" rx="12" ry="5.5" fill="#e8c890"/>
-        <ellipse cx="100" cy="457" rx="8" ry="3.5" fill="#c9a060"/>
+        <!-- ===== 3 LEGS – equal visual spacing ===== -->
+        <!-- BACK leg (center-back, slightly shorter look for depth) -->
+        <line x1="140" y1="200" x2="140" y2="450" stroke="#d4b078" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="140" cy="452" rx="12" ry="5.5" fill="#e8c890"/>
+        <ellipse cx="140" cy="452" rx="8" ry="3.5" fill="#c9a060"/>
 
-        <!-- LEFT front leg -->
-        <line x1="140" y1="200" x2="35" y2="448" stroke="#e0c898" stroke-width="5" stroke-linecap="round"/>
-        <ellipse cx="35" cy="450" rx="12" ry="5.5" fill="#e8c890"/>
-        <ellipse cx="35" cy="450" rx="8" ry="3.5" fill="#c9a060"/>
+        <!-- LEFT leg -->
+        <line x1="140" y1="200" x2="45" y2="448" stroke="#e0c898" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="45" cy="450" rx="12" ry="5.5" fill="#e8c890"/>
+        <ellipse cx="45" cy="450" rx="8" ry="3.5" fill="#c9a060"/>
 
-        <!-- RIGHT front leg -->
-        <line x1="140" y1="200" x2="245" y2="448" stroke="#e0c898" stroke-width="5" stroke-linecap="round"/>
-        <ellipse cx="245" cy="450" rx="12" ry="5.5" fill="#e8c890"/>
-        <ellipse cx="245" cy="450" rx="8" ry="3.5" fill="#c9a060"/>
+        <!-- RIGHT leg -->
+        <line x1="140" y1="200" x2="235" y2="448" stroke="#e0c898" stroke-width="5" stroke-linecap="round"/>
+        <ellipse cx="235" cy="450" rx="12" ry="5.5" fill="#e8c890"/>
+        <ellipse cx="235" cy="450" rx="8" ry="3.5" fill="#c9a060"/>
 
-        <!-- cross braces -->
-        <line x1="75" y1="320" x2="205" y2="320" stroke="#d4b078" stroke-width="2.4" opacity="0.75"/>
-        <line x1="85" y1="360" x2="195" y2="360" stroke="#d4b078" stroke-width="2" opacity="0.6"/>
+        <!-- NO horizontal braces -->
 
         <!-- ===== STRAIGHT SIDE CHAIN ===== -->
         <g id="msqChainGroup" class="msq-chain-group">
@@ -1774,7 +1768,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
           <circle cx="222" cy="248" r="3.2" fill="#e8c890"/>
           <circle cx="222" cy="276" r="3.2" fill="#e8c890"/>
           <circle cx="222" cy="304" r="3.2" fill="#e8c890"/>
-          <!-- crystal -->
+          <!-- crystal – steady glow when lit -->
           <g class="msq-crystal">
             <path d="M222 330 L233 350 L222 370 L211 350 Z" fill="url(#crystalFill)" stroke="#c9a060" stroke-width="1.2"/>
             <path d="M222 336 L228 350 L222 364 L216 350 Z" fill="#fff8f0" opacity="0.45"/>
@@ -2853,7 +2847,7 @@ html body #productModal:not(.msq-pair-mode).msq-no-size-chart .modal-body {
   })();
   </script>
 
-  <script src="script.js?v=202611141830threeLegs"></script>
+  <script src="script.js?v=202611141900equalLegs"></script>
 
   <script>
   /* ===== Enhanced Tracking + richer cart item data (keeps all existing features) ===== */
@@ -9962,8 +9956,8 @@ html body #msqAdminTabContent .order-card-admin {
 
 <script id="msq-lamp-splash-js">
 (function () {
-  if (window.__msqLampSplashV22) return;
-  window.__msqLampSplashV22 = true;
+  if (window.__msqLampSplashV23) return;
+  window.__msqLampSplashV23 = true;
 
   // always show on every page load (no session/local skip)
   var mode = 'always';
